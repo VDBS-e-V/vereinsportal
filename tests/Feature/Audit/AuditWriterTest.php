@@ -89,3 +89,30 @@ it('writes verification resend audit without secret values', function () {
         ->and($event->new_values)
         ->toBeNull();
 });
+
+it('does not retain registration secrets in cleanup audit values', function () {
+    $event = app(AuditWriter::class)->write(
+        eventKey:
+            \App\Modules\Audit\Support\AuditEventCatalog::
+                ACCOUNT_REGISTRATION_DELETED_UNVERIFIED,
+        actorType:
+            \App\Modules\Audit\Enums\AuditActorType::System,
+        actorContext:
+            'registration_cleanup',
+        subjectType:
+            'registration_request',
+        subjectId: 123,
+        newValues: [
+            'reason' => 'expired',
+            'email' => 'secret@example.test',
+            'password' => 'secret',
+            'verification_url' =>
+                'https://example.test/secret',
+        ],
+    );
+
+    expect($event->new_values)
+        ->toBe([
+            'reason' => 'expired',
+        ]);
+});

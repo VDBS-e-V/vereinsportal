@@ -20,6 +20,8 @@ final class AuditEventCatalog
 
     public const AUTH_VERIFICATION_RESENT = 'auth.verification.resent';
 
+    public const ACCOUNT_REGISTRATION_DELETED_UNVERIFIED = 'account.registration.deleted_unverified';
+
     /**
      * @var array<string, list<string>>
      */
@@ -47,6 +49,9 @@ final class AuditEventCatalog
             'status',
         ],
         self::AUTH_VERIFICATION_RESENT => [],
+        self::ACCOUNT_REGISTRATION_DELETED_UNVERIFIED => [
+            'reason',
+        ],
     ];
 
     public static function filterValues(
