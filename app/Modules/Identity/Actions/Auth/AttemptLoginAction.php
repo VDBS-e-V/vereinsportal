@@ -10,8 +10,8 @@ use App\Modules\Identity\Exceptions\LoginFailed;
 use App\Modules\Identity\Models\User;
 use App\Modules\Identity\Support\EmailNormalizer;
 use App\Modules\Identity\Support\LoginRateLimiter;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use App\Modules\Identity\Support\PendingLogin;
+use App\Modules\Identity\Support\TwoFactorRequirement;
 use Illuminate\Support\Facades\Hash;
 
 final class AttemptLoginAction
@@ -19,6 +19,9 @@ final class AttemptLoginAction
     public function __construct(
         private readonly LoginRateLimiter $rateLimiter,
         private readonly AuditWriter $auditWriter,
+        private readonly TwoFactorRequirement $twoFactor,
+        private readonly PendingLogin $pendingLogin,
+        private readonly FinalizeLoginAction $finalizeLogin,
     ) {
     }
 
@@ -30,9 +33,15 @@ final class AttemptLoginAction
         ?string $userAgent = null,
         ?array $deviceInfo = null,
     ): User {
-        $email = EmailNormalizer::normalize($email);
+        $email =
+            EmailNormalizer::normalize($email);
 
-        if ($this->rateLimiter->tooManyIpAttempts($ipAddress)) {
+        if (
+            $this->rateLimiter
+                ->tooManyIpAttempts(
+                    $ipAddress
+                )
+        ) {
             $this->auditLocked(
                 email: $email,
                 ipAddress: $ipAddress,
@@ -40,13 +49,22 @@ final class AttemptLoginAction
                 deviceInfo: $deviceInfo,
                 scope: 'ip',
                 lockedForSeconds:
-                    $this->rateLimiter->ipAvailableIn($ipAddress),
+                    $this->rateLimiter
+                        ->ipAvailableIn(
+                            $ipAddress
+                        ),
             );
 
-            throw LoginFailed::temporarilyLocked();
+            throw LoginFailed::
+                temporarilyLocked();
         }
 
-        if ($this->rateLimiter->tooManyUserAttempts($email)) {
+        if (
+            $this->rateLimiter
+                ->tooManyUserAttempts(
+                    $email
+                )
+        ) {
             $this->auditLocked(
                 email: $email,
                 ipAddress: $ipAddress,
@@ -54,20 +72,30 @@ final class AttemptLoginAction
                 deviceInfo: $deviceInfo,
                 scope: 'user',
                 lockedForSeconds:
-                    $this->rateLimiter->userAvailableIn($email),
+                    $this->rateLimiter
+                        ->userAvailableIn(
+                            $email
+                        ),
             );
 
-            throw LoginFailed::temporarilyLocked();
+            throw LoginFailed::
+                temporarilyLocked();
         }
 
         $user = User::query()
             ->where('email', $email)
             ->first();
 
-        $valid = $user !== null
-            && Hash::check($password, $user->password)
-            && $user->status === UserStatus::Active
-            && $user->email_verified_at !== null;
+        $valid =
+            $user !== null
+            && Hash::check(
+                $password,
+                $user->password,
+            )
+            && $user->status
+                === UserStatus::Active
+            && $user->email_verified_at
+                !== null;
 
         if (! $valid) {
             $this->rateLimiter->hitFailure(
@@ -76,11 +104,17 @@ final class AttemptLoginAction
             );
 
             $this->auditWriter->write(
-                eventKey: AuditEventCatalog::AUTH_LOGIN_FAILED,
-                actorType: AuditActorType::User,
+                eventKey:
+                    AuditEventCatalog::
+                        AUTH_LOGIN_FAILED,
+                actorType:
+                    AuditActorType::User,
                 actorUserId: $user?->id,
                 actorContext: 'login',
-                subjectType: $user !== null ? 'user' : null,
+                subjectType:
+                    $user !== null
+                        ? 'user'
+                        : null,
                 subjectId: $user?->id,
                 newValues: [
                     'reason' =>
@@ -92,95 +126,48 @@ final class AttemptLoginAction
                 deviceInfo: $deviceInfo,
             );
 
-            throw LoginFailed::invalidCredentials();
+            throw LoginFailed::
+                invalidCredentials();
         }
 
-        $authenticatedUser = DB::transaction(
-            function () use (
-                $user,
-                $email,
-                $ipAddress,
-                $userAgent,
-                $deviceInfo,
-                $remember,
-            ): User {
-                $lockedUser = User::query()
-                    ->whereKey($user->id)
-                    ->lockForUpdate()
-                    ->firstOrFail();
+        if (
+            $this->twoFactor
+                ->requiresChallenge($user)
+        ) {
+            /*
+             * Session-ID bereits nach erfolgreicher
+             * Passwortprüfung erneuern, obwohl der User
+             * noch NICHT authentifiziert wird.
+             */
+            session()->regenerate();
 
-                if (
-                    $lockedUser->status !== UserStatus::Active
-                    || $lockedUser->email_verified_at === null
-                ) {
-                    $this->rateLimiter->hitFailure(
-                        email: $email,
-                        ipAddress: $ipAddress,
-                    );
+            $this->pendingLogin->start(
+                user: $user,
+                remember: $remember,
+            );
 
-                    throw LoginFailed::invalidCredentials();
-                }
+            /*
+             * Passwort war korrekt:
+             * User-Limiter darf zurückgesetzt werden.
+             * IP-Limiter bleibt bestehen.
+             */
+            $this->rateLimiter
+                ->clearUser($email);
 
-                $lockedUser->last_login_at = now();
-                $lockedUser->save();
+            return $user;
+        }
 
-                $this->auditWriter->write(
-                    eventKey:
-                        AuditEventCatalog::AUTH_LOGIN_SUCCEEDED,
-                    actorType: AuditActorType::User,
-                    actorUserId: $lockedUser->id,
-                    subjectType: 'user',
-                    subjectId: $lockedUser->id,
-                    newValues: [
-                        'method' => 'password',
-                        'remember_me' => $remember,
-                    ],
-                    ipAddress: $ipAddress,
-                    userAgent: $userAgent,
-                    deviceInfo: $deviceInfo,
-                );
-
-                return $lockedUser;
-            }
-        );
-
-        /*
-         * Session-/Cookie-Seiteneffekt erst nach erfolgreichem
-         * Commit von last_login_at + Audit.
-         */
-        $guard = Auth::guard();
-
-        $guard->setRememberDuration(
-            (int) config(
-                'auth.remember_duration',
-                60 * 24 * 30,
-            )
-        );
-
-        $guard->login(
-            $authenticatedUser,
-            $remember,
-        );
-
-        session()->regenerate();
-
-        session()->put(
-            'identity.session_version',
-            $authenticatedUser->session_version,
-        );
-
-        session()->put(
-            'identity.account_validated_at',
-            now()->timestamp,
-        );
-
-        /*
-         * Bewusst nur User-Limiter leeren.
-         * Der IP-Limiter bleibt erhalten.
-         */
-        $this->rateLimiter->clearUser($email);
-
-        return $authenticatedUser;
+        return $this->finalizeLogin
+            ->execute(
+                user: $user,
+                remember: $remember,
+                method: 'password',
+                expectedSessionVersion:
+                    $user->session_version,
+                ipAddress: $ipAddress,
+                userAgent: $userAgent,
+                deviceInfo: $deviceInfo,
+            );
     }
 
     private function auditLocked(
@@ -196,16 +183,24 @@ final class AttemptLoginAction
             ->first();
 
         $this->auditWriter->write(
-            eventKey: AuditEventCatalog::AUTH_LOGIN_LOCKED,
-            actorType: AuditActorType::System,
+            eventKey:
+                AuditEventCatalog::
+                    AUTH_LOGIN_LOCKED,
+            actorType:
+                AuditActorType::System,
             actorUserId: null,
             actorContext: 'login',
-            subjectType: $user !== null ? 'user' : null,
+            subjectType:
+                $user !== null
+                    ? 'user'
+                    : null,
             subjectId: $user?->id,
             newValues: [
                 'scope' => $scope,
                 'locked_until' => now()
-                    ->addSeconds($lockedForSeconds)
+                    ->addSeconds(
+                        $lockedForSeconds
+                    )
                     ->toISOString(),
             ],
             ipAddress: $ipAddress,

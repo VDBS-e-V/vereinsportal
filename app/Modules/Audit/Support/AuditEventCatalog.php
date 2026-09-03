@@ -38,8 +38,28 @@ final class AuditEventCatalog
 
     public const AUTH_VERIFICATION_RESENT = 'auth.verification.resent';
 
-    public const ACCOUNT_REGISTRATION_DELETED_UNVERIFIED =
-        'account.registration.deleted_unverified';
+    public const ACCOUNT_REGISTRATION_DELETED_UNVERIFIED = 'account.registration.deleted_unverified';
+
+    public const PERSON_UPDATED = 'person.updated';
+
+    public const AUTH_EMAIL_CHANGE_REQUESTED = 'auth.email_change.requested';
+
+    public const AUTH_EMAIL_CHANGE_SUPERSEDED = 'auth.email_change.superseded';
+
+    public const AUTH_EMAIL_CHANGE_COMPLETED = 'auth.email_change.completed';
+
+    public const AUTH_2FA_ENABLED =
+    'auth.2fa.enabled';
+
+    public const AUTH_2FA_DISABLED = 'auth.2fa.disabled';
+
+    public const AUTH_2FA_CHALLENGE_FAILED = 'auth.2fa.challenge.failed';
+
+    public const AUTH_2FA_RECOVERY_CODE_USED = 'auth.2fa.recovery_code.used';
+
+    public const AUTH_2FA_RECOVERY_CODES_REGENERATED = 'auth.2fa.recovery_codes.regenerated';
+
+    public const AUTH_2FA_RECOVERY_COMPLETED = 'auth.2fa.recovery.completed';
 
     /**
      * @var array<string, list<string>>
@@ -104,6 +124,54 @@ final class AuditEventCatalog
 
         self::ACCOUNT_REGISTRATION_DELETED_UNVERIFIED => [
             'reason',
+        ],
+        self::PERSON_UPDATED => [
+            'title',
+            'first_name',
+            'name_addition',
+            'last_name',
+            'birth_date',
+            'phone',
+            'street',
+            'house_number',
+            'postal_code',
+            'city',
+            'country_code',
+        ],
+
+        self::AUTH_EMAIL_CHANGE_REQUESTED => [
+            'old_email',
+            'new_email',
+        ],
+
+        self::AUTH_EMAIL_CHANGE_SUPERSEDED => [
+            'new_email',
+        ],
+
+        self::AUTH_EMAIL_CHANGE_COMPLETED => [
+            'old_email',
+            'new_email',
+        ],
+        self::AUTH_2FA_ENABLED => [
+            'method',
+        ],
+
+        self::AUTH_2FA_DISABLED => [
+            'method',
+        ],
+
+        self::AUTH_2FA_CHALLENGE_FAILED => [
+            'method',
+        ],
+
+        self::AUTH_2FA_RECOVERY_CODE_USED => [],
+
+        self::AUTH_2FA_RECOVERY_CODES_REGENERATED => [
+            'count',
+        ],
+
+        self::AUTH_2FA_RECOVERY_COMPLETED => [
+            'recovery_type',
         ],
     ];
 

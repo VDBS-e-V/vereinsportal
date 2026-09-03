@@ -90,7 +90,7 @@ final class RequestPasswordResetAction
                         );
 
                         $this->queueEmail->execute(
-                            templateKey: 'auth.password.reset',
+                            templateKey: 'auth.password_reset',
                             recipientEmail: $resetUser->email,
                             values: [
                                 'reset_url' =>

@@ -4,9 +4,10 @@ namespace App\Modules\Identity\Models;
 
 use App\Modules\Identity\Enums\UserStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class User extends Authenticatable
 {
@@ -45,5 +46,40 @@ class User extends Authenticatable
     public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class);
+    }
+
+    public function emailChangeRequests(): HasMany
+    {
+        return $this->hasMany(
+            EmailChangeRequest::class,
+        );
+    }
+
+    public function twoFactorMethods(): HasMany
+    {
+        return $this->hasMany(
+            TwoFactorMethod::class,
+        );
+    }
+
+    public function twoFactorEmailChallenges(): HasMany
+    {
+        return $this->hasMany(
+            TwoFactorEmailChallenge::class,
+        );
+    }
+
+    public function twoFactorRecoveryCodes(): HasMany
+    {
+        return $this->hasMany(
+            TwoFactorRecoveryCode::class,
+        );
+    }
+
+    public function roleAssignments(): HasMany
+    {
+        return $this->hasMany(
+            RoleAssignment::class,
+        );
     }
 }

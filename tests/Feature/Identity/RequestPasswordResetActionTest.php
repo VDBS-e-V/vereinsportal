@@ -19,7 +19,7 @@ function preparePasswordResetTemplateForTest(): void
     );
 
     $template = EmailTemplate::query()
-        ->where('key', 'auth.password.reset')
+        ->where('key', 'auth.password_reset')
         ->sole();
 
     $publisher = User::query()->create([

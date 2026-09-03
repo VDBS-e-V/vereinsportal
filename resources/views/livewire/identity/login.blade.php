@@ -2,6 +2,7 @@
 
 use App\Modules\Identity\Actions\Auth\AttemptLoginAction;
 use App\Modules\Identity\Exceptions\LoginFailed;
+use App\Modules\Identity\Support\PendingLogin;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -16,11 +17,21 @@ new #[Layout('components.layouts.public')]
 
     public ?string $loginError = null;
 
-    public function mount(): void
-    {
+    public function mount(
+        PendingLogin $pendingLogin,
+    ): void {
         if (Auth::check()) {
             $this->redirectRoute(
                 'my.home',
+                navigate: false,
+            );
+
+            return;
+        }
+
+        if ($pendingLogin->exists()) {
+            $this->redirectRoute(
+                'my.two-factor.challenge',
                 navigate: false,
             );
         }
@@ -28,6 +39,7 @@ new #[Layout('components.layouts.public')]
 
     public function login(
         AttemptLoginAction $attemptLogin,
+        PendingLogin $pendingLogin,
     ): void {
         $validated = $this->validate([
             'email' => [
@@ -50,19 +62,34 @@ new #[Layout('components.layouts.public')]
         try {
             $attemptLogin->execute(
                 email: $validated['email'],
-                password: $validated['password'],
-                remember: $validated['remember'],
-                ipAddress: request()->ip() ?? '0.0.0.0',
-                userAgent: request()->userAgent(),
+                password:
+                $validated['password'],
+                remember:
+                $validated['remember'],
+                ipAddress:
+                request()->ip()
+                ?? '0.0.0.0',
+                userAgent:
+                request()->userAgent(),
             );
         } catch (LoginFailed $exception) {
             $this->password = '';
-            $this->loginError = $exception->getMessage();
+            $this->loginError =
+                $exception->getMessage();
 
             return;
         }
 
         $this->password = '';
+
+        if ($pendingLogin->exists()) {
+            $this->redirectRoute(
+                'my.two-factor.challenge',
+                navigate: false,
+            );
+
+            return;
+        }
 
         $this->redirectRoute(
             'my.home',
@@ -75,13 +102,14 @@ new #[Layout('components.layouts.public')]
 
 <div class="card">
     <h1>Anmelden</h1>
+
     @if (session('status'))
         <p role="status">
             {{ session('status') }}
         </p>
     @endif
 
-    @if ($loginError)
+    @if ($loginError !== null)
         <p role="alert">
             {{ $loginError }}
         </p>
@@ -93,7 +121,7 @@ new #[Layout('components.layouts.public')]
                 E-Mail-Adresse
             </label>
 
-            <input id="email" name="email" type="email" wire:model="email" autocomplete="email" required>
+            <input id="email" type="email" wire:model="email" autocomplete="email" required>
 
             @error('email')
                 <p role="alert">
@@ -107,8 +135,7 @@ new #[Layout('components.layouts.public')]
                 Passwort
             </label>
 
-            <input id="password" name="password" type="password" wire:model="password" autocomplete="current-password"
-                required>
+            <input id="password" type="password" wire:model="password" autocomplete="current-password" required>
 
             @error('password')
                 <p role="alert">
@@ -119,26 +146,19 @@ new #[Layout('components.layouts.public')]
 
         <div class="field">
             <label>
-                <input name="remember" type="checkbox" wire:model="remember">
-
+                <input type="checkbox" wire:model="remember">
                 Angemeldet bleiben
             </label>
         </div>
 
-        <p>
-            <a href="{{ route('my.password.request') }}">
-                Passwort vergessen?
-            </a>
-        </p>
-
         <button type="submit" wire:loading.attr="disabled" wire:target="login">
-            <span wire:loading.remove wire:target="login">
-                Anmelden
-            </span>
-
-            <span wire:loading wire:target="login">
-                Anmeldung wird geprüft …
-            </span>
+            Anmelden
         </button>
     </form>
+
+    <p>
+        <a href="{{ route('my.password.request') }}">
+            Passwort vergessen?
+        </a>
+    </p>
 </div>

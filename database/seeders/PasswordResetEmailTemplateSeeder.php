@@ -12,7 +12,7 @@ final class PasswordResetEmailTemplateSeeder extends Seeder
     {
         $template = EmailTemplate::query()->firstOrCreate(
             [
-                'key' => 'auth.password.reset',
+                'key' => 'auth.password_reset',
             ],
             [
                 'name' => 'Passwort zurücksetzen',

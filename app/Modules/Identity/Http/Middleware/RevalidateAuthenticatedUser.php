@@ -4,14 +4,22 @@ namespace App\Modules\Identity\Http\Middleware;
 
 use App\Modules\Identity\Enums\UserStatus;
 use App\Modules\Identity\Models\User;
+use App\Modules\Identity\Support\TwoFactorRequirement;
 use Closure;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 final class RevalidateAuthenticatedUser
 {
-    private const REVALIDATE_AFTER_SECONDS = 600;
+    private const REVALIDATE_AFTER_SECONDS =
+        10 * 60;
+
+    public function __construct(
+        private readonly TwoFactorRequirement $twoFactor,
+    ) {
+    }
 
     public function handle(
         Request $request,
@@ -21,49 +29,75 @@ final class RevalidateAuthenticatedUser
             return $next($request);
         }
 
-        $authenticatedUser = Auth::user();
+        $authenticated = Auth::user();
 
-        if (! $authenticatedUser instanceof User) {
-            $this->invalidate($request);
-
-            return redirect()
-                ->route('my.login');
+        if (! $authenticated instanceof User) {
+            return $this->invalidate(
+                $request
+            );
         }
 
-        $validatedAt = (int) $request->session()->get(
-            'identity.account_validated_at',
-            0,
-        );
+        $lastValidated =
+            (int) $request
+                ->session()
+                ->get(
+                    'identity.account_validated_at',
+                    0,
+                );
 
         if (
-            $validatedAt > 0
-            && now()->timestamp - $validatedAt
-                < self::REVALIDATE_AFTER_SECONDS
+            $lastValidated > 0
+            && $lastValidated
+                >= now()
+                    ->subSeconds(
+                        self::REVALIDATE_AFTER_SECONDS
+                    )
+                    ->timestamp
         ) {
             return $next($request);
         }
 
-        $user = User::query()
-            ->whereKey($authenticatedUser->id)
-            ->first();
-
-        $expectedSessionVersion = (int) $request
-            ->session()
-            ->get(
-                'identity.session_version',
-                0,
-            );
+        $freshUser = User::query()
+            ->find($authenticated->id);
 
         if (
-            $user === null
-            || $user->status !== UserStatus::Active
-            || $user->email_verified_at === null
-            || $expectedSessionVersion !== $user->session_version
+            $freshUser === null
+            || $freshUser->status
+                !== UserStatus::Active
+            || $freshUser
+                ->email_verified_at === null
+            || $freshUser->session_version
+                !== (int) $request
+                    ->session()
+                    ->get(
+                        'identity.session_version',
+                        0,
+                    )
         ) {
-            $this->invalidate($request);
+            return $this->invalidate(
+                $request
+            );
+        }
 
-            return redirect()
-                ->route('my.login');
+        /*
+         * Eine Session, die für diesen User einen
+         * zweiten Faktor benötigt, muss den erfolgreichen
+         * 2FA-Schritt nachweisen.
+         */
+        if (
+            $this->twoFactor
+                ->requiresChallenge(
+                    $freshUser
+                )
+            && $request
+                ->session()
+                ->get(
+                    'identity.two_factor_verified_at'
+                ) === null
+        ) {
+            return $this->invalidate(
+                $request
+            );
         }
 
         $request->session()->put(
@@ -74,11 +108,16 @@ final class RevalidateAuthenticatedUser
         return $next($request);
     }
 
-    private function invalidate(Request $request): void
-    {
+    private function invalidate(
+        Request $request,
+    ): RedirectResponse {
         Auth::logout();
 
         $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $request->session()
+            ->regenerateToken();
+
+        return redirect()
+            ->route('my.login');
     }
 }
