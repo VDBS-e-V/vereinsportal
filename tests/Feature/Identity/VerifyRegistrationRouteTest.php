@@ -47,6 +47,36 @@ it('completes registration through the signed verification route', function () {
         ->toBe(1);
 });
 
+it('cannot reuse a verification link after successful registration', function () {
+    $registrationRequest = registrationForRouteVerification();
+
+    $url = app(RegistrationVerificationUrl::class)
+        ->create($registrationRequest);
+
+    $this
+        ->get($url)
+        ->assertOk();
+
+    $secondResponse = $this->get($url);
+
+    expect($secondResponse->status())
+        ->not->toBe(200)
+        ->and(RegistrationRequest::query()->count())
+        ->toBe(0)
+        ->and(
+            Person::query()
+                ->where('email', 'erika@example.test')
+                ->count()
+        )
+        ->toBe(1)
+        ->and(
+            User::query()
+                ->where('email', 'erika@example.test')
+                ->count()
+        )
+        ->toBe(1);
+});
+
 it('returns a controlled response when completion is no longer possible', function () {
     $registrationRequest = registrationForRouteVerification();
 
