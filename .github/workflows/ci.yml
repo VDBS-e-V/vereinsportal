@@ -4,7 +4,12 @@ on:
   push:
     branches:
       - main
+      - develop
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   quality:
@@ -38,6 +43,9 @@ jobs:
           coverage: none
           tools: composer:v2
 
+      - name: Validate Composer manifest
+        run: composer validate --no-check-publish
+
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
@@ -57,7 +65,7 @@ jobs:
           DB_PORT=3306
           DB_DATABASE=vdb_testing
           DB_USERNAME=vdb
-          DB_PASSWORD=password
+          DB_PASSWORD=vdb
 
           CACHE_STORE=array
           QUEUE_CONNECTION=sync
