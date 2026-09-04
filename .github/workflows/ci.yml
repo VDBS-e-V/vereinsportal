@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: vdb_testing
+          MYSQL_USER: vdb
+          MYSQL_PASSWORD: vdb
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo_mysql, fileinfo, sodium
+          coverage: none
+          tools: composer:v2
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Create testing environment
+        shell: bash
+        run: |
+          APP_KEY="base64:$(openssl rand -base64 32)"
+
+          cat > .env.testing <<EOF
+          APP_ENV=testing
+          APP_KEY=${APP_KEY}
+          APP_DEBUG=true
+          APP_URL=http://localhost
+
+          DB_CONNECTION=mysql
+          DB_HOST=127.0.0.1
+          DB_PORT=3306
+          DB_DATABASE=vdb_testing
+          DB_USERNAME=vdb
+          DB_PASSWORD=password
+
+          CACHE_STORE=array
+          QUEUE_CONNECTION=sync
+          SESSION_DRIVER=array
+          MAIL_MAILER=array
+          EOF
+
+      - name: Clear configuration
+        run: php artisan config:clear --env=testing
+
+      - name: Run migrations
+        run: php artisan migrate:fresh --env=testing --force
+
+      - name: Run Pest
+        run: php vendor/bin/pest
+
+      - name: Run Pint
+        run: php vendor/bin/pint --test
