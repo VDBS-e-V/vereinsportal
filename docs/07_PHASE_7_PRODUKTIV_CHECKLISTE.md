@@ -1,0 +1,23 @@
+# Phase 7 – Produktiv-Checkliste
+
+- [ ] README vollständig
+- [ ] SECURITY.md vorhanden
+- [ ] CONTRIBUTING.md vorhanden
+- [ ] CHANGELOG.md vorhanden
+- [ ] LICENSE geklärt
+- [ ] Issue Templates vorhanden
+- [ ] PR Template vorhanden
+- [ ] CI grün
+- [ ] Security Checks grün
+- [ ] Staging getestet
+- [ ] Rollback dokumentiert
+- [ ] Backup-Konzept dokumentiert
+- [ ] Admin-Zugänge geprüft
+- [ ] Demo-Zugänge entfernt oder deaktiviert
+- [ ] `.env` nicht versioniert
+- [ ] Produktions-Secrets gesetzt
+- [ ] `APP_DEBUG=0`
+- [ ] HTTPS aktiv
+- [ ] Mailversand getestet
+- [ ] DSGVO-Prozesse getestet
+- [ ] Audit-Log geprüft

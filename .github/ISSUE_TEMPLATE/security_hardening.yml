@@ -1,0 +1,52 @@
+name: Sicherheitsmaßnahme
+description: Security-Aufgabe ohne vertrauliche Details erfassen
+title: "[Security]: "
+labels: ["type: security", "status: triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Bitte keine Passwörter, Tokens, personenbezogenen Daten oder ausnutzbaren Details posten.
+        Vertrauliche Sicherheitslücken bitte nicht als öffentliches Issue melden.
+
+  - type: textarea
+    id: topic
+    attributes:
+      label: Thema
+      description: Welche Sicherheitsmaßnahme soll umgesetzt werden?
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: category
+    attributes:
+      label: Kategorie
+      options:
+        - label: Authentifizierung
+        - label: Autorisierung / Berechtigungen
+        - label: CSRF
+        - label: Session / Cookies
+        - label: Passwort-Reset / Einladungen
+        - label: Audit-Log
+        - label: Datenschutz / DSGVO
+        - label: Deployment / Server
+        - label: Dependencies
+        - label: GitHub Actions / CI
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Akzeptanzkriterien
+      value: |
+        - [ ] Umsetzung dokumentiert
+        - [ ] Tests/QA erfolgreich
+        - [ ] Keine Secrets im Code
+        - [ ] Keine personenbezogenen Daten in Logs oder Issues
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Hinweise

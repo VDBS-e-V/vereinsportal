@@ -1,0 +1,36 @@
+name: QA-Prüfung
+description: Test- oder Abnahmeaufgabe
+title: "[QA]: "
+labels: ["type: qa", "status: triage"]
+
+body:
+  - type: textarea
+    id: scope
+    attributes:
+      label: Prüfumfang
+      description: Was soll geprüft werden?
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: composer validate ausgeführt
+        - label: composer install erfolgreich
+        - label: PHPUnit ausgeführt
+        - label: php tools/qa/run_all.php ausgeführt
+        - label: Login getestet
+        - label: Verwaltung getestet
+        - label: Berechtigungen getestet
+        - label: DSGVO-Prozess getestet
+        - label: Audit geprüft
+        - label: Keine Secrets oder personenbezogenen Daten in Logs
+
+  - type: textarea
+    id: result
+    attributes:
+      label: Ergebnis / Auffälligkeiten
+    validations:
+      required: true

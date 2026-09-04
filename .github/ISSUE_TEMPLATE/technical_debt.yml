@@ -1,0 +1,40 @@
+name: Technische Schuld
+description: Refactoring, Aufräumen oder Wartungsaufgabe
+title: "[TechDebt]: "
+labels: ["type: refactor", "status: triage"]
+
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Was ist technisch unsauber, schwer wartbar oder riskant?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Vorschlag
+      description: Wie sollte es verbessert werden?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Risiko
+      options:
+        - Niedrig
+        - Mittel
+        - Hoch
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Akzeptanzkriterien
+      value: |
+        - [ ]
+        - [ ]

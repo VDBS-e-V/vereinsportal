@@ -1,0 +1,36 @@
+name: Dokumentation
+description: Dokumentation ergänzen oder korrigieren
+title: "[Docs]: "
+labels: ["type: docs", "status: triage"]
+
+body:
+  - type: textarea
+    id: topic
+    attributes:
+      label: Thema
+      description: Welche Dokumentation fehlt oder ist falsch?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: doc_area
+    attributes:
+      label: Dokumentationsbereich
+      options:
+        - README
+        - Installation
+        - Deployment
+        - Security
+        - Entwicklung
+        - Tests / QA
+        - Datenschutz / DSGVO
+        - Sonstiges
+    validations:
+      required: true
+
+  - type: textarea
+    id: change
+    attributes:
+      label: Gewünschte Änderung
+    validations:
+      required: true

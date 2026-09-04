@@ -1,0 +1,48 @@
+name: Deployment-Aufgabe
+description: Aufgabe für Staging oder Produktion
+title: "[Deploy]: "
+labels: ["type: deployment", "status: triage"]
+
+body:
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Umgebung
+      options:
+        - Staging
+        - Produktion
+    validations:
+      required: true
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: Ziel des Deployments
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Vorbedingungen
+      options:
+        - label: CI erfolgreich
+        - label: Security-Checks erfolgreich
+        - label: APP_DEBUG=0 geprüft
+        - label: HTTPS aktiv
+        - label: Produktions-Secrets gesetzt
+        - label: Datenbank-Backup vorhanden
+        - label: Mailversand geprüft
+        - label: Rollback-Plan vorhanden
+
+  - type: textarea
+    id: rollback
+    attributes:
+      label: Rollback-Plan
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notizen

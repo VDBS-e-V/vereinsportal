@@ -1,0 +1,72 @@
+name: Fehler melden
+description: Einen reproduzierbaren Fehler im Portal melden
+title: "[Bug]: "
+labels: ["type: bug", "status: triage"]
+
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Beschreibung
+      description: Was ist passiert?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Schritte zur Reproduktion
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Erwartetes Verhalten
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Tatsächliches Verhalten
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Betroffener Bereich
+      options:
+        - Login / Konto
+        - Verwaltung
+        - Personen
+        - Gruppen / Berechtigungen
+        - Einladungen
+        - Datenschutz / DSGVO
+        - Audit
+        - Datenbank
+        - Deployment
+        - Sonstiges
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Fehlermeldungen
+      description: Bitte keine Passwörter, Tokens oder personenbezogenen Daten einfügen.
+      render: shell
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Vorab geprüft
+      options:
+        - label: Ich habe keine Secrets oder personenbezogenen Daten eingefügt.
+          required: true
+        - label: Der Fehler ist reproduzierbar.
