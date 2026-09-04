@@ -48,8 +48,7 @@ final class AuditEventCatalog
 
     public const AUTH_EMAIL_CHANGE_COMPLETED = 'auth.email_change.completed';
 
-    public const AUTH_2FA_ENABLED =
-        'auth.2fa.enabled';
+    public const AUTH_2FA_ENABLED = 'auth.2fa.enabled';
 
     public const AUTH_2FA_DISABLED = 'auth.2fa.disabled';
 
@@ -60,6 +59,10 @@ final class AuditEventCatalog
     public const AUTH_2FA_RECOVERY_CODES_REGENERATED = 'auth.2fa.recovery_codes.regenerated';
 
     public const AUTH_2FA_RECOVERY_COMPLETED = 'auth.2fa.recovery.completed';
+
+    public const ACCOUNT_DELETION_REQUESTED = 'account.deletion.requested';
+
+    public const ACCOUNT_DELETION_CONFIRMED = 'account.deletion.confirmed';
 
     /**
      * @var array<string, list<string>>
@@ -172,6 +175,12 @@ final class AuditEventCatalog
 
         self::AUTH_2FA_RECOVERY_COMPLETED => [
             'recovery_type',
+        ],
+        self::ACCOUNT_DELETION_REQUESTED => [
+            'requested_at',
+        ],
+        self::ACCOUNT_DELETION_CONFIRMED => [
+            'revoke_until',
         ],
     ];
 

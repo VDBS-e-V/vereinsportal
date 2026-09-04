@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Identity\Http\Controllers\ConfirmAccountDeletionController;
 use App\Modules\Identity\Http\Controllers\ConfirmEmailChangeController;
 use App\Modules\Identity\Http\Controllers\VerifyRegistrationController;
 use Illuminate\Support\Facades\Route;
@@ -93,4 +94,11 @@ Route::domain(config('domains.my'))
             '/registrierung/status/{publicId}',
             'identity.registration-status',
         )->name('my.registration.status');
+
+        Route::get(
+            '/identity/account-deletion/confirm/{publicId}',
+            ConfirmAccountDeletionController::class,
+        )
+            ->middleware('signed')
+            ->name('identity.account-deletion.confirm');
     });
