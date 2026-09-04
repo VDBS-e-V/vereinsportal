@@ -34,12 +34,16 @@ final class ConfirmEmailChangeController
          * Nur die Session des tatsächlich betroffenen Accounts
          * explizit beenden. Ein zufällig parallel angemeldeter
          * anderer Account wird nicht ausgeloggt.
+         *
+         * Kein Auth::logout(): CompleteEmailChangeAction hat den
+         * Remember-Token bereits invalidiert. logout() könnte mit
+         * dem noch im Guard gehaltenen User einen neuen Token erzeugen.
          */
         if (Auth::id() === $emailChange->user_id) {
-            Auth::logout();
-
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+
+            Auth::forgetUser();
         }
 
         return redirect()

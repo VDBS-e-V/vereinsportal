@@ -62,6 +62,37 @@ it('completes the email change through the signed route', function () {
         ->toBe('new@example.test');
 });
 
+it('keeps the remember token invalidated after the signed email change', function () {
+    $user = makeEmailChangeRouteUser();
+
+    $user->setRememberToken('existing-remember-token');
+    $user->save();
+
+    $change = app(
+        StartEmailChangeAction::class
+    )->execute(
+        user: $user,
+        newEmail: 'new@example.test',
+    );
+
+    $url = app(
+        EmailChangeVerificationUrl::class
+    )->create($change);
+
+    $this->actingAs($user)
+        ->get($url)
+        ->assertRedirect(
+            route('my.login')
+        );
+
+    $this->assertGuest();
+
+    $user->refresh();
+
+    expect($user->remember_token)
+        ->toBeNull();
+});
+
 it('rejects a tampered email change url', function () {
     $user = makeEmailChangeRouteUser();
 
