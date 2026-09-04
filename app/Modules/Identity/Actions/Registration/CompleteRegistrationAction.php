@@ -24,8 +24,7 @@ final class CompleteRegistrationAction
         private readonly FindPossiblePersonMatches $findPossiblePersonMatches,
         private readonly AssignAutomaticRoleAction $assignAutomaticRole,
         private readonly AuditWriter $auditWriter,
-    ) {
-    }
+    ) {}
 
     public function execute(
         string $publicId,
@@ -92,7 +91,7 @@ final class CompleteRegistrationAction
                 'country_code' => 'DE',
             ]);
 
-            $user = new User();
+            $user = new User;
 
             $user->person()->associate($person);
             $user->email = $email;

@@ -3,8 +3,8 @@
 namespace App\Modules\Identity\Jobs;
 
 use App\Modules\Audit\Enums\AuditActorType;
-use App\Modules\Audit\Support\AuditEventCatalog;
 use App\Modules\Audit\Services\AuditWriter;
+use App\Modules\Audit\Support\AuditEventCatalog;
 use App\Modules\Identity\Enums\RegistrationRequestStatus;
 use App\Modules\Identity\Models\RegistrationRequest;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -12,9 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
 
-final class CleanupExpiredRegistrationRequestsJob implements
-    ShouldQueue,
-    ShouldBeUnique
+final class CleanupExpiredRegistrationRequestsJob implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
@@ -47,8 +45,7 @@ final class CleanupExpiredRegistrationRequestsJob implements
                     $auditWriter
                 ): void {
                     foreach (
-                        $registrationRequests
-                        as $registrationRequest
+                        $registrationRequests as $registrationRequest
                     ) {
                         $this->cleanupOne(
                             $registrationRequest->id,
@@ -96,17 +93,11 @@ final class CleanupExpiredRegistrationRequestsJob implements
                 }
 
                 $auditWriter->write(
-                    eventKey:
-                        AuditEventCatalog::
-                            ACCOUNT_REGISTRATION_DELETED_UNVERIFIED,
-                    actorType:
-                        AuditActorType::System,
-                    actorContext:
-                        'registration_cleanup',
-                    subjectType:
-                        'registration_request',
-                    subjectId:
-                        $registrationRequest->id,
+                    eventKey: AuditEventCatalog::ACCOUNT_REGISTRATION_DELETED_UNVERIFIED,
+                    actorType: AuditActorType::System,
+                    actorContext: 'registration_cleanup',
+                    subjectType: 'registration_request',
+                    subjectId: $registrationRequest->id,
                     newValues: [
                         'reason' => 'expired',
                     ],

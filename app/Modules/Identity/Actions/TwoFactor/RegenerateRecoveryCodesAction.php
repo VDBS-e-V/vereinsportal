@@ -17,8 +17,7 @@ final class RegenerateRecoveryCodesAction
         private readonly TwoFactorRequirement $requirement,
         private readonly RecoveryCodeService $recoveryCodes,
         private readonly AuditWriter $auditWriter,
-    ) {
-    }
+    ) {}
 
     /**
      * @return list<string>
@@ -46,8 +45,7 @@ final class RegenerateRecoveryCodesAction
                         $lockedUser
                     )
             ) {
-                throw TwoFactorSetupFailed::
-                    invalidMethod();
+                throw TwoFactorSetupFailed::invalidMethod();
             }
 
             $codes =
@@ -55,13 +53,9 @@ final class RegenerateRecoveryCodesAction
                     ->replaceFor($lockedUser);
 
             $this->auditWriter->write(
-                eventKey:
-                    AuditEventCatalog::
-                        AUTH_2FA_RECOVERY_CODES_REGENERATED,
-                actorType:
-                    AuditActorType::User,
-                actorUserId:
-                    $lockedUser->id,
+                eventKey: AuditEventCatalog::AUTH_2FA_RECOVERY_CODES_REGENERATED,
+                actorType: AuditActorType::User,
+                actorUserId: $lockedUser->id,
                 subjectType: 'user',
                 subjectId: $lockedUser->id,
                 newValues: [

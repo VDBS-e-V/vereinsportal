@@ -126,8 +126,7 @@ it('sends a rendered templated email and marks delivery as sent', function () {
 
     Mail::assertSent(
         TemplatedMail::class,
-        fn (TemplatedMail $mail): bool =>
-            $mail->hasTo('recipient@example.test')
+        fn (TemplatedMail $mail): bool => $mail->hasTo('recipient@example.test')
             && $mail->subjectLine === 'Hallo Erika'
             && str_contains(
                 $mail->htmlContent,
@@ -193,7 +192,7 @@ it('marks a delivery as failed after final job failure', function () {
     );
 
     $job->failed(
-        new \RuntimeException('SMTP unavailable')
+        new RuntimeException('SMTP unavailable')
     );
 
     $delivery->refresh();
@@ -203,7 +202,7 @@ it('marks a delivery as failed after final job failure', function () {
         ->and($delivery->failed_at)
         ->not->toBeNull()
         ->and($delivery->last_error_class)
-        ->toBe(\RuntimeException::class)
+        ->toBe(RuntimeException::class)
         ->and($delivery->attempts)
         ->toBe(3);
 });

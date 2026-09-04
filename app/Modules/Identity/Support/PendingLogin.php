@@ -21,8 +21,7 @@ final class PendingLogin
             self::SESSION_KEY,
             [
                 'user_id' => $user->id,
-                'session_version' =>
-                    $user->session_version,
+                'session_version' => $user->session_version,
                 'remember' => $remember,
                 'started_at' => now()->timestamp,
             ],
@@ -82,12 +81,9 @@ final class PendingLogin
         }
 
         return [
-            'user_id' =>
-                (int) $data['user_id'],
-            'session_version' =>
-                (int) $data['session_version'],
-            'remember' =>
-                (bool) $data['remember'],
+            'user_id' => (int) $data['user_id'],
+            'session_version' => (int) $data['session_version'],
+            'remember' => (bool) $data['remember'],
             'started_at' => $startedAt,
         ];
     }

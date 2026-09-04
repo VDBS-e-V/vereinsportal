@@ -107,8 +107,7 @@ it('creates a password reset token and queues the reset email', function () {
             AuditEvent::query()
                 ->where(
                     'event_key',
-                    AuditEventCatalog::
-                        AUTH_PASSWORD_RESET_REQUESTED,
+                    AuditEventCatalog::AUTH_PASSWORD_RESET_REQUESTED,
                 )
                 ->count()
         )
@@ -136,8 +135,7 @@ it('does not reveal or persist a reset token for an unknown email', function () 
             AuditEvent::query()
                 ->where(
                     'event_key',
-                    AuditEventCatalog::
-                        AUTH_PASSWORD_RESET_REQUESTED,
+                    AuditEventCatalog::AUTH_PASSWORD_RESET_REQUESTED,
                 )
                 ->count()
         )
@@ -228,8 +226,7 @@ it('never stores password reset secrets in audit values', function () {
     $audit = AuditEvent::query()
         ->where(
             'event_key',
-            AuditEventCatalog::
-                AUTH_PASSWORD_RESET_REQUESTED,
+            AuditEventCatalog::AUTH_PASSWORD_RESET_REQUESTED,
         )
         ->sole();
 

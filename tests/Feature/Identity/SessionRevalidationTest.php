@@ -25,8 +25,7 @@ it('allows a valid authenticated session', function () {
         ->actingAs($user)
         ->withSession([
             'identity.session_version' => 1,
-            'identity.account_validated_at' =>
-                now()->subMinutes(11)->timestamp,
+            'identity.account_validated_at' => now()->subMinutes(11)->timestamp,
         ])
         ->get('http://my.vdb.test/')
         ->assertOk();
@@ -39,8 +38,7 @@ it('invalidates a stale session version', function () {
         ->actingAs($user)
         ->withSession([
             'identity.session_version' => 1,
-            'identity.account_validated_at' =>
-                now()->subMinutes(11)->timestamp,
+            'identity.account_validated_at' => now()->subMinutes(11)->timestamp,
         ]);
 
     $user->update([
@@ -63,8 +61,7 @@ it('invalidates a disabled user during revalidation', function () {
         ->actingAs($user)
         ->withSession([
             'identity.session_version' => 1,
-            'identity.account_validated_at' =>
-                now()->subMinutes(11)->timestamp,
+            'identity.account_validated_at' => now()->subMinutes(11)->timestamp,
         ]);
 
     $user->update([

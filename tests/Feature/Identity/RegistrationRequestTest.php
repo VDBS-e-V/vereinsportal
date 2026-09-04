@@ -1,8 +1,8 @@
 <?php
 
 use App\Modules\Identity\Enums\RegistrationRequestStatus;
-use App\Modules\Identity\Models\Person;
 use App\Modules\Identity\Models\RegistrationRequest;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 it('casts registration request lifecycle values correctly', function () {
@@ -26,11 +26,11 @@ it('casts registration request lifecycle values correctly', function () {
     expect($request->status)
         ->toBe(RegistrationRequestStatus::PendingVerification)
         ->and($request->birth_date)
-        ->toBeInstanceOf(\Illuminate\Support\Carbon::class)
+        ->toBeInstanceOf(Carbon::class)
         ->and($request->consented_at)
-        ->toBeInstanceOf(\Illuminate\Support\Carbon::class)
+        ->toBeInstanceOf(Carbon::class)
         ->and($request->verification_expires_at)
-        ->toBeInstanceOf(\Illuminate\Support\Carbon::class)
+        ->toBeInstanceOf(Carbon::class)
         ->and($request->expires_at)
-        ->toBeInstanceOf(\Illuminate\Support\Carbon::class);
+        ->toBeInstanceOf(Carbon::class);
 });

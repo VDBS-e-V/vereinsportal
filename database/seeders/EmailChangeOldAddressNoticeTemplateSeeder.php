@@ -14,15 +14,12 @@ final class EmailChangeOldAddressNoticeTemplateSeeder extends Seeder
             EmailTemplate::query()
                 ->firstOrCreate(
                     [
-                        'key' =>
-                            'auth.email_change.old_address_notice',
+                        'key' => 'auth.email_change.old_address_notice',
                     ],
                     [
-                        'name' =>
-                            'Sicherheitshinweis nach E-Mail-Änderung',
+                        'name' => 'Sicherheitshinweis nach E-Mail-Änderung',
                         'is_active' => false,
-                        'draft_subject' =>
-                            'Ihre E-Mail-Adresse wurde geändert',
+                        'draft_subject' => 'Ihre E-Mail-Adresse wurde geändert',
                         'draft_html' => <<<'HTML'
 <p>Die E-Mail-Adresse Ihres Kontos wurde geändert.</p>
 <p>
@@ -35,8 +32,7 @@ final class EmailChangeOldAddressNoticeTemplateSeeder extends Seeder
     </a>
 </p>
 HTML,
-                        'updated_by_user_id' =>
-                            null,
+                        'updated_by_user_id' => null,
                     ],
                 );
 
@@ -44,45 +40,36 @@ HTML,
             [
                 'key' => 'security_url',
                 'label' => 'Sicherheitslink',
-                'description' =>
-                    'Signierter Link zum Sicherheitshinweis.',
-                'example_value' =>
-                    'https://my.vdb.test/email/aenderung/sicherheit/example',
+                'description' => 'Signierter Link zum Sicherheitshinweis.',
+                'example_value' => 'https://my.vdb.test/email/aenderung/sicherheit/example',
                 'is_required' => true,
             ],
             [
                 'key' => 'first_name',
                 'label' => 'Vorname',
-                'description' =>
-                    'Vorname der Person.',
+                'description' => 'Vorname der Person.',
                 'example_value' => 'Erika',
                 'is_required' => false,
             ],
             [
                 'key' => 'old_email',
                 'label' => 'Bisherige E-Mail-Adresse',
-                'description' =>
-                    'E-Mail-Adresse vor der Änderung.',
-                'example_value' =>
-                    'alt@example.test',
+                'description' => 'E-Mail-Adresse vor der Änderung.',
+                'example_value' => 'alt@example.test',
                 'is_required' => false,
             ],
             [
                 'key' => 'new_email',
                 'label' => 'Neue E-Mail-Adresse',
-                'description' =>
-                    'Neu bestätigte E-Mail-Adresse.',
-                'example_value' =>
-                    'neu@example.test',
+                'description' => 'Neu bestätigte E-Mail-Adresse.',
+                'example_value' => 'neu@example.test',
                 'is_required' => false,
             ],
             [
                 'key' => 'support_email',
                 'label' => 'Support-E-Mail',
-                'description' =>
-                    'Kontaktadresse für Sicherheitsfragen.',
-                'example_value' =>
-                    'support@example.test',
+                'description' => 'Kontaktadresse für Sicherheitsfragen.',
+                'example_value' => 'support@example.test',
                 'is_required' => false,
             ],
         ];
@@ -91,20 +78,14 @@ HTML,
             EmailTemplatePlaceholder::query()
                 ->firstOrCreate(
                     [
-                        'email_template_id' =>
-                            $template->id,
-                        'key' =>
-                            $placeholder['key'],
+                        'email_template_id' => $template->id,
+                        'key' => $placeholder['key'],
                     ],
                     [
-                        'label' =>
-                            $placeholder['label'],
-                        'description' =>
-                            $placeholder['description'],
-                        'example_value' =>
-                            $placeholder['example_value'],
-                        'is_required' =>
-                            $placeholder['is_required'],
+                        'label' => $placeholder['label'],
+                        'description' => $placeholder['description'],
+                        'example_value' => $placeholder['example_value'],
+                        'is_required' => $placeholder['is_required'],
                         'is_active' => true,
                     ],
                 );

@@ -10,8 +10,7 @@ final class CompleteEmailChangeWorkflowAction
     public function __construct(
         private readonly CompleteEmailChangeAction $complete,
         private readonly QueueEmailChangeOldAddressNoticeAction $notice,
-    ) {
-    }
+    ) {}
 
     public function execute(
         string $publicId,

@@ -33,8 +33,7 @@ function makeEmailTwoFactorUser(): User
 
     TwoFactorMethod::query()->create([
         'user_id' => $user->id,
-        'type' =>
-            TwoFactorMethodType::Email,
+        'type' => TwoFactorMethodType::Email,
         'confirmed_at' => now(),
     ]);
 
@@ -63,16 +62,14 @@ function publishTwoFactorEmailTemplate(): void
     ]);
 
     EmailTemplateVersion::query()->create([
-        'email_template_id' =>
-            $template->id,
+        'email_template_id' => $template->id,
         'version' => 1,
         'subject' => 'Ihr Sicherheitscode',
         'html' => <<<'HTML'
 <p>Code: {{ code }}</p>
 <p>{{ expires_in_minutes }} Minuten</p>
 HTML,
-        'published_by_user_id' =>
-            $publisher->id,
+        'published_by_user_id' => $publisher->id,
         'published_at' => now(),
     ]);
 
@@ -153,10 +150,8 @@ it('accepts a correct email code only once', function () {
         TwoFactorEmailChallenge::query()
             ->create([
                 'user_id' => $user->id,
-                'code_hash' =>
-                    Hash::make('123456'),
-                'expires_at' =>
-                    now()->addMinutes(15),
+                'code_hash' => Hash::make('123456'),
+                'expires_at' => now()->addMinutes(15),
                 'sent_at' => now(),
             ]);
 
@@ -192,10 +187,8 @@ it('rejects an expired email code', function () {
     TwoFactorEmailChallenge::query()
         ->create([
             'user_id' => $user->id,
-            'code_hash' =>
-                Hash::make('123456'),
-            'expires_at' =>
-                now()->subSecond(),
+            'code_hash' => Hash::make('123456'),
+            'expires_at' => now()->subSecond(),
             'sent_at' => now()
                 ->subMinutes(16),
         ]);
@@ -219,10 +212,8 @@ it('locks the user after five wrong two factor codes', function () {
     TwoFactorEmailChallenge::query()
         ->create([
             'user_id' => $user->id,
-            'code_hash' =>
-                Hash::make('123456'),
-            'expires_at' =>
-                now()->addMinutes(15),
+            'code_hash' => Hash::make('123456'),
+            'expires_at' => now()->addMinutes(15),
             'sent_at' => now(),
         ]);
 
@@ -254,8 +245,7 @@ it('locks the user after five wrong two factor codes', function () {
             AuditEvent::query()
                 ->where(
                     'event_key',
-                    AuditEventCatalog::
-                        AUTH_2FA_CHALLENGE_FAILED,
+                    AuditEventCatalog::AUTH_2FA_CHALLENGE_FAILED,
                 )
                 ->count()
         )

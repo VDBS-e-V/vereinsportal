@@ -245,8 +245,7 @@ it('locks an ip after twenty five failed logins', function () {
     foreach (range(1, 25) as $attempt) {
         try {
             $action->execute(
-                email:
-                    "unknown-{$attempt}@example.test",
+                email: "unknown-{$attempt}@example.test",
                 password: 'Falsch123!',
                 remember: false,
                 ipAddress: '192.0.2.25',
@@ -295,8 +294,7 @@ it('does not clear the ip limiter after a successful login', function () {
     foreach (range(1, 24) as $attempt) {
         try {
             $action->execute(
-                email:
-                    "other-{$attempt}@example.test",
+                email: "other-{$attempt}@example.test",
                 password: 'Falsch123!',
                 remember: false,
                 ipAddress: $ip,

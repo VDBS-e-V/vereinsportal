@@ -15,8 +15,7 @@ final class ChangePasswordAction
 {
     public function __construct(
         private readonly AuditWriter $auditWriter,
-    ) {
-    }
+    ) {}
 
     public function execute(
         User $user,
@@ -31,8 +30,7 @@ final class ChangePasswordAction
             [
                 'current_password' => $currentPassword,
                 'password' => $password,
-                'password_confirmation' =>
-                    $passwordConfirmation,
+                'password_confirmation' => $passwordConfirmation,
             ],
             [
                 'current_password' => [
@@ -82,8 +80,7 @@ final class ChangePasswordAction
             $lockedUser->save();
 
             $this->auditWriter->write(
-                eventKey:
-                    AuditEventCatalog::AUTH_PASSWORD_CHANGED,
+                eventKey: AuditEventCatalog::AUTH_PASSWORD_CHANGED,
                 actorType: AuditActorType::User,
                 actorUserId: $lockedUser->id,
                 subjectType: 'user',

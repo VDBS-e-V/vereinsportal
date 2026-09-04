@@ -19,8 +19,7 @@ final class ConfirmTotpSetupAction
         private readonly TotpService $totp,
         private readonly RecoveryCodeService $recoveryCodes,
         private readonly AuditWriter $auditWriter,
-    ) {
-    }
+    ) {}
 
     /**
      * @return list<string>
@@ -66,8 +65,7 @@ final class ConfirmTotpSetupAction
                 || $method->disabled_at !== null
                 || $method->secret === null
             ) {
-                throw TwoFactorSetupFailed::
-                    invalidMethod();
+                throw TwoFactorSetupFailed::invalidMethod();
             }
 
             if (
@@ -76,8 +74,7 @@ final class ConfirmTotpSetupAction
                     $code,
                 )
             ) {
-                throw TwoFactorSetupFailed::
-                    invalidCode();
+                throw TwoFactorSetupFailed::invalidCode();
             }
 
             $disabledOldMethod =
@@ -103,13 +100,9 @@ final class ConfirmTotpSetupAction
 
             if ($disabledOldMethod > 0) {
                 $this->auditWriter->write(
-                    eventKey:
-                        AuditEventCatalog::
-                            AUTH_2FA_DISABLED,
-                    actorType:
-                        AuditActorType::User,
-                    actorUserId:
-                        $lockedUser->id,
+                    eventKey: AuditEventCatalog::AUTH_2FA_DISABLED,
+                    actorType: AuditActorType::User,
+                    actorUserId: $lockedUser->id,
                     subjectType: 'user',
                     subjectId: $lockedUser->id,
                     newValues: [
@@ -129,13 +122,9 @@ final class ConfirmTotpSetupAction
                     ->replaceFor($lockedUser);
 
             $this->auditWriter->write(
-                eventKey:
-                    AuditEventCatalog::
-                        AUTH_2FA_ENABLED,
-                actorType:
-                    AuditActorType::User,
-                actorUserId:
-                    $lockedUser->id,
+                eventKey: AuditEventCatalog::AUTH_2FA_ENABLED,
+                actorType: AuditActorType::User,
+                actorUserId: $lockedUser->id,
                 subjectType: 'user',
                 subjectId: $lockedUser->id,
                 newValues: [
@@ -147,13 +136,9 @@ final class ConfirmTotpSetupAction
             );
 
             $this->auditWriter->write(
-                eventKey:
-                    AuditEventCatalog::
-                        AUTH_2FA_RECOVERY_CODES_REGENERATED,
-                actorType:
-                    AuditActorType::User,
-                actorUserId:
-                    $lockedUser->id,
+                eventKey: AuditEventCatalog::AUTH_2FA_RECOVERY_CODES_REGENERATED,
+                actorType: AuditActorType::User,
+                actorUserId: $lockedUser->id,
                 subjectType: 'user',
                 subjectId: $lockedUser->id,
                 newValues: [

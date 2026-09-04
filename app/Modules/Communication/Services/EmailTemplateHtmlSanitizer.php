@@ -12,7 +12,7 @@ final class EmailTemplateHtmlSanitizer
     public function __construct()
     {
         $this->sanitizer = new HtmlSanitizer(
-            (new HtmlSanitizerConfig())
+            (new HtmlSanitizerConfig)
                 ->allowSafeElements()
                 ->allowLinkSchemes([
                     'https',

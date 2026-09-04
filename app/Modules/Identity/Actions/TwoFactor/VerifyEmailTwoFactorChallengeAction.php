@@ -17,8 +17,7 @@ final class VerifyEmailTwoFactorChallengeAction
     public function __construct(
         private readonly TwoFactorRateLimiter $rateLimiter,
         private readonly AuditWriter $auditWriter,
-    ) {
-    }
+    ) {}
 
     public function execute(
         User $user,
@@ -33,8 +32,7 @@ final class VerifyEmailTwoFactorChallengeAction
             || $this->rateLimiter
                 ->tooManyUserAttempts($user->id)
         ) {
-            throw TwoFactorChallengeFailed::
-                locked();
+            throw TwoFactorChallengeFailed::locked();
         }
 
         /*
@@ -92,8 +90,7 @@ final class VerifyEmailTwoFactorChallengeAction
                 deviceInfo: $deviceInfo,
             );
 
-            throw TwoFactorChallengeFailed::
-                invalidCode();
+            throw TwoFactorChallengeFailed::invalidCode();
         }
 
         /*
@@ -117,11 +114,8 @@ final class VerifyEmailTwoFactorChallengeAction
         );
 
         $this->auditWriter->write(
-            eventKey:
-                AuditEventCatalog::
-                    AUTH_2FA_CHALLENGE_FAILED,
-            actorType:
-                AuditActorType::User,
+            eventKey: AuditEventCatalog::AUTH_2FA_CHALLENGE_FAILED,
+            actorType: AuditActorType::User,
             actorUserId: $user->id,
             subjectType: 'user',
             subjectId: $user->id,

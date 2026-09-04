@@ -2,11 +2,11 @@
 
 use App\Modules\Identity\Actions\Registration\StartRegistrationAction;
 use App\Modules\Identity\Enums\RegistrationRequestStatus;
+use App\Modules\Identity\Enums\UserStatus;
 use App\Modules\Identity\Exceptions\RegistrationCannotStart;
 use App\Modules\Identity\Models\Person;
 use App\Modules\Identity\Models\RegistrationRequest;
 use App\Modules\Identity\Models\User;
-use App\Modules\Identity\Enums\UserStatus;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;

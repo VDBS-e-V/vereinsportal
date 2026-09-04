@@ -13,11 +13,10 @@ final class ActivateEmailTemplateAction
 {
     public function __construct(
         private readonly AuditWriter $auditWriter,
-    ) {
-    }
+    ) {}
 
     /**
-     * @param array<string, mixed>|null $deviceInfo
+     * @param  array<string, mixed>|null  $deviceInfo
      */
     public function execute(
         int $templateId,

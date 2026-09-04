@@ -17,8 +17,7 @@ final class DisableTwoFactorMethodAction
     public function __construct(
         private readonly TwoFactorRequirement $requirement,
         private readonly AuditWriter $auditWriter,
-    ) {
-    }
+    ) {}
 
     public function execute(
         User $user,
@@ -64,13 +63,9 @@ final class DisableTwoFactorMethodAction
             }
 
             $this->auditWriter->write(
-                eventKey:
-                    AuditEventCatalog::
-                        AUTH_2FA_DISABLED,
-                actorType:
-                    AuditActorType::User,
-                actorUserId:
-                    $lockedUser->id,
+                eventKey: AuditEventCatalog::AUTH_2FA_DISABLED,
+                actorType: AuditActorType::User,
+                actorUserId: $lockedUser->id,
                 subjectType: 'user',
                 subjectId: $lockedUser->id,
                 newValues: [

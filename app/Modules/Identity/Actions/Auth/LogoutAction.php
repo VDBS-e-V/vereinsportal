@@ -12,8 +12,7 @@ final class LogoutAction
 {
     public function __construct(
         private readonly AuditWriter $auditWriter,
-    ) {
-    }
+    ) {}
 
     public function execute(
         User $user,

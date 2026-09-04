@@ -19,8 +19,7 @@ final class StartRegistrationAction
 {
     public function __construct(
         private readonly FindPossiblePersonMatches $findPossiblePersonMatches,
-    ) {
-    }
+    ) {}
 
     public function execute(
         string $firstName,
@@ -67,14 +66,14 @@ final class StartRegistrationAction
         );
 
         if ($possibleMatches->isNotEmpty()) {
-            throw new RegistrationCannotStart();
+            throw new RegistrationCannotStart;
         }
 
         if (
             Person::query()->where('email', $email)->exists()
             || User::query()->where('email', $email)->exists()
         ) {
-            throw new RegistrationCannotStart();
+            throw new RegistrationCannotStart;
         }
 
         $startedAt = now();

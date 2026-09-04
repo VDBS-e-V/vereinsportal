@@ -18,8 +18,7 @@ final class UseRecoveryCodeAction
         private readonly RecoveryCodeService $recoveryCodes,
         private readonly TwoFactorRateLimiter $rateLimiter,
         private readonly AuditWriter $auditWriter,
-    ) {
-    }
+    ) {}
 
     public function execute(
         User $user,
@@ -34,8 +33,7 @@ final class UseRecoveryCodeAction
             || $this->rateLimiter
                 ->tooManyUserAttempts($user->id)
         ) {
-            throw TwoFactorChallengeFailed::
-                locked();
+            throw TwoFactorChallengeFailed::locked();
         }
 
         /*
@@ -71,8 +69,7 @@ final class UseRecoveryCodeAction
                 $matching = null;
 
                 foreach (
-                    $candidates
-                    as $candidate
+                    $candidates as $candidate
                 ) {
                     if (
                         $this->recoveryCodes
@@ -96,22 +93,14 @@ final class UseRecoveryCodeAction
                 $matching->save();
 
                 $this->auditWriter->write(
-                    eventKey:
-                        AuditEventCatalog::
-                            AUTH_2FA_RECOVERY_CODE_USED,
-                    actorType:
-                        AuditActorType::User,
-                    actorUserId:
-                        $user->id,
+                    eventKey: AuditEventCatalog::AUTH_2FA_RECOVERY_CODE_USED,
+                    actorType: AuditActorType::User,
+                    actorUserId: $user->id,
                     subjectType: 'user',
-                    subjectId:
-                        $user->id,
-                    ipAddress:
-                        $ipAddress,
-                    userAgent:
-                        $userAgent,
-                    deviceInfo:
-                        $deviceInfo,
+                    subjectId: $user->id,
+                    ipAddress: $ipAddress,
+                    userAgent: $userAgent,
+                    deviceInfo: $deviceInfo,
                 );
 
                 return true;
@@ -125,25 +114,20 @@ final class UseRecoveryCodeAction
             );
 
             $this->auditWriter->write(
-                eventKey:
-                    AuditEventCatalog::
-                        AUTH_2FA_CHALLENGE_FAILED,
-                actorType:
-                    AuditActorType::User,
+                eventKey: AuditEventCatalog::AUTH_2FA_CHALLENGE_FAILED,
+                actorType: AuditActorType::User,
                 actorUserId: $user->id,
                 subjectType: 'user',
                 subjectId: $user->id,
                 newValues: [
-                    'method' =>
-                        'recovery_code',
+                    'method' => 'recovery_code',
                 ],
                 ipAddress: $ipAddress,
                 userAgent: $userAgent,
                 deviceInfo: $deviceInfo,
             );
 
-            throw TwoFactorChallengeFailed::
-                invalidCode();
+            throw TwoFactorChallengeFailed::invalidCode();
         }
 
         $this->rateLimiter

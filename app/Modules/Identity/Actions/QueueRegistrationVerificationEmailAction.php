@@ -13,8 +13,7 @@ final class QueueRegistrationVerificationEmailAction
     public function __construct(
         private readonly RegistrationVerificationUrl $verificationUrl,
         private readonly QueueTemplatedEmailAction $queueTemplatedEmail,
-    ) {
-    }
+    ) {}
 
     public function execute(
         RegistrationRequest $registrationRequest,

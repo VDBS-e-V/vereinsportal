@@ -19,8 +19,7 @@ final class FinalizeLoginAction
         private readonly AuditWriter $auditWriter,
         private readonly LoginRateLimiter $rateLimiter,
         private readonly PendingLogin $pendingLogin,
-    ) {
-    }
+    ) {}
 
     public function execute(
         User $user,
@@ -59,8 +58,7 @@ final class FinalizeLoginAction
                             !== $expectedSessionVersion
                     )
                 ) {
-                    throw LoginFailed::
-                        invalidCredentials();
+                    throw LoginFailed::invalidCredentials();
                 }
 
                 $lockedUser->last_login_at =
@@ -69,20 +67,14 @@ final class FinalizeLoginAction
                 $lockedUser->save();
 
                 $this->auditWriter->write(
-                    eventKey:
-                        AuditEventCatalog::
-                            AUTH_LOGIN_SUCCEEDED,
-                    actorType:
-                        AuditActorType::User,
-                    actorUserId:
-                        $lockedUser->id,
+                    eventKey: AuditEventCatalog::AUTH_LOGIN_SUCCEEDED,
+                    actorType: AuditActorType::User,
+                    actorUserId: $lockedUser->id,
                     subjectType: 'user',
-                    subjectId:
-                        $lockedUser->id,
+                    subjectId: $lockedUser->id,
                     newValues: [
                         'method' => $method,
-                        'remember_me' =>
-                            $remember,
+                        'remember_me' => $remember,
                     ],
                     ipAddress: $ipAddress,
                     userAgent: $userAgent,

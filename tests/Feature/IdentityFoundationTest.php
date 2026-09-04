@@ -1,7 +1,9 @@
 <?php
 
+use App\Modules\Identity\Enums\UserStatus;
 use App\Modules\Identity\Models\Person;
 use App\Modules\Identity\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Schema;
 
 it('uses the dedicated testing database', function () {
@@ -89,7 +91,7 @@ it('enforces unique person emails at database level', function () {
         'birth_date' => '1991-02-20',
         'email' => 'duplicate@example.test',
         'country_code' => 'DE',
-    ]))->toThrow(\Illuminate\Database\QueryException::class);
+    ]))->toThrow(QueryException::class);
 });
 
 it('allows only one user account per person', function () {
@@ -113,7 +115,7 @@ it('allows only one user account per person', function () {
         'email' => 'second@example.test',
         'password' => 'secret-password',
         'status' => 'active',
-    ]))->toThrow(\Illuminate\Database\QueryException::class);
+    ]))->toThrow(QueryException::class);
 });
 
 it('prevents deleting a person while a user references it', function () {
@@ -133,18 +135,18 @@ it('prevents deleting a person while a user references it', function () {
     ]);
 
     expect(fn () => $person->delete())
-        ->toThrow(\Illuminate\Database\QueryException::class);
+        ->toThrow(QueryException::class);
 });
 
 it('casts the account status to the user status enum', function () {
     $user = User::query()->create([
         'email' => 'status@example.test',
         'password' => 'secret-password',
-        'status' => \App\Modules\Identity\Enums\UserStatus::Active,
+        'status' => UserStatus::Active,
     ]);
 
     expect($user->status)
-        ->toBe(\App\Modules\Identity\Enums\UserStatus::Active);
+        ->toBe(UserStatus::Active);
 
     expect($user->getRawOriginal('status'))
         ->toBe('active');

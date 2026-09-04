@@ -99,7 +99,7 @@ it('rejects roles that are not assigned automatically', function () {
             user: $user,
             roleKey: RoleKey::Team,
         )
-    )->toThrow(\InvalidArgumentException::class);
+    )->toThrow(InvalidArgumentException::class);
 
     expect(RoleAssignment::query()->count())->toBe(0)
         ->and(AuditEvent::query()->count())->toBe(0);
@@ -120,9 +120,9 @@ it('rolls the assignment and audit back with an outer transaction', function () 
             sourceId: $user->id,
         );
 
-        throw new \RuntimeException('force outer rollback');
+        throw new RuntimeException('force outer rollback');
     }))->toThrow(
-        \RuntimeException::class,
+        RuntimeException::class,
         'force outer rollback',
     );
 

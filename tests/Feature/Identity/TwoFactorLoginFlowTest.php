@@ -27,8 +27,7 @@ function makeTwoFactorLoginUser(): User
 
     TwoFactorMethod::query()->create([
         'user_id' => $user->id,
-        'type' =>
-            TwoFactorMethodType::Email,
+        'type' => TwoFactorMethodType::Email,
         'confirmed_at' => now(),
     ]);
 
@@ -61,8 +60,7 @@ it('does not fully authenticate a two factor user after password only', function
             AuditEvent::query()
                 ->where(
                     'event_key',
-                    AuditEventCatalog::
-                        AUTH_LOGIN_SUCCEEDED,
+                    AuditEventCatalog::AUTH_LOGIN_SUCCEEDED,
                 )
                 ->count()
         )
@@ -83,10 +81,8 @@ it('fully authenticates only after the second factor succeeds', function () {
     TwoFactorEmailChallenge::query()
         ->create([
             'user_id' => $user->id,
-            'code_hash' =>
-                Hash::make('123456'),
-            'expires_at' =>
-                now()->addMinutes(15),
+            'code_hash' => Hash::make('123456'),
+            'expires_at' => now()->addMinutes(15),
             'sent_at' => now(),
         ]);
 
@@ -110,12 +106,9 @@ it('fully authenticates only after the second factor succeeds', function () {
     app(FinalizeLoginAction::class)
         ->execute(
             user: $user,
-            remember:
-                $data['remember'],
-            method:
-                'password+email_2fa',
-            expectedSessionVersion:
-                $data['session_version'],
+            remember: $data['remember'],
+            method: 'password+email_2fa',
+            expectedSessionVersion: $data['session_version'],
             ipAddress: '192.0.2.41',
         );
 
@@ -138,8 +131,7 @@ it('fully authenticates only after the second factor succeeds', function () {
     $audit = AuditEvent::query()
         ->where(
             'event_key',
-            AuditEventCatalog::
-                AUTH_LOGIN_SUCCEEDED,
+            AuditEventCatalog::AUTH_LOGIN_SUCCEEDED,
         )
         ->sole();
 

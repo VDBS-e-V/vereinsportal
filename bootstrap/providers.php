@@ -1,10 +1,16 @@
 <?php
 
-return [
-    App\Providers\AppServiceProvider::class,
-    App\Providers\VoltServiceProvider::class,
+use App\Modules\Audit\AuditServiceProvider;
+use App\Modules\Communication\CommunicationServiceProvider;
+use App\Modules\Identity\IdentityServiceProvider;
+use App\Providers\AppServiceProvider;
+use App\Providers\VoltServiceProvider;
 
-    App\Modules\Identity\IdentityServiceProvider::class,
-    App\Modules\Audit\AuditServiceProvider::class,
-    App\Modules\Communication\CommunicationServiceProvider::class,
+return [
+    AppServiceProvider::class,
+    VoltServiceProvider::class,
+
+    IdentityServiceProvider::class,
+    AuditServiceProvider::class,
+    CommunicationServiceProvider::class,
 ];

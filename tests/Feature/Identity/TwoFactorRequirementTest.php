@@ -60,8 +60,7 @@ it('requires two factor for an active board role', function () {
     RoleAssignment::query()->create([
         'user_id' => $user->id,
         'role_id' => $role->id,
-        'source' =>
-            RoleAssignmentSource::Automatic,
+        'source' => RoleAssignmentSource::Automatic,
         'starts_at' => now()->subDay(),
     ]);
 
@@ -96,12 +95,9 @@ it('ignores an ended mandatory role assignment', function () {
     RoleAssignment::query()->create([
         'user_id' => $user->id,
         'role_id' => $role->id,
-        'source' =>
-            RoleAssignmentSource::Console,
-        'starts_at' =>
-            now()->subDays(5),
-        'ends_at' =>
-            now()->subDay(),
+        'source' => RoleAssignmentSource::Console,
+        'starts_at' => now()->subDays(5),
+        'ends_at' => now()->subDay(),
     ]);
 
     expect(

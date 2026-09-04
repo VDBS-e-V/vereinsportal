@@ -2,13 +2,13 @@
 
 use App\Modules\Communication\Enums\EmailDeliveryStatus;
 use App\Modules\Communication\Enums\EmailDeliveryType;
-use App\Modules\Identity\Exceptions\RegistrationVerificationEmailUnavailable;
 use App\Modules\Communication\Jobs\SendTemplatedEmailJob;
 use App\Modules\Communication\Models\EmailDelivery;
 use App\Modules\Communication\Models\EmailTemplate;
 use App\Modules\Communication\Models\EmailTemplateVersion;
 use App\Modules\Identity\Actions\Registration\StartRegistrationWorkflowAction;
 use App\Modules\Identity\Enums\UserStatus;
+use App\Modules\Identity\Exceptions\RegistrationVerificationEmailUnavailable;
 use App\Modules\Identity\Models\RegistrationRequest;
 use App\Modules\Identity\Models\User;
 use Database\Seeders\RegistrationVerificationEmailTemplateSeeder;

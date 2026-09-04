@@ -13,7 +13,7 @@ it('writes only whitelisted values with three year retention', function () {
         'UTC',
     );
 
-    $event = (new AuditWriter())->write(
+    $event = (new AuditWriter)->write(
         eventKey: AuditEventCatalog::ROLE_AUTOMATIC_ASSIGNED,
         actorType: AuditActorType::System,
         actorContext: 'registration',
@@ -39,19 +39,19 @@ it('writes only whitelisted values with three year retention', function () {
 });
 
 it('rejects an audit event without an explicit value whitelist', function () {
-    expect(fn () => (new AuditWriter())->write(
+    expect(fn () => (new AuditWriter)->write(
         eventKey: 'unconfigured.event',
         actorType: AuditActorType::System,
         newValues: [
             'anything' => 'value',
         ],
-    ))->toThrow(\InvalidArgumentException::class);
+    ))->toThrow(InvalidArgumentException::class);
 
     expect(AuditEvent::query()->count())->toBe(0);
 });
 
 it('participates in the callers database transaction', function () {
-    $writer = new AuditWriter();
+    $writer = new AuditWriter;
 
     expect(fn () => DB::transaction(function () use ($writer): void {
         $writer->write(
@@ -63,18 +63,18 @@ it('participates in the callers database transaction', function () {
             ],
         );
 
-        throw new \RuntimeException('force rollback');
-    }))->toThrow(\RuntimeException::class, 'force rollback');
+        throw new RuntimeException('force rollback');
+    }))->toThrow(RuntimeException::class, 'force rollback');
 
     expect(AuditEvent::query()->count())->toBe(0);
 });
 
 it('writes verification resend audit without secret values', function () {
     $event = app(
-        \App\Modules\Audit\Services\AuditWriter::class
+        AuditWriter::class
     )->write(
-        eventKey: \App\Modules\Audit\Support\AuditEventCatalog::AUTH_VERIFICATION_RESENT,
-        actorType: \App\Modules\Audit\Enums\AuditActorType::System,
+        eventKey: AuditEventCatalog::AUTH_VERIFICATION_RESENT,
+        actorType: AuditActorType::System,
         actorContext: 'public_registration_verification_resend',
         subjectType: 'registration_request',
         subjectId: 123,
@@ -92,22 +92,16 @@ it('writes verification resend audit without secret values', function () {
 
 it('does not retain registration secrets in cleanup audit values', function () {
     $event = app(AuditWriter::class)->write(
-        eventKey:
-            \App\Modules\Audit\Support\AuditEventCatalog::
-                ACCOUNT_REGISTRATION_DELETED_UNVERIFIED,
-        actorType:
-            \App\Modules\Audit\Enums\AuditActorType::System,
-        actorContext:
-            'registration_cleanup',
-        subjectType:
-            'registration_request',
+        eventKey: AuditEventCatalog::ACCOUNT_REGISTRATION_DELETED_UNVERIFIED,
+        actorType: AuditActorType::System,
+        actorContext: 'registration_cleanup',
+        subjectType: 'registration_request',
         subjectId: 123,
         newValues: [
             'reason' => 'expired',
             'email' => 'secret@example.test',
             'password' => 'secret',
-            'verification_url' =>
-                'https://example.test/secret',
+            'verification_url' => 'https://example.test/secret',
         ],
     );
 

@@ -83,8 +83,7 @@ it('resets the password and invalidates all sessions', function () {
             AuditEvent::query()
                 ->where(
                     'event_key',
-                    AuditEventCatalog::
-                        AUTH_PASSWORD_RESET_COMPLETED,
+                    AuditEventCatalog::AUTH_PASSWORD_RESET_COMPLETED,
                 )
                 ->count()
         )
@@ -93,8 +92,7 @@ it('resets the password and invalidates all sessions', function () {
             AuditEvent::query()
                 ->where(
                     'event_key',
-                    AuditEventCatalog::
-                        AUTH_SESSIONS_INVALIDATED,
+                    AuditEventCatalog::AUTH_SESSIONS_INVALIDATED,
                 )
                 ->count()
         )

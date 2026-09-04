@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Mail;
 use LogicException;
 use Throwable;
 
-final class SendTemplatedEmailJob implements ShouldQueue, ShouldBeEncrypted
+final class SendTemplatedEmailJob implements ShouldBeEncrypted, ShouldQueue
 {
     use FoundationQueueable;
     use InteractsWithQueue;
@@ -24,13 +24,12 @@ final class SendTemplatedEmailJob implements ShouldQueue, ShouldBeEncrypted
     public int $tries = 3;
 
     /**
-     * @param array<string, string|int|float> $values
+     * @param  array<string, string|int|float>  $values
      */
     public function __construct(
         public readonly int $emailDeliveryId,
         public readonly array $values,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array<int, int>

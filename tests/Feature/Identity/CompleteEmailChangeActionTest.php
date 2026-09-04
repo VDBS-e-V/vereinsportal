@@ -104,8 +104,7 @@ it('completes an email change atomically and invalidates sessions', function () 
             AuditEvent::query()
                 ->where(
                     'event_key',
-                    AuditEventCatalog::
-                        AUTH_EMAIL_CHANGE_COMPLETED,
+                    AuditEventCatalog::AUTH_EMAIL_CHANGE_COMPLETED,
                 )
                 ->count()
         )
@@ -114,8 +113,7 @@ it('completes an email change atomically and invalidates sessions', function () 
             AuditEvent::query()
                 ->where(
                     'event_key',
-                    AuditEventCatalog::
-                        AUTH_SESSIONS_INVALIDATED,
+                    AuditEventCatalog::AUTH_SESSIONS_INVALIDATED,
                 )
                 ->count()
         )

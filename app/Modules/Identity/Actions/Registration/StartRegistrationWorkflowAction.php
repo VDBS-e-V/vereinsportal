@@ -13,8 +13,7 @@ final class StartRegistrationWorkflowAction
     public function __construct(
         private readonly StartRegistrationAction $startRegistration,
         private readonly QueueRegistrationVerificationEmailAction $queueVerificationEmail,
-    ) {
-    }
+    ) {}
 
     public function execute(
         string $firstName,
@@ -43,8 +42,7 @@ final class StartRegistrationWorkflowAction
             );
         } catch (EmailTemplateUnavailable $exception) {
             throw new RegistrationVerificationEmailUnavailable(
-                registrationPublicId:
-                    $registrationRequest->public_id,
+                registrationPublicId: $registrationRequest->public_id,
                 previous: $exception,
             );
         }

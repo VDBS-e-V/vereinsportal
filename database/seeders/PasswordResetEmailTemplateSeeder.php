@@ -24,8 +24,7 @@ final class PasswordResetEmailTemplateSeeder extends Seeder
                  */
                 'is_active' => false,
 
-                'draft_subject' =>
-                    'Passwort zurücksetzen',
+                'draft_subject' => 'Passwort zurücksetzen',
 
                 'draft_html' => <<<'HTML'
 <p>Sie haben das Zurücksetzen Ihres Passworts angefordert.</p>
@@ -49,26 +48,21 @@ HTML,
             [
                 'key' => 'reset_url',
                 'label' => 'Passwort-Reset-Link',
-                'description' =>
-                    'Link zum Festlegen eines neuen Passworts.',
-                'example_value' =>
-                    'https://my.vdb.test/passwort/zuruecksetzen/example',
+                'description' => 'Link zum Festlegen eines neuen Passworts.',
+                'example_value' => 'https://my.vdb.test/passwort/zuruecksetzen/example',
                 'is_required' => true,
             ],
             [
                 'key' => 'expires_at',
                 'label' => 'Ablaufzeitpunkt',
-                'description' =>
-                    'Zeitpunkt, bis zu dem der Reset-Link gültig ist.',
-                'example_value' =>
-                    '03.09.2026 23:30',
+                'description' => 'Zeitpunkt, bis zu dem der Reset-Link gültig ist.',
+                'example_value' => '03.09.2026 23:30',
                 'is_required' => true,
             ],
             [
                 'key' => 'first_name',
                 'label' => 'Vorname',
-                'description' =>
-                    'Vorname der betroffenen Person.',
+                'description' => 'Vorname der betroffenen Person.',
                 'example_value' => 'Erika',
                 'is_required' => false,
             ],
@@ -82,12 +76,9 @@ HTML,
                 ],
                 [
                     'label' => $placeholder['label'],
-                    'description' =>
-                        $placeholder['description'],
-                    'example_value' =>
-                        $placeholder['example_value'],
-                    'is_required' =>
-                        $placeholder['is_required'],
+                    'description' => $placeholder['description'],
+                    'example_value' => $placeholder['example_value'],
+                    'is_required' => $placeholder['is_required'],
                     'is_active' => true,
                 ],
             );

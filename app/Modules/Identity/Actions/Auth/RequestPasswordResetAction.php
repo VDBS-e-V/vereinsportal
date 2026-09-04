@@ -20,8 +20,7 @@ final class RequestPasswordResetAction
         private readonly PasswordResetUrl $passwordResetUrl,
         private readonly QueueTemplatedEmailAction $queueEmail,
         private readonly AuditWriter $auditWriter,
-    ) {
-    }
+    ) {}
 
     public function execute(
         string $email,
@@ -42,8 +41,7 @@ final class RequestPasswordResetAction
          * ins Audit.
          */
         $this->auditWriter->write(
-            eventKey:
-                AuditEventCatalog::AUTH_PASSWORD_RESET_REQUESTED,
+            eventKey: AuditEventCatalog::AUTH_PASSWORD_RESET_REQUESTED,
             actorType: $user !== null
                 ? AuditActorType::User
                 : AuditActorType::System,
@@ -93,18 +91,15 @@ final class RequestPasswordResetAction
                             templateKey: 'auth.password_reset',
                             recipientEmail: $resetUser->email,
                             values: [
-                                'reset_url' =>
-                                    $this->passwordResetUrl
-                                        ->create(
-                                            $resetUser,
-                                            $token,
-                                        ),
-                                'expires_at' =>
-                                    $expiresAt->format(
-                                        'd.m.Y H:i'
+                                'reset_url' => $this->passwordResetUrl
+                                    ->create(
+                                        $resetUser,
+                                        $token,
                                     ),
-                                'first_name' =>
-                                    $user->person?->first_name
+                                'expires_at' => $expiresAt->format(
+                                    'd.m.Y H:i'
+                                ),
+                                'first_name' => $user->person?->first_name
                                     ?? '',
                             ],
                         );

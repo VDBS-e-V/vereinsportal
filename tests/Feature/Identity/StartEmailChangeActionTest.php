@@ -76,8 +76,7 @@ it('starts an email change without changing the current email', function () {
             AuditEvent::query()
                 ->where(
                     'event_key',
-                    AuditEventCatalog::
-                        AUTH_EMAIL_CHANGE_REQUESTED,
+                    AuditEventCatalog::AUTH_EMAIL_CHANGE_REQUESTED,
                 )
                 ->count()
         )
@@ -131,8 +130,7 @@ it('supersedes the previous open email change', function () {
             AuditEvent::query()
                 ->where(
                     'event_key',
-                    AuditEventCatalog::
-                        AUTH_EMAIL_CHANGE_SUPERSEDED,
+                    AuditEventCatalog::AUTH_EMAIL_CHANGE_SUPERSEDED,
                 )
                 ->count()
         )

@@ -14,13 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'identity.revalidate' =>
-                RevalidateAuthenticatedUser::class,
+            'identity.revalidate' => RevalidateAuthenticatedUser::class,
         ]);
 
         $middleware->redirectGuestsTo(
-            fn (Request $request): string =>
-                route('my.login')
+            fn (Request $request): string => route('my.login')
         );
     })
     ->withExceptions(function (Exceptions $exceptions): void {

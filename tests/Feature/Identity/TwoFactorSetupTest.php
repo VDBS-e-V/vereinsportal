@@ -119,8 +119,7 @@ it('confirms totp and creates exactly four hashed recovery codes', function () {
             AuditEvent::query()
                 ->where(
                     'event_key',
-                    AuditEventCatalog::
-                        AUTH_2FA_ENABLED,
+                    AuditEventCatalog::AUTH_2FA_ENABLED,
                 )
                 ->count()
         )
@@ -129,8 +128,7 @@ it('confirms totp and creates exactly four hashed recovery codes', function () {
             AuditEvent::query()
                 ->where(
                     'event_key',
-                    AuditEventCatalog::
-                        AUTH_2FA_RECOVERY_CODES_REGENERATED,
+                    AuditEventCatalog::AUTH_2FA_RECOVERY_CODES_REGENERATED,
                 )
                 ->count()
         )
@@ -147,15 +145,14 @@ it('confirms totp and creates exactly four hashed recovery codes', function () {
     foreach ($plainCodes as $plainCode) {
         expect(
             $stored->contains(
-                fn ($record): bool =>
-                    Hash::check(
-                        str_replace(
-                            '-',
-                            '',
-                            $plainCode,
-                        ),
-                        $record->code_hash,
-                    )
+                fn ($record): bool => Hash::check(
+                    str_replace(
+                        '-',
+                        '',
+                        $plainCode,
+                    ),
+                    $record->code_hash,
+                )
             )
         )->toBeTrue();
     }
@@ -173,8 +170,7 @@ it('rejects a wrong initial totp code', function () {
             ConfirmTotpSetupAction::class
         )->execute(
             user: $user,
-            methodId:
-                $setup['method']->id,
+            methodId: $setup['method']->id,
             code: '999999',
         )
     )->toThrow(

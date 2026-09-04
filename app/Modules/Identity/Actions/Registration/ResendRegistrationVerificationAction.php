@@ -17,8 +17,7 @@ final class ResendRegistrationVerificationAction
     public function __construct(
         private readonly QueueRegistrationVerificationEmailAction $queueVerificationEmail,
         private readonly AuditWriter $auditWriter,
-    ) {
-    }
+    ) {}
 
     public function execute(
         string $publicId,
@@ -77,12 +76,10 @@ final class ResendRegistrationVerificationAction
                 }
 
                 $registrationRequest->forceFill([
-                    'verification_version' =>
-                        $registrationRequest
-                            ->verification_version + 1,
+                    'verification_version' => $registrationRequest
+                        ->verification_version + 1,
 
-                    'verification_expires_at' =>
-                        $verificationExpiresAt,
+                    'verification_expires_at' => $verificationExpiresAt,
                 ])->save();
 
                 /*
@@ -98,29 +95,21 @@ final class ResendRegistrationVerificationAction
                     ->execute($registrationRequest);
 
                 $this->auditWriter->write(
-                    eventKey:
-                        AuditEventCatalog::AUTH_VERIFICATION_RESENT,
+                    eventKey: AuditEventCatalog::AUTH_VERIFICATION_RESENT,
 
-                    actorType:
-                        AuditActorType::System,
+                    actorType: AuditActorType::System,
 
-                    actorContext:
-                        'public_registration_verification_resend',
+                    actorContext: 'public_registration_verification_resend',
 
-                    subjectType:
-                        'registration_request',
+                    subjectType: 'registration_request',
 
-                    subjectId:
-                        $registrationRequest->id,
+                    subjectId: $registrationRequest->id,
 
-                    ipAddress:
-                        $ipAddress,
+                    ipAddress: $ipAddress,
 
-                    userAgent:
-                        $userAgent,
+                    userAgent: $userAgent,
 
-                    deviceInfo:
-                        $deviceInfo,
+                    deviceInfo: $deviceInfo,
                 );
 
                 return $delivery;

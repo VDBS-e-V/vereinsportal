@@ -8,7 +8,7 @@ use App\Modules\Communication\Models\EmailTemplateVersion;
 final class EmailTemplateRenderer
 {
     /**
-     * @param array<string, string|int|float> $values
+     * @param  array<string, string|int|float>  $values
      * @return array{subject: string, html: string}
      */
     public function render(
@@ -28,7 +28,7 @@ final class EmailTemplateRenderer
             ->all();
 
         $usedKeys = $this->extractPlaceholderKeys(
-            $version->subject . "\n" . $version->html
+            $version->subject."\n".$version->html
         );
 
         foreach ($usedKeys as $key) {
@@ -101,7 +101,7 @@ final class EmailTemplateRenderer
     }
 
     /**
-     * @param array<string, string|int|float> $values
+     * @param  array<string, string|int|float>  $values
      */
     private function replace(
         string $content,

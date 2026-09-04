@@ -49,10 +49,8 @@ it('shows the own profile with email read only workflow', function () {
 
     $this
         ->withSession([
-            'identity.session_version' =>
-                $user->session_version,
-            'identity.account_validated_at' =>
-                now()->timestamp,
+            'identity.session_version' => $user->session_version,
+            'identity.account_validated_at' => now()->timestamp,
         ])
         ->actingAs($user)
         ->get('http://my.vdb.test/profil')

@@ -13,8 +13,7 @@ final class QueueEmailChangeVerificationAction
     public function __construct(
         private readonly QueueTemplatedEmailAction $queueEmail,
         private readonly EmailChangeVerificationUrl $url,
-    ) {
-    }
+    ) {}
 
     public function execute(
         EmailChangeRequest $request,
@@ -42,25 +41,18 @@ final class QueueEmailChangeVerificationAction
                     ->firstOrFail();
 
                 $this->queueEmail->execute(
-                    templateKey:
-                        'auth.email_change.confirm_new',
-                    recipientEmail:
-                        $locked->new_email,
+                    templateKey: 'auth.email_change.confirm_new',
+                    recipientEmail: $locked->new_email,
                     values: [
-                        'confirmation_url' =>
-                            $this->url->create($locked),
-                        'expires_at' =>
-                            $locked->expires_at
-                                ->format(
-                                    'd.m.Y H:i'
-                                ),
-                        'first_name' =>
-                            $user->person?->first_name
+                        'confirmation_url' => $this->url->create($locked),
+                        'expires_at' => $locked->expires_at
+                            ->format(
+                                'd.m.Y H:i'
+                            ),
+                        'first_name' => $user->person?->first_name
                             ?? '',
-                        'old_email' =>
-                            $locked->old_email,
-                        'new_email' =>
-                            $locked->new_email,
+                        'old_email' => $locked->old_email,
+                        'new_email' => $locked->new_email,
                     ],
                 );
 

@@ -2,11 +2,11 @@
 
 namespace App\Modules\Communication\Models;
 
+use App\Modules\Communication\Enums\EmailDeliveryStatus;
+use App\Modules\Communication\Enums\EmailDeliveryType;
 use App\Modules\Identity\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Modules\Communication\Enums\EmailDeliveryStatus;
-use App\Modules\Communication\Enums\EmailDeliveryType;
 
 final class EmailDelivery extends Model
 {

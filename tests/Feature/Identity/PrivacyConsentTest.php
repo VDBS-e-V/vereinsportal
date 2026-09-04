@@ -4,6 +4,9 @@ use App\Modules\Identity\Enums\UserStatus;
 use App\Modules\Identity\Models\Person;
 use App\Modules\Identity\Models\PrivacyConsent;
 use App\Modules\Identity\Models\User;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 it('stores privacy consent as an immutable historical record', function () {
     $person = Person::query()->create([
@@ -32,7 +35,7 @@ it('stores privacy consent as an immutable historical record', function () {
 
     expect($consent->accepted)->toBeTrue()
         ->and($consent->accepted_at)
-        ->toBeInstanceOf(\Illuminate\Support\Carbon::class)
+        ->toBeInstanceOf(Carbon::class)
         ->and($consent->person->is($person))
         ->toBeTrue()
         ->and($consent->user->is($user))
@@ -72,7 +75,7 @@ it('can retain multiple consent records for the same person', function () {
 });
 
 it('requires a created at timestamp at database level', function () {
-    $person = \App\Modules\Identity\Models\Person::query()->create([
+    $person = Person::query()->create([
         'first_name' => 'Erika',
         'last_name' => 'Mustermann',
         'birth_date' => '1990-01-15',
@@ -80,7 +83,7 @@ it('requires a created at timestamp at database level', function () {
         'country_code' => 'DE',
     ]);
 
-    expect(fn () => \Illuminate\Support\Facades\DB::table('privacy_consents')->insert([
+    expect(fn () => DB::table('privacy_consents')->insert([
         'person_id' => $person->id,
         'user_id' => null,
         'context' => 'registration',
@@ -88,5 +91,5 @@ it('requires a created at timestamp at database level', function () {
         'accepted' => true,
         'accepted_at' => now(),
         'created_at' => null,
-    ]))->toThrow(\Illuminate\Database\QueryException::class);
+    ]))->toThrow(QueryException::class);
 });

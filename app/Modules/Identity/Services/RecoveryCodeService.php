@@ -33,14 +33,12 @@ final class RecoveryCodeService
 
             TwoFactorRecoveryCode::query()
                 ->create([
-                    'user_id' =>
-                        $user->id,
-                    'code_hash' =>
-                        Hash::make(
-                            $this->normalize(
-                                $plainCode
-                            )
-                        ),
+                    'user_id' => $user->id,
+                    'code_hash' => Hash::make(
+                        $this->normalize(
+                            $plainCode
+                        )
+                    ),
                 ]);
 
             $plainCodes[] = $plainCode;

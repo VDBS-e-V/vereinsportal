@@ -17,11 +17,10 @@ final class PublishEmailTemplateAction
     public function __construct(
         private readonly EmailTemplateHtmlSanitizer $sanitizer,
         private readonly AuditWriter $auditWriter,
-    ) {
-    }
+    ) {}
 
     /**
-     * @param array<string, mixed>|null $deviceInfo
+     * @param  array<string, mixed>|null  $deviceInfo
      */
     public function execute(
         int $templateId,
@@ -79,7 +78,7 @@ final class PublishEmailTemplateAction
              * eines vom Sanitizer entfernten <script>-Blocks lag.
              */
             $rawUsedKeys = $this->extractPlaceholderKeys(
-                $subject . "\n" . $html
+                $subject."\n".$html
             );
 
             foreach ($rawUsedKeys as $key) {
@@ -104,7 +103,7 @@ final class PublishEmailTemplateAction
              * veröffentlichte Version.
              */
             $publishedUsedKeys = $this->extractPlaceholderKeys(
-                $subject . "\n" . $sanitizedHtml
+                $subject."\n".$sanitizedHtml
             );
 
             $requiredKeys = $activePlaceholders

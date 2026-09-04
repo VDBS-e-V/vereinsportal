@@ -22,8 +22,7 @@ final class AttemptLoginAction
         private readonly TwoFactorRequirement $twoFactor,
         private readonly PendingLogin $pendingLogin,
         private readonly FinalizeLoginAction $finalizeLogin,
-    ) {
-    }
+    ) {}
 
     public function execute(
         string $email,
@@ -48,15 +47,13 @@ final class AttemptLoginAction
                 userAgent: $userAgent,
                 deviceInfo: $deviceInfo,
                 scope: 'ip',
-                lockedForSeconds:
-                    $this->rateLimiter
-                        ->ipAvailableIn(
-                            $ipAddress
-                        ),
+                lockedForSeconds: $this->rateLimiter
+                    ->ipAvailableIn(
+                        $ipAddress
+                    ),
             );
 
-            throw LoginFailed::
-                temporarilyLocked();
+            throw LoginFailed::temporarilyLocked();
         }
 
         if (
@@ -71,15 +68,13 @@ final class AttemptLoginAction
                 userAgent: $userAgent,
                 deviceInfo: $deviceInfo,
                 scope: 'user',
-                lockedForSeconds:
-                    $this->rateLimiter
-                        ->userAvailableIn(
-                            $email
-                        ),
+                lockedForSeconds: $this->rateLimiter
+                    ->userAvailableIn(
+                        $email
+                    ),
             );
 
-            throw LoginFailed::
-                temporarilyLocked();
+            throw LoginFailed::temporarilyLocked();
         }
 
         $user = User::query()
@@ -104,21 +99,16 @@ final class AttemptLoginAction
             );
 
             $this->auditWriter->write(
-                eventKey:
-                    AuditEventCatalog::
-                        AUTH_LOGIN_FAILED,
-                actorType:
-                    AuditActorType::User,
+                eventKey: AuditEventCatalog::AUTH_LOGIN_FAILED,
+                actorType: AuditActorType::User,
                 actorUserId: $user?->id,
                 actorContext: 'login',
-                subjectType:
-                    $user !== null
+                subjectType: $user !== null
                         ? 'user'
                         : null,
                 subjectId: $user?->id,
                 newValues: [
-                    'reason' =>
-                        'invalid_credentials_or_account_state',
+                    'reason' => 'invalid_credentials_or_account_state',
                     'login_id' => $email,
                 ],
                 ipAddress: $ipAddress,
@@ -126,8 +116,7 @@ final class AttemptLoginAction
                 deviceInfo: $deviceInfo,
             );
 
-            throw LoginFailed::
-                invalidCredentials();
+            throw LoginFailed::invalidCredentials();
         }
 
         if (
@@ -162,8 +151,7 @@ final class AttemptLoginAction
                 user: $user,
                 remember: $remember,
                 method: 'password',
-                expectedSessionVersion:
-                    $user->session_version,
+                expectedSessionVersion: $user->session_version,
                 ipAddress: $ipAddress,
                 userAgent: $userAgent,
                 deviceInfo: $deviceInfo,
@@ -183,15 +171,11 @@ final class AttemptLoginAction
             ->first();
 
         $this->auditWriter->write(
-            eventKey:
-                AuditEventCatalog::
-                    AUTH_LOGIN_LOCKED,
-            actorType:
-                AuditActorType::System,
+            eventKey: AuditEventCatalog::AUTH_LOGIN_LOCKED,
+            actorType: AuditActorType::System,
             actorUserId: null,
             actorContext: 'login',
-            subjectType:
-                $user !== null
+            subjectType: $user !== null
                     ? 'user'
                     : null,
             subjectId: $user?->id,

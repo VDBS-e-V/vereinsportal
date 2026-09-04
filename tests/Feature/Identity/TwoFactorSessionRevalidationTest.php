@@ -19,8 +19,7 @@ function makeTwoFactorSessionUser(): User
 
     TwoFactorMethod::query()->create([
         'user_id' => $user->id,
-        'type' =>
-            TwoFactorMethodType::Email,
+        'type' => TwoFactorMethodType::Email,
         'confirmed_at' => now(),
     ]);
 
@@ -32,12 +31,10 @@ it('invalidates a two factor session without second factor proof', function () {
 
     $this
         ->withSession([
-            'identity.session_version' =>
-                $user->session_version,
-            'identity.account_validated_at' =>
-                now()
-                    ->subMinutes(11)
-                    ->timestamp,
+            'identity.session_version' => $user->session_version,
+            'identity.account_validated_at' => now()
+                ->subMinutes(11)
+                ->timestamp,
         ])
         ->actingAs($user)
         ->get('http://my.vdb.test/')
@@ -53,14 +50,11 @@ it('keeps a valid session that proved the second factor', function () {
 
     $this
         ->withSession([
-            'identity.session_version' =>
-                $user->session_version,
-            'identity.account_validated_at' =>
-                now()
-                    ->subMinutes(11)
-                    ->timestamp,
-            'identity.two_factor_verified_at' =>
-                now()->timestamp,
+            'identity.session_version' => $user->session_version,
+            'identity.account_validated_at' => now()
+                ->subMinutes(11)
+                ->timestamp,
+            'identity.two_factor_verified_at' => now()->timestamp,
         ])
         ->actingAs($user)
         ->get('http://my.vdb.test/')

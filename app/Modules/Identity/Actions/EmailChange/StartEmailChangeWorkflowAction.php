@@ -11,8 +11,7 @@ final class StartEmailChangeWorkflowAction
     public function __construct(
         private readonly StartEmailChangeAction $start,
         private readonly QueueEmailChangeVerificationAction $queue,
-    ) {
-    }
+    ) {}
 
     public function execute(
         User $user,

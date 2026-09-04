@@ -86,10 +86,10 @@ final class TotpService
             $this->base32Decode($secret);
 
         $high = ($counter >> 32)
-            & 0xffffffff;
+            & 0xFFFFFFFF;
 
         $low = $counter
-            & 0xffffffff;
+            & 0xFFFFFFFF;
 
         $counterBytes = pack(
             'N2',
@@ -105,24 +105,24 @@ final class TotpService
         );
 
         $offset =
-            ord($hash[19]) & 0x0f;
+            ord($hash[19]) & 0x0F;
 
         $binary =
             (
-                (ord($hash[$offset]) & 0x7f)
+                (ord($hash[$offset]) & 0x7F)
                 << 24
             )
             | (
-                (ord($hash[$offset + 1]) & 0xff)
+                (ord($hash[$offset + 1]) & 0xFF)
                 << 16
             )
             | (
-                (ord($hash[$offset + 2]) & 0xff)
+                (ord($hash[$offset + 2]) & 0xFF)
                 << 8
             )
             | (
                 ord($hash[$offset + 3])
-                & 0xff
+                & 0xFF
             );
 
         return str_pad(
@@ -139,8 +139,7 @@ final class TotpService
         $bits = '';
 
         foreach (
-            str_split($data)
-            as $character
+            str_split($data) as $character
         ) {
             $bits .= str_pad(
                 decbin(ord($character)),
@@ -153,8 +152,7 @@ final class TotpService
         $encoded = '';
 
         foreach (
-            str_split($bits, 5)
-            as $chunk
+            str_split($bits, 5) as $chunk
         ) {
             $chunk = str_pad(
                 $chunk,
@@ -185,8 +183,7 @@ final class TotpService
         $bits = '';
 
         foreach (
-            str_split($encoded)
-            as $character
+            str_split($encoded) as $character
         ) {
             $position = strpos(
                 self::ALPHABET,
@@ -208,8 +205,7 @@ final class TotpService
         $decoded = '';
 
         foreach (
-            str_split($bits, 8)
-            as $chunk
+            str_split($bits, 8) as $chunk
         ) {
             if (strlen($chunk) !== 8) {
                 continue;

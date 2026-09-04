@@ -4,9 +4,10 @@ use App\Modules\Identity\Enums\RegistrationRequestStatus;
 use App\Modules\Identity\Models\RegistrationRequest;
 use App\Modules\Identity\Support\RegistrationVerificationUrl;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 
 afterEach(function () {
     CarbonImmutable::setTestNow();
@@ -15,7 +16,7 @@ afterEach(function () {
 function verificationRequest(): RegistrationRequest
 {
     return RegistrationRequest::query()->create([
-        'public_id' => (string) \Illuminate\Support\Str::ulid(),
+        'public_id' => (string) Str::ulid(),
         'first_name' => 'Erika',
         'last_name' => 'Mustermann',
         'birth_date' => '1990-01-15',

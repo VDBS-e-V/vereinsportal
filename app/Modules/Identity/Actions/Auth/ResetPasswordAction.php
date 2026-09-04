@@ -18,8 +18,7 @@ final class ResetPasswordAction
 {
     public function __construct(
         private readonly AuditWriter $auditWriter,
-    ) {
-    }
+    ) {}
 
     public function execute(
         string $email,
@@ -35,8 +34,7 @@ final class ResetPasswordAction
         Validator::make(
             [
                 'password' => $password,
-                'password_confirmation' =>
-                    $passwordConfirmation,
+                'password_confirmation' => $passwordConfirmation,
             ],
             [
                 'password' => [
@@ -65,8 +63,7 @@ final class ResetPasswordAction
                     'email' => $email,
                     'token' => $token,
                     'password' => $password,
-                    'password_confirmation' =>
-                        $passwordConfirmation,
+                    'password_confirmation' => $passwordConfirmation,
                 ],
                 function (
                     User $user,
@@ -88,8 +85,7 @@ final class ResetPasswordAction
                         || $lockedUser->email_verified_at
                             === null
                     ) {
-                        throw PasswordResetFailed::
-                            invalidOrExpired();
+                        throw PasswordResetFailed::invalidOrExpired();
                     }
 
                     $lockedUser->password = $newPassword;
@@ -111,9 +107,7 @@ final class ResetPasswordAction
                         ->delete();
 
                     $this->auditWriter->write(
-                        eventKey:
-                            AuditEventCatalog::
-                                AUTH_PASSWORD_RESET_COMPLETED,
+                        eventKey: AuditEventCatalog::AUTH_PASSWORD_RESET_COMPLETED,
                         actorType: AuditActorType::User,
                         actorUserId: $lockedUser->id,
                         subjectType: 'user',
@@ -124,16 +118,13 @@ final class ResetPasswordAction
                     );
 
                     $this->auditWriter->write(
-                        eventKey:
-                            AuditEventCatalog::
-                                AUTH_SESSIONS_INVALIDATED,
+                        eventKey: AuditEventCatalog::AUTH_SESSIONS_INVALIDATED,
                         actorType: AuditActorType::User,
                         actorUserId: $lockedUser->id,
                         subjectType: 'user',
                         subjectId: $lockedUser->id,
                         newValues: [
-                            'reason' =>
-                                'password_reset',
+                            'reason' => 'password_reset',
                         ],
                         ipAddress: $ipAddress,
                         userAgent: $userAgent,

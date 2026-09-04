@@ -49,7 +49,7 @@ final class AuditEventCatalog
     public const AUTH_EMAIL_CHANGE_COMPLETED = 'auth.email_change.completed';
 
     public const AUTH_2FA_ENABLED =
-    'auth.2fa.enabled';
+        'auth.2fa.enabled';
 
     public const AUTH_2FA_DISABLED = 'auth.2fa.disabled';
 

@@ -7,6 +7,7 @@ use App\Modules\Identity\Models\Role;
 use App\Modules\Identity\Models\RoleAssignment;
 use App\Modules\Identity\Models\User;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Support\Carbon;
 
 it('stores an automatic role assignment with its relationships', function () {
     $this->seed(RoleSeeder::class);
@@ -33,7 +34,7 @@ it('stores an automatic role assignment with its relationships', function () {
     expect($assignment->source)
         ->toBe(RoleAssignmentSource::Automatic)
         ->and($assignment->starts_at)
-        ->toBeInstanceOf(\Illuminate\Support\Carbon::class)
+        ->toBeInstanceOf(Carbon::class)
         ->and($assignment->ends_at)
         ->toBeNull()
         ->and($assignment->user->is($user))

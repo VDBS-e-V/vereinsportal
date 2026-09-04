@@ -15,11 +15,10 @@ final class QueueTemplatedEmailAction
 {
     public function __construct(
         private readonly EmailTemplateRenderer $renderer,
-    ) {
-    }
+    ) {}
 
     /**
-     * @param array<string, string|int|float> $values
+     * @param  array<string, string|int|float>  $values
      */
     public function execute(
         string $templateKey,

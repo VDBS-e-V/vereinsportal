@@ -18,8 +18,7 @@ final class VerifyTotpChallengeAction
         private readonly TotpService $totp,
         private readonly TwoFactorRateLimiter $rateLimiter,
         private readonly AuditWriter $auditWriter,
-    ) {
-    }
+    ) {}
 
     public function execute(
         User $user,
@@ -38,8 +37,7 @@ final class VerifyTotpChallengeAction
                     $user->id
                 )
         ) {
-            throw TwoFactorChallengeFailed::
-                locked();
+            throw TwoFactorChallengeFailed::locked();
         }
 
         $methods =
@@ -77,11 +75,8 @@ final class VerifyTotpChallengeAction
         );
 
         $this->auditWriter->write(
-            eventKey:
-                AuditEventCatalog::
-                    AUTH_2FA_CHALLENGE_FAILED,
-            actorType:
-                AuditActorType::User,
+            eventKey: AuditEventCatalog::AUTH_2FA_CHALLENGE_FAILED,
+            actorType: AuditActorType::User,
             actorUserId: $user->id,
             subjectType: 'user',
             subjectId: $user->id,
@@ -93,7 +88,6 @@ final class VerifyTotpChallengeAction
             deviceInfo: $deviceInfo,
         );
 
-        throw TwoFactorChallengeFailed::
-            invalidCode();
+        throw TwoFactorChallengeFailed::invalidCode();
     }
 }

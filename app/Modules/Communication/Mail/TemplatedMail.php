@@ -14,8 +14,7 @@ final class TemplatedMail extends Mailable
     public function __construct(
         public readonly string $subjectLine,
         public readonly string $htmlContent,
-    ) {
-    }
+    ) {}
 
     public function build(): self
     {

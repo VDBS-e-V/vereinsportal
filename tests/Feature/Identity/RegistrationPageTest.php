@@ -103,8 +103,7 @@ it('submits the public registration form', function () {
         route(
             'my.registration.status',
             [
-                'publicId' =>
-                    $registrationRequest->public_id,
+                'publicId' => $registrationRequest->public_id,
             ],
         )
     );
@@ -177,8 +176,7 @@ it('keeps the browser flow controlled when the verification template is unavaila
         route(
             'my.registration.status',
             [
-                'publicId' =>
-                    $registrationRequest->public_id,
+                'publicId' => $registrationRequest->public_id,
             ],
         )
     );

@@ -65,19 +65,14 @@ function makeRegistrationRequestForResend(
                 'birth_date' => '1990-05-10',
                 'email' => 'erika@example.test',
                 'password' => 'hashed-password',
-                'privacy_notice_version' =>
-                    '2026-09-01T21:04:00Z',
+                'privacy_notice_version' => '2026-09-01T21:04:00Z',
                 'consented_at' => now(),
-                'verification_recipient_email' =>
-                    'erika@example.test',
+                'verification_recipient_email' => 'erika@example.test',
                 'verification_version' => 1,
-                'verification_expires_at' =>
-                    now()->subHour(),
-                'verification_sent_at' =>
-                    now()->subMinutes(2),
+                'verification_expires_at' => now()->subHour(),
+                'verification_sent_at' => now()->subMinutes(2),
                 'expires_at' => now()->addDays(5),
-                'status' =>
-                    RegistrationRequestStatus::PendingVerification,
+                'status' => RegistrationRequestStatus::PendingVerification,
             ],
             $attributes,
         )
@@ -142,8 +137,7 @@ it('rate limits another resend within one minute', function () {
 
     $registrationRequest =
         makeRegistrationRequestForResend([
-            'verification_sent_at' =>
-                now()->subSeconds(30),
+            'verification_sent_at' => now()->subSeconds(30),
         ]);
 
     expect(

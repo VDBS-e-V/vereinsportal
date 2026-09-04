@@ -19,8 +19,7 @@ final class CompleteEmailChangeAction
 {
     public function __construct(
         private readonly AuditWriter $auditWriter,
-    ) {
-    }
+    ) {}
 
     public function execute(
         string $publicId,
@@ -51,8 +50,7 @@ final class CompleteEmailChangeAction
                             !== EmailChangeRequestStatus::Pending
                         || $request->expires_at->isPast()
                     ) {
-                        throw EmailChangeCannotComplete::
-                            invalidOrExpired();
+                        throw EmailChangeCannotComplete::invalidOrExpired();
                     }
 
                     $user = User::query()
@@ -67,8 +65,7 @@ final class CompleteEmailChangeAction
                             !== UserStatus::Active
                         || $user->person_id === null
                     ) {
-                        throw EmailChangeCannotComplete::
-                            invalidOrExpired();
+                        throw EmailChangeCannotComplete::invalidOrExpired();
                     }
 
                     $person = Person::query()
@@ -97,8 +94,7 @@ final class CompleteEmailChangeAction
                         || $currentUserEmail
                             !== $expectedOldEmail
                     ) {
-                        throw EmailChangeCannotComplete::
-                            invalidOrExpired();
+                        throw EmailChangeCannotComplete::invalidOrExpired();
                     }
 
                     $newEmail =
@@ -130,8 +126,7 @@ final class CompleteEmailChangeAction
                             )
                             ->exists()
                     ) {
-                        throw EmailChangeCannotComplete::
-                            emailUnavailable();
+                        throw EmailChangeCannotComplete::emailUnavailable();
                     }
 
                     $person->email = $newEmail;
@@ -152,8 +147,7 @@ final class CompleteEmailChangeAction
                     $user->save();
 
                     $request->status =
-                        EmailChangeRequestStatus::
-                            Confirmed;
+                        EmailChangeRequestStatus::Confirmed;
 
                     $request->confirmed_at = now();
                     $request->save();
@@ -171,20 +165,14 @@ final class CompleteEmailChangeAction
                         ->delete();
 
                     $this->auditWriter->write(
-                        eventKey:
-                            AuditEventCatalog::
-                                AUTH_EMAIL_CHANGE_COMPLETED,
-                        actorType:
-                            AuditActorType::User,
-                        actorUserId:
-                            $user->id,
+                        eventKey: AuditEventCatalog::AUTH_EMAIL_CHANGE_COMPLETED,
+                        actorType: AuditActorType::User,
+                        actorUserId: $user->id,
                         subjectType: 'user',
                         subjectId: $user->id,
                         newValues: [
-                            'old_email' =>
-                                $expectedOldEmail,
-                            'new_email' =>
-                                $newEmail,
+                            'old_email' => $expectedOldEmail,
+                            'new_email' => $newEmail,
                         ],
                         ipAddress: $ipAddress,
                         userAgent: $userAgent,
@@ -192,18 +180,13 @@ final class CompleteEmailChangeAction
                     );
 
                     $this->auditWriter->write(
-                        eventKey:
-                            AuditEventCatalog::
-                                AUTH_SESSIONS_INVALIDATED,
-                        actorType:
-                            AuditActorType::User,
-                        actorUserId:
-                            $user->id,
+                        eventKey: AuditEventCatalog::AUTH_SESSIONS_INVALIDATED,
+                        actorType: AuditActorType::User,
+                        actorUserId: $user->id,
                         subjectType: 'user',
                         subjectId: $user->id,
                         newValues: [
-                            'reason' =>
-                                'email_change',
+                            'reason' => 'email_change',
                         ],
                         ipAddress: $ipAddress,
                         userAgent: $userAgent,
@@ -218,8 +201,7 @@ final class CompleteEmailChangeAction
                 (string) $exception->getCode()
                 === '23000'
             ) {
-                throw EmailChangeCannotComplete::
-                    emailUnavailable();
+                throw EmailChangeCannotComplete::emailUnavailable();
             }
 
             throw $exception;

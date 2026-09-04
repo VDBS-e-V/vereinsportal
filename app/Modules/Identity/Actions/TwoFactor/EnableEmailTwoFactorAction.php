@@ -16,8 +16,7 @@ final class EnableEmailTwoFactorAction
 {
     public function __construct(
         private readonly AuditWriter $auditWriter,
-    ) {
-    }
+    ) {}
 
     public function execute(
         User $user,
@@ -42,8 +41,7 @@ final class EnableEmailTwoFactorAction
                 || $lockedUser->email_verified_at
                     === null
             ) {
-                throw TwoFactorSetupFailed::
-                    invalidMethod();
+                throw TwoFactorSetupFailed::invalidMethod();
             }
 
             $existing =
@@ -68,22 +66,16 @@ final class EnableEmailTwoFactorAction
             $method =
                 TwoFactorMethod::query()
                     ->create([
-                        'user_id' =>
-                            $lockedUser->id,
-                        'type' =>
-                            TwoFactorMethodType::Email,
+                        'user_id' => $lockedUser->id,
+                        'type' => TwoFactorMethodType::Email,
                         'secret' => null,
                         'confirmed_at' => now(),
                     ]);
 
             $this->auditWriter->write(
-                eventKey:
-                    AuditEventCatalog::
-                        AUTH_2FA_ENABLED,
-                actorType:
-                    AuditActorType::User,
-                actorUserId:
-                    $lockedUser->id,
+                eventKey: AuditEventCatalog::AUTH_2FA_ENABLED,
+                actorType: AuditActorType::User,
+                actorUserId: $lockedUser->id,
                 subjectType: 'user',
                 subjectId: $lockedUser->id,
                 newValues: [

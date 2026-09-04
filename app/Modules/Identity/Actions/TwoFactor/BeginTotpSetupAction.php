@@ -14,8 +14,7 @@ final class BeginTotpSetupAction
 {
     public function __construct(
         private readonly TotpService $totp,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array{
@@ -40,8 +39,7 @@ final class BeginTotpSetupAction
                     || $lockedUser->email_verified_at
                         === null
                 ) {
-                    throw TwoFactorSetupFailed::
-                        invalidMethod();
+                    throw TwoFactorSetupFailed::invalidMethod();
                 }
 
                 /*
@@ -71,10 +69,8 @@ final class BeginTotpSetupAction
                 $method =
                     TwoFactorMethod::query()
                         ->create([
-                            'user_id' =>
-                                $lockedUser->id,
-                            'type' =>
-                                TwoFactorMethodType::Totp,
+                            'user_id' => $lockedUser->id,
+                            'type' => TwoFactorMethodType::Totp,
                             'secret' => $secret,
                             'confirmed_at' => null,
                         ]);
@@ -82,13 +78,11 @@ final class BeginTotpSetupAction
                 return [
                     'method' => $method,
                     'secret' => $secret,
-                    'provisioning_uri' =>
-                        $this->totp
-                            ->provisioningUri(
-                                account:
-                                    $lockedUser->email,
-                                secret: $secret,
-                            ),
+                    'provisioning_uri' => $this->totp
+                        ->provisioningUri(
+                            account: $lockedUser->email,
+                            secret: $secret,
+                        ),
                 ];
             },
         );

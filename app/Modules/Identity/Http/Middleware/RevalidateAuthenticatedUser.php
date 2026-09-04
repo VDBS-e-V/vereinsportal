@@ -18,8 +18,7 @@ final class RevalidateAuthenticatedUser
 
     public function __construct(
         private readonly TwoFactorRequirement $twoFactor,
-    ) {
-    }
+    ) {}
 
     public function handle(
         Request $request,

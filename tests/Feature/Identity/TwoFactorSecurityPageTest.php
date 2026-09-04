@@ -45,10 +45,8 @@ it('shows the security page for an authenticated user', function () {
 
     $this
         ->withSession([
-            'identity.session_version' =>
-                $user->session_version,
-            'identity.account_validated_at' =>
-                now()->timestamp,
+            'identity.session_version' => $user->session_version,
+            'identity.account_validated_at' => now()->timestamp,
         ])
         ->actingAs($user)
         ->get(
@@ -110,8 +108,7 @@ it('shows mandatory two factor for an active board role', function () {
     RoleAssignment::query()->create([
         'user_id' => $user->id,
         'role_id' => $role->id,
-        'source' =>
-            RoleAssignmentSource::Automatic,
+        'source' => RoleAssignmentSource::Automatic,
         'starts_at' => now()->subMinute(),
     ]);
 
@@ -276,8 +273,7 @@ it('regenerates recovery codes through the page', function () {
 
     TwoFactorMethod::query()->create([
         'user_id' => $user->id,
-        'type' =>
-            TwoFactorMethodType::Email,
+        'type' => TwoFactorMethodType::Email,
         'confirmed_at' => now(),
     ]);
 

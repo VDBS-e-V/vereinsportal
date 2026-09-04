@@ -20,8 +20,7 @@ final class StartEmailChangeAction
 {
     public function __construct(
         private readonly AuditWriter $auditWriter,
-    ) {
-    }
+    ) {}
 
     public function execute(
         User $user,
@@ -65,8 +64,7 @@ final class StartEmailChangeAction
                     === null
                 || $lockedUser->person_id === null
             ) {
-                throw EmailChangeCannotStart::
-                    accountUnavailable();
+                throw EmailChangeCannotStart::accountUnavailable();
             }
 
             $person = Person::query()
@@ -84,13 +82,11 @@ final class StartEmailChangeAction
                     $lockedUser->email
                 ) !== $oldEmail
             ) {
-                throw EmailChangeCannotStart::
-                    accountUnavailable();
+                throw EmailChangeCannotStart::accountUnavailable();
             }
 
             if ($newEmail === $oldEmail) {
-                throw EmailChangeCannotStart::
-                    emailUnavailable();
+                throw EmailChangeCannotStart::emailUnavailable();
             }
 
             $occupiedByPerson =
@@ -117,8 +113,7 @@ final class StartEmailChangeAction
                 $occupiedByPerson
                 || $occupiedByUser
             ) {
-                throw EmailChangeCannotStart::
-                    emailUnavailable();
+                throw EmailChangeCannotStart::emailUnavailable();
             }
 
             $pendingRequests =
@@ -129,8 +124,7 @@ final class StartEmailChangeAction
                     )
                     ->where(
                         'status',
-                        EmailChangeRequestStatus::
-                            Pending,
+                        EmailChangeRequestStatus::Pending,
                     )
                     ->where(
                         'expires_at',
@@ -142,26 +136,19 @@ final class StartEmailChangeAction
 
             foreach ($pendingRequests as $pending) {
                 $pending->status =
-                    EmailChangeRequestStatus::
-                        Superseded;
+                    EmailChangeRequestStatus::Superseded;
 
                 $pending->superseded_at = now();
                 $pending->save();
 
                 $this->auditWriter->write(
-                    eventKey:
-                        AuditEventCatalog::
-                            AUTH_EMAIL_CHANGE_SUPERSEDED,
-                    actorType:
-                        AuditActorType::User,
-                    actorUserId:
-                        $lockedUser->id,
-                    subjectType:
-                        'email_change_request',
+                    eventKey: AuditEventCatalog::AUTH_EMAIL_CHANGE_SUPERSEDED,
+                    actorType: AuditActorType::User,
+                    actorUserId: $lockedUser->id,
+                    subjectType: 'email_change_request',
                     subjectId: $pending->id,
                     newValues: [
-                        'new_email' =>
-                            $pending->new_email,
+                        'new_email' => $pending->new_email,
                     ],
                     ipAddress: $ipAddress,
                     userAgent: $userAgent,
@@ -172,25 +159,16 @@ final class StartEmailChangeAction
             $request =
                 EmailChangeRequest::query()
                     ->create([
-                        'public_id' =>
-                            (string) Str::ulid(),
-                        'user_id' =>
-                            $lockedUser->id,
-                        'old_email' =>
-                            $oldEmail,
-                        'new_email' =>
-                            $newEmail,
-                        'status' =>
-                            EmailChangeRequestStatus::
-                                Pending,
-                        'expires_at' =>
-                            now()->addDays(3),
+                        'public_id' => (string) Str::ulid(),
+                        'user_id' => $lockedUser->id,
+                        'old_email' => $oldEmail,
+                        'new_email' => $newEmail,
+                        'status' => EmailChangeRequestStatus::Pending,
+                        'expires_at' => now()->addDays(3),
                     ]);
 
             $this->auditWriter->write(
-                eventKey:
-                    AuditEventCatalog::
-                        AUTH_EMAIL_CHANGE_REQUESTED,
+                eventKey: AuditEventCatalog::AUTH_EMAIL_CHANGE_REQUESTED,
                 actorType: AuditActorType::User,
                 actorUserId: $lockedUser->id,
                 subjectType: 'user',

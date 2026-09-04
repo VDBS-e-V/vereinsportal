@@ -1,8 +1,8 @@
 <?php
 
 use App\Modules\Audit\Models\AuditEvent;
-use App\Modules\Audit\Support\AuditEventCatalog;
 use App\Modules\Audit\Services\AuditWriter;
+use App\Modules\Audit\Support\AuditEventCatalog;
 use App\Modules\Identity\Enums\RegistrationRequestStatus;
 use App\Modules\Identity\Jobs\CleanupExpiredRegistrationRequestsJob;
 use App\Modules\Identity\Models\Person;
@@ -20,26 +20,18 @@ function makeRegistrationRequestForCleanupTest(
                 'first_name' => 'Erika',
                 'last_name' => 'Mustermann',
                 'birth_date' => '1990-05-10',
-                'email' =>
-                    fake()->unique()->safeEmail(),
+                'email' => fake()->unique()->safeEmail(),
                 'password' => Hash::make(
                     'Sicher123!'
                 ),
-                'privacy_notice_version' =>
-                    '2026-09-01T21:04:00Z',
+                'privacy_notice_version' => '2026-09-01T21:04:00Z',
                 'consented_at' => now(),
-                'verification_recipient_email' =>
-                    fake()->unique()->safeEmail(),
+                'verification_recipient_email' => fake()->unique()->safeEmail(),
                 'verification_version' => 1,
-                'verification_expires_at' =>
-                    now()->subHour(),
-                'verification_sent_at' =>
-                    now()->subDays(3),
-                'expires_at' =>
-                    now()->subMinute(),
-                'status' =>
-                    RegistrationRequestStatus::
-                        PendingVerification,
+                'verification_expires_at' => now()->subHour(),
+                'verification_sent_at' => now()->subDays(3),
+                'expires_at' => now()->subMinute(),
+                'status' => RegistrationRequestStatus::PendingVerification,
             ],
             $attributes,
         )
@@ -53,16 +45,13 @@ it('hard deletes expired unverified registration requests with audit', function 
     $active =
         makeRegistrationRequestForCleanupTest([
             'email' => 'active@example.test',
-            'verification_recipient_email' =>
-                'active@example.test',
-            'verification_expires_at' =>
-                now()->addDay(),
-            'expires_at' =>
-                now()->addDays(4),
+            'verification_recipient_email' => 'active@example.test',
+            'verification_expires_at' => now()->addDay(),
+            'expires_at' => now()->addDays(4),
         ]);
 
     $job =
-        new CleanupExpiredRegistrationRequestsJob();
+        new CleanupExpiredRegistrationRequestsJob;
 
     $job->handle(
         app(AuditWriter::class)
@@ -81,8 +70,7 @@ it('hard deletes expired unverified registration requests with audit', function 
     $auditEvent = AuditEvent::query()
         ->where(
             'event_key',
-            AuditEventCatalog::
-                ACCOUNT_REGISTRATION_DELETED_UNVERIFIED,
+            AuditEventCatalog::ACCOUNT_REGISTRATION_DELETED_UNVERIFIED,
         )
         ->sole();
 
@@ -104,7 +92,7 @@ it('is idempotent when registration cleanup runs more than once', function () {
     makeRegistrationRequestForCleanupTest();
 
     $job =
-        new CleanupExpiredRegistrationRequestsJob();
+        new CleanupExpiredRegistrationRequestsJob;
 
     $job->handle(
         app(AuditWriter::class)
@@ -122,8 +110,7 @@ it('is idempotent when registration cleanup runs more than once', function () {
         AuditEvent::query()
             ->where(
                 'event_key',
-                AuditEventCatalog::
-                    ACCOUNT_REGISTRATION_DELETED_UNVERIFIED,
+                AuditEventCatalog::ACCOUNT_REGISTRATION_DELETED_UNVERIFIED,
             )
             ->count()
     )->toBe(1);
@@ -139,12 +126,11 @@ it('never deletes an existing person while cleaning an expired registration', fu
 
     makeRegistrationRequestForCleanupTest([
         'email' => 'pending@example.test',
-        'verification_recipient_email' =>
-            'pending@example.test',
+        'verification_recipient_email' => 'pending@example.test',
     ]);
 
     $job =
-        new CleanupExpiredRegistrationRequestsJob();
+        new CleanupExpiredRegistrationRequestsJob;
 
     $job->handle(
         app(AuditWriter::class)
@@ -168,14 +154,12 @@ it('does not delete a registration before its overall expiry', function () {
              * abgelaufen sein, während der gesamte
              * Registrierungsvorgang weiterhin lebt.
              */
-            'verification_expires_at' =>
-                now()->subMinute(),
-            'expires_at' =>
-                now()->addDays(2),
+            'verification_expires_at' => now()->subMinute(),
+            'expires_at' => now()->addDays(2),
         ]);
 
     $job =
-        new CleanupExpiredRegistrationRequestsJob();
+        new CleanupExpiredRegistrationRequestsJob;
 
     $job->handle(
         app(AuditWriter::class)
@@ -190,8 +174,7 @@ it('does not delete a registration before its overall expiry', function () {
         AuditEvent::query()
             ->where(
                 'event_key',
-                AuditEventCatalog::
-                    ACCOUNT_REGISTRATION_DELETED_UNVERIFIED,
+                AuditEventCatalog::ACCOUNT_REGISTRATION_DELETED_UNVERIFIED,
             )
             ->count()
     )->toBe(0);

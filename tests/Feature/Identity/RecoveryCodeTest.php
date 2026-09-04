@@ -62,8 +62,7 @@ it('uses a recovery code only once without storing its plaintext in audit', func
             AuditEvent::query()
                 ->where(
                     'event_key',
-                    AuditEventCatalog::
-                        AUTH_2FA_RECOVERY_CODE_USED,
+                    AuditEventCatalog::AUTH_2FA_RECOVERY_CODE_USED,
                 )
                 ->count()
         )
@@ -84,8 +83,7 @@ it('uses a recovery code only once without storing its plaintext in audit', func
     $auditJson = AuditEvent::query()
         ->where(
             'event_key',
-            AuditEventCatalog::
-                AUTH_2FA_RECOVERY_CODE_USED,
+            AuditEventCatalog::AUTH_2FA_RECOVERY_CODE_USED,
         )
         ->get()
         ->toJson();

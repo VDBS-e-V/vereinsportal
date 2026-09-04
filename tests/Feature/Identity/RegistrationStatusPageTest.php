@@ -5,6 +5,7 @@ use App\Modules\Audit\Support\AuditEventCatalog;
 use App\Modules\Communication\Models\EmailDelivery;
 use App\Modules\Communication\Models\EmailTemplate;
 use App\Modules\Communication\Models\EmailTemplateVersion;
+use App\Modules\Identity\Actions\Registration\CompleteRegistrationAction;
 use App\Modules\Identity\Enums\RegistrationRequestStatus;
 use App\Modules\Identity\Enums\UserStatus;
 use App\Modules\Identity\Models\Person;
@@ -12,12 +13,12 @@ use App\Modules\Identity\Models\RegistrationRequest;
 use App\Modules\Identity\Models\User;
 use App\Modules\Identity\Support\RegistrationVerificationUrl;
 use Database\Seeders\RegistrationVerificationEmailTemplateSeeder;
+use Database\Seeders\RoleSeeder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Livewire\Volt\Volt;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\URL;
-use Database\Seeders\RoleSeeder;
 
 beforeEach(function () {
     $this->seed(RoleSeeder::class);
@@ -72,18 +73,14 @@ function makeRegistrationRequestForStatusPage(
                 'birth_date' => '1990-05-10',
                 'email' => 'erika@example.test',
                 'password' => 'hashed-password',
-                'privacy_notice_version' =>
-                    '2026-09-01T21:04:00Z',
+                'privacy_notice_version' => '2026-09-01T21:04:00Z',
                 'consented_at' => now(),
-                'verification_recipient_email' =>
-                    'erika@example.test',
+                'verification_recipient_email' => 'erika@example.test',
                 'verification_version' => 1,
-                'verification_expires_at' =>
-                    now()->addDays(3),
+                'verification_expires_at' => now()->addDays(3),
                 'verification_sent_at' => now(),
                 'expires_at' => now()->addDays(7),
-                'status' =>
-                    RegistrationRequestStatus::PendingVerification,
+                'status' => RegistrationRequestStatus::PendingVerification,
             ],
             $attributes,
         )
@@ -166,15 +163,13 @@ it('resends the verification email from the registration status page', function 
 
     $registrationRequest =
         makeRegistrationRequestForStatusPage([
-            'verification_sent_at' =>
-                now()->subMinutes(2),
+            'verification_sent_at' => now()->subMinutes(2),
         ]);
 
     Volt::test(
         'identity.registration-status',
         [
-            'publicId' =>
-                $registrationRequest->public_id,
+            'publicId' => $registrationRequest->public_id,
         ],
     )
         ->call('resend')
@@ -206,8 +201,7 @@ it('invalidates the previous verification link after a successful resend', funct
 
     $registrationRequest =
         makeRegistrationRequestForStatusPage([
-            'verification_sent_at' =>
-                now()->subMinutes(2),
+            'verification_sent_at' => now()->subMinutes(2),
         ]);
 
     $oldUrl = app(RegistrationVerificationUrl::class)
@@ -216,8 +210,7 @@ it('invalidates the previous verification link after a successful resend', funct
     Volt::test(
         'identity.registration-status',
         [
-            'publicId' =>
-                $registrationRequest->public_id,
+            'publicId' => $registrationRequest->public_id,
         ],
     )
         ->call('resend')
@@ -255,7 +248,7 @@ it('invalidates the previous verification link after a successful resend', funct
         ->toBe(0);
 
     $user = app(
-        \App\Modules\Identity\Actions\Registration\CompleteRegistrationAction::class
+        CompleteRegistrationAction::class
     )->execute(
         publicId: $registrationRequest->public_id,
         version: 2,
@@ -294,19 +287,15 @@ it('caps the renewed verification expiry at the overall registration expiry', fu
 
     $registrationRequest =
         makeRegistrationRequestForStatusPage([
-            'verification_sent_at' =>
-                now()->subMinutes(2),
-            'verification_expires_at' =>
-                now()->addMinutes(30),
-            'expires_at' =>
-                $overallExpiry,
+            'verification_sent_at' => now()->subMinutes(2),
+            'verification_expires_at' => now()->addMinutes(30),
+            'expires_at' => $overallExpiry,
         ]);
 
     Volt::test(
         'identity.registration-status',
         [
-            'publicId' =>
-                $registrationRequest->public_id,
+            'publicId' => $registrationRequest->public_id,
         ],
     )
         ->call('resend')
@@ -327,8 +316,7 @@ it('caps the renewed verification expiry at the overall registration expiry', fu
 it('rolls resend state back when the verification email cannot be prepared', function () {
     $registrationRequest =
         makeRegistrationRequestForStatusPage([
-            'verification_sent_at' =>
-                now()->subMinutes(2),
+            'verification_sent_at' => now()->subMinutes(2),
         ]);
 
     $previousVersion =
@@ -347,8 +335,7 @@ it('rolls resend state back when the verification email cannot be prepared', fun
     Volt::test(
         'identity.registration-status',
         [
-            'publicId' =>
-                $registrationRequest->public_id,
+            'publicId' => $registrationRequest->public_id,
         ],
     )
         ->call('resend')
@@ -391,15 +378,13 @@ it('rolls resend state back when the verification email cannot be prepared', fun
 it('shows the resend rate limit on the registration status page', function () {
     $registrationRequest =
         makeRegistrationRequestForStatusPage([
-            'verification_sent_at' =>
-                now()->subSeconds(30),
+            'verification_sent_at' => now()->subSeconds(30),
         ]);
 
     Volt::test(
         'identity.registration-status',
         [
-            'publicId' =>
-                $registrationRequest->public_id,
+            'publicId' => $registrationRequest->public_id,
         ],
     )
         ->call('resend')
@@ -429,8 +414,7 @@ it('can resend from the status page when the initial email was never prepared', 
     Volt::test(
         'identity.registration-status',
         [
-            'publicId' =>
-                $registrationRequest->public_id,
+            'publicId' => $registrationRequest->public_id,
         ],
     )
         ->call('resend')

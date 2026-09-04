@@ -14,11 +14,10 @@ final class UpdateProfileAction
 {
     public function __construct(
         private readonly AuditWriter $auditWriter,
-    ) {
-    }
+    ) {}
 
     /**
-     * @param array<string, mixed> $values
+     * @param  array<string, mixed>  $values
      */
     public function execute(
         User $user,
@@ -121,8 +120,7 @@ final class UpdateProfileAction
             $newValues = [];
 
             foreach (
-                array_keys($dirty)
-                as $field
+                array_keys($dirty) as $field
             ) {
                 $old = $person->getRawOriginal(
                     $field
@@ -144,8 +142,7 @@ final class UpdateProfileAction
             $person->save();
 
             $this->auditWriter->write(
-                eventKey:
-                    AuditEventCatalog::PERSON_UPDATED,
+                eventKey: AuditEventCatalog::PERSON_UPDATED,
                 actorType: AuditActorType::User,
                 actorUserId: $lockedUser->id,
                 subjectType: 'person',
