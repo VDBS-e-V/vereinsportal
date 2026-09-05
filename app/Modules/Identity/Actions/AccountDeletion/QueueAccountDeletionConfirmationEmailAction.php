@@ -26,7 +26,9 @@ final class QueueAccountDeletionConfirmationEmailAction
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            $user = $request->user()->firstOrFail();
+            $user = $request->user()
+                ->with('person')
+                ->firstOrFail();
 
             $expiresAt = $this->confirmationUrl->expiresAt();
 
@@ -35,14 +37,25 @@ final class QueueAccountDeletionConfirmationEmailAction
                 $expiresAt,
             );
 
+            $values = [
+                'confirmation_url' => $url,
+                'expires_at' => $expiresAt->toIso8601String(),
+                'support_email' => (string) config(
+                    'mail.support_address',
+                    '',
+                ),
+            ];
+
+            $firstName = $user->person?->first_name;
+
+            if ($firstName !== null) {
+                $values['first_name'] = $firstName;
+            }
+
             $this->queueTemplatedEmail->execute(
                 templateKey: self::TEMPLATE_KEY,
                 recipientEmail: $user->email,
-                values: [
-                    'confirmation_url' => $url,
-                    'expires_at' => $expiresAt->toIso8601String(),
-                    'first_name' => $user->person?->first_name,
-                ],
+                values: $values,
             );
 
             $request->confirmation_sent_at = now();

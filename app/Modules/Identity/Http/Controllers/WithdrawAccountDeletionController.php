@@ -3,7 +3,7 @@
 namespace App\Modules\Identity\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Identity\Actions\AccountDeletion\WithdrawAccountDeletionAction;
+use App\Modules\Identity\Actions\AccountDeletion\WithdrawAccountDeletionWorkflowAction;
 use App\Modules\Identity\Exceptions\AccountDeletionCannotWithdraw;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,7 +13,7 @@ final class WithdrawAccountDeletionController extends Controller
     public function __invoke(
         Request $request,
         string $publicId,
-        WithdrawAccountDeletionAction $withdrawDeletion,
+        WithdrawAccountDeletionWorkflowAction $withdrawDeletion,
     ): RedirectResponse {
         try {
             $withdrawDeletion->execute(
