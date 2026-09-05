@@ -15,8 +15,7 @@ final class QueueAccountDeletionConfirmationEmailAction
     public function __construct(
         private readonly QueueTemplatedEmailAction $queueTemplatedEmail,
         private readonly AccountDeletionConfirmationUrl $confirmationUrl,
-    ) {
-    }
+    ) {}
 
     public function execute(
         AccountDeletionRequest $deletionRequest,

@@ -64,6 +64,8 @@ final class AuditEventCatalog
 
     public const ACCOUNT_DELETION_CONFIRMED = 'account.deletion.confirmed';
 
+    public const ACCOUNT_DELETION_WITHDRAWN = 'account.deletion.withdrawn';
+
     /**
      * @var array<string, list<string>>
      */
@@ -181,6 +183,9 @@ final class AuditEventCatalog
         ],
         self::ACCOUNT_DELETION_CONFIRMED => [
             'revoke_until',
+        ],
+        self::ACCOUNT_DELETION_WITHDRAWN => [
+            'withdrawn_at',
         ],
     ];
 

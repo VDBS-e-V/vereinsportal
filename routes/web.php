@@ -3,6 +3,7 @@
 use App\Modules\Identity\Http\Controllers\ConfirmAccountDeletionController;
 use App\Modules\Identity\Http\Controllers\ConfirmEmailChangeController;
 use App\Modules\Identity\Http\Controllers\VerifyRegistrationController;
+use App\Modules\Identity\Http\Controllers\WithdrawAccountDeletionController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -101,4 +102,11 @@ Route::domain(config('domains.my'))
         )
             ->middleware('signed')
             ->name('identity.account-deletion.confirm');
+
+        Route::get(
+            '/identity/account-deletion/withdraw/{publicId}',
+            WithdrawAccountDeletionController::class,
+        )
+            ->middleware('signed')
+            ->name('identity.account-deletion.withdraw');
     });

@@ -10,8 +10,7 @@ final class StartAccountDeletionWorkflowAction
     public function __construct(
         private readonly RequestAccountDeletionAction $requestDeletion,
         private readonly QueueAccountDeletionConfirmationEmailAction $queueConfirmationEmail,
-    ) {
-    }
+    ) {}
 
     public function execute(
         User $user,
