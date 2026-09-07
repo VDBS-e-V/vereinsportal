@@ -66,6 +66,8 @@ final class AuditEventCatalog
 
     public const ACCOUNT_DELETION_WITHDRAWN = 'account.deletion.withdrawn';
 
+    public const ACCOUNT_DELETION_STOPPED = 'account.deletion.stopped';
+
     /**
      * @var array<string, list<string>>
      */
@@ -186,6 +188,10 @@ final class AuditEventCatalog
         ],
         self::ACCOUNT_DELETION_WITHDRAWN => [
             'withdrawn_at',
+        ],
+        self::ACCOUNT_DELETION_STOPPED => [
+            'stopped_at',
+            'reason_key',
         ],
     ];
 
