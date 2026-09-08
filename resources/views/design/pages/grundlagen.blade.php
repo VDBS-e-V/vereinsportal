@@ -15,17 +15,25 @@
         </header>
 
         <section class="stack">
-            <h2>Farben</h2>
+            <h2>Brand-Farbpalette</h2>
+            <p class="container--narrow">
+                Diese Farben bilden die vollständige Markenpalette des Portals.
+                White und Ink bilden die ruhige Basis; VDBS Green, Ocean Mist und
+                die weiteren Akzentfarben werden gezielt eingesetzt.
+            </p>
 
             <div class="design-swatches">
                 @foreach ([
                     ['VDBS Green', '#2FBF71', 'var(--color-primary)'],
                     ['Ocean Mist', '#22B7A3', 'var(--color-secondary-cta)'],
+                    ['Sekundärakzent', '#582759', 'var(--color-secondary-accent)'],
                     ['Ink', '#0F172A', 'var(--color-ink)'],
                     ['White', '#FFFFFF', 'var(--color-white)'],
                     ['Amber', '#F59E0B', 'var(--color-accent-amber)'],
                     ['Teal', '#14B8A6', 'var(--color-accent-teal)'],
                     ['Berry', '#D946EF', 'var(--color-accent-berry)'],
+                    ['Sun Yellow', '#FDE047', 'var(--color-accent-sun-yellow)'],
+                    ['Lime', '#A3E635', 'var(--color-accent-lime)'],
                 ] as [$name, $hex, $token])
                     <article class="design-swatch">
                         <div
