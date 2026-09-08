@@ -888,6 +888,43 @@ Breit:
 
 ca. 1440 px.
 
+### Komponenten-Skalen
+
+Wiederkehrende technische Größen werden ebenfalls als Tokens gepflegt:
+
+```css
+--border-width-default
+--border-width-strong
+--border-width-accent
+
+--control-height-sm
+--control-height-md
+--control-height-lg
+
+--icon-size-sm
+--icon-size-md
+--icon-size-lg
+```
+
+Komponenten sollen diese Werte verwenden, anstatt dieselben Maße lokal
+mehrfach neu zu definieren.
+
+### Ebenen und Bewegung
+
+Für wiederkehrende UI-Ebenen stehen zentrale Z-Index-Tokens zur Verfügung:
+
+```css
+--z-header
+--z-dropdown
+--z-popover
+--z-overlay
+--z-skip-link
+```
+
+Animationen und Übergänge bleiben dezent. Bei
+`prefers-reduced-motion: reduce` werden die zentralen Übergangszeiten
+auf `0ms` gesetzt.
+
 ### Seitenrand
 
 ```css
@@ -1487,6 +1524,12 @@ Nicht vorhandene echte Links werden als deaktivierter Text ausgegeben, nicht mit
 Icons ohne sichtbaren Text benötigen einen zugänglichen Namen.
 
 Status nie ausschließlich über Farbe kommunizieren.
+
+ARIA-Rollen bestimmen nicht die sichtbare Statusfarbe. Beispielsweise kann
+`role="alert"` sowohl bei einer Warnung als auch bei einem Fehler sinnvoll
+sein. Die sichtbare Bedeutung wird deshalb durch die jeweilige
+Designsystem-Komponente bzw. ihren Modifier festgelegt, zum Beispiel
+`notice--warning` oder `notice--danger`.
 
 ---
 

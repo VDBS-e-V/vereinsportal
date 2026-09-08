@@ -44,6 +44,40 @@
         </section>
 
         <section class="section stack">
+            <h2>Semantische UI-Farben</h2>
+            <p class="container--narrow">
+                Semantische Farben beschreiben die Bedeutung einer Oberfläche.
+                ARIA-Rollen wie <code>status</code> oder <code>alert</code> legen
+                dagegen das Verhalten für assistive Technologien fest und bestimmen
+                nicht automatisch die sichtbare Farbe.
+            </p>
+
+            <div class="design-swatches">
+                @foreach ([
+                    ['Information', '#285B8F', 'var(--color-info)'],
+                    ['Erfolg', '#18794E', 'var(--color-success)'],
+                    ['Warnung', '#8A5A00', 'var(--color-warning)'],
+                    ['Gefahr', '#A12622', 'var(--color-danger)'],
+                    ['Deaktivierter Text', '#6F7B76', 'var(--color-text-disabled)'],
+                    ['Deaktivierte Fläche', '#EEF1F0', 'var(--color-surface-disabled)'],
+                ] as [$name, $hex, $token])
+                    <article class="design-swatch">
+                        <div
+                            class="design-swatch__color"
+                            style="background: {{ $hex }}"
+                            aria-hidden="true"
+                        ></div>
+                        <div class="design-swatch__meta">
+                            <strong>{{ $name }}</strong>
+                            <code>{{ $hex }}</code>
+                            <code>{{ $token }}</code>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        </section>
+
+        <section class="section stack">
             <h2>Typografie</h2>
 
             <div class="design-token-list">
@@ -87,6 +121,22 @@
                         <tr>
                             <th>Spacing</th>
                             <td><code>--spacing-1</code> bis <code>--spacing-10</code>, 4-px-Grundrhythmus</td>
+                        </tr>
+                        <tr>
+                            <th>Control-Höhen</th>
+                            <td>
+                                <code>--control-height-sm</code>,
+                                <code>--control-height-md</code>,
+                                <code>--control-height-lg</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Icon-Größen</th>
+                            <td>
+                                <code>--icon-size-sm</code>,
+                                <code>--icon-size-md</code>,
+                                <code>--icon-size-lg</code>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

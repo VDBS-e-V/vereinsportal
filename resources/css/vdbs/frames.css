@@ -6,7 +6,7 @@
  * Widths:
  * - small:  960 px
  * - normal: 1280 px
- * - wide:   1400 px
+ * - wide:   1440 px
  * - full:   100 %
  *
  * Gutters:
@@ -17,9 +17,9 @@
  */
 
 :root {
-    --layout-width-small: 60rem;
-    --layout-width-normal: 80rem;
-    --layout-width-wide: 87.5rem;
+    --layout-width-small: var(--layout-content-small-max, 60rem);
+    --layout-width-normal: var(--layout-content-max, 80rem);
+    --layout-width-wide: var(--layout-content-wide-max, 90rem);
 
     /*
      * Reuse the existing project page gutter.

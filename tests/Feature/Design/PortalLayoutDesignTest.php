@@ -23,7 +23,7 @@ it('uses the portal shell on existing public identity pages', function () {
         ->assertSee('header-bottom', false)
         ->assertSeeText('VDBS Portal')
         ->assertSeeText('Anmelden')
-        ->assertSee('site-footer', false);
+        ->assertSee('vdbs-footer', false);
 });
 
 it('uses the horizontal portal structure in the design area without a sidebar', function () {

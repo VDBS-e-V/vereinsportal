@@ -45,9 +45,9 @@ form {
 .design-main select,
 .design-main textarea {
     width: 100%;
-    min-height: 2.9rem;
+    min-height: var(--control-height-md);
     padding: 0.65rem 0.75rem;
-    border: 1px solid var(--color-border-strong);
+    border: var(--border-width-default) solid var(--color-border-strong);
     border-radius: 0;
     background: var(--color-white);
     color: var(--color-ink);
@@ -95,13 +95,19 @@ form {
     color: var(--color-danger);
 }
 
-.site-main [role='alert'],
-.design-main [role='alert'] {
+.form__error,
+.field__error,
+.vdbs-field-error,
+.site-main .field > [role='alert'],
+.site-main .form__field > [role='alert'],
+.design-main .field > [role='alert'],
+.design-main .form__field > [role='alert'] {
     color: var(--color-danger);
 }
 
-.site-main [role='status'],
-.design-main [role='status'] {
+.form__status,
+.field__status,
+.vdbs-field-status {
     color: var(--color-success);
 }
 

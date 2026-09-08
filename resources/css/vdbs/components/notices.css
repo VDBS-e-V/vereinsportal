@@ -3,11 +3,16 @@
 .notice,
 .vdbs-notice {
     padding: var(--spacing-4) var(--spacing-5);
-    border: 1px solid var(--color-border);
-    border-left: 5px solid var(--color-secondary-cta);
+    border: var(--border-width-default) solid var(--color-border);
+    border-left: var(--border-width-accent) solid var(--color-secondary-cta);
     border-radius: 0;
     background: var(--color-surface-subtle);
     color: var(--color-ink);
+}
+
+.notice--info,
+.vdbs-notice--info {
+    border-left-color: var(--color-info);
 }
 
 .notice--success,
@@ -23,4 +28,9 @@
 .notice--danger,
 .vdbs-notice--danger {
     border-left-color: var(--color-danger);
+}
+
+.notice[role],
+.vdbs-notice[role] {
+    color: var(--color-ink);
 }
