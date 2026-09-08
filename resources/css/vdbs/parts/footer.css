@@ -1,0 +1,104 @@
+/* VDBS Portal — restrained institutional footer */
+
+.site-footer,
+.vdbs-site-footer {
+    margin-top: var(--spacing-9);
+    border-top: 3px solid var(--color-primary);
+    background: var(--color-white);
+    color: var(--color-ink);
+}
+
+.site-footer__inner,
+.vdbs-site-footer__inner {
+    width: min(
+        calc(100% - (2 * var(--layout-page-gutter))),
+        var(--layout-content-max)
+    );
+    margin-inline: auto;
+    padding-block: var(--spacing-6);
+}
+
+.site-footer__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-7);
+}
+
+.site-footer__brand {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: var(--spacing-4);
+}
+
+.site-footer__logo-crop {
+    display: block;
+    width: 2.5rem;
+    height: 2.5rem;
+    overflow: hidden;
+    flex: 0 0 2.5rem;
+}
+
+.site-footer__logo-crop img {
+    width: auto;
+    max-width: none;
+    height: 2.5rem;
+}
+
+.site-footer__brand-copy {
+    display: grid;
+    gap: 0.2rem;
+}
+
+.site-footer__brand-copy strong {
+    font-size: var(--text-base);
+}
+
+.site-footer__brand-copy span {
+    color: var(--color-text-muted);
+    font-family: var(--font-family-accent);
+    font-style: italic;
+}
+
+.site-footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--spacing-3) var(--spacing-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.site-footer__links a {
+    color: var(--color-ink);
+    font-size: var(--text-sm);
+    font-weight: 600;
+}
+
+.site-footer__meta {
+    margin-top: var(--spacing-5);
+    padding-top: var(--spacing-4);
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+@media (max-width: 64rem) {
+    .site-footer__inner,
+    .vdbs-site-footer__inner {
+        width: min(
+            calc(100% - (2 * var(--layout-page-gutter-mobile))),
+            var(--layout-content-max)
+        );
+    }
+
+    .site-footer__top {
+        flex-direction: column;
+    }
+
+    .site-footer__links {
+        justify-content: flex-start;
+    }
+}

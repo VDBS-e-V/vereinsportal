@@ -1,0 +1,83 @@
+/* VDBS Portal — cards, panels and teaser lists */
+
+.card,
+.content-card,
+.panel,
+.vdbs-card,
+.vdbs-panel {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    padding: var(--spacing-6);
+    border: 1px solid var(--color-border);
+    border-radius: 0;
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+}
+
+.site-main > .container > .card,
+.vdbs-public-main > .container > .card {
+    max-width: 52rem;
+}
+
+.card--accent,
+.vdbs-card--accent,
+.vdbs-panel--accent {
+    border-top: 4px solid var(--color-primary);
+}
+
+.teaser-list,
+.vdbs-teaser-list {
+    border-top: 3px solid var(--color-ink);
+}
+
+.teaser,
+.vdbs-teaser {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--spacing-2);
+    padding: var(--spacing-5) 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.teaser h3,
+.vdbs-teaser h3 {
+    font-size: var(--text-xl);
+}
+
+.teaser a,
+.vdbs-teaser a {
+    color: var(--color-ink);
+}
+
+.teaser a:hover,
+.vdbs-teaser a:hover {
+    color: var(--color-link);
+}
+
+.badge,
+.vdbs-badge {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    min-height: 1.7rem;
+    padding: 0.15rem 0.45rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 0;
+    color: var(--color-ink);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+@media (max-width: 40rem) {
+    .card,
+    .content-card,
+    .panel,
+    .vdbs-card,
+    .vdbs-panel {
+        padding: var(--spacing-5);
+    }
+}

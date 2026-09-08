@@ -1,0 +1,64 @@
+/* VDBS Portal — tables */
+
+.table-wrapper,
+.table-block,
+.vdbs-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table,
+.vdbs-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--color-white);
+    color: var(--color-ink);
+}
+
+.table th,
+.table td,
+.vdbs-table th,
+.vdbs-table td {
+    padding: 0.75rem 0.85rem;
+    border-bottom: 1px solid var(--color-border);
+    text-align: left;
+    vertical-align: top;
+}
+
+.table thead th,
+.vdbs-table thead th {
+    border-top: 3px solid var(--color-ink);
+    background: var(--color-surface-subtle);
+    font-size: var(--text-sm);
+    font-weight: 700;
+}
+
+.table tbody th,
+.vdbs-table tbody th {
+    font-weight: 700;
+}
+
+.table tbody tr:hover,
+.vdbs-table tbody tr:hover {
+    background: color-mix(in srgb, var(--color-primary) 7%, var(--color-white));
+}
+
+.table--compact th,
+.table--compact td {
+    padding-block: 0.55rem;
+}
+
+.table-block--card,
+.vdbs-table-wrap {
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+}
+
+.table-block__header {
+    padding: var(--spacing-4) var(--spacing-5);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.table-block__title {
+    font-size: var(--text-xl);
+}

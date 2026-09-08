@@ -1,0 +1,26 @@
+/* VDBS Portal — notices and status messages */
+
+.notice,
+.vdbs-notice {
+    padding: var(--spacing-4) var(--spacing-5);
+    border: 1px solid var(--color-border);
+    border-left: 5px solid var(--color-secondary-cta);
+    border-radius: 0;
+    background: var(--color-surface-subtle);
+    color: var(--color-ink);
+}
+
+.notice--success,
+.vdbs-notice--success {
+    border-left-color: var(--color-success);
+}
+
+.notice--warning,
+.vdbs-notice--warning {
+    border-left-color: var(--color-warning);
+}
+
+.notice--danger,
+.vdbs-notice--danger {
+    border-left-color: var(--color-danger);
+}

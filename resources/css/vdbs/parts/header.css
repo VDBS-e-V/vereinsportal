@@ -1,0 +1,654 @@
+/*
+ * VDBS Portal — site header
+ *
+ * Structural reference: former VDBS Portal (header-top/header-bottom), refined
+ * toward the restrained horizontal navigation used by institutional portals.
+ * No decorative gradients or permanent side navigation are part of the shell.
+ */
+
+.site-header,
+.vdbs-portal-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+    background: var(--color-white);
+    box-shadow: var(--shadow-md);
+    transition: box-shadow var(--transition-fast);
+}
+
+.site-header.is-compact,
+.vdbs-portal-header.is-compact {
+    box-shadow: var(--shadow-lg);
+}
+
+.site-header--preview,
+.vdbs-portal-header--preview {
+    position: relative;
+    top: auto;
+}
+
+.header-top,
+.vdbs-portal-header__top {
+    max-height: 3rem;
+    overflow: hidden;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-white);
+    opacity: 1;
+    transition:
+        max-height var(--transition-fast),
+        opacity var(--transition-fast),
+        transform var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+.site-header.is-compact:not(.site-header--preview) .header-top,
+.vdbs-portal-header.is-compact:not(.vdbs-portal-header--preview) .vdbs-portal-header__top {
+    max-height: 0;
+    border-color: transparent;
+    opacity: 0;
+    transform: translateY(-0.5rem);
+}
+
+.header-top__inner,
+.vdbs-portal-header__top-inner,
+.header-bottom__inner,
+.vdbs-portal-header__main-inner,
+.header-breadcrumb__inner,
+.vdbs-portal-breadcrumb-bar__inner,
+.mobile-menu__inner,
+.vdbs-mobile-menu__inner {
+    width: min(
+        calc(100% - (2 * var(--layout-page-gutter))),
+        var(--layout-content-max)
+    );
+    margin-inline: auto;
+}
+
+.site-header--wide .header-top__inner,
+.site-header--wide .header-bottom__inner,
+.site-header--wide .header-breadcrumb__inner,
+.site-header--wide .mobile-menu__inner,
+.vdbs-portal-header--wide .vdbs-portal-header__top-inner,
+.vdbs-portal-header--wide .vdbs-portal-header__main-inner,
+.vdbs-portal-header--wide .vdbs-portal-breadcrumb-bar__inner,
+.vdbs-portal-header--wide .vdbs-mobile-menu__inner {
+    max-width: var(--layout-content-wide-max);
+}
+
+.header-top__inner,
+.vdbs-portal-header__top-inner {
+    display: flex;
+    min-height: 3rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-6);
+}
+
+.site-logo,
+.vdbs-portal-logo,
+.site-mobile-logo,
+.vdbs-portal-mobile-logo {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    color: inherit;
+    text-decoration: none;
+}
+
+.site-logo:hover,
+.vdbs-portal-logo:hover,
+.site-mobile-logo:hover,
+.vdbs-portal-mobile-logo:hover {
+    color: inherit;
+    text-decoration: none;
+}
+
+/*
+ * The supplied PNG uses a wide transparent canvas. The crop keeps the original
+ * asset untouched while showing only the visible mark in the header.
+ */
+.site-logo__crop,
+.vdbs-portal-logo__crop,
+.site-mobile-logo__crop {
+    position: relative;
+    display: block;
+    width: 2rem;
+    height: 2rem;
+    overflow: hidden;
+}
+
+.site-logo img,
+.vdbs-portal-logo img,
+.site-mobile-logo img,
+.vdbs-portal-mobile-logo img {
+    width: auto;
+    max-width: none;
+    height: 2rem;
+}
+
+.header-areas,
+.vdbs-portal-areas,
+.header-nav,
+.vdbs-portal-navigation {
+    display: flex;
+    min-width: 0;
+    align-items: stretch;
+    justify-content: flex-end;
+    gap: var(--spacing-1);
+}
+
+.header-area-link,
+.vdbs-portal-area-link,
+.header-nav-link,
+.vdbs-portal-page-link {
+    position: relative;
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.65rem 0.75rem 0.55rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--color-ink);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+        color var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.header-area-link::after,
+.vdbs-portal-area-link::after,
+.header-nav-link::after,
+.vdbs-portal-page-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0.28rem;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--color-primary);
+    transform: translateX(-50%);
+    transition: width var(--transition-fast);
+    pointer-events: none;
+}
+
+.header-area-link:hover,
+.vdbs-portal-area-link:hover,
+.header-nav-link:hover,
+.vdbs-portal-page-link:hover,
+.header-area-link:focus-visible,
+.vdbs-portal-area-link:focus-visible,
+.header-nav-link:focus-visible,
+.vdbs-portal-page-link:focus-visible {
+    color: var(--color-link);
+    text-decoration: none;
+}
+
+.header-area-link:hover::after,
+.vdbs-portal-area-link:hover::after,
+.header-nav-link:hover::after,
+.vdbs-portal-page-link:hover::after,
+.header-area-link:focus-visible::after,
+.vdbs-portal-area-link:focus-visible::after,
+.header-nav-link:focus-visible::after,
+.vdbs-portal-page-link:focus-visible::after {
+    width: 1rem;
+}
+
+.header-area-link--active,
+.vdbs-portal-area-link--active {
+    color: var(--color-ink);
+    font-weight: 700;
+}
+
+.header-nav-link--active,
+.vdbs-portal-page-link--active {
+    color: var(--color-link);
+    font-weight: 700;
+}
+
+.header-area-link--active::after,
+.vdbs-portal-area-link--active::after,
+.header-nav-link--active::after,
+.vdbs-portal-page-link--active::after {
+    width: 1.25rem;
+}
+
+.header-area-link--disabled,
+.vdbs-portal-area-link--disabled,
+.header-nav-link--disabled,
+.vdbs-portal-page-link--disabled {
+    cursor: default;
+    color: color-mix(in srgb, var(--color-text-muted) 65%, var(--color-white));
+}
+
+.header-bottom,
+.vdbs-portal-header__main {
+    background: var(--color-white);
+}
+
+.header-bottom__inner,
+.vdbs-portal-header__main-inner {
+    display: grid;
+    min-height: 5.25rem;
+    grid-template-columns: minmax(11rem, auto) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--spacing-6);
+}
+
+.site-mobile-logo,
+.vdbs-portal-mobile-logo {
+    display: none;
+}
+
+.header-page-context,
+.vdbs-portal-context {
+    display: grid;
+    min-width: 0;
+    gap: 0.1rem;
+    align-content: center;
+    color: var(--color-ink);
+    text-decoration: none;
+}
+
+.header-page-context:hover,
+.vdbs-portal-context:hover {
+    color: var(--color-ink);
+    text-decoration: none;
+}
+
+.header-page-context__area,
+.vdbs-portal-context__area {
+    overflow: hidden;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.header-page-context__page,
+.vdbs-portal-context__page {
+    overflow: hidden;
+    color: var(--color-ink);
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.header-nav,
+.vdbs-portal-navigation {
+    justify-self: end;
+    overflow: visible;
+}
+
+.header-nav-group,
+.vdbs-portal-nav-group {
+    position: relative;
+    display: inline-flex;
+}
+
+.header-submenu,
+.vdbs-portal-submenu {
+    position: absolute;
+    top: calc(100% + 0.55rem);
+    right: 0;
+    z-index: 130;
+    min-width: 14rem;
+    padding: 0.35rem 0;
+    border: 1px solid var(--color-border);
+    border-radius: 0;
+    background: var(--color-white);
+    box-shadow: var(--shadow-lg);
+}
+
+.header-submenu a,
+.header-submenu span,
+.vdbs-portal-submenu a,
+.vdbs-portal-submenu span {
+    display: block;
+    padding: 0.65rem 0.9rem;
+    color: var(--color-ink);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.header-submenu a:hover,
+.vdbs-portal-submenu a:hover {
+    background: color-mix(in srgb, var(--color-primary) 10%, var(--color-white));
+    color: var(--color-ink);
+}
+
+.header-account,
+.vdbs-portal-account {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--spacing-3);
+}
+
+.header-login,
+.vdbs-login-button {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: 0.6rem 0.9rem;
+    border: 1px solid var(--color-primary);
+    border-radius: 0;
+    background: var(--color-primary);
+    color: var(--color-ink);
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+        background var(--transition-fast),
+        color var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+.header-login:hover,
+.vdbs-login-button:hover {
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+    color: var(--color-white);
+    text-decoration: none;
+}
+
+.account-menu,
+.vdbs-account-menu {
+    position: relative;
+}
+
+.account-trigger,
+.vdbs-account-trigger,
+.avatar,
+.vdbs-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: var(--radius-avatar);
+    background: var(--color-primary);
+    color: var(--color-ink);
+    font-weight: 700;
+}
+
+.account-trigger,
+.vdbs-account-trigger {
+    width: 3.25rem;
+    height: 3.25rem;
+    padding: 0;
+    border: 2px solid var(--color-white);
+    box-shadow: 0 0 0 1px var(--color-border-strong);
+}
+
+.account-trigger:hover,
+.vdbs-account-trigger:hover {
+    box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.account-trigger img,
+.vdbs-account-trigger img,
+.avatar img,
+.vdbs-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar--large,
+.vdbs-avatar--large {
+    width: 3.75rem;
+    height: 3.75rem;
+    flex: 0 0 3.75rem;
+}
+
+.account-dropdown,
+.vdbs-account-dropdown {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    right: 0;
+    z-index: 140;
+    width: min(19rem, calc(100vw - 2rem));
+    border: 1px solid var(--color-border-strong);
+    border-radius: 0;
+    background: var(--color-white);
+    box-shadow: var(--shadow-lg);
+}
+
+.account-summary,
+.vdbs-account-summary {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    padding: var(--spacing-4);
+}
+
+.account-summary > div:last-child,
+.vdbs-account-summary > div:last-child {
+    display: grid;
+    min-width: 0;
+    gap: 0.1rem;
+}
+
+.account-summary strong,
+.vdbs-account-summary strong {
+    overflow: hidden;
+    color: var(--color-ink);
+    font-size: var(--text-lg);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.account-summary span,
+.vdbs-account-summary span {
+    overflow: hidden;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.account-group,
+.vdbs-account-group {
+    display: grid;
+    padding: 0.35rem 0;
+    border-top: 1px solid var(--color-border);
+}
+
+.account-link,
+.vdbs-account-link {
+    display: flex;
+    min-height: 2.6rem;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.55rem 1rem;
+    color: var(--color-ink);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.account-link:hover,
+.vdbs-account-link:hover {
+    background: color-mix(in srgb, var(--color-primary) 10%, var(--color-white));
+    color: var(--color-ink);
+    text-decoration: none;
+}
+
+.account-link--disabled,
+.vdbs-account-link--disabled {
+    color: var(--color-text-muted);
+    opacity: 0.58;
+}
+
+.mobile-menu-trigger,
+.vdbs-mobile-menu-trigger {
+    display: none;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: 0.45rem 0.6rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--color-ink);
+    font-weight: 700;
+}
+
+.mobile-menu,
+.vdbs-mobile-menu {
+    border-top: 1px solid var(--color-border);
+    background: var(--color-white);
+    box-shadow: var(--shadow-md);
+}
+
+.mobile-menu__inner,
+.vdbs-mobile-menu__inner {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--spacing-6);
+    padding-block: var(--spacing-5);
+}
+
+.mobile-menu__group,
+.vdbs-mobile-menu__group {
+    display: grid;
+    align-content: start;
+}
+
+.mobile-menu__heading,
+.vdbs-mobile-menu__heading {
+    padding-bottom: var(--spacing-2);
+    border-bottom: 3px solid var(--color-ink);
+    font-size: var(--text-sm);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.mobile-menu__group a,
+.mobile-menu__group span,
+.vdbs-mobile-menu__group a,
+.vdbs-mobile-menu__group > span {
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-ink);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.mobile-menu__group a:hover,
+.vdbs-mobile-menu__group a:hover {
+    color: var(--color-link);
+}
+
+.mobile-menu__child,
+.vdbs-mobile-menu__child {
+    padding-left: var(--spacing-4) !important;
+    color: var(--color-text-muted) !important;
+}
+
+.header-breadcrumb,
+.vdbs-portal-breadcrumb-bar {
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface-subtle);
+}
+
+.header-breadcrumb__inner,
+.vdbs-portal-breadcrumb-bar__inner {
+    padding-block: 0.5rem;
+}
+
+.vdb-icon {
+    display: inline-block;
+    flex: 0 0 auto;
+    vertical-align: middle;
+}
+
+@media (max-width: 64rem) {
+    .header-top,
+    .vdbs-portal-header__top,
+    .header-nav,
+    .vdbs-portal-navigation,
+    .header-login,
+    .vdbs-login-button,
+    .account-menu,
+    .vdbs-account-menu {
+        display: none;
+    }
+
+    .header-top__inner,
+    .vdbs-portal-header__top-inner,
+    .header-bottom__inner,
+    .vdbs-portal-header__main-inner,
+    .header-breadcrumb__inner,
+    .vdbs-portal-breadcrumb-bar__inner,
+    .mobile-menu__inner,
+    .vdbs-mobile-menu__inner {
+        width: min(
+            calc(100% - (2 * var(--layout-page-gutter-mobile))),
+            var(--layout-content-max)
+        );
+    }
+
+    .header-bottom__inner,
+    .vdbs-portal-header__main-inner {
+        min-height: 4.5rem;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: var(--spacing-3);
+    }
+
+    .site-mobile-logo,
+    .vdbs-portal-mobile-logo,
+    .mobile-menu-trigger,
+    .vdbs-mobile-menu-trigger {
+        display: inline-flex;
+    }
+
+    .header-page-context__area,
+    .vdbs-portal-context__area {
+        font-size: var(--text-xs);
+    }
+
+    .header-page-context__page,
+    .vdbs-portal-context__page {
+        font-size: var(--text-lg);
+    }
+}
+
+@media (max-width: 48rem) {
+    .mobile-menu__inner,
+    .vdbs-mobile-menu__inner {
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--spacing-5);
+    }
+}
+
+@media (max-width: 36rem) {
+    .mobile-menu,
+    .vdbs-mobile-menu {
+        min-height: calc(100dvh - 4.5rem);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-header,
+    .vdbs-portal-header,
+    .header-top,
+    .vdbs-portal-header__top {
+        transition: none;
+    }
+}
+
+body.vdbs-mobile-menu-open {
+    overflow: hidden;
+}

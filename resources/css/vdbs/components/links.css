@@ -1,0 +1,77 @@
+/* ==========================================================================
+   Breadcrumb
+   ========================================================================== */
+
+.breadcrumb,
+.vdbs-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    gap: 0.45rem;
+
+    margin: 0;
+    padding: 0;
+
+    color: var(--color-ink);
+
+    font-size: var(--text-sm);
+    line-height: 1.4;
+
+    list-style: none;
+}
+
+.breadcrumb li,
+.vdbs-breadcrumb li {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 0.45rem;
+
+    margin: 0;
+    padding: 0;
+}
+
+.breadcrumb li:not(:last-child)::after,
+.vdbs-breadcrumb li:not(:last-child)::after {
+    content: '›';
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-ink);
+
+    font-size: 1.4em;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.breadcrumb a,
+.vdbs-breadcrumb a {
+    color: var(--color-ink);
+
+    font-weight: 400;
+
+    text-decoration: none;
+
+    transition: color var(--transition-fast);
+}
+
+.breadcrumb a:hover,
+.breadcrumb a:focus-visible,
+.vdbs-breadcrumb a:hover,
+.vdbs-breadcrumb a:focus-visible {
+    color: var(--color-primary);
+
+    text-decoration: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.2em;
+}
+
+.breadcrumb li[aria-current='page'],
+.vdbs-breadcrumb li[aria-current='page'] {
+    color: var(--color-text-muted);
+
+    font-weight: 400;
+}

@@ -1,0 +1,39 @@
+/* VDBS Portal — grids and row layouts */
+
+.grid,
+.vdbs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    gap: var(--spacing-5);
+}
+
+.grid--2col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid--3col {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.grid--4col {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.grid--compact {
+    gap: var(--spacing-3);
+}
+
+@media (max-width: 64rem) {
+    .grid--4col,
+    .grid--3col {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 40rem) {
+    .grid--4col,
+    .grid--3col,
+    .grid--2col {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

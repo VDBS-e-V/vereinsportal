@@ -1,0 +1,93 @@
+/* Internal design reference. It deliberately uses the same portal shell. */
+
+.design-workbench {
+    min-height: 100vh;
+    background: var(--color-white);
+}
+
+.design-main {
+    background: var(--color-white);
+}
+
+.design-main-inner {
+    display: block;
+}
+
+.design-example {
+    padding: var(--spacing-5) 0;
+    border-top: 3px solid var(--color-ink);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.design-header-preview {
+    overflow: visible;
+    border: 1px solid var(--color-border);
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+}
+
+.design-code {
+    overflow-x: auto;
+    padding: var(--spacing-4);
+    border-left: 4px solid var(--color-primary);
+    background: var(--color-surface-subtle);
+    color: var(--color-ink);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    white-space: pre;
+}
+
+.design-swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: var(--spacing-4);
+}
+
+.design-swatch {
+    border: 1px solid var(--color-border);
+    background: var(--color-white);
+}
+
+.design-swatch__color {
+    min-height: 6rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.design-swatch__meta {
+    display: grid;
+    gap: 0.15rem;
+    padding: var(--spacing-3);
+}
+
+.design-swatch__meta code {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+.design-token-list {
+    display: grid;
+    gap: 0;
+    border-top: 3px solid var(--color-ink);
+}
+
+.design-token-row {
+    display: grid;
+    grid-template-columns: minmax(12rem, 0.7fr) minmax(0, 1fr);
+    gap: var(--spacing-5);
+    padding: var(--spacing-3) 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.design-nav-index {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+}
+
+@media (max-width: 40rem) {
+    .design-token-row {
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--spacing-1);
+    }
+}

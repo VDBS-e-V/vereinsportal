@@ -283,6 +283,12 @@ new #[Layout('components.layouts.public')]
             </a>
         </p>
 
+        <p>
+            <a href="{{ route('my.account-deletion') }}">
+                Konto löschen
+            </a>
+        </p>
+
         <button type="submit" wire:loading.attr="disabled" wire:target="save">
             Profil speichern
         </button>

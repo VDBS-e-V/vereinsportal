@@ -84,6 +84,11 @@ Route::domain(config('domains.my'))
                 '/profil/sicherheit',
                 'identity.security',
             )->name('my.security');
+
+            Volt::route(
+                '/profil/konto-loeschen',
+                'identity.account-deletion',
+            )->name('my.account-deletion');
         });
 
         Volt::route(

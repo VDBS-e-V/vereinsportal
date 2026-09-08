@@ -1,0 +1,180 @@
+/*
+ * VDBS Portal — layout system
+ *
+ * The structure follows the former portal: a central content width, optional
+ * wide/narrow containers and row-based sections. No permanent left sidebar is
+ * part of the global portal layout.
+ */
+
+.site-main,
+.vdbs-public-main,
+.design-main {
+    width: 100%;
+    min-height: 45vh;
+    padding-block: var(--layout-main-padding-block);
+}
+
+.container,
+.vdbs-container,
+.site-main > .container,
+.design-main-inner {
+    width: min(
+        calc(100% - (2 * var(--layout-page-gutter))),
+        var(--layout-content-max)
+    );
+    margin-inline: auto;
+}
+
+.container--wide,
+.vdbs-container--wide {
+    max-width: var(--layout-content-wide-max);
+}
+
+.container--narrow,
+.vdbs-text-container {
+    max-width: var(--layout-text-max);
+}
+
+.container--form {
+    max-width: var(--layout-form-max);
+}
+
+.stack,
+.vdbs-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+.stack--sm,
+.vdbs-stack--sm {
+    gap: var(--spacing-2);
+}
+
+.stack--lg,
+.vdbs-stack--lg {
+    gap: var(--spacing-7);
+}
+
+.cluster,
+.vdbs-cluster {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.section,
+.vdbs-section {
+    padding-top: var(--spacing-7);
+    border-top: 1px solid var(--color-border);
+}
+
+.section--surface {
+    padding: var(--spacing-6);
+    background: var(--color-surface-subtle);
+    border-top: 3px solid var(--color-ink);
+}
+
+.page-title,
+.vdbs-page-header {
+    display: grid;
+    gap: var(--spacing-2);
+    padding-bottom: var(--spacing-5);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.page-title--split {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: var(--spacing-6);
+}
+
+.page-title__kicker,
+.vdbs-kicker {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.page-title__title {
+    margin: 0;
+}
+
+.page-title__lead,
+.vdbs-lead {
+    max-width: var(--layout-text-max);
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+}
+
+.page-title__actions,
+.vdbs-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+}
+
+.vdbs-muted,
+.muted {
+    color: var(--color-text-muted);
+}
+
+/* Existing Volt pages use .card as their outer page component. */
+.vdbs-app-shell .site-main > .container {
+    display: block;
+}
+
+@media (max-width: 64rem) {
+    .container,
+    .vdbs-container,
+    .site-main > .container,
+    .design-main-inner {
+        width: min(
+            calc(100% - (2 * var(--layout-page-gutter-mobile))),
+            var(--layout-content-max)
+        );
+    }
+
+    .page-title--split {
+        grid-template-columns: minmax(0, 1fr);
+        align-items: start;
+    }
+}
+
+.vdbs-skip-link {
+    position: fixed;
+    top: 0;
+    left: var(--spacing-4);
+    z-index: 1000;
+    padding: 0.7rem 1rem;
+    background: var(--color-ink);
+    color: var(--color-white);
+    font-weight: 700;
+    text-decoration: none;
+    transform: translateY(-120%);
+    transition: transform var(--transition-fast);
+}
+
+.vdbs-skip-link:focus {
+    color: var(--color-white);
+    transform: translateY(0);
+}
+
+.vdbs-page-grid {
+    display: grid;
+    grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr);
+    gap: var(--spacing-7);
+}
+
+@media (max-width: 64rem) {
+    .vdbs-page-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
