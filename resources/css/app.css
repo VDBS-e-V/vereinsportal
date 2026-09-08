@@ -4,6 +4,7 @@
 @import './vdbs/base.css';
 @import './vdbs/layout.css';
 @import './vdbs/parts/header.css';
+@import './vdbs/frames.css';
 @import './vdbs/parts/footer.css';
 @import './vdbs/components/buttons.css';
 @import './vdbs/components/forms.css';

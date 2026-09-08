@@ -1,0 +1,129 @@
+/*
+ * VDBS layout frames
+ *
+ * Width and horizontal gutter are independent.
+ *
+ * Widths:
+ * - small:  960 px
+ * - normal: 1280 px
+ * - wide:   1400 px
+ * - full:   100 %
+ *
+ * Gutters:
+ * - gutter:       both inline sides
+ * - flush:        no horizontal gutter
+ * - gutter-start: logical start only (left in LTR)
+ * - gutter-end:   logical end only (right in LTR)
+ */
+
+:root {
+    --layout-width-small: 60rem;
+    --layout-width-normal: 80rem;
+    --layout-width-wide: 87.5rem;
+
+    /*
+     * Reuse the existing project page gutter.
+     * The fallback preserves the agreed 32–56 px range.
+     */
+    --layout-frame-gutter: var(
+        --layout-page-gutter,
+        clamp(2rem, 4vw, 3.5rem)
+    );
+}
+
+.layout-frame {
+    --layout-frame-max: var(--layout-width-normal);
+    --layout-frame-gutter-start: var(--layout-frame-gutter);
+    --layout-frame-gutter-end: var(--layout-frame-gutter);
+
+    box-sizing: border-box;
+    width: 100%;
+    max-width: calc(
+        var(--layout-frame-max)
+        + var(--layout-frame-gutter-start)
+        + var(--layout-frame-gutter-end)
+    );
+    margin-inline: auto;
+    padding-inline-start: var(--layout-frame-gutter-start);
+    padding-inline-end: var(--layout-frame-gutter-end);
+}
+
+.layout-frame--small {
+    --layout-frame-max: var(--layout-width-small);
+}
+
+.layout-frame--normal {
+    --layout-frame-max: var(--layout-width-normal);
+}
+
+.layout-frame--wide {
+    --layout-frame-max: var(--layout-width-wide);
+}
+
+.layout-frame--full {
+    max-width: none;
+}
+
+.layout-frame--gutter {
+    --layout-frame-gutter-start: var(--layout-frame-gutter);
+    --layout-frame-gutter-end: var(--layout-frame-gutter);
+}
+
+.layout-frame--flush {
+    --layout-frame-gutter-start: 0px;
+    --layout-frame-gutter-end: 0px;
+}
+
+.layout-frame--gutter-start {
+    --layout-frame-gutter-start: var(--layout-frame-gutter);
+    --layout-frame-gutter-end: 0px;
+}
+
+.layout-frame--gutter-end {
+    --layout-frame-gutter-start: 0px;
+    --layout-frame-gutter-end: var(--layout-frame-gutter);
+}
+
+/*
+ * Header contract:
+ * all horizontal header layers are full width with the standard gutter.
+ *
+ * These rules are loaded after parts/header.css so they intentionally
+ * override historical max-width declarations without rewriting header.css.
+ */
+.site-header .header-top__inner.layout-frame--full,
+.site-header .header-bottom__inner.layout-frame--full,
+.site-header .mobile-menu__inner.layout-frame--full,
+.site-header .header-breadcrumb__inner.layout-frame--full {
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+}
+
+.site-header .layout-frame--gutter {
+    padding-inline-start: var(--layout-frame-gutter);
+    padding-inline-end: var(--layout-frame-gutter);
+}
+
+/*
+ * Helpers for the internal Design / Layout reference page.
+ */
+.design-layout-preview {
+    border: 1px solid var(--color-border, #d8dde5);
+    background: var(--color-surface-subtle, #f7f8fa);
+}
+
+.design-layout-preview__frame {
+    display: flex;
+    min-height: 4rem;
+    align-items: center;
+    border-inline: 1px dashed var(--color-primary, #2fbf71);
+    background: var(--color-white, #ffffff);
+}
+
+.design-layout-preview__label {
+    padding: var(--spacing-2, 0.5rem) var(--spacing-3, 0.75rem);
+    color: var(--color-ink, #0f172a);
+    font-size: 0.875rem;
+    font-weight: 600;
+}

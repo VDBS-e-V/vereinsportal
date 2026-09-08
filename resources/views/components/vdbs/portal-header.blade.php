@@ -14,30 +14,30 @@
 ])
 
 @php
-    $logoUrl ??= asset('images/brand/vdbs-logo.png');
-    $areaUrl ??= $homeUrl;
+$logoUrl ??= asset('images/brand/vdbs-logo.png');
+$areaUrl ??= $homeUrl;
 
-    $linkClasses = static function (array $item, string $base): string {
-        $classes = [$base];
+$linkClasses = static function (array $item, string $base): string {
+    $classes = [$base];
 
-        if (($item['active'] ?? false) === true) {
-            $classes[] = $base.'--active';
-        }
+    if (($item['active'] ?? false) === true) {
+        $classes[] = $base . '--active';
+    }
 
-        if (($item['url'] ?? null) === null && ($item['children'] ?? []) === []) {
-            $classes[] = $base.'--disabled';
-        }
+    if (($item['url'] ?? null) === null && ($item['children'] ?? []) === []) {
+        $classes[] = $base . '--disabled';
+    }
 
-        return implode(' ', $classes);
-    };
+    return implode(' ', $classes);
+};
 @endphp
 
 <header
     class="site-header vdbs-portal-header{{ $preview ? ' site-header--preview vdbs-portal-header--preview' : '' }}{{ $wide ? ' site-header--wide vdbs-portal-header--wide' : '' }}"
-    data-vdbs-portal-header
+    data-vdbs-portal-header width="full" gutter="both"
 >
     <div class="header-top vdbs-portal-header__top">
-        <div class="header-top__inner vdbs-portal-header__top-inner">
+        <div class="header-top__inner vdbs-portal-header__top-inner layout-frame layout-frame--full layout-frame--gutter">
             <a class="site-logo vdbs-portal-logo" href="{{ $homeUrl }}" aria-label="VDBS Startseite">
                 <span class="site-logo__crop vdbs-portal-logo__crop" aria-hidden="true">
                     <img src="{{ $logoUrl }}" alt="">
@@ -47,8 +47,8 @@
             <nav class="header-areas vdbs-portal-areas" aria-label="Bereiche">
                 @foreach ($areas as $item)
                     @php
-                        $children = $item['children'] ?? [];
-                        $url = $item['url'] ?? null;
+    $children = $item['children'] ?? [];
+    $url = $item['url'] ?? null;
                     @endphp
 
                     @if ($children !== [])
@@ -106,7 +106,7 @@
     </div>
 
     <div class="header-bottom vdbs-portal-header__main">
-        <div class="header-bottom__inner vdbs-portal-header__main-inner">
+        <div class="header-bottom__inner vdbs-portal-header__main-inner layout-frame layout-frame--full layout-frame--gutter">
             <a class="site-mobile-logo vdbs-portal-mobile-logo" href="{{ $homeUrl }}" aria-label="VDBS Startseite">
                 <span class="site-mobile-logo__crop" aria-hidden="true">
                     <img src="{{ $logoUrl }}" alt="">
@@ -125,8 +125,8 @@
             <nav class="header-nav vdbs-portal-navigation" aria-label="Seitennavigation">
                 @foreach ($navigation as $item)
                     @php
-                        $children = $item['children'] ?? [];
-                        $url = $item['url'] ?? null;
+    $children = $item['children'] ?? [];
+    $url = $item['url'] ?? null;
                     @endphp
 
                     @if ($children !== [])
@@ -267,7 +267,7 @@
     </div>
 
     <div class="mobile-menu vdbs-mobile-menu" data-vdbs-mobile-menu hidden>
-        <div class="mobile-menu__inner vdbs-mobile-menu__inner">
+        <div class="mobile-menu__inner vdbs-mobile-menu__inner layout-frame layout-frame--full layout-frame--gutter">
             <div class="mobile-menu__group vdbs-mobile-menu__group">
                 <strong class="mobile-menu__heading vdbs-mobile-menu__heading">Navigation</strong>
 
@@ -351,7 +351,7 @@
     @if ($breadcrumbs !== [])
         <div class="header-breadcrumb vdbs-portal-breadcrumb-bar">
             <nav
-                class="header-breadcrumb__inner vdbs-portal-breadcrumb-bar__inner"
+                class="header-breadcrumb__inner vdbs-portal-breadcrumb-bar__inner layout-frame layout-frame--full layout-frame--gutter"
                 aria-label="Brotkrumen"
             >
                 <ol class="breadcrumb vdbs-breadcrumb">
@@ -362,9 +362,9 @@
                             @endif
                         >
                             @if (
-                                ($crumb['url'] ?? null) !== null
-                                && ! $loop->last
-                            )
+            ($crumb['url'] ?? null) !== null
+            && !$loop->last
+        )
                                 <a href="{{ $crumb['url'] }}">
                                     {{ $crumb['label'] }}
                                 </a>
