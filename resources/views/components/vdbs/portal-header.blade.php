@@ -14,22 +14,22 @@
 ])
 
 @php
-$logoUrl ??= asset('images/brand/vdbs-logo.png');
-$areaUrl ??= $homeUrl;
+    $logoUrl ??= asset('images/brand/vdbs-bildmarke-breit.png');
+    $areaUrl ??= $homeUrl;
 
-$linkClasses = static function (array $item, string $base): string {
-    $classes = [$base];
+    $linkClasses = static function (array $item, string $base): string {
+        $classes = [$base];
 
-    if (($item['active'] ?? false) === true) {
-        $classes[] = $base . '--active';
-    }
+        if (($item['active'] ?? false) === true) {
+            $classes[] = $base . '--active';
+        }
 
-    if (($item['url'] ?? null) === null && ($item['children'] ?? []) === []) {
-        $classes[] = $base . '--disabled';
-    }
+        if (($item['url'] ?? null) === null && ($item['children'] ?? []) === []) {
+            $classes[] = $base . '--disabled';
+        }
 
-    return implode(' ', $classes);
-};
+        return implode(' ', $classes);
+    };
 @endphp
 
 <header

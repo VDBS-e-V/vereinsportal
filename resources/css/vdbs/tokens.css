@@ -12,9 +12,12 @@
     --color-white: #ffffff;
     --color-primary: #2fbf71;
     --color-secondary-cta: #22b7a3;
+    --color-secondary-accent: #582759;
     --color-accent-amber: #f59e0b;
     --color-accent-teal: #14b8a6;
     --color-accent-berry: #d946ef;
+    --color-accent-sun-yellow: ##fde047;
+    --color-accent-lime: ##a3e635;
 
     /* Neutral UI */
     --color-page: #ffffff;
