@@ -247,9 +247,9 @@
     />
 
     <main id="main-content" class="site-main vdbs-public-main">
-        <div class="container">
+        <x-vdbs.frame width="normal" gutter="both">
             {{ $slot }}
-        </div>
+        </x-vdbs.frame>
     </main>
 
     <x-vdbs.portal-footer

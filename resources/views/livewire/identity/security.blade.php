@@ -354,35 +354,39 @@ new #[Layout('components.layouts.public')]
 
 ?>
 
-<div class="card">
-    <h1>Sicherheit und Zwei-Faktor-Authentifizierung</h1>
+<div class="portal-page">
+    <header class="portal-page__header">
+        <h1>Sicherheit und Zwei-Faktor-Authentifizierung</h1>
 
-    @if ($twoFactorRequired)
-        <p role="status">
-            Für Ihre aktuelle Rolle ist
-            Zwei-Faktor-Authentifizierung verpflichtend.
-        </p>
-    @else
-        <p>
-            Zwei-Faktor-Authentifizierung ist für
-            Ihr Konto freiwillig.
-        </p>
-    @endif
+        @if ($twoFactorRequired)
+            <p class="notice" role="status">
+                Für Ihre aktuelle Rolle ist
+                Zwei-Faktor-Authentifizierung verpflichtend.
+            </p>
+        @else
+            <p class="portal-page__lead">
+                Zwei-Faktor-Authentifizierung ist für
+                Ihr Konto freiwillig.
+            </p>
+        @endif
+    </header>
 
     @if ($statusMessage !== null)
-        <p role="status">
+        <p class="notice notice--success" role="status">
             {{ $statusMessage }}
         </p>
     @endif
 
     @if ($errorMessage !== null)
-        <p role="alert">
+        <p class="notice notice--danger" role="alert">
             {{ $errorMessage }}
         </p>
     @endif
 
-    <section>
-        <h2>E-Mail-Code</h2>
+    <section class="portal-page__section">
+        <div class="portal-page__section-header">
+            <h2>E-Mail-Code</h2>
+        </div>
 
         @if ($twoFactorRequired)
             <p>
@@ -394,64 +398,76 @@ new #[Layout('components.layouts.public')]
                 E-Mail-2FA ist aktiviert.
             </p>
 
-            <button
-                type="button"
-                wire:click="disableEmail"
-                wire:confirm="E-Mail-2FA wirklich deaktivieren?"
-            >
-                E-Mail-2FA deaktivieren
-            </button>
+            <div class="portal-page__actions">
+                <button
+                    class="btn btn--secondary"
+                    type="button"
+                    wire:click="disableEmail"
+                    wire:confirm="E-Mail-2FA wirklich deaktivieren?"
+                >
+                    E-Mail-2FA deaktivieren
+                </button>
+            </div>
         @else
             <p>
                 E-Mail-2FA ist derzeit nicht aktiviert.
             </p>
 
-            <button
-                type="button"
-                wire:click="enableEmail"
-            >
-                E-Mail-2FA aktivieren
-            </button>
+            <div class="portal-page__actions">
+                <button
+                    type="button"
+                    wire:click="enableEmail"
+                >
+                    E-Mail-2FA aktivieren
+                </button>
+            </div>
         @endif
     </section>
 
-    <section>
-        <h2>Authenticator-App (TOTP)</h2>
+    <section class="portal-page__section">
+        <div class="portal-page__section-header">
+            <h2>Authenticator-App (TOTP)</h2>
+        </div>
 
         @if ($totpActive)
             <p>
                 TOTP ist aktiviert.
             </p>
 
-            <button
-                type="button"
-                wire:click="beginTotp"
-            >
-                TOTP neu einrichten
-            </button>
+            <div class="portal-page__actions">
+                <button
+                    type="button"
+                    wire:click="beginTotp"
+                >
+                    TOTP neu einrichten
+                </button>
 
-            <button
-                type="button"
-                wire:click="disableTotp"
-                wire:confirm="TOTP wirklich deaktivieren?"
-            >
-                TOTP deaktivieren
-            </button>
+                <button
+                    class="btn btn--secondary"
+                    type="button"
+                    wire:click="disableTotp"
+                    wire:confirm="TOTP wirklich deaktivieren?"
+                >
+                    TOTP deaktivieren
+                </button>
+            </div>
         @else
             <p>
                 TOTP ist derzeit nicht aktiviert.
             </p>
 
-            <button
-                type="button"
-                wire:click="beginTotp"
-            >
-                TOTP einrichten
-            </button>
+            <div class="portal-page__actions">
+                <button
+                    type="button"
+                    wire:click="beginTotp"
+                >
+                    TOTP einrichten
+                </button>
+            </div>
         @endif
 
         @if ($totpMethodId !== null)
-            <div>
+            <div class="portal-page__subsection">
                 <h3>Authenticator einrichten</h3>
 
                 <p>
@@ -459,7 +475,7 @@ new #[Layout('components.layouts.public')]
                     in Ihrer Authenticator-App:
                 </p>
 
-                <p>
+                <p class="portal-page__code">
                     <code>{{ $totpSecret }}</code>
                 </p>
 
@@ -468,7 +484,7 @@ new #[Layout('components.layouts.public')]
                         Technische Einrichtungs-URI anzeigen
                     </summary>
 
-                    <p>
+                    <p class="portal-page__code">
                         <code>
                             {{ $totpProvisioningUri }}
                         </code>
@@ -480,7 +496,7 @@ new #[Layout('components.layouts.public')]
                     nach einem korrekten Code aktiviert.
                 </p>
 
-                <form wire:submit="confirmTotp">
+                <form class="portal-page__form" wire:submit="confirmTotp">
                     <div class="field">
                         <label for="totpCode">
                             Aktueller 6-stelliger Code
@@ -503,25 +519,29 @@ new #[Layout('components.layouts.public')]
                         @enderror
                     </div>
 
-                    <button type="submit">
-                        TOTP bestätigen und aktivieren
-                    </button>
+                    <div class="portal-page__actions">
+                        <button type="submit">
+                            TOTP bestätigen und aktivieren
+                        </button>
+                    </div>
                 </form>
             </div>
         @endif
     </section>
 
-    <section>
-        <h2>Recovery Codes</h2>
+    <section class="portal-page__section">
+        <div class="portal-page__section-header">
+            <h2>Recovery Codes</h2>
+        </div>
 
         @if ($recoveryCodes !== [])
-            <p role="alert">
+            <p class="notice notice--warning" role="alert">
                 Diese vier Codes werden nur jetzt
                 im Klartext angezeigt. Bitte sicher
                 außerhalb des Portals speichern.
             </p>
 
-            <ol>
+            <ol class="portal-page__code-list">
                 @foreach ($recoveryCodes as $recoveryCode)
                     <li>
                         <code>
@@ -531,12 +551,15 @@ new #[Layout('components.layouts.public')]
                 @endforeach
             </ol>
 
-            <button
-                type="button"
-                wire:click="hideRecoveryCodes"
-            >
-                Codes ausblenden
-            </button>
+            <div class="portal-page__actions">
+                <button
+                    class="btn btn--secondary"
+                    type="button"
+                    wire:click="hideRecoveryCodes"
+                >
+                    Codes ausblenden
+                </button>
+            </div>
         @else
             @if ($hasRecoveryCodes)
                 <p>
@@ -556,13 +579,16 @@ new #[Layout('components.layouts.public')]
                 || $emailActive
                 || $totpActive
             )
-                <button
-                    type="button"
-                    wire:click="regenerateRecoveryCodes"
-                    wire:confirm="Neue Recovery Codes erzeugen? Alle bisherigen ungenutzten Codes werden dadurch sofort ungültig."
-                >
-                    Neue Recovery Codes erzeugen
-                </button>
+                <div class="portal-page__actions">
+                    <button
+                        class="btn btn--secondary"
+                        type="button"
+                        wire:click="regenerateRecoveryCodes"
+                        wire:confirm="Neue Recovery Codes erzeugen? Alle bisherigen ungenutzten Codes werden dadurch sofort ungültig."
+                    >
+                        Neue Recovery Codes erzeugen
+                    </button>
+                </div>
             @endif
         @endif
     </section>

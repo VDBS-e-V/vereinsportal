@@ -48,16 +48,18 @@ new #[Layout('components.layouts.public')]
 
 ?>
 
-<div class="card">
-    <h1>Passwort ändern</h1>
+<div class="portal-page portal-page--small">
+    <header class="portal-page__header">
+        <h1>Passwort ändern</h1>
+    </header>
 
     @if ($saved)
-        <p role="status">
+        <p class="notice notice--success" role="status">
             Ihr Passwort wurde geändert.
         </p>
     @endif
 
-    <form wire:submit="changePassword">
+    <form class="portal-page__form" wire:submit="changePassword">
         <div class="field">
             <label for="current_password">
                 Aktuelles Passwort
@@ -112,8 +114,10 @@ new #[Layout('components.layouts.public')]
             >
         </div>
 
-        <button type="submit">
-            Passwort ändern
-        </button>
+        <div class="portal-page__actions">
+            <button type="submit">
+                Passwort ändern
+            </button>
+        </div>
     </form>
 </div>

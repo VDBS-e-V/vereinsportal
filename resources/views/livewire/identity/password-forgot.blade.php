@@ -35,11 +35,13 @@ new #[Layout('components.layouts.public')]
 
 ?>
 
-<div class="card">
-    <h1>Passwort vergessen</h1>
+<div class="portal-page portal-page--small">
+    <header class="portal-page__header">
+        <h1>Passwort vergessen</h1>
+    </header>
 
     @if ($submitted)
-        <p role="status">
+        <p class="notice notice--success" role="status">
             Falls ein nutzbares Konto zu dieser
             E-Mail-Adresse existiert, wurde eine
             E-Mail zum Zurücksetzen des Passworts
@@ -47,7 +49,7 @@ new #[Layout('components.layouts.public')]
         </p>
     @endif
 
-    <form wire:submit="requestReset">
+    <form class="portal-page__form" wire:submit="requestReset">
         <div class="field">
             <label for="email">
                 E-Mail-Adresse
@@ -69,12 +71,14 @@ new #[Layout('components.layouts.public')]
             @enderror
         </div>
 
-        <button
-            type="submit"
-            wire:loading.attr="disabled"
-            wire:target="requestReset"
-        >
-            Reset-Link anfordern
-        </button>
+        <div class="portal-page__actions">
+            <button
+                type="submit"
+                wire:loading.attr="disabled"
+                wire:target="requestReset"
+            >
+                Reset-Link anfordern
+            </button>
+        </div>
     </form>
 </div>

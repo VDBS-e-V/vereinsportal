@@ -3,12 +3,14 @@
         Registrierung nicht abgeschlossen
     </x-slot:title>
 
-    <div class="card">
-        <h1>
-            Registrierung konnte nicht abgeschlossen werden
-        </h1>
+    <div class="portal-page portal-page--small">
+        <header class="portal-page__header">
+            <h1>
+                Registrierung konnte nicht abgeschlossen werden
+            </h1>
+        </header>
 
-        <p role="alert">
+        <p class="notice notice--danger" role="alert">
             {{ $message }}
         </p>
 

@@ -94,3 +94,17 @@
     cursor: not-allowed;
     opacity: 0.48;
 }
+
+.btn--danger,
+.vdbs-button--danger {
+    border-color: var(--color-danger) !important;
+    background: var(--color-white) !important;
+    color: var(--color-danger) !important;
+}
+
+.btn--danger:hover,
+.vdbs-button--danger:hover {
+    border-color: var(--color-danger) !important;
+    background: var(--color-danger) !important;
+    color: var(--color-white) !important;
+}

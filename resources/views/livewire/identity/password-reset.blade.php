@@ -68,16 +68,18 @@ new #[Layout('components.layouts.public')]
 
 ?>
 
-<div class="card">
-    <h1>Neues Passwort</h1>
+<div class="portal-page portal-page--small">
+    <header class="portal-page__header">
+        <h1>Neues Passwort</h1>
+    </header>
 
     @error('reset')
-        <p role="alert">
+        <p class="notice notice--danger" role="alert">
             {{ $message }}
         </p>
     @enderror
 
-    <form wire:submit="resetPassword">
+    <form class="portal-page__form" wire:submit="resetPassword">
         <div class="field">
             <label for="email">
                 E-Mail-Adresse
@@ -125,8 +127,10 @@ new #[Layout('components.layouts.public')]
             >
         </div>
 
-        <button type="submit">
-            Passwort speichern
-        </button>
+        <div class="portal-page__actions">
+            <button type="submit">
+                Passwort speichern
+            </button>
+        </div>
     </form>
 </div>

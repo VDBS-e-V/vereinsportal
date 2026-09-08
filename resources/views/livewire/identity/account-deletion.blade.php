@@ -132,52 +132,75 @@ new #[Layout('components.layouts.public')]
 
 ?>
 
-<div class="card">
-    <h1>Kontolöschung</h1>
+<div class="portal-page portal-page--small">
+    <header class="portal-page__header">
+        <h1>Kontolöschung</h1>
 
-    <p>
-        Hier können Sie die Löschung Ihres Kontos
-        anfordern. Die Löschung wird erst nach einer
-        Bestätigung über einen signierten Link fortgesetzt.
-    </p>
+        <p class="portal-page__lead">
+            Hier können Sie die Löschung Ihres Kontos
+            anfordern. Die Löschung wird erst nach einer
+            Bestätigung über einen signierten Link fortgesetzt.
+        </p>
+    </header>
 
     @if ($errorMessage !== null)
-        <p role="alert">
+        <p class="notice notice--danger" role="alert">
             {{ $errorMessage }}
         </p>
     @endif
 
     @if ($requested)
-        <p role="status">
+        <p class="notice notice--success" role="status">
             Der Löschantrag wurde gespeichert.
         </p>
     @endif
 
     @if ($hasOpenRequest)
-        <section>
-            <h2>Offener Löschantrag</h2>
+        <section class="portal-page__section">
+            <div class="portal-page__section-header">
+                <h2>Offener Löschantrag</h2>
+            </div>
 
-            <p>
-                Angefordert am:
-                <strong>{{ $requestedAt }}</strong>
-            </p>
+            <dl class="portal-page__meta">
+                <div>
+                    <dt>Angefordert am</dt>
+                    <dd>{{ $requestedAt }}</dd>
+                </div>
+
+                @if (
+                    $requestStatus
+                    === \App\Modules\Identity\Enums\AccountDeletionRequestStatus::PendingConfirmation->value
+                    && $confirmationPrepared
+                )
+                    <div>
+                        <dt>Vorbereitet am</dt>
+                        <dd>{{ $confirmationSentAt }}</dd>
+                    </div>
+                @endif
+
+                @if (
+                    $requestStatus
+                    === \App\Modules\Identity\Enums\AccountDeletionRequestStatus::PendingDeletion->value
+                    && $revokeUntil !== null
+                )
+                    <div>
+                        <dt>Widerruf möglich bis</dt>
+                        <dd>{{ $revokeUntil }}</dd>
+                    </div>
+                @endif
+            </dl>
 
             @if (
                 $requestStatus
                 === \App\Modules\Identity\Enums\AccountDeletionRequestStatus::PendingConfirmation->value
             )
                 @if ($confirmationPrepared)
-                    <p role="status">
+                    <p class="notice" role="status">
                         Die Bestätigungs-E-Mail wurde
                         zur Versandwarteschlange hinzugefügt.
                     </p>
-
-                    <p>
-                        Vorbereitet am:
-                        <strong>{{ $confirmationSentAt }}</strong>
-                    </p>
                 @else
-                    <p role="alert">
+                    <p class="notice notice--warning" role="alert">
                         Der Löschantrag ist gespeichert,
                         aber die Bestätigungs-E-Mail konnte
                         noch nicht vorbereitet werden.
@@ -187,43 +210,41 @@ new #[Layout('components.layouts.public')]
                 $requestStatus
                 === \App\Modules\Identity\Enums\AccountDeletionRequestStatus::PendingDeletion->value
             )
-                <p role="status">
+                <p class="notice notice--success" role="status">
                     Die Kontolöschung wurde bestätigt.
                 </p>
-
-                @if ($revokeUntil !== null)
-                    <p>
-                        Widerruf möglich bis:
-                        <strong>{{ $revokeUntil }}</strong>
-                    </p>
-                @endif
             @endif
         </section>
     @else
-        <section>
-            <h2>Kontolöschung anfordern</h2>
+        <section class="portal-page__section">
+            <div class="portal-page__section-header">
+                <h2>Kontolöschung anfordern</h2>
 
-            <p>
-                Nach dem Absenden erhalten Sie eine
-                Bestätigungs-E-Mail. Ohne Bestätigung
-                wird die Löschung nicht fortgesetzt.
-            </p>
+                <p>
+                    Nach dem Absenden erhalten Sie eine
+                    Bestätigungs-E-Mail. Ohne Bestätigung
+                    wird die Löschung nicht fortgesetzt.
+                </p>
+            </div>
 
-            <button
-                type="button"
-                wire:click="requestDeletion"
-                wire:loading.attr="disabled"
-                wire:target="requestDeletion"
-                wire:confirm="Kontolöschung wirklich anfordern?"
-            >
-                Kontolöschung anfordern
-            </button>
+            <div class="portal-page__actions">
+                <button
+                    class="btn btn--danger"
+                    type="button"
+                    wire:click="requestDeletion"
+                    wire:loading.attr="disabled"
+                    wire:target="requestDeletion"
+                    wire:confirm="Kontolöschung wirklich anfordern?"
+                >
+                    Kontolöschung anfordern
+                </button>
+            </div>
         </section>
     @endif
 
-    <p>
+    <div class="portal-page__links">
         <a href="{{ route('my.profile') }}">
             Zurück zum Profil
         </a>
-    </p>
+    </div>
 </div>

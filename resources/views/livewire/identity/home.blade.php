@@ -28,14 +28,18 @@ new #[Layout('components.layouts.public')]
 
 ?>
 
-<div class="card">
-    <h1>Mein Portal</h1>
+<div class="portal-page portal-page--small">
+    <header class="portal-page__header">
+        <h1>Mein Portal</h1>
 
-    <p>
-        Sie sind angemeldet.
-    </p>
+        <p class="portal-page__lead">
+            Sie sind angemeldet.
+        </p>
+    </header>
 
-    <button type="button" wire:click="logout">
-        Abmelden
-    </button>
+    <div class="portal-page__actions">
+        <button class="btn btn--secondary" type="button" wire:click="logout">
+            Abmelden
+        </button>
+    </div>
 </div>

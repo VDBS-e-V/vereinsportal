@@ -13,6 +13,7 @@
 @import './vdbs/components/cards.css';
 @import './vdbs/components/notices.css';
 @import './vdbs/components/tables.css';
+@import './vdbs/pages.css';
 @import './vdbs/design.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';

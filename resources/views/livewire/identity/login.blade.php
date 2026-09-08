@@ -100,22 +100,24 @@ new #[Layout('components.layouts.public')]
 
 ?>
 
-<div class="card">
-    <h1>Anmelden</h1>
+<div class="portal-page portal-page--small">
+    <header class="portal-page__header">
+        <h1>Anmelden</h1>
+    </header>
 
     @if (session('status'))
-        <p role="status">
+        <p class="notice notice--success" role="status">
             {{ session('status') }}
         </p>
     @endif
 
     @if ($loginError !== null)
-        <p role="alert">
+        <p class="notice notice--danger" role="alert">
             {{ $loginError }}
         </p>
     @endif
 
-    <form wire:submit="login">
+    <form class="portal-page__form" wire:submit="login">
         <div class="field">
             <label for="email">
                 E-Mail-Adresse
@@ -144,21 +146,23 @@ new #[Layout('components.layouts.public')]
             @enderror
         </div>
 
-        <div class="field">
+        <div class="field field--choice">
             <label>
                 <input type="checkbox" wire:model="remember">
-                Angemeldet bleiben
+                <span>Angemeldet bleiben</span>
             </label>
         </div>
 
-        <button type="submit" wire:loading.attr="disabled" wire:target="login">
-            Anmelden
-        </button>
+        <div class="portal-page__actions">
+            <button type="submit" wire:loading.attr="disabled" wire:target="login">
+                Anmelden
+            </button>
+        </div>
     </form>
 
-    <p>
+    <div class="portal-page__links">
         <a href="{{ route('my.password.request') }}">
             Passwort vergessen?
         </a>
-    </p>
+    </div>
 </div>

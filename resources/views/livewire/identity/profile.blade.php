@@ -152,145 +152,171 @@ new #[Layout('components.layouts.public')]
 
 ?>
 
-<div class="card">
-    <h1>Profil</h1>
+<div class="portal-page">
+    <header class="portal-page__header">
+        <h1>Profil</h1>
+    </header>
 
     @if ($saved)
-        <p role="status">
+        <p class="notice notice--success" role="status">
             Ihre Profildaten wurden gespeichert.
         </p>
     @endif
 
-    <form wire:submit="save">
-        <div class="field">
-            <label for="title">Titel</label>
-            <input id="title" type="text" wire:model="title">
-            @error('title')
-                <p role="alert">{{ $message }}</p>
-            @enderror
-        </div>
+    <form class="portal-page__form portal-page__form--wide" wire:submit="save">
+        <section class="portal-page__section">
+            <div class="portal-page__section-header">
+                <h2>Persönliche Daten</h2>
+            </div>
 
-        <div class="field">
-            <label for="first_name">Vorname</label>
-            <input id="first_name" type="text" wire:model="first_name" required>
-            @error('first_name')
-                <p role="alert">{{ $message }}</p>
-            @enderror
-        </div>
+            <div class="form__grid form__grid--2">
+                <div class="field">
+                    <label for="title">Titel</label>
+                    <input id="title" type="text" wire:model="title">
+                    @error('title')
+                        <p role="alert">{{ $message }}</p>
+                    @enderror
+                </div>
 
-        <div class="field">
-            <label for="name_addition">
-                Namenszusatz
-            </label>
-            <input id="name_addition" type="text" wire:model="name_addition">
-            @error('name_addition')
-                <p role="alert">{{ $message }}</p>
-            @enderror
-        </div>
+                <div class="field">
+                    <label for="first_name">Vorname</label>
+                    <input id="first_name" type="text" wire:model="first_name" required>
+                    @error('first_name')
+                        <p role="alert">{{ $message }}</p>
+                    @enderror
+                </div>
 
-        <div class="field">
-            <label for="last_name">
-                Nachname
-            </label>
-            <input id="last_name" type="text" wire:model="last_name" required>
-            @error('last_name')
-                <p role="alert">{{ $message }}</p>
-            @enderror
-        </div>
+                <div class="field">
+                    <label for="name_addition">
+                        Namenszusatz
+                    </label>
+                    <input id="name_addition" type="text" wire:model="name_addition">
+                    @error('name_addition')
+                        <p role="alert">{{ $message }}</p>
+                    @enderror
+                </div>
 
-        <div class="field">
-            <label for="birth_date">
-                Geburtsdatum
-            </label>
-            <input id="birth_date" type="date" wire:model="birth_date" required>
-            @error('birth_date')
-                <p role="alert">{{ $message }}</p>
-            @enderror
-        </div>
+                <div class="field">
+                    <label for="last_name">
+                        Nachname
+                    </label>
+                    <input id="last_name" type="text" wire:model="last_name" required>
+                    @error('last_name')
+                        <p role="alert">{{ $message }}</p>
+                    @enderror
+                </div>
 
-        <div class="field">
-            <label for="email">
-                E-Mail-Adresse
-            </label>
-            <input id="email" type="email" wire:model="email" readonly>
+                <div class="field">
+                    <label for="birth_date">
+                        Geburtsdatum
+                    </label>
+                    <input id="birth_date" type="date" wire:model="birth_date" required>
+                    @error('birth_date')
+                        <p role="alert">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+        </section>
 
-            <p>
-                <a href="{{ route('my.email-change') }}">
-                    E-Mail-Adresse ändern
-                </a>
-            </p>
-        </div>
+        <section class="portal-page__section">
+            <div class="portal-page__section-header">
+                <h2>Kontakt</h2>
+            </div>
 
-        <div class="field">
-            <label for="phone">
-                Telefonnummer
-            </label>
-            <input id="phone" type="text" wire:model="phone">
-            @error('phone')
-                <p role="alert">{{ $message }}</p>
-            @enderror
-        </div>
+            <div class="form__grid form__grid--2">
+                <div class="field">
+                    <label for="email">
+                        E-Mail-Adresse
+                    </label>
+                    <input id="email" type="email" wire:model="email" readonly>
 
-        <div class="field">
-            <label for="street">Straße</label>
-            <input id="street" type="text" wire:model="street">
-            @error('street')
-                <p role="alert">{{ $message }}</p>
-            @enderror
-        </div>
+                    <p class="form__help">
+                        <a href="{{ route('my.email-change') }}">
+                            E-Mail-Adresse ändern
+                        </a>
+                    </p>
+                </div>
 
-        <div class="field">
-            <label for="house_number">
-                Hausnummer
-            </label>
-            <input id="house_number" type="text" wire:model="house_number">
-            @error('house_number')
-                <p role="alert">{{ $message }}</p>
-            @enderror
-        </div>
+                <div class="field">
+                    <label for="phone">
+                        Telefonnummer
+                    </label>
+                    <input id="phone" type="text" wire:model="phone">
+                    @error('phone')
+                        <p role="alert">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+        </section>
 
-        <div class="field">
-            <label for="postal_code">
-                Postleitzahl
-            </label>
-            <input id="postal_code" type="text" wire:model="postal_code">
-            @error('postal_code')
-                <p role="alert">{{ $message }}</p>
-            @enderror
-        </div>
+        <section class="portal-page__section">
+            <div class="portal-page__section-header">
+                <h2>Adresse</h2>
+            </div>
 
-        <div class="field">
-            <label for="city">Ort</label>
-            <input id="city" type="text" wire:model="city">
-            @error('city')
-                <p role="alert">{{ $message }}</p>
-            @enderror
-        </div>
+            <div class="form__grid form__grid--2">
+                <div class="field">
+                    <label for="street">Straße</label>
+                    <input id="street" type="text" wire:model="street">
+                    @error('street')
+                        <p role="alert">{{ $message }}</p>
+                    @enderror
+                </div>
 
-        <div class="field">
-            <label for="country_code">
-                Ländercode
-            </label>
-            <input id="country_code" type="text" maxlength="2" wire:model="country_code" required>
-            @error('country_code')
-                <p role="alert">{{ $message }}</p>
-            @enderror
-        </div>
+                <div class="field">
+                    <label for="house_number">
+                        Hausnummer
+                    </label>
+                    <input id="house_number" type="text" wire:model="house_number">
+                    @error('house_number')
+                        <p role="alert">{{ $message }}</p>
+                    @enderror
+                </div>
 
-        <p>
+                <div class="field">
+                    <label for="postal_code">
+                        Postleitzahl
+                    </label>
+                    <input id="postal_code" type="text" wire:model="postal_code">
+                    @error('postal_code')
+                        <p role="alert">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="field">
+                    <label for="city">Ort</label>
+                    <input id="city" type="text" wire:model="city">
+                    @error('city')
+                        <p role="alert">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="field">
+                    <label for="country_code">
+                        Ländercode
+                    </label>
+                    <input id="country_code" type="text" maxlength="2" wire:model="country_code" required>
+                    @error('country_code')
+                        <p role="alert">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+        </section>
+
+        <div class="portal-page__related">
             <a href="{{ route('my.security') }}">
                 Sicherheit und Zwei-Faktor-Authentifizierung
             </a>
-        </p>
 
-        <p>
             <a href="{{ route('my.account-deletion') }}">
                 Konto löschen
             </a>
-        </p>
+        </div>
 
-        <button type="submit" wire:loading.attr="disabled" wire:target="save">
-            Profil speichern
-        </button>
+        <div class="portal-page__actions">
+            <button type="submit" wire:loading.attr="disabled" wire:target="save">
+                Profil speichern
+            </button>
+        </div>
     </form>
 </div>

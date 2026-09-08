@@ -120,66 +120,78 @@ new #[Layout('components.layouts.public')]
 
 ?>
 
-<div class="card">
-    <h1>E-Mail-Adresse ändern</h1>
+<div class="portal-page portal-page--small">
+    <header class="portal-page__header">
+        <h1>E-Mail-Adresse ändern</h1>
 
-    <p>
-        Aktuelle E-Mail-Adresse:
-        <strong>{{ $currentEmail }}</strong>
-    </p>
+        <p class="portal-page__lead">
+            Aktuelle E-Mail-Adresse:
+            <strong>{{ $currentEmail }}</strong>
+        </p>
+    </header>
 
     @if ($pendingEmail !== null)
-        <div role="status">
-            <p>
-                Offene Änderung auf
-                <strong>{{ $pendingEmail }}</strong>.
-            </p>
-
-            <p>
-                Bestätigung möglich bis
-                {{ $pendingExpiresAt }}.
-            </p>
-
-            @if ($verificationPrepared)
+        <div class="notice" role="status">
+            <div class="stack stack--sm">
                 <p>
-                    Die Bestätigungs-E-Mail wurde
-                    zur Versandwarteschlange hinzugefügt.
+                    Offene Änderung auf
+                    <strong>{{ $pendingEmail }}</strong>.
                 </p>
-            @else
+
                 <p>
-                    Die Bestätigungs-E-Mail konnte noch
-                    nicht vorbereitet werden. Die Änderung
-                    wurde nicht verworfen.
+                    Bestätigung möglich bis
+                    {{ $pendingExpiresAt }}.
                 </p>
-            @endif
+
+                @if ($verificationPrepared)
+                    <p>
+                        Die Bestätigungs-E-Mail wurde
+                        zur Versandwarteschlange hinzugefügt.
+                    </p>
+                @else
+                    <p>
+                        Die Bestätigungs-E-Mail konnte noch
+                        nicht vorbereitet werden. Die Änderung
+                        wurde nicht verworfen.
+                    </p>
+                @endif
+            </div>
         </div>
     @endif
 
     @if ($requested)
-        <p role="status">
+        <p class="notice notice--success" role="status">
             Der Änderungsprozess wurde angelegt.
             Ihre bisherige E-Mail-Adresse bleibt bis
             zur Bestätigung unverändert aktiv.
         </p>
     @endif
 
-    <form wire:submit="requestChange">
-        <div class="field">
-            <label for="newEmail">
-                Neue E-Mail-Adresse
-            </label>
-
-            <input id="newEmail" type="email" wire:model="newEmail" autocomplete="email" required>
-
-            @error('newEmail')
-                <p role="alert">
-                    {{ $message }}
-                </p>
-            @enderror
+    <section class="portal-page__section">
+        <div class="portal-page__section-header">
+            <h2>Neue E-Mail-Adresse</h2>
         </div>
 
-        <button type="submit" wire:loading.attr="disabled" wire:target="requestChange">
-            Bestätigung anfordern
-        </button>
-    </form>
+        <form class="portal-page__form" wire:submit="requestChange">
+            <div class="field">
+                <label for="newEmail">
+                    Neue E-Mail-Adresse
+                </label>
+
+                <input id="newEmail" type="email" wire:model="newEmail" autocomplete="email" required>
+
+                @error('newEmail')
+                    <p role="alert">
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
+
+            <div class="portal-page__actions">
+                <button type="submit" wire:loading.attr="disabled" wire:target="requestChange">
+                    Bestätigung anfordern
+                </button>
+            </div>
+        </form>
+    </section>
 </div>

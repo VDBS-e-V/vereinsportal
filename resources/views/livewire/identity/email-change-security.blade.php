@@ -19,20 +19,26 @@ new #[Layout('components.layouts.public')]
 
 ?>
 
-<div class="card">
-    <h1>Sicherheitshinweis</h1>
+<div class="portal-page portal-page--small">
+    <header class="portal-page__header">
+        <h1>Sicherheitshinweis</h1>
+    </header>
 
-    <p>
-        Die E-Mail-Adresse eines VDB-Kontos wurde geändert.
-    </p>
+    <div class="notice notice--warning">
+        <div class="stack stack--sm">
+            <p>
+                Die E-Mail-Adresse eines VDB-Kontos wurde geändert.
+            </p>
 
-    <p>
-        Falls Sie diese Änderung nicht selbst veranlasst haben,
-        wenden Sie sich bitte an die Vereinsadministration.
-    </p>
+            <p>
+                Falls Sie diese Änderung nicht selbst veranlasst haben,
+                wenden Sie sich bitte an die Vereinsadministration.
+            </p>
 
-    <p>
-        Über diesen Link wird keine automatische Änderung
-        oder Rücksetzung durchgeführt.
-    </p>
+            <p>
+                Über diesen Link wird keine automatische Änderung
+                oder Rücksetzung durchgeführt.
+            </p>
+        </div>
+    </div>
 </div>

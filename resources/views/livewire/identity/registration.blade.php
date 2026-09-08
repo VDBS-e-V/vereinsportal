@@ -87,78 +87,108 @@ new #[Layout('components.layouts.public')]
 
 ?>
 
-<div class="card">
-    <h1>Registrieren</h1>
+<div class="portal-page portal-page--small">
+    <header class="portal-page__header">
+        <h1>Registrieren</h1>
 
-    <p>
-        Erstellen Sie ein Benutzerkonto für das
-        VDB-Portal. Nach der Registrierung erhalten
-        Sie eine Bestätigungs-E-Mail.
-    </p>
+        <p class="portal-page__lead">
+            Erstellen Sie ein Benutzerkonto für das
+            VDB-Portal. Nach der Registrierung erhalten
+            Sie eine Bestätigungs-E-Mail.
+        </p>
+    </header>
 
     @error('registration')
-        <p role="alert">
+        <p class="notice notice--danger" role="alert">
             {{ $message }}
         </p>
     @enderror
 
-    <form wire:submit="register">
-        <div class="field">
-            <label for="first_name">
-                Vorname
-            </label>
+    <form class="portal-page__form" wire:submit="register">
+        <div class="form__grid form__grid--2">
+            <div class="field">
+                <label for="first_name">
+                    Vorname
+                </label>
 
-            <input id="first_name" name="first_name" type="text" wire:model="first_name" autocomplete="given-name"
-                required>
+                <input
+                    id="first_name"
+                    name="first_name"
+                    type="text"
+                    wire:model="first_name"
+                    autocomplete="given-name"
+                    required
+                >
 
-            @error('first_name')
-                <p role="alert">
-                    {{ $message }}
-                </p>
-            @enderror
-        </div>
+                @error('first_name')
+                    <p role="alert">
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
 
-        <div class="field">
-            <label for="last_name">
-                Nachname
-            </label>
+            <div class="field">
+                <label for="last_name">
+                    Nachname
+                </label>
 
-            <input id="last_name" name="last_name" type="text" wire:model="last_name" autocomplete="family-name"
-                required>
+                <input
+                    id="last_name"
+                    name="last_name"
+                    type="text"
+                    wire:model="last_name"
+                    autocomplete="family-name"
+                    required
+                >
 
-            @error('last_name')
-                <p role="alert">
-                    {{ $message }}
-                </p>
-            @enderror
-        </div>
+                @error('last_name')
+                    <p role="alert">
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
 
-        <div class="field">
-            <label for="birth_date">
-                Geburtsdatum
-            </label>
+            <div class="field">
+                <label for="birth_date">
+                    Geburtsdatum
+                </label>
 
-            <input id="birth_date" name="birth_date" type="date" wire:model="birth_date" autocomplete="bday" required>
+                <input
+                    id="birth_date"
+                    name="birth_date"
+                    type="date"
+                    wire:model="birth_date"
+                    autocomplete="bday"
+                    required
+                >
 
-            @error('birth_date')
-                <p role="alert">
-                    {{ $message }}
-                </p>
-            @enderror
-        </div>
+                @error('birth_date')
+                    <p role="alert">
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
 
-        <div class="field">
-            <label for="email">
-                E-Mail-Adresse
-            </label>
+            <div class="field">
+                <label for="email">
+                    E-Mail-Adresse
+                </label>
 
-            <input id="email" name="email" type="email" wire:model="email" autocomplete="email" required>
+                <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    wire:model="email"
+                    autocomplete="email"
+                    required
+                >
 
-            @error('email')
-                <p role="alert">
-                    {{ $message }}
-                </p>
-            @enderror
+                @error('email')
+                    <p role="alert">
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
         </div>
 
         <div class="field">
@@ -166,10 +196,16 @@ new #[Layout('components.layouts.public')]
                 Passwort
             </label>
 
-            <input id="password" name="password" type="password" wire:model="password" autocomplete="new-password"
-                required>
+            <input
+                id="password"
+                name="password"
+                type="password"
+                wire:model="password"
+                autocomplete="new-password"
+                required
+            >
 
-            <small>
+            <small class="form__help">
                 Mindestens 10 Zeichen sowie Groß- und
                 Kleinbuchstaben, Zahl und Sonderzeichen.
             </small>
@@ -181,12 +217,14 @@ new #[Layout('components.layouts.public')]
             @enderror
         </div>
 
-        <div class="field">
+        <div class="field field--choice">
             <label>
                 <input name="privacy_accepted" type="checkbox" wire:model="privacy_accepted">
 
-                Ich stimme der Verarbeitung meiner Daten
-                gemäß Datenschutzhinweis zu.
+                <span>
+                    Ich stimme der Verarbeitung meiner Daten
+                    gemäß Datenschutzhinweis zu.
+                </span>
             </label>
 
             @error('privacy_accepted')
@@ -196,14 +234,16 @@ new #[Layout('components.layouts.public')]
             @enderror
         </div>
 
-        <button type="submit" wire:loading.attr="disabled" wire:target="register">
-            <span wire:loading.remove wire:target="register">
-                Registrieren
-            </span>
+        <div class="portal-page__actions">
+            <button type="submit" wire:loading.attr="disabled" wire:target="register">
+                <span wire:loading.remove wire:target="register">
+                    Registrieren
+                </span>
 
-            <span wire:loading wire:target="register">
-                Registrierung wird verarbeitet …
-            </span>
-        </button>
+                <span wire:loading wire:target="register">
+                    Registrierung wird verarbeitet …
+                </span>
+            </button>
+        </div>
     </form>
 </div>

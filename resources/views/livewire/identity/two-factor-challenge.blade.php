@@ -299,78 +299,104 @@ new #[Layout('components.layouts.public')]
 
 ?>
 
-<div class="card">
-    <h1>Zwei-Faktor-Anmeldung</h1>
+<div class="portal-page portal-page--small">
+    <header class="portal-page__header">
+        <h1>Zwei-Faktor-Anmeldung</h1>
 
-    <p>
-        Bitte bestätigen Sie die Anmeldung
-        mit einem zweiten Faktor.
-    </p>
+        <p class="portal-page__lead">
+            Bitte bestätigen Sie die Anmeldung
+            mit einem zweiten Faktor.
+        </p>
+    </header>
 
     @if ($challengeError !== null)
-        <p role="alert">
+        <p class="notice notice--danger" role="alert">
             {{ $challengeError }}
         </p>
     @endif
 
     @if ($emailAvailable)
-        <section>
-            <h2>E-Mail-Code</h2>
+        <section class="portal-page__section">
+            <div class="portal-page__section-header">
+                <h2>E-Mail-Code</h2>
+            </div>
 
-            <button type="button" wire:click="sendEmailCode">
-                Code per E-Mail senden
-            </button>
+            <div class="portal-page__actions">
+                <button class="btn btn--secondary" type="button" wire:click="sendEmailCode">
+                    Code per E-Mail senden
+                </button>
+            </div>
 
             @if ($emailSent)
-                <p role="status">
+                <p class="notice notice--success" role="status">
                     Der Sicherheitscode wurde
                     zum Versand vorbereitet.
                 </p>
             @endif
 
-            <form wire:submit="verifyEmail">
+            <form class="portal-page__form" wire:submit="verifyEmail">
                 <div class="field">
                     <label for="emailCode">
                         E-Mail-Code
                     </label>
 
-                    <input id="emailCode" type="text" inputmode="numeric" maxlength="6" wire:model="emailCode"
-                        autocomplete="one-time-code">
+                    <input
+                        id="emailCode"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="6"
+                        wire:model="emailCode"
+                        autocomplete="one-time-code"
+                    >
                 </div>
 
-                <button type="submit">
-                    E-Mail-Code prüfen
-                </button>
+                <div class="portal-page__actions">
+                    <button type="submit">
+                        E-Mail-Code prüfen
+                    </button>
+                </div>
             </form>
         </section>
     @endif
 
     @if ($totpAvailable)
-        <section>
-            <h2>Authenticator-App</h2>
+        <section class="portal-page__section">
+            <div class="portal-page__section-header">
+                <h2>Authenticator-App</h2>
+            </div>
 
-            <form wire:submit="verifyTotp">
+            <form class="portal-page__form" wire:submit="verifyTotp">
                 <div class="field">
                     <label for="totpCode">
                         TOTP-Code
                     </label>
 
-                    <input id="totpCode" type="text" inputmode="numeric" maxlength="6" wire:model="totpCode"
-                        autocomplete="one-time-code">
+                    <input
+                        id="totpCode"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="6"
+                        wire:model="totpCode"
+                        autocomplete="one-time-code"
+                    >
                 </div>
 
-                <button type="submit">
-                    TOTP-Code prüfen
-                </button>
+                <div class="portal-page__actions">
+                    <button type="submit">
+                        TOTP-Code prüfen
+                    </button>
+                </div>
             </form>
         </section>
     @endif
 
     @if ($recoveryAvailable)
-        <section>
-            <h2>Recovery Code</h2>
+        <section class="portal-page__section">
+            <div class="portal-page__section-header">
+                <h2>Recovery Code</h2>
+            </div>
 
-            <form wire:submit="verifyRecovery">
+            <form class="portal-page__form" wire:submit="verifyRecovery">
                 <div class="field">
                     <label for="recoveryCode">
                         Recovery Code
@@ -379,9 +405,11 @@ new #[Layout('components.layouts.public')]
                     <input id="recoveryCode" type="text" wire:model="recoveryCode" autocomplete="off">
                 </div>
 
-                <button type="submit">
-                    Recovery Code verwenden
-                </button>
+                <div class="portal-page__actions">
+                    <button type="submit">
+                        Recovery Code verwenden
+                    </button>
+                </div>
             </form>
         </section>
     @endif
