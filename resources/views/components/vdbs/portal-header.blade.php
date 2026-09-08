@@ -167,7 +167,7 @@ $linkClasses = static function (array $item, string $base): string {
                                 aria-current="page"
                             @endif
                         >
-                            {{ $item['label'] }}
+                            <span>{{ $item['label'] }}</span>
                         </a>
                     @else
                         <span class="{{ $linkClasses($item, 'header-nav-link') }}" aria-disabled="true">
@@ -260,7 +260,6 @@ $linkClasses = static function (array $item, string $base): string {
                     aria-label="Menü öffnen"
                 >
                     <x-vdbs.icon name="menu" size="27" />
-                    <span>Menü</span>
                 </button>
             </div>
         </div>
@@ -347,11 +346,12 @@ $linkClasses = static function (array $item, string $base): string {
             </div>
         </div>
     </div>
+</header>
 
-    @if ($breadcrumbs !== [])
-        <div class="header-breadcrumb vdbs-portal-breadcrumb-bar">
+@if ($breadcrumbs !== [])
+    <div class="header-breadcrumb vdbs-portal-breadcrumb-bar">
             <nav
-                class="header-breadcrumb__inner vdbs-portal-breadcrumb-bar__inner layout-frame layout-frame--full layout-frame--gutter"
+                class="header-breadcrumb__inner vdbs-portal-breadcrumb-bar__inner layout-frame layout-frame--normal layout-frame--gutter"
                 aria-label="Brotkrumen"
             >
                 <ol class="breadcrumb vdbs-breadcrumb">
@@ -377,4 +377,3 @@ $linkClasses = static function (array $item, string $base): string {
             </nav>
         </div>
     @endif
-</header>

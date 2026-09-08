@@ -93,8 +93,7 @@
  */
 .site-header .header-top__inner.layout-frame--full,
 .site-header .header-bottom__inner.layout-frame--full,
-.site-header .mobile-menu__inner.layout-frame--full,
-.site-header .header-breadcrumb__inner.layout-frame--full {
+.site-header .mobile-menu__inner.layout-frame--full {
     width: 100%;
     max-width: none;
     margin-inline: 0;
@@ -126,4 +125,12 @@
     color: var(--color-ink, #0f172a);
     font-size: 0.875rem;
     font-weight: 600;
+}
+@media (max-width: 64rem) {
+    :root {
+        --layout-frame-gutter: var(
+            --layout-page-gutter-mobile,
+            1rem
+        );
+    }
 }

@@ -23,7 +23,7 @@ BLADE
         ->toContain('layout-frame--gutter-end');
 });
 
-it('uses full width with gutter on all portal header frames', function () {
+it('uses full width for the header and normal width for the path', function () {
     $html = Blade::render(
         <<<'BLADE'
 <x-vdbs.portal-header
@@ -41,5 +41,11 @@ BLADE
             $html,
             'layout-frame layout-frame--full layout-frame--gutter',
         )
-    )->toBe(4);
+    )
+        ->toBe(3)
+        ->and($html)
+        ->toContain(
+            'header-breadcrumb__inner vdbs-portal-breadcrumb-bar__inner '.
+            'layout-frame layout-frame--normal layout-frame--gutter'
+        );
 });

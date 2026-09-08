@@ -149,8 +149,9 @@
 
             <div class="notice">
                 <strong>Portal Header:</strong>
-                Alle horizontalen Header-Ebenen verwenden
-                <code>Full Width + mit Rand</code>.
+                Die beiden Header-Zeilen und das Mobile-Menü verwenden
+                <code>Full Width + mit Rand</code>. Der Pfad verwendet
+                <code>Normal + mit Rand</code>.
             </div>
         </section>
     </div>
