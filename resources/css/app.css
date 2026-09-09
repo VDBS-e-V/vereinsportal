@@ -12,6 +12,7 @@
 @import './vdbs/components/links.css';
 @import './vdbs/components/cards.css';
 @import './vdbs/components/notices.css';
+@import './vdbs/components/empty-states.css';
 @import './vdbs/components/tables.css';
 @import './vdbs/pages.css';
 @import './vdbs/design.css';

@@ -50,6 +50,13 @@
                     </h3>
                     <p>Information, Erfolg, Warnung und Fehler als semantische Rückmeldung.</p>
                 </article>
+
+                <article class="teaser">
+                    <h3>
+                        <a href="{{ route('design.elemente.empty-states') }}">Leere Zustände</a>
+                    </h3>
+                    <p>Fehlende Daten oder Suchergebnisse werden erklärt und mit einer sinnvollen Aktion verbunden.</p>
+                </article>
             </div>
         </section>
 
