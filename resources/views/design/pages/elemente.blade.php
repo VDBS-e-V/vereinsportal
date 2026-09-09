@@ -125,6 +125,41 @@
                     </h3>
                     <p>Bildformate, Seitenverhältnisse, Objektanpassung, Bildunterschriften und Quellen.</p>
                 </article>
+
+                <article class="teaser">
+                    <h3>
+                        <a href="{{ route('design.elemente.artikel-news') }}">Artikel &amp; News</a>
+                    </h3>
+                    <p>Redaktionelle Detailseiten, Metadaten, Lesehierarchie und lineare News-Einstiege.</p>
+                </article>
+
+                <article class="teaser">
+                    <h3>
+                        <a href="{{ route('design.elemente.veranstaltungen') }}">Veranstaltungen</a>
+                    </h3>
+                    <p>Terminlisten und Veranstaltungsmetadaten mit Datum, Zeit und Ort.</p>
+                </article>
+
+                <article class="teaser">
+                    <h3>
+                        <a href="{{ route('design.elemente.kontakte') }}">Kontakte</a>
+                    </h3>
+                    <p>Ansprechpersonen, Zuständigkeiten und direkt nutzbare Kontaktwege.</p>
+                </article>
+
+                <article class="teaser">
+                    <h3>
+                        <a href="{{ route('design.elemente.ressourcen') }}">Ressourcen &amp; Linklisten</a>
+                    </h3>
+                    <p>Weiterführende Inhalte, Downloads und verwandte Ziele als klare Listen.</p>
+                </article>
+
+                <article class="teaser">
+                    <h3>
+                        <a href="{{ route('design.elemente.key-facts') }}">Key Facts</a>
+                    </h3>
+                    <p>Wenige wichtige Kennzahlen und Fakten ohne Dashboard-Optik.</p>
+                </article>
             </div>
         </section>
 
@@ -157,6 +192,13 @@
                         <a href="{{ route('design.elemente.suche-filter') }}">Suche &amp; Filter</a>
                     </h3>
                     <p>Lokale Suche, optionale Filter und Toolbar-Muster für Verwaltungslisten.</p>
+                </article>
+
+                <article class="teaser">
+                    <h3>
+                        <a href="{{ route('design.elemente.datensatzlisten') }}">Datensatzlisten</a>
+                    </h3>
+                    <p>Lineare Datensätze mit wenigen Metadaten als Alternative zur Tabelle.</p>
                 </article>
             </div>
         </section>

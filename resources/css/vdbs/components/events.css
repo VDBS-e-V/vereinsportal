@@ -1,0 +1,129 @@
+/* VDBS Portal — events */
+
+.event-list,
+.vdbs-event-list {
+    display: grid;
+    border-top: var(--border-width-strong) solid var(--color-ink);
+}
+
+.event-teaser,
+.vdbs-event-teaser {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    gap: var(--spacing-5);
+    padding-block: var(--spacing-5);
+    border-bottom: var(--border-width-default) solid var(--color-border);
+}
+
+.event-date,
+.vdbs-event-date {
+    display: grid;
+    align-content: start;
+    border-top: var(--border-width-strong) solid var(--color-primary);
+}
+
+.event-date__day,
+.vdbs-event-date__day {
+    padding-top: var(--spacing-2);
+    color: var(--color-ink);
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    line-height: 1;
+}
+
+.event-date__month,
+.vdbs-event-date__month {
+    color: var(--color-ink);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.event-date__year,
+.vdbs-event-date__year {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+.event-teaser__content,
+.vdbs-event-teaser__content {
+    display: grid;
+    gap: var(--spacing-2);
+}
+
+.event-teaser__title,
+.vdbs-event-teaser__title {
+    margin: 0;
+    font-size: var(--text-xl);
+}
+
+.event-teaser__title a,
+.vdbs-event-teaser__title a {
+    color: var(--color-ink);
+    text-decoration: none;
+}
+
+.event-teaser__title a:hover,
+.event-teaser__title a:focus-visible,
+.vdbs-event-teaser__title a:hover,
+.vdbs-event-teaser__title a:focus-visible {
+    color: var(--color-link);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+}
+
+.event-teaser__meta,
+.vdbs-event-teaser__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-1) var(--spacing-4);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+.event-teaser__description,
+.vdbs-event-teaser__description {
+    max-width: var(--layout-text-max);
+    margin: 0;
+}
+
+.event-detail-meta,
+.vdbs-event-detail-meta {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(min(100%, 12rem), 1fr)
+    );
+    gap: var(--spacing-4);
+    max-width: var(--layout-content-max);
+    padding-block: var(--spacing-4);
+    border-top: var(--border-width-default) solid var(--color-border);
+    border-bottom: var(--border-width-default) solid var(--color-border);
+}
+
+.event-detail-meta__item,
+.vdbs-event-detail-meta__item {
+    display: grid;
+    gap: var(--spacing-1);
+}
+
+.event-detail-meta__label,
+.vdbs-event-detail-meta__label {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: 600;
+}
+
+.event-detail-meta__value,
+.vdbs-event-detail-meta__value {
+    color: var(--color-ink);
+    font-weight: 700;
+}
+
+@media (max-width: 36rem) {
+    .event-teaser,
+    .vdbs-event-teaser {
+        grid-template-columns: 4.5rem minmax(0, 1fr);
+        gap: var(--spacing-4);
+    }
+}

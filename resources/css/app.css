@@ -21,6 +21,11 @@
 @import './vdbs/components/dialogs.css';
 @import './vdbs/components/media.css';
 @import './vdbs/components/files.css';
+@import './vdbs/components/editorial.css';
+@import './vdbs/components/events.css';
+@import './vdbs/components/contacts.css';
+@import './vdbs/components/resources.css';
+@import './vdbs/components/records.css';
 @import './vdbs/components/notices.css';
 @import './vdbs/components/empty-states.css';
 @import './vdbs/components/tables.css';

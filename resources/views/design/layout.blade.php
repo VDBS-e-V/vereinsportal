@@ -89,13 +89,7 @@
                 $children = $nestedDesignNavigation
                     ->get($key, collect())
                     ->map(fn (array $child): array => [
-                        'label' => collect($child['segments'])
-                            ->skip(1)
-                            ->map(
-                                fn (string $segment): string =>
-                                    \Illuminate\Support\Str::headline($segment)
-                            )
-                            ->implode(' / '),
+                        'label' => $child['label'],
                         'url' => $child['url'],
                         'active' => $child['active'],
                     ])
@@ -116,13 +110,7 @@
             ->map(function ($items, string $key): array {
                 $children = collect($items)
                     ->map(fn (array $child): array => [
-                        'label' => collect($child['segments'])
-                            ->skip(1)
-                            ->map(
-                                fn (string $segment): string =>
-                                    \Illuminate\Support\Str::headline($segment)
-                            )
-                            ->implode(' / '),
+                        'label' => $child['label'],
                         'url' => $child['url'],
                         'active' => $child['active'],
                     ])
