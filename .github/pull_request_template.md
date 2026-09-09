@@ -4,7 +4,7 @@
 
 ## Verknüpftes Issue
 
-Closes #
+<!-- Zum Beispiel: Closes #123 -->
 
 ## Art der Änderung
 
@@ -13,6 +13,7 @@ Closes #
 - [ ] Security-Hardening
 - [ ] Refactoring
 - [ ] Dokumentation
+- [ ] Dependency-Update
 - [ ] Deployment / Infrastruktur
 
 ## Betroffene Bereiche
@@ -21,35 +22,42 @@ Closes #
 - [ ] Verwaltung
 - [ ] Personen
 - [ ] Berechtigungen
-- [ ] Einladungen
 - [ ] Datenschutz / DSGVO
 - [ ] Audit
-- [ ] Datenbank
+- [ ] Datenbank / Migrationen
+- [ ] Designsystem / Web Content Library
+- [ ] Frontend / Assets
 - [ ] CI / GitHub Actions
 - [ ] Dokumentation
 
 ## Tests / QA
 
-- [ ] `composer validate` erfolgreich
-- [ ] `composer install` erfolgreich
-- [ ] PHPUnit erfolgreich
-- [ ] `php tools/qa/run_all.php` erfolgreich
-- [ ] Manuell getestet
+- [ ] `composer qa` erfolgreich
+- [ ] `git diff --check` erfolgreich
+- [ ] relevante Feature-/Regressionstests ergänzt
+- [ ] manuell getestet, falls erforderlich
 
 ## Security / Datenschutz
 
-- [ ] Keine Secrets committed
-- [ ] Keine personenbezogenen Daten in Logs, Issues oder Tests
-- [ ] Berechtigungen geprüft, falls relevant
-- [ ] CSRF/Auth/Session-Auswirkungen geprüft, falls relevant
+- [ ] keine Secrets committed
+- [ ] keine echten personenbezogenen Daten in Code, Tests, Logs oder Screenshots
+- [ ] Auth-/Berechtigungs-/Session-Auswirkungen geprüft, falls relevant
+- [ ] Audit-Auswirkungen geprüft, falls relevant
+- [ ] Dependency-Änderungen geprüft, falls relevant
 
-## Deployment
+## Datenbank / Deployment
 
-- [ ] Keine Deployment-Auswirkung
-- [ ] Deployment-Auswirkung dokumentiert
-- [ ] DB-Änderungen dokumentiert
-- [ ] Rollback-Hinweis vorhanden
+- [ ] keine Migration
+- [ ] Migration und Rollback-Auswirkung dokumentiert
+- [ ] keine Deployment-Auswirkung
+- [ ] Deployment-Auswirkung und Rollback dokumentiert
+
+## Designsystem
+
+- [ ] nicht betroffen
+- [ ] vorhandene Bausteine wiederverwendet
+- [ ] neue wiederverwendbare Lösung in der Web Content Library dokumentiert
 
 ## Hinweise für Reviewer
 
-<!-- Worauf sollen Reviewer besonders achten? -->
+<!-- Worauf soll beim Review besonders geachtet werden? -->

@@ -1,187 +1,97 @@
 # Gesamtplanung – GitHub Repository für aktiven Betrieb
 
-Repository: `VDBS-e-V/Portal-Neu`
+Repository: `VDBS-e-V/vereinsportal`
 
 ## Zielbild
 
-Das Repository wird für einen geregelten, sicheren und nachvollziehbaren aktiven Betrieb vorbereitet.
+Das Repository soll sicher, nachvollziehbar und für tägliche Entwicklung geeignet sein. Alles Reproduzierbare wird versioniert; nicht versionierbare Schutzregeln werden anschließend als GitHub Rulesets und Repository-Einstellungen aktiviert.
 
-Geplante Bereiche:
+## Phasen
 
 1. Repository-Grundlage und Branch-Modell
-2. GitHub-Struktur mit Issue- und PR-Templates
+2. GitHub-Struktur und Zusammenarbeit
 3. CI / QA
 4. Security
 5. Deployment-Struktur
 6. Release-Prozess
 7. Produktiv-Check
 
----
+## Branch-Modell
 
-# Phase 1 – Repository-Grundlage
+Dauerhafter Branch:
 
-## Ziel-Branches
+- `main` – geprüfter Integrations- und Release-Branch
 
-- `main` – stabiler, releasefähiger und produktionsnaher Branch
-- `develop` – Integrationsbranch für aktive Entwicklung
-- `archive/reset-base-skeleton` – eingefrorene Referenz des bisherigen Ausgangsstands
-
-Zusätzliche Branches bei Bedarf:
+Kurzlebige Branches:
 
 - `feature/*`
 - `fix/*`
 - `security/*`
-- `release/*`
+- `refactor/*`
+- `docs/*`
 - `hotfix/*`
-- `archive/*`
-
-## Arbeitsfluss
 
 Normale Entwicklung:
 
-`feature/*` / `fix/*` / `security/*` → Pull Request → `develop`
+`Arbeitsbranch` → Pull Request → `main` → Squash Merge
 
-Release:
+Ein dauerhafter `develop`-Branch wird nicht verwendet.
 
-`develop` → `release/x.y.z` → `main` → Tag / Release
+## GitHub-Schutz
 
-Hotfix:
+Für `main` wird ein Ruleset vorgesehen mit:
 
-`main` → `hotfix/x.y.z-thema` → `main` → Rückmerge nach `develop`
+- Pull Request erforderlich
+- erforderliche Status Checks
+- Conversation Resolution
+- Force Push blockieren
+- Branch-Löschung blockieren
+- lineare Historie
+- optional Approval-Pflicht, sobald zuverlässig mehrere Reviewer verfügbar sind
 
-## Merge-Strategie
+## CI / QA
 
-- Feature-/Fix-/Security-Branches: bevorzugt Squash Merge
-- Release-/Hotfix-Branches: Merge Commit oder Squash je nach gewünschter Historie
-- Keine direkten Pushes auf `main` und `develop`
+Versioniert in `.github/workflows/ci.yml`:
 
----
+- Composer-Validierung und Installation
+- Pest
+- Pint
+- MySQL-Migrationen
+- Node/npm
+- Vite-Build
+- Designsystem-Integritätsprüfung
+- PHP-Kompatibilitätscheck
 
-# Phase 2 – GitHub-Struktur
+## Security
 
-Geplante Dateien:
+Versioniert:
 
-`.github/ISSUE_TEMPLATE/`
-- `bug_report.yml`
-- `feature_request.yml`
-- `security_hardening.yml`
-- `qa_check.yml`
-- `deployment_task.yml`
-- `documentation_task.yml`
-- `technical_debt.yml`
-- `config.yml`
-
-Zusätzlich:
-- `.github/pull_request_template.md`
-
-`CODEOWNERS` wird vorerst nicht verwendet, da das Team aktuell klein ist.
-
----
-
-# Phase 3 – CI / QA
-
-Geplant:
-
-- `.github/workflows/ci.yml`
-- `composer validate`
-- `composer install`
-- PHPUnit
-- `php tools/qa/run_all.php`
-- Required Status Checks für `main` und `develop`
-
----
-
-# Phase 4 – Security
-
-Geplant:
-
-- `.github/workflows/security.yml`
 - Composer Audit
-- CodeQL
+- npm Audit
 - Dependency Review
+- Secret Scan
+- CodeQL
 - Dependabot
+- `SECURITY.md`
+
+Zusätzlich über GitHub Settings aktivieren:
+
 - Secret Scanning
 - Push Protection
-- `SECURITY.md`
-- minimale `GITHUB_TOKEN`-Berechtigungen
-- Third-Party-Actions möglichst auf Commit-SHA pinnen
-- Production-Secrets nur über GitHub Environments
+- Dependabot Alerts / Security Updates
+- Code Scanning
+- Private Vulnerability Reporting
 
----
+## Deployment
 
-# Phase 5 – Deployment
+Deployment wird erst nach geklärtem Hosting- und Rollback-Konzept automatisiert. Production-Secrets gehören ausschließlich in ein geschütztes GitHub Environment oder den Secret Store des Hostings.
 
-GitHub Environments:
+## Releases
 
-- `staging`
-- `production`
+Releases werden aus einem grünen `main` erzeugt:
 
-Geplante Secrets / Variablen:
+`main` → Tag `vX.Y.Z` → GitHub Release → optional Production-Deployment
 
-- `PROD_HOST`
-- `PROD_USER`
-- `PROD_SSH_KEY`
-- `PROD_PATH`
-- `PROD_URL`
+## Produktiv-Check
 
-Empfohlenes Zielmodell:
-
-`develop` → automatisches Staging-Deployment
-
-`main` → GitHub Release / Tag `v*` → Production-Deployment
-
-Für Produktion:
-
-- Required Reviewer
-- Prevent self-review
-- nur `main` bzw. Release/Tag
-- kein direktes Deployment bei beliebigen Pushes
-- Rollback-Konzept verpflichtend
-
----
-
-# Phase 6 – Release-Prozess
-
-Empfohlene Versionierung:
-
-- `v0.1.0`
-- `v0.2.0`
-- `v1.0.0`
-
-Ablauf:
-
-1. Entwicklung auf `develop`
-2. `release/x.y.z` erstellen
-3. QA und Security-Prüfung
-4. Merge nach `main`
-5. Tag `vx.y.z`
-6. GitHub Release veröffentlichen
-7. Production-Deployment
-8. Rückmerge nach `develop`
-
----
-
-# Phase 7 – Produktiv-Check
-
-Vor Produktionsbetrieb prüfen:
-
-- README vollständig
-- SECURITY.md vorhanden
-- CONTRIBUTING.md vorhanden
-- CHANGELOG.md vorhanden
-- LICENSE geklärt
-- Issue Templates vorhanden
-- PR Template vorhanden
-- CI grün
-- Security Checks grün
-- Staging getestet
-- Rollback dokumentiert
-- Backup-Konzept dokumentiert
-- Produktions-Secrets gesetzt
-- keine `.env` im Repository
-- `APP_DEBUG=0`
-- HTTPS aktiv
-- Mailversand getestet
-- Demo-Zugänge entfernt / deaktiviert
-- DSGVO-Prozesse getestet
-- Audit-Log geprüft
+Vor dem Produktionsbetrieb müssen CI, Security, Backup, Rollback, Environment-Schutz, Datenschutzprozesse und produktive Konfiguration separat abgenommen werden.

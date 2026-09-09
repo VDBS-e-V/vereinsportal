@@ -4,6 +4,4 @@ namespace App\Modules\Administration\Exceptions;
 
 use RuntimeException;
 
-final class AdministrationActionRejected extends RuntimeException
-{
-}
+final class AdministrationActionRejected extends RuntimeException {}

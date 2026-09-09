@@ -4,6 +4,11 @@ title: "[Deploy]: "
 labels: ["type: deployment", "status: triage"]
 
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Keine Secrets, Zugangsdaten oder internen Schlüssel in dieses Issue einfügen.
+
   - type: dropdown
     id: environment
     attributes:
@@ -28,11 +33,13 @@ body:
       options:
         - label: CI erfolgreich
         - label: Security-Checks erfolgreich
-        - label: APP_DEBUG=0 geprüft
+        - label: Release/Commit eindeutig festgelegt
+        - label: Migrationen geprüft
+        - label: APP_DEBUG=0 für Produktion geprüft
         - label: HTTPS aktiv
-        - label: Produktions-Secrets gesetzt
+        - label: Secrets im geschützten Environment vorhanden
         - label: Datenbank-Backup vorhanden
-        - label: Mailversand geprüft
+        - label: Health Check definiert
         - label: Rollback-Plan vorhanden
 
   - type: textarea

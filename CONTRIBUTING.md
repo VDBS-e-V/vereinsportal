@@ -1,41 +1,80 @@
-# Contributing
+# Mitwirken
 
-Thanks for contributing to the Vereinsportal project.
+## Grundprinzip
 
-## Development Workflow
+`main` ist der einzige dauerhafte Integrationsbranch. Änderungen werden in kurzen Arbeitsbranches entwickelt und per Pull Request nach `main` integriert.
 
-1. Create a feature or fix branch from `develop`
-2. Keep changes focused and scoped
-3. Add or update tests for behavior changes
-4. Run the local validation checks before opening a pull request
-5. Open a pull request against `develop` or a release branch as appropriate
+## Branches
 
-## Branching
+Von aktuellem `main` erstellen:
 
-- `main`: production-ready and stable
-- `develop`: active integration branch
-- `feature/*`, `fix/*`, `security/*`: normal work streams
-- `release/*` and `hotfix/*`: release and emergency workflows
+- `feature/<thema>`
+- `fix/<thema>`
+- `security/<thema>`
+- `refactor/<thema>`
+- `docs/<thema>`
+- `hotfix/<thema>` für dringende Korrekturen
 
-## Quality Gates
+Keine direkten Feature-Commits auf `main`.
 
-Before opening or merging a change:
+## Ablauf
 
-- `composer validate`
-- `php artisan test`
-- `php vendor/bin/pint --test`
+1. `main` aktualisieren.
+2. Einen passenden Arbeitsbranch erstellen.
+3. Änderung fokussiert implementieren.
+4. Tests und Dokumentation ergänzen.
+5. `composer qa` ausführen.
+6. Bei Dependency- oder Security-Änderungen zusätzlich `composer security` ausführen.
+7. Pull Request nach `main` öffnen.
+8. CI- und Security-Checks müssen grün sein.
+9. Review-Kommentare auflösen.
+10. Per Squash Merge integrieren und Arbeitsbranch löschen.
 
-For CI parity, the repository workflow also runs these checks automatically.
+## Qualitätsregeln
 
-## Pull Request Expectations
+Mindestens relevant:
 
-- Keep the PR small and reviewable
-- Explain the problem and the solution
-- Mention any relevant issue or documentation link
-- Include a brief note on security or data-protection impact if applicable
+```text
+composer validate --no-check-publish
+php vendor/bin/pint --test
+php artisan test
+php artisan vdbs:library-check
+npm run build
+git diff --check
+```
 
-## Security and Data Protection
+`composer qa` bündelt die zentralen lokalen Checks.
 
-- Never commit secrets, personal data, or production environment details
-- Do not expose confidential information in logs or test fixtures
-- Report vulnerabilities privately via the security policy
+## Tests
+
+Verhaltensänderungen benötigen passende automatisierte Tests. Sicherheits-, Rollen- und Berechtigungslogik soll nicht nur über Design- oder Stringtests abgesichert werden.
+
+Keine echten personenbezogenen Daten in Test-Fixtures verwenden.
+
+## Pull Requests
+
+Ein Pull Request soll:
+
+- ein klar abgegrenztes Problem lösen,
+- den Grund der Änderung erklären,
+- relevante Tests nennen,
+- Security- und Datenschutzfolgen angeben,
+- Migrationen und Rollback-Auswirkungen dokumentieren,
+- keine unnötigen Formatierungs- oder Fremdänderungen enthalten.
+
+Große Änderungen nach Möglichkeit in nachvollziehbare, einzeln reviewbare Schritte teilen.
+
+## Designsystem
+
+Neue Designsystem-Bausteine entstehen nur aus realen Produkt- oder Content-Anforderungen. Wiederverwendbare Lösungen anschließend in die Web Content Library übernehmen und `php artisan vdbs:library-check` ausführen.
+
+## Security und Datenschutz
+
+- Keine Secrets oder Produktionszugänge committen.
+- Keine realen personenbezogenen Daten in Code, Tests, Issues oder Logs.
+- Sicherheitslücken vertraulich gemäß `SECURITY.md` melden.
+- Bei Auth-, Session-, Rollen-, Audit- oder Datenschutzänderungen die Auswirkungen im PR explizit beschreiben.
+
+## Commit- und Merge-Historie
+
+Kurze, verständliche Commit-Nachrichten verwenden. Pull Requests werden bevorzugt per Squash Merge integriert. Merge Commits und Rebase Merge sollen im Repository deaktiviert werden.

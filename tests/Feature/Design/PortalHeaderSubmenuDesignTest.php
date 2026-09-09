@@ -18,7 +18,7 @@ it('supports hover and keyboard access for header submenus', function () {
     );
 
     expect($script)
-        ->toContain("(hover: hover) and (pointer: fine)")
+        ->toContain('(hover: hover) and (pointer: fine)')
         ->toContain("addEventListener('mouseenter'")
         ->toContain("addEventListener('mouseleave'")
         ->toContain("addEventListener('focusin'")

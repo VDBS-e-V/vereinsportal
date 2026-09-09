@@ -1,0 +1,30 @@
+changelog:
+  exclude:
+    labels:
+      - skip-changelog
+
+  categories:
+    - title: Sicherheit
+      labels:
+        - "type: security"
+
+    - title: Neue Funktionen
+      labels:
+        - "type: feature"
+
+    - title: Fehlerbehebungen
+      labels:
+        - "type: bug"
+
+    - title: Dokumentation
+      labels:
+        - "type: docs"
+
+    - title: Wartung und Refactoring
+      labels:
+        - "type: refactor"
+        - dependencies
+
+    - title: Weitere Änderungen
+      labels:
+        - "*"

@@ -15,6 +15,7 @@
 
 .disclosure__summary,
 .vdbs-disclosure__summary {
+    min-height: 2.75rem;
     padding: var(--spacing-3) 0;
     color: var(--color-ink);
     cursor: pointer;

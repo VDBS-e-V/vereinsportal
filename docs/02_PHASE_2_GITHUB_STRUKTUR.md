@@ -4,6 +4,10 @@
 
 ```text
 .github/
+├── CODEOWNERS
+├── dependabot.yml
+├── release.yml
+├── pull_request_template.md
 ├── ISSUE_TEMPLATE/
 │   ├── bug_report.yml
 │   ├── feature_request.yml
@@ -13,16 +17,20 @@
 │   ├── documentation_task.yml
 │   ├── technical_debt.yml
 │   └── config.yml
-└── pull_request_template.md
+└── workflows/
+    ├── ci.yml
+    ├── security.yml
+    └── codeql.yml
 ```
 
-`CODEOWNERS` wird vorerst übersprungen.
+`CODEOWNERS` dokumentiert die fachliche Zuständigkeit. Eine verpflichtende Code-Owner-Freigabe wird erst aktiviert, wenn die Teamstruktur das zuverlässig erlaubt.
 
 ## Labels
 
 Empfohlene Labels:
 
 ### Typ
+
 - `type: bug`
 - `type: feature`
 - `type: security`
@@ -30,14 +38,15 @@ Empfohlene Labels:
 - `type: docs`
 - `type: refactor`
 - `type: deployment`
+- `dependencies`
 
 ### Bereich
+
 - `area: login`
 - `area: konto`
 - `area: verwaltung`
 - `area: personen`
 - `area: berechtigungen`
-- `area: einladungen`
 - `area: datenschutz`
 - `area: audit`
 - `area: datenbank`
@@ -46,11 +55,13 @@ Empfohlene Labels:
 - `area: docs`
 
 ### Priorität
+
 - `priority: high`
 - `priority: medium`
 - `priority: low`
 
 ### Status
+
 - `status: triage`
 - `status: ready`
 - `status: in-progress`
@@ -58,10 +69,10 @@ Empfohlene Labels:
 - `status: review`
 - `status: done`
 
-## Milestones
+## Issues
 
-- `v0.1 Betriebsfähigkeit`
-- `v0.2 Security-Hardening`
-- `v0.3 Staging-Ready`
-- `v1.0 Produktionsstart`
-- `v1.1 Nachbetrieb / Verbesserungen`
+Blank Issues bleiben deaktiviert. Sicherheitslücken werden über Private Vulnerability Reporting gemeldet und nicht als öffentliches Security-Issue.
+
+## Releases
+
+`.github/release.yml` gruppiert automatisch generierte Release Notes anhand der PR-Labels.

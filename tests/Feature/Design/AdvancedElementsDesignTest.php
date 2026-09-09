@@ -21,12 +21,12 @@ it('imports the advanced component foundations', function () {
     );
 
     foreach ([
-        "components/loading.css",
-        "components/validation.css",
-        "components/danger.css",
-        "components/dialogs.css",
-        "components/media.css",
-        "components/files.css",
+        'components/loading.css',
+        'components/validation.css',
+        'components/danger.css',
+        'components/dialogs.css',
+        'components/media.css',
+        'components/files.css',
     ] as $import) {
         expect($app)->toContain($import);
     }

@@ -8,7 +8,7 @@ it('groups authenticated account pages under a single header item', function () 
     expect($layout)
         ->toContain("'label' => 'Konto'")
         ->toContain("'children' => collect(\$accountNavigation)")
-        ->toContain("request()->routeIs(...\$accountRouteNames)")
+        ->toContain('request()->routeIs(...$accountRouteNames)')
         ->toContain('aria-label="Kontoeinstellungen"')
         ->toContain('class="local-nav__link"');
 });

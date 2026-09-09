@@ -1,31 +1,36 @@
 # Phase 5 – Deployment Planung
 
-## Zielmodell
+## Grundsatz
 
-### Staging
+Deployment wird nicht automatisch an jeden Push auf `main` gekoppelt. Zuerst müssen Hosting, Backup, Rollback und Environment-Schutz verbindlich geklärt sein.
 
-`develop` → automatisches Deployment nach Staging
+## Staging
 
-### Produktion
+Empfohlen:
 
-`main` → GitHub Release / Tag `v*` → Production-Deployment
+- manuelles oder freigegebenes Deployment aus geprüftem `main`
+- optional Preview-/Staging-Deployment für ausgewählte Pull Requests
+- keine Production-Secrets in PR-Workflows
 
-Empfehlung:
-Kein sofortiges Production-Deployment bei jedem beliebigen Push auf `main`.
+## Produktion
+
+Zielmodell:
+
+`main` → Tag `vX.Y.Z` → GitHub Release → Production-Deployment
 
 ## GitHub Environments
 
-Anlegen:
+Geplant:
 
 - `staging`
 - `production`
 
-## Production-Schutz
+Für `production`:
 
-- Required Reviewer
-- Prevent self-review
-- Branch / Tag-Einschränkung
-- Secrets nur im Production Environment
+- Required Reviewer, sobald organisatorisch möglich
+- Prevent self-review, sobald mehrere Reviewer verfügbar sind
+- Branch-/Tag-Einschränkungen
+- Secrets ausschließlich im Environment
 
 ## Geplante Secrets
 
@@ -35,6 +40,7 @@ Anlegen:
 - `PROD_PATH`
 
 Variable:
+
 - `PROD_URL`
 
 ## Geplanter Workflow
@@ -42,40 +48,20 @@ Variable:
 `.github/workflows/deploy-production.yml`
 
 Trigger:
+
 - GitHub Release `published`
 - optional `workflow_dispatch`
 
-## Deployment per SSH / rsync
-
-Möglicher Ablauf:
-
-1. Checkout
-2. PHP / Composer vorbereiten
-3. QA ausführen
-4. SSH vorbereiten
-5. Dateien synchronisieren
-6. `.env` nicht überschreiben
-7. Produktions-Dependencies installieren
-8. Health Check
-9. Deployment als erfolgreich markieren
-
-## Rollback
-
-Vor Aktivierung des Auto-Deployments muss definiert werden:
-
-- welches Release zuletzt stabil war
-- wie Dateien zurückgerollt werden
-- wie DB-Migrationen zurückgerollt werden
-- wo Backups liegen
-- wer Rollback auslösen darf
-
-## Offene technische Klärungen
+## Vor jeder Automatisierung klären
 
 - Hosting / Servertyp
 - Apache oder Nginx
-- PHP-Version
-- SSH-Zugang für GitHub Actions
-- Staging vorhanden?
-- Composer auf Server oder Build-Artefakt?
-- DB-Migrationsstrategie
-- Release-basiertes Deployment oder Merge-Deployment
+- produktive PHP-Version
+- SSH- und Schlüsselverwaltung
+- Build-Artefakt oder Build auf Server
+- Migrationsstrategie
+- Wartungsmodus
+- Health Check
+- Backup
+- Rollback
+- Verantwortlichkeiten

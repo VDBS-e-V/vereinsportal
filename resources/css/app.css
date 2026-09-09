@@ -30,6 +30,10 @@
 @import './vdbs/components/page-states.css';
 @import './vdbs/components/notices.css';
 @import './vdbs/components/empty-states.css';
+@import './vdbs/components/error-pages.css';
+@import './vdbs/components/code-examples.css';
+@import './vdbs/components/icon-browser.css';
+@import './vdbs/components/playground.css';
 @import './vdbs/components/tables.css';
 @import './vdbs/pages.css';
 @import './vdbs/a11y.css';

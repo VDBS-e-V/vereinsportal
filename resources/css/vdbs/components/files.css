@@ -46,6 +46,12 @@
     color: var(--color-white);
 }
 
+.file-upload__input:focus-visible,
+.vdbs-file-upload__input:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+}
+
 .file-upload__help,
 .vdbs-file-upload__help {
     margin: 0;
@@ -121,7 +127,13 @@
 
     .file-item__actions,
     .vdbs-file-item__actions {
+        width: 100%;
         justify-content: flex-start;
+    }
+
+    .file-item__actions .btn,
+    .vdbs-file-item__actions .btn {
+        width: 100%;
     }
 }
 

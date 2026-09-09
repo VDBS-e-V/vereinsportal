@@ -16,6 +16,10 @@
     scroll-margin-block-start: 8rem;
 }
 
+[hidden] {
+    display: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -76,7 +80,9 @@
     .local-nav__link,
     .pagination__link,
     .pagination__current,
-    .pagination__disabled {
+    .pagination__disabled,
+    .disclosure__summary,
+    .vdbs-disclosure__summary {
         min-height: 2.75rem;
     }
 }
@@ -86,6 +92,9 @@
     .article a,
     .resource-item a,
     .contact-block a,
+    .file-item,
+    .table,
+    .notice,
     code {
         overflow-wrap: anywhere;
     }

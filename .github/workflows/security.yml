@@ -4,87 +4,146 @@ on:
   push:
     branches:
       - main
-      - develop
   pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '30 4 * * 1'
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   composer-audit:
     name: Composer Audit
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
-          php-version: '8.4'
+          php-version: '8.5'
           extensions: mbstring, pdo_mysql, fileinfo, sodium
+          coverage: none
           tools: composer:v2
 
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-interaction --no-progress
-
-      - name: Audit dependencies
+      - name: Audit locked Composer dependencies
         run: composer audit --locked
+
+  npm-audit:
+    name: NPM Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Audit npm dependencies
+        run: npm audit --audit-level=high
 
   dependency-review:
     name: Dependency Review
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Dependency Review
-        uses: actions/dependency-review-action@v4
+        uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0
+        with:
+          fail-on-severity: high
 
   secret-scan:
     name: Secret Scan
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
 
-      - name: Scan for common secrets
+      - name: Scan tracked files for high-confidence secret patterns
+        shell: bash
         run: |
           python - <<'PY'
           import re
+          import subprocess
           import sys
           from pathlib import Path
 
-          root = Path('.')
-          patterns = [
-              re.compile(r'(AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36,255}|github_pat_[A-Za-z0-9_]{20,})'),
-              re.compile(r'(?i)(DB_PASSWORD|APP_KEY|SECRET_KEY)\s*[:=]\s*[^\n]+'),
-          ]
+          patterns = {
+              'AWS access key': re.compile(r'AKIA[0-9A-Z]{16}'),
+              'GitHub classic token': re.compile(r'ghp_[A-Za-z0-9]{36,255}'),
+              'GitHub fine-grained token': re.compile(r'github_pat_[A-Za-z0-9_]{20,255}'),
+              'Private key': re.compile(r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----'),
+          }
+
           hits = []
 
-          for path in root.rglob('*'):
-              if not path.is_file() or '.git' in path.parts:
+          files = subprocess.check_output(
+              ['git', 'ls-files', '-z'],
+          ).split(b'\0')
+
+          for raw_path in files:
+              if not raw_path:
                   continue
-              if path.suffix.lower() in {'.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.lock'}:
+
+              path = Path(raw_path.decode('utf-8'))
+
+              if path.suffix.lower() in {
+                  '.gif', '.ico', '.jpeg', '.jpg', '.lock',
+                  '.png', '.ttf', '.woff', '.woff2',
+              }:
                   continue
+
               try:
-                  text = path.read_text(encoding='utf-8', errors='ignore')
-              except Exception:
+                  text = path.read_text(
+                      encoding='utf-8',
+                      errors='ignore',
+                  )
+              except OSError:
                   continue
-              for pattern in patterns:
+
+              for name, pattern in patterns.items():
                   if pattern.search(text):
-                      hits.append(str(path))
-                      break
+                      hits.append((str(path), name))
 
           if hits:
-              print('Potential secret-like values detected in:')
-              for hit in sorted(set(hits)):
-                  print(' - ' + hit)
+              print('Potential secrets detected:')
+              for path, kind in sorted(set(hits)):
+                  print(f' - {path}: {kind}')
               sys.exit(1)
-          print('No obvious secret-like values detected.')
+
+          print('No high-confidence secret patterns detected.')
           PY

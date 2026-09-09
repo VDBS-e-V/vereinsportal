@@ -151,9 +151,15 @@
 .button-group,
 .vdbs-button-group {
     display: flex;
+    min-width: 0;
     flex-wrap: wrap;
     align-items: center;
     gap: var(--spacing-3);
+}
+
+.button-group > form,
+.vdbs-button-group > form {
+    margin: 0;
 }
 
 @keyframes vdbs-button-spin {

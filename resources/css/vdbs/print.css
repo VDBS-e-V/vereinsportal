@@ -93,14 +93,27 @@
     a:visited {
         color: #000 !important;
         text-decoration: underline;
+        overflow-wrap: anywhere;
+    }
+
+    pre,
+    code {
+        white-space: pre-wrap !important;
+        overflow-wrap: anywhere;
     }
 
     h1,
     h2,
     h3,
     h4 {
-        break-after: avoid;
+        break-after: avoid-page;
         page-break-after: avoid;
+    }
+
+    h2,
+    h3,
+    h4 {
+        break-before: auto;
     }
 
     p,
@@ -154,5 +167,24 @@
     img,
     svg {
         max-width: 100% !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .notice,
+    .contact-block,
+    .resource-item,
+    .file-item,
+    .record-item {
+        border-color: #777 !important;
+        background: transparent !important;
+        color: #000 !important;
+    }
+
+    .status,
+    .badge {
+        border: 1px solid #777 !important;
+        background: transparent !important;
+        color: #000 !important;
     }
 }

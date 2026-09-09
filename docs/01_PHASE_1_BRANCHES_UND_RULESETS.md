@@ -4,122 +4,72 @@
 
 ### `main`
 
-Zweck:
-- stabil
-- releasefähig
-- Quelle für Produktion
-
-Regeln:
-- Pull Request erforderlich
-- 1 Approval
-- stale Approvals verwerfen
-- Approval des letzten reviewbaren Pushes erforderlich
-- Conversation Resolution erforderlich
-- Branch-Löschung blockieren
-- Force Push blockieren
-- Status Checks später aktivieren
-- Code Scanning später aktivieren
-- Code Owners vorerst nicht
-
-### `develop`
+`main` ist der einzige dauerhafte Entwicklungs- und Release-Branch.
 
 Zweck:
-- aktive Integration
-- Ziel für Features und normale Fixes
 
-Regeln:
-- Pull Request erforderlich
-- 1 Approval
-- stale Approvals verwerfen
-- Approval des letzten reviewbaren Pushes erforderlich
-- Conversation Resolution erforderlich
-- Branch-Löschung blockieren
-- Force Push blockieren
-- Status Checks später aktivieren
-- Code Scanning später aktivieren
+- geprüfter Integrationsstand
+- Ausgangspunkt für neue Arbeit
+- Grundlage für Releases
+- grundsätzlich releasefähig
 
-### `release/*`
+### Arbeitsbranches
 
-Zweck:
-- Release-Kandidaten
+Kurzlebig:
 
-Regeln:
-- Pull Request erforderlich
-- 1 Approval
-- stale Approvals verwerfen
-- Approval des letzten reviewbaren Pushes erforderlich
-- Conversation Resolution erforderlich
-- Branch-Löschung blockieren
-- Force Push blockieren
-- Status Checks später aktivieren
-- Code Scanning später aktivieren
+- `feature/*`
+- `fix/*`
+- `security/*`
+- `refactor/*`
+- `docs/*`
+- `hotfix/*`
 
-### `hotfix/*`
+Alle starten von aktuellem `main` und werden per Pull Request nach `main` integriert.
 
-Zweck:
-- dringende Produktionsfixes
+## Empfohlenes Ruleset für `main`
 
-Regeln:
-- Pull Request erforderlich
-- 1 Approval
-- stale Approvals verwerfen
-- Approval des letzten reviewbaren Pushes erforderlich
-- Conversation Resolution erforderlich
-- Branch-Löschung blockieren
-- Force Push blockieren
-- Status Checks später aktivieren
-- Code Scanning später aktivieren
+- Restrict deletions: Ja
+- Block force pushes: Ja
+- Require linear history: Ja
+- Require pull request before merging: Ja
+- Require conversation resolution: Ja
+- Require status checks to pass: Ja
+- Require branches to be up to date before merging: Ja
+- Require signed commits: zunächst optional
+- Require merge queue: zunächst Nein
+- Require deployments to succeed: erst mit Deployment-Pipeline
 
-### `archive/*`
+### Reviews
 
-Zweck:
-- unveränderliche Referenz
+Solange nur eine Person zuverlässig maintained, keine Approval-Regel aktivieren, die alle PRs blockiert.
 
-Regeln:
-- Restrict updates: aktiv
-- Restrict deletions: aktiv
-- Block force pushes: aktiv
-- Pull Request erforderlich: nein
-- Status Checks: nein
-- Code Scanning: nein
-
-## Ruleset-Matrix
-
-| Rule | main | develop | release/* | hotfix/* | archive/* |
-|---|---:|---:|---:|---:|---:|
-| Restrict creations | Nein | Nein | Nein | Nein | Nein |
-| Restrict updates | Nein | Nein | Nein | Nein | Ja |
-| Restrict deletions | Ja | Ja | Ja | Ja | Ja |
-| Require linear history | Nein | Nein | Nein | Nein | Nein |
-| Require merge queue | Nein | Nein | Nein | Nein | Nein |
-| Require deployments to succeed | Später | Nein | Nein | Nein | Nein |
-| Require signed commits | Nein | Nein | Nein | Nein | Nein |
-| Require pull request before merging | Ja | Ja | Ja | Ja | Nein |
-| Require status checks to pass | Später | Später | Später | Später | Nein |
-| Block force pushes | Ja | Ja | Ja | Ja | Ja |
-| Require code scanning results | Später | Später | Später | Später | Nein |
-| Require code quality results | Nein | Nein | Nein | Nein | Nein |
-| Copilot code review automatisch | Nein | Nein | Nein | Nein | Nein |
-| Restrict commit metadata | Nein | Nein | Nein | Nein | Nein |
-| Restrict branch names | Nein | Nein | Nein | Nein | Nein |
-
-## PR-Unterregeln für main/develop/release/hotfix
+Sobald mindestens zwei Reviewer verfügbar sind:
 
 - Required approvals: 1
-- Dismiss stale pull request approvals: Ja
-- Require review from specific teams: Nein
-- Require review from Code Owners: vorerst Nein
+- Dismiss stale approvals: Ja
 - Require approval of the most recent reviewable push: Ja
-- Require conversation resolution before merging: Ja
+- optional Code Owner Review
+
+## Required Status Checks
+
+Nach erfolgreichen Workflow-Läufen mindestens:
+
+- `Quality`
+- Security-Checks, die für Pull Requests stabil verfügbar sind
+
+CodeQL kann zusätzlich über Code-Scanning-Regeln verpflichtend gemacht werden.
 
 ## Merge-Methoden
 
-Für `main` und `develop`:
-- Squash: Ja
-- Merge: Nein bzw. nur bei gewünschter Release-Historie
-- Rebase: Nein
+Empfohlen:
 
-Für `release/*` und `hotfix/*`:
-- Squash: Ja
-- Merge: optional Ja
-- Rebase: Nein
+- Squash Merge: Ja
+- Merge Commit: Nein
+- Rebase Merge: Nein
+- Delete branch after merge: Ja
+
+Damit bleibt `main` linear und die Pull-Request-Historie nachvollziehbar.
+
+## Archive
+
+Falls unveränderliche Referenzbranches benötigt werden, `archive/*` in ein separates Ruleset aufnehmen und Updates, Löschungen sowie Force Pushes blockieren.

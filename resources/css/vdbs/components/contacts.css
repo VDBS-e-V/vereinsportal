@@ -66,3 +66,15 @@
 .vdbs-contact-block address {
     font-style: normal;
 }
+
+@media (max-width: 40rem) {
+    .contact-block__actions,
+    .vdbs-contact-block__actions {
+        width: 100%;
+    }
+
+    .contact-block__actions .btn,
+    .vdbs-contact-block__actions .btn {
+        width: 100%;
+    }
+}

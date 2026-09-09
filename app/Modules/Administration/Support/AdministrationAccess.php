@@ -41,7 +41,7 @@ final class AdministrationAccess
     }
 
     /**
-     * @param list<string> $roleKeys
+     * @param  list<string>  $roleKeys
      */
     private function hasActiveRole(
         ?User $user,

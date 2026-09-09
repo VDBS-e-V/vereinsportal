@@ -22,6 +22,7 @@
 
 .table-toolbar__summary,
 .vdbs-table-toolbar__summary {
+    align-self: center;
     color: var(--color-text-muted);
     font-size: var(--text-sm);
 }
@@ -30,7 +31,9 @@
 .table-block,
 .vdbs-table-wrap {
     width: 100%;
+    max-width: 100%;
     overflow-x: auto;
+    overscroll-behavior-inline: contain;
 }
 
 .table,
@@ -47,6 +50,8 @@
 .vdbs-table td {
     padding: 0.75rem 0.85rem;
     border-bottom: var(--border-width-default) solid var(--color-border);
+    max-width: 32rem;
+    overflow-wrap: anywhere;
     text-align: left;
     vertical-align: top;
 }
@@ -76,6 +81,8 @@
 
 .table__actions,
 .vdbs-table__actions {
+    max-width: none;
+    overflow-wrap: normal;
     white-space: nowrap;
 }
 

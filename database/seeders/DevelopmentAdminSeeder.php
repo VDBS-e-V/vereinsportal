@@ -117,16 +117,14 @@ class DevelopmentAdminSeeder extends Seeder
             [
                 'user_id' => $user->id,
                 'role_id' => $administrationRole->id,
-                'source' =>
-                    RoleAssignmentSource::Console->value,
+                'source' => RoleAssignmentSource::Console->value,
                 'source_type' => self::class,
                 'source_id' => null,
                 'ends_at' => null,
             ],
             [
                 'starts_at' => now(),
-                'comment' =>
-                    'Lokaler Entwicklungsadmin aus VDB_DEV_ADMIN_*.',
+                'comment' => 'Lokaler Entwicklungsadmin aus VDB_DEV_ADMIN_*.',
             ],
         );
 

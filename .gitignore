@@ -45,6 +45,8 @@ composer.phar
 /.phpunit.cache
 /coverage
 /coverage-html
+/test-results
+/junit.xml
 
 
 # ------------------------------------------------------------

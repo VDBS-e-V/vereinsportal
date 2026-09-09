@@ -1,46 +1,46 @@
-# Phase 3 – CI / QA Planung
+# Phase 3 – CI / QA
 
 ## Ziel
 
-Jeder relevante Pull Request und Push soll automatisch geprüft werden.
+Jeder Pull Request nach `main` und jeder Push auf `main` wird automatisiert geprüft.
 
-## Geplanter Workflow
+## Workflow
 
 Datei:
 
 `.github/workflows/ci.yml`
 
-Trigger:
+## Quality Job
 
-- Pull Requests nach `develop`
-- Pull Requests nach `main`
-- Pull Requests nach `release/*`
-- Push auf `develop`
-- Push auf `main`
+- Checkout ohne persistierte GitHub-Credentials
+- PHP 8.5
+- Composer 2
+- Node.js 22
+- MySQL 8.4
+- `composer validate --no-check-publish`
+- `composer install`
+- `npm ci`
+- `php artisan migrate:fresh --force`
+- Pest
+- Pint
+- `php artisan vdbs:library-check`
+- `npm run build`
+- `git diff --check`
 
-## Geplante Checks
+## PHP-Kompatibilität
 
-1. Checkout
-2. PHP einrichten
-3. `composer validate`
-4. `composer install`
-5. PHPUnit
-6. `php tools/qa/run_all.php`
+Ein separater Matrix-Job prüft, ob der Composer-Lockfile weiterhin mit den in `composer.json` unterstützten PHP-Versionen installierbar ist.
 
-## Required Status Checks
+## Workflow-Härtung
 
-Nach dem ersten erfolgreichen Workflow-Lauf in den Rulesets aktivieren:
+- minimale `permissions`
+- Actions auf Commit-SHAs gepinnt
+- `persist-credentials: false`
+- Job-Timeouts
+- Concurrency mit Abbruch veralteter Runs
 
-- `ci / qa`
+## Required Status Check
 
-Optional später:
-- Lint
-- statische Analyse
-- zusätzliche Integrationstests
+Für `main` mindestens den Check `Quality` verpflichtend machen. Weitere stabile Security-Checks können zusätzlich in das Ruleset aufgenommen werden.
 
-## Ziel
-
-Ein PR darf erst gemerged werden, wenn:
-- CI erfolgreich
-- Review erfolgreich
-- Conversations resolved
+Ein Pull Request darf erst integriert werden, wenn die verpflichtenden Checks grün und offene Review-Conversations aufgelöst sind.

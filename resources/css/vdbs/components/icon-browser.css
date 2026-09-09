@@ -1,0 +1,41 @@
+/* VDBS Web Content Library — icon browser */
+
+.icon-browser,
+.vdbs-icon-browser {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    gap: var(--spacing-4);
+}
+
+.icon-browser__item,
+.vdbs-icon-browser__item {
+    display: grid;
+    gap: var(--spacing-4);
+    padding: var(--spacing-4);
+    border: var(--border-width-default) solid var(--color-border);
+    background: var(--color-white);
+}
+
+.icon-browser__preview,
+.vdbs-icon-browser__preview {
+    display: grid;
+    min-height: 6rem;
+    place-items: center;
+    background: var(--color-surface-subtle);
+    color: var(--color-ink);
+}
+
+.icon-browser__name,
+.vdbs-icon-browser__name {
+    margin: 0;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: var(--text-sm);
+}
+
+.icon-browser__snippet,
+.vdbs-icon-browser__snippet {
+    overflow-wrap: anywhere;
+    color: var(--color-text-muted);
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: var(--text-xs);
+}

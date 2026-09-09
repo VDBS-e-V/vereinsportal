@@ -1,49 +1,57 @@
-# Phase 4 – Security Planung
+# Phase 4 – Security
 
-## GitHub-Funktionen
+## Versionierte Schutzmaßnahmen
 
-Aktivieren:
+### `.github/workflows/security.yml`
 
-- Dependabot Alerts
-- Dependabot Security Updates
-- Dependabot Version Updates
-- Secret Scanning
-- Push Protection
-- Code Scanning / CodeQL
-- Private Vulnerability Reporting
-
-## Workflows
-
-Geplant:
-
-- `.github/workflows/security.yml`
-- `.github/workflows/dependency-review.yml`
-
-## Checks
-
-- CodeQL
 - Composer Audit
-- Dependency Review
-- PHP Syntax / statische Prüfungen nach Bedarf
+- npm Audit
+- Dependency Review auf Pull Requests
+- zusätzlicher High-Confidence Secret Scan
+
+### `.github/workflows/codeql.yml`
+
+- CodeQL für PHP
+- Pull Requests und `main`
+- wöchentlicher Scan
+
+### `.github/dependabot.yml`
+
+- GitHub Actions
+- Composer
+- npm
+- gruppierte Minor-/Patch-Updates
 
 ## GitHub Actions Härtung
 
-- `permissions` explizit definieren
-- `GITHUB_TOKEN` minimal berechtigen
-- Drittanbieter-Actions möglichst auf Commit-SHA pinnen
-- keine Secrets in untrusted Pull Requests
-- `pull_request_target` möglichst vermeiden
-- Deployment-Secrets nur in Environments
-- Production nur mit Approval
+- `permissions` explizit und minimal
+- Checkout ohne persistierte Credentials
+- Third-Party-Actions auf vollständige Commit-SHAs pinnen
+- keine Deployment-Secrets in Pull-Request-Workflows
+- `pull_request_target` für untrusted Code vermeiden
+- Timeouts und Concurrency verwenden
+
+## Repository-Einstellungen
+
+Zusätzlich manuell aktivieren:
+
+- Dependabot Alerts
+- Dependabot Security Updates
+- Secret Scanning
+- Push Protection
+- Code Scanning
+- Private Vulnerability Reporting
 
 ## Security Issues
 
-Öffentliche Issue-Templates dürfen keine:
+Öffentliche Issues dürfen keine:
+
 - Passwörter
 - Tokens
-- personenbezogenen Daten
-- verwertbaren Exploit-Details
+- private Schlüssel
+- echten personenbezogenen Daten
+- unmittelbar ausnutzbaren vertraulichen Details
 
 enthalten.
 
-Vertrauliche Sicherheitslücken über GitHub Security Advisories / Private Vulnerability Reporting.
+Vertrauliche Schwachstellen ausschließlich über die in `SECURITY.md` beschriebenen privaten Meldewege behandeln.

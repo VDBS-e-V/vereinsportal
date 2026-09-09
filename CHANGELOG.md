@@ -1,18 +1,26 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+Alle wesentlichen Änderungen am Vereinsportal werden in dieser Datei dokumentiert.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
+Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Versioning.
 
 ## [Unreleased]
 
 ### Added
-- Repository setup and governance baseline for GitHub workflows and contribution standards
-- Security policy and contribution guide
-- CI and security automation templates for branch-protected development
+
+- Web Content Library und versioniertes Designsystem als Entwicklungsreferenz
+- Repository-Standards für Branching, CODEOWNERS und Zusammenarbeit
+- gehärtete CI mit PHP-, MySQL-, Node-, Pest-, Pint- und Build-Prüfungen
+- automatisierte Composer-, npm-, Dependency-, Secret- und CodeQL-Sicherheitschecks
+- gruppierte Dependabot-Updates und Release-Notes-Konfiguration
 
 ### Changed
-- Project README aligned to the Vereinsportal repository context
 
-### Fixed
-- N/A
+- Entwicklungsmodell auf kurze Pull-Request-Branches direkt nach `main` vereinheitlicht
+- GitHub Actions auf feste Commit-SHAs gepinnt
+- PR- und Issue-Templates an aktuelle QA-, Security- und Datenschutzregeln angepasst
+
+### Security
+
+- minimale Workflow-Berechtigungen und nicht persistierte Checkout-Credentials dokumentiert
+- öffentliche Security-Issues klar von vertraulichen Vulnerability Reports getrennt

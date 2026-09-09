@@ -1,5 +1,5 @@
 name: Sicherheitsmaßnahme
-description: Security-Aufgabe ohne vertrauliche Details erfassen
+description: Öffentliche Security-Hardening-Aufgabe ohne vertrauliche Schwachstellendetails
 title: "[Security]: "
 labels: ["type: security", "status: triage"]
 
@@ -7,14 +7,15 @@ body:
   - type: markdown
     attributes:
       value: |
-        Bitte keine Passwörter, Tokens, personenbezogenen Daten oder ausnutzbaren Details posten.
-        Vertrauliche Sicherheitslücken bitte nicht als öffentliches Issue melden.
+        Dieses Template ist nur für allgemeines Security-Hardening.
+        Konkrete oder ausnutzbare Schwachstellen ausschließlich vertraulich über GitHub Security Advisories melden.
+        Keine Passwörter, Tokens, personenbezogenen Daten oder Exploit-Details posten.
 
   - type: textarea
     id: topic
     attributes:
-      label: Thema
-      description: Welche Sicherheitsmaßnahme soll umgesetzt werden?
+      label: Maßnahme
+      description: Welche allgemeine Sicherheitsmaßnahme soll umgesetzt werden?
     validations:
       required: true
 
@@ -28,11 +29,11 @@ body:
         - label: CSRF
         - label: Session / Cookies
         - label: Passwort-Reset / Einladungen
-        - label: Audit-Log
+        - label: Audit
         - label: Datenschutz / DSGVO
-        - label: Deployment / Server
         - label: Dependencies
         - label: GitHub Actions / CI
+        - label: Deployment / Server
 
   - type: textarea
     id: acceptance
@@ -40,13 +41,9 @@ body:
       label: Akzeptanzkriterien
       value: |
         - [ ] Umsetzung dokumentiert
-        - [ ] Tests/QA erfolgreich
-        - [ ] Keine Secrets im Code
-        - [ ] Keine personenbezogenen Daten in Logs oder Issues
+        - [ ] automatisierte Tests/QA ergänzt
+        - [ ] keine Secrets im Code
+        - [ ] keine personenbezogenen Daten in Logs oder Issues
+        - [ ] Rollback-/Betriebsauswirkung geprüft
     validations:
       required: true
-
-  - type: textarea
-    id: notes
-    attributes:
-      label: Hinweise

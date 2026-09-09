@@ -21,12 +21,12 @@ it('imports the print layer after the screen design styles', function () {
     );
 
     expect($app)
-        ->toContain("vdbs/print.css")
+        ->toContain('vdbs/print.css')
         ->and(
-            strpos($app, "vdbs/print.css")
+            strpos($app, 'vdbs/print.css')
         )
         ->toBeGreaterThan(
-            strpos($app, "vdbs/design.css")
+            strpos($app, 'vdbs/design.css')
         );
 });
 
