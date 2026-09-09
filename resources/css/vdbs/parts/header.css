@@ -611,6 +611,45 @@
     opacity: 0.58;
 }
 
+.account-logout-form,
+.vdbs-account-logout-form,
+.mobile-menu__logout-form,
+.vdbs-mobile-menu__logout-form {
+    margin: 0;
+}
+
+.account-link--button,
+.vdbs-account-link--button {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.mobile-menu__action,
+.vdbs-mobile-menu__action {
+    width: 100%;
+    padding: 0.65rem 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-ink);
+    font: inherit;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+}
+
+.mobile-menu__action:hover,
+.mobile-menu__action:focus-visible,
+.vdbs-mobile-menu__action:hover,
+.vdbs-mobile-menu__action:focus-visible {
+    color: var(--color-link);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+}
+
 .mobile-menu-trigger,
 .vdbs-mobile-menu-trigger {
     display: none;

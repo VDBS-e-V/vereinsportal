@@ -288,7 +288,26 @@
 
                             @if (($account['logout'] ?? null) !== null)
                                 <div class="account-group vdbs-account-group vdbs-account-group--logout">
-                                    @if (($account['logout']['url'] ?? null) !== null)
+                                    @if (
+                                        ($account['logout']['url'] ?? null) !== null
+                                        && ($account['logout']['method'] ?? 'get') === 'post'
+                                    )
+                                        <form
+                                            class="account-logout-form vdbs-account-logout-form"
+                                            method="POST"
+                                            action="{{ $account['logout']['url'] }}"
+                                        >
+                                            @csrf
+
+                                            <button
+                                                class="account-link account-link--button vdbs-account-link vdbs-account-link--button"
+                                                type="submit"
+                                            >
+                                                <x-vdbs.icon name="logout" size="19" />
+                                                <span>{{ $account['logout']['label'] ?? 'Abmelden' }}</span>
+                                            </button>
+                                        </form>
+                                    @elseif (($account['logout']['url'] ?? null) !== null)
                                         <a class="account-link vdbs-account-link" href="{{ $account['logout']['url'] }}">
                                             <x-vdbs.icon name="logout" size="19" />
                                             <span>{{ $account['logout']['label'] ?? 'Abmelden' }}</span>
@@ -409,7 +428,25 @@
                     @endforeach
 
                     @if (($account['logout'] ?? null) !== null)
-                        @if (($account['logout']['url'] ?? null) !== null)
+                        @if (
+                            ($account['logout']['url'] ?? null) !== null
+                            && ($account['logout']['method'] ?? 'get') === 'post'
+                        )
+                            <form
+                                class="mobile-menu__logout-form vdbs-mobile-menu__logout-form"
+                                method="POST"
+                                action="{{ $account['logout']['url'] }}"
+                            >
+                                @csrf
+
+                                <button
+                                    class="mobile-menu__action vdbs-mobile-menu__action"
+                                    type="submit"
+                                >
+                                    {{ $account['logout']['label'] ?? 'Abmelden' }}
+                                </button>
+                            </form>
+                        @elseif (($account['logout']['url'] ?? null) !== null)
                             <a href="{{ $account['logout']['url'] }}">
                                 {{ $account['logout']['label'] ?? 'Abmelden' }}
                             </a>
