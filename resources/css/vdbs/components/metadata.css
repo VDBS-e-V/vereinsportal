@@ -1,0 +1,119 @@
+/* VDBS Portal — badges, statuses and metadata */
+
+.badge,
+.vdbs-badge {
+    display: inline-flex;
+    width: fit-content;
+    min-height: 1.7rem;
+    align-items: center;
+    gap: var(--spacing-1);
+    padding: 0.15rem 0.45rem;
+    border: var(--border-width-default) solid var(--color-border-strong);
+    border-radius: 0;
+    background: var(--color-white);
+    color: var(--color-ink);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.badge--accent,
+.vdbs-badge--accent {
+    border-color: var(--color-secondary-cta);
+    background: color-mix(
+        in srgb,
+        var(--color-secondary-cta) 10%,
+        var(--color-white)
+    );
+}
+
+.status,
+.vdbs-status {
+    display: inline-flex;
+    width: fit-content;
+    min-height: 1.7rem;
+    align-items: center;
+    gap: var(--spacing-1);
+    padding: 0.15rem 0.45rem;
+    border: var(--border-width-default) solid var(--color-border-strong);
+    border-radius: 0;
+    background: var(--color-surface-subtle);
+    color: var(--color-ink);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.status--info,
+.vdbs-status--info {
+    border-color: var(--color-info);
+    background: color-mix(in srgb, var(--color-info) 8%, var(--color-white));
+}
+
+.status--success,
+.vdbs-status--success {
+    border-color: var(--color-success);
+    background: color-mix(in srgb, var(--color-success) 8%, var(--color-white));
+}
+
+.status--warning,
+.vdbs-status--warning {
+    border-color: var(--color-warning);
+    background: color-mix(in srgb, var(--color-warning) 10%, var(--color-white));
+}
+
+.status--danger,
+.vdbs-status--danger {
+    border-color: var(--color-danger);
+    background: color-mix(in srgb, var(--color-danger) 8%, var(--color-white));
+}
+
+.metadata-list,
+.vdbs-metadata-list,
+.portal-page__meta {
+    display: grid;
+    margin: 0;
+    border-top: var(--border-width-default) solid var(--color-border);
+}
+
+.metadata-list > div,
+.vdbs-metadata-list > div,
+.portal-page__meta > div {
+    display: grid;
+    grid-template-columns: minmax(9rem, 13rem) minmax(0, 1fr);
+    gap: var(--spacing-4);
+    padding-block: var(--spacing-3);
+    border-bottom: var(--border-width-default) solid var(--color-border);
+}
+
+.metadata-list dt,
+.vdbs-metadata-list dt,
+.portal-page__meta dt {
+    color: var(--color-text-muted);
+    font-weight: 600;
+}
+
+.metadata-list dd,
+.vdbs-metadata-list dd,
+.portal-page__meta dd {
+    min-width: 0;
+    margin: 0;
+    color: var(--color-ink);
+    font-weight: 600;
+}
+
+.metadata-list--compact > div,
+.vdbs-metadata-list--compact > div {
+    padding-block: var(--spacing-2);
+}
+
+@media (max-width: 50rem) {
+    .metadata-list > div,
+    .vdbs-metadata-list > div,
+    .portal-page__meta > div {
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--spacing-1);
+    }
+}

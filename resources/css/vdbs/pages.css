@@ -105,31 +105,6 @@
     text-underline-offset: 0.2em;
 }
 
-.portal-page__meta {
-    display: grid;
-    margin: 0;
-    border-top: 1px solid var(--color-border);
-}
-
-.portal-page__meta > div {
-    display: grid;
-    grid-template-columns: minmax(9rem, 13rem) minmax(0, 1fr);
-    gap: var(--spacing-4);
-    padding-block: var(--spacing-3);
-    border-bottom: 1px solid var(--color-border);
-}
-
-.portal-page__meta dt {
-    color: var(--color-text-muted);
-    font-weight: 600;
-}
-
-.portal-page__meta dd {
-    margin: 0;
-    color: var(--color-ink);
-    font-weight: 600;
-}
-
 .portal-page__code {
     max-width: 100%;
     overflow-wrap: anywhere;
@@ -178,10 +153,5 @@
 @media (max-width: 50rem) {
     .portal-page {
         gap: var(--spacing-6);
-    }
-
-    .portal-page__meta > div {
-        grid-template-columns: minmax(0, 1fr);
-        gap: var(--spacing-1);
     }
 }

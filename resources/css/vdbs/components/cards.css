@@ -56,22 +56,6 @@
     color: var(--color-link);
 }
 
-.badge,
-.vdbs-badge {
-    display: inline-flex;
-    width: fit-content;
-    align-items: center;
-    min-height: 1.7rem;
-    padding: 0.15rem 0.45rem;
-    border: 1px solid var(--color-border-strong);
-    border-radius: 0;
-    color: var(--color-ink);
-    font-size: var(--text-xs);
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-}
-
 @media (max-width: 40rem) {
     .card,
     .content-card,

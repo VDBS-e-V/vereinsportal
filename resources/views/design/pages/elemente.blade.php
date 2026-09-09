@@ -70,6 +70,13 @@
                     </h3>
                     <p>Lineare Einstiege und eigenständige Inhaltsmodule für Übersichtsseiten.</p>
                 </article>
+
+                <article class="teaser">
+                    <h3>
+                        <a href="{{ route('design.elemente.metadaten') }}">Status &amp; Metadaten</a>
+                    </h3>
+                    <p>Badges, fachliche Zustände und strukturierte Schlüssel-Wert-Informationen.</p>
+                </article>
             </div>
         </section>
 
