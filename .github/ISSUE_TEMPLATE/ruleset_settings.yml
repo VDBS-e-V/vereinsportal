@@ -1,0 +1,82 @@
+name: GitHub Ruleset / main-Schutz
+description: Branch-Ruleset und Schutzregeln für main prüfen und dokumentieren
+title: "[Ruleset]: "
+labels: ["status: triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Dieses Issue ist die Arbeitsfläche für das Ruleset von `main`.
+        Required Status Checks erst eintragen, wenn die betreffenden GitHub-Actions-Checks erfolgreich existieren.
+
+  - type: textarea
+    id: current
+    attributes:
+      label: Aktueller Ruleset-Stand
+      description: Welche Regeln sind aktuell aktiv?
+      placeholder: |
+        Ruleset-Name:
+        Enforcement:
+        Target branch:
+        Bypass:
+    validations:
+      required: true
+
+  - type: textarea
+    id: target
+    attributes:
+      label: Gewünschte Regeln
+      description: Zielwerte als bearbeitbare Checkliste dokumentieren.
+      value: |
+        - [ ] Target: default branch / main
+        - [ ] Restrict deletions: ON
+        - [ ] Block force pushes: ON
+        - [ ] Require linear history: ON
+        - [ ] Require pull request before merging: ON
+        - [ ] Required approvals: 0
+        - [ ] Require conversation resolution: ON
+        - [ ] Allowed merge methods: Squash only
+        - [ ] Require status checks: nach erfolgreichem CI aktivieren
+        - [ ] Require branch up to date: nach erfolgreichem CI aktivieren
+    validations:
+      required: true
+
+  - type: textarea
+    id: status_checks
+    attributes:
+      label: Required Status Checks
+      description: Exakte Check-Namen eintragen, sobald sie erfolgreich auf GitHub gelaufen sind.
+      placeholder: |
+        Quality
+        PHP compatibility (...)
+        Composer Audit
+        NPM Audit
+        Secret Scan
+        Dependency Review
+
+  - type: textarea
+    id: work
+    attributes:
+      label: Durchführung / Arbeitsnotizen
+      value: |
+        1.
+        2.
+        3.
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Prüfung
+      description: Mit Probe-PR oder GitHub-Ansicht verifizieren.
+      placeholder: |
+        Direkter Push blockiert:
+        Force Push blockiert:
+        PR erforderlich:
+        Checks erforderlich:
+        Ergebnis:
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Offene Punkte

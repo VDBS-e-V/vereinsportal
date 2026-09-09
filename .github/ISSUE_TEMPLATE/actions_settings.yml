@@ -1,0 +1,66 @@
+name: GitHub Actions Einstellungen
+description: Actions-Berechtigungen und Workflow-Sicherheitsregeln prüfen und dokumentieren
+title: "[Actions Settings]: "
+labels: ["status: triage"]
+
+body:
+  - type: textarea
+    id: current
+    attributes:
+      label: Aktueller Zustand
+      description: Aktuelle Repository-Einstellungen unter Settings → Actions → General.
+      placeholder: |
+        Actions permissions:
+        Fork PR approval:
+        Workflow permissions:
+        Create/approve PRs:
+        Artifact retention:
+    validations:
+      required: true
+
+  - type: textarea
+    id: target
+    attributes:
+      label: Zielwerte
+      value: |
+        - [ ] GitHub-eigene Actions erlaubt
+        - [ ] Nur benötigte externe Actions erlaubt
+        - [ ] Full-length commit SHA pinning: ON
+        - [ ] Externe Fork-PRs benötigen Freigabe
+        - [ ] Default GITHUB_TOKEN: read
+        - [ ] Actions dürfen PRs nicht selbst genehmigen
+        - [ ] Artifact-/Log-Retention geprüft
+    validations:
+      required: true
+
+  - type: textarea
+    id: allowed_actions
+    attributes:
+      label: Erlaubte externe Actions
+      description: Nur tatsächlich benötigte externe Actions dokumentieren.
+      placeholder: |
+        shivammathur/setup-php@*
+
+  - type: textarea
+    id: work
+    attributes:
+      label: Durchführung / Arbeitsnotizen
+      value: |
+        1.
+        2.
+        3.
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Prüfung
+      placeholder: |
+        Workflow gestartet:
+        Unzulässige Action blockiert:
+        Berechtigungen geprüft:
+        Ergebnis:
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Offene Punkte

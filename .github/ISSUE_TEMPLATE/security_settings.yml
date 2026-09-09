@@ -1,0 +1,80 @@
+name: GitHub Security Einstellungen
+description: Repository-Sicherheitsfunktionen prüfen, aktivieren und dokumentieren
+title: "[Security Settings]: "
+labels: ["type: security", "status: triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Keine Schwachstellendetails, Secrets oder Tokens in dieses öffentliche Issue schreiben.
+        Konkrete Sicherheitslücken ausschließlich über Private Vulnerability Reporting melden.
+
+  - type: textarea
+    id: current
+    attributes:
+      label: Aktueller Security-Stand
+      description: Aktuelle Werte unter Settings → Security and quality.
+      placeholder: |
+        Dependency graph:
+        Dependabot alerts:
+        Dependabot security updates:
+        Secret scanning:
+        Push protection:
+        Private vulnerability reporting:
+        Code scanning:
+    validations:
+      required: true
+
+  - type: textarea
+    id: target
+    attributes:
+      label: Zielwerte
+      value: |
+        - [ ] Dependency graph: ON
+        - [ ] Dependabot alerts: ON
+        - [ ] Dependabot security updates: ON
+        - [ ] Dependabot version updates: ON
+        - [ ] Secret scanning: ON
+        - [ ] Push protection: ON
+        - [ ] Generic secret patterns: ON, falls verfügbar
+        - [ ] Validity checks: ON, falls verfügbar
+        - [ ] Private vulnerability reporting: ON
+        - [ ] Code scanning separat geprüft
+    validations:
+      required: true
+
+  - type: textarea
+    id: code_scanning
+    attributes:
+      label: Code Scanning / statische Analyse
+      description: Aktuellen Stand und geplante Lösung dokumentieren.
+      placeholder: |
+        Aktueller Workflow:
+        Unterstützte Sprache:
+        Fehler / Einschränkungen:
+        Nächster Schritt:
+
+  - type: textarea
+    id: work
+    attributes:
+      label: Durchführung / Arbeitsnotizen
+      value: |
+        1.
+        2.
+        3.
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Prüfung / Nachweis
+      placeholder: |
+        Security-Übersicht geprüft:
+        Test-Push durchgeführt:
+        Dependabot geprüft:
+        Ergebnis:
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Offene Punkte

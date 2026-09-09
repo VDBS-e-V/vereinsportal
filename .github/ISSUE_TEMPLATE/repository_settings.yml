@@ -1,0 +1,69 @@
+name: GitHub Repository-Einstellungen
+description: Allgemeine Repository-, Merge- und Feature-Einstellungen prüfen und dokumentieren
+title: "[Repo Settings]: "
+labels: ["status: triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Dieses Issue dient als Arbeitsprotokoll für GitHub-Einstellungen, die nicht über Dateien versioniert werden.
+        Keine Secrets, Tokens oder vertraulichen Organisationsdaten eintragen.
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Bereich / Einstellung
+      description: Welche Repository-Einstellung wird bearbeitet?
+      placeholder: |
+        Pfad in GitHub:
+        Einstellung:
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: Aktueller Zustand
+      description: Welche Werte sind aktuell gesetzt?
+      placeholder: |
+        Aktueller Wert:
+        Auffälligkeiten:
+    validations:
+      required: true
+
+  - type: textarea
+    id: target
+    attributes:
+      label: Zielzustand
+      description: Welche exakten Werte sollen gesetzt werden?
+      placeholder: |
+        Zielwert:
+        Weitere abhängige Einstellungen:
+    validations:
+      required: true
+
+  - type: textarea
+    id: work
+    attributes:
+      label: Durchführung / Arbeitsnotizen
+      description: Änderungen und Entscheidungen während der Bearbeitung dokumentieren.
+      value: |
+        1.
+        2.
+        3.
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Prüfung nach Änderung
+      description: Wie wurde kontrolliert, dass die Einstellung korrekt übernommen wurde?
+      placeholder: |
+        Geprüft am:
+        Ergebnis:
+        Offene Punkte:
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Weitere Hinweise
