@@ -73,3 +73,25 @@ it('keeps element subpages in the horizontal design navigation hierarchy', funct
         ->toContain("'children' => \$children")
         ->not->toContain('design-sidebar');
 });
+
+it('shows the complete breadcrumb path on nested element pages', function () {
+    $user = makeElementCategoriesDesignUser();
+
+    $response = $this
+        ->withSession([
+            'identity.session_version' => $user->session_version,
+            'identity.account_validated_at' => now()->timestamp,
+        ])
+        ->actingAs($user)
+        ->get('http://my.vdb.test/design/elemente/buttons');
+
+    $response
+        ->assertOk()
+        ->assertSee(route('design.index'), false)
+        ->assertSee(route('design.elemente'), false)
+        ->assertSeeTextInOrder([
+            'Design',
+            'Elemente',
+            'Buttons',
+        ]);
+});

@@ -239,11 +239,40 @@
             ],
         ];
 
-        if (! request()->routeIs('design.index')) {
-            $designBreadcrumbs[] = [
-                'label' => $currentDesignTitle,
-                'url' => null,
-            ];
+        $currentDesignRouteName = (string) request()->route()?->getName();
+
+        if (
+            $currentDesignRouteName !== ''
+            && $currentDesignRouteName !== 'design.index'
+        ) {
+            $relativeRouteName = \Illuminate\Support\Str::after(
+                $currentDesignRouteName,
+                'design.',
+            );
+            $breadcrumbSegments = explode('.', $relativeRouteName);
+            $breadcrumbRouteSegments = [];
+
+            foreach ($breadcrumbSegments as $index => $segment) {
+                $breadcrumbRouteSegments[] = $segment;
+
+                $breadcrumbRouteName = 'design.'.implode(
+                    '.',
+                    $breadcrumbRouteSegments,
+                );
+                $breadcrumbItem = $designNavigationItems
+                    ->firstWhere('route_name', $breadcrumbRouteName);
+                $isLastBreadcrumb = $index === array_key_last(
+                    $breadcrumbSegments
+                );
+
+                $designBreadcrumbs[] = [
+                    'label' => $breadcrumbItem['label']
+                        ?? \Illuminate\Support\Str::headline($segment),
+                    'url' => $isLastBreadcrumb
+                        ? null
+                        : ($breadcrumbItem['url'] ?? null),
+                ];
+            }
         }
     @endphp
 
