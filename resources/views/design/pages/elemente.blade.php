@@ -57,6 +57,40 @@
                     </h3>
                     <p>Fehlende Daten oder Suchergebnisse werden erklärt und mit einer sinnvollen Aktion verbunden.</p>
                 </article>
+
+                <article class="teaser">
+                    <h3>
+                        <a href="{{ route('design.elemente.loading') }}">Loading &amp; Busy</a>
+                    </h3>
+                    <p>Laufende Aktionen, Bereichsladezustände und bestimmter Fortschritt.</p>
+                </article>
+
+                <article class="teaser">
+                    <h3>
+                        <a href="{{ route('design.elemente.validierung') }}">Validierungsübersicht</a>
+                    </h3>
+                    <p>Mehrere Formularfehler werden zusammengefasst und mit den betroffenen Feldern verknüpft.</p>
+                </article>
+
+                <article class="teaser">
+                    <h3>
+                        <a href="{{ route('design.elemente.bestaetigung') }}">Bestätigung &amp; Gefahr</a>
+                    </h3>
+                    <p>Kontext, Bestätigung und eindeutige Darstellung destruktiver Aktionen.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section stack">
+            <h2>Navigation</h2>
+
+            <div class="teaser-list">
+                <article class="teaser">
+                    <h3>
+                        <a href="{{ route('design.elemente.navigation') }}">Lokale Navigation &amp; Pagination</a>
+                    </h3>
+                    <p>Bereichsnavigation, seitenbasierte Tabs und Seitennavigation für lokale Inhalte.</p>
+                </article>
             </div>
         </section>
 
@@ -84,6 +118,26 @@
                     </h3>
                     <p>Native Details für ergänzende Informationen, die nicht dauerhaft sichtbar sein müssen.</p>
                 </article>
+
+                <article class="teaser">
+                    <h3>
+                        <a href="{{ route('design.elemente.medien') }}">Medien &amp; Abbildungen</a>
+                    </h3>
+                    <p>Bildformate, Seitenverhältnisse, Objektanpassung, Bildunterschriften und Quellen.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section stack">
+            <h2>Overlays</h2>
+
+            <div class="teaser-list">
+                <article class="teaser">
+                    <h3>
+                        <a href="{{ route('design.elemente.dialoge') }}">Dialoge &amp; Overlays</a>
+                    </h3>
+                    <p>Native modale Dialoge für fokussierte Entscheidungen und Bestätigungen.</p>
+                </article>
             </div>
         </section>
 
@@ -96,6 +150,26 @@
                         <a href="{{ route('design.elemente.tabellen') }}">Tabellen</a>
                     </h3>
                     <p>Tabellarische Daten, kompakte Varianten und responsive Grundregeln.</p>
+                </article>
+
+                <article class="teaser">
+                    <h3>
+                        <a href="{{ route('design.elemente.suche-filter') }}">Suche &amp; Filter</a>
+                    </h3>
+                    <p>Lokale Suche, optionale Filter und Toolbar-Muster für Verwaltungslisten.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section stack">
+            <h2>Dateien</h2>
+
+            <div class="teaser-list">
+                <article class="teaser">
+                    <h3>
+                        <a href="{{ route('design.elemente.dateien') }}">Dateien &amp; Uploads</a>
+                    </h3>
+                    <p>Dateiauswahl, Uploadhinweise, Dateistatus und Download-Aktionen.</p>
                 </article>
             </div>
         </section>

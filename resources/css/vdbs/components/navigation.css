@@ -1,0 +1,201 @@
+/* VDBS Portal — local navigation, page tabs and pagination */
+
+.local-nav,
+.vdbs-local-nav {
+    width: 100%;
+    overflow-x: auto;
+    border-bottom: var(--border-width-default) solid var(--color-border);
+}
+
+.local-nav__list,
+.vdbs-local-nav__list {
+    display: flex;
+    width: max-content;
+    min-width: 100%;
+    align-items: stretch;
+    gap: var(--spacing-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.local-nav__link,
+.vdbs-local-nav__link {
+    position: relative;
+    display: inline-flex;
+    min-height: var(--control-height-md);
+    align-items: center;
+    padding: 0.55rem 0 0.45rem;
+    border-bottom: var(--border-width-strong) solid transparent;
+    color: var(--color-ink);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.local-nav__link:hover,
+.local-nav__link:focus-visible,
+.vdbs-local-nav__link:hover,
+.vdbs-local-nav__link:focus-visible {
+    color: var(--color-link);
+    text-decoration: none;
+}
+
+.local-nav__link[aria-current='page'],
+.vdbs-local-nav__link[aria-current='page'] {
+    border-bottom-color: var(--color-primary);
+    color: var(--color-ink);
+    font-weight: 700;
+}
+
+.local-nav__link:focus-visible,
+.vdbs-local-nav__link:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+.page-tabs,
+.vdbs-page-tabs {
+    width: 100%;
+    overflow-x: auto;
+    border-bottom: var(--border-width-default) solid var(--color-border-strong);
+}
+
+.page-tabs__list,
+.vdbs-page-tabs__list {
+    display: flex;
+    width: max-content;
+    min-width: 100%;
+    align-items: flex-end;
+    gap: var(--spacing-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.page-tabs__link,
+.vdbs-page-tabs__link {
+    display: inline-flex;
+    min-height: var(--control-height-md);
+    align-items: center;
+    padding: 0.55rem 0.85rem;
+    border: var(--border-width-default) solid transparent;
+    border-bottom: var(--border-width-strong) solid transparent;
+    background: transparent;
+    color: var(--color-ink);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.page-tabs__link:hover,
+.page-tabs__link:focus-visible,
+.vdbs-page-tabs__link:hover,
+.vdbs-page-tabs__link:focus-visible {
+    background: var(--color-surface-subtle);
+    color: var(--color-ink);
+    text-decoration: none;
+}
+
+.page-tabs__link[aria-current='page'],
+.vdbs-page-tabs__link[aria-current='page'] {
+    border-color: var(--color-border-strong);
+    border-bottom-color: var(--color-primary);
+    background: var(--color-white);
+    font-weight: 700;
+}
+
+.page-tabs__link:focus-visible,
+.vdbs-page-tabs__link:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: -2px;
+}
+
+.pagination,
+.vdbs-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-4);
+}
+
+.pagination__summary,
+.vdbs-pagination__summary {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+.pagination__list,
+.vdbs-pagination__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pagination__link,
+.pagination__current,
+.pagination__disabled,
+.vdbs-pagination__link,
+.vdbs-pagination__current,
+.vdbs-pagination__disabled {
+    display: inline-flex;
+    min-width: var(--control-height-sm);
+    min-height: var(--control-height-sm);
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.6rem;
+    border: var(--border-width-default) solid var(--color-border-strong);
+    border-radius: 0;
+    background: var(--color-white);
+    color: var(--color-ink);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.pagination__link:hover,
+.pagination__link:focus-visible,
+.vdbs-pagination__link:hover,
+.vdbs-pagination__link:focus-visible {
+    border-color: var(--color-ink);
+    background: var(--color-surface-subtle);
+    color: var(--color-ink);
+    text-decoration: none;
+}
+
+.pagination__link:focus-visible,
+.vdbs-pagination__link:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+.pagination__current,
+.vdbs-pagination__current {
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+    color: var(--color-white);
+}
+
+.pagination__disabled,
+.vdbs-pagination__disabled {
+    border-color: var(--color-border);
+    background: var(--color-surface-disabled);
+    color: var(--color-text-disabled);
+}
+
+@media print {
+    .local-nav,
+    .vdbs-local-nav,
+    .page-tabs,
+    .vdbs-page-tabs,
+    .pagination,
+    .vdbs-pagination {
+        display: none;
+    }
+}

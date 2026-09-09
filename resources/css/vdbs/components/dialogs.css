@@ -1,0 +1,138 @@
+/* VDBS Portal — native modal dialogs */
+
+.dialog,
+.vdbs-dialog {
+    width: min(40rem, calc(100vw - 2rem));
+    max-height: min(42rem, calc(100dvh - 2rem));
+    margin: auto;
+    padding: 0;
+    overflow: auto;
+    border: var(--border-width-default) solid var(--color-border-strong);
+    border-radius: 0;
+    background: var(--color-white);
+    color: var(--color-ink);
+    box-shadow: var(--shadow-lg);
+}
+
+.dialog::backdrop,
+.vdbs-dialog::backdrop {
+    background: rgb(15 23 42 / 52%);
+}
+
+.dialog--danger,
+.vdbs-dialog--danger {
+    border-top: var(--border-width-accent) solid var(--color-danger);
+}
+
+.dialog__header,
+.vdbs-dialog__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-4);
+    padding: var(--spacing-5);
+    border-bottom: var(--border-width-default) solid var(--color-border);
+}
+
+.dialog__heading,
+.vdbs-dialog__heading {
+    display: grid;
+    gap: var(--spacing-2);
+}
+
+.dialog__title,
+.vdbs-dialog__title {
+    margin: 0;
+    font-size: var(--text-2xl);
+}
+
+.dialog__description,
+.vdbs-dialog__description {
+    margin: 0;
+    color: var(--color-text-muted);
+    line-height: var(--leading-body);
+}
+
+.dialog__close,
+.vdbs-dialog__close {
+    display: inline-flex;
+    width: var(--control-height-sm);
+    min-width: var(--control-height-sm);
+    height: var(--control-height-sm);
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: var(--border-width-default) solid var(--color-border-strong);
+    border-radius: 0;
+    background: var(--color-white);
+    color: var(--color-ink);
+    cursor: pointer;
+    font-size: var(--text-xl);
+    line-height: 1;
+}
+
+.dialog__close:hover,
+.dialog__close:focus-visible,
+.vdbs-dialog__close:hover,
+.vdbs-dialog__close:focus-visible {
+    border-color: var(--color-ink);
+    background: var(--color-surface-subtle);
+}
+
+.dialog__close:focus-visible,
+.vdbs-dialog__close:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+.dialog__body,
+.vdbs-dialog__body {
+    display: grid;
+    gap: var(--spacing-4);
+    padding: var(--spacing-5);
+}
+
+.dialog__actions,
+.vdbs-dialog__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--spacing-3);
+    padding: var(--spacing-4) var(--spacing-5);
+    border-top: var(--border-width-default) solid var(--color-border);
+    background: var(--color-surface-subtle);
+}
+
+body:has(.dialog[open]),
+body:has(.vdbs-dialog[open]) {
+    overflow: hidden;
+}
+
+@media (max-width: 40rem) {
+    .dialog,
+    .vdbs-dialog {
+        width: calc(100vw - 1rem);
+        max-height: calc(100dvh - 1rem);
+    }
+
+    .dialog__header,
+    .dialog__body,
+    .dialog__actions,
+    .vdbs-dialog__header,
+    .vdbs-dialog__body,
+    .vdbs-dialog__actions {
+        padding-inline: var(--spacing-4);
+    }
+
+    .dialog__actions,
+    .vdbs-dialog__actions {
+        justify-content: stretch;
+    }
+}
+
+@media print {
+    .dialog,
+    .vdbs-dialog {
+        display: none !important;
+    }
+}

@@ -1,0 +1,80 @@
+/* VDBS Portal — media and figures */
+
+.media-figure,
+.vdbs-media-figure {
+    display: grid;
+    width: 100%;
+    max-width: var(--layout-content-max);
+    gap: var(--spacing-2);
+    margin: 0;
+}
+
+.media-frame,
+.vdbs-media-frame {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: var(--color-surface-strong);
+}
+
+.media-frame--3-2,
+.vdbs-media-frame--3-2 {
+    aspect-ratio: 3 / 2;
+}
+
+.media-frame--16-9,
+.vdbs-media-frame--16-9 {
+    aspect-ratio: 16 / 9;
+}
+
+.media-frame--1-1,
+.vdbs-media-frame--1-1 {
+    aspect-ratio: 1;
+}
+
+.media-frame img,
+.vdbs-media-frame img {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.media-frame--cover img,
+.vdbs-media-frame--cover img {
+    object-fit: cover;
+}
+
+.media-frame--contain img,
+.vdbs-media-frame--contain img {
+    object-fit: contain;
+    padding: var(--spacing-5);
+}
+
+.media-figure__caption,
+.vdbs-media-figure__caption {
+    display: grid;
+    gap: var(--spacing-1);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    line-height: var(--leading-body);
+}
+
+.media-figure__caption p,
+.vdbs-media-figure__caption p {
+    margin: 0;
+}
+
+.media-figure__source,
+.vdbs-media-figure__source {
+    font-size: var(--text-xs);
+}
+
+.media-grid,
+.vdbs-media-grid {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(min(100%, 16rem), 1fr)
+    );
+    gap: var(--spacing-5);
+}

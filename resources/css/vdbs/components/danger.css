@@ -1,0 +1,58 @@
+/* VDBS Portal — destructive actions and confirmation context */
+
+.danger-zone,
+.vdbs-danger-zone {
+    display: grid;
+    max-width: var(--layout-text-max);
+    gap: var(--spacing-4);
+    padding: var(--spacing-5);
+    border: var(--border-width-default) solid var(--color-danger);
+    border-left: var(--border-width-accent) solid var(--color-danger);
+    background: color-mix(
+        in srgb,
+        var(--color-danger) 4%,
+        var(--color-white)
+    );
+}
+
+.danger-zone__content,
+.vdbs-danger-zone__content {
+    display: grid;
+    gap: var(--spacing-2);
+}
+
+.danger-zone__title,
+.vdbs-danger-zone__title {
+    margin: 0;
+    color: var(--color-danger);
+    font-size: var(--text-xl);
+}
+
+.danger-zone__description,
+.vdbs-danger-zone__description {
+    margin: 0;
+    color: var(--color-ink);
+    line-height: var(--leading-body);
+}
+
+.danger-zone__body,
+.vdbs-danger-zone__body {
+    display: grid;
+    gap: var(--spacing-2);
+}
+
+.danger-zone__actions,
+.vdbs-danger-zone__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.confirmation-note,
+.vdbs-confirmation-note {
+    max-width: var(--layout-text-max);
+    padding-left: var(--spacing-4);
+    border-left: var(--border-width-strong) solid var(--color-warning);
+    color: var(--color-ink);
+}
