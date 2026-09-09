@@ -88,28 +88,75 @@ const initPortalHeader = (header) => {
         }
     });
 
-    header.querySelectorAll('[data-vdbs-submenu]').forEach((root) => {
+    const submenuRoots = Array.from(
+        header.querySelectorAll('[data-vdbs-submenu]'),
+    );
+    const supportsHover = window.matchMedia(
+        '(hover: hover) and (pointer: fine)',
+    ).matches;
+
+    const closeOtherSubmenus = (currentRoot) => {
+        submenuRoots.forEach((otherRoot) => {
+            if (otherRoot === currentRoot) {
+                return;
+            }
+
+            closePanel(
+                otherRoot.querySelector('[data-vdbs-submenu-trigger]'),
+                otherRoot.querySelector('[data-vdbs-submenu-panel]'),
+            );
+        });
+    };
+
+    submenuRoots.forEach((root) => {
         const trigger = root.querySelector('[data-vdbs-submenu-trigger]');
         const panel = root.querySelector('[data-vdbs-submenu-panel]');
+        let hoverCloseTimer = null;
+
+        const clearHoverClose = () => {
+            if (hoverCloseTimer === null) {
+                return;
+            }
+
+            window.clearTimeout(hoverCloseTimer);
+            hoverCloseTimer = null;
+        };
+
+        const openSubmenu = () => {
+            clearHoverClose();
+            closeOtherSubmenus(root);
+            openPanel(trigger, panel);
+        };
+
+        const closeSubmenu = () => {
+            clearHoverClose();
+            closePanel(trigger, panel);
+        };
 
         trigger?.addEventListener('click', (event) => {
             event.stopPropagation();
 
-            header.querySelectorAll('[data-vdbs-submenu]').forEach((otherRoot) => {
-                if (otherRoot === root) {
-                    return;
-                }
+            if (trigger.getAttribute('aria-expanded') === 'true') {
+                closeSubmenu();
+            } else {
+                openSubmenu();
+            }
+        });
 
-                closePanel(
-                    otherRoot.querySelector('[data-vdbs-submenu-trigger]'),
-                    otherRoot.querySelector('[data-vdbs-submenu-panel]'),
+        if (supportsHover) {
+            root.addEventListener('mouseenter', openSubmenu);
+            root.addEventListener('mouseleave', () => {
+                hoverCloseTimer = window.setTimeout(
+                    closeSubmenu,
+                    140,
                 );
             });
+        }
 
-            if (trigger.getAttribute('aria-expanded') === 'true') {
-                closePanel(trigger, panel);
-            } else {
-                openPanel(trigger, panel);
+        root.addEventListener('focusin', openSubmenu);
+        root.addEventListener('focusout', (event) => {
+            if (!root.contains(event.relatedTarget)) {
+                closeSubmenu();
             }
         });
     });
@@ -118,7 +165,7 @@ const initPortalHeader = (header) => {
         if (!header.contains(event.target)) {
             closePanel(accountTrigger, accountPanel);
 
-            header.querySelectorAll('[data-vdbs-submenu]').forEach((root) => {
+            submenuRoots.forEach((root) => {
                 closePanel(
                     root.querySelector('[data-vdbs-submenu-trigger]'),
                     root.querySelector('[data-vdbs-submenu-panel]'),
@@ -134,7 +181,7 @@ const initPortalHeader = (header) => {
 
         closePanel(accountTrigger, accountPanel);
 
-        header.querySelectorAll('[data-vdbs-submenu]').forEach((root) => {
+        submenuRoots.forEach((root) => {
             closePanel(
                 root.querySelector('[data-vdbs-submenu-trigger]'),
                 root.querySelector('[data-vdbs-submenu-panel]'),

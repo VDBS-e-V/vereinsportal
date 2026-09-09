@@ -45,15 +45,20 @@ it('defines the core form states', function () {
 });
 
 it('documents core buttons and form states in the design workbench', function () {
-    $elements = file_get_contents(
-        resource_path('views/design/pages/elemente.blade.php'),
+    $buttons = file_get_contents(
+        resource_path('views/design/pages/elemente/buttons.blade.php'),
+    );
+    $forms = file_get_contents(
+        resource_path('views/design/pages/elemente/formulare.blade.php'),
     );
 
-    expect($elements)
+    expect($buttons)
         ->toContain('btn--accent')
         ->toContain('btn--danger')
         ->toContain('btn--icon')
-        ->toContain('aria-busy="true"')
+        ->toContain('aria-busy="true"');
+
+    expect($forms)
         ->toContain('form__field--error')
         ->toContain('aria-invalid="true"')
         ->toContain('form__field--success')

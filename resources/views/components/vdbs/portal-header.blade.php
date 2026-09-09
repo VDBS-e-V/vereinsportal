@@ -49,28 +49,57 @@
                     @php
     $children = $item['children'] ?? [];
     $url = $item['url'] ?? null;
+    $current = ($item['active'] ?? false) === true
+        && ! collect($children)->contains(
+            fn (array $child): bool => ($child['active'] ?? false) === true
+        );
                     @endphp
 
                     @if ($children !== [])
                         <div class="header-nav-group vdbs-portal-nav-group" data-vdbs-submenu>
-                            <button
-                                class="{{ $linkClasses($item, 'header-area-link') }}"
-                                type="button"
-                                data-vdbs-submenu-trigger
-                                aria-expanded="false"
-                            >
-                                <span>{{ $item['label'] }}</span>
-                                <x-vdbs.icon name="chevron-down" size="15" />
-                            </button>
+                            @if ($url !== null)
+                                <a
+                                    class="{{ $linkClasses($item, 'header-area-link') }}"
+                                    href="{{ $url }}"
+                                    @if ($current)
+                                        aria-current="page"
+                                    @endif
+                                >
+                                    <span>{{ $item['label'] }}</span>
+                                </a>
+
+                                <button
+                                    class="header-submenu-trigger header-submenu-trigger--area"
+                                    type="button"
+                                    data-vdbs-submenu-trigger
+                                    aria-haspopup="true"
+                                    aria-expanded="false"
+                                    aria-label="Untermenü {{ $item['label'] }} öffnen"
+                                >
+                                    <x-vdbs.icon name="chevron-down" size="15" />
+                                </button>
+                            @else
+                                <button
+                                    class="{{ $linkClasses($item, 'header-area-link') }}"
+                                    type="button"
+                                    data-vdbs-submenu-trigger
+                                    aria-haspopup="true"
+                                    aria-expanded="false"
+                                >
+                                    <span>{{ $item['label'] }}</span>
+                                    <x-vdbs.icon name="chevron-down" size="15" />
+                                </button>
+                            @endif
 
                             <div class="header-submenu vdbs-portal-submenu" data-vdbs-submenu-panel hidden>
-                                @if ($url !== null)
-                                    <a href="{{ $url }}">Übersicht</a>
-                                @endif
-
                                 @foreach ($children as $child)
                                     @if (($child['url'] ?? null) !== null)
-                                        <a href="{{ $child['url'] }}">
+                                        <a
+                                            href="{{ $child['url'] }}"
+                                            @if (($child['active'] ?? false) === true)
+                                                aria-current="page"
+                                            @endif
+                                        >
                                             {{ $child['label'] }}
                                         </a>
                                     @else
@@ -127,28 +156,57 @@
                     @php
     $children = $item['children'] ?? [];
     $url = $item['url'] ?? null;
+    $current = ($item['active'] ?? false) === true
+        && ! collect($children)->contains(
+            fn (array $child): bool => ($child['active'] ?? false) === true
+        );
                     @endphp
 
                     @if ($children !== [])
                         <div class="header-nav-group vdbs-portal-nav-group" data-vdbs-submenu>
-                            <button
-                                class="{{ $linkClasses($item, 'header-nav-link') }}"
-                                type="button"
-                                data-vdbs-submenu-trigger
-                                aria-expanded="false"
-                            >
-                                <span>{{ $item['label'] }}</span>
-                                <x-vdbs.icon name="chevron-down" size="15" />
-                            </button>
+                            @if ($url !== null)
+                                <a
+                                    class="{{ $linkClasses($item, 'header-nav-link') }}"
+                                    href="{{ $url }}"
+                                    @if ($current)
+                                        aria-current="page"
+                                    @endif
+                                >
+                                    <span>{{ $item['label'] }}</span>
+                                </a>
+
+                                <button
+                                    class="header-submenu-trigger header-submenu-trigger--page"
+                                    type="button"
+                                    data-vdbs-submenu-trigger
+                                    aria-haspopup="true"
+                                    aria-expanded="false"
+                                    aria-label="Untermenü {{ $item['label'] }} öffnen"
+                                >
+                                    <x-vdbs.icon name="chevron-down" size="15" />
+                                </button>
+                            @else
+                                <button
+                                    class="{{ $linkClasses($item, 'header-nav-link') }}"
+                                    type="button"
+                                    data-vdbs-submenu-trigger
+                                    aria-haspopup="true"
+                                    aria-expanded="false"
+                                >
+                                    <span>{{ $item['label'] }}</span>
+                                    <x-vdbs.icon name="chevron-down" size="15" />
+                                </button>
+                            @endif
 
                             <div class="header-submenu vdbs-portal-submenu" data-vdbs-submenu-panel hidden>
-                                @if ($url !== null)
-                                    <a href="{{ $url }}">Übersicht</a>
-                                @endif
-
                                 @foreach ($children as $child)
                                     @if (($child['url'] ?? null) !== null)
-                                        <a href="{{ $child['url'] }}">
+                                        <a
+                                            href="{{ $child['url'] }}"
+                                            @if (($child['active'] ?? false) === true)
+                                                aria-current="page"
+                                            @endif
+                                        >
                                             {{ $child['label'] }}
                                         </a>
                                     @else
