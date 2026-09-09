@@ -111,6 +111,12 @@
 
     .resource-item__action,
     .vdbs-resource-item__action {
-        justify-self: start;
+        width: 100%;
+        justify-self: stretch;
+    }
+
+    .resource-item__action .btn,
+    .vdbs-resource-item__action .btn {
+        width: 100%;
     }
 }

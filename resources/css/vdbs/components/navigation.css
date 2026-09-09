@@ -189,7 +189,25 @@
     color: var(--color-text-disabled);
 }
 
+.account-local-navigation {
+    background: var(--color-white);
+    border-bottom: var(--border-width-default) solid var(--color-border);
+}
+
+.account-local-navigation .local-nav {
+    border-bottom: 0;
+}
+
+.local-nav,
+.vdbs-local-nav,
+.page-tabs,
+.vdbs-page-tabs {
+    scrollbar-width: thin;
+    overscroll-behavior-inline: contain;
+}
+
 @media print {
+    .account-local-navigation,
     .local-nav,
     .vdbs-local-nav,
     .page-tabs,

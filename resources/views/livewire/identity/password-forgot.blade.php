@@ -38,34 +38,42 @@ new #[Layout('components.layouts.public')]
 <div class="portal-page portal-page--small">
     <header class="portal-page__header">
         <h1>Passwort vergessen</h1>
+        <p class="portal-page__lead">
+            Fordern Sie einen zeitlich begrenzten Link zum Setzen eines neuen Passworts an.
+        </p>
     </header>
 
     @if ($submitted)
-        <p class="notice notice--success" role="status">
+        <x-vdbs.notice type="success" role="status">
             Falls ein nutzbares Konto zu dieser
             E-Mail-Adresse existiert, wurde eine
             E-Mail zum Zurücksetzen des Passworts
             vorbereitet.
-        </p>
+        </x-vdbs.notice>
     @endif
 
-    <form class="portal-page__form" wire:submit="requestReset">
-        <div class="field">
-            <label for="email">
+    <form class="portal-page__form form" wire:submit="requestReset">
+        <div class="form__field">
+            <label class="form__label" for="email">
                 E-Mail-Adresse
             </label>
 
             <input
+                class="form__control"
                 id="email"
                 name="email"
                 type="email"
                 wire:model="email"
                 autocomplete="email"
                 required
+                @error('email')
+                    aria-invalid="true"
+                    aria-describedby="password-forgot-email-error"
+                @enderror
             >
 
             @error('email')
-                <p role="alert">
+                <p class="form__error" id="password-forgot-email-error" role="alert">
                     {{ $message }}
                 </p>
             @enderror
@@ -73,6 +81,7 @@ new #[Layout('components.layouts.public')]
 
         <div class="portal-page__actions">
             <button
+                class="btn"
                 type="submit"
                 wire:loading.attr="disabled"
                 wire:target="requestReset"
@@ -81,4 +90,10 @@ new #[Layout('components.layouts.public')]
             </button>
         </div>
     </form>
+
+    <div class="portal-page__links">
+        <a href="{{ route('my.login') }}">
+            Zurück zur Anmeldung
+        </a>
+    </div>
 </div>

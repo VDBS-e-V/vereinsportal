@@ -58,3 +58,10 @@
 .vdbs-notice[role] {
     color: var(--color-ink);
 }
+
+@media (max-width: 36rem) {
+    .notice,
+    .vdbs-notice {
+        padding: var(--spacing-4);
+    }
+}

@@ -24,13 +24,8 @@
                 </article>
 
                 <article class="teaser">
-                    <h3><a href="{{ route('design.elemente') }}">Elemente</a></h3>
-                    <p>Buttons, Formulare, Statusmeldungen, Tabellen und Inhaltsbausteine.</p>
-                </article>
-
-                <article class="teaser">
-                    <h3><a href="{{ route('design.vorlagen') }}">Vorlagen</a></h3>
-                    <p>Wiederkehrende Strukturen für Inhalts-, Formular- und Verwaltungsseiten.</p>
+                    <h3><a href="{{ route('design.layout') }}">Layout</a></h3>
+                    <p>Frames, Inhaltsbreiten, Seitenraster und vertikale Grundstruktur.</p>
                 </article>
 
                 @if (\Illuminate\Support\Facades\Route::has('design.header'))
@@ -39,6 +34,26 @@
                         <p>Bereichsnavigation, Seitennavigation, Benutzerkonto und Mobile-Menü.</p>
                     </article>
                 @endif
+
+                <article class="teaser">
+                    <h3><a href="{{ route('design.elemente') }}">Elemente</a></h3>
+                    <p>Buttons, Formulare, Statusmeldungen, Tabellen und technische UI-Bausteine.</p>
+                </article>
+
+                <article class="teaser">
+                    <h3><a href="{{ route('design.muster') }}">Muster</a></h3>
+                    <p>Redaktionelle und fachliche Kombinationen wie Artikel, Termine und Kontakte.</p>
+                </article>
+
+                <article class="teaser">
+                    <h3><a href="{{ route('design.vorlagen') }}">Vorlagen</a></h3>
+                    <p>Vollständige Seitenstrukturen für öffentliche und interne Anwendungsfälle.</p>
+                </article>
+
+                <article class="teaser">
+                    <h3><a href="{{ route('design.print') }}">Print</a></h3>
+                    <p>Druckregeln für Inhalte, Tabellen, Details, Metadaten und Aktionen.</p>
+                </article>
             </div>
         </section>
 

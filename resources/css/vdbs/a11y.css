@@ -1,0 +1,92 @@
+/* VDBS Portal — cross-component accessibility and responsive hardening */
+
+.vdbs-sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+:target {
+    scroll-margin-block-start: 8rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        transition-delay: 0ms !important;
+    }
+}
+
+@media (prefers-contrast: more) {
+    :focus-visible {
+        outline-width: 4px;
+    }
+
+    .form__control,
+    .vdbs-input,
+    .table,
+    .notice,
+    .file-item,
+    .resource-item {
+        border-width: 2px;
+    }
+}
+
+@media (forced-colors: active) {
+    .btn,
+    .vdbs-button,
+    .pagination__link,
+    .pagination__current,
+    .pagination__disabled,
+    .page-tabs__link,
+    .local-nav__link {
+        border-color: ButtonText !important;
+    }
+
+    [aria-current='page'] {
+        outline: 2px solid Highlight;
+        outline-offset: -2px;
+    }
+
+    .notice,
+    .status,
+    .badge {
+        border: 1px solid CanvasText;
+    }
+}
+
+@media (pointer: coarse) {
+    .btn,
+    .vdbs-button,
+    .header-submenu-trigger,
+    .mobile-menu-trigger,
+    .account-trigger,
+    .page-tabs__link,
+    .local-nav__link,
+    .pagination__link,
+    .pagination__current,
+    .pagination__disabled {
+        min-height: 2.75rem;
+    }
+}
+
+@media (max-width: 40rem) {
+    .portal-page a,
+    .article a,
+    .resource-item a,
+    .contact-block a,
+    code {
+        overflow-wrap: anywhere;
+    }
+}

@@ -2,8 +2,8 @@
 
 **Projekt:** VDBS Vereinsportal
 **Technik:** Laravel 13, Livewire/Volt, Tailwind CSS 4, Vite
-**Lokaler Designbereich:** `http://my.vdb.test:8000/design`
-**Status:** Gestaltungsgrundlage / Portal-Shell
+**Lokaler Designbereich:** `http://my.vdb.test/design`
+**Status:** Designsystem weitgehend implementiert / Fachseitenmigration und QA
 
 ---
 
@@ -1302,7 +1302,7 @@ Ocean:
 <button class="btn btn--ocean">Aktion</button>
 ```
 
-Bestehende bare Buttons innerhalb von `site-main` werden als Primary dargestellt, damit bestehende Volt-Seiten kompatibel bleiben.
+Produktseiten verwenden explizit `.btn` bzw. `.vdbs-button`. Breite Fallback-Selektoren für beliebige Buttons sind nach der Identity-Migration nicht mehr Teil der Zielarchitektur.
 
 ---
 
@@ -1318,7 +1318,7 @@ Bestehende bare Buttons innerhalb von `site-main` werden als Primary dargestellt
 </form>
 ```
 
-Bestehende `.field`-Strukturen bleiben kompatibel.
+Produktseiten verwenden explizit `.form__field`, `.form__label` und `.form__control`. `.vdbs-*`-Aliase bleiben für die vereinbarte Kompatibilität bestehen.
 
 Controls sind eckig, ausreichend groß und haben einen sichtbaren Fokus.
 
@@ -1387,16 +1387,19 @@ Tabellen bleiben Tabellen und werden nicht aus rein visuellen Gründen in Cards 
 ## 22. Designbereich
 
 ```text
-http://my.vdb.test:8000/design
+http://my.vdb.test/design
 ```
 
-Unterseiten:
+Hauptbereiche:
 
 ```text
-http://my.vdb.test:8000/design/grundlagen
-http://my.vdb.test:8000/design/elemente
-http://my.vdb.test:8000/design/vorlagen
-http://my.vdb.test:8000/design/header
+http://my.vdb.test/design/grundlagen
+http://my.vdb.test/design/layout
+http://my.vdb.test/design/header
+http://my.vdb.test/design/elemente
+http://my.vdb.test/design/muster
+http://my.vdb.test/design/vorlagen
+http://my.vdb.test/design/print
 ```
 
 Wichtig:
@@ -1672,22 +1675,24 @@ git status --short
 
 ## 33. Lokale URLs
 
-Immer mit Port `8000`:
+Bei der XAMPP-/VirtualHost-Entwicklung werden die Seiten ohne zusätzlichen Port
+aufgerufen. Bei `php artisan serve` kann entsprechend `:8000` ergänzt werden.
 
 ```text
-http://my.vdb.test:8000/design
-http://my.vdb.test:8000/design/grundlagen
-http://my.vdb.test:8000/design/elemente
-http://my.vdb.test:8000/design/vorlagen
-http://my.vdb.test:8000/design/header
+http://my.vdb.test/design
+http://my.vdb.test/design/grundlagen
+http://my.vdb.test/design/elemente
+http://my.vdb.test/design/muster
+http://my.vdb.test/design/vorlagen
+http://my.vdb.test/design/print
 
-http://my.vdb.test:8000/anmelden
-http://my.vdb.test:8000/registrieren
-http://my.vdb.test:8000/profil
-http://my.vdb.test:8000/profil/email
-http://my.vdb.test:8000/profil/passwort
-http://my.vdb.test:8000/profil/sicherheit
-http://my.vdb.test:8000/profil/konto-loeschen
+http://my.vdb.test/anmelden
+http://my.vdb.test/registrieren
+http://my.vdb.test/profil
+http://my.vdb.test/profil/email
+http://my.vdb.test/profil/passwort
+http://my.vdb.test/profil/sicherheit
+http://my.vdb.test/profil/konto-loeschen
 ```
 
 ---

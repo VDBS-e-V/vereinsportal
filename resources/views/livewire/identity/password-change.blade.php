@@ -54,58 +54,69 @@ new #[Layout('components.layouts.public')]
     </header>
 
     @if ($saved)
-        <p class="notice notice--success" role="status">
+        <x-vdbs.notice type="success" role="status">
             Ihr Passwort wurde geändert.
-        </p>
+        </x-vdbs.notice>
     @endif
 
-    <form class="portal-page__form" wire:submit="changePassword">
-        <div class="field">
-            <label for="current_password">
+    <form class="portal-page__form form" wire:submit="changePassword">
+        <div class="form__field">
+            <label class="form__label" for="current_password">
                 Aktuelles Passwort
             </label>
 
             <input
+                class="form__control"
                 id="current_password"
                 type="password"
                 wire:model="current_password"
                 autocomplete="current-password"
                 required
+                @error('current_password')
+                    aria-invalid="true"
+                    aria-describedby="password-change-current-error"
+                @enderror
             >
 
             @error('current_password')
-                <p role="alert">
+                <p class="form__error" id="password-change-current-error" role="alert">
                     {{ $message }}
                 </p>
             @enderror
         </div>
 
-        <div class="field">
-            <label for="password">
+        <div class="form__field">
+            <label class="form__label" for="password">
                 Neues Passwort
             </label>
 
             <input
+                class="form__control"
                 id="password"
                 type="password"
                 wire:model="password"
                 autocomplete="new-password"
                 required
+                @error('password')
+                    aria-invalid="true"
+                    aria-describedby="password-change-new-error"
+                @enderror
             >
 
             @error('password')
-                <p role="alert">
+                <p class="form__error" id="password-change-new-error" role="alert">
                     {{ $message }}
                 </p>
             @enderror
         </div>
 
-        <div class="field">
-            <label for="password_confirmation">
+        <div class="form__field">
+            <label class="form__label" for="password_confirmation">
                 Neues Passwort wiederholen
             </label>
 
             <input
+                class="form__control"
                 id="password_confirmation"
                 type="password"
                 wire:model="password_confirmation"
@@ -115,7 +126,7 @@ new #[Layout('components.layouts.public')]
         </div>
 
         <div class="portal-page__actions">
-            <button type="submit">
+            <button class="btn" type="submit" wire:loading.attr="disabled" wire:target="changePassword">
                 Passwort ändern
             </button>
         </div>

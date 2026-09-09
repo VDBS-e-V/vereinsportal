@@ -24,7 +24,7 @@ new #[Layout('components.layouts.public')]
         <h1>Sicherheitshinweis</h1>
     </header>
 
-    <div class="notice notice--warning">
+    <x-vdbs.notice type="warning">
         <div class="stack stack--sm">
             <p>
                 Die E-Mail-Adresse eines VDB-Kontos wurde geändert.
@@ -40,5 +40,5 @@ new #[Layout('components.layouts.public')]
                 oder Rücksetzung durchgeführt.
             </p>
         </div>
-    </div>
+    </x-vdbs.notice>
 </div>

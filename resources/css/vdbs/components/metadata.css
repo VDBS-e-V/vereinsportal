@@ -93,6 +93,7 @@
 .portal-page__meta dt {
     color: var(--color-text-muted);
     font-weight: 600;
+    overflow-wrap: anywhere;
 }
 
 .metadata-list dd,

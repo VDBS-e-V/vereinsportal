@@ -10,13 +10,19 @@
             </h1>
         </header>
 
-        <p class="notice notice--danger" role="alert">
+        <x-vdbs.notice type="danger" role="alert">
             {{ $message }}
-        </p>
+        </x-vdbs.notice>
 
         <p>
             Bitte prüfen Sie die Meldung und beginnen Sie
             die Registrierung gegebenenfalls erneut.
         </p>
+
+        <div class="portal-page__actions">
+            <a class="btn" href="{{ route('my.registration.create') }}">
+                Registrierung neu starten
+            </a>
+        </div>
     </div>
 </x-layouts.public>

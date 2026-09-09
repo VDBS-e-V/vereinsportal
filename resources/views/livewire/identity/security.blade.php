@@ -359,10 +359,10 @@ new #[Layout('components.layouts.public')]
         <h1>Sicherheit und Zwei-Faktor-Authentifizierung</h1>
 
         @if ($twoFactorRequired)
-            <p class="notice" role="status">
+            <x-vdbs.notice type="info" role="status">
                 Für Ihre aktuelle Rolle ist
                 Zwei-Faktor-Authentifizierung verpflichtend.
-            </p>
+            </x-vdbs.notice>
         @else
             <p class="portal-page__lead">
                 Zwei-Faktor-Authentifizierung ist für
@@ -372,15 +372,15 @@ new #[Layout('components.layouts.public')]
     </header>
 
     @if ($statusMessage !== null)
-        <p class="notice notice--success" role="status">
+        <x-vdbs.notice type="success" role="status">
             {{ $statusMessage }}
-        </p>
+        </x-vdbs.notice>
     @endif
 
     @if ($errorMessage !== null)
-        <p class="notice notice--danger" role="alert">
+        <x-vdbs.notice type="danger" role="alert">
             {{ $errorMessage }}
-        </p>
+        </x-vdbs.notice>
     @endif
 
     <section class="portal-page__section">
@@ -389,13 +389,14 @@ new #[Layout('components.layouts.public')]
         </div>
 
         @if ($twoFactorRequired)
-            <p>
-                Der E-Mail-Code steht für Ihre
-                Pflichtrolle als zweiter Faktor zur Verfügung.
+            <p class="icon-label">
+                <x-vdbs.status type="info">Verfügbar</x-vdbs.status>
+                <span>Pflicht-Fallback für Ihre aktuelle Rolle.</span>
             </p>
         @elseif ($emailActive)
-            <p>
-                E-Mail-2FA ist aktiviert.
+            <p class="icon-label">
+                <x-vdbs.status type="success">Aktiv</x-vdbs.status>
+                <span>E-Mail-2FA ist aktiviert.</span>
             </p>
 
             <div class="portal-page__actions">
@@ -409,12 +410,14 @@ new #[Layout('components.layouts.public')]
                 </button>
             </div>
         @else
-            <p>
-                E-Mail-2FA ist derzeit nicht aktiviert.
+            <p class="icon-label">
+                <x-vdbs.status>Inaktiv</x-vdbs.status>
+                <span>E-Mail-2FA ist derzeit nicht aktiviert.</span>
             </p>
 
             <div class="portal-page__actions">
                 <button
+                    class="btn"
                     type="button"
                     wire:click="enableEmail"
                 >
@@ -430,12 +433,14 @@ new #[Layout('components.layouts.public')]
         </div>
 
         @if ($totpActive)
-            <p>
-                TOTP ist aktiviert.
+            <p class="icon-label">
+                <x-vdbs.status type="success">Aktiv</x-vdbs.status>
+                <span>TOTP ist aktiviert.</span>
             </p>
 
             <div class="portal-page__actions">
                 <button
+                    class="btn"
                     type="button"
                     wire:click="beginTotp"
                 >
@@ -452,12 +457,14 @@ new #[Layout('components.layouts.public')]
                 </button>
             </div>
         @else
-            <p>
-                TOTP ist derzeit nicht aktiviert.
+            <p class="icon-label">
+                <x-vdbs.status>Inaktiv</x-vdbs.status>
+                <span>TOTP ist derzeit nicht aktiviert.</span>
             </p>
 
             <div class="portal-page__actions">
                 <button
+                    class="btn"
                     type="button"
                     wire:click="beginTotp"
                 >
@@ -486,9 +493,7 @@ new #[Layout('components.layouts.public')]
 
                     <div class="disclosure__content">
                         <p class="portal-page__code">
-                            <code>
-                                {{ $totpProvisioningUri }}
-                            </code>
+                            <code>{{ $totpProvisioningUri }}</code>
                         </p>
                     </div>
                 </details>
@@ -498,31 +503,37 @@ new #[Layout('components.layouts.public')]
                     nach einem korrekten Code aktiviert.
                 </p>
 
-                <form class="portal-page__form" wire:submit="confirmTotp">
-                    <div class="field">
-                        <label for="totpCode">
+                <form class="portal-page__form form" wire:submit="confirmTotp">
+                    <div class="form__field">
+                        <label class="form__label" for="totpCode">
                             Aktueller 6-stelliger Code
                         </label>
 
                         <input
+                            class="form__control"
                             id="totpCode"
                             type="text"
                             inputmode="numeric"
                             maxlength="6"
+                            pattern="[0-9]{6}"
                             autocomplete="one-time-code"
                             wire:model="totpCode"
                             required
+                            @error('totpCode')
+                                aria-invalid="true"
+                                aria-describedby="security-totp-code-error"
+                            @enderror
                         >
 
                         @error('totpCode')
-                            <p role="alert">
+                            <p class="form__error" id="security-totp-code-error" role="alert">
                                 {{ $message }}
                             </p>
                         @enderror
                     </div>
 
                     <div class="portal-page__actions">
-                        <button type="submit">
+                        <button class="btn" type="submit">
                             TOTP bestätigen und aktivieren
                         </button>
                     </div>
@@ -537,18 +548,16 @@ new #[Layout('components.layouts.public')]
         </div>
 
         @if ($recoveryCodes !== [])
-            <p class="notice notice--warning" role="alert">
+            <x-vdbs.notice type="warning" role="alert">
                 Diese vier Codes werden nur jetzt
                 im Klartext angezeigt. Bitte sicher
                 außerhalb des Portals speichern.
-            </p>
+            </x-vdbs.notice>
 
             <ol class="portal-page__code-list">
                 @foreach ($recoveryCodes as $recoveryCode)
                     <li>
-                        <code>
-                            {{ $recoveryCode }}
-                        </code>
+                        <code>{{ $recoveryCode }}</code>
                     </li>
                 @endforeach
             </ol>
@@ -564,15 +573,17 @@ new #[Layout('components.layouts.public')]
             </div>
         @else
             @if ($hasRecoveryCodes)
-                <p>
-                    Für dieses Konto sind Recovery Codes
-                    hinterlegt. Aus Sicherheitsgründen können
-                    sie nicht erneut angezeigt werden.
+                <p class="icon-label">
+                    <x-vdbs.status type="success">Vorhanden</x-vdbs.status>
+                    <span>
+                        Recovery Codes sind hinterlegt und werden aus
+                        Sicherheitsgründen nicht erneut angezeigt.
+                    </span>
                 </p>
             @else
-                <p>
-                    Derzeit sind keine nutzbaren
-                    Recovery Codes hinterlegt.
+                <p class="icon-label">
+                    <x-vdbs.status>Keine</x-vdbs.status>
+                    <span>Derzeit sind keine nutzbaren Recovery Codes hinterlegt.</span>
                 </p>
             @endif
 

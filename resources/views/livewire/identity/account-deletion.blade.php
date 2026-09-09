@@ -144,15 +144,15 @@ new #[Layout('components.layouts.public')]
     </header>
 
     @if ($errorMessage !== null)
-        <p class="notice notice--danger" role="alert">
+        <x-vdbs.notice type="danger" role="alert">
             {{ $errorMessage }}
-        </p>
+        </x-vdbs.notice>
     @endif
 
     @if ($requested)
-        <p class="notice notice--success" role="status">
+        <x-vdbs.notice type="success" role="status">
             Der Löschantrag wurde gespeichert.
-        </p>
+        </x-vdbs.notice>
     @endif
 
     @if ($hasOpenRequest)
@@ -161,7 +161,21 @@ new #[Layout('components.layouts.public')]
                 <h2>Offener Löschantrag</h2>
             </div>
 
-            <dl class="portal-page__meta">
+            <dl class="metadata-list">
+                <div>
+                    <dt>Status</dt>
+                    <dd>
+                        @if (
+                            $requestStatus
+                            === \App\Modules\Identity\Enums\AccountDeletionRequestStatus::PendingDeletion->value
+                        )
+                            <x-vdbs.status type="warning">Löschung vorgemerkt</x-vdbs.status>
+                        @else
+                            <x-vdbs.status type="info">Bestätigung ausstehend</x-vdbs.status>
+                        @endif
+                    </dd>
+                </div>
+
                 <div>
                     <dt>Angefordert am</dt>
                     <dd>{{ $requestedAt }}</dd>
@@ -195,39 +209,37 @@ new #[Layout('components.layouts.public')]
                 === \App\Modules\Identity\Enums\AccountDeletionRequestStatus::PendingConfirmation->value
             )
                 @if ($confirmationPrepared)
-                    <p class="notice" role="status">
+                    <x-vdbs.notice type="info" role="status">
                         Die Bestätigungs-E-Mail wurde
                         zur Versandwarteschlange hinzugefügt.
-                    </p>
+                    </x-vdbs.notice>
                 @else
-                    <p class="notice notice--warning" role="alert">
+                    <x-vdbs.notice type="warning" role="alert">
                         Der Löschantrag ist gespeichert,
                         aber die Bestätigungs-E-Mail konnte
                         noch nicht vorbereitet werden.
-                    </p>
+                    </x-vdbs.notice>
                 @endif
             @elseif (
                 $requestStatus
                 === \App\Modules\Identity\Enums\AccountDeletionRequestStatus::PendingDeletion->value
             )
-                <p class="notice notice--success" role="status">
+                <x-vdbs.notice type="success" role="status">
                     Die Kontolöschung wurde bestätigt.
-                </p>
+                </x-vdbs.notice>
             @endif
         </section>
     @else
-        <section class="portal-page__section">
-            <div class="portal-page__section-header">
-                <h2>Kontolöschung anfordern</h2>
+        <x-vdbs.danger-zone
+            title="Kontolöschung anfordern"
+            description="Nach dem Absenden erhalten Sie eine Bestätigungs-E-Mail. Ohne Bestätigung wird die Löschung nicht fortgesetzt."
+        >
+            <p>
+                Prüfen Sie vor dem Absenden, ob Sie noch Daten oder
+                Dokumente aus Ihrem Konto benötigen.
+            </p>
 
-                <p>
-                    Nach dem Absenden erhalten Sie eine
-                    Bestätigungs-E-Mail. Ohne Bestätigung
-                    wird die Löschung nicht fortgesetzt.
-                </p>
-            </div>
-
-            <div class="portal-page__actions">
+            <x-slot:actions>
                 <button
                     class="btn btn--danger"
                     type="button"
@@ -238,8 +250,8 @@ new #[Layout('components.layouts.public')]
                 >
                     Kontolöschung anfordern
                 </button>
-            </div>
-        </section>
+            </x-slot:actions>
+        </x-vdbs.danger-zone>
     @endif
 
     <div class="portal-page__links">

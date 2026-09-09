@@ -125,5 +125,12 @@
     .vdbs-event-teaser {
         grid-template-columns: 4.5rem minmax(0, 1fr);
         gap: var(--spacing-4);
+        padding-block: var(--spacing-4);
+    }
+
+    .event-detail-meta,
+    .vdbs-event-detail-meta {
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--spacing-3);
     }
 }

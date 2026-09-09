@@ -329,15 +329,36 @@
                 <strong class="mobile-menu__heading vdbs-mobile-menu__heading">Navigation</strong>
 
                 @foreach ($navigation as $item)
+                    @php
+                        $mobileChildren = $item['children'] ?? [];
+                        $mobileCurrent = ($item['active'] ?? false) === true
+                            && ! collect($mobileChildren)->contains(
+                                fn (array $child): bool => ($child['active'] ?? false) === true
+                            );
+                    @endphp
+
                     @if (($item['url'] ?? null) !== null)
-                        <a href="{{ $item['url'] }}">{{ $item['label'] }}</a>
+                        <a
+                            href="{{ $item['url'] }}"
+                            @if ($mobileCurrent)
+                                aria-current="page"
+                            @endif
+                        >
+                            {{ $item['label'] }}
+                        </a>
                     @else
                         <span aria-disabled="true">{{ $item['label'] }}</span>
                     @endif
 
-                    @foreach (($item['children'] ?? []) as $child)
+                    @foreach ($mobileChildren as $child)
                         @if (($child['url'] ?? null) !== null)
-                            <a class="mobile-menu__child vdbs-mobile-menu__child" href="{{ $child['url'] }}">
+                            <a
+                                class="mobile-menu__child vdbs-mobile-menu__child"
+                                href="{{ $child['url'] }}"
+                                @if (($child['active'] ?? false) === true)
+                                    aria-current="page"
+                                @endif
+                            >
                                 {{ $child['label'] }}
                             </a>
                         @else

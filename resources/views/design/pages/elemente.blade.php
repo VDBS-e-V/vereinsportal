@@ -83,6 +83,11 @@
 
             <div class="teaser-list">
                 <article class="teaser">
+                    <h3><a href="{{ route('design.elemente.icons') }}">Icons</a></h3>
+                    <p>Zentrale Symbolsprache für Aktionen, Navigation, Dateien und Statuskontext.</p>
+                </article>
+
+                <article class="teaser">
                     <h3><a href="{{ route('design.elemente.metadaten') }}">Status &amp; Metadaten</a></h3>
                     <p>Badges, fachliche Zustände und strukturierte Schlüssel-Wert-Informationen.</p>
                 </article>

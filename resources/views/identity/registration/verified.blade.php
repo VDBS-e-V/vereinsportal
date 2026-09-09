@@ -8,7 +8,7 @@
             <h1>E-Mail bestätigt</h1>
         </header>
 
-        <div class="notice notice--success" role="status">
+        <x-vdbs.notice type="success" role="status">
             <div class="stack stack--sm">
                 <p>
                     Die Registrierung wurde erfolgreich abgeschlossen.
@@ -18,6 +18,12 @@
                     Ihr Benutzerkonto ist jetzt aktiv.
                 </p>
             </div>
+        </x-vdbs.notice>
+
+        <div class="portal-page__actions">
+            <a class="btn" href="{{ route('my.login') }}">
+                Jetzt anmelden
+            </a>
         </div>
     </div>
 </x-layouts.public>

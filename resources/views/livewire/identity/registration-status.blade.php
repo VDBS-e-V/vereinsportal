@@ -87,7 +87,7 @@ new #[Layout('components.layouts.public')]
     </header>
 
     @if ($mailPrepared)
-        <div class="notice">
+        <x-vdbs.notice type="info" role="status">
             <div class="stack stack--sm">
                 <p>
                     Für Ihre Registrierung wurde eine
@@ -101,38 +101,36 @@ new #[Layout('components.layouts.public')]
                     um die Registrierung abzuschließen.
                 </p>
             </div>
-        </div>
+        </x-vdbs.notice>
     @else
-        <div class="notice notice--warning">
+        <x-vdbs.notice type="warning" role="status">
             <div class="stack stack--sm">
-                <p>
-                    Ihre Registrierung wurde gespeichert.
-                </p>
+                <p>Ihre Registrierung wurde gespeichert.</p>
 
                 <p>
                     Die Bestätigungs-E-Mail konnte bislang
                     noch nicht vorbereitet werden.
                 </p>
             </div>
-        </div>
+        </x-vdbs.notice>
     @endif
 
     @if ($resent)
-        <p class="notice notice--success" role="status">
+        <x-vdbs.notice type="success" role="status">
             Eine neue Bestätigungs-E-Mail wurde
             vorbereitet.
-        </p>
+        </x-vdbs.notice>
     @endif
 
     @error('resend')
-        <p class="notice notice--danger" role="alert">
+        <x-vdbs.notice type="danger" role="alert">
             {{ $message }}
-        </p>
+        </x-vdbs.notice>
     @enderror
 
-    <form class="portal-page__form" wire:submit="resend">
+    <form class="portal-page__form form" wire:submit="resend">
         <div class="portal-page__actions">
-            <button type="submit" wire:loading.attr="disabled" wire:target="resend">
+            <button class="btn" type="submit" wire:loading.attr="disabled" wire:target="resend">
                 <span wire:loading.remove wire:target="resend">
                     Bestätigungs-E-Mail erneut senden
                 </span>

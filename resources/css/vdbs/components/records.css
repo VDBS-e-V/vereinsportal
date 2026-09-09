@@ -109,4 +109,9 @@
     .vdbs-record-item__actions {
         justify-content: flex-start;
     }
+
+    .key-facts dd,
+    .vdbs-key-facts dd {
+        font-size: var(--text-lg);
+    }
 }

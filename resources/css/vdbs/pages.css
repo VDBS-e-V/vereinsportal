@@ -125,24 +125,34 @@
     max-width: var(--layout-text-max);
 }
 
-.portal-page .field--choice label {
-    display: inline-flex;
-    align-items: flex-start;
-    gap: var(--spacing-2);
-    font-weight: 500;
-}
-
-.portal-page .field--choice input {
-    flex: 0 0 auto;
-    margin-top: 0.2em;
-}
-
-.portal-page .form__grid > .field {
-    margin-bottom: 0;
-}
-
 @media (max-width: 50rem) {
     .portal-page {
         gap: var(--spacing-6);
+    }
+
+    .portal-page__header {
+        padding-bottom: var(--spacing-4);
+    }
+
+    .portal-page__section {
+        padding-top: var(--spacing-5);
+    }
+}
+
+@media (max-width: 36rem) {
+    .portal-page__lead {
+        font-size: var(--text-base);
+    }
+
+    .portal-page__actions {
+        align-items: stretch;
+    }
+
+    .portal-page__actions > .btn:not(.btn--quiet) {
+        width: 100%;
+    }
+
+    .portal-page__subsection {
+        padding: var(--spacing-4);
     }
 }

@@ -131,7 +131,7 @@ new #[Layout('components.layouts.public')]
     </header>
 
     @if ($pendingEmail !== null)
-        <div class="notice" role="status">
+        <x-vdbs.notice :type="$verificationPrepared ? 'info' : 'warning'" role="status">
             <div class="stack stack--sm">
                 <p>
                     Offene Änderung auf
@@ -156,15 +156,15 @@ new #[Layout('components.layouts.public')]
                     </p>
                 @endif
             </div>
-        </div>
+        </x-vdbs.notice>
     @endif
 
     @if ($requested)
-        <p class="notice notice--success" role="status">
+        <x-vdbs.notice type="success" role="status">
             Der Änderungsprozess wurde angelegt.
             Ihre bisherige E-Mail-Adresse bleibt bis
             zur Bestätigung unverändert aktiv.
-        </p>
+        </x-vdbs.notice>
     @endif
 
     <section class="portal-page__section">
@@ -172,23 +172,34 @@ new #[Layout('components.layouts.public')]
             <h2>Neue E-Mail-Adresse</h2>
         </div>
 
-        <form class="portal-page__form" wire:submit="requestChange">
-            <div class="field">
-                <label for="newEmail">
+        <form class="portal-page__form form" wire:submit="requestChange">
+            <div class="form__field">
+                <label class="form__label" for="newEmail">
                     Neue E-Mail-Adresse
                 </label>
 
-                <input id="newEmail" type="email" wire:model="newEmail" autocomplete="email" required>
+                <input
+                    class="form__control"
+                    id="newEmail"
+                    type="email"
+                    wire:model="newEmail"
+                    autocomplete="email"
+                    required
+                    @error('newEmail')
+                        aria-invalid="true"
+                        aria-describedby="email-change-new-email-error"
+                    @enderror
+                >
 
                 @error('newEmail')
-                    <p role="alert">
+                    <p class="form__error" id="email-change-new-email-error" role="alert">
                         {{ $message }}
                     </p>
                 @enderror
             </div>
 
             <div class="portal-page__actions">
-                <button type="submit" wire:loading.attr="disabled" wire:target="requestChange">
+                <button class="btn" type="submit" wire:loading.attr="disabled" wire:target="requestChange">
                     Bestätigung anfordern
                 </button>
             </div>

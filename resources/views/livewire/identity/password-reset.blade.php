@@ -71,21 +71,25 @@ new #[Layout('components.layouts.public')]
 <div class="portal-page portal-page--small">
     <header class="portal-page__header">
         <h1>Neues Passwort</h1>
+        <p class="portal-page__lead">
+            Legen Sie ein neues Passwort für Ihr Benutzerkonto fest.
+        </p>
     </header>
 
     @error('reset')
-        <p class="notice notice--danger" role="alert">
+        <x-vdbs.notice type="danger" role="alert">
             {{ $message }}
-        </p>
+        </x-vdbs.notice>
     @enderror
 
-    <form class="portal-page__form" wire:submit="resetPassword">
-        <div class="field">
-            <label for="email">
+    <form class="portal-page__form form" wire:submit="resetPassword">
+        <div class="form__field">
+            <label class="form__label" for="email">
                 E-Mail-Adresse
             </label>
 
             <input
+                class="form__control"
                 id="email"
                 type="email"
                 wire:model="email"
@@ -93,32 +97,38 @@ new #[Layout('components.layouts.public')]
             >
         </div>
 
-        <div class="field">
-            <label for="password">
+        <div class="form__field">
+            <label class="form__label" for="password">
                 Neues Passwort
             </label>
 
             <input
+                class="form__control"
                 id="password"
                 type="password"
                 wire:model="password"
                 autocomplete="new-password"
                 required
+                @error('password')
+                    aria-invalid="true"
+                    aria-describedby="password-reset-password-error"
+                @enderror
             >
 
             @error('password')
-                <p role="alert">
+                <p class="form__error" id="password-reset-password-error" role="alert">
                     {{ $message }}
                 </p>
             @enderror
         </div>
 
-        <div class="field">
-            <label for="password_confirmation">
+        <div class="form__field">
+            <label class="form__label" for="password_confirmation">
                 Neues Passwort wiederholen
             </label>
 
             <input
+                class="form__control"
                 id="password_confirmation"
                 type="password"
                 wire:model="password_confirmation"
@@ -128,7 +138,7 @@ new #[Layout('components.layouts.public')]
         </div>
 
         <div class="portal-page__actions">
-            <button type="submit">
+            <button class="btn" type="submit">
                 Passwort speichern
             </button>
         </div>

@@ -42,7 +42,47 @@
             ];
         }
 
-        $navigation = [];
+        $accountRouteNames = [
+            'my.profile',
+            'my.email-change',
+            'my.password.change',
+            'my.security',
+            'my.account-deletion',
+        ];
+
+        $accountNavigation = [
+            [
+                'label' => 'Profil',
+                'url' => route('my.profile'),
+                'active' => request()->routeIs('my.profile'),
+            ],
+            [
+                'label' => 'E-Mail-Adresse',
+                'url' => route('my.email-change'),
+                'active' => request()->routeIs('my.email-change'),
+            ],
+            [
+                'label' => 'Passwort',
+                'url' => route('my.password.change'),
+                'active' => request()->routeIs('my.password.change'),
+            ],
+            [
+                'label' => 'Sicherheit',
+                'url' => route('my.security'),
+                'active' => request()->routeIs('my.security'),
+            ],
+        ];
+
+        if (\Illuminate\Support\Facades\Route::has('my.account-deletion')) {
+            $accountNavigation[] = [
+                'label' => 'Konto löschen',
+                'url' => route('my.account-deletion'),
+                'active' => request()->routeIs('my.account-deletion'),
+            ];
+        }
+
+        $showAccountNavigation = auth()->check()
+            && request()->routeIs(...$accountRouteNames);
 
         if (auth()->check()) {
             $navigation = [
@@ -52,50 +92,40 @@
                     'active' => request()->routeIs('my.home'),
                 ],
                 [
-                    'label' => 'Profil',
+                    'label' => 'Konto',
                     'url' => route('my.profile'),
-                    'active' => request()->routeIs('my.profile'),
-                ],
-                [
-                    'label' => 'E-Mail',
-                    'url' => route('my.email-change'),
-                    'active' => request()->routeIs('my.email-change'),
-                ],
-                [
-                    'label' => 'Passwort',
-                    'url' => route('my.password.change'),
-                    'active' => request()->routeIs('my.password.change'),
-                ],
-                [
-                    'label' => 'Sicherheit',
-                    'url' => route('my.security'),
-                    'active' => request()->routeIs('my.security'),
+                    'active' => request()->routeIs(...$accountRouteNames),
+                    'children' => collect($accountNavigation)
+                        ->reject(
+                            fn (array $item): bool =>
+                                $item['url'] === route('my.profile')
+                        )
+                        ->values()
+                        ->all(),
                 ],
             ];
-
-            if (\Illuminate\Support\Facades\Route::has('my.account-deletion')) {
-                $navigation[] = [
-                    'label' => 'Konto löschen',
-                    'url' => route('my.account-deletion'),
-                    'active' => request()->routeIs('my.account-deletion'),
-                ];
-            }
         } else {
             $navigation = [
                 [
-                    'label' => 'Anmelden',
+                    'label' => 'Zugang',
                     'url' => route('my.login'),
-                    'active' => request()->routeIs('my.login'),
-                ],
-                [
-                    'label' => 'Registrieren',
-                    'url' => route('my.registration.create'),
-                    'active' => request()->routeIs('my.registration.create'),
-                ],
-                [
-                    'label' => 'Passwort vergessen',
-                    'url' => route('my.password.request'),
-                    'active' => request()->routeIs('my.password.request'),
+                    'active' => request()->routeIs(
+                        'my.login',
+                        'my.registration.create',
+                        'my.password.request',
+                    ),
+                    'children' => [
+                        [
+                            'label' => 'Registrieren',
+                            'url' => route('my.registration.create'),
+                            'active' => request()->routeIs('my.registration.create'),
+                        ],
+                        [
+                            'label' => 'Passwort vergessen',
+                            'url' => route('my.password.request'),
+                            'active' => request()->routeIs('my.password.request'),
+                        ],
+                    ],
                 ],
             ];
         }
@@ -103,15 +133,29 @@
         $breadcrumbs = [];
 
         if (! request()->routeIs('my.home')) {
-            $breadcrumbs = [
-                [
-                    'label' => 'VDBS Portal',
-                    'url' => $homeUrl,
-                ],
-                [
-                    'label' => $pageTitle,
-                    'url' => null,
-                ],
+            $breadcrumbs[] = [
+                'label' => 'VDBS Portal',
+                'url' => $homeUrl,
+            ];
+
+            if (
+                auth()->check()
+                && request()->routeIs(
+                    'my.email-change',
+                    'my.password.change',
+                    'my.security',
+                    'my.account-deletion',
+                )
+            ) {
+                $breadcrumbs[] = [
+                    'label' => 'Konto',
+                    'url' => route('my.profile'),
+                ];
+            }
+
+            $breadcrumbs[] = [
+                'label' => $pageTitle,
+                'url' => null,
             ];
         }
 
@@ -245,6 +289,30 @@
         :login-url="auth()->check() ? null : route('my.login')"
         :account="$account"
     />
+
+    @if ($showAccountNavigation)
+        <div class="account-local-navigation">
+            <x-vdbs.frame width="normal" gutter="both">
+                <nav class="local-nav" aria-label="Kontoeinstellungen">
+                    <ul class="local-nav__list">
+                        @foreach ($accountNavigation as $item)
+                            <li>
+                                <a
+                                    class="local-nav__link"
+                                    href="{{ $item['url'] }}"
+                                    @if ($item['active'])
+                                        aria-current="page"
+                                    @endif
+                                >
+                                    {{ $item['label'] }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </nav>
+            </x-vdbs.frame>
+        </div>
+    @endif
 
     <main id="main-content" class="site-main vdbs-public-main">
         <x-vdbs.frame width="normal" gutter="both">

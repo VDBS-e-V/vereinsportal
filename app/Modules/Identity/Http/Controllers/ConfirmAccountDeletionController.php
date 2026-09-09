@@ -28,6 +28,10 @@ final class ConfirmAccountDeletionController extends Controller
                 ->with(
                     'status',
                     'Dieser Löschlink ist ungültig oder nicht mehr verwendbar.',
+                )
+                ->with(
+                    'status_type',
+                    'danger',
                 );
         }
 
@@ -44,6 +48,10 @@ final class ConfirmAccountDeletionController extends Controller
                 'status',
                 'Die Kontolöschung wurde bestätigt. '
                 .'Sie kann innerhalb von fünf Tagen widerrufen werden.',
+            )
+            ->with(
+                'status_type',
+                'warning',
             );
     }
 }

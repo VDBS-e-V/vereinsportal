@@ -44,6 +44,7 @@
                     'layout' => 40,
                     'header' => 50,
                     'vorlagen' => 60,
+                    'print' => 70,
                 ];
                 $rank = $rootOrder[$rootSegment] ?? 90;
 

@@ -1,0 +1,158 @@
+/* VDBS Portal — print rules */
+
+.print-only {
+    display: none;
+}
+
+@media print {
+    @page {
+        margin: 15mm;
+    }
+
+    *,
+    *::before,
+    *::after {
+        box-shadow: none !important;
+        text-shadow: none !important;
+        animation: none !important;
+        transition: none !important;
+    }
+
+    html,
+    body {
+        min-width: 0;
+        background: #fff !important;
+        color: #000 !important;
+        font-size: 10.5pt;
+    }
+
+    body {
+        min-height: 0;
+    }
+
+    .site-header,
+    .header-breadcrumb,
+    .vdbs-footer,
+    .vdbs-skip-link,
+    .local-nav,
+    .vdbs-local-nav,
+    .page-tabs,
+    .vdbs-page-tabs,
+    .pagination,
+    .vdbs-pagination,
+    .search-form,
+    .filter-bar,
+    .table-toolbar,
+    .portal-page__actions,
+    .page-title__actions,
+    .button-group,
+    .file-item__actions,
+    .danger-zone,
+    [data-vdbs-dialog],
+    .screen-only {
+        display: none !important;
+    }
+
+    .print-only {
+        display: block !important;
+    }
+
+    .site-main,
+    .vdbs-public-main,
+    .design-main {
+        min-height: 0;
+        padding: 0;
+    }
+
+    .container,
+    .vdbs-container,
+    .site-main > .container,
+    .design-main-inner,
+    .layout-frame,
+    .portal-page,
+    .article,
+    .article__body {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding-inline: 0 !important;
+    }
+
+    .design-example {
+        padding: 0;
+        border: 0;
+    }
+
+    .page-title,
+    .portal-page__header,
+    .article__header {
+        border-color: #777 !important;
+    }
+
+    a,
+    a:visited {
+        color: #000 !important;
+        text-decoration: underline;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+
+    p,
+    li {
+        orphans: 3;
+        widows: 3;
+    }
+
+    figure,
+    .contact-block,
+    .resource-item,
+    .record-item,
+    .file-item,
+    .notice,
+    .key-facts > div,
+    tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    table {
+        width: 100% !important;
+        border-collapse: collapse;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    tfoot {
+        display: table-footer-group;
+    }
+
+    .table-wrapper {
+        overflow: visible !important;
+    }
+
+    details:not([open]) > *:not(summary) {
+        display: block !important;
+    }
+
+    details > summary {
+        list-style: none;
+    }
+
+    details > summary::marker,
+    details > summary::-webkit-details-marker {
+        display: none;
+    }
+
+    img,
+    svg {
+        max-width: 100% !important;
+    }
+}

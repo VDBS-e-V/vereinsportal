@@ -27,6 +27,10 @@ final class WithdrawAccountDeletionController extends Controller
                 ->with(
                     'status',
                     'Dieser Widerrufslink ist ungültig oder nicht mehr verwendbar.',
+                )
+                ->with(
+                    'status_type',
+                    'danger',
                 );
         }
 
@@ -36,6 +40,10 @@ final class WithdrawAccountDeletionController extends Controller
                 'status',
                 'Die Kontolöschung wurde widerrufen. '
                 .'Bitte melden Sie sich erneut an.',
+            )
+            ->with(
+                'status_type',
+                'success',
             );
     }
 }

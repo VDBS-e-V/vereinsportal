@@ -56,3 +56,15 @@
     border-left: var(--border-width-strong) solid var(--color-warning);
     color: var(--color-ink);
 }
+
+@media (max-width: 36rem) {
+    .danger-zone,
+    .vdbs-danger-zone {
+        padding: var(--spacing-4);
+    }
+
+    .danger-zone__actions .btn,
+    .vdbs-danger-zone__actions .btn {
+        width: 100%;
+    }
+}

@@ -1,9 +1,7 @@
 /* VDBS Portal — buttons */
 
 .btn,
-.vdbs-button,
-.site-main button:not([class]),
-.design-main button:not([class]) {
+.vdbs-button {
     display: inline-flex;
     min-height: var(--control-height-md);
     align-items: center;
@@ -27,9 +25,7 @@
 }
 
 .btn:hover,
-.vdbs-button:hover,
-.site-main button:not([class]):hover,
-.design-main button:not([class]):hover {
+.vdbs-button:hover {
     border-color: var(--color-ink);
     background: var(--color-ink);
     color: var(--color-white);
@@ -114,8 +110,6 @@
 
 .btn[disabled],
 .vdbs-button[disabled],
-.site-main button[disabled],
-.design-main button[disabled],
 .btn[aria-disabled='true'],
 .vdbs-button[aria-disabled='true'] {
     border-color: var(--color-border) !important;

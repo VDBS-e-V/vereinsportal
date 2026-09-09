@@ -13,7 +13,7 @@
     border: 1px solid var(--color-border);
     border-radius: 0;
     background: var(--color-white);
-    box-shadow: var(--shadow-sm);
+    box-shadow: none;
 }
 
 .site-main > .container > .card,
@@ -63,5 +63,10 @@
     .vdbs-card,
     .vdbs-panel {
         padding: var(--spacing-5);
+    }
+
+    .teaser,
+    .vdbs-teaser {
+        padding-block: var(--spacing-4);
     }
 }

@@ -1,12 +1,12 @@
 /* VDBS Portal — forms */
 
 .form,
-form {
+.vdbs-form {
     margin: 0;
 }
 
 .form__grid,
-.form-grid {
+.vdbs-form-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: var(--spacing-5);
@@ -21,7 +21,6 @@ form {
 }
 
 .form__field,
-.field,
 .vdbs-field {
     display: grid;
     gap: var(--spacing-2);
@@ -29,9 +28,7 @@ form {
 }
 
 .form__label,
-.vdbs-label,
-.site-main label,
-.design-main label {
+.vdbs-label {
     color: var(--color-ink);
     font-weight: 700;
 }
@@ -47,13 +44,7 @@ form {
 }
 
 .form__control,
-.vdbs-input,
-.site-main input:not([type='checkbox']):not([type='radio']),
-.site-main select,
-.site-main textarea,
-.design-main input:not([type='checkbox']):not([type='radio']),
-.design-main select,
-.design-main textarea {
+.vdbs-input {
     width: 100%;
     min-height: var(--control-height-md);
     padding: 0.65rem 0.75rem;
@@ -68,29 +59,19 @@ form {
 }
 
 .form__control::placeholder,
-.vdbs-input::placeholder,
-.site-main input::placeholder,
-.site-main textarea::placeholder,
-.design-main input::placeholder,
-.design-main textarea::placeholder {
+.vdbs-input::placeholder {
     color: var(--color-text-muted);
     opacity: 1;
 }
 
-.site-main textarea,
-.design-main textarea {
+textarea.form__control,
+textarea.vdbs-input {
     min-height: 8rem;
     resize: vertical;
 }
 
 .form__control:focus,
-.vdbs-input:focus,
-.site-main input:focus,
-.site-main select:focus,
-.site-main textarea:focus,
-.design-main input:focus,
-.design-main select:focus,
-.design-main textarea:focus {
+.vdbs-input:focus {
     border-color: var(--color-ink);
     box-shadow: inset 0 -3px 0 var(--color-primary);
     outline: 0;
@@ -98,26 +79,18 @@ form {
 
 .form__control[aria-invalid='true'],
 .vdbs-input[aria-invalid='true'],
-.form__field--error .form__control,
-.field--error .form__control {
+.form__field--error .form__control {
     border-color: var(--color-danger);
     box-shadow: inset 0 -3px 0 var(--color-danger);
 }
 
-.form__field--success .form__control,
-.field--success .form__control {
+.form__field--success .form__control {
     border-color: var(--color-success);
     box-shadow: inset 0 -3px 0 var(--color-success);
 }
 
 .form__control:disabled,
-.vdbs-input:disabled,
-.site-main input:disabled,
-.site-main select:disabled,
-.site-main textarea:disabled,
-.design-main input:disabled,
-.design-main select:disabled,
-.design-main textarea:disabled {
+.vdbs-input:disabled {
     border-color: var(--color-border);
     background: var(--color-surface-disabled);
     color: var(--color-text-disabled);
@@ -126,28 +99,25 @@ form {
 }
 
 .form__control[readonly],
-.vdbs-input[readonly],
-.site-main input[readonly],
-.site-main textarea[readonly],
-.design-main input[readonly],
-.design-main textarea[readonly] {
+.vdbs-input[readonly] {
     background: var(--color-surface-subtle);
     color: var(--color-ink);
 }
 
-.site-main input[type='checkbox'],
-.site-main input[type='radio'],
-.design-main input[type='checkbox'],
-.design-main input[type='radio'] {
+.form__choice input[type='checkbox'],
+.form__choice input[type='radio'],
+.vdbs-form input[type='checkbox'],
+.vdbs-form input[type='radio'] {
     width: 1.15rem;
     height: 1.15rem;
+    flex: 0 0 auto;
     accent-color: var(--color-primary);
 }
 
-.site-main input[type='checkbox']:disabled,
-.site-main input[type='radio']:disabled,
-.design-main input[type='checkbox']:disabled,
-.design-main input[type='radio']:disabled {
+.form__choice input[type='checkbox']:disabled,
+.form__choice input[type='radio']:disabled,
+.vdbs-form input[type='checkbox']:disabled,
+.vdbs-form input[type='radio']:disabled {
     cursor: not-allowed;
     opacity: 0.6;
 }
@@ -179,10 +149,8 @@ form {
 .vdbs-help-text,
 .form__help,
 .form__error,
-.field__error,
 .vdbs-field-error,
 .form__status,
-.field__status,
 .vdbs-field-status {
     font-size: var(--text-sm);
     line-height: var(--leading-body);
@@ -194,17 +162,11 @@ form {
 }
 
 .form__error,
-.field__error,
-.vdbs-field-error,
-.site-main .field > [role='alert'],
-.site-main .form__field > [role='alert'],
-.design-main .field > [role='alert'],
-.design-main .form__field > [role='alert'] {
+.vdbs-field-error {
     color: var(--color-danger);
 }
 
 .form__status,
-.field__status,
 .vdbs-field-status {
     color: var(--color-success);
 }
