@@ -479,16 +479,18 @@ new #[Layout('components.layouts.public')]
                     <code>{{ $totpSecret }}</code>
                 </p>
 
-                <details>
-                    <summary>
+                <details class="disclosure">
+                    <summary class="disclosure__summary">
                         Technische Einrichtungs-URI anzeigen
                     </summary>
 
-                    <p class="portal-page__code">
-                        <code>
-                            {{ $totpProvisioningUri }}
-                        </code>
-                    </p>
+                    <div class="disclosure__content">
+                        <p class="portal-page__code">
+                            <code>
+                                {{ $totpProvisioningUri }}
+                            </code>
+                        </p>
+                    </div>
                 </details>
 
                 <p>

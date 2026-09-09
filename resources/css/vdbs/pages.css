@@ -141,15 +141,6 @@
     margin-bottom: 0;
 }
 
-.portal-page details {
-    max-width: var(--layout-text-max);
-}
-
-.portal-page summary {
-    cursor: pointer;
-    font-weight: 700;
-}
-
 @media (max-width: 50rem) {
     .portal-page {
         gap: var(--spacing-6);

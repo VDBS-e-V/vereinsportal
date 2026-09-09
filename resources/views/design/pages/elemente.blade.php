@@ -77,6 +77,13 @@
                     </h3>
                     <p>Badges, fachliche Zustände und strukturierte Schlüssel-Wert-Informationen.</p>
                 </article>
+
+                <article class="teaser">
+                    <h3>
+                        <a href="{{ route('design.elemente.disclosure') }}">Aufklappbare Inhalte</a>
+                    </h3>
+                    <p>Native Details für ergänzende Informationen, die nicht dauerhaft sichtbar sein müssen.</p>
+                </article>
             </div>
         </section>
 
