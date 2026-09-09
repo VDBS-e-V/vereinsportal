@@ -245,7 +245,8 @@
                 ],
                 'logout' => [
                     'label' => 'Abmelden',
-                    'url' => null,
+                    'url' => route('my.logout'),
+                    'method' => 'post',
                 ],
             ];
         }
