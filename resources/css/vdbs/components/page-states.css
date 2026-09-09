@@ -1,0 +1,50 @@
+/* VDBS Portal — page-level system and error states */
+
+.error-state,
+.vdbs-error-state {
+    display: grid;
+    width: 100%;
+    max-width: var(--layout-text-max);
+    gap: var(--spacing-4);
+    padding-block: var(--spacing-6);
+    border-top: var(--border-width-strong) solid var(--color-ink);
+    border-bottom: var(--border-width-default) solid var(--color-border);
+}
+
+.error-state--danger,
+.vdbs-error-state--danger {
+    border-top-color: var(--color-danger);
+}
+
+.error-state__code,
+.vdbs-error-state__code {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--text-4xl);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    line-height: 1;
+}
+
+.error-state__title,
+.vdbs-error-state__title {
+    margin: 0;
+    color: var(--color-ink);
+    font-size: var(--text-2xl);
+}
+
+.error-state__description,
+.vdbs-error-state__description {
+    max-width: var(--layout-text-max);
+    margin: 0;
+    color: var(--color-text-muted);
+    line-height: var(--leading-body);
+}
+
+.error-state__actions,
+.vdbs-error-state__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-3);
+}

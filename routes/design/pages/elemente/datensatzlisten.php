@@ -10,4 +10,8 @@ Route::view(
     ->defaults(
         'design_title',
         'Datensatzlisten',
+    )
+    ->defaults(
+        'design_navigation_group',
+        'muster',
     );

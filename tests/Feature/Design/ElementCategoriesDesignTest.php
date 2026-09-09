@@ -33,13 +33,14 @@ it('shows the element category overview', function () {
         ->assertSeeText('Buttons')
         ->assertSeeText('Formulare')
         ->assertSeeText('Hinweise')
-        ->assertSeeText('Teaser')
+        ->assertSeeText('Status & Metadaten')
         ->assertSeeText('Tabellen')
         ->assertSee(route('design.elemente.buttons'), false)
         ->assertSee(route('design.elemente.formulare'), false)
         ->assertSee(route('design.elemente.hinweise'), false)
-        ->assertSee(route('design.elemente.teaser'), false)
-        ->assertSee(route('design.elemente.tabellen'), false);
+        ->assertSee(route('design.elemente.metadaten'), false)
+        ->assertSee(route('design.elemente.tabellen'), false)
+        ->assertSee(route('design.muster'), false);
 });
 
 it('renders all current element category pages', function () {

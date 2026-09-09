@@ -26,6 +26,7 @@
 @import './vdbs/components/contacts.css';
 @import './vdbs/components/resources.css';
 @import './vdbs/components/records.css';
+@import './vdbs/components/page-states.css';
 @import './vdbs/components/notices.css';
 @import './vdbs/components/empty-states.css';
 @import './vdbs/components/tables.css';

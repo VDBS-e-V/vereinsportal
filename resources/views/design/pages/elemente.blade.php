@@ -5,12 +5,12 @@
 @section('content')
     <div class="stack stack--lg">
         <header class="page-title">
-            <p class="page-title__kicker">Web Components</p>
+            <p class="page-title__kicker">Designsystem</p>
             <h1 class="page-title__title">Elemente</h1>
             <p class="page-title__lead">
-                Wiederverwendbare UI-Muster sind nach Aufgabenbereichen getrennt.
-                Jede Unterseite dokumentiert Varianten, Zustände, Einsatzregeln
-                und Accessibility-Anforderungen der jeweiligen Komponentenfamilie.
+                Elemente sind die wiederverwendbaren UI-Bausteine für Aktionen,
+                Eingaben, Feedback, Navigation und Daten. Zusammengesetzte
+                redaktionelle und fachliche Darstellungen stehen separat unter Muster.
             </p>
         </header>
 
@@ -19,9 +19,7 @@
 
             <div class="teaser-list">
                 <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.buttons') }}">Buttons</a>
-                    </h3>
+                    <h3><a href="{{ route('design.elemente.buttons') }}">Buttons</a></h3>
                     <p>Primäre, sekundäre, ruhige, destruktive und zustandsabhängige Aktionen.</p>
                 </article>
             </div>
@@ -32,9 +30,7 @@
 
             <div class="teaser-list">
                 <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.formulare') }}">Formulare</a>
-                    </h3>
+                    <h3><a href="{{ route('design.elemente.formulare') }}">Formulare</a></h3>
                     <p>Felder, Auswahlmuster, Validierung sowie Disabled- und Readonly-Zustände.</p>
                 </article>
             </div>
@@ -45,37 +41,27 @@
 
             <div class="teaser-list">
                 <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.hinweise') }}">Hinweise</a>
-                    </h3>
+                    <h3><a href="{{ route('design.elemente.hinweise') }}">Hinweise</a></h3>
                     <p>Information, Erfolg, Warnung und Fehler als semantische Rückmeldung.</p>
                 </article>
 
                 <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.empty-states') }}">Leere Zustände</a>
-                    </h3>
-                    <p>Fehlende Daten oder Suchergebnisse werden erklärt und mit einer sinnvollen Aktion verbunden.</p>
+                    <h3><a href="{{ route('design.elemente.empty-states') }}">Leere Zustände</a></h3>
+                    <p>Fehlende Daten oder Suchergebnisse mit einer sinnvollen nächsten Aktion.</p>
                 </article>
 
                 <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.loading') }}">Loading &amp; Busy</a>
-                    </h3>
+                    <h3><a href="{{ route('design.elemente.loading') }}">Loading &amp; Busy</a></h3>
                     <p>Laufende Aktionen, Bereichsladezustände und bestimmter Fortschritt.</p>
                 </article>
 
                 <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.validierung') }}">Validierungsübersicht</a>
-                    </h3>
-                    <p>Mehrere Formularfehler werden zusammengefasst und mit den betroffenen Feldern verknüpft.</p>
+                    <h3><a href="{{ route('design.elemente.validierung') }}">Validierungsübersicht</a></h3>
+                    <p>Mehrere Formularfehler zusammenfassen und mit betroffenen Feldern verknüpfen.</p>
                 </article>
 
                 <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.bestaetigung') }}">Bestätigung &amp; Gefahr</a>
-                    </h3>
+                    <h3><a href="{{ route('design.elemente.bestaetigung') }}">Bestätigung &amp; Gefahr</a></h3>
                     <p>Kontext, Bestätigung und eindeutige Darstellung destruktiver Aktionen.</p>
                 </article>
             </div>
@@ -86,79 +72,24 @@
 
             <div class="teaser-list">
                 <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.navigation') }}">Lokale Navigation &amp; Pagination</a>
-                    </h3>
-                    <p>Bereichsnavigation, seitenbasierte Tabs und Seitennavigation für lokale Inhalte.</p>
+                    <h3><a href="{{ route('design.elemente.navigation') }}">Lokale Navigation &amp; Pagination</a></h3>
+                    <p>Bereichsnavigation, seitenbasierte Tabs und Seitennavigation.</p>
                 </article>
             </div>
         </section>
 
         <section class="section stack">
-            <h2>Inhalte</h2>
+            <h2>Darstellung</h2>
 
             <div class="teaser-list">
                 <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.teaser') }}">Teaser</a>
-                    </h3>
-                    <p>Lineare Einstiege und eigenständige Inhaltsmodule für Übersichtsseiten.</p>
-                </article>
-
-                <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.metadaten') }}">Status &amp; Metadaten</a>
-                    </h3>
+                    <h3><a href="{{ route('design.elemente.metadaten') }}">Status &amp; Metadaten</a></h3>
                     <p>Badges, fachliche Zustände und strukturierte Schlüssel-Wert-Informationen.</p>
                 </article>
 
                 <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.disclosure') }}">Aufklappbare Inhalte</a>
-                    </h3>
+                    <h3><a href="{{ route('design.elemente.disclosure') }}">Aufklappbare Inhalte</a></h3>
                     <p>Native Details für ergänzende Informationen, die nicht dauerhaft sichtbar sein müssen.</p>
-                </article>
-
-                <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.medien') }}">Medien &amp; Abbildungen</a>
-                    </h3>
-                    <p>Bildformate, Seitenverhältnisse, Objektanpassung, Bildunterschriften und Quellen.</p>
-                </article>
-
-                <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.artikel-news') }}">Artikel &amp; News</a>
-                    </h3>
-                    <p>Redaktionelle Detailseiten, Metadaten, Lesehierarchie und lineare News-Einstiege.</p>
-                </article>
-
-                <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.veranstaltungen') }}">Veranstaltungen</a>
-                    </h3>
-                    <p>Terminlisten und Veranstaltungsmetadaten mit Datum, Zeit und Ort.</p>
-                </article>
-
-                <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.kontakte') }}">Kontakte</a>
-                    </h3>
-                    <p>Ansprechpersonen, Zuständigkeiten und direkt nutzbare Kontaktwege.</p>
-                </article>
-
-                <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.ressourcen') }}">Ressourcen &amp; Linklisten</a>
-                    </h3>
-                    <p>Weiterführende Inhalte, Downloads und verwandte Ziele als klare Listen.</p>
-                </article>
-
-                <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.key-facts') }}">Key Facts</a>
-                    </h3>
-                    <p>Wenige wichtige Kennzahlen und Fakten ohne Dashboard-Optik.</p>
                 </article>
             </div>
         </section>
@@ -168,9 +99,7 @@
 
             <div class="teaser-list">
                 <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.dialoge') }}">Dialoge &amp; Overlays</a>
-                    </h3>
+                    <h3><a href="{{ route('design.elemente.dialoge') }}">Dialoge &amp; Overlays</a></h3>
                     <p>Native modale Dialoge für fokussierte Entscheidungen und Bestätigungen.</p>
                 </article>
             </div>
@@ -181,24 +110,13 @@
 
             <div class="teaser-list">
                 <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.tabellen') }}">Tabellen</a>
-                    </h3>
+                    <h3><a href="{{ route('design.elemente.tabellen') }}">Tabellen</a></h3>
                     <p>Tabellarische Daten, kompakte Varianten und responsive Grundregeln.</p>
                 </article>
 
                 <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.suche-filter') }}">Suche &amp; Filter</a>
-                    </h3>
+                    <h3><a href="{{ route('design.elemente.suche-filter') }}">Suche &amp; Filter</a></h3>
                     <p>Lokale Suche, optionale Filter und Toolbar-Muster für Verwaltungslisten.</p>
-                </article>
-
-                <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.datensatzlisten') }}">Datensatzlisten</a>
-                    </h3>
-                    <p>Lineare Datensätze mit wenigen Metadaten als Alternative zur Tabelle.</p>
                 </article>
             </div>
         </section>
@@ -208,11 +126,22 @@
 
             <div class="teaser-list">
                 <article class="teaser">
-                    <h3>
-                        <a href="{{ route('design.elemente.dateien') }}">Dateien &amp; Uploads</a>
-                    </h3>
+                    <h3><a href="{{ route('design.elemente.dateien') }}">Dateien &amp; Uploads</a></h3>
                     <p>Dateiauswahl, Uploadhinweise, Dateistatus und Download-Aktionen.</p>
                 </article>
+            </div>
+        </section>
+
+        <section class="section stack">
+            <h2>Zusammengesetzte Muster</h2>
+            <p>
+                Teaser, Medien, Artikel, Veranstaltungen, Kontakte und weitere
+                fachliche Darstellungen sind im eigenen Bereich zusammengefasst.
+            </p>
+            <div>
+                <a class="btn btn--secondary" href="{{ route('design.muster') }}">
+                    Zu den Mustern
+                </a>
             </div>
         </section>
     </div>

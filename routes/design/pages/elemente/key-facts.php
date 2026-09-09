@@ -10,4 +10,8 @@ Route::view(
     ->defaults(
         'design_title',
         'Key Facts',
+    )
+    ->defaults(
+        'design_navigation_group',
+        'muster',
     );

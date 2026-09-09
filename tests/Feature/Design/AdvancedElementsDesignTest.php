@@ -187,9 +187,12 @@ it('renders all newly added element groups', function () {
     }
 });
 
-it('links all new groups from the element overview', function () {
-    $overview = file_get_contents(
+it('links advanced groups from their correct design overviews', function () {
+    $elements = file_get_contents(
         resource_path('views/design/pages/elemente.blade.php'),
+    );
+    $patterns = file_get_contents(
+        resource_path('views/design/pages/muster.blade.php'),
     );
 
     foreach ([
@@ -197,13 +200,15 @@ it('links all new groups from the element overview', function () {
         "route('design.elemente.validierung')",
         "route('design.elemente.bestaetigung')",
         "route('design.elemente.dialoge')",
-        "route('design.elemente.medien')",
         "route('design.elemente.dateien')",
     ] as $route) {
-        expect($overview)->toContain($route);
+        expect($elements)->toContain($route);
     }
 
-    expect($overview)
+    expect($patterns)
+        ->toContain("route('design.elemente.medien')");
+
+    expect($elements)
         ->toContain('<h2>Overlays</h2>')
         ->toContain('<h2>Dateien</h2>');
 });

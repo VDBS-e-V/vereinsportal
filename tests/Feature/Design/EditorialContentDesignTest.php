@@ -144,9 +144,9 @@ it('uses the agreed german date and time formats in event references', function 
         ->toContain('bis 05.11.2026');
 });
 
-it('links every new content group from the element overview', function () {
+it('links every editorial content group from the pattern overview', function () {
     $overview = file_get_contents(
-        resource_path('views/design/pages/elemente.blade.php'),
+        resource_path('views/design/pages/muster.blade.php'),
     );
 
     foreach ([
@@ -171,16 +171,13 @@ it('uses design titles for nested horizontal navigation labels', function () {
         ->not->toContain("->skip(1)\n                            ->map(");
 });
 
-it('extends page templates with article event and record detail compositions', function () {
+it('links editorial page templates from the template overview', function () {
     $templates = file_get_contents(
         resource_path('views/design/pages/vorlagen.blade.php'),
     );
 
     expect($templates)
-        ->toContain('<h2>Artikelseite</h2>')
-        ->toContain('<h2>Veranstaltungsdetail</h2>')
-        ->toContain('<h2>Datensatzdetail</h2>')
-        ->toContain('class="event-detail-meta"')
-        ->toContain('class="page-tabs"')
-        ->toContain('class="metadata-list"');
+        ->toContain("route('design.vorlagen.artikel')")
+        ->toContain("route('design.vorlagen.veranstaltung')")
+        ->toContain("route('design.vorlagen.verwaltung-detail')");
 });

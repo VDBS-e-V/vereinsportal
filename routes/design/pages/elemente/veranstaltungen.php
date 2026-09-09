@@ -10,4 +10,8 @@ Route::view(
     ->defaults(
         'design_title',
         'Veranstaltungen',
+    )
+    ->defaults(
+        'design_navigation_group',
+        'muster',
     );

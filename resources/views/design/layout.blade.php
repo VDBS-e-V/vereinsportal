@@ -28,10 +28,31 @@
             )
             ->sortBy(function ($route): string {
                 $name = (string) $route->getName();
+                $relativeName = \Illuminate\Support\Str::after(
+                    $name,
+                    'design.',
+                );
+                $rootSegment = \Illuminate\Support\Str::before(
+                    $relativeName,
+                    '.',
+                );
+                $rootOrder = [
+                    'index' => 0,
+                    'elemente' => 10,
+                    'muster' => 20,
+                    'grundlagen' => 30,
+                    'layout' => 40,
+                    'header' => 50,
+                    'vorlagen' => 60,
+                ];
+                $rank = $rootOrder[$rootSegment] ?? 90;
 
-                return $name === 'design.index'
-                    ? '0'
-                    : '1'.$name;
+                return str_pad(
+                    (string) $rank,
+                    3,
+                    '0',
+                    STR_PAD_LEFT,
+                ).':'.$name;
             })
             ->values();
 
@@ -67,12 +88,17 @@
                     'design.',
                 );
 
+                $segments = explode('.', $relativeName);
+
                 return [
                     'label' => $designRouteLabel($route),
                     'url' => route($routeName),
                     'active' => request()->routeIs($routeName),
                     'route_name' => $routeName,
-                    'segments' => explode('.', $relativeName),
+                    'segments' => $segments,
+                    'navigation_group' =>
+                        $route->defaults['design_navigation_group']
+                        ?? $segments[0],
                 ];
             });
 
@@ -82,7 +108,10 @@
 
         $nestedDesignNavigation = $designNavigationItems
             ->filter(fn (array $item): bool => count($item['segments']) > 1)
-            ->groupBy(fn (array $item): string => $item['segments'][0]);
+            ->groupBy(
+                fn (array $item): string =>
+                    $item['navigation_group']
+            );
 
         $designNavigation = $rootDesignNavigation
             ->map(function (array $item, string $key) use ($nestedDesignNavigation): array {
@@ -227,7 +256,8 @@
             ],
         ];
 
-        $currentDesignRouteName = (string) request()->route()?->getName();
+        $currentDesignRoute = request()->route();
+        $currentDesignRouteName = (string) $currentDesignRoute?->getName();
 
         if (
             $currentDesignRouteName !== ''
@@ -238,28 +268,55 @@
                 'design.',
             );
             $breadcrumbSegments = explode('.', $relativeRouteName);
-            $breadcrumbRouteSegments = [];
+            $sourceRootSegment = $breadcrumbSegments[0];
+            $navigationGroup =
+                $currentDesignRoute?->defaults['design_navigation_group']
+                ?? $sourceRootSegment;
+            $groupRouteName = 'design.'.$navigationGroup;
+            $groupItem = $designNavigationItems
+                ->firstWhere('route_name', $groupRouteName);
+            $isGroupCurrent =
+                $currentDesignRouteName === $groupRouteName;
 
-            foreach ($breadcrumbSegments as $index => $segment) {
-                $breadcrumbRouteSegments[] = $segment;
+            $designBreadcrumbs[] = [
+                'label' => $groupItem['label']
+                    ?? \Illuminate\Support\Str::headline($navigationGroup),
+                'url' => $isGroupCurrent
+                    ? null
+                    : ($groupItem['url'] ?? null),
+            ];
 
-                $breadcrumbRouteName = 'design.'.implode(
-                    '.',
-                    $breadcrumbRouteSegments,
+            if (! $isGroupCurrent) {
+                $remainingBreadcrumbSegments = array_slice(
+                    $breadcrumbSegments,
+                    1,
                 );
-                $breadcrumbItem = $designNavigationItems
-                    ->firstWhere('route_name', $breadcrumbRouteName);
-                $isLastBreadcrumb = $index === array_key_last(
-                    $breadcrumbSegments
-                );
+                $breadcrumbRouteSegments = [$sourceRootSegment];
 
-                $designBreadcrumbs[] = [
-                    'label' => $breadcrumbItem['label']
-                        ?? \Illuminate\Support\Str::headline($segment),
-                    'url' => $isLastBreadcrumb
-                        ? null
-                        : ($breadcrumbItem['url'] ?? null),
-                ];
+                foreach (
+                    $remainingBreadcrumbSegments
+                    as $index => $segment
+                ) {
+                    $breadcrumbRouteSegments[] = $segment;
+
+                    $breadcrumbRouteName = 'design.'.implode(
+                        '.',
+                        $breadcrumbRouteSegments,
+                    );
+                    $breadcrumbItem = $designNavigationItems
+                        ->firstWhere('route_name', $breadcrumbRouteName);
+                    $isLastBreadcrumb = $index === array_key_last(
+                        $remainingBreadcrumbSegments
+                    );
+
+                    $designBreadcrumbs[] = [
+                        'label' => $breadcrumbItem['label']
+                            ?? \Illuminate\Support\Str::headline($segment),
+                        'url' => $isLastBreadcrumb
+                            ? null
+                            : ($breadcrumbItem['url'] ?? null),
+                    ];
+                }
             }
         }
     @endphp
