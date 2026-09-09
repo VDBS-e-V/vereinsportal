@@ -299,89 +299,160 @@ new #[Layout('components.layouts.public')]
 
 ?>
 
-<div class="card">
-    <h1>Zwei-Faktor-Anmeldung</h1>
+<div class="portal-page portal-page--small">
+    <header class="portal-page__header">
+        <h1>Zwei-Faktor-Anmeldung</h1>
 
-    <p>
-        Bitte bestätigen Sie die Anmeldung
-        mit einem zweiten Faktor.
-    </p>
+        <p class="portal-page__lead">
+            Bitte bestätigen Sie die Anmeldung
+            mit einem zweiten Faktor.
+        </p>
+    </header>
 
     @if ($challengeError !== null)
-        <p role="alert">
+        <x-vdbs.notice type="danger" role="alert">
             {{ $challengeError }}
-        </p>
+        </x-vdbs.notice>
     @endif
 
     @if ($emailAvailable)
-        <section>
-            <h2>E-Mail-Code</h2>
+        <section class="portal-page__section">
+            <div class="portal-page__section-header">
+                <h2>E-Mail-Code</h2>
+            </div>
 
-            <button type="button" wire:click="sendEmailCode">
-                Code per E-Mail senden
-            </button>
+            <div class="portal-page__actions">
+                <button class="btn btn--secondary" type="button" wire:click="sendEmailCode">
+                    Code per E-Mail senden
+                </button>
+            </div>
 
             @if ($emailSent)
-                <p role="status">
+                <x-vdbs.notice type="success" role="status">
                     Der Sicherheitscode wurde
                     zum Versand vorbereitet.
-                </p>
+                </x-vdbs.notice>
             @endif
 
-            <form wire:submit="verifyEmail">
-                <div class="field">
-                    <label for="emailCode">
+            <form class="portal-page__form form" wire:submit="verifyEmail">
+                <div class="form__field">
+                    <label class="form__label" for="emailCode">
                         E-Mail-Code
                     </label>
 
-                    <input id="emailCode" type="text" inputmode="numeric" maxlength="6" wire:model="emailCode"
-                        autocomplete="one-time-code">
+                    <input
+                        class="form__control"
+                        id="emailCode"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="6"
+                        pattern="[0-9]{6}"
+                        wire:model="emailCode"
+                        autocomplete="one-time-code"
+                        required
+                        @error('emailCode')
+                            aria-invalid="true"
+                            aria-describedby="two-factor-email-error"
+                        @enderror
+                    >
+
+                    @error('emailCode')
+                        <p class="form__error" id="two-factor-email-error" role="alert">
+                            {{ $message }}
+                        </p>
+                    @enderror
                 </div>
 
-                <button type="submit">
-                    E-Mail-Code prüfen
-                </button>
+                <div class="portal-page__actions">
+                    <button class="btn" type="submit">
+                        E-Mail-Code prüfen
+                    </button>
+                </div>
             </form>
         </section>
     @endif
 
     @if ($totpAvailable)
-        <section>
-            <h2>Authenticator-App</h2>
+        <section class="portal-page__section">
+            <div class="portal-page__section-header">
+                <h2>Authenticator-App</h2>
+            </div>
 
-            <form wire:submit="verifyTotp">
-                <div class="field">
-                    <label for="totpCode">
+            <form class="portal-page__form form" wire:submit="verifyTotp">
+                <div class="form__field">
+                    <label class="form__label" for="totpCode">
                         TOTP-Code
                     </label>
 
-                    <input id="totpCode" type="text" inputmode="numeric" maxlength="6" wire:model="totpCode"
-                        autocomplete="one-time-code">
+                    <input
+                        class="form__control"
+                        id="totpCode"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="6"
+                        pattern="[0-9]{6}"
+                        wire:model="totpCode"
+                        autocomplete="one-time-code"
+                        required
+                        @error('totpCode')
+                            aria-invalid="true"
+                            aria-describedby="two-factor-totp-error"
+                        @enderror
+                    >
+
+                    @error('totpCode')
+                        <p class="form__error" id="two-factor-totp-error" role="alert">
+                            {{ $message }}
+                        </p>
+                    @enderror
                 </div>
 
-                <button type="submit">
-                    TOTP-Code prüfen
-                </button>
+                <div class="portal-page__actions">
+                    <button class="btn" type="submit">
+                        TOTP-Code prüfen
+                    </button>
+                </div>
             </form>
         </section>
     @endif
 
     @if ($recoveryAvailable)
-        <section>
-            <h2>Recovery Code</h2>
+        <section class="portal-page__section">
+            <div class="portal-page__section-header">
+                <h2>Recovery Code</h2>
+            </div>
 
-            <form wire:submit="verifyRecovery">
-                <div class="field">
-                    <label for="recoveryCode">
+            <form class="portal-page__form form" wire:submit="verifyRecovery">
+                <div class="form__field">
+                    <label class="form__label" for="recoveryCode">
                         Recovery Code
                     </label>
 
-                    <input id="recoveryCode" type="text" wire:model="recoveryCode" autocomplete="off">
+                    <input
+                        class="form__control"
+                        id="recoveryCode"
+                        type="text"
+                        wire:model="recoveryCode"
+                        autocomplete="off"
+                        required
+                        @error('recoveryCode')
+                            aria-invalid="true"
+                            aria-describedby="two-factor-recovery-error"
+                        @enderror
+                    >
+
+                    @error('recoveryCode')
+                        <p class="form__error" id="two-factor-recovery-error" role="alert">
+                            {{ $message }}
+                        </p>
+                    @enderror
                 </div>
 
-                <button type="submit">
-                    Recovery Code verwenden
-                </button>
+                <div class="portal-page__actions">
+                    <button class="btn" type="submit">
+                        Recovery Code verwenden
+                    </button>
+                </div>
             </form>
         </section>
     @endif

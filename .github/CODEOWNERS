@@ -1,0 +1,16 @@
+# Fallback owner. Replace with a maintainer team when the organization creates one.
+* @jan-brand
+
+# Security- and platform-sensitive areas.
+/.github/ @jan-brand
+/app/Modules/Identity/ @jan-brand
+/app/Modules/Audit/ @jan-brand
+/app/Modules/Administration/ @jan-brand
+/bootstrap/ @jan-brand
+/config/ @jan-brand
+/database/migrations/ @jan-brand
+/routes/ @jan-brand
+/composer.json @jan-brand
+/composer.lock @jan-brand
+/package.json @jan-brand
+/package-lock.json @jan-brand

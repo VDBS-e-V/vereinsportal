@@ -1,0 +1,201 @@
+/* VDBS Portal — forms */
+
+.form,
+.vdbs-form {
+    margin: 0;
+}
+
+.form__grid,
+.vdbs-form-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--spacing-5);
+}
+
+.form__grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form__grid--4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.form__field,
+.vdbs-field {
+    display: grid;
+    min-width: 0;
+    gap: var(--spacing-2);
+    margin: 0 0 var(--spacing-5);
+}
+
+.form__grid > .form__field,
+.vdbs-form-grid > .vdbs-field {
+    margin-bottom: 0;
+}
+
+.form__label,
+.vdbs-label {
+    color: var(--color-ink);
+    font-weight: 700;
+}
+
+.form__required {
+    color: var(--color-danger);
+}
+
+.form__optional {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-regular);
+}
+
+.form__control,
+.vdbs-input {
+    width: 100%;
+    min-width: 0;
+    min-height: var(--control-height-md);
+    padding: 0.65rem 0.75rem;
+    border: var(--border-width-default) solid var(--color-border-strong);
+    border-radius: 0;
+    background: var(--color-white);
+    color: var(--color-ink);
+    box-shadow: none;
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.form__control::placeholder,
+.vdbs-input::placeholder {
+    color: var(--color-text-muted);
+    opacity: 1;
+}
+
+textarea.form__control,
+textarea.vdbs-input {
+    min-height: 8rem;
+    resize: vertical;
+}
+
+.form__control:focus,
+.vdbs-input:focus {
+    border-color: var(--color-ink);
+    box-shadow: inset 0 -3px 0 var(--color-primary);
+    outline: 0;
+}
+
+.form__control:focus-visible,
+.vdbs-input:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+}
+
+.form__control[aria-invalid='true'],
+.vdbs-input[aria-invalid='true'],
+.form__field--error .form__control {
+    border-color: var(--color-danger);
+    box-shadow: inset 0 -3px 0 var(--color-danger);
+}
+
+.form__field--success .form__control {
+    border-color: var(--color-success);
+    box-shadow: inset 0 -3px 0 var(--color-success);
+}
+
+.form__control:disabled,
+.vdbs-input:disabled {
+    border-color: var(--color-border);
+    background: var(--color-surface-disabled);
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+.form__control[readonly],
+.vdbs-input[readonly] {
+    background: var(--color-surface-subtle);
+    color: var(--color-ink);
+}
+
+.form__choice input[type='checkbox'],
+.form__choice input[type='radio'],
+.vdbs-form input[type='checkbox'],
+.vdbs-form input[type='radio'] {
+    width: 1.15rem;
+    height: 1.15rem;
+    flex: 0 0 auto;
+    accent-color: var(--color-primary);
+}
+
+.form__choice input[type='checkbox']:focus-visible,
+.form__choice input[type='radio']:focus-visible,
+.vdbs-form input[type='checkbox']:focus-visible,
+.vdbs-form input[type='radio']:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+}
+
+.form__choice input[type='checkbox']:disabled,
+.form__choice input[type='radio']:disabled,
+.vdbs-form input[type='checkbox']:disabled,
+.vdbs-form input[type='radio']:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.form__fieldset {
+    display: grid;
+    gap: var(--spacing-3);
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.form__legend {
+    margin-bottom: var(--spacing-2);
+    color: var(--color-ink);
+    font-weight: 700;
+}
+
+.form__choice {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-2);
+}
+
+.form__choice label {
+    font-weight: var(--font-weight-regular);
+}
+
+.vdbs-help-text,
+.form__help,
+.form__error,
+.vdbs-field-error,
+.form__status,
+.vdbs-field-status {
+    overflow-wrap: anywhere;
+    font-size: var(--text-sm);
+    line-height: var(--leading-body);
+}
+
+.vdbs-help-text,
+.form__help {
+    color: var(--color-text-muted);
+}
+
+.form__error,
+.vdbs-field-error {
+    color: var(--color-danger);
+}
+
+.form__status,
+.vdbs-field-status {
+    color: var(--color-success);
+}
+
+@media (max-width: 50rem) {
+    .form__grid--2,
+    .form__grid--4 {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

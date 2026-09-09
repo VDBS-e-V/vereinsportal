@@ -2,31 +2,37 @@
 
 ## Versionierung
 
-Empfohlen: Semantic Versioning
+Semantic Versioning:
 
-Beispiele:
 - `v0.1.0`
 - `v0.2.0`
 - `v1.0.0`
 
-## Ablauf
+## Normaler Ablauf
 
-1. Features/Fixes nach `develop`
-2. `release/x.y.z` aus `develop`
-3. QA / Security / Dokumentation
-4. Merge nach `main`
-5. Tag `vx.y.z`
-6. GitHub Release veröffentlichen
-7. Production-Deployment
-8. Rückmerge nach `develop`
+1. Änderungen per Pull Request nach `main`.
+2. `main` muss alle verpflichtenden CI- und Security-Checks bestehen.
+3. `CHANGELOG.md` und Release-relevante Dokumentation prüfen.
+4. Tag `vX.Y.Z` auf dem freigegebenen Commit erzeugen.
+5. GitHub Release veröffentlichen.
+6. Automatisch generierte Release Notes prüfen.
+7. Optional freigegebenes Production-Deployment starten.
+8. Health Check und Monitoring prüfen.
 
-## Release-Branch
+Ein dauerhafter `develop`- oder zwingender `release/*`-Branch ist nicht erforderlich.
 
-Erlaubte Änderungen:
-- Bugfixes
+## Release-Branch bei Bedarf
+
+Für längere Stabilisierung kann ausnahmsweise `release/*` verwendet werden. Darauf nur:
+
+- Release-Bugfixes
 - Dokumentation
 - Changelog
 - Versionsnummern
 - Deployment-Vorbereitung
 
-Keine größeren neuen Features.
+Keine neuen größeren Features.
+
+## Hotfix
+
+Dringende Korrektur von aktuellem `main` in `hotfix/*`, vollständige Checks, Pull Request zurück nach `main`, danach neues Patch-Release.

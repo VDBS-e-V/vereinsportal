@@ -17,16 +17,14 @@ body:
     attributes:
       label: Checks
       options:
-        - label: composer validate ausgeführt
-        - label: composer install erfolgreich
-        - label: PHPUnit ausgeführt
-        - label: php tools/qa/run_all.php ausgeführt
-        - label: Login getestet
-        - label: Verwaltung getestet
-        - label: Berechtigungen getestet
-        - label: DSGVO-Prozess getestet
-        - label: Audit geprüft
-        - label: Keine Secrets oder personenbezogenen Daten in Logs
+        - label: `composer qa` erfolgreich
+        - label: `composer security` erfolgreich, falls relevant
+        - label: `git diff --check` erfolgreich
+        - label: Login / Session geprüft, falls betroffen
+        - label: Verwaltung / Berechtigungen geprüft, falls betroffen
+        - label: Datenschutz / Audit geprüft, falls betroffen
+        - label: Designsystem / Responsive-Verhalten geprüft, falls betroffen
+        - label: Keine Secrets oder echten personenbezogenen Daten in Logs oder Screenshots
 
   - type: textarea
     id: result

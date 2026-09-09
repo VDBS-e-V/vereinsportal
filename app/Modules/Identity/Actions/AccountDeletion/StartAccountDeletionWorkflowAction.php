@@ -2,6 +2,8 @@
 
 namespace App\Modules\Identity\Actions\AccountDeletion;
 
+use App\Modules\Communication\Exceptions\EmailTemplateUnavailable;
+use App\Modules\Identity\Exceptions\AccountDeletionConfirmationEmailUnavailable;
 use App\Modules\Identity\Models\AccountDeletionRequest;
 use App\Modules\Identity\Models\User;
 
@@ -10,8 +12,7 @@ final class StartAccountDeletionWorkflowAction
     public function __construct(
         private readonly RequestAccountDeletionAction $requestDeletion,
         private readonly QueueAccountDeletionConfirmationEmailAction $queueConfirmationEmail,
-    ) {
-    }
+    ) {}
 
     public function execute(
         User $user,
@@ -29,9 +30,16 @@ final class StartAccountDeletionWorkflowAction
          * Ein Mail-/Templatefehler darf den bereits erzeugten
          * Löschantrag nicht zurückrollen.
          */
-        $this->queueConfirmationEmail->execute(
-            $deletionRequest
-        );
+        try {
+            $this->queueConfirmationEmail->execute(
+                $deletionRequest
+            );
+        } catch (EmailTemplateUnavailable $exception) {
+            throw new AccountDeletionConfirmationEmailUnavailable(
+                deletionPublicId: $deletionRequest->public_id,
+                previous: $exception,
+            );
+        }
 
         return $deletionRequest->refresh();
     }

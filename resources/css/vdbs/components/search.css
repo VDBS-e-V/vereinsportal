@@ -1,0 +1,95 @@
+/* VDBS Portal — local search and filters */
+
+.search-form,
+.vdbs-search-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--spacing-3);
+}
+
+.search-form__field,
+.vdbs-search-form__field {
+    display: grid;
+    min-width: min(100%, 18rem);
+    flex: 1 1 24rem;
+    gap: var(--spacing-2);
+    margin: 0;
+}
+
+.search-form__actions,
+.vdbs-search-form__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.filter-bar,
+.vdbs-filter-bar {
+    display: grid;
+    gap: var(--spacing-4);
+    padding-block: var(--spacing-4);
+    border-top: var(--border-width-default) solid var(--color-border);
+    border-bottom: var(--border-width-default) solid var(--color-border);
+}
+
+.filter-bar__fields,
+.vdbs-filter-bar__fields {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(min(100%, 12rem), 1fr)
+    );
+    gap: var(--spacing-4);
+}
+
+.filter-bar__field,
+.vdbs-filter-bar__field {
+    display: grid;
+    gap: var(--spacing-2);
+    margin: 0;
+}
+
+.search-form__field > label,
+.vdbs-search-form__field > label,
+.filter-bar__field > label,
+.vdbs-filter-bar__field > label {
+    color: var(--color-ink);
+    font-weight: 700;
+}
+
+.filter-bar__actions,
+.vdbs-filter-bar__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.filter-bar__summary,
+.vdbs-filter-bar__summary {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+@media (max-width: 40rem) {
+    .search-form,
+    .vdbs-search-form {
+        align-items: stretch;
+    }
+
+    .search-form__actions,
+    .vdbs-search-form__actions {
+        width: 100%;
+    }
+}
+
+@media print {
+    .search-form,
+    .vdbs-search-form,
+    .filter-bar,
+    .vdbs-filter-bar {
+        display: none;
+    }
+}

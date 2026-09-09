@@ -1,0 +1,376 @@
+/* VDBS Portal — branded error pages */
+
+.error-shell,
+.vdbs-error-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-page);
+    color: var(--color-ink);
+}
+
+.error-shell__header,
+.vdbs-error-shell__header {
+    border-bottom: var(--border-width-default) solid var(--color-border);
+    background: var(--color-white);
+}
+
+.error-shell__header-inner,
+.vdbs-error-shell__header-inner,
+.error-shell__footer-inner,
+.vdbs-error-shell__footer-inner {
+    width: min(
+        calc(100% - (2 * var(--layout-page-gutter))),
+        var(--layout-content-max)
+    );
+    margin-inline: auto;
+}
+
+.error-shell__header-inner,
+.vdbs-error-shell__header-inner {
+    min-height: 5.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-5);
+}
+
+.error-shell__brand,
+.vdbs-error-shell__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    color: var(--color-ink);
+    font-weight: var(--font-weight-bold);
+    text-decoration: none;
+}
+
+.error-shell__brand:hover,
+.error-shell__brand:focus-visible,
+.vdbs-error-shell__brand:hover,
+.vdbs-error-shell__brand:focus-visible {
+    color: var(--color-link);
+    text-decoration: none;
+}
+
+.error-shell__brand img,
+.vdbs-error-shell__brand img {
+    width: 4.25rem;
+    height: 2.6rem;
+    object-fit: cover;
+    object-position: left center;
+}
+
+.error-shell__context,
+.vdbs-error-shell__context {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.error-shell__main,
+.vdbs-error-shell__main {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    padding-block: clamp(2rem, 6vw, 6rem);
+}
+
+.error-shell__main-inner,
+.vdbs-error-shell__main-inner {
+    width: min(
+        calc(100% - (2 * var(--layout-page-gutter))),
+        var(--layout-content-small-max)
+    );
+    margin-inline: auto;
+}
+
+.error-shell__footer,
+.vdbs-error-shell__footer {
+    border-top: var(--border-width-default) solid var(--color-border);
+    background: var(--color-surface-subtle);
+}
+
+.error-shell__footer-inner,
+.vdbs-error-shell__footer-inner {
+    display: flex;
+    min-height: 4.5rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-4);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+.error-shell__footer a,
+.vdbs-error-shell__footer a {
+    color: var(--color-link);
+    font-weight: var(--font-weight-semibold);
+}
+
+.error-page,
+.vdbs-error-page {
+    --error-accent: var(--color-info);
+
+    display: grid;
+    grid-template-columns: minmax(14rem, 0.8fr) minmax(0, 1.2fr);
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: stretch;
+    padding-block: var(--spacing-7);
+    border-top: var(--border-width-strong) solid var(--color-ink);
+    border-bottom: var(--border-width-default) solid var(--color-border);
+}
+
+.error-page--warning,
+.vdbs-error-page--warning {
+    --error-accent: var(--color-warning);
+}
+
+.error-page--danger,
+.vdbs-error-page--danger {
+    --error-accent: var(--color-danger);
+}
+
+.error-page--success,
+.vdbs-error-page--success {
+    --error-accent: var(--color-success);
+}
+
+.error-page__visual,
+.vdbs-error-page__visual {
+    position: relative;
+    min-height: 20rem;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    padding: var(--spacing-6);
+    border-left: var(--border-width-accent) solid var(--error-accent);
+    background: var(--color-surface-subtle);
+}
+
+.error-page__code,
+.vdbs-error-page__code {
+    position: relative;
+    z-index: 2;
+    margin: 0;
+    color: var(--color-ink);
+    font-family: var(--font-family-accent);
+    font-size: clamp(5rem, 13vw, 9.5rem);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: -0.06em;
+    line-height: 0.8;
+}
+
+.error-page__signal,
+.vdbs-error-page__signal {
+    position: absolute;
+    inset: var(--spacing-5) var(--spacing-5) auto auto;
+    width: 7rem;
+    height: 7rem;
+}
+
+.error-page__signal::before,
+.error-page__signal::after,
+.vdbs-error-page__signal::before,
+.vdbs-error-page__signal::after {
+    content: '';
+    position: absolute;
+}
+
+.error-page__signal::before,
+.vdbs-error-page__signal::before {
+    top: 0.5rem;
+    right: 0;
+    width: 5.5rem;
+    height: 5.5rem;
+    border-top: var(--border-width-strong) solid var(--color-ink);
+    border-right: var(--border-width-strong) solid var(--color-ink);
+}
+
+.error-page__signal::after,
+.vdbs-error-page__signal::after {
+    right: 3.5rem;
+    bottom: 0;
+    width: 2rem;
+    height: 2rem;
+    background: var(--error-accent);
+}
+
+.error-page__content,
+.vdbs-error-page__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--spacing-4);
+    max-width: var(--layout-text-max);
+}
+
+.error-page__eyebrow,
+.vdbs-error-page__eyebrow {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.error-page__title,
+.vdbs-error-page__title {
+    margin: 0;
+    color: var(--color-ink);
+    font-size: var(--text-4xl);
+    line-height: var(--leading-heading);
+}
+
+.error-page__description,
+.error-page__support,
+.vdbs-error-page__description,
+.vdbs-error-page__support {
+    margin: 0;
+    max-width: 42rem;
+    line-height: var(--leading-body);
+}
+
+.error-page__description,
+.vdbs-error-page__description {
+    font-size: var(--text-lg);
+}
+
+.error-page__support,
+.vdbs-error-page__support {
+    color: var(--color-text-muted);
+}
+
+.error-page__actions,
+.vdbs-error-page__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-2);
+}
+
+.error-page__technical,
+.vdbs-error-page__technical {
+    margin: var(--spacing-2) 0 0;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+.error-page--compact,
+.vdbs-error-page--compact {
+    grid-template-columns: minmax(9rem, 0.45fr) minmax(0, 1.55fr);
+    gap: var(--spacing-6);
+    padding-block: var(--spacing-5);
+}
+
+.error-page--compact .error-page__visual,
+.vdbs-error-page--compact .vdbs-error-page__visual {
+    min-height: 11rem;
+    padding: var(--spacing-4);
+}
+
+.error-page--compact .error-page__code,
+.vdbs-error-page--compact .vdbs-error-page__code {
+    font-size: clamp(3.5rem, 8vw, 5.25rem);
+}
+
+.error-page--compact .error-page__signal,
+.vdbs-error-page--compact .vdbs-error-page__signal {
+    width: 4.5rem;
+    height: 4.5rem;
+}
+
+.error-page--compact .error-page__signal::before,
+.vdbs-error-page--compact .vdbs-error-page__signal::before {
+    width: 3.5rem;
+    height: 3.5rem;
+}
+
+.error-page--compact .error-page__signal::after,
+.vdbs-error-page--compact .vdbs-error-page__signal::after {
+    right: 2.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.error-page--compact .error-page__description,
+.vdbs-error-page--compact .vdbs-error-page__description {
+    font-size: var(--text-base);
+}
+
+@media (max-width: 48rem) {
+    .error-shell__header-inner,
+    .vdbs-error-shell__header-inner,
+    .error-shell__main-inner,
+    .vdbs-error-shell__main-inner,
+    .error-shell__footer-inner,
+    .vdbs-error-shell__footer-inner {
+        width: min(
+            calc(100% - (2 * var(--layout-page-gutter-mobile))),
+            var(--layout-content-max)
+        );
+    }
+
+    .error-shell__context,
+    .vdbs-error-shell__context {
+        display: none;
+    }
+
+    .error-page,
+    .vdbs-error-page,
+    .error-page--compact,
+    .vdbs-error-page--compact {
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--spacing-5);
+    }
+
+    .error-page__visual,
+    .vdbs-error-page__visual,
+    .error-page--compact .error-page__visual,
+    .vdbs-error-page--compact .vdbs-error-page__visual {
+        min-height: 9rem;
+    }
+
+    .error-page__code,
+    .vdbs-error-page__code,
+    .error-page--compact .error-page__code,
+    .vdbs-error-page--compact .vdbs-error-page__code {
+        font-size: clamp(4rem, 22vw, 6.5rem);
+    }
+
+    .error-page__actions,
+    .vdbs-error-page__actions {
+        width: 100%;
+        align-items: stretch;
+    }
+
+    .error-page__actions .btn,
+    .vdbs-error-page__actions .btn {
+        width: 100%;
+    }
+
+    .error-shell__footer-inner,
+    .vdbs-error-shell__footer-inner {
+        min-height: auto;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-block: var(--spacing-4);
+    }
+}
+
+@media print {
+    .error-shell__header,
+    .error-shell__footer,
+    .vdbs-error-shell__header,
+    .vdbs-error-shell__footer,
+    .error-page__actions,
+    .vdbs-error-page__actions {
+        display: none;
+    }
+
+    .error-page,
+    .vdbs-error-page {
+        grid-template-columns: 1fr;
+    }
+}

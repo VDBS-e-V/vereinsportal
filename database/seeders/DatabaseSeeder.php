@@ -10,6 +10,13 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RoleSeeder::class,
+            DevelopmentAdminSeeder::class,
+            RegistrationVerificationEmailTemplateSeeder::class,
+            PasswordResetEmailTemplateSeeder::class,
+            EmailChangeVerificationTemplateSeeder::class,
+            EmailChangeOldAddressNoticeTemplateSeeder::class,
+            TwoFactorEmailCodeTemplateSeeder::class,
+            AccountDeletionEmailTemplateSeeder::class,
         ]);
     }
 }

@@ -4,19 +4,24 @@ title: "[Feature]: "
 labels: ["type: feature", "status: triage"]
 
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Bitte den fachlichen Bedarf beschreiben. Keine echten personenbezogenen Daten als Beispiel verwenden.
+
   - type: textarea
     id: problem
     attributes:
       label: Problem / Bedarf
-      description: Welches Problem soll gelöst werden?
+      description: Welches reale Problem soll gelöst werden?
     validations:
       required: true
 
   - type: textarea
     id: solution
     attributes:
-      label: Gewünschte Lösung
-      description: Wie soll die Funktion aussehen?
+      label: Gewünschtes Ergebnis
+      description: Welches Verhalten oder Ergebnis wird benötigt?
     validations:
       required: true
 
@@ -25,14 +30,13 @@ body:
     attributes:
       label: Betroffener Bereich
       options:
-        - Konto
-        - Login
+        - Konto / Login
         - Verwaltung
         - Personen
         - Berechtigungen
-        - Einladungen
         - Datenschutz / DSGVO
         - Audit
+        - Designsystem / Web Content Library
         - Dokumentation
         - Infrastruktur
         - Sonstiges

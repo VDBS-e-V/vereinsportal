@@ -1,0 +1,51 @@
+/* VDBS Portal — empty states */
+
+.empty-state,
+.vdbs-empty-state {
+    display: grid;
+    gap: var(--spacing-4);
+    padding-block: var(--spacing-6);
+    border-top: var(--border-width-strong) solid var(--color-ink);
+    border-bottom: var(--border-width-default) solid var(--color-border);
+}
+
+.empty-state__content,
+.vdbs-empty-state__content {
+    display: grid;
+    max-width: var(--layout-text-max);
+    gap: var(--spacing-2);
+}
+
+.empty-state__title,
+.vdbs-empty-state__title {
+    margin: 0;
+    color: var(--color-ink);
+    font-size: var(--text-xl);
+}
+
+.empty-state__description,
+.vdbs-empty-state__description {
+    margin: 0;
+    color: var(--color-text-muted);
+    line-height: var(--leading-body);
+}
+
+.empty-state__body,
+.vdbs-empty-state__body {
+    display: grid;
+    max-width: var(--layout-text-max);
+    gap: var(--spacing-2);
+}
+
+.empty-state__actions,
+.vdbs-empty-state__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.empty-state--compact,
+.vdbs-empty-state--compact {
+    padding-block: var(--spacing-4);
+}

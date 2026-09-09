@@ -1,0 +1,80 @@
+/* VDBS Portal — contacts */
+
+.contact-list,
+.vdbs-contact-list {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(min(100%, 18rem), 1fr)
+    );
+    gap: var(--spacing-6);
+}
+
+.contact-block,
+.vdbs-contact-block {
+    display: grid;
+    align-content: start;
+    gap: var(--spacing-3);
+    padding-top: var(--spacing-4);
+    border-top: var(--border-width-strong) solid var(--color-ink);
+}
+
+.contact-block__heading,
+.vdbs-contact-block__heading {
+    display: grid;
+    gap: var(--spacing-1);
+}
+
+.contact-block__name,
+.vdbs-contact-block__name {
+    margin: 0;
+    color: var(--color-ink);
+    font-size: var(--text-xl);
+}
+
+.contact-block__role,
+.vdbs-contact-block__role {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+.contact-block__details,
+.vdbs-contact-block__details {
+    display: grid;
+    gap: var(--spacing-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.contact-block__details a,
+.vdbs-contact-block__details a {
+    overflow-wrap: anywhere;
+    color: var(--color-link);
+    font-weight: 600;
+}
+
+.contact-block__actions,
+.vdbs-contact-block__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-1);
+}
+
+.contact-block address,
+.vdbs-contact-block address {
+    font-style: normal;
+}
+
+@media (max-width: 40rem) {
+    .contact-block__actions,
+    .vdbs-contact-block__actions {
+        width: 100%;
+    }
+
+    .contact-block__actions .btn,
+    .vdbs-contact-block__actions .btn {
+        width: 100%;
+    }
+}

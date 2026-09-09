@@ -1,0 +1,67 @@
+/* VDBS Portal — notices and status messages */
+
+.notice,
+.vdbs-notice {
+    display: grid;
+    gap: var(--spacing-2);
+    padding: var(--spacing-4) var(--spacing-5);
+    border: var(--border-width-default) solid var(--color-border);
+    border-left: var(--border-width-accent) solid var(--color-secondary-cta);
+    border-radius: 0;
+    background: var(--color-surface-subtle);
+    color: var(--color-ink);
+}
+
+.notice--info,
+.vdbs-notice--info {
+    border-left-color: var(--color-info);
+}
+
+.notice--success,
+.vdbs-notice--success {
+    border-left-color: var(--color-success);
+}
+
+.notice--warning,
+.vdbs-notice--warning {
+    border-left-color: var(--color-warning);
+}
+
+.notice--danger,
+.vdbs-notice--danger {
+    border-left-color: var(--color-danger);
+}
+
+.notice__title,
+.vdbs-notice__title {
+    margin: 0;
+    color: var(--color-ink);
+    font-weight: 700;
+}
+
+.notice__body,
+.vdbs-notice__body {
+    margin: 0;
+    color: var(--color-ink);
+}
+
+.notice__actions,
+.vdbs-notice__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-1);
+}
+
+.notice[role],
+.vdbs-notice[role] {
+    color: var(--color-ink);
+}
+
+@media (max-width: 36rem) {
+    .notice,
+    .vdbs-notice {
+        padding: var(--spacing-4);
+    }
+}

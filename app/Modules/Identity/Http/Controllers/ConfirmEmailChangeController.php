@@ -27,6 +27,10 @@ final class ConfirmEmailChangeController
                 ->with(
                     'status',
                     'Die E-Mail-Änderung konnte nicht abgeschlossen werden.'
+                )
+                ->with(
+                    'status_type',
+                    'danger',
                 );
         }
 
@@ -51,6 +55,10 @@ final class ConfirmEmailChangeController
             ->with(
                 'status',
                 'Ihre neue E-Mail-Adresse wurde bestätigt. Bitte melden Sie sich erneut an.'
+            )
+            ->with(
+                'status_type',
+                'success',
             );
     }
 }

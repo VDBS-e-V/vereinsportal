@@ -100,65 +100,105 @@ new #[Layout('components.layouts.public')]
 
 ?>
 
-<div class="card">
-    <h1>Anmelden</h1>
+<div class="portal-page portal-page--small">
+    <header class="portal-page__header">
+        <h1>Anmelden</h1>
+        <p class="portal-page__lead">
+            Melden Sie sich mit Ihrer E-Mail-Adresse und Ihrem Passwort an.
+        </p>
+    </header>
 
     @if (session('status'))
-        <p role="status">
+        @php
+            $statusType = session('status_type', 'success');
+            $statusRole = in_array(
+                $statusType,
+                ['warning', 'danger'],
+                true,
+            ) ? 'alert' : 'status';
+        @endphp
+
+        <x-vdbs.notice :type="$statusType" :role="$statusRole">
             {{ session('status') }}
-        </p>
+        </x-vdbs.notice>
     @endif
 
     @if ($loginError !== null)
-        <p role="alert">
+        <x-vdbs.notice type="danger" role="alert">
             {{ $loginError }}
-        </p>
+        </x-vdbs.notice>
     @endif
 
-    <form wire:submit="login">
-        <div class="field">
-            <label for="email">
+    <form class="portal-page__form form" wire:submit="login">
+        <div class="form__field">
+            <label class="form__label" for="email">
                 E-Mail-Adresse
             </label>
 
-            <input id="email" type="email" wire:model="email" autocomplete="email" required>
+            <input
+                class="form__control"
+                id="email"
+                type="email"
+                wire:model="email"
+                autocomplete="email"
+                required
+                @error('email')
+                    aria-invalid="true"
+                    aria-describedby="login-email-error"
+                @enderror
+            >
 
             @error('email')
-                <p role="alert">
+                <p class="form__error" id="login-email-error" role="alert">
                     {{ $message }}
                 </p>
             @enderror
         </div>
 
-        <div class="field">
-            <label for="password">
+        <div class="form__field">
+            <label class="form__label" for="password">
                 Passwort
             </label>
 
-            <input id="password" type="password" wire:model="password" autocomplete="current-password" required>
+            <input
+                class="form__control"
+                id="password"
+                type="password"
+                wire:model="password"
+                autocomplete="current-password"
+                required
+                @error('password')
+                    aria-invalid="true"
+                    aria-describedby="login-password-error"
+                @enderror
+            >
 
             @error('password')
-                <p role="alert">
+                <p class="form__error" id="login-password-error" role="alert">
                     {{ $message }}
                 </p>
             @enderror
         </div>
 
-        <div class="field">
-            <label>
-                <input type="checkbox" wire:model="remember">
-                Angemeldet bleiben
-            </label>
+        <div class="form__choice">
+            <input id="remember" type="checkbox" wire:model="remember">
+            <label for="remember">Angemeldet bleiben</label>
         </div>
 
-        <button type="submit" wire:loading.attr="disabled" wire:target="login">
-            Anmelden
-        </button>
+        <div class="portal-page__actions">
+            <button class="btn" type="submit" wire:loading.attr="disabled" wire:target="login">
+                Anmelden
+            </button>
+        </div>
     </form>
 
-    <p>
+    <div class="portal-page__links">
+        <a href="{{ route('my.registration.create') }}">
+            Noch kein Konto? Registrieren
+        </a>
+
         <a href="{{ route('my.password.request') }}">
             Passwort vergessen?
         </a>
-    </p>
+    </div>
 </div>

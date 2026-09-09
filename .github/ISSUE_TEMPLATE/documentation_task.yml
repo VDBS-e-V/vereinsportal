@@ -8,7 +8,7 @@ body:
     id: topic
     attributes:
       label: Thema
-      description: Welche Dokumentation fehlt oder ist falsch?
+      description: Welche Dokumentation fehlt, ist unklar oder veraltet?
     validations:
       required: true
 
@@ -18,11 +18,12 @@ body:
       label: Dokumentationsbereich
       options:
         - README
-        - Installation
-        - Deployment
+        - Installation / Entwicklung
+        - GitHub / CI
+        - Deployment / Release
         - Security
-        - Entwicklung
         - Tests / QA
+        - Designsystem / Web Content Library
         - Datenschutz / DSGVO
         - Sonstiges
     validations:

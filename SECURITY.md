@@ -1,35 +1,52 @@
 # Security Policy
 
-## Supported Versions
+## Unterstützter Stand
 
-The project currently supports the latest `main` branch and the active development line on `develop`.
+Sicherheitskorrekturen beziehen sich auf den aktuellen `main`-Branch und auf veröffentlichte Versionen, die ausdrücklich als unterstützt gekennzeichnet sind.
 
-## Reporting a Vulnerability
+## Sicherheitslücke melden
 
-Please do not disclose security vulnerabilities publicly in issues or pull requests.
+Sicherheitslücken niemals öffentlich als Issue, Discussion oder Pull Request veröffentlichen.
 
-Use one of the following channels:
+Bevorzugter Weg:
 
-- GitHub Security Advisories: open the repository's "Security" tab and choose "Report a vulnerability"
-- If a private maintainer channel is configured in your organization, use that channel instead
+1. Repository auf GitHub öffnen.
+2. `Security` wählen.
+3. `Report a vulnerability` beziehungsweise eine private Security Advisory erstellen.
 
-Please include:
+Falls innerhalb der Organisation ein separater vertraulicher Maintainer-Kanal eingerichtet ist, kann dieser ebenfalls verwendet werden.
 
-- a description of the vulnerability
-- steps to reproduce it
-- impact and affected area
-- any suggested fix or mitigation
+Eine Meldung sollte enthalten:
 
-We aim to acknowledge valid reports promptly and coordinate a fix with the maintainers.
+- betroffenen Bereich,
+- nachvollziehbare Reproduktionsschritte,
+- mögliche Auswirkungen,
+- betroffene Version oder Commit,
+- mögliche Gegenmaßnahme, falls bekannt.
 
-## Review and Remediation Expectations
+Keine unnötigen echten personenbezogenen Daten oder produktiven Secrets mitsenden.
 
-- Security issues are handled with priority and may be fixed in a dedicated `security/*` branch
-- Fixes should be reviewed by maintainers before merge
-- Sensitive details should be minimized in public communication until the fix is available
+## Umgang mit Meldungen
 
-## Operational Notes
+Security-Fixes werden priorisiert und können in einem `security/*`- oder `hotfix/*`-Branch vorbereitet werden. Vertrauliche Details bleiben bis zur koordinierten Behebung nicht öffentlich.
 
-- No production secrets should be committed to the repository
-- Local `.env` files and generated credentials must remain out of source control
-- Deployment secrets must be managed only through GitHub Environments or the hosting platform's secret store
+## Repository-Sicherheitsregeln
+
+- `.env`, private Schlüssel und Zugangsdaten bleiben außerhalb von Git.
+- Produktions-Secrets werden nur über GitHub Environments oder den Secret Store des Hostings verwaltet.
+- GitHub Actions erhalten minimale `GITHUB_TOKEN`-Berechtigungen.
+- Fremde Actions werden auf vollständige Commit-SHAs gepinnt.
+- `pull_request_target` wird für untrusted Code vermieden.
+- Dependency-, CodeQL- und Secret-Checks laufen automatisiert.
+- Öffentliche Issues und Test-Fixtures enthalten keine echten personenbezogenen Daten.
+
+## GitHub-Einstellungen
+
+Zusätzlich zu den versionierten Dateien sollen für das Repository aktiviert sein:
+
+- Dependabot Alerts
+- Dependabot Security Updates
+- Secret Scanning
+- Push Protection
+- Code Scanning
+- Private Vulnerability Reporting

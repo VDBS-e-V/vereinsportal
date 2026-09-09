@@ -1,0 +1,49 @@
+/* VDBS Portal — validation summaries */
+
+.validation-summary,
+.vdbs-validation-summary {
+    display: grid;
+    max-width: var(--layout-text-max);
+    gap: var(--spacing-3);
+    padding: var(--spacing-4) var(--spacing-5);
+    border: var(--border-width-default) solid var(--color-danger);
+    border-left: var(--border-width-accent) solid var(--color-danger);
+    background: color-mix(
+        in srgb,
+        var(--color-danger) 5%,
+        var(--color-white)
+    );
+    color: var(--color-ink);
+}
+
+.validation-summary__title,
+.vdbs-validation-summary__title {
+    margin: 0;
+    font-size: var(--text-lg);
+}
+
+.validation-summary__description,
+.vdbs-validation-summary__description {
+    margin: 0;
+    color: var(--color-ink);
+}
+
+.validation-summary__list,
+.vdbs-validation-summary__list {
+    display: grid;
+    gap: var(--spacing-1);
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.validation-summary__list a,
+.vdbs-validation-summary__list a {
+    color: var(--color-link);
+    font-weight: 600;
+}
+
+.validation-summary:focus,
+.vdbs-validation-summary:focus {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+}

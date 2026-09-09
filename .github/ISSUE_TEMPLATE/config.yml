@@ -2,5 +2,5 @@ blank_issues_enabled: false
 
 contact_links:
   - name: Sicherheitslücke vertraulich melden
-    url: https://github.com/VDBS-e-V/Portal-Neu/security/advisories/new
-    about: Bitte Sicherheitslücken nicht öffentlich als Issue posten.
+    url: https://github.com/VDBS-e-V/vereinsportal/security/advisories/new
+    about: Sicherheitslücken bitte niemals als öffentliches Issue veröffentlichen.

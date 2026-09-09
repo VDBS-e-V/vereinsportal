@@ -1,0 +1,89 @@
+/* VDBS Web Content Library — preview + code examples */
+
+.code-example,
+.vdbs-code-example {
+    border: var(--border-width-default) solid var(--color-border);
+    background: var(--color-white);
+}
+
+.code-example__header,
+.vdbs-code-example__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+    min-height: 3.25rem;
+    padding: var(--spacing-3) var(--spacing-4);
+    border-bottom: var(--border-width-default) solid var(--color-border);
+    background: var(--color-surface-subtle);
+}
+
+.code-example__title,
+.vdbs-code-example__title {
+    margin: 0;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-bold);
+}
+
+.code-example__preview,
+.vdbs-code-example__preview {
+    padding: var(--spacing-6);
+    border-bottom: var(--border-width-default) solid var(--color-border);
+}
+
+.code-example__source,
+.vdbs-code-example__source {
+    position: relative;
+    background: var(--color-ink);
+    color: var(--color-white);
+}
+
+.code-example__language,
+.vdbs-code-example__language {
+    display: block;
+    padding: var(--spacing-3) var(--spacing-4) 0;
+    color: #d6ddda;
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.code-example__code,
+.vdbs-code-example__code {
+    display: block;
+    overflow-x: auto;
+    margin: 0;
+    padding: var(--spacing-4);
+    color: inherit;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    white-space: pre;
+}
+
+.code-example__copy,
+.vdbs-code-example__copy {
+    min-height: var(--control-height-sm);
+}
+
+.code-example__copy[data-copy-state='copied'],
+.vdbs-code-example__copy[data-copy-state='copied'] {
+    border-color: var(--color-success) !important;
+    box-shadow: inset 0 -3px 0 var(--color-success);
+}
+
+.code-example__status,
+.vdbs-code-example__status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.code-example--compact .code-example__preview,
+.vdbs-code-example--compact .vdbs-code-example__preview {
+    padding: var(--spacing-4);
+}

@@ -81,54 +81,64 @@ new #[Layout('components.layouts.public')]
 
 ?>
 
-<div class="card">
-    <h1>Registrierung bestätigen</h1>
+<div class="portal-page portal-page--small">
+    <header class="portal-page__header">
+        <h1>Registrierung bestätigen</h1>
+    </header>
 
     @if ($mailPrepared)
-        <p>
-            Für Ihre Registrierung wurde eine
-            Bestätigungs-E-Mail an
-            <strong>{{ $recipientEmail }}</strong>
-            vorbereitet.
-        </p>
+        <x-vdbs.notice type="info" role="status">
+            <div class="stack stack--sm">
+                <p>
+                    Für Ihre Registrierung wurde eine
+                    Bestätigungs-E-Mail an
+                    <strong>{{ $recipientEmail }}</strong>
+                    vorbereitet.
+                </p>
 
-        <p>
-            Bitte öffnen Sie den Link in der E-Mail,
-            um die Registrierung abzuschließen.
-        </p>
+                <p>
+                    Bitte öffnen Sie den Link in der E-Mail,
+                    um die Registrierung abzuschließen.
+                </p>
+            </div>
+        </x-vdbs.notice>
     @else
-        <p>
-            Ihre Registrierung wurde gespeichert.
-        </p>
+        <x-vdbs.notice type="warning" role="status">
+            <div class="stack stack--sm">
+                <p>Ihre Registrierung wurde gespeichert.</p>
 
-        <p>
-            Die Bestätigungs-E-Mail konnte bislang
-            noch nicht vorbereitet werden.
-        </p>
+                <p>
+                    Die Bestätigungs-E-Mail konnte bislang
+                    noch nicht vorbereitet werden.
+                </p>
+            </div>
+        </x-vdbs.notice>
     @endif
 
     @if ($resent)
-        <p role="status">
+        <x-vdbs.notice type="success" role="status">
             Eine neue Bestätigungs-E-Mail wurde
             vorbereitet.
-        </p>
+        </x-vdbs.notice>
     @endif
 
     @error('resend')
-        <p role="alert">
+        <x-vdbs.notice type="danger" role="alert">
             {{ $message }}
-        </p>
+        </x-vdbs.notice>
     @enderror
 
-    <form wire:submit="resend">
-        <button type="submit" wire:loading.attr="disabled" wire:target="resend">
-            <span wire:loading.remove wire:target="resend">
-                Bestätigungs-E-Mail erneut senden
-            </span>
+    <form class="portal-page__form form" wire:submit="resend">
+        <div class="portal-page__actions">
+            <button class="btn" type="submit" wire:loading.attr="disabled" wire:target="resend">
+                <span wire:loading.remove wire:target="resend">
+                    Bestätigungs-E-Mail erneut senden
+                </span>
 
-            <span wire:loading wire:target="resend">
-                E-Mail wird vorbereitet …
-            </span>
-        </button>
+                <span wire:loading wire:target="resend">
+                    E-Mail wird vorbereitet …
+                </span>
+            </button>
+        </div>
     </form>
 </div>

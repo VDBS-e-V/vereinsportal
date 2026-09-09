@@ -1,0 +1,69 @@
+/* VDBS Portal — native disclosure / details */
+
+.disclosure,
+.vdbs-disclosure {
+    width: 100%;
+    max-width: var(--layout-text-max);
+    border-top: var(--border-width-default) solid var(--color-border);
+    border-bottom: var(--border-width-default) solid var(--color-border);
+}
+
+.disclosure + .disclosure,
+.vdbs-disclosure + .vdbs-disclosure {
+    border-top: 0;
+}
+
+.disclosure__summary,
+.vdbs-disclosure__summary {
+    min-height: 2.75rem;
+    padding: var(--spacing-3) 0;
+    color: var(--color-ink);
+    cursor: pointer;
+    font-weight: 700;
+    line-height: var(--leading-body);
+}
+
+.disclosure__summary::marker,
+.vdbs-disclosure__summary::marker {
+    color: var(--color-link);
+}
+
+.disclosure__summary:hover,
+.vdbs-disclosure__summary:hover {
+    color: var(--color-link);
+}
+
+.disclosure__summary:focus-visible,
+.vdbs-disclosure__summary:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+}
+
+.disclosure[open] > .disclosure__summary,
+.vdbs-disclosure[open] > .vdbs-disclosure__summary {
+    border-bottom: var(--border-width-default) solid var(--color-border);
+}
+
+.disclosure__content,
+.vdbs-disclosure__content {
+    display: grid;
+    gap: var(--spacing-3);
+    padding: var(--spacing-4) 0;
+}
+
+.disclosure__content > :first-child,
+.vdbs-disclosure__content > :first-child {
+    margin-top: 0;
+}
+
+.disclosure__content > :last-child,
+.vdbs-disclosure__content > :last-child {
+    margin-bottom: 0;
+}
+
+@media print {
+    .disclosure:not([open]) > .disclosure__content,
+    .vdbs-disclosure:not([open]) > .vdbs-disclosure__content {
+        display: grid !important;
+    }
+}

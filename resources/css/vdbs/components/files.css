@@ -1,0 +1,147 @@
+/* VDBS Portal — file upload and file rows */
+
+.file-upload,
+.vdbs-file-upload {
+    display: grid;
+    max-width: var(--layout-form-max);
+    gap: var(--spacing-3);
+    padding: var(--spacing-5);
+    border: var(--border-width-default) solid var(--color-border-strong);
+    background: var(--color-surface-subtle);
+}
+
+.file-upload__label,
+.vdbs-file-upload__label {
+    font-weight: 700;
+}
+
+.file-upload__input,
+.vdbs-file-upload__input {
+    width: 100%;
+    min-height: var(--control-height-md);
+    padding: var(--spacing-2);
+    border: var(--border-width-default) solid var(--color-border-strong);
+    border-radius: 0;
+    background: var(--color-white);
+    color: var(--color-ink);
+}
+
+.file-upload__input::file-selector-button,
+.vdbs-file-upload__input::file-selector-button {
+    min-height: var(--control-height-sm);
+    margin-right: var(--spacing-3);
+    padding: 0.45rem 0.75rem;
+    border: var(--border-width-default) solid var(--color-ink);
+    border-radius: 0;
+    background: var(--color-white);
+    color: var(--color-ink);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+}
+
+.file-upload__input::file-selector-button:hover,
+.vdbs-file-upload__input::file-selector-button:hover {
+    background: var(--color-ink);
+    color: var(--color-white);
+}
+
+.file-upload__input:focus-visible,
+.vdbs-file-upload__input:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+}
+
+.file-upload__help,
+.vdbs-file-upload__help {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    line-height: var(--leading-body);
+}
+
+.file-list,
+.vdbs-file-list {
+    display: grid;
+    border-top: var(--border-width-strong) solid var(--color-ink);
+}
+
+.file-item,
+.vdbs-file-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--spacing-4);
+    padding-block: var(--spacing-4);
+    border-bottom: var(--border-width-default) solid var(--color-border);
+}
+
+.file-item__main,
+.vdbs-file-item__main {
+    display: grid;
+    min-width: 0;
+    gap: var(--spacing-1);
+}
+
+.file-item__heading,
+.vdbs-file-item__heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.file-item__name,
+.vdbs-file-item__name {
+    overflow-wrap: anywhere;
+    color: var(--color-ink);
+    font-weight: 700;
+}
+
+.file-item__meta,
+.vdbs-file-item__meta {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+.file-item__status,
+.vdbs-file-item__status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+}
+
+.file-item__actions,
+.vdbs-file-item__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--spacing-2);
+}
+
+@media (max-width: 40rem) {
+    .file-item,
+    .vdbs-file-item {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .file-item__actions,
+    .vdbs-file-item__actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .file-item__actions .btn,
+    .vdbs-file-item__actions .btn {
+        width: 100%;
+    }
+}
+
+@media print {
+    .file-upload,
+    .vdbs-file-upload,
+    .file-item__actions,
+    .vdbs-file-item__actions {
+        display: none;
+    }
+}

@@ -1,0 +1,117 @@
+/* VDBS Portal — key facts and record lists */
+
+.key-facts,
+.vdbs-key-facts {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(min(100%, 10rem), 1fr)
+    );
+    gap: 0;
+    margin: 0;
+    border-top: var(--border-width-strong) solid var(--color-ink);
+    border-left: var(--border-width-default) solid var(--color-border);
+}
+
+.key-facts > div,
+.vdbs-key-facts > div {
+    display: grid;
+    gap: var(--spacing-1);
+    padding: var(--spacing-4);
+    border-right: var(--border-width-default) solid var(--color-border);
+    border-bottom: var(--border-width-default) solid var(--color-border);
+}
+
+.key-facts dt,
+.vdbs-key-facts dt {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: 600;
+}
+
+.key-facts dd,
+.vdbs-key-facts dd {
+    margin: 0;
+    color: var(--color-ink);
+    font-size: var(--text-xl);
+    font-weight: 700;
+}
+
+.record-list,
+.vdbs-record-list {
+    display: grid;
+    border-top: var(--border-width-strong) solid var(--color-ink);
+}
+
+.record-item,
+.vdbs-record-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--spacing-4);
+    padding-block: var(--spacing-4);
+    border-bottom: var(--border-width-default) solid var(--color-border);
+}
+
+.record-item__main,
+.vdbs-record-item__main {
+    display: grid;
+    min-width: 0;
+    gap: var(--spacing-2);
+}
+
+.record-item__title,
+.vdbs-record-item__title {
+    margin: 0;
+    font-size: var(--text-lg);
+}
+
+.record-item__title a,
+.vdbs-record-item__title a {
+    color: var(--color-ink);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.record-item__title a:hover,
+.record-item__title a:focus-visible,
+.vdbs-record-item__title a:hover,
+.vdbs-record-item__title a:focus-visible {
+    color: var(--color-link);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+}
+
+.record-item__meta,
+.vdbs-record-item__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-1) var(--spacing-4);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+.record-item__actions,
+.vdbs-record-item__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--spacing-2);
+}
+
+@media (max-width: 40rem) {
+    .record-item,
+    .vdbs-record-item {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .record-item__actions,
+    .vdbs-record-item__actions {
+        justify-content: flex-start;
+    }
+
+    .key-facts dd,
+    .vdbs-key-facts dd {
+        font-size: var(--text-lg);
+    }
+}

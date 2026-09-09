@@ -1,63 +1,86 @@
 # Vereinsportal
 
-Webanwendung für den Vereinsbetrieb mit Laravel.
+Webanwendung des VDBS e.V. für Vereins-, Portal- und Verwaltungsprozesse auf Basis von Laravel.
 
-## Überblick
+## Entwicklungsstatus
 
-Das Projekt stellt eine zentrale Plattform für Vereinsprozesse bereit, inklusive Verwaltung, Kennzahlen, Benutzer- und Berechtigungslogik sowie Abläufe rund um Organisation und Administration.
+Das Repository befindet sich in aktiver Entwicklung. `main` ist der einzige dauerhafte Integrationsbranch und soll jederzeit einen geprüften, grundsätzlich releasefähigen Stand enthalten.
 
-## Status
+## Technischer Stack
 
-- Repository-Setup und GitHub-Standards in Vorbereitung
-- Branch- und Ruleset-Strategie dokumentiert
-- CI- und Sicherheits-Workflows ergänzt
-- Produktionsreife und Deployment-Workflow noch finalisieren
+- PHP 8.4.1+ / Laravel 13
+- Livewire 4 / Volt
+- Tailwind CSS 4
+- Vite
+- Pest
+- MySQL
 
 ## Schnellstart
 
-```bash
-composer install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate
-npm install
-npm run build
+Voraussetzungen: PHP, Composer, Node.js, npm und eine lokale Datenbank.
+
+```text
+composer setup
 php artisan serve
 ```
 
-## Branching und Qualitätsrichtlinien
+Für die laufende Entwicklung:
 
-- `main`: stabiler produktionsnaher Branch
-- `develop`: Integrationsbranch für aktive Entwicklung
-- `feature/*`, `fix/*`, `security/*`: normale Arbeitspfade
-- `release/*`, `hotfix/*`: Release- und Notfallprozesse
+```text
+composer dev
+```
 
-Für Details siehe:
+Lokale Umgebungswerte gehören ausschließlich in `.env` und dürfen nicht committed werden.
 
-- [docs/00_GESAMTPLAN.md](docs/00_GESAMTPLAN.md)
-- [docs/01_PHASE_1_BRANCHES_UND_RULESETS.md](docs/01_PHASE_1_BRANCHES_UND_RULESETS.md)
+## Branch-Modell
 
-## Qualitäts- und Sicherheitschecks
+Normale Änderungen starten von `main`:
 
-Vor einem Merge bzw. einer Freigabe gelten:
+- `feature/*` für neue Funktionen
+- `fix/*` für Fehlerbehebungen
+- `security/*` für Security-Hardening
+- `refactor/*` für technische Überarbeitungen
+- `docs/*` für Dokumentation
+- `hotfix/*` nur für dringende produktionsnahe Korrekturen
 
-- `composer validate`
-- `php artisan test`
-- `php vendor/bin/pint --test`
-- Sicherheits- und Abhängigkeits-Checks aus dem GitHub-Workflow
+Änderungen gehen per Pull Request zurück nach `main`. Bevorzugte Merge-Methode ist Squash Merge. Direkte Pushes, Force Pushes und Branch-Löschung für `main` sollen über ein GitHub Ruleset verhindert werden.
 
-## Mitwirken
+Details: [CONTRIBUTING.md](CONTRIBUTING.md) und [docs/01_PHASE_1_BRANCHES_UND_RULESETS.md](docs/01_PHASE_1_BRANCHES_UND_RULESETS.md).
 
-Bitte siehe [CONTRIBUTING.md](CONTRIBUTING.md).
+## Lokale Qualitätsprüfung
+
+Der zentrale lokale Check ist:
+
+```text
+composer qa
+```
+
+Zusätzlich:
+
+```text
+composer security
+```
+
+Die GitHub Actions wiederholen die relevanten Prüfungen auf Pull Requests.
+
+## Web Content Library / Designsystem
+
+Das Designsystem und die Web Content Library werden im Repository mit Tests und Integritätsprüfungen gepflegt. Neue UI-Bausteine entstehen nicht auf Vorrat, sondern aus realen Anforderungen.
 
 ## Sicherheit
 
-Bitte Sicherheitslücken nicht öffentlich im Issue-Tracker melden. Details stehen in [SECURITY.md](SECURITY.md).
+Sicherheitslücken bitte nicht als öffentliches Issue melden. Der vertrauliche Meldeweg ist in [SECURITY.md](SECURITY.md) beschrieben.
 
-## Changelog
+Niemals Secrets, echte personenbezogene Daten, Produktionskonfiguration oder Zugangsdaten in Issues, Pull Requests, Logs oder Test-Fixtures einfügen.
 
-Die Änderungen werden in [CHANGELOG.md](CHANGELOG.md) dokumentiert.
+## Mitarbeit
+
+Siehe [CONTRIBUTING.md](CONTRIBUTING.md) und [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
+## Changelog und Releases
+
+Änderungen werden in [CHANGELOG.md](CHANGELOG.md) dokumentiert. Releases folgen Semantic Versioning und werden über Git-Tags `vX.Y.Z` sowie GitHub Releases veröffentlicht.
 
 ## Lizenz
 
-Dieses Projekt wird entsprechend der gewählten Repository-Lizenz verteilt. Bitte die Lizenz-Datei und die Projektvereinbarungen im Repository prüfen.
+Siehe `LICENSE`.

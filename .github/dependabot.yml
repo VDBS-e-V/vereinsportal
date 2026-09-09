@@ -1,19 +1,86 @@
 version: 2
+
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: main
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - "area: ci"
+    commit-message:
+      prefix: "chore(actions)"
+    groups:
+      actions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
 
-  - package-ecosystem: "composer"
-    directory: "/"
+  - package-ecosystem: composer
+    directory: /
+    target-branch: main
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
+      interval: weekly
+      day: monday
+      time: "06:15"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore(composer)"
+    groups:
+      laravel-livewire:
+        patterns:
+          - "laravel/*"
+          - "livewire/*"
+        update-types:
+          - minor
+          - patch
+      php-quality-tools:
+        dependency-type: development
+        patterns:
+          - "pestphp/*"
+          - "phpunit/*"
+          - "laravel/pint"
+          - "nunomaduro/collision"
+        update-types:
+          - minor
+          - patch
 
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: npm
+    directory: /
+    target-branch: main
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
+      interval: weekly
+      day: monday
+      time: "06:30"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - "area: frontend"
+    commit-message:
+      prefix: "chore(npm)"
+    groups:
+      vite-tooling:
+        patterns:
+          - "vite"
+          - "laravel-vite-plugin"
+        update-types:
+          - minor
+          - patch
+      tailwind:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
+        update-types:
+          - minor
+          - patch

@@ -1,0 +1,28 @@
+/* VDBS Web Content Library — component playgrounds */
+
+.library-playground,
+.vdbs-library-playground {
+    display: grid;
+    grid-template-columns: minmax(17rem, 0.75fr) minmax(0, 1.25fr);
+    gap: var(--spacing-6);
+    align-items: start;
+}
+
+.library-playground__controls,
+.vdbs-library-playground__controls {
+    padding: var(--spacing-5);
+    border-top: var(--border-width-strong) solid var(--color-ink);
+    background: var(--color-surface-subtle);
+}
+
+.library-playground__result,
+.vdbs-library-playground__result {
+    min-width: 0;
+}
+
+@media (max-width: 52rem) {
+    .library-playground,
+    .vdbs-library-playground {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

@@ -1,0 +1,122 @@
+/* VDBS Portal — resource and related-link lists */
+
+.resource-list,
+.vdbs-resource-list {
+    display: grid;
+    border-top: var(--border-width-strong) solid var(--color-ink);
+}
+
+.resource-item,
+.vdbs-resource-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: var(--spacing-4);
+    padding-block: var(--spacing-4);
+    border-bottom: var(--border-width-default) solid var(--color-border);
+}
+
+.resource-item__content,
+.vdbs-resource-item__content {
+    display: grid;
+    min-width: 0;
+    gap: var(--spacing-1);
+}
+
+.resource-item__title,
+.vdbs-resource-item__title {
+    margin: 0;
+    font-size: var(--text-lg);
+}
+
+.resource-item__title a,
+.vdbs-resource-item__title a {
+    color: var(--color-ink);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.resource-item__title a:hover,
+.resource-item__title a:focus-visible,
+.vdbs-resource-item__title a:hover,
+.vdbs-resource-item__title a:focus-visible {
+    color: var(--color-link);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+}
+
+.resource-item__description,
+.vdbs-resource-item__description {
+    margin: 0;
+    color: var(--color-text-muted);
+}
+
+.resource-item__meta,
+.vdbs-resource-item__meta {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+.resource-item__action,
+.vdbs-resource-item__action {
+    align-self: center;
+}
+
+.related-links,
+.vdbs-related-links {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    border-top: var(--border-width-default) solid var(--color-border);
+    list-style: none;
+}
+
+.related-links li,
+.vdbs-related-links li {
+    border-bottom: var(--border-width-default) solid var(--color-border);
+}
+
+.related-links a,
+.vdbs-related-links a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-4);
+    padding-block: var(--spacing-3);
+    color: var(--color-ink);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.related-links a::after,
+.vdbs-related-links a::after {
+    content: '›';
+    color: var(--color-link);
+    font-size: 1.4em;
+    line-height: 1;
+}
+
+.related-links a:hover,
+.related-links a:focus-visible,
+.vdbs-related-links a:hover,
+.vdbs-related-links a:focus-visible {
+    color: var(--color-link);
+}
+
+@media (max-width: 40rem) {
+    .resource-item,
+    .vdbs-resource-item {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .resource-item__action,
+    .vdbs-resource-item__action {
+        width: 100%;
+        justify-self: stretch;
+    }
+
+    .resource-item__action .btn,
+    .vdbs-resource-item__action .btn {
+        width: 100%;
+    }
+}

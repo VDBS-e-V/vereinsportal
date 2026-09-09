@@ -3,7 +3,7 @@
 namespace App\Modules\Identity\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Identity\Actions\AccountDeletion\ConfirmAccountDeletionAction;
+use App\Modules\Identity\Actions\AccountDeletion\ConfirmAccountDeletionWorkflowAction;
 use App\Modules\Identity\Exceptions\AccountDeletionCannotConfirm;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,7 +14,7 @@ final class ConfirmAccountDeletionController extends Controller
     public function __invoke(
         Request $request,
         string $publicId,
-        ConfirmAccountDeletionAction $confirmDeletion,
+        ConfirmAccountDeletionWorkflowAction $confirmDeletion,
     ): RedirectResponse {
         try {
             $deletionRequest = $confirmDeletion->execute(
@@ -28,6 +28,10 @@ final class ConfirmAccountDeletionController extends Controller
                 ->with(
                     'status',
                     'Dieser Löschlink ist ungültig oder nicht mehr verwendbar.',
+                )
+                ->with(
+                    'status_type',
+                    'danger',
                 );
         }
 
@@ -44,6 +48,10 @@ final class ConfirmAccountDeletionController extends Controller
                 'status',
                 'Die Kontolöschung wurde bestätigt. '
                 .'Sie kann innerhalb von fünf Tagen widerrufen werden.',
+            )
+            ->with(
+                'status_type',
+                'warning',
             );
     }
 }

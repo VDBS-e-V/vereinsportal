@@ -13,6 +13,14 @@ body:
       required: true
 
   - type: textarea
+    id: impact
+    attributes:
+      label: Auswirkung
+      description: Welche Wartungs-, Security- oder Entwicklungsfolgen entstehen?
+    validations:
+      required: true
+
+  - type: textarea
     id: proposal
     attributes:
       label: Vorschlag
@@ -38,3 +46,5 @@ body:
       value: |
         - [ ]
         - [ ]
+    validations:
+      required: true

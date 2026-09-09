@@ -1,0 +1,21 @@
+/* VDBS Portal — central icon presentation */
+
+.vdbs-icon {
+    display: inline-block;
+    flex: 0 0 auto;
+    overflow: visible;
+    vertical-align: -0.125em;
+}
+
+.icon-label,
+.vdbs-icon-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.btn > .vdbs-icon,
+a > .vdbs-icon,
+button > .vdbs-icon {
+    pointer-events: none;
+}

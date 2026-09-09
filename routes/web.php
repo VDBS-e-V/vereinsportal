@@ -2,7 +2,9 @@
 
 use App\Modules\Identity\Http\Controllers\ConfirmAccountDeletionController;
 use App\Modules\Identity\Http\Controllers\ConfirmEmailChangeController;
+use App\Modules\Identity\Http\Controllers\LogoutController;
 use App\Modules\Identity\Http\Controllers\VerifyRegistrationController;
+use App\Modules\Identity\Http\Controllers\WithdrawAccountDeletionController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -64,6 +66,11 @@ Route::domain(config('domains.my'))
                 'identity.home',
             )->name('my.home');
 
+            Route::post(
+                '/abmelden',
+                LogoutController::class,
+            )->name('my.logout');
+
             Volt::route(
                 '/profil',
                 'identity.profile',
@@ -83,6 +90,11 @@ Route::domain(config('domains.my'))
                 '/profil/sicherheit',
                 'identity.security',
             )->name('my.security');
+
+            Volt::route(
+                '/profil/konto-loeschen',
+                'identity.account-deletion',
+            )->name('my.account-deletion');
         });
 
         Volt::route(
@@ -101,4 +113,11 @@ Route::domain(config('domains.my'))
         )
             ->middleware('signed')
             ->name('identity.account-deletion.confirm');
+
+        Route::get(
+            '/identity/account-deletion/withdraw/{publicId}',
+            WithdrawAccountDeletionController::class,
+        )
+            ->middleware('signed')
+            ->name('identity.account-deletion.withdraw');
     });
