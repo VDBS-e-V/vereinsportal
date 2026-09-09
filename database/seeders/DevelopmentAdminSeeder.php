@@ -4,9 +4,11 @@ namespace Database\Seeders;
 
 use App\Modules\Identity\Enums\RoleAssignmentSource;
 use App\Modules\Identity\Enums\RoleKey;
+use App\Modules\Identity\Enums\TwoFactorMethodType;
 use App\Modules\Identity\Enums\UserStatus;
 use App\Modules\Identity\Models\Role;
 use App\Modules\Identity\Models\RoleAssignment;
+use App\Modules\Identity\Models\TwoFactorMethod;
 use App\Modules\Identity\Models\User;
 use Illuminate\Database\Seeder;
 use InvalidArgumentException;
@@ -34,8 +36,32 @@ class DevelopmentAdminSeeder extends Seeder
             'development.admin.default_password',
         );
 
-        if ($email === '' || $password === '') {
+        $totpSecret = strtoupper(
+            preg_replace(
+                '/\s+/',
+                '',
+                (string) config(
+                    'development.admin.totp_secret',
+                ),
+            ) ?? ''
+        );
+
+        if (
+            $email === ''
+            && $password === ''
+            && $totpSecret === ''
+        ) {
             return;
+        }
+
+        if (
+            $email === ''
+            || $password === ''
+            || $totpSecret === ''
+        ) {
+            throw new InvalidArgumentException(
+                'VDB_DEV_ADMIN_EMAIL, VDB_DEV_ADMIN_DEFAULT_PASSWORD and VDB_DEV_ADMIN_TOTP_SECRET must be configured together.',
+            );
         }
 
         if (
@@ -52,6 +78,17 @@ class DevelopmentAdminSeeder extends Seeder
         if (mb_strlen($password) < 12) {
             throw new InvalidArgumentException(
                 'VDB_DEV_ADMIN_DEFAULT_PASSWORD must contain at least 12 characters.',
+            );
+        }
+
+        if (
+            preg_match(
+                '/^[A-Z2-7]{32}$/',
+                $totpSecret,
+            ) !== 1
+        ) {
+            throw new InvalidArgumentException(
+                'VDB_DEV_ADMIN_TOTP_SECRET must be a 32-character Base32 secret.',
             );
         }
 
@@ -92,5 +129,29 @@ class DevelopmentAdminSeeder extends Seeder
                     'Lokaler Entwicklungsadmin aus VDB_DEV_ADMIN_*.',
             ],
         );
+
+        /*
+         * Der lokale Test-/Entwicklungsadmin bekommt bewusst genau
+         * eine deterministische TOTP-Methode. So bleibt derselbe
+         * Authenticator-Eintrag auch nach erneutem Seeding gültig.
+         *
+         * Die Methode ist ausschließlich in local/testing aktiv;
+         * das Secret kommt aus der lokalen ENV-Konfiguration.
+         */
+        TwoFactorMethod::query()
+            ->where('user_id', $user->id)
+            ->where(
+                'type',
+                TwoFactorMethodType::Totp,
+            )
+            ->delete();
+
+        TwoFactorMethod::query()->create([
+            'user_id' => $user->id,
+            'type' => TwoFactorMethodType::Totp,
+            'secret' => $totpSecret,
+            'confirmed_at' => now(),
+            'disabled_at' => null,
+        ]);
     }
 }

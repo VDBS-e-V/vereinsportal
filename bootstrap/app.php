@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Administration\Http\Middleware\RequireAdministrationAccess;
 use App\Modules\Identity\Http\Middleware\RevalidateAuthenticatedUser;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -12,11 +13,13 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function (): void {
+            require base_path('routes/administration.php');
             require base_path('routes/design.php');
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
+            'administration.access' => RequireAdministrationAccess::class,
             'identity.revalidate' => RevalidateAuthenticatedUser::class,
         ]);
 

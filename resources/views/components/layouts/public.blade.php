@@ -28,10 +28,19 @@
         $documentTitle = $title ?? $pageTitle.' · VDBS Portal';
         $homeUrl = route('my.home');
 
+        $administrationUser = auth()->user();
+        $hasAdministrationAccess =
+            $administrationUser instanceof \App\Modules\Identity\Models\User
+            && app(\App\Modules\Administration\Support\AdministrationAccess::class)
+                ->allows($administrationUser);
+
         $areas = [
             [
                 'label' => 'Verwaltung',
-                'url' => null,
+                'url' => $hasAdministrationAccess
+                    && \Illuminate\Support\Facades\Route::has('administration.home')
+                        ? route('administration.home')
+                        : null,
             ],
         ];
 

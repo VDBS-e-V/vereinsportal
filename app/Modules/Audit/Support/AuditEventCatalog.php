@@ -30,6 +30,14 @@ final class AuditEventCatalog
 
     public const ROLE_AUTOMATIC_ASSIGNED = 'role.automatic_assigned';
 
+    public const ROLE_MANUAL_ASSIGNED = 'role.manual_assigned';
+
+    public const ROLE_MANUAL_ENDED = 'role.manual_ended';
+
+    public const ACCOUNT_DISABLED = 'account.disabled';
+
+    public const ACCOUNT_REACTIVATED = 'account.reactivated';
+
     public const EMAIL_TEMPLATE_PUBLISHED = 'email_template.published';
 
     public const EMAIL_TEMPLATE_ACTIVATED = 'email_template.activated';
@@ -112,6 +120,28 @@ final class AuditEventCatalog
         self::ROLE_AUTOMATIC_ASSIGNED => [
             'role',
             'source',
+        ],
+
+        self::ROLE_MANUAL_ASSIGNED => [
+            'role',
+            'source',
+            'starts_at',
+        ],
+
+        self::ROLE_MANUAL_ENDED => [
+            'role',
+            'source',
+            'ends_at',
+        ],
+
+        self::ACCOUNT_DISABLED => [
+            'status',
+            'session_version',
+        ],
+
+        self::ACCOUNT_REACTIVATED => [
+            'status',
+            'session_version',
         ],
 
         self::EMAIL_TEMPLATE_PUBLISHED => [

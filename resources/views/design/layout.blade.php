@@ -160,10 +160,19 @@
             ->concat($nestedWithoutRoot)
             ->all();
 
+        $designAdministrationUser = auth()->user();
+        $hasAdministrationAccess =
+            $designAdministrationUser instanceof \App\Modules\Identity\Models\User
+            && app(\App\Modules\Administration\Support\AdministrationAccess::class)
+                ->allows($designAdministrationUser);
+
         $designAreas = [
             [
                 'label' => 'Verwaltung',
-                'url' => null,
+                'url' => $hasAdministrationAccess
+                    && \Illuminate\Support\Facades\Route::has('administration.home')
+                        ? route('administration.home')
+                        : null,
             ],
             [
                 'label' => 'Design',
