@@ -1,13 +1,21 @@
 <?php
 
 use App\Modules\Administration\Http\Controllers\AssignUserRoleController;
+use App\Modules\Administration\Http\Controllers\EndMembershipController;
 use App\Modules\Administration\Http\Controllers\EndUserRoleController;
 use App\Modules\Administration\Http\Controllers\HomeController;
+use App\Modules\Administration\Http\Controllers\MembershipCreateController;
+use App\Modules\Administration\Http\Controllers\MembershipEditController;
+use App\Modules\Administration\Http\Controllers\MembershipEndFormController;
+use App\Modules\Administration\Http\Controllers\MembershipIndexController;
+use App\Modules\Administration\Http\Controllers\MembershipShowController;
 use App\Modules\Administration\Http\Controllers\PersonCreateController;
 use App\Modules\Administration\Http\Controllers\PersonEditController;
 use App\Modules\Administration\Http\Controllers\PersonIndexController;
 use App\Modules\Administration\Http\Controllers\PersonShowController;
+use App\Modules\Administration\Http\Controllers\StoreMembershipController;
 use App\Modules\Administration\Http\Controllers\StorePersonController;
+use App\Modules\Administration\Http\Controllers\UpdateMembershipController;
 use App\Modules\Administration\Http\Controllers\UpdatePersonController;
 use App\Modules\Administration\Http\Controllers\UpdateUserStatusController;
 use App\Modules\Administration\Http\Controllers\UserIndexController;
@@ -24,77 +32,55 @@ Route::middleware([
     ->prefix('verwaltung')
     ->name('administration.')
     ->group(function (): void {
-        Route::get(
-            '/',
-            HomeController::class,
-        )->name('home');
+        Route::get('/', HomeController::class)->name('home');
 
-        Route::get(
-            '/personen',
-            PersonIndexController::class,
-        )->name('persons.index');
-
-        Route::get(
-            '/personen/anlegen',
-            PersonCreateController::class,
-        )->name('persons.create');
-
-        Route::post(
-            '/personen',
-            StorePersonController::class,
-        )->name('persons.store');
-
-        Route::get(
-            '/personen/{person}',
-            PersonShowController::class,
-        )
+        Route::get('/personen', PersonIndexController::class)->name('persons.index');
+        Route::get('/personen/anlegen', PersonCreateController::class)->name('persons.create');
+        Route::post('/personen', StorePersonController::class)->name('persons.store');
+        Route::get('/personen/{person}/mitgliedschaften/anlegen', MembershipCreateController::class)
+            ->whereNumber('person')
+            ->name('persons.memberships.create');
+        Route::post('/personen/{person}/mitgliedschaften', StoreMembershipController::class)
+            ->whereNumber('person')
+            ->name('persons.memberships.store');
+        Route::get('/personen/{person}', PersonShowController::class)
             ->whereNumber('person')
             ->name('persons.show');
-
-        Route::get(
-            '/personen/{person}/bearbeiten',
-            PersonEditController::class,
-        )
+        Route::get('/personen/{person}/bearbeiten', PersonEditController::class)
             ->whereNumber('person')
             ->name('persons.edit');
-
-        Route::put(
-            '/personen/{person}',
-            UpdatePersonController::class,
-        )
+        Route::put('/personen/{person}', UpdatePersonController::class)
             ->whereNumber('person')
             ->name('persons.update');
 
-        Route::get(
-            '/benutzer',
-            UserIndexController::class,
-        )->name('users.index');
+        Route::get('/mitgliedschaften', MembershipIndexController::class)->name('memberships.index');
+        Route::get('/mitgliedschaften/{membership}', MembershipShowController::class)
+            ->whereNumber('membership')
+            ->name('memberships.show');
+        Route::get('/mitgliedschaften/{membership}/bearbeiten', MembershipEditController::class)
+            ->whereNumber('membership')
+            ->name('memberships.edit');
+        Route::put('/mitgliedschaften/{membership}', UpdateMembershipController::class)
+            ->whereNumber('membership')
+            ->name('memberships.update');
+        Route::get('/mitgliedschaften/{membership}/beenden', MembershipEndFormController::class)
+            ->whereNumber('membership')
+            ->name('memberships.end');
+        Route::post('/mitgliedschaften/{membership}/beenden', EndMembershipController::class)
+            ->whereNumber('membership')
+            ->name('memberships.end.store');
 
-        Route::get(
-            '/benutzer/{user}',
-            UserShowController::class,
-        )
+        Route::get('/benutzer', UserIndexController::class)->name('users.index');
+        Route::get('/benutzer/{user}', UserShowController::class)
             ->whereNumber('user')
             ->name('users.show');
-
-        Route::post(
-            '/benutzer/{user}/status',
-            UpdateUserStatusController::class,
-        )
+        Route::post('/benutzer/{user}/status', UpdateUserStatusController::class)
             ->whereNumber('user')
             ->name('users.status.update');
-
-        Route::post(
-            '/benutzer/{user}/rollen',
-            AssignUserRoleController::class,
-        )
+        Route::post('/benutzer/{user}/rollen', AssignUserRoleController::class)
             ->whereNumber('user')
             ->name('users.roles.assign');
-
-        Route::post(
-            '/benutzer/{user}/rollen/{assignment}/beenden',
-            EndUserRoleController::class,
-        )
+        Route::post('/benutzer/{user}/rollen/{assignment}/beenden', EndUserRoleController::class)
             ->whereNumber('user')
             ->whereNumber('assignment')
             ->name('users.roles.end');

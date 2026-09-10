@@ -9,18 +9,20 @@ use App\Modules\Identity\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
-final class PersonShowController extends Controller
+final class MembershipCreateController extends Controller
 {
     public function __invoke(
         Request $request,
         Person $person,
         AdministrationAccess $access,
     ): View {
-        $person->load('user');
-        $memberships = $person->memberships()
-            ->orderByDesc('starts_on')
-            ->orderByDesc('id')
-            ->get();
+        $actor = $request->user();
+
+        abort_unless(
+            $actor instanceof User
+            && $access->canManage($actor),
+            403,
+        );
 
         $displayName = trim(
             $person->first_name.' '.
@@ -30,18 +32,14 @@ final class PersonShowController extends Controller
             $person->last_name,
         );
 
-        $actor = $request->user();
-
-        return view('administration.persons.show', [
+        return view('administration.memberships.create', [
             'person' => $person,
-            'memberships' => $memberships,
             'displayName' => $displayName,
-            'canManage' => $actor instanceof User
-                && $access->canManage($actor),
             'breadcrumbs' => [
                 ['label' => 'Verwaltung', 'url' => route('administration.home')],
                 ['label' => 'Personen', 'url' => route('administration.persons.index')],
-                ['label' => $displayName, 'url' => null],
+                ['label' => $displayName, 'url' => route('administration.persons.show', $person)],
+                ['label' => 'Mitgliedschaft anlegen', 'url' => null],
             ],
         ]);
     }
