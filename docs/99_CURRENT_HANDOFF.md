@@ -1,12 +1,12 @@
 # Aktueller Arbeitsstand
 
-## Branch
+## Basis
 
-checkpoint/design-system-2026-09-08
+`main`
 
 ## Aktuelles Thema
 
-VDBS Portal Designsystem · Abschluss der Grundlagen und Migration der Identity-Oberfläche
+VDBS Portal Designsystem · manuelle v1-QA und dokumentierter Abschluss
 
 ## Implementiert
 
@@ -24,6 +24,8 @@ VDBS Portal Designsystem · Abschluss der Grundlagen und Migration der Identity-
 - vollständige Seitenvorlagen für Verwaltung, Redaktion, Termine und Fehlerseiten
 - Identity-Seiten auf explizite Designsystem-Klassen migriert
 - Konto-Navigation und Portal-Startseite als echte Produktoberfläche
+- CI stabilisiert und statische PHP-Analyse mit Larastan/PHPStan integriert
+- unterstützte PHP-Basis auf 8.4.1+ vereinheitlicht und in CI geprüft
 
 ## Architekturentscheidung
 
@@ -36,24 +38,36 @@ wiederkehrendes oder komplexes Markup. Fachseiten setzen beides zusammen.
 
 ## Qualität
 
-Verbindliche automatische Checks:
+Die automatisierte Basis auf `main` ist grün. Für den Designsystem-Abschluss
+bleiben die Prüfungen aus `docs/22_DESIGN_SYSTEM_V1_FREEZE.md` verbindlich:
 
 ```cmd
-npm run build
+php artisan vdbs:library-check
+php artisan vdbs:design-status
 php artisan test tests\Feature\Design
-php artisan test tests\Feature\Identity
+npm run build
 git diff --check
+git status --short
 ```
 
-Die manuelle Abnahme folgt `docs/09_DESIGN_QA_CHECKLIST.md`.
+Zusätzlich laufen im Repository `Quality`, `Static Analysis`, die unterstützte
+PHP-Matrix und die Security-Checks über GitHub Actions.
+
+Die manuelle Abnahme folgt `docs/09_DESIGN_QA_CHECKLIST.md` und ist noch nicht
+abgeschlossen.
 
 ## Als Nächstes
 
 - manuelle Responsive-Abnahme bei 320, 375, 768, 1024 und 1280+ px
-- Tastatur- und Screenreader-Prüfung
-- Chrome, Firefox, Edge und Safari prüfen
+- vollständige Tastaturprüfung einschließlich Fokusführung und Escape-Verhalten
+- Screenreader-Stichprobe für Navigation, Formulare, Hinweise und Dialoge
+- Forced Colors / High Contrast, Reduced Motion und erhöhten Kontrast prüfen
+- Chrome, Firefox, Edge und Safari anhand der Browser-Matrix prüfen
 - Print-Ansichten realer Seiten prüfen
-- neue Fachmodule nur noch auf Basis der bestehenden Muster und Vorlagen umsetzen
+- lange Namen, E-Mail-Adressen, URLs und Dateinamen prüfen
+- gefundene QA-Fehler als gezielte Patches beheben
+- erst danach Designsystem v1 gemäß `docs/22_DESIGN_SYSTEM_V1_FREEZE.md` freigeben
 
-Der Designsystem-Baukasten selbst soll nur noch erweitert werden, wenn ein
-echter Fachfall ein bislang fehlendes wiederverwendbares Muster nachweist.
+Neue Fachmodule sollen weiterhin nur auf Basis der bestehenden Muster und
+Vorlagen umgesetzt werden. Der Designsystem-Baukasten wird nur erweitert, wenn
+ein echter Fachfall ein bislang fehlendes wiederverwendbares Muster nachweist.
