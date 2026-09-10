@@ -25,6 +25,10 @@ final class StorePersonController extends Controller
             403,
         );
 
+        $confirmation = $request->input(
+            'possible_duplicate_confirmation',
+        );
+
         try {
             $person = $createPerson->execute(
                 values: $request->only([
@@ -42,9 +46,9 @@ final class StorePersonController extends Controller
                     'country_code',
                 ]),
                 actor: $actor,
-                allowPossibleDuplicate: $request->boolean(
-                    'confirm_possible_duplicate',
-                ),
+                possibleDuplicateConfirmation: is_string($confirmation)
+                    ? $confirmation
+                    : null,
                 ipAddress: $request->ip(),
                 userAgent: $request->userAgent(),
             );
@@ -55,6 +59,10 @@ final class StorePersonController extends Controller
                 ->with(
                     'possible_person_match_ids',
                     $exception->personIds,
+                )
+                ->with(
+                    'possible_person_duplicate_confirmation',
+                    $exception->confirmation,
                 )
                 ->with(
                     'status',
