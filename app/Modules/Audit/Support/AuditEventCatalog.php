@@ -52,6 +52,12 @@ final class AuditEventCatalog
 
     public const PERSON_UPDATED = 'person.updated';
 
+    public const MEMBERSHIP_CREATED = 'membership.created';
+
+    public const MEMBERSHIP_UPDATED = 'membership.updated';
+
+    public const MEMBERSHIP_ENDED = 'membership.ended';
+
     public const AUTH_EMAIL_CHANGE_REQUESTED = 'auth.email_change.requested';
 
     public const AUTH_EMAIL_CHANGE_SUPERSEDED = 'auth.email_change.superseded';
@@ -193,6 +199,21 @@ final class AuditEventCatalog
             'postal_code',
             'city',
             'country_code',
+        ],
+
+        self::MEMBERSHIP_CREATED => [
+            'person_id',
+            'starts_on',
+            'ends_on',
+        ],
+
+        self::MEMBERSHIP_UPDATED => [
+            'starts_on',
+            'ends_on',
+        ],
+
+        self::MEMBERSHIP_ENDED => [
+            'ends_on',
         ],
 
         self::AUTH_EMAIL_CHANGE_REQUESTED => [
