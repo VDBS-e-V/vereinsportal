@@ -146,7 +146,10 @@ it('filters audit events by event actor subject and date range', function () {
         ->get($url)
         ->assertOk()
         ->assertSee(AuditEventCatalog::PERSON_UPDATED)
-        ->assertDontSee(AuditEventCatalog::AUTH_PASSWORD_CHANGED);
+        ->assertViewHas('events', function ($events): bool {
+            return $events->total() === 1
+                && $events->first()?->event_key === AuditEventCatalog::PERSON_UPDATED;
+        });
 });
 
 it('shows whitelisted audit values and subject link but hides technical metadata', function () {
