@@ -149,8 +149,8 @@ nicht als freigegeben bzw. `frozen` zu behandeln.
 Die verbindliche Abschlussprüfung steht in
 `docs/22_DESIGN_SYSTEM_V1_FREEZE.md`. Erst wenn die dort genannten
 automatischen Prüfungen grün sind und die relevante manuelle QA ohne offene
-kritische Punkte abgeschlossen wurde, gilt der Designsystem-Baukasten als
-Version `1.0.0`.
+Punkte abgeschlossen wurde, gilt der Designsystem-Baukasten als Version
+`1.0.0`.
 
 Danach lautet die bevorzugte Arbeitsweise:
 
