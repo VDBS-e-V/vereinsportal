@@ -47,8 +47,15 @@ final class PersonCreateController extends Controller
                 ->orderBy('first_name')
                 ->get();
 
+        $confirmation = $request->session()->get(
+            'possible_person_duplicate_confirmation',
+        );
+
         return view('administration.persons.create', [
             'possibleMatches' => $possibleMatches,
+            'possibleDuplicateConfirmation' => is_string($confirmation)
+                ? $confirmation
+                : null,
             'breadcrumbs' => [
                 [
                     'label' => 'Verwaltung',
