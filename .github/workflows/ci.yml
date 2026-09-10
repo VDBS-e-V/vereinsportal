@@ -25,8 +25,7 @@ jobs:
       fail-fast: false
       matrix:
         php:
-          - '8.3'
-          - '8.4'
+          - '8.4.1'
           - '8.5'
 
     steps:
@@ -57,6 +56,31 @@ jobs:
 
       - name: Check platform requirements
         run: composer check-platform-reqs
+
+  static-analysis:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.5'
+          extensions: mbstring, pdo_mysql, fileinfo, sodium
+          coverage: none
+          tools: composer:v2
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Run Larastan
+        run: composer analyse
 
   quality:
     name: Quality
