@@ -36,6 +36,7 @@ final class EmailDelivery extends Model
         ];
     }
 
+    /** @return BelongsTo<EmailTemplateVersion, $this> */
     public function templateVersion(): BelongsTo
     {
         return $this->belongsTo(
@@ -44,6 +45,7 @@ final class EmailDelivery extends Model
         );
     }
 
+    /** @return BelongsTo<User, $this> */
     public function sender(): BelongsTo
     {
         return $this->belongsTo(

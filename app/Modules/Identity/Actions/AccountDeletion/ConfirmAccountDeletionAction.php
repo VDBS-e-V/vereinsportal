@@ -71,9 +71,9 @@ final class ConfirmAccountDeletionAction
             }
 
             $confirmedAt = now();
-            $revokeUntil = CarbonImmutable::instance(
-                $confirmedAt
-            )->addDays(5);
+            $revokeUntil = $confirmedAt
+                ->copy()
+                ->addDays(5);
 
             $deletionRequest->status =
                 AccountDeletionRequestStatus::PendingDeletion;

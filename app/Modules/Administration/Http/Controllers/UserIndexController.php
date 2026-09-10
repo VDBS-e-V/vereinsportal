@@ -73,7 +73,7 @@ final class UserIndexController extends Controller
         return view('administration.users.index', [
             'users' => $users,
             'search' => $search,
-            'status' => $status?->value ?? '',
+            'status' => $status->value ?? '',
             'statusOptions' => $statusOptions,
             'breadcrumbs' => [
                 [

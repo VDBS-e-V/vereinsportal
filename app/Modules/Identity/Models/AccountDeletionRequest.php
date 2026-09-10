@@ -39,11 +39,13 @@ final class AccountDeletionRequest extends Model
         ];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return BelongsTo<User, $this> */
     public function stoppedByUser(): BelongsTo
     {
         return $this->belongsTo(
@@ -52,6 +54,7 @@ final class AccountDeletionRequest extends Model
         );
     }
 
+    /** @return BelongsTo<AccountDeletionStopReason, $this> */
     public function stopReason(): BelongsTo
     {
         return $this->belongsTo(

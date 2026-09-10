@@ -78,13 +78,6 @@ final class CleanupExpiredRegistrationRequestsJob implements ShouldBeUnique, Sho
                 }
 
                 if (
-                    $registrationRequest->status
-                    !== RegistrationRequestStatus::PendingVerification
-                ) {
-                    return;
-                }
-
-                if (
                     $registrationRequest
                         ->expires_at
                         ->isFuture()

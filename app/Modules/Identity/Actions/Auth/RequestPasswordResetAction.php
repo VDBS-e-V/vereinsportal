@@ -99,7 +99,7 @@ final class RequestPasswordResetAction
                                 'expires_at' => $expiresAt->format(
                                     'd.m.Y H:i'
                                 ),
-                                'first_name' => $user->person?->first_name
+                                'first_name' => $user->person->first_name
                                     ?? '',
                             ],
                         );

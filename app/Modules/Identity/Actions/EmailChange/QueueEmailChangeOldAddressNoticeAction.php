@@ -26,7 +26,7 @@ final class QueueEmailChangeOldAddressNoticeAction
             values: [
                 'security_url' => $this->securityUrl
                     ->create($request),
-                'first_name' => $user->person?->first_name
+                'first_name' => $user->person->first_name
                     ?? '',
                 'old_email' => $request->old_email,
                 'new_email' => $request->new_email,

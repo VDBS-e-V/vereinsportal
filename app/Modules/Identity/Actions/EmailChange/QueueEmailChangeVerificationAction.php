@@ -49,7 +49,7 @@ final class QueueEmailChangeVerificationAction
                             ->format(
                                 'd.m.Y H:i'
                             ),
-                        'first_name' => $user->person?->first_name
+                        'first_name' => $user->person->first_name
                             ?? '',
                         'old_email' => $locked->old_email,
                         'new_email' => $locked->new_email,

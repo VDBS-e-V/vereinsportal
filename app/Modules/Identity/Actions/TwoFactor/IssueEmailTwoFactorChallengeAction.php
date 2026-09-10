@@ -83,7 +83,7 @@ final class IssueEmailTwoFactorChallengeAction
                 values: [
                     'code' => $plainCode,
                     'expires_in_minutes' => 15,
-                    'first_name' => $user->person?->first_name
+                    'first_name' => $user->person->first_name
                         ?? '',
                     'support_email' => (string) config(
                         'mail.support_address',

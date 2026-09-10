@@ -189,7 +189,7 @@ final class PublishEmailTemplateAction
 
         return array_values(
             array_unique(
-                $matches[1] ?? []
+                $matches[1]
             )
         );
     }

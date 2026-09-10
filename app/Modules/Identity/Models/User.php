@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * @property string|null $remember_token
+ * @property-read Person|null $person
+ */
 class User extends Authenticatable
 {
     use HasFactory;
@@ -43,11 +47,13 @@ class User extends Authenticatable
         ];
     }
 
+    /** @return BelongsTo<Person, $this> */
     public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class);
     }
 
+    /** @return HasMany<EmailChangeRequest, $this> */
     public function emailChangeRequests(): HasMany
     {
         return $this->hasMany(
@@ -55,6 +61,7 @@ class User extends Authenticatable
         );
     }
 
+    /** @return HasMany<TwoFactorMethod, $this> */
     public function twoFactorMethods(): HasMany
     {
         return $this->hasMany(
@@ -62,6 +69,7 @@ class User extends Authenticatable
         );
     }
 
+    /** @return HasMany<TwoFactorEmailChallenge, $this> */
     public function twoFactorEmailChallenges(): HasMany
     {
         return $this->hasMany(
@@ -69,6 +77,7 @@ class User extends Authenticatable
         );
     }
 
+    /** @return HasMany<TwoFactorRecoveryCode, $this> */
     public function twoFactorRecoveryCodes(): HasMany
     {
         return $this->hasMany(
@@ -76,6 +85,7 @@ class User extends Authenticatable
         );
     }
 
+    /** @return HasMany<RoleAssignment, $this> */
     public function roleAssignments(): HasMany
     {
         return $this->hasMany(
