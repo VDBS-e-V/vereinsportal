@@ -7,7 +7,6 @@ use App\Modules\Audit\Services\AuditWriter;
 use App\Modules\Audit\Support\AuditEventCatalog;
 use App\Modules\Communication\Models\EmailDelivery;
 use App\Modules\Identity\Actions\QueueRegistrationVerificationEmailAction;
-use App\Modules\Identity\Enums\RegistrationRequestStatus;
 use App\Modules\Identity\Exceptions\RegistrationVerificationCannotBeResent;
 use App\Modules\Identity\Models\RegistrationRequest;
 use Illuminate\Support\Facades\DB;
@@ -41,8 +40,6 @@ final class ResendRegistrationVerificationAction
 
                 if (
                     $registrationRequest === null
-                    || $registrationRequest->status
-                        !== RegistrationRequestStatus::PendingVerification
                     || $registrationRequest->expires_at
                         ->lessThanOrEqualTo($now)
                 ) {
