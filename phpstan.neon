@@ -11,3 +11,4 @@ parameters:
         - routes/
 
     level: 5
+    parseModelCastsMethod: true
