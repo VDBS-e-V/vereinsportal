@@ -8,6 +8,8 @@
 
 VDBS Portal Designsystem · manuelle v1-QA und dokumentierter Abschluss
 
+Die übergreifende Entwicklungsreihenfolge steht in `docs/23_DEVELOPMENT_ROADMAP.md`.
+
 ## Implementiert
 
 - vollständige Brand- und UI-Tokens
@@ -68,6 +70,4 @@ abgeschlossen.
 - gefundene QA-Fehler als gezielte Patches beheben
 - erst danach Designsystem v1 gemäß `docs/22_DESIGN_SYSTEM_V1_FREEZE.md` freigeben
 
-Neue Fachmodule sollen weiterhin nur auf Basis der bestehenden Muster und
-Vorlagen umgesetzt werden. Der Designsystem-Baukasten wird nur erweitert, wenn
-ein echter Fachfall ein bislang fehlendes wiederverwendbares Muster nachweist.
+Parallel dürfen reine Dokumentations- und Betriebsplanungsarbeiten aus `docs/23_DEVELOPMENT_ROADMAP.md` fortgeführt werden. Neue Fachmodule sollen weiterhin nur auf Basis der bestehenden Muster und Vorlagen umgesetzt werden. Der Designsystem-Baukasten wird nur erweitert, wenn ein echter Fachfall ein bislang fehlendes wiederverwendbares Muster nachweist.

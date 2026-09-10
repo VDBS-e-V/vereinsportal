@@ -1,5 +1,9 @@
 # Phase 1 – Branches und Rulesets
 
+## Status
+
+Die Phase-1-Basis ist umgesetzt. `main` ist der einzige dauerhafte Entwicklungs- und Release-Branch und wird durch das aktive Ruleset `Protect main` geschützt.
+
 ## Branch-Struktur
 
 ### `main`
@@ -26,47 +30,64 @@ Kurzlebig:
 
 Alle starten von aktuellem `main` und werden per Pull Request nach `main` integriert.
 
-## Empfohlenes Ruleset für `main`
+## Aktives Ruleset `Protect main`
+
+Aktuell aktiv:
 
 - Restrict deletions: Ja
-- Block force pushes: Ja
+- Block force pushes / non-fast-forward: Ja
 - Require linear history: Ja
 - Require pull request before merging: Ja
 - Require conversation resolution: Ja
 - Require status checks to pass: Ja
-- Require branches to be up to date before merging: Ja
-- Require signed commits: zunächst optional
-- Require merge queue: zunächst Nein
+- Required approvals: 0
+- Allowed merge method im Ruleset: Squash
+- Ruleset-Bypass: keiner
+
+Der Probe-PR für die Designsystem-Dokumentation hat bestätigt, dass eine offene Review-Conversation den Merge tatsächlich blockiert und erst nach Auflösung gemergt werden kann.
+
+### Bewusst noch offen
+
+- Require branches to be up to date before merging / strict status checks: derzeit Nein
+- Require signed commits: optional
+- Require merge queue: Nein
 - Require deployments to succeed: erst mit Deployment-Pipeline
 
-### Reviews
+Die Update-Branch-Funktion des Repositories ist aktiviert, obwohl ein Update vor Merge derzeit nicht zwingend vorgeschrieben ist.
 
-Solange nur eine Person zuverlässig maintained, keine Approval-Regel aktivieren, die alle PRs blockiert.
+## Reviews
 
-Sobald mindestens zwei Reviewer verfügbar sind:
+Solange nur eine Person zuverlässig maintained, bleibt die Approval-Pflicht bei 0, damit Pull Requests nicht organisatorisch blockiert werden.
+
+Sobald mindestens zwei Reviewer zuverlässig verfügbar sind, erneut prüfen:
 
 - Required approvals: 1
-- Dismiss stale approvals: Ja
-- Require approval of the most recent reviewable push: Ja
+- Dismiss stale approvals
+- Require approval of the most recent reviewable push
 - optional Code Owner Review
 
 ## Required Status Checks
 
-Nach erfolgreichen Workflow-Läufen mindestens:
+Für `main` sind aktuell verpflichtend:
 
 - `Quality`
-- Security-Checks, die für Pull Requests stabil verfügbar sind
+- `Static Analysis`
+- `Composer Audit`
+- `NPM Audit`
+- `Dependency Review`
+- `Secret Scan`
 
-CodeQL kann zusätzlich über Code-Scanning-Regeln verpflichtend gemacht werden.
+PHP-Kompatibilität für 8.4.1 und 8.5 läuft zusätzlich in CI, ist aber nicht als eigener Required Check eingetragen.
 
 ## Merge-Methoden
 
-Empfohlen:
+Repositoryweit aktiv:
 
 - Squash Merge: Ja
 - Merge Commit: Nein
 - Rebase Merge: Nein
 - Delete branch after merge: Ja
+- Allow update branch: Ja
 
 Damit bleibt `main` linear und die Pull-Request-Historie nachvollziehbar.
 
