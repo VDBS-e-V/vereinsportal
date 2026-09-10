@@ -3,8 +3,11 @@
 namespace App\Modules\Audit\Models;
 
 use App\Modules\Audit\Enums\AuditActorType;
+use App\Modules\Identity\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/** @property-read User|null $actor */
 class AuditEvent extends Model
 {
     public const UPDATED_AT = null;
@@ -40,5 +43,14 @@ class AuditEvent extends Model
             'device_info' => 'array',
             'retention_until' => 'datetime',
         ];
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function actor(): BelongsTo
+    {
+        return $this->belongsTo(
+            User::class,
+            'actor_user_id',
+        );
     }
 }
