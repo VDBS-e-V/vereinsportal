@@ -72,6 +72,19 @@ function personManagementPayload(array $overrides = []): array
     ], $overrides);
 }
 
+function duplicateConfirmationFromHtml(string $html): string
+{
+    preg_match(
+        '/name="possible_duplicate_confirmation" value="([^"]+)"/',
+        $html,
+        $matches,
+    );
+
+    expect($matches)->toHaveKey(1);
+
+    return html_entity_decode($matches[1], ENT_QUOTES);
+}
+
 it('allows administration staff to search and view persons read only', function () {
     $staff = makePersonManagementActor(RoleKey::AdministrationStaff, 'person-staff@example.test');
     $visible = Person::query()->create(personManagementPayload(['first_name' => 'Erika', 'last_name' => 'Muster', 'email' => 'visible.person@example.test']));
@@ -109,18 +122,51 @@ it('requires conscious confirmation when a possible duplicate is found', functio
     $admin = makePersonManagementActor(RoleKey::Administration, 'person-admin-duplicate@example.test');
     $existing = Person::query()->create(personManagementPayload(['first_name' => 'Lena', 'last_name' => 'Beispiel', 'birth_date' => '1988-03-05', 'email' => 'lena.existing@example.test']));
     $payload = personManagementPayload(['first_name' => 'Lena', 'last_name' => 'Beispiel', 'birth_date' => '1988-03-05', 'email' => 'lena.new@example.test']);
-    $this->withSession(personManagementSession())->actingAs($admin)->post('http://my.vdb.test/verwaltung/personen', $payload)->assertRedirect(route('administration.persons.create'))->assertSessionHas('possible_person_match_ids', [$existing->id]);
+
+    $this->withSession(personManagementSession())->actingAs($admin)->post('http://my.vdb.test/verwaltung/personen', [...$payload, 'confirm_possible_duplicate' => '1'])
+        ->assertRedirect(route('administration.persons.create'))
+        ->assertSessionHas('possible_person_match_ids', [$existing->id])
+        ->assertSessionHas('possible_person_duplicate_confirmation');
+
     expect(Person::query()->count())->toBe(1);
-    $this->withSession(personManagementSession())->actingAs($admin)->post('http://my.vdb.test/verwaltung/personen', [...$payload, 'confirm_possible_duplicate' => '1'])->assertSessionHasNoErrors();
-    expect(Person::query()->count())->toBe(2)->and(Person::query()->where('email', 'lena.new@example.test')->exists())->toBeTrue();
+
+    $warningPage = $this->withSession(personManagementSession())->actingAs($admin)->get('http://my.vdb.test/verwaltung/personen/anlegen')->assertOk();
+    $confirmation = duplicateConfirmationFromHtml($warningPage->getContent());
+
+    $this->withSession(personManagementSession())->actingAs($admin)->post('http://my.vdb.test/verwaltung/personen', [...$payload, 'possible_duplicate_confirmation' => $confirmation])->assertSessionHasNoErrors();
+
+    expect(Person::query()->count())->toBe(2)
+        ->and(Person::query()->where('email', 'lena.new@example.test')->exists())->toBeTrue();
+});
+
+it('invalidates duplicate confirmation when checked identity data changes', function () {
+    $admin = makePersonManagementActor(RoleKey::Administration, 'person-admin-duplicate-change@example.test');
+    $existing = Person::query()->create(personManagementPayload(['first_name' => 'Lena', 'last_name' => 'Beispiel', 'birth_date' => '1988-03-05', 'email' => 'lena.confirmation-existing@example.test']));
+    $payload = personManagementPayload(['first_name' => 'Lena', 'last_name' => 'Beispiel', 'birth_date' => '1988-03-05', 'email' => 'lena.confirmation-a@example.test']);
+
+    $this->withSession(personManagementSession())->actingAs($admin)->post('http://my.vdb.test/verwaltung/personen', $payload)
+        ->assertRedirect(route('administration.persons.create'))
+        ->assertSessionHas('possible_person_match_ids', [$existing->id]);
+
+    $warningPage = $this->withSession(personManagementSession())->actingAs($admin)->get('http://my.vdb.test/verwaltung/personen/anlegen')->assertOk();
+    $confirmation = duplicateConfirmationFromHtml($warningPage->getContent());
+
+    $changedPayload = [...$payload, 'email' => 'lena.confirmation-b@example.test'];
+
+    $this->withSession(personManagementSession())->actingAs($admin)->post('http://my.vdb.test/verwaltung/personen', [...$changedPayload, 'possible_duplicate_confirmation' => $confirmation])
+        ->assertRedirect(route('administration.persons.create'))
+        ->assertSessionHas('possible_person_match_ids', [$existing->id]);
+
+    expect(Person::query()->count())->toBe(1)
+        ->and(Person::query()->where('email', 'lena.confirmation-b@example.test')->exists())->toBeFalse();
 });
 
 it('rejects person emails already used by a person or user', function () {
     $admin = makePersonManagementActor(RoleKey::Administration, 'person-admin-unique@example.test');
     Person::query()->create(personManagementPayload(['email' => 'existing.person@example.test']));
-    $this->withSession(personManagementSession())->actingAs($admin)->post('http://my.vdb.test/verwaltung/personen', personManagementPayload(['first_name' => 'Andere', 'last_name' => 'Person', 'email' => 'EXISTING.PERSON@EXAMPLE.TEST', 'confirm_possible_duplicate' => '1']))->assertSessionHasErrors('email');
+    $this->withSession(personManagementSession())->actingAs($admin)->post('http://my.vdb.test/verwaltung/personen', personManagementPayload(['first_name' => 'Andere', 'last_name' => 'Person', 'email' => 'EXISTING.PERSON@EXAMPLE.TEST', 'possible_duplicate_confirmation' => 'invalid']))->assertSessionHasErrors('email');
     User::query()->create(['email' => 'existing.user@example.test', 'password' => 'Sicher123!', 'status' => UserStatus::Active, 'session_version' => 1]);
-    $this->withSession(personManagementSession())->actingAs($admin)->post('http://my.vdb.test/verwaltung/personen', personManagementPayload(['first_name' => 'Noch', 'last_name' => 'Jemand', 'email' => 'existing.user@example.test', 'confirm_possible_duplicate' => '1']))->assertSessionHasErrors('email');
+    $this->withSession(personManagementSession())->actingAs($admin)->post('http://my.vdb.test/verwaltung/personen', personManagementPayload(['first_name' => 'Noch', 'last_name' => 'Jemand', 'email' => 'existing.user@example.test', 'possible_duplicate_confirmation' => 'invalid']))->assertSessionHasErrors('email');
 });
 
 it('updates an unlinked person and audits changed values', function () {
