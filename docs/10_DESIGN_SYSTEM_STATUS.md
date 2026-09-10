@@ -1,7 +1,7 @@
 # Status des VDBS Designsystems
 
-**Branch:** `checkpoint/design-system-2026-09-08`
-**Phase:** Designsystem weitgehend implementiert, Übergang in Fachseiten- und QA-Phase
+**Basis:** `main`
+**Phase:** Implementierung des Designsystem-Baukastens abgeschlossen, manuelle v1-QA offen
 
 ## 1. Zielzustand
 
@@ -123,24 +123,34 @@ Folgende Punkte werden erst mit echten Fachmodulen ergänzt:
 Damit wird verhindert, dass das Designsystem hypothetische Komponenten sammelt,
 die später nicht gebraucht werden.
 
-## 9. Noch offene QA
+## 9. QA-Status
 
-Automatische Tests ersetzen keine manuelle visuelle Abnahme.
+Die automatisierte Qualitätsbasis auf `main` ist hergestellt. CI prüft unter
+anderem Tests, Web Content Library, Frontend-Build, Whitespace und statische
+PHP-Analyse. Diese Checks ersetzen jedoch keine manuelle visuelle und
+interaktive Abnahme.
 
-Noch durchzuführen:
+Noch durchzuführen nach `docs/09_DESIGN_QA_CHECKLIST.md`:
 
-1. Responsive-Prüfung nach `docs/09_DESIGN_QA_CHECKLIST.md`
+1. Responsive-Prüfung bei 320, 375, 768, 1024 und 1280+ px
 2. vollständige Tastaturnavigation
 3. Screenreader-Stichprobe
 4. Forced Colors / Windows High Contrast
-5. Print-Stichprobe
-6. Browser-Matrix
-7. visuelle Prüfung realer Inhalte mit langen Namen, E-Mail-Adressen und URLs
+5. Reduced Motion und erhöhter Kontrast
+6. Print-Stichprobe
+7. Browser-Matrix für Chrome, Firefox, Edge und Safari
+8. visuelle Prüfung realer Inhalte mit langen Namen, E-Mail-Adressen und URLs
+
+Bis diese Punkte dokumentiert abgeschlossen sind, ist Designsystem v1 noch
+nicht als freigegeben bzw. `frozen` zu behandeln.
 
 ## 10. Abschlusskriterium
 
-Nach erfolgreicher manueller QA gilt der Designsystem-Baukasten als
-grundsätzlich abgeschlossen.
+Die verbindliche Abschlussprüfung steht in
+`docs/22_DESIGN_SYSTEM_V1_FREEZE.md`. Erst wenn die dort genannten
+automatischen Prüfungen grün sind und die relevante manuelle QA ohne offene
+kritische Punkte abgeschlossen wurde, gilt der Designsystem-Baukasten als
+Version `1.0.0`.
 
 Danach lautet die bevorzugte Arbeitsweise:
 
