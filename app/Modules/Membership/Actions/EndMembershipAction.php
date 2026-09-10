@@ -9,6 +9,7 @@ use App\Modules\Identity\Models\Person;
 use App\Modules\Identity\Models\User;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\Membership\Support\MembershipPeriodValidator;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -55,10 +56,18 @@ final class EndMembershipAction
                 ]);
             }
 
-            /** @var array{reason: string} $validatedReason */
-            $validatedReason = Validator::make(
-                ['reason' => trim($reason)],
+            /** @var array{ends_on: string, reason: string} $validated */
+            $validated = Validator::make(
                 [
+                    'ends_on' => $endsOn,
+                    'reason' => trim($reason),
+                ],
+                [
+                    'ends_on' => [
+                        'required',
+                        'date_format:Y-m-d',
+                        'after_or_equal:'.$lockedMembership->starts_on->toDateString(),
+                    ],
                     'reason' => [
                         'required',
                         'string',
@@ -69,7 +78,7 @@ final class EndMembershipAction
 
             $period = $this->periodValidator->validate([
                 'starts_on' => $lockedMembership->starts_on->toDateString(),
-                'ends_on' => $endsOn,
+                'ends_on' => $validated['ends_on'],
             ]);
 
             $this->periodValidator->ensureNoOverlap(
@@ -78,7 +87,9 @@ final class EndMembershipAction
                 $lockedMembership,
             );
 
-            $lockedMembership->ends_on = $period['ends_on'];
+            $lockedMembership->ends_on = Carbon::parse(
+                $validated['ends_on'],
+            )->startOfDay();
             $lockedMembership->save();
 
             $this->synchronizeRole->execute($lockedMembership);
@@ -95,7 +106,7 @@ final class EndMembershipAction
                 newValues: [
                     'ends_on' => $lockedMembership->ends_on?->toDateString(),
                 ],
-                comment: $validatedReason['reason'],
+                comment: $validated['reason'],
                 ipAddress: $ipAddress,
                 userAgent: $userAgent,
             );
