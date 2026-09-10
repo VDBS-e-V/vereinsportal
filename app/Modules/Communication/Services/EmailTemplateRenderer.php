@@ -96,7 +96,7 @@ final class EmailTemplateRenderer
         );
 
         return array_values(
-            array_unique($matches[1] ?? [])
+            array_unique($matches[1])
         );
     }
 
