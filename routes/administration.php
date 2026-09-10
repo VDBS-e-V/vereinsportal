@@ -3,6 +3,12 @@
 use App\Modules\Administration\Http\Controllers\AssignUserRoleController;
 use App\Modules\Administration\Http\Controllers\EndUserRoleController;
 use App\Modules\Administration\Http\Controllers\HomeController;
+use App\Modules\Administration\Http\Controllers\PersonCreateController;
+use App\Modules\Administration\Http\Controllers\PersonEditController;
+use App\Modules\Administration\Http\Controllers\PersonIndexController;
+use App\Modules\Administration\Http\Controllers\PersonShowController;
+use App\Modules\Administration\Http\Controllers\StorePersonController;
+use App\Modules\Administration\Http\Controllers\UpdatePersonController;
 use App\Modules\Administration\Http\Controllers\UpdateUserStatusController;
 use App\Modules\Administration\Http\Controllers\UserIndexController;
 use App\Modules\Administration\Http\Controllers\UserShowController;
@@ -22,6 +28,42 @@ Route::middleware([
             '/',
             HomeController::class,
         )->name('home');
+
+        Route::get(
+            '/personen',
+            PersonIndexController::class,
+        )->name('persons.index');
+
+        Route::get(
+            '/personen/anlegen',
+            PersonCreateController::class,
+        )->name('persons.create');
+
+        Route::post(
+            '/personen',
+            StorePersonController::class,
+        )->name('persons.store');
+
+        Route::get(
+            '/personen/{person}',
+            PersonShowController::class,
+        )
+            ->whereNumber('person')
+            ->name('persons.show');
+
+        Route::get(
+            '/personen/{person}/bearbeiten',
+            PersonEditController::class,
+        )
+            ->whereNumber('person')
+            ->name('persons.edit');
+
+        Route::put(
+            '/personen/{person}',
+            UpdatePersonController::class,
+        )
+            ->whereNumber('person')
+            ->name('persons.update');
 
         Route::get(
             '/benutzer',
