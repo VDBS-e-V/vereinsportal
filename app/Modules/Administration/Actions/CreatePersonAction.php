@@ -42,12 +42,10 @@ final class CreatePersonAction
 
             if ($possibleMatches->isNotEmpty()) {
                 throw new PossiblePersonDuplicate(
-                    $possibleMatches
-                        ->modelKeys()
-                        ->map(
-                            fn (int|string $id): int => (int) $id,
-                        )
-                        ->all(),
+                    array_map(
+                        static fn (int|string $id): int => (int) $id,
+                        $possibleMatches->modelKeys(),
+                    ),
                 );
             }
         }
