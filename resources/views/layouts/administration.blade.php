@@ -44,6 +44,11 @@
                 'active' => request()->routeIs('administration.home'),
             ],
             [
+                'label' => 'Personen',
+                'url' => route('administration.persons.index'),
+                'active' => request()->routeIs('administration.persons.*'),
+            ],
+            [
                 'label' => 'Benutzer',
                 'url' => route('administration.users.index'),
                 'active' => request()->routeIs('administration.users.*'),

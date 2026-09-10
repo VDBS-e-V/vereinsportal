@@ -48,6 +48,8 @@ final class AuditEventCatalog
 
     public const ACCOUNT_REGISTRATION_DELETED_UNVERIFIED = 'account.registration.deleted_unverified';
 
+    public const PERSON_CREATED = 'person.created';
+
     public const PERSON_UPDATED = 'person.updated';
 
     public const AUTH_EMAIL_CHANGE_REQUESTED = 'auth.email_change.requested';
@@ -162,12 +164,29 @@ final class AuditEventCatalog
         self::ACCOUNT_REGISTRATION_DELETED_UNVERIFIED => [
             'reason',
         ],
+
+        self::PERSON_CREATED => [
+            'title',
+            'first_name',
+            'name_addition',
+            'last_name',
+            'birth_date',
+            'email',
+            'phone',
+            'street',
+            'house_number',
+            'postal_code',
+            'city',
+            'country_code',
+        ],
+
         self::PERSON_UPDATED => [
             'title',
             'first_name',
             'name_addition',
             'last_name',
             'birth_date',
+            'email',
             'phone',
             'street',
             'house_number',
@@ -189,6 +208,7 @@ final class AuditEventCatalog
             'old_email',
             'new_email',
         ],
+
         self::AUTH_2FA_ENABLED => [
             'method',
         ],
@@ -210,15 +230,19 @@ final class AuditEventCatalog
         self::AUTH_2FA_RECOVERY_COMPLETED => [
             'recovery_type',
         ],
+
         self::ACCOUNT_DELETION_REQUESTED => [
             'requested_at',
         ],
+
         self::ACCOUNT_DELETION_CONFIRMED => [
             'revoke_until',
         ],
+
         self::ACCOUNT_DELETION_WITHDRAWN => [
             'withdrawn_at',
         ],
+
         self::ACCOUNT_DELETION_STOPPED => [
             'stopped_at',
             'reason_key',

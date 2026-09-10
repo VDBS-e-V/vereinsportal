@@ -39,6 +39,11 @@
 
             <ul class="related-links">
                 <li>
+                    <a href="{{ route('administration.persons.index') }}">
+                        Personenverwaltung
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('administration.users.index') }}">
                         Benutzerverwaltung
                     </a>
