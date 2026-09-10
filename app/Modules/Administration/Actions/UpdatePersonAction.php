@@ -8,13 +8,17 @@ use App\Modules\Audit\Services\AuditWriter;
 use App\Modules\Audit\Support\AuditEventCatalog;
 use App\Modules\Identity\Models\Person;
 use App\Modules\Identity\Models\User;
+use App\Modules\Identity\Support\EmailIdentityWriteLock;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 final class UpdatePersonAction
 {
     public function __construct(
         private readonly PersonDataValidator $validator,
         private readonly AuditWriter $auditWriter,
+        private readonly EmailIdentityWriteLock $emailIdentityWriteLock,
     ) {}
 
     /**
@@ -27,63 +31,92 @@ final class UpdatePersonAction
         ?string $ipAddress = null,
         ?string $userAgent = null,
     ): Person {
-        return DB::transaction(function () use (
-            $person,
-            $values,
-            $actor,
-            $ipAddress,
-            $userAgent,
-        ): Person {
-            $lockedPerson = Person::query()
-                ->with('user')
-                ->whereKey($person->id)
-                ->lockForUpdate()
-                ->firstOrFail();
+        $emailCandidate = $values['email'] ?? null;
 
-            $validated = $this->validator->validate(
+        if (! is_string($emailCandidate)) {
+            throw ValidationException::withMessages([
+                'email' => ['Die E-Mail-Adresse ist ungültig.'],
+            ]);
+        }
+
+        return $this->emailIdentityWriteLock->execute(
+            $emailCandidate,
+            function () use (
+                $person,
                 $values,
-                $lockedPerson,
-            );
+                $actor,
+                $ipAddress,
+                $userAgent,
+            ): Person {
+                try {
+                    return DB::transaction(function () use (
+                        $person,
+                        $values,
+                        $actor,
+                        $ipAddress,
+                        $userAgent,
+                    ): Person {
+                        $lockedPerson = Person::query()
+                            ->with('user')
+                            ->whereKey($person->id)
+                            ->lockForUpdate()
+                            ->firstOrFail();
 
-            $lockedPerson->fill($validated);
+                        $validated = $this->validator->validate(
+                            $values,
+                            $lockedPerson,
+                        );
 
-            $dirty = $lockedPerson->getDirty();
+                        $lockedPerson->fill($validated);
 
-            if ($dirty === []) {
-                return $lockedPerson->refresh();
-            }
+                        $dirty = $lockedPerson->getDirty();
 
-            $oldValues = [];
-            $newValues = [];
+                        if ($dirty === []) {
+                            return $lockedPerson->refresh();
+                        }
 
-            foreach (array_keys($dirty) as $field) {
-                $old = $lockedPerson->getRawOriginal($field);
-                $new = $dirty[$field];
+                        $oldValues = [];
+                        $newValues = [];
 
-                $oldValues[$field] = $old === null
-                    ? null
-                    : (string) $old;
+                        foreach (array_keys($dirty) as $field) {
+                            $old = $lockedPerson->getRawOriginal($field);
+                            $new = $dirty[$field];
 
-                $newValues[$field] = $new === null
-                    ? null
-                    : (string) $new;
-            }
+                            $oldValues[$field] = $old === null
+                                ? null
+                                : (string) $old;
 
-            $lockedPerson->save();
+                            $newValues[$field] = $new === null
+                                ? null
+                                : (string) $new;
+                        }
 
-            $this->auditWriter->write(
-                eventKey: AuditEventCatalog::PERSON_UPDATED,
-                actorType: AuditActorType::User,
-                actorUserId: $actor->id,
-                subjectType: 'person',
-                subjectId: $lockedPerson->id,
-                oldValues: $oldValues,
-                newValues: $newValues,
-                ipAddress: $ipAddress,
-                userAgent: $userAgent,
-            );
+                        $lockedPerson->save();
 
-            return $lockedPerson->refresh();
-        });
+                        $this->auditWriter->write(
+                            eventKey: AuditEventCatalog::PERSON_UPDATED,
+                            actorType: AuditActorType::User,
+                            actorUserId: $actor->id,
+                            subjectType: 'person',
+                            subjectId: $lockedPerson->id,
+                            oldValues: $oldValues,
+                            newValues: $newValues,
+                            ipAddress: $ipAddress,
+                            userAgent: $userAgent,
+                        );
+
+                        return $lockedPerson->refresh();
+                    });
+                } catch (QueryException $exception) {
+                    if ((string) $exception->getCode() === '23000') {
+                        throw ValidationException::withMessages([
+                            'email' => ['Diese E-Mail-Adresse ist bereits vergeben.'],
+                        ]);
+                    }
+
+                    throw $exception;
+                }
+            },
+        );
     }
 }
