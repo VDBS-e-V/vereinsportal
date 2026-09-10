@@ -6,7 +6,6 @@ use App\Modules\Audit\Enums\AuditActorType;
 use App\Modules\Audit\Services\AuditWriter;
 use App\Modules\Audit\Support\AuditEventCatalog;
 use App\Modules\Identity\Actions\Roles\AssignAutomaticRoleAction;
-use App\Modules\Identity\Enums\RegistrationRequestStatus;
 use App\Modules\Identity\Enums\RoleKey;
 use App\Modules\Identity\Enums\UserStatus;
 use App\Modules\Identity\Exceptions\RegistrationCannotComplete;
@@ -50,9 +49,7 @@ final class CompleteRegistrationAction
             }
 
             if (
-                $registrationRequest->status
-                    !== RegistrationRequestStatus::PendingVerification
-                || $registrationRequest->verification_version !== $version
+                $registrationRequest->verification_version !== $version
                 || $registrationRequest->verification_expires_at->isPast()
                 || $registrationRequest->expires_at->isPast()
             ) {
