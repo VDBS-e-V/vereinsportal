@@ -11,6 +11,7 @@ final class PossiblePersonDuplicate extends RuntimeException
      */
     public function __construct(
         public readonly array $personIds,
+        public readonly string $confirmation,
     ) {
         parent::__construct(
             'Es wurden mögliche vorhandene Personen gefunden.',
