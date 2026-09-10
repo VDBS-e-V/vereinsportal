@@ -11,6 +11,7 @@ use Illuminate\Notifications\Notifiable;
 
 /**
  * @property string|null $remember_token
+ * @property-read Person|null $person
  */
 class User extends Authenticatable
 {
