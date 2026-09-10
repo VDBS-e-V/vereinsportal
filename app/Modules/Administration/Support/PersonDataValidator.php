@@ -157,7 +157,7 @@ final class PersonDataValidator
 
     /**
      * @param  array<string, mixed>  $values
-     * @return array<string, string|null>
+     * @return array<string, mixed>
      */
     private function normalize(array $values): array
     {
@@ -165,20 +165,20 @@ final class PersonDataValidator
             'title' => $this->nullableString(
                 $values['title'] ?? null,
             ),
-            'first_name' => trim(
-                (string) ($values['first_name'] ?? ''),
+            'first_name' => $this->trimString(
+                $values['first_name'] ?? '',
             ),
             'name_addition' => $this->nullableString(
                 $values['name_addition'] ?? null,
             ),
-            'last_name' => trim(
-                (string) ($values['last_name'] ?? ''),
+            'last_name' => $this->trimString(
+                $values['last_name'] ?? '',
             ),
-            'birth_date' => trim(
-                (string) ($values['birth_date'] ?? ''),
+            'birth_date' => $this->trimString(
+                $values['birth_date'] ?? '',
             ),
-            'email' => EmailNormalizer::normalize(
-                (string) ($values['email'] ?? ''),
+            'email' => $this->normalizeEmail(
+                $values['email'] ?? '',
             ),
             'phone' => $this->nullableString(
                 $values['phone'] ?? null,
@@ -195,20 +195,43 @@ final class PersonDataValidator
             'city' => $this->nullableString(
                 $values['city'] ?? null,
             ),
-            'country_code' => strtoupper(
-                trim(
-                    (string) ($values['country_code'] ?? ''),
-                ),
+            'country_code' => $this->normalizeCountryCode(
+                $values['country_code'] ?? '',
             ),
         ];
     }
 
-    private function nullableString(mixed $value): ?string
+    private function trimString(mixed $value): mixed
     {
-        $value = trim((string) $value);
+        return is_string($value)
+            ? trim($value)
+            : $value;
+    }
+
+    private function nullableString(mixed $value): mixed
+    {
+        if (! is_string($value)) {
+            return $value;
+        }
+
+        $value = trim($value);
 
         return $value === ''
             ? null
+            : $value;
+    }
+
+    private function normalizeEmail(mixed $value): mixed
+    {
+        return is_string($value)
+            ? EmailNormalizer::normalize($value)
+            : $value;
+    }
+
+    private function normalizeCountryCode(mixed $value): mixed
+    {
+        return is_string($value)
+            ? strtoupper(trim($value))
             : $value;
     }
 }
