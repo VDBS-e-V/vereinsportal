@@ -1,0 +1,48 @@
+name: Prepare Composer Update
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  composer-update:
+    name: Generate Composer lockfile
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.5'
+          extensions: mbstring, pdo_mysql, fileinfo, sodium
+          coverage: none
+          tools: composer:v2
+
+      - name: Align PHP requirement and add Larastan
+        shell: bash
+        run: |
+          composer require 'php:^8.4.1' --no-update --no-interaction
+          composer require --dev 'larastan/larastan:^3.11' --no-update --no-interaction
+          composer update larastan/larastan --with-all-dependencies --minimal-changes --no-interaction --no-progress
+          composer validate --no-check-publish
+
+      - name: Upload generated Composer files
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: composer-static-analysis
+          path: |
+            composer.json
+            composer.lock
+          if-no-files-found: error
+          retention-days: 1
