@@ -53,6 +53,9 @@
         "lint": [
             "@php vendor/bin/pint --test"
         ],
+        "analyse": [
+            "@php vendor/bin/phpstan analyse --memory-limit=1G --no-progress"
+        ],
         "test": [
             "@php artisan config:clear --ansi",
             "@php artisan test"
@@ -60,6 +63,7 @@
         "qa": [
             "composer validate --no-check-publish",
             "@lint",
+            "@analyse",
             "@test",
             "@php artisan vdbs:library-check",
             "npm run build"
