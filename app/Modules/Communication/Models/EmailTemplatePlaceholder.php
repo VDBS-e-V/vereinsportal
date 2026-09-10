@@ -27,6 +27,7 @@ final class EmailTemplatePlaceholder extends Model
         ];
     }
 
+    /** @return BelongsTo<EmailTemplate, $this> */
     public function template(): BelongsTo
     {
         return $this->belongsTo(
