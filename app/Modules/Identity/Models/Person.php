@@ -31,6 +31,7 @@ class Person extends Model
         ];
     }
 
+    /** @return HasOne<User, $this> */
     public function user(): HasOne
     {
         return $this->hasOne(User::class);
