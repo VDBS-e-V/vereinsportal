@@ -25,8 +25,8 @@ final class UserShowController extends Controller
         ]);
 
         $displayName = trim(
-            ($user->person?->first_name ?? '').' '.
-            ($user->person?->last_name ?? '')
+            ($user->person->first_name ?? '').' '.
+            ($user->person->last_name ?? '')
         );
 
         if ($displayName === '') {
