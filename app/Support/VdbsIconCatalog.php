@@ -8,7 +8,7 @@ use RuntimeException;
 final class VdbsIconCatalog
 {
     /**
-     * @return Collection<int, string>
+     * @return Collection<int, non-empty-string>
      */
     public function all(): Collection
     {
@@ -30,14 +30,14 @@ final class VdbsIconCatalog
             $matches,
         );
 
-        return collect($matches[1] ?? [])
+        return collect($matches[1])
             ->unique()
             ->sort()
             ->values();
     }
 
     /**
-     * @return Collection<int, string>
+     * @return Collection<int, non-empty-string>
      */
     public function search(?string $query): Collection
     {
