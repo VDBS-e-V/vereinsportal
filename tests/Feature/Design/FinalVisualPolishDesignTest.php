@@ -61,7 +61,7 @@ it('documents the transition from design construction to manual qa', function ()
         ->toContain('Designsystem-Baukasten');
 
     expect($status)
-        ->toContain('Designsystem weitgehend implementiert')
-        ->toContain('Noch offene QA')
+        ->toContain('Implementierung des Designsystem-Baukastens abgeschlossen, manuelle v1-QA offen')
+        ->toContain('Noch durchzuführen')
         ->toContain('Fachanforderung');
 });
