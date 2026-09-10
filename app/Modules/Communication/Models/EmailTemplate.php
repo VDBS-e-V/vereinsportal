@@ -25,6 +25,7 @@ final class EmailTemplate extends Model
         ];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function updatedBy(): BelongsTo
     {
         return $this->belongsTo(
@@ -33,6 +34,7 @@ final class EmailTemplate extends Model
         );
     }
 
+    /** @return HasMany<EmailTemplateVersion, $this> */
     public function versions(): HasMany
     {
         return $this->hasMany(
@@ -40,6 +42,7 @@ final class EmailTemplate extends Model
         );
     }
 
+    /** @return HasMany<EmailTemplatePlaceholder, $this> */
     public function placeholders(): HasMany
     {
         return $this->hasMany(
