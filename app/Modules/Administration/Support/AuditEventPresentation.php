@@ -26,10 +26,10 @@ final class AuditEventPresentation
             return 'Benutzerkonto nicht mehr verfügbar';
         }
 
-        $name = trim(
-            ($actor->person?->first_name ?? '').' '.
-            ($actor->person?->last_name ?? ''),
-        );
+        $person = $actor->person;
+        $name = $person instanceof Person
+            ? trim($person->first_name.' '.$person->last_name)
+            : '';
 
         return $name !== ''
             ? $name.' · '.$actor->email
