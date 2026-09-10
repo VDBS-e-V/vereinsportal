@@ -79,22 +79,24 @@ Abschluss ausschließlich nach `docs/22_DESIGN_SYSTEM_V1_FREEZE.md`. Es dürfen 
 
 ## Milestone 3 – Dokumentation konsolidieren
 
-**Status: in Arbeit**
+**Status: abgeschlossen**
 
-Ziel:
+Ergebnis:
 
-- Gesamtplan an Ist-Zustand angleichen
-- Ruleset und Merge-Konfiguration dokumentieren
-- CI-/PHP-/Larastan-Stand synchronisieren
-- obsolete PHP-CodeQL-Ziele entfernen
-- Produktiv-Checkliste nur mit verifizierten Punkten abhaken
-- aktuelle und zukünftige Arbeit über diese Roadmap zusammenführen
+- Gesamtplan an Ist-Zustand angeglichen
+- Ruleset und Merge-Konfiguration dokumentiert
+- CI-/PHP-/Larastan-Stand synchronisiert
+- obsolete PHP-CodeQL-Ziele entfernt
+- Produktiv-Checkliste nur mit verifizierten Punkten abgehakt
+- aktuelle und zukünftige Arbeit über diese Roadmap zusammengeführt
 
-Nach Merge des zugehörigen Docs-PRs kann dieser Milestone als abgeschlossen gelten.
+Abgeschlossen mit PR #18.
 
 ## Milestone 4 – Hosting- und Betriebsarchitektur
 
-**Status: offen**
+**Status: offen – Entscheidungstask angelegt**
+
+Tracking: Issue #19
 
 Vor Deployment-Code verbindlich entscheiden:
 
@@ -114,7 +116,7 @@ Vor Deployment-Code verbindlich entscheiden:
 - Backup, Restore und Rollback
 - Verantwortlichkeiten im Betrieb
 
-Definition of Done: Die offenen Voraussetzungen aus `docs/05_PHASE_5_DEPLOYMENT_PLAN.md` sind konkret beantwortet.
+Definition of Done: Die offenen Voraussetzungen aus `docs/05_PHASE_5_DEPLOYMENT_PLAN.md` und Issue #19 sind konkret beantwortet.
 
 ## Milestone 5 – Staging
 
@@ -203,12 +205,12 @@ Keine abstrakte komplexe RBAC-Struktur auf Vorrat bauen.
 
 ## Empfohlene Reihenfolge
 
-Aktuell:
+Aktuell parallel:
 
-`M2 manuelle Design-QA` und `M3 Doku-Abschluss`
+`M2 manuelle Design-QA (#16)` und `M4 Betriebsentscheidungen (#19)`
 
 Danach:
 
-`M4 Betriebsentscheidungen` → `M5 Staging` → `M6 Release-Probelauf` → `M7 Produktion` → `M8 Fachmodule`
+`M5 Staging` → `M6 Release-Probelauf` → `M7 Produktion` → `M8 Fachmodule`
 
-M2 kann parallel zu reinen Dokumentations- und Planungsarbeiten laufen, darf aber nicht ohne die manuelle QA als abgeschlossen markiert werden.
+M2 kann parallel zu reinen Dokumentations- und Planungsarbeiten laufen, darf aber nicht ohne die manuelle QA als abgeschlossen markiert werden. M5 beginnt erst, wenn M4 ausreichend entschieden ist.
