@@ -3,6 +3,7 @@
 use App\Modules\Administration\Http\Controllers\AssignUserRoleController;
 use App\Modules\Administration\Http\Controllers\AuditEventIndexController;
 use App\Modules\Administration\Http\Controllers\AuditEventShowController;
+use App\Modules\Administration\Http\Controllers\DownloadMembershipDocumentController;
 use App\Modules\Administration\Http\Controllers\EmailDeliveryIndexController;
 use App\Modules\Administration\Http\Controllers\EmailDeliveryShowController;
 use App\Modules\Administration\Http\Controllers\EmailTemplateIndexController;
@@ -20,10 +21,14 @@ use App\Modules\Administration\Http\Controllers\PersonEditController;
 use App\Modules\Administration\Http\Controllers\PersonIndexController;
 use App\Modules\Administration\Http\Controllers\PersonShowController;
 use App\Modules\Administration\Http\Controllers\PublishEmailTemplateController;
+use App\Modules\Administration\Http\Controllers\ReplaceMembershipDocumentController;
 use App\Modules\Administration\Http\Controllers\ResendPortalInvitationController;
+use App\Modules\Administration\Http\Controllers\RevokeMembershipConsentController;
 use App\Modules\Administration\Http\Controllers\RevokePortalInvitationController;
 use App\Modules\Administration\Http\Controllers\StartPersonPortalInvitationController;
+use App\Modules\Administration\Http\Controllers\StoreMembershipConsentController;
 use App\Modules\Administration\Http\Controllers\StoreMembershipController;
+use App\Modules\Administration\Http\Controllers\StoreMembershipDocumentController;
 use App\Modules\Administration\Http\Controllers\StorePersonController;
 use App\Modules\Administration\Http\Controllers\UpdateEmailTemplateDraftController;
 use App\Modules\Administration\Http\Controllers\UpdateEmailTemplateStatusController;
@@ -91,6 +96,24 @@ Route::middleware([
         Route::post('/mitgliedschaften/{membership}/beenden', EndMembershipController::class)
             ->whereNumber('membership')
             ->name('memberships.end.store');
+        Route::post('/mitgliedschaften/{membership}/dokumente', StoreMembershipDocumentController::class)
+            ->whereNumber('membership')
+            ->name('memberships.documents.store');
+        Route::get('/mitgliedschaften/{membership}/dokumente/{membershipDocument}', DownloadMembershipDocumentController::class)
+            ->whereNumber('membership')
+            ->whereNumber('membershipDocument')
+            ->name('memberships.documents.download');
+        Route::post('/mitgliedschaften/{membership}/dokumente/{membershipDocument}/ersetzen', ReplaceMembershipDocumentController::class)
+            ->whereNumber('membership')
+            ->whereNumber('membershipDocument')
+            ->name('memberships.documents.replace');
+        Route::post('/mitgliedschaften/{membership}/zustimmungen', StoreMembershipConsentController::class)
+            ->whereNumber('membership')
+            ->name('memberships.consents.store');
+        Route::post('/mitgliedschaften/{membership}/zustimmungen/{membershipConsent}/widerrufen', RevokeMembershipConsentController::class)
+            ->whereNumber('membership')
+            ->whereNumber('membershipConsent')
+            ->name('memberships.consents.revoke');
 
         Route::get('/kommunikation/vorlagen', EmailTemplateIndexController::class)
             ->name('communication.templates.index');
