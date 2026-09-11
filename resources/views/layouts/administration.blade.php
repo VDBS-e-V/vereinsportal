@@ -20,23 +20,45 @@
         if (\Illuminate\Support\Facades\Route::has('design.index')) {
             $areas[] = ['label' => 'Design', 'url' => route('design.index')];
         }
+
+        $administrationAccess = app(\App\Modules\Administration\Support\AdministrationAccess::class);
+        $administrationCapabilities = $user instanceof \App\Modules\Identity\Models\User
+            ? array_map(
+                fn (\App\Modules\Administration\Enums\AdministrationCapability $capability): string => $capability->value,
+                $administrationAccess->capabilities($user),
+            )
+            : [];
+        $can = static fn (\App\Modules\Administration\Enums\AdministrationCapability $capability): bool => in_array(
+            $capability->value,
+            $administrationCapabilities,
+            true,
+        );
+
         $navigation = [
             ['label' => 'Übersicht', 'url' => $homeUrl, 'active' => request()->routeIs('administration.home')],
-            ['label' => 'Personen', 'url' => route('administration.persons.index'), 'active' => request()->routeIs('administration.persons.*')],
-            ['label' => 'Mitgliedschaften', 'url' => route('administration.memberships.index'), 'active' => request()->routeIs('administration.memberships.*')],
-            ['label' => 'Benutzer', 'url' => route('administration.users.index'), 'active' => request()->routeIs('administration.users.*')],
-            ['label' => 'Kommunikation', 'url' => route('administration.communication.templates.index'), 'active' => request()->routeIs('administration.communication.*')],
         ];
+        if ($can(\App\Modules\Administration\Enums\AdministrationCapability::PersonsRead)) {
+            $navigation[] = ['label' => 'Personen', 'url' => route('administration.persons.index'), 'active' => request()->routeIs('administration.persons.*')];
+        }
+        if ($can(\App\Modules\Administration\Enums\AdministrationCapability::MembershipsRead)) {
+            $navigation[] = ['label' => 'Mitgliedschaften', 'url' => route('administration.memberships.index'), 'active' => request()->routeIs('administration.memberships.*')];
+        }
+        if ($can(\App\Modules\Administration\Enums\AdministrationCapability::UsersRead)) {
+            $navigation[] = ['label' => 'Benutzer', 'url' => route('administration.users.index'), 'active' => request()->routeIs('administration.users.*')];
+        }
+        if ($can(\App\Modules\Administration\Enums\AdministrationCapability::CommunicationRead)) {
+            $navigation[] = ['label' => 'Kommunikation', 'url' => route('administration.communication.templates.index'), 'active' => request()->routeIs('administration.communication.*')];
+        }
+        if ($can(\App\Modules\Administration\Enums\AdministrationCapability::AuditRead)) {
+            $navigation[] = [
+                'label' => 'Audit',
+                'url' => route('administration.audit.index'),
+                'active' => request()->routeIs('administration.audit.*'),
+            ];
+        }
+
         $account = null;
         if ($user instanceof \App\Modules\Identity\Models\User) {
-            if (app(\App\Modules\Administration\Support\AdministrationAccess::class)->canManage($user)) {
-                $navigation[] = [
-                    'label' => 'Audit',
-                    'url' => route('administration.audit.index'),
-                    'active' => request()->routeIs('administration.audit.*'),
-                ];
-            }
-
             $person = $user->person;
             $displayName = trim(($person?->first_name ?? '').' '.($person?->last_name ?? ''));
             if ($displayName === '') {
