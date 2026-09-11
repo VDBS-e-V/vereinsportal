@@ -55,5 +55,8 @@
             <h2>Rollenwirkung</h2>
             <p>Bei einem verknüpften Benutzerkonto wird die automatische Rolle <code>member</code> mit demselben Beginn und Ende wie dieser Mitgliedschaftszeitraum geführt.</p>
         </section>
+
+        @include('administration.memberships._documents')
+        @include('administration.memberships._consents')
     </div>
 @endsection

@@ -7,6 +7,7 @@ use App\Modules\Membership\Enums\MembershipStatus;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Membership extends Model
 {
@@ -28,6 +29,18 @@ class Membership extends Model
     public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class);
+    }
+
+    /** @return HasMany<MembershipDocument, $this> */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(MembershipDocument::class);
+    }
+
+    /** @return HasMany<MembershipConsent, $this> */
+    public function consents(): HasMany
+    {
+        return $this->hasMany(MembershipConsent::class);
     }
 
     public function status(?CarbonInterface $at = null): MembershipStatus
