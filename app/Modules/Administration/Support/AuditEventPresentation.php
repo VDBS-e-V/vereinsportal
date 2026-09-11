@@ -10,6 +10,8 @@ use App\Modules\Identity\Models\Person;
 use App\Modules\Identity\Models\PortalInvitation;
 use App\Modules\Identity\Models\User;
 use App\Modules\Membership\Models\Membership;
+use App\Modules\Membership\Models\MembershipConsent;
+use App\Modules\Membership\Models\MembershipDocument;
 
 final class AuditEventPresentation
 {
@@ -49,6 +51,8 @@ final class AuditEventPresentation
             'person' => 'Person',
             'user' => 'Benutzerkonto',
             'membership' => 'Mitgliedschaft',
+            'membership_document' => 'Mitgliedschaftsdokument',
+            'membership_consent' => 'Mitgliedschaftszustimmung',
             'role_assignment' => 'Rollenzuweisung',
             'portal_invitation' => 'Portal-Einladung',
             'email_template' => 'E-Mail-Vorlage',
@@ -81,6 +85,22 @@ final class AuditEventPresentation
                     'administration.communication.templates.show',
                     $version->email_template_id,
                 )
+                : null;
+        }
+
+        if ($event->subject_type === 'membership_document') {
+            $document = MembershipDocument::query()->find($event->subject_id);
+
+            return $document instanceof MembershipDocument
+                ? route('administration.memberships.show', $document->membership_id)
+                : null;
+        }
+
+        if ($event->subject_type === 'membership_consent') {
+            $consent = MembershipConsent::query()->find($event->subject_id);
+
+            return $consent instanceof MembershipConsent
+                ? route('administration.memberships.show', $consent->membership_id)
                 : null;
         }
 
