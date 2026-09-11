@@ -56,6 +56,16 @@ final class AuditEventCatalog
 
     public const MEMBERSHIP_ENDED = 'membership.ended';
 
+    public const MEMBERSHIP_DOCUMENT_UPLOADED = 'membership_document.uploaded';
+
+    public const MEMBERSHIP_DOCUMENT_REPLACED = 'membership_document.replaced';
+
+    public const MEMBERSHIP_DOCUMENT_DOWNLOADED = 'membership_document.downloaded';
+
+    public const MEMBERSHIP_CONSENT_RECORDED = 'membership_consent.recorded';
+
+    public const MEMBERSHIP_CONSENT_REVOKED = 'membership_consent.revoked';
+
     public const PORTAL_INVITATION_CREATED = 'portal_invitation.created';
 
     public const PORTAL_INVITATION_RESENT = 'portal_invitation.resent';
@@ -143,6 +153,37 @@ final class AuditEventCatalog
         self::MEMBERSHIP_CREATED => ['person_id', 'starts_on', 'ends_on'],
         self::MEMBERSHIP_UPDATED => ['starts_on', 'ends_on'],
         self::MEMBERSHIP_ENDED => ['ends_on'],
+        self::MEMBERSHIP_DOCUMENT_UPLOADED => [
+            'membership_id',
+            'document_type',
+            'size_bytes',
+            'received_on',
+            'supersedes_document_id',
+        ],
+        self::MEMBERSHIP_DOCUMENT_REPLACED => [
+            'membership_id',
+            'document_type',
+            'size_bytes',
+            'received_on',
+            'supersedes_document_id',
+        ],
+        self::MEMBERSHIP_DOCUMENT_DOWNLOADED => [
+            'membership_id',
+            'document_type',
+        ],
+        self::MEMBERSHIP_CONSENT_RECORDED => [
+            'membership_id',
+            'consent_key',
+            'version',
+            'source',
+            'granted_at',
+        ],
+        self::MEMBERSHIP_CONSENT_REVOKED => [
+            'membership_id',
+            'consent_key',
+            'version',
+            'revoked_at',
+        ],
         self::PORTAL_INVITATION_CREATED => ['person_id', 'email', 'expires_at'],
         self::PORTAL_INVITATION_RESENT => ['email', 'expires_at', 'token_version'],
         self::PORTAL_INVITATION_REVOKED => ['revoked_at'],
