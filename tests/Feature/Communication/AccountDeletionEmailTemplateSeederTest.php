@@ -140,6 +140,7 @@ it('includes all system email template seeders in the database seeder', function
         'auth.email_change.confirm_new',
         'auth.email_change.old_address_notice',
         'auth.password_reset',
+        'auth.portal-invitation',
         'auth.registration.verify',
         'auth.two_factor.email_code',
     ]);
