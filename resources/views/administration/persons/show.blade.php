@@ -3,6 +3,12 @@
 @section('title', $displayName)
 
 @section('content')
+    @php
+        $openPortalInvitation = $portalInvitations->first(
+            fn ($invitation) => $invitation->isOpen()
+        );
+    @endphp
+
     <div class="stack stack--lg">
         <header class="page-title page-title--split">
             <div class="stack stack--sm">
@@ -28,6 +34,8 @@
                         <x-vdbs.status :type="\App\Modules\Administration\Support\UserStatusPresentation::type($person->user->status)">
                             {{ \App\Modules\Administration\Support\UserStatusPresentation::label($person->user->status) }}
                         </x-vdbs.status>
+                    @elseif ($openPortalInvitation !== null)
+                        <x-vdbs.status type="info">Einladung offen</x-vdbs.status>
                     @else
                         <x-vdbs.status type="info">Kein Konto</x-vdbs.status>
                     @endif
@@ -109,10 +117,19 @@
         </section>
 
         <section class="stack">
-            <header class="stack stack--sm">
-                <h2>Portalzugang</h2>
-                <p>Personendatensatz und Benutzerkonto bleiben fachlich getrennte Objekte.</p>
+            <header class="page-title page-title--split">
+                <div class="stack stack--sm">
+                    <h2>Portalzugang</h2>
+                    <p>Einladungen verbinden einen neuen Portalzugang mit diesem bestehenden Personendatensatz.</p>
+                </div>
+                @if ($canManage && $person->user === null && $openPortalInvitation === null)
+                    <form action="{{ route('administration.persons.portal-invitations.store', $person) }}" method="post">
+                        @csrf
+                        <button class="btn" type="submit">Portalzugang einladen</button>
+                    </form>
+                @endif
             </header>
+
             @if ($person->user !== null)
                 <div class="panel stack">
                     <dl class="metadata-list">
@@ -128,8 +145,59 @@
                     </dl>
                     <div><a href="{{ route('administration.users.show', $person->user) }}">Benutzerkonto öffnen</a></div>
                 </div>
+            @elseif ($openPortalInvitation !== null)
+                <div class="panel stack">
+                    <dl class="metadata-list">
+                        <div><dt>Empfänger</dt><dd>{{ $openPortalInvitation->email }}</dd></div>
+                        <div><dt>Gültig bis</dt><dd>{{ $openPortalInvitation->expires_at->format('d.m.Y, H:i') }} Uhr</dd></div>
+                        <div><dt>Letzter Versand</dt><dd>{{ $openPortalInvitation->sent_at?->format('d.m.Y, H:i') ?? 'noch nicht versendet' }}</dd></div>
+                    </dl>
+                    @if ($canManage)
+                        <div class="page-title__actions">
+                            <form action="{{ route('administration.portal-invitations.resend', $openPortalInvitation) }}" method="post">
+                                @csrf
+                                <button class="btn" type="submit">Erneut senden</button>
+                            </form>
+                            <form action="{{ route('administration.portal-invitations.revoke', $openPortalInvitation) }}" method="post">
+                                @csrf
+                                <button class="btn btn--secondary" type="submit">Widerrufen</button>
+                            </form>
+                        </div>
+                    @endif
+                </div>
             @else
-                <x-vdbs.empty-state title="Kein Benutzerkonto verknüpft" description="Ein Portalzugang wird in diesem Entwicklungsblock nicht automatisch angelegt." />
+                <x-vdbs.empty-state title="Kein Benutzerkonto verknüpft" description="Für diese Person besteht aktuell auch keine offene Portal-Einladung." />
+            @endif
+
+            @if ($portalInvitations->isNotEmpty())
+                <div class="stack">
+                    <h3>Einladungshistorie</h3>
+                    <div class="record-list">
+                        @foreach ($portalInvitations as $portalInvitation)
+                            @php
+                                $invitationStatus = $portalInvitation->status();
+                                $invitationStatusType = match ($invitationStatus) {
+                                    \App\Modules\Identity\Enums\PortalInvitationStatus::Accepted => 'success',
+                                    \App\Modules\Identity\Enums\PortalInvitationStatus::Open => 'info',
+                                    \App\Modules\Identity\Enums\PortalInvitationStatus::Expired => 'warning',
+                                    \App\Modules\Identity\Enums\PortalInvitationStatus::Revoked => 'warning',
+                                };
+                            @endphp
+                            <article class="record-item">
+                                <div class="record-item__main">
+                                    <h4 class="record-item__title">{{ $portalInvitation->email }}</h4>
+                                    <div class="record-item__meta">
+                                        <span>Angelegt {{ $portalInvitation->created_at->format('d.m.Y, H:i') }}</span>
+                                        <span>Version {{ $portalInvitation->token_version }}</span>
+                                    </div>
+                                </div>
+                                <div class="record-item__actions">
+                                    <x-vdbs.status :type="$invitationStatusType">{{ $invitationStatus->label() }}</x-vdbs.status>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+                </div>
             @endif
         </section>
     </div>
