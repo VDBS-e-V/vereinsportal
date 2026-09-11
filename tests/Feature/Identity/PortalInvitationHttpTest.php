@@ -44,7 +44,8 @@ it('shows a valid signed invitation and accepts it through the same signed url',
     $this->get($url)
         ->assertOk()
         ->assertSee('Portalzugang einrichten')
-        ->assertSee('Mara Beispiel');
+        ->assertSee('Hallo Mara')
+        ->assertSee('invitation-http-target@example.test');
 
     $this->post($url, [
         'password' => 'Invitation123!',
