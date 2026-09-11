@@ -63,7 +63,7 @@
                 @foreach ($template->placeholders as $placeholder)
                     <article class="record-item">
                         <div class="record-item__main">
-                            <h3 class="record-item__title">{{ '{{ '.$placeholder->key.' }}' }}</h3>
+                            <h3 class="record-item__title"><code>&#123;&#123; {{ $placeholder->key }} &#125;&#125;</code></h3>
                             <div class="record-item__meta">
                                 <span>{{ $placeholder->label }}</span>
                                 <span>{{ $placeholder->is_required ? 'Pflicht' : 'Optional' }}</span>
