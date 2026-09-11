@@ -47,6 +47,10 @@ final class PersonShowController extends Controller
                 $actor,
                 AdministrationCapability::PersonsManage,
             ),
+            'canReadMemberships' => $access->allowsCapability(
+                $actor,
+                AdministrationCapability::MembershipsRead,
+            ),
             'canManageMemberships' => $access->allowsCapability(
                 $actor,
                 AdministrationCapability::MembershipsManage,
