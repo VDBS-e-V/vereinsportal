@@ -28,6 +28,14 @@
         ];
         $account = null;
         if ($user instanceof \App\Modules\Identity\Models\User) {
+            if (app(\App\Modules\Administration\Support\AdministrationAccess::class)->canManage($user)) {
+                $navigation[] = [
+                    'label' => 'Audit',
+                    'url' => route('administration.audit.index'),
+                    'active' => request()->routeIs('administration.audit.*'),
+                ];
+            }
+
             $person = $user->person;
             $displayName = trim(($person?->first_name ?? '').' '.($person?->last_name ?? ''));
             if ($displayName === '') {

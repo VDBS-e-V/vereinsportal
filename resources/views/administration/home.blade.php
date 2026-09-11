@@ -21,6 +21,9 @@
                 <li><a href="{{ route('administration.persons.index') }}">Personenverwaltung</a></li>
                 <li><a href="{{ route('administration.memberships.index') }}">Mitgliedschaften</a></li>
                 <li><a href="{{ route('administration.users.index') }}">Benutzerverwaltung</a></li>
+                @if ($canManageAdministration)
+                    <li><a href="{{ route('administration.audit.index') }}">Audit-Protokoll</a></li>
+                @endif
             </ul>
         </section>
         <section class="stack">

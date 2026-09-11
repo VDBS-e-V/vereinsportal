@@ -1,6 +1,8 @@
 <?php
 
 use App\Modules\Administration\Http\Controllers\AssignUserRoleController;
+use App\Modules\Administration\Http\Controllers\AuditEventIndexController;
+use App\Modules\Administration\Http\Controllers\AuditEventShowController;
 use App\Modules\Administration\Http\Controllers\EndMembershipController;
 use App\Modules\Administration\Http\Controllers\EndUserRoleController;
 use App\Modules\Administration\Http\Controllers\HomeController;
@@ -69,6 +71,12 @@ Route::middleware([
         Route::post('/mitgliedschaften/{membership}/beenden', EndMembershipController::class)
             ->whereNumber('membership')
             ->name('memberships.end.store');
+
+        Route::get('/audit', AuditEventIndexController::class)
+            ->name('audit.index');
+        Route::get('/audit/{auditEvent}', AuditEventShowController::class)
+            ->whereNumber('auditEvent')
+            ->name('audit.show');
 
         Route::get('/benutzer', UserIndexController::class)->name('users.index');
         Route::get('/benutzer/{user}', UserShowController::class)
