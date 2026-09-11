@@ -25,6 +25,7 @@
             ['label' => 'Personen', 'url' => route('administration.persons.index'), 'active' => request()->routeIs('administration.persons.*')],
             ['label' => 'Mitgliedschaften', 'url' => route('administration.memberships.index'), 'active' => request()->routeIs('administration.memberships.*')],
             ['label' => 'Benutzer', 'url' => route('administration.users.index'), 'active' => request()->routeIs('administration.users.*')],
+            ['label' => 'Kommunikation', 'url' => route('administration.communication.templates.index'), 'active' => request()->routeIs('administration.communication.*')],
         ];
         $account = null;
         if ($user instanceof \App\Modules\Identity\Models\User) {
