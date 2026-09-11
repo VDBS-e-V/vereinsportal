@@ -44,4 +44,10 @@ class Person extends Model
     {
         return $this->hasMany(Membership::class);
     }
+
+    /** @return HasMany<PortalInvitation, $this> */
+    public function portalInvitations(): HasMany
+    {
+        return $this->hasMany(PortalInvitation::class);
+    }
 }
