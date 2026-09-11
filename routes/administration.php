@@ -15,6 +15,9 @@ use App\Modules\Administration\Http\Controllers\PersonCreateController;
 use App\Modules\Administration\Http\Controllers\PersonEditController;
 use App\Modules\Administration\Http\Controllers\PersonIndexController;
 use App\Modules\Administration\Http\Controllers\PersonShowController;
+use App\Modules\Administration\Http\Controllers\ResendPortalInvitationController;
+use App\Modules\Administration\Http\Controllers\RevokePortalInvitationController;
+use App\Modules\Administration\Http\Controllers\StartPersonPortalInvitationController;
 use App\Modules\Administration\Http\Controllers\StoreMembershipController;
 use App\Modules\Administration\Http\Controllers\StorePersonController;
 use App\Modules\Administration\Http\Controllers\UpdateMembershipController;
@@ -45,6 +48,9 @@ Route::middleware([
         Route::post('/personen/{person}/mitgliedschaften', StoreMembershipController::class)
             ->whereNumber('person')
             ->name('persons.memberships.store');
+        Route::post('/personen/{person}/portal-einladung', StartPersonPortalInvitationController::class)
+            ->whereNumber('person')
+            ->name('persons.portal-invitations.store');
         Route::get('/personen/{person}', PersonShowController::class)
             ->whereNumber('person')
             ->name('persons.show');
@@ -54,6 +60,13 @@ Route::middleware([
         Route::put('/personen/{person}', UpdatePersonController::class)
             ->whereNumber('person')
             ->name('persons.update');
+
+        Route::post('/portal-einladungen/{portalInvitation}/erneut-senden', ResendPortalInvitationController::class)
+            ->whereNumber('portalInvitation')
+            ->name('portal-invitations.resend');
+        Route::post('/portal-einladungen/{portalInvitation}/widerrufen', RevokePortalInvitationController::class)
+            ->whereNumber('portalInvitation')
+            ->name('portal-invitations.revoke');
 
         Route::get('/mitgliedschaften', MembershipIndexController::class)->name('memberships.index');
         Route::get('/mitgliedschaften/{membership}', MembershipShowController::class)
