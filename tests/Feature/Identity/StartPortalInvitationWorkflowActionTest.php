@@ -62,7 +62,7 @@ HTML,
         ->sole();
 
     expect($invitation->status())
-        ->toBe(PortalInvitationStatus::Sent)
+        ->toBe(PortalInvitationStatus::Open)
         ->and($invitation->sent_at)
         ->not->toBeNull()
         ->and($delivery->templateVersion->email_template_id)
