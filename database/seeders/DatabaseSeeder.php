@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             DevelopmentAdminSeeder::class,
             RegistrationVerificationEmailTemplateSeeder::class,
+            PortalInvitationEmailTemplateSeeder::class,
             PasswordResetEmailTemplateSeeder::class,
             EmailChangeVerificationTemplateSeeder::class,
             EmailChangeOldAddressNoticeTemplateSeeder::class,

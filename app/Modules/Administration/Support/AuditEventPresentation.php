@@ -4,7 +4,10 @@ namespace App\Modules\Administration\Support;
 
 use App\Modules\Audit\Enums\AuditActorType;
 use App\Modules\Audit\Models\AuditEvent;
+use App\Modules\Communication\Models\EmailTemplate;
+use App\Modules\Communication\Models\EmailTemplateVersion;
 use App\Modules\Identity\Models\Person;
+use App\Modules\Identity\Models\PortalInvitation;
 use App\Modules\Identity\Models\User;
 use App\Modules\Membership\Models\Membership;
 
@@ -47,6 +50,9 @@ final class AuditEventPresentation
             'user' => 'Benutzerkonto',
             'membership' => 'Mitgliedschaft',
             'role_assignment' => 'Rollenzuweisung',
+            'portal_invitation' => 'Portal-Einladung',
+            'email_template' => 'E-Mail-Vorlage',
+            'email_template_version' => 'E-Mail-Vorlagenversion',
             default => $event->subject_type,
         };
 
@@ -59,6 +65,25 @@ final class AuditEventPresentation
             return null;
         }
 
+        if ($event->subject_type === 'portal_invitation') {
+            $invitation = PortalInvitation::query()->find($event->subject_id);
+
+            return $invitation instanceof PortalInvitation
+                ? route('administration.persons.show', $invitation->person_id)
+                : null;
+        }
+
+        if ($event->subject_type === 'email_template_version') {
+            $version = EmailTemplateVersion::query()->find($event->subject_id);
+
+            return $version instanceof EmailTemplateVersion
+                ? route(
+                    'administration.communication.templates.show',
+                    $version->email_template_id,
+                )
+                : null;
+        }
+
         return match ($event->subject_type) {
             'person' => Person::query()->whereKey($event->subject_id)->exists()
                 ? route('administration.persons.show', $event->subject_id)
@@ -68,6 +93,9 @@ final class AuditEventPresentation
                 : null,
             'membership' => Membership::query()->whereKey($event->subject_id)->exists()
                 ? route('administration.memberships.show', $event->subject_id)
+                : null,
+            'email_template' => EmailTemplate::query()->whereKey($event->subject_id)->exists()
+                ? route('administration.communication.templates.show', $event->subject_id)
                 : null,
             default => null,
         };

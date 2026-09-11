@@ -1,8 +1,10 @@
 <?php
 
+use App\Modules\Identity\Http\Controllers\AcceptPortalInvitationController;
 use App\Modules\Identity\Http\Controllers\ConfirmAccountDeletionController;
 use App\Modules\Identity\Http\Controllers\ConfirmEmailChangeController;
 use App\Modules\Identity\Http\Controllers\LogoutController;
+use App\Modules\Identity\Http\Controllers\ShowPortalInvitationController;
 use App\Modules\Identity\Http\Controllers\VerifyRegistrationController;
 use App\Modules\Identity\Http\Controllers\WithdrawAccountDeletionController;
 use Illuminate\Support\Facades\Route;
@@ -18,22 +20,32 @@ Route::get(
 Route::domain(config('domains.my'))
     ->group(function (): void {
         Route::get(
+            '/einladung/{publicId}/{version}/{token}',
+            ShowPortalInvitationController::class,
+        )
+            ->middleware('signed')
+            ->name('identity.portal-invitation.show');
+
+        Route::post(
+            '/einladung/{publicId}/{version}/{token}',
+            AcceptPortalInvitationController::class,
+        )
+            ->middleware('signed')
+            ->name('identity.portal-invitation.accept');
+
+        Route::get(
             '/email/aenderung/bestaetigen/{publicId}',
             ConfirmEmailChangeController::class,
         )
             ->middleware('signed')
-            ->name(
-                'identity.email-change.verify'
-            );
+            ->name('identity.email-change.verify');
 
         Volt::route(
             '/email/aenderung/sicherheit/{publicId}',
             'identity.email-change-security',
         )
             ->middleware('signed')
-            ->name(
-                'identity.email-change.security'
-            );
+            ->name('identity.email-change.security');
 
         Volt::route(
             '/anmelden',

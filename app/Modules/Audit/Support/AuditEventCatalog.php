@@ -18,11 +18,9 @@ final class AuditEventCatalog
 
     public const AUTH_PASSWORD_CHANGED = 'auth.password.changed';
 
-    public const AUTH_PASSWORD_RESET_REQUESTED =
-        'auth.password_reset.requested';
+    public const AUTH_PASSWORD_RESET_REQUESTED = 'auth.password_reset.requested';
 
-    public const AUTH_PASSWORD_RESET_COMPLETED =
-        'auth.password_reset.completed';
+    public const AUTH_PASSWORD_RESET_COMPLETED = 'auth.password_reset.completed';
 
     public const AUTH_EMAIL_VERIFIED = 'auth.email_verified';
 
@@ -58,6 +56,14 @@ final class AuditEventCatalog
 
     public const MEMBERSHIP_ENDED = 'membership.ended';
 
+    public const PORTAL_INVITATION_CREATED = 'portal_invitation.created';
+
+    public const PORTAL_INVITATION_RESENT = 'portal_invitation.resent';
+
+    public const PORTAL_INVITATION_REVOKED = 'portal_invitation.revoked';
+
+    public const PORTAL_INVITATION_ACCEPTED = 'portal_invitation.accepted';
+
     public const AUTH_EMAIL_CHANGE_REQUESTED = 'auth.email_change.requested';
 
     public const AUTH_EMAIL_CHANGE_SUPERSEDED = 'auth.email_change.superseded';
@@ -84,93 +90,28 @@ final class AuditEventCatalog
 
     public const ACCOUNT_DELETION_STOPPED = 'account.deletion.stopped';
 
-    /**
-     * @var array<string, list<string>>
-     */
+    /** @var array<string, list<string>> */
     private const VALUE_FIELDS = [
-        self::AUTH_LOGIN_SUCCEEDED => [
-            'method',
-            'remember_me',
-        ],
-
-        self::AUTH_LOGIN_FAILED => [
-            'reason',
-            'login_id',
-        ],
-
-        self::AUTH_LOGIN_LOCKED => [
-            'scope',
-            'locked_until',
-        ],
-
-        self::AUTH_LOGOUT => [
-            'scope',
-        ],
-
-        self::AUTH_SESSIONS_INVALIDATED => [
-            'reason',
-        ],
-
+        self::AUTH_LOGIN_SUCCEEDED => ['method', 'remember_me'],
+        self::AUTH_LOGIN_FAILED => ['reason', 'login_id'],
+        self::AUTH_LOGIN_LOCKED => ['scope', 'locked_until'],
+        self::AUTH_LOGOUT => ['scope'],
+        self::AUTH_SESSIONS_INVALIDATED => ['reason'],
         self::AUTH_PASSWORD_CHANGED => [],
-
         self::AUTH_PASSWORD_RESET_REQUESTED => [],
-
         self::AUTH_PASSWORD_RESET_COMPLETED => [],
-
-        self::AUTH_EMAIL_VERIFIED => [
-            'verified_at',
-        ],
-
-        self::ACCOUNT_REGISTERED => [
-            'linkage_type',
-        ],
-
-        self::ROLE_AUTOMATIC_ASSIGNED => [
-            'role',
-            'source',
-        ],
-
-        self::ROLE_MANUAL_ASSIGNED => [
-            'role',
-            'source',
-            'starts_at',
-        ],
-
-        self::ROLE_MANUAL_ENDED => [
-            'role',
-            'source',
-            'ends_at',
-        ],
-
-        self::ACCOUNT_DISABLED => [
-            'status',
-            'session_version',
-        ],
-
-        self::ACCOUNT_REACTIVATED => [
-            'status',
-            'session_version',
-        ],
-
-        self::EMAIL_TEMPLATE_PUBLISHED => [
-            'version',
-            'key',
-        ],
-
-        self::EMAIL_TEMPLATE_ACTIVATED => [
-            'status',
-        ],
-
-        self::EMAIL_TEMPLATE_DEACTIVATED => [
-            'status',
-        ],
-
+        self::AUTH_EMAIL_VERIFIED => ['verified_at'],
+        self::ACCOUNT_REGISTERED => ['linkage_type'],
+        self::ROLE_AUTOMATIC_ASSIGNED => ['role', 'source'],
+        self::ROLE_MANUAL_ASSIGNED => ['role', 'source', 'starts_at'],
+        self::ROLE_MANUAL_ENDED => ['role', 'source', 'ends_at'],
+        self::ACCOUNT_DISABLED => ['status', 'session_version'],
+        self::ACCOUNT_REACTIVATED => ['status', 'session_version'],
+        self::EMAIL_TEMPLATE_PUBLISHED => ['version', 'key'],
+        self::EMAIL_TEMPLATE_ACTIVATED => ['status'],
+        self::EMAIL_TEMPLATE_DEACTIVATED => ['status'],
         self::AUTH_VERIFICATION_RESENT => [],
-
-        self::ACCOUNT_REGISTRATION_DELETED_UNVERIFIED => [
-            'reason',
-        ],
-
+        self::ACCOUNT_REGISTRATION_DELETED_UNVERIFIED => ['reason'],
         self::PERSON_CREATED => [
             'title',
             'first_name',
@@ -185,7 +126,6 @@ final class AuditEventCatalog
             'city',
             'country_code',
         ],
-
         self::PERSON_UPDATED => [
             'title',
             'first_name',
@@ -200,80 +140,30 @@ final class AuditEventCatalog
             'city',
             'country_code',
         ],
-
-        self::MEMBERSHIP_CREATED => [
-            'person_id',
-            'starts_on',
-            'ends_on',
-        ],
-
-        self::MEMBERSHIP_UPDATED => [
-            'starts_on',
-            'ends_on',
-        ],
-
-        self::MEMBERSHIP_ENDED => [
-            'ends_on',
-        ],
-
-        self::AUTH_EMAIL_CHANGE_REQUESTED => [
-            'old_email',
-            'new_email',
-        ],
-
-        self::AUTH_EMAIL_CHANGE_SUPERSEDED => [
-            'new_email',
-        ],
-
-        self::AUTH_EMAIL_CHANGE_COMPLETED => [
-            'old_email',
-            'new_email',
-        ],
-
-        self::AUTH_2FA_ENABLED => [
-            'method',
-        ],
-
-        self::AUTH_2FA_DISABLED => [
-            'method',
-        ],
-
-        self::AUTH_2FA_CHALLENGE_FAILED => [
-            'method',
-        ],
-
+        self::MEMBERSHIP_CREATED => ['person_id', 'starts_on', 'ends_on'],
+        self::MEMBERSHIP_UPDATED => ['starts_on', 'ends_on'],
+        self::MEMBERSHIP_ENDED => ['ends_on'],
+        self::PORTAL_INVITATION_CREATED => ['person_id', 'email', 'expires_at'],
+        self::PORTAL_INVITATION_RESENT => ['email', 'expires_at', 'token_version'],
+        self::PORTAL_INVITATION_REVOKED => ['revoked_at'],
+        self::PORTAL_INVITATION_ACCEPTED => ['person_id', 'user_id', 'accepted_at'],
+        self::AUTH_EMAIL_CHANGE_REQUESTED => ['old_email', 'new_email'],
+        self::AUTH_EMAIL_CHANGE_SUPERSEDED => ['new_email'],
+        self::AUTH_EMAIL_CHANGE_COMPLETED => ['old_email', 'new_email'],
+        self::AUTH_2FA_ENABLED => ['method'],
+        self::AUTH_2FA_DISABLED => ['method'],
+        self::AUTH_2FA_CHALLENGE_FAILED => ['method'],
         self::AUTH_2FA_RECOVERY_CODE_USED => [],
-
-        self::AUTH_2FA_RECOVERY_CODES_REGENERATED => [
-            'count',
-        ],
-
-        self::AUTH_2FA_RECOVERY_COMPLETED => [
-            'recovery_type',
-        ],
-
-        self::ACCOUNT_DELETION_REQUESTED => [
-            'requested_at',
-        ],
-
-        self::ACCOUNT_DELETION_CONFIRMED => [
-            'revoke_until',
-        ],
-
-        self::ACCOUNT_DELETION_WITHDRAWN => [
-            'withdrawn_at',
-        ],
-
-        self::ACCOUNT_DELETION_STOPPED => [
-            'stopped_at',
-            'reason_key',
-        ],
+        self::AUTH_2FA_RECOVERY_CODES_REGENERATED => ['count'],
+        self::AUTH_2FA_RECOVERY_COMPLETED => ['recovery_type'],
+        self::ACCOUNT_DELETION_REQUESTED => ['requested_at'],
+        self::ACCOUNT_DELETION_CONFIRMED => ['revoke_until'],
+        self::ACCOUNT_DELETION_WITHDRAWN => ['withdrawn_at'],
+        self::ACCOUNT_DELETION_STOPPED => ['stopped_at', 'reason_key'],
     ];
 
-    public static function filterValues(
-        string $eventKey,
-        ?array $values,
-    ): ?array {
+    public static function filterValues(string $eventKey, ?array $values): ?array
+    {
         if (! array_key_exists($eventKey, self::VALUE_FIELDS)) {
             throw new InvalidArgumentException(
                 "Audit event [{$eventKey}] has no configured value whitelist."
@@ -284,17 +174,9 @@ final class AuditEventCatalog
             return null;
         }
 
-        $allowedFields = array_flip(
-            self::VALUE_FIELDS[$eventKey]
-        );
+        $allowedFields = array_flip(self::VALUE_FIELDS[$eventKey]);
+        $filtered = array_intersect_key($values, $allowedFields);
 
-        $filtered = array_intersect_key(
-            $values,
-            $allowedFields,
-        );
-
-        return $filtered === []
-            ? null
-            : $filtered;
+        return $filtered === [] ? null : $filtered;
     }
 }

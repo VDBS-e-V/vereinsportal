@@ -21,6 +21,10 @@ final class PersonShowController extends Controller
             ->orderByDesc('starts_on')
             ->orderByDesc('id')
             ->get();
+        $portalInvitations = $person->portalInvitations()
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->get();
 
         $displayName = trim(
             $person->first_name.' '.
@@ -35,6 +39,7 @@ final class PersonShowController extends Controller
         return view('administration.persons.show', [
             'person' => $person,
             'memberships' => $memberships,
+            'portalInvitations' => $portalInvitations,
             'displayName' => $displayName,
             'canManage' => $actor instanceof User
                 && $access->canManage($actor),
