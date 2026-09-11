@@ -3,6 +3,10 @@
 use App\Modules\Administration\Http\Controllers\AssignUserRoleController;
 use App\Modules\Administration\Http\Controllers\AuditEventIndexController;
 use App\Modules\Administration\Http\Controllers\AuditEventShowController;
+use App\Modules\Administration\Http\Controllers\EmailDeliveryIndexController;
+use App\Modules\Administration\Http\Controllers\EmailDeliveryShowController;
+use App\Modules\Administration\Http\Controllers\EmailTemplateIndexController;
+use App\Modules\Administration\Http\Controllers\EmailTemplateShowController;
 use App\Modules\Administration\Http\Controllers\EndMembershipController;
 use App\Modules\Administration\Http\Controllers\EndUserRoleController;
 use App\Modules\Administration\Http\Controllers\HomeController;
@@ -15,11 +19,14 @@ use App\Modules\Administration\Http\Controllers\PersonCreateController;
 use App\Modules\Administration\Http\Controllers\PersonEditController;
 use App\Modules\Administration\Http\Controllers\PersonIndexController;
 use App\Modules\Administration\Http\Controllers\PersonShowController;
+use App\Modules\Administration\Http\Controllers\PublishEmailTemplateController;
 use App\Modules\Administration\Http\Controllers\ResendPortalInvitationController;
 use App\Modules\Administration\Http\Controllers\RevokePortalInvitationController;
 use App\Modules\Administration\Http\Controllers\StartPersonPortalInvitationController;
 use App\Modules\Administration\Http\Controllers\StoreMembershipController;
 use App\Modules\Administration\Http\Controllers\StorePersonController;
+use App\Modules\Administration\Http\Controllers\UpdateEmailTemplateDraftController;
+use App\Modules\Administration\Http\Controllers\UpdateEmailTemplateStatusController;
 use App\Modules\Administration\Http\Controllers\UpdateMembershipController;
 use App\Modules\Administration\Http\Controllers\UpdatePersonController;
 use App\Modules\Administration\Http\Controllers\UpdateUserStatusController;
@@ -84,6 +91,26 @@ Route::middleware([
         Route::post('/mitgliedschaften/{membership}/beenden', EndMembershipController::class)
             ->whereNumber('membership')
             ->name('memberships.end.store');
+
+        Route::get('/kommunikation/vorlagen', EmailTemplateIndexController::class)
+            ->name('communication.templates.index');
+        Route::get('/kommunikation/vorlagen/{emailTemplate}', EmailTemplateShowController::class)
+            ->whereNumber('emailTemplate')
+            ->name('communication.templates.show');
+        Route::put('/kommunikation/vorlagen/{emailTemplate}/entwurf', UpdateEmailTemplateDraftController::class)
+            ->whereNumber('emailTemplate')
+            ->name('communication.templates.draft.update');
+        Route::post('/kommunikation/vorlagen/{emailTemplate}/veroeffentlichen', PublishEmailTemplateController::class)
+            ->whereNumber('emailTemplate')
+            ->name('communication.templates.publish');
+        Route::post('/kommunikation/vorlagen/{emailTemplate}/status', UpdateEmailTemplateStatusController::class)
+            ->whereNumber('emailTemplate')
+            ->name('communication.templates.status.update');
+        Route::get('/kommunikation/versand', EmailDeliveryIndexController::class)
+            ->name('communication.deliveries.index');
+        Route::get('/kommunikation/versand/{emailDelivery}', EmailDeliveryShowController::class)
+            ->whereNumber('emailDelivery')
+            ->name('communication.deliveries.show');
 
         Route::get('/audit', AuditEventIndexController::class)
             ->name('audit.index');
