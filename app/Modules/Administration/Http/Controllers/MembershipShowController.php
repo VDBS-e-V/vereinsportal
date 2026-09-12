@@ -92,8 +92,8 @@ final class MembershipShowController extends Controller
             'consentSources' => MembershipConsentSource::cases(),
             'breadcrumbs' => [
                 [
-                    'label' => 'Verwaltung',
-                    'url' => route('administration.home'),
+                    'label' => 'Vorstand',
+                    'url' => route('board.home'),
                 ],
                 [
                     'label' => 'Mitgliedschaften',
