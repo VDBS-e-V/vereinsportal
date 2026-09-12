@@ -3,6 +3,7 @@
 namespace App\Modules\Administration\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Administration\Enums\AdministrationCapability;
 use App\Modules\Administration\Support\AdministrationAccess;
 use App\Modules\Identity\Models\Person;
 use App\Modules\Identity\Models\User;
@@ -35,14 +36,33 @@ final class PersonShowController extends Controller
         );
 
         $actor = $request->user();
+        abort_unless($actor instanceof User, 403);
 
         return view('administration.persons.show', [
             'person' => $person,
             'memberships' => $memberships,
             'portalInvitations' => $portalInvitations,
             'displayName' => $displayName,
-            'canManage' => $actor instanceof User
-                && $access->canManage($actor),
+            'canManagePerson' => $access->allowsCapability(
+                $actor,
+                AdministrationCapability::PersonsManage,
+            ),
+            'canReadMemberships' => $access->allowsCapability(
+                $actor,
+                AdministrationCapability::MembershipsRead,
+            ),
+            'canManageMemberships' => $access->allowsCapability(
+                $actor,
+                AdministrationCapability::MembershipsManage,
+            ),
+            'canManagePortalInvitations' => $access->allowsCapability(
+                $actor,
+                AdministrationCapability::PortalInvitationsManage,
+            ),
+            'canReadUsers' => $access->allowsCapability(
+                $actor,
+                AdministrationCapability::UsersRead,
+            ),
             'breadcrumbs' => [
                 ['label' => 'Verwaltung', 'url' => route('administration.home')],
                 ['label' => 'Personen', 'url' => route('administration.persons.index')],

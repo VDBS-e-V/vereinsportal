@@ -30,7 +30,13 @@ Für die laufende Entwicklung:
 composer dev
 ```
 
-Lokale Umgebungswerte gehören ausschließlich in `.env` und dürfen nicht committed werden.
+Nach einem Pull mit neuen Datenbankmigrationen muss der lokale Datenbankstand aktualisiert werden:
+
+```text
+php artisan migrate
+```
+
+Das ist insbesondere vor dem Testen neu hinzugekommener Detailansichten und Fachmodule erforderlich. Lokale Umgebungswerte gehören ausschließlich in `.env` und dürfen nicht committed werden.
 
 ## Branch-Modell
 

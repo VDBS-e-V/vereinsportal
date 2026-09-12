@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Administration\Http\Middleware\RequireAdministrationAccess;
+use App\Modules\Administration\Http\Middleware\RequireAdministrationCapability;
 use App\Modules\Identity\Http\Middleware\RevalidateAuthenticatedUser;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'administration.access' => RequireAdministrationAccess::class,
+            'administration.capability' => RequireAdministrationCapability::class,
             'identity.revalidate' => RevalidateAuthenticatedUser::class,
         ]);
 

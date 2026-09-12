@@ -3,6 +3,7 @@
 namespace App\Modules\Administration\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Administration\Enums\AdministrationCapability;
 use App\Modules\Administration\Support\AdministrationAccess;
 use App\Modules\Identity\Models\User;
 use App\Modules\Membership\Actions\RevokeMembershipConsentAction;
@@ -23,7 +24,14 @@ final class RevokeMembershipConsentController extends Controller
         abort_unless($membershipConsent->membership_id === $membership->id, 404);
 
         $actor = $request->user();
-        abort_unless($actor instanceof User && $access->canManage($actor), 403);
+        abort_unless(
+            $actor instanceof User
+            && $access->allowsCapability(
+                $actor,
+                AdministrationCapability::MembershipConsentsManage,
+            ),
+            403,
+        );
 
         $validated = $request->validate([
             'reason' => ['required', 'string', 'max:1000'],

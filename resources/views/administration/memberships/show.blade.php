@@ -16,7 +16,7 @@
                 <p class="page-title__lead">Mitgliedschaft ab {{ $membership->starts_on->format('d.m.Y') }}</p>
             </div>
             <div class="page-title__actions">
-                @if ($canManage)
+                @if ($canManageMemberships)
                     <a class="btn" href="{{ route('administration.memberships.edit', $membership) }}">Bearbeiten</a>
                     @if ($membership->ends_on === null)
                         <a class="btn btn--secondary" href="{{ route('administration.memberships.end', $membership) }}">Mitgliedschaft beenden</a>
@@ -46,9 +46,13 @@
             <dl class="metadata-list">
                 <div><dt>Name</dt><dd>{{ $displayName }}</dd></div>
                 <div><dt>E-Mail-Adresse</dt><dd>{{ $person->email }}</dd></div>
-                <div><dt>Portalzugang</dt><dd>{{ $person->user !== null ? 'Vorhanden' : 'Kein Konto' }}</dd></div>
+                @if ($canReadUsers)
+                    <div><dt>Portalzugang</dt><dd>{{ $person->user !== null ? 'Vorhanden' : 'Kein Konto' }}</dd></div>
+                @endif
             </dl>
-            <div><a href="{{ route('administration.persons.show', $person) }}">Personendetail öffnen</a></div>
+            @if ($canReadPersons)
+                <div><a href="{{ route('administration.persons.show', $person) }}">Personendetail öffnen</a></div>
+            @endif
         </section>
 
         <section class="stack">
@@ -56,7 +60,12 @@
             <p>Bei einem verknüpften Benutzerkonto wird die automatische Rolle <code>member</code> mit demselben Beginn und Ende wie dieser Mitgliedschaftszeitraum geführt.</p>
         </section>
 
-        @include('administration.memberships._documents')
-        @include('administration.memberships._consents')
+        @if ($canReadDocuments)
+            @include('administration.memberships._documents')
+        @endif
+
+        @if ($canReadConsents)
+            @include('administration.memberships._consents')
+        @endif
     </div>
 @endsection

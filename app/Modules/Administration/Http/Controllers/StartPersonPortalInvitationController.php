@@ -3,6 +3,7 @@
 namespace App\Modules\Administration\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Administration\Enums\AdministrationCapability;
 use App\Modules\Administration\Support\AdministrationAccess;
 use App\Modules\Communication\Exceptions\EmailTemplateUnavailable;
 use App\Modules\Identity\Actions\PortalInvitation\StartPortalInvitationWorkflowAction;
@@ -20,7 +21,14 @@ final class StartPersonPortalInvitationController extends Controller
         StartPortalInvitationWorkflowAction $startInvitation,
     ): RedirectResponse {
         $actor = $request->user();
-        abort_unless($actor instanceof User && $access->canManage($actor), 403);
+        abort_unless(
+            $actor instanceof User
+            && $access->allowsCapability(
+                $actor,
+                AdministrationCapability::PortalInvitationsManage,
+            ),
+            403,
+        );
 
         try {
             $startInvitation->execute($person, $actor);

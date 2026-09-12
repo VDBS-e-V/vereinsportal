@@ -3,6 +3,7 @@
 namespace App\Modules\Administration\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Administration\Enums\AdministrationCapability;
 use App\Modules\Administration\Support\AdministrationAccess;
 use App\Modules\Communication\Models\EmailTemplate;
 use App\Modules\Identity\Models\User;
@@ -17,7 +18,14 @@ final class UpdateEmailTemplateDraftController extends Controller
         AdministrationAccess $access,
     ): RedirectResponse {
         $actor = $request->user();
-        abort_unless($actor instanceof User && $access->canManage($actor), 403);
+        abort_unless(
+            $actor instanceof User
+            && $access->allowsCapability(
+                $actor,
+                AdministrationCapability::CommunicationManage,
+            ),
+            403,
+        );
 
         $validated = $request->validate([
             'draft_subject' => ['required', 'string', 'max:255'],

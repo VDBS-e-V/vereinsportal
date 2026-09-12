@@ -3,6 +3,7 @@
 namespace App\Modules\Administration\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Administration\Enums\AdministrationCapability;
 use App\Modules\Administration\Support\AdministrationAccess;
 use App\Modules\Identity\Actions\PortalInvitation\RevokePortalInvitationAction;
 use App\Modules\Identity\Models\PortalInvitation;
@@ -19,7 +20,14 @@ final class RevokePortalInvitationController extends Controller
         RevokePortalInvitationAction $revokeInvitation,
     ): RedirectResponse {
         $actor = $request->user();
-        abort_unless($actor instanceof User && $access->canManage($actor), 403);
+        abort_unless(
+            $actor instanceof User
+            && $access->allowsCapability(
+                $actor,
+                AdministrationCapability::PortalInvitationsManage,
+            ),
+            403,
+        );
 
         $revokeInvitation->execute($portalInvitation, $actor);
 

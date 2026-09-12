@@ -1,5 +1,7 @@
 <?php
 
+use App\Modules\Administration\Enums\AdministrationCapability;
+use App\Modules\Administration\Support\AdministrationAccess;
 use App\Modules\Identity\Enums\RoleAssignmentSource;
 use App\Modules\Identity\Enums\RoleKey;
 use App\Modules\Identity\Enums\UserStatus;
@@ -7,16 +9,19 @@ use App\Modules\Identity\Models\Role;
 use App\Modules\Identity\Models\RoleAssignment;
 use App\Modules\Identity\Models\User;
 
-function makeAdministrationAccessTestUser(string $email): User
-{
+function makeAdministrationAccessTestUser(
+    string $email,
+    UserStatus $status = UserStatus::Active,
+    bool $verified = true,
+): User {
     $user = User::query()->create([
         'email' => $email,
         'password' => 'Sicher123!',
-        'status' => UserStatus::Active,
+        'status' => $status,
         'session_version' => 1,
     ]);
 
-    $user->email_verified_at = now();
+    $user->email_verified_at = $verified ? now() : null;
     $user->save();
 
     return $user->refresh();
@@ -47,52 +52,183 @@ function grantAdministrationAccessTestRole(
     ]);
 }
 
+function administrationAccessTestSession(): array
+{
+    return [
+        'identity.session_version' => 1,
+        'identity.account_validated_at' => now()->timestamp,
+        'identity.two_factor_verified_at' => now()->timestamp,
+    ];
+}
+
+function administrationCapabilityValues(User $user): array
+{
+    $values = array_map(
+        static fn (AdministrationCapability $capability): string => $capability->value,
+        app(AdministrationAccess::class)->capabilities($user),
+    );
+    sort($values);
+
+    return $values;
+}
+
 it('redirects guests from administration to login', function () {
     $this
         ->get('http://my.vdb.test/verwaltung')
         ->assertRedirect(route('my.login'));
 });
 
-it('forbids authenticated users without an administration role', function () {
+it('forbids authenticated users without an administration capability role', function () {
     $user = makeAdministrationAccessTestUser(
         'regular-administration-access@example.test',
     );
 
     $this
-        ->withSession([
-            'identity.session_version' => 1,
-            'identity.account_validated_at' => now()->timestamp,
-            'identity.two_factor_verified_at' => now()->timestamp,
-        ])
+        ->withSession(administrationAccessTestSession())
         ->actingAs($user)
         ->get('http://my.vdb.test/verwaltung')
         ->assertForbidden();
 });
 
-it('allows active administration roles', function (RoleKey $roleKey) {
+it('maps administration staff to the exact read-only beta capabilities', function () {
     $user = makeAdministrationAccessTestUser(
-        $roleKey->value.'-access@example.test',
+        'administration-staff-capabilities@example.test',
     );
-
     grantAdministrationAccessTestRole(
         $user,
-        $roleKey,
+        RoleKey::AdministrationStaff,
     );
 
-    $this
-        ->withSession([
-            'identity.session_version' => 1,
-            'identity.account_validated_at' => now()->timestamp,
-            'identity.two_factor_verified_at' => now()->timestamp,
-        ])
-        ->actingAs($user)
-        ->get('http://my.vdb.test/verwaltung')
-        ->assertOk()
-        ->assertSee('Verwaltungsübersicht');
+    $expected = [
+        AdministrationCapability::CommunicationRead->value,
+        AdministrationCapability::MembershipConsentsRead->value,
+        AdministrationCapability::MembershipDocumentsRead->value,
+        AdministrationCapability::MembershipsRead->value,
+        AdministrationCapability::PersonsRead->value,
+        AdministrationCapability::UsersRead->value,
+    ];
+    sort($expected);
+
+    expect(administrationCapabilityValues($user))->toBe($expected);
+
+    $access = app(AdministrationAccess::class);
+
+    expect($access->allows($user))->toBeTrue()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::PersonsManage,
+        ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::MembershipsManage,
+        ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::MembershipDocumentsManage,
+        ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::MembershipConsentsManage,
+        ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::PortalInvitationsManage,
+        ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::UserStatusManage,
+        ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::RolesManage,
+        ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::CommunicationManage,
+        ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::AuditRead,
+        ))->toBeFalse();
+});
+
+it('maps administration to every beta capability', function () {
+    $user = makeAdministrationAccessTestUser(
+        'administration-capabilities@example.test',
+    );
+    grantAdministrationAccessTestRole(
+        $user,
+        RoleKey::Administration,
+    );
+
+    $expected = array_map(
+        static fn (AdministrationCapability $capability): string => $capability->value,
+        AdministrationCapability::cases(),
+    );
+    sort($expected);
+
+    expect(administrationCapabilityValues($user))->toBe($expected);
+});
+
+it('does not grant administration capabilities to unrelated roles', function (RoleKey $roleKey) {
+    $user = makeAdministrationAccessTestUser(
+        $roleKey->value.'-no-administration-capabilities@example.test',
+    );
+    grantAdministrationAccessTestRole($user, $roleKey);
+
+    $access = app(AdministrationAccess::class);
+
+    expect($access->allows($user))->toBeFalse()
+        ->and($access->capabilities($user))->toBe([]);
 })->with([
-    RoleKey::AdministrationStaff,
-    RoleKey::Administration,
+    RoleKey::Guest,
+    RoleKey::Member,
+    RoleKey::BoardMember,
+    RoleKey::Team,
+    RoleKey::EducationCoordination,
+    RoleKey::Coordination,
 ]);
+
+it('keeps staff read routes available while capability-protected writes and audit stay forbidden', function () {
+    $staff = makeAdministrationAccessTestUser(
+        'administration-staff-routes@example.test',
+    );
+    grantAdministrationAccessTestRole(
+        $staff,
+        RoleKey::AdministrationStaff,
+    );
+
+    $client = $this
+        ->withSession(administrationAccessTestSession())
+        ->actingAs($staff);
+
+    $client->get('http://my.vdb.test/verwaltung')->assertOk();
+    $client->get('http://my.vdb.test/verwaltung/personen')->assertOk();
+    $client->get('http://my.vdb.test/verwaltung/mitgliedschaften')->assertOk();
+    $client->get('http://my.vdb.test/verwaltung/benutzer')->assertOk();
+    $client->get('http://my.vdb.test/verwaltung/kommunikation/vorlagen')->assertOk();
+
+    $client->get('http://my.vdb.test/verwaltung/audit')->assertForbidden();
+    $client->get('http://my.vdb.test/verwaltung/personen/anlegen')->assertForbidden();
+});
+
+it('allows administration capability-protected management and audit routes', function () {
+    $admin = makeAdministrationAccessTestUser(
+        'administration-routes@example.test',
+    );
+    grantAdministrationAccessTestRole(
+        $admin,
+        RoleKey::Administration,
+    );
+
+    $client = $this
+        ->withSession(administrationAccessTestSession())
+        ->actingAs($admin);
+
+    $client->get('http://my.vdb.test/verwaltung')->assertOk();
+    $client->get('http://my.vdb.test/verwaltung/personen/anlegen')->assertOk();
+    $client->get('http://my.vdb.test/verwaltung/audit')->assertOk();
+});
 
 it('rejects future and expired administration assignments', function () {
     $futureUser = makeAdministrationAccessTestUser(
@@ -105,12 +241,10 @@ it('rejects future and expired administration assignments', function () {
         now()->addDay(),
     );
 
+    expect(app(AdministrationAccess::class)->capabilities($futureUser))->toBe([]);
+
     $this
-        ->withSession([
-            'identity.session_version' => 1,
-            'identity.account_validated_at' => now()->timestamp,
-            'identity.two_factor_verified_at' => now()->timestamp,
-        ])
+        ->withSession(administrationAccessTestSession())
         ->actingAs($futureUser)
         ->get('http://my.vdb.test/verwaltung')
         ->assertForbidden();
@@ -126,13 +260,39 @@ it('rejects future and expired administration assignments', function () {
         now()->subDay(),
     );
 
+    expect(app(AdministrationAccess::class)->capabilities($expiredUser))->toBe([]);
+
     $this
-        ->withSession([
-            'identity.session_version' => 1,
-            'identity.account_validated_at' => now()->timestamp,
-            'identity.two_factor_verified_at' => now()->timestamp,
-        ])
+        ->withSession(administrationAccessTestSession())
         ->actingAs($expiredUser)
         ->get('http://my.vdb.test/verwaltung')
         ->assertForbidden();
+});
+
+it('rejects inactive or unverified users even with an administration role', function () {
+    $disabled = makeAdministrationAccessTestUser(
+        'disabled-administration-access@example.test',
+        UserStatus::Disabled,
+    );
+    grantAdministrationAccessTestRole(
+        $disabled,
+        RoleKey::Administration,
+    );
+
+    $unverified = makeAdministrationAccessTestUser(
+        'unverified-administration-access@example.test',
+        UserStatus::Active,
+        false,
+    );
+    grantAdministrationAccessTestRole(
+        $unverified,
+        RoleKey::Administration,
+    );
+
+    $access = app(AdministrationAccess::class);
+
+    expect($access->allows($disabled))->toBeFalse()
+        ->and($access->capabilities($disabled))->toBe([])
+        ->and($access->allows($unverified))->toBeFalse()
+        ->and($access->capabilities($unverified))->toBe([]);
 });

@@ -24,96 +24,119 @@ web
 ```
 
 `administration.access` erlaubt ausschließlich aktive, bestätigte Konten mit
-einer aktuell gültigen Zuweisung einer dieser Rollen:
+einer aktuell gültigen Zuweisung einer Rolle, der mindestens eine
+Verwaltungs-Capability zugeordnet ist. Zukünftige oder bereits beendete
+Rollenzuweisungen geben keinen Zugriff.
 
-- `administration_staff` – Verwaltung
-- `administration` – Administration
-
-Zukünftige oder bereits beendete Rollenzuweisungen geben keinen Zugriff.
-Andere Rollen werden nicht automatisch freigeschaltet.
-
-## Aktuelle Routen
+Die fachliche Autorisierung erfolgt danach nicht mehr über ein globales
+Schreibrecht, sondern über konkrete Capabilities. Aktuell sind unter anderem
+folgende Fähigkeiten definiert:
 
 ```text
-/verwaltung
-/verwaltung/benutzer
-/verwaltung/benutzer/{user}
+persons.read
+persons.manage
+memberships.read
+memberships.manage
+membership_documents.read
+membership_documents.manage
+membership_consents.read
+membership_consents.manage
+portal_invitations.manage
+users.read
+users.status.manage
+roles.manage
+communication.read
+communication.manage
+audit.read
 ```
 
-Der Bereich besitzt jetzt zwei Berechtigungsstufen:
+Routen verwenden das Middleware-Gate
+`administration.capability:<capability>`. Sicherheitskritische Controller und
+Actions prüfen die fachlich benötigte Capability zusätzlich. Die reine
+Sichtbarkeit eines Formulars gilt ausdrücklich nicht als
+Berechtigungsprüfung.
 
-- `administration_staff` hat lesenden Zugriff auf Übersicht und Benutzerdaten.
-- `administration` darf zusätzlich definierte Verwaltungsaktionen ausführen.
+## Rollen-Presets der aktuellen Beta-Basis
 
-Schreibende Aktionen werden serverseitig nochmals über
-`AdministrationAccess::canManage()` geprüft. Die reine Sichtbarkeit eines
-Formulars gilt ausdrücklich nicht als Berechtigungsprüfung.
+Die Capability-Infrastruktur trennt Rollen und Fachrechte bewusst. Der
+aktuelle Beta-Stand bildet zunächst die bisherige Semantik ab:
 
-## Benutzerverwaltung
+- `administration_staff` erhält lesende Fähigkeiten für Personen,
+  Mitgliedschaften, Dokumente, Zustimmungen, Benutzer und Kommunikation.
+- `administration` erhält zusätzlich die aktuell vorhandenen schreibenden
+  Verwaltungsfähigkeiten und Audit-Lesezugriff.
+- Andere Rollen erhalten durch diesen Basisschritt noch keinen zusätzlichen
+  Verwaltungszugang.
 
-Die Benutzerliste bietet aktuell:
+Diese Presets sind eine Übergangsbasis. Die fachliche Trennung von Verwaltung,
+Vorstand und Koordination wird separat in #37 konkretisiert. Weil Controller,
+Routen und UI bereits auf Capabilities statt Rollennamen prüfen, kann diese
+Zuordnung angepasst werden, ohne die Fachendpunkte erneut umzubauen.
 
-- Suche nach Name oder E-Mail-Adresse
-- Statusfilter
-- serverseitige Pagination
-- Statusdarstellung über das Designsystem
-- Link auf eine strukturierte Detailansicht
+## Aktuelle Fachbereiche
 
-Die Detailansicht zeigt:
+Der Verwaltungsbereich enthält derzeit:
 
-- Kontostatus
-- E-Mail-Bestätigung
-- letzte Anmeldung
-- technische Kontometadaten
-- verknüpfte Personendaten
-- aktuelle und historische Rollenzuweisungen
+- Personenverzeichnis und Personendetails
+- Mitgliedschaften und Mitgliedschaftsverlauf
+- private Mitgliedschaftsdokumente
+- historisierte mitgliedschaftsbezogene Zustimmungen
+- Portal-Einladungen
+- Benutzerverzeichnis, Kontostatus und manuelle Rollenverwaltung
+- Kommunikationsvorlagen und Versandhistorie
+- Audit-Ansichten
+
+Navigation, Dashboard-Karten und Aktionen werden aus denselben Capabilities
+abgeleitet wie die serverseitigen Routen.
+
+## Datenminimierung in Detailansichten
+
+Detailseiten laden fachlich geschützte Daten nur dann, wenn die benötigte
+Lesecapability vorhanden ist. Insbesondere werden Dokumente und Zustimmungen
+einer Mitgliedschaft nicht allein deshalb geladen, weil ein Konto allgemein
+Zugriff auf die Verwaltung besitzt.
+
+Kontostatus und Rollenverwaltung sind ebenfalls getrennt:
+
+- `users.status.manage` steuert Deaktivieren und Reaktivieren von Konten.
+- `roles.manage` steuert manuelle Rollenzuweisungen.
+
+Kommunikationsänderungen verwenden `communication.manage`, während lesende
+Vorlagen- und Versandansichten über `communication.read` abgesichert sind.
+
+## Lokaler Datenbankstand
+
+Personen- und Mitgliedschaftsdetails greifen auf Fachtabellen zu, die in den
+Beta-Blöcken schrittweise ergänzt wurden, darunter `portal_invitations` sowie
+die Tabellen für Mitgliedschaftsdokumente und Zustimmungen. Nach einem Pull mit
+neuen Migrationen muss daher vor dem Testen der Detailansichten der lokale
+Datenbankstand aktualisiert werden:
+
+```text
+php artisan migrate
+```
+
+Ein veraltetes lokales Schema kann dazu führen, dass Verzeichnisse noch
+funktionieren, Detailseiten aber beim Laden neu hinzugekommener Beziehungen mit
+einem Datenbankfehler abbrechen.
 
 ## Schreibende Verwaltungsaktionen
 
-Für die Rolle `administration` sind im Benutzerdetail folgende Aktionen
-verfügbar:
-
-- aktive Konten deaktivieren
-- deaktivierte, bereits bestätigte Konten reaktivieren
-- Rollen manuell zuweisen
-- aktive manuelle Rollenzuweisungen beenden
-
-Dabei gelten zusätzliche Schutzregeln:
+Schreibende Aktionen verwenden jeweils ihre konkrete Fachcapability. Zusätzlich
+gelten weiterhin Schutzregeln wie:
 
 - Das eigene Administrationskonto kann nicht deaktiviert werden.
 - Eine aktive eigene `administration`-Rolle kann nicht über die Oberfläche
   beendet werden.
-- Automatische und per Konsole erzeugte Rollenzuweisungen können hier nicht
-  beendet werden.
+- Automatische und per Konsole erzeugte Rollenzuweisungen können in der
+  Benutzerverwaltung nicht als manuelle Zuweisung beendet werden.
 - Doppelte aktive oder bereits vorgemerkte Zuweisungen derselben Rolle werden
   verhindert.
 - Eine Reaktivierung setzt eine bereits bestätigte E-Mail-Adresse voraus.
 - Eine Deaktivierung erhöht `session_version` und entfernt den Remember-Token,
   damit bestehende Anmeldesitzungen invalidiert werden.
-- Jede schreibende Aktion verlangt eine Begründung und wird auditierbar
+- Schreibende Fachaktionen werden, soweit fachlich vorgesehen, auditierbar
   protokolliert.
-
-Die POST-Endpunkte lauten:
-
-```text
-/verwaltung/benutzer/{user}/status
-/verwaltung/benutzer/{user}/rollen
-/verwaltung/benutzer/{user}/rollen/{assignment}/beenden
-```
-
-## Audit
-
-Der Verwaltungsblock ergänzt folgende Ereignisse:
-
-```text
-role.manual_assigned
-role.manual_ended
-account.disabled
-account.reactivated
-```
-
-Bei einer administrativen Deaktivierung wird zusätzlich das bestehende
-Ereignis `auth.sessions.invalidated` mitgeschrieben.
 
 ## Designsystem
 
@@ -138,16 +161,12 @@ Es gibt weiterhin keine permanente globale Sidebar.
 
 ## Nächste fachliche Schritte
 
-Nach diesem Block liegen Benutzerverzeichnis, Kontostatus und manuelle
-Rollenverwaltung als erste vollständige Verwaltungsstrecke vor. Als nächste
-fachliche Ausbaustufen bieten sich an:
+Die Capability-Basis ist die Voraussetzung für die nächsten organisatorischen
+Ausbaustufen. Als Nächstes werden die Zuständigkeiten aus #37 auf die bereits
+vorhandenen und künftigen Fachmodule abgebildet. Zusätzlich bleiben in der
+Communication-Domain insbesondere Vorlagenvorschau und ein kontrollierter Retry
+fehlgeschlagener Zustellungen als Beta-Gaps offen.
 
-1. Personen- und Mitgliedsdaten anbinden
-2. Einladungs- und Freigabeprozesse
-3. Kommunikationsvorlagen und Versandstatus
-4. Audit-Ansichten für berechtigte Administration
-5. feinere fachliche Berechtigungen innerhalb der Verwaltung
-
-Neue schreibende Workflows benötigen weiterhin eine eindeutige
-Berechtigungsregel, Audit-Ereignisse und eine fachlich definierte
-Bestätigung bzw. Fehlerrückmeldung.
+Neue Workflows benötigen weiterhin eine eindeutige Capability, serverseitige
+Absicherung, passende UI-Sichtbarkeit, Audit-Ereignisse bei relevanten
+Änderungen sowie eine fachlich definierte Bestätigung bzw. Fehlerrückmeldung.

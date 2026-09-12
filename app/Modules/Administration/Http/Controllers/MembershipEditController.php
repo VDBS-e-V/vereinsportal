@@ -3,6 +3,7 @@
 namespace App\Modules\Administration\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Administration\Enums\AdministrationCapability;
 use App\Modules\Administration\Support\AdministrationAccess;
 use App\Modules\Identity\Models\User;
 use App\Modules\Membership\Models\Membership;
@@ -20,7 +21,10 @@ final class MembershipEditController extends Controller
 
         abort_unless(
             $actor instanceof User
-            && $access->canManage($actor),
+            && $access->allowsCapability(
+                $actor,
+                AdministrationCapability::MembershipsManage,
+            ),
             403,
         );
 

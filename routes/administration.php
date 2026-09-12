@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Administration\Enums\AdministrationCapability;
 use App\Modules\Administration\Http\Controllers\AssignUserRoleController;
 use App\Modules\Administration\Http\Controllers\AuditEventIndexController;
 use App\Modules\Administration\Http\Controllers\AuditEventShowController;
@@ -39,6 +40,8 @@ use App\Modules\Administration\Http\Controllers\UserIndexController;
 use App\Modules\Administration\Http\Controllers\UserShowController;
 use Illuminate\Support\Facades\Route;
 
+$requires = static fn (AdministrationCapability $capability): string => 'administration.capability:'.$capability->value;
+
 Route::middleware([
     'web',
     'auth',
@@ -48,110 +51,151 @@ Route::middleware([
     ->domain(config('domains.my'))
     ->prefix('verwaltung')
     ->name('administration.')
-    ->group(function (): void {
+    ->group(function () use ($requires): void {
         Route::get('/', HomeController::class)->name('home');
 
-        Route::get('/personen', PersonIndexController::class)->name('persons.index');
-        Route::get('/personen/anlegen', PersonCreateController::class)->name('persons.create');
-        Route::post('/personen', StorePersonController::class)->name('persons.store');
+        Route::get('/personen', PersonIndexController::class)
+            ->middleware($requires(AdministrationCapability::PersonsRead))
+            ->name('persons.index');
+        Route::get('/personen/anlegen', PersonCreateController::class)
+            ->middleware($requires(AdministrationCapability::PersonsManage))
+            ->name('persons.create');
+        Route::post('/personen', StorePersonController::class)
+            ->middleware($requires(AdministrationCapability::PersonsManage))
+            ->name('persons.store');
         Route::get('/personen/{person}/mitgliedschaften/anlegen', MembershipCreateController::class)
+            ->middleware($requires(AdministrationCapability::MembershipsManage))
             ->whereNumber('person')
             ->name('persons.memberships.create');
         Route::post('/personen/{person}/mitgliedschaften', StoreMembershipController::class)
+            ->middleware($requires(AdministrationCapability::MembershipsManage))
             ->whereNumber('person')
             ->name('persons.memberships.store');
         Route::post('/personen/{person}/portal-einladung', StartPersonPortalInvitationController::class)
+            ->middleware($requires(AdministrationCapability::PortalInvitationsManage))
             ->whereNumber('person')
             ->name('persons.portal-invitations.store');
         Route::get('/personen/{person}', PersonShowController::class)
+            ->middleware($requires(AdministrationCapability::PersonsRead))
             ->whereNumber('person')
             ->name('persons.show');
         Route::get('/personen/{person}/bearbeiten', PersonEditController::class)
+            ->middleware($requires(AdministrationCapability::PersonsManage))
             ->whereNumber('person')
             ->name('persons.edit');
         Route::put('/personen/{person}', UpdatePersonController::class)
+            ->middleware($requires(AdministrationCapability::PersonsManage))
             ->whereNumber('person')
             ->name('persons.update');
 
         Route::post('/portal-einladungen/{portalInvitation}/erneut-senden', ResendPortalInvitationController::class)
+            ->middleware($requires(AdministrationCapability::PortalInvitationsManage))
             ->whereNumber('portalInvitation')
             ->name('portal-invitations.resend');
         Route::post('/portal-einladungen/{portalInvitation}/widerrufen', RevokePortalInvitationController::class)
+            ->middleware($requires(AdministrationCapability::PortalInvitationsManage))
             ->whereNumber('portalInvitation')
             ->name('portal-invitations.revoke');
 
-        Route::get('/mitgliedschaften', MembershipIndexController::class)->name('memberships.index');
+        Route::get('/mitgliedschaften', MembershipIndexController::class)
+            ->middleware($requires(AdministrationCapability::MembershipsRead))
+            ->name('memberships.index');
         Route::get('/mitgliedschaften/{membership}', MembershipShowController::class)
+            ->middleware($requires(AdministrationCapability::MembershipsRead))
             ->whereNumber('membership')
             ->name('memberships.show');
         Route::get('/mitgliedschaften/{membership}/bearbeiten', MembershipEditController::class)
+            ->middleware($requires(AdministrationCapability::MembershipsManage))
             ->whereNumber('membership')
             ->name('memberships.edit');
         Route::put('/mitgliedschaften/{membership}', UpdateMembershipController::class)
+            ->middleware($requires(AdministrationCapability::MembershipsManage))
             ->whereNumber('membership')
             ->name('memberships.update');
         Route::get('/mitgliedschaften/{membership}/beenden', MembershipEndFormController::class)
+            ->middleware($requires(AdministrationCapability::MembershipsManage))
             ->whereNumber('membership')
             ->name('memberships.end');
         Route::post('/mitgliedschaften/{membership}/beenden', EndMembershipController::class)
+            ->middleware($requires(AdministrationCapability::MembershipsManage))
             ->whereNumber('membership')
             ->name('memberships.end.store');
         Route::post('/mitgliedschaften/{membership}/dokumente', StoreMembershipDocumentController::class)
+            ->middleware($requires(AdministrationCapability::MembershipDocumentsManage))
             ->whereNumber('membership')
             ->name('memberships.documents.store');
         Route::get('/mitgliedschaften/{membership}/dokumente/{membershipDocument}', DownloadMembershipDocumentController::class)
+            ->middleware($requires(AdministrationCapability::MembershipDocumentsRead))
             ->whereNumber('membership')
             ->whereNumber('membershipDocument')
             ->name('memberships.documents.download');
         Route::post('/mitgliedschaften/{membership}/dokumente/{membershipDocument}/ersetzen', ReplaceMembershipDocumentController::class)
+            ->middleware($requires(AdministrationCapability::MembershipDocumentsManage))
             ->whereNumber('membership')
             ->whereNumber('membershipDocument')
             ->name('memberships.documents.replace');
         Route::post('/mitgliedschaften/{membership}/zustimmungen', StoreMembershipConsentController::class)
+            ->middleware($requires(AdministrationCapability::MembershipConsentsManage))
             ->whereNumber('membership')
             ->name('memberships.consents.store');
         Route::post('/mitgliedschaften/{membership}/zustimmungen/{membershipConsent}/widerrufen', RevokeMembershipConsentController::class)
+            ->middleware($requires(AdministrationCapability::MembershipConsentsManage))
             ->whereNumber('membership')
             ->whereNumber('membershipConsent')
             ->name('memberships.consents.revoke');
 
         Route::get('/kommunikation/vorlagen', EmailTemplateIndexController::class)
+            ->middleware($requires(AdministrationCapability::CommunicationRead))
             ->name('communication.templates.index');
         Route::get('/kommunikation/vorlagen/{emailTemplate}', EmailTemplateShowController::class)
+            ->middleware($requires(AdministrationCapability::CommunicationRead))
             ->whereNumber('emailTemplate')
             ->name('communication.templates.show');
         Route::put('/kommunikation/vorlagen/{emailTemplate}/entwurf', UpdateEmailTemplateDraftController::class)
+            ->middleware($requires(AdministrationCapability::CommunicationManage))
             ->whereNumber('emailTemplate')
             ->name('communication.templates.draft.update');
         Route::post('/kommunikation/vorlagen/{emailTemplate}/veroeffentlichen', PublishEmailTemplateController::class)
+            ->middleware($requires(AdministrationCapability::CommunicationManage))
             ->whereNumber('emailTemplate')
             ->name('communication.templates.publish');
         Route::post('/kommunikation/vorlagen/{emailTemplate}/status', UpdateEmailTemplateStatusController::class)
+            ->middleware($requires(AdministrationCapability::CommunicationManage))
             ->whereNumber('emailTemplate')
             ->name('communication.templates.status.update');
         Route::get('/kommunikation/versand', EmailDeliveryIndexController::class)
+            ->middleware($requires(AdministrationCapability::CommunicationRead))
             ->name('communication.deliveries.index');
         Route::get('/kommunikation/versand/{emailDelivery}', EmailDeliveryShowController::class)
+            ->middleware($requires(AdministrationCapability::CommunicationRead))
             ->whereNumber('emailDelivery')
             ->name('communication.deliveries.show');
 
         Route::get('/audit', AuditEventIndexController::class)
+            ->middleware($requires(AdministrationCapability::AuditRead))
             ->name('audit.index');
         Route::get('/audit/{auditEvent}', AuditEventShowController::class)
+            ->middleware($requires(AdministrationCapability::AuditRead))
             ->whereNumber('auditEvent')
             ->name('audit.show');
 
-        Route::get('/benutzer', UserIndexController::class)->name('users.index');
+        Route::get('/benutzer', UserIndexController::class)
+            ->middleware($requires(AdministrationCapability::UsersRead))
+            ->name('users.index');
         Route::get('/benutzer/{user}', UserShowController::class)
+            ->middleware($requires(AdministrationCapability::UsersRead))
             ->whereNumber('user')
             ->name('users.show');
         Route::post('/benutzer/{user}/status', UpdateUserStatusController::class)
+            ->middleware($requires(AdministrationCapability::UserStatusManage))
             ->whereNumber('user')
             ->name('users.status.update');
         Route::post('/benutzer/{user}/rollen', AssignUserRoleController::class)
+            ->middleware($requires(AdministrationCapability::RolesManage))
             ->whereNumber('user')
             ->name('users.roles.assign');
         Route::post('/benutzer/{user}/rollen/{assignment}/beenden', EndUserRoleController::class)
+            ->middleware($requires(AdministrationCapability::RolesManage))
             ->whereNumber('user')
             ->whereNumber('assignment')
             ->name('users.roles.end');

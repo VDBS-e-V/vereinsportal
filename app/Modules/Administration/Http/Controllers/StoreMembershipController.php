@@ -3,6 +3,7 @@
 namespace App\Modules\Administration\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Administration\Enums\AdministrationCapability;
 use App\Modules\Administration\Support\AdministrationAccess;
 use App\Modules\Identity\Models\Person;
 use App\Modules\Identity\Models\User;
@@ -22,7 +23,10 @@ final class StoreMembershipController extends Controller
 
         abort_unless(
             $actor instanceof User
-            && $access->canManage($actor),
+            && $access->allowsCapability(
+                $actor,
+                AdministrationCapability::MembershipsManage,
+            ),
             403,
         );
 

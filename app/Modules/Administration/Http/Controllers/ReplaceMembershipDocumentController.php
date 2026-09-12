@@ -3,6 +3,7 @@
 namespace App\Modules\Administration\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Administration\Enums\AdministrationCapability;
 use App\Modules\Administration\Support\AdministrationAccess;
 use App\Modules\Identity\Models\User;
 use App\Modules\Membership\Actions\StoreMembershipDocumentAction;
@@ -25,7 +26,14 @@ final class ReplaceMembershipDocumentController extends Controller
         abort_unless($membershipDocument->membership_id === $membership->id, 404);
 
         $actor = $request->user();
-        abort_unless($actor instanceof User && $access->canManage($actor), 403);
+        abort_unless(
+            $actor instanceof User
+            && $access->allowsCapability(
+                $actor,
+                AdministrationCapability::MembershipDocumentsManage,
+            ),
+            403,
+        );
 
         $validated = $request->validate([
             'received_on' => ['nullable', 'date'],

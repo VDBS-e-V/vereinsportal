@@ -3,6 +3,7 @@
 namespace App\Modules\Administration\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Administration\Enums\AdministrationCapability;
 use App\Modules\Administration\Support\AdministrationAccess;
 use App\Modules\Communication\Actions\ActivateEmailTemplateAction;
 use App\Modules\Communication\Actions\DeactivateEmailTemplateAction;
@@ -21,7 +22,14 @@ final class UpdateEmailTemplateStatusController extends Controller
         DeactivateEmailTemplateAction $deactivateTemplate,
     ): RedirectResponse {
         $actor = $request->user();
-        abort_unless($actor instanceof User && $access->canManage($actor), 403);
+        abort_unless(
+            $actor instanceof User
+            && $access->allowsCapability(
+                $actor,
+                AdministrationCapability::CommunicationManage,
+            ),
+            403,
+        );
 
         $validated = $request->validate([
             'active' => ['required', 'boolean'],

@@ -31,7 +31,7 @@
                             @endif
                         </dl>
                     </div>
-                    @if ($canManage && $consent->isActive())
+                    @if ($canManageConsents && $consent->isActive())
                         <div class="record-item__actions">
                             <details>
                                 <summary>Widerruf erfassen</summary>
@@ -51,7 +51,7 @@
         </div>
     @endif
 
-    @if ($canManage)
+    @if ($canManageConsents)
         <details class="stack">
             <summary>Zustimmung erfassen</summary>
             <form class="form stack" method="post" action="{{ route('administration.memberships.consents.store', $membership) }}">

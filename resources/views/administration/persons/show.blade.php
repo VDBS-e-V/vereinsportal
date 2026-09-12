@@ -17,7 +17,7 @@
                 <p class="page-title__lead">{{ $person->email }}</p>
             </div>
             <div class="page-title__actions">
-                @if ($canManage)
+                @if ($canManagePerson)
                     <a class="btn" href="{{ route('administration.persons.edit', $person) }}">Bearbeiten</a>
                 @endif
                 <a class="btn btn--secondary" href="{{ route('administration.persons.index') }}">Zur Personenliste</a>
@@ -26,7 +26,9 @@
 
         <dl class="key-facts">
             <div><dt>Geburtsdatum</dt><dd>{{ $person->birth_date->format('d.m.Y') }}</dd></div>
-            <div><dt>Mitgliedschaften</dt><dd>{{ $memberships->count() }}</dd></div>
+            @if ($canReadMemberships)
+                <div><dt>Mitgliedschaften</dt><dd>{{ $memberships->count() }}</dd></div>
+            @endif
             <div>
                 <dt>Portalzugang</dt>
                 <dd>
@@ -72,49 +74,51 @@
             </dl>
         </section>
 
-        <section class="stack">
-            <header class="page-title page-title--split">
-                <div class="stack stack--sm">
-                    <h2>Mitgliedschaftsverlauf</h2>
-                    <p>Historische und aktuelle Mitgliedschaftszeiträume dieser Person.</p>
-                </div>
-                @if ($canManage)
-                    <div class="page-title__actions">
-                        <a class="btn" href="{{ route('administration.persons.memberships.create', $person) }}">Mitgliedschaft anlegen</a>
+        @if ($canReadMemberships)
+            <section class="stack">
+                <header class="page-title page-title--split">
+                    <div class="stack stack--sm">
+                        <h2>Mitgliedschaftsverlauf</h2>
+                        <p>Historische und aktuelle Mitgliedschaftszeiträume dieser Person.</p>
+                    </div>
+                    @if ($canManageMemberships)
+                        <div class="page-title__actions">
+                            <a class="btn" href="{{ route('administration.persons.memberships.create', $person) }}">Mitgliedschaft anlegen</a>
+                        </div>
+                    @endif
+                </header>
+
+                @if ($memberships->isEmpty())
+                    <x-vdbs.empty-state title="Keine Mitgliedschaft vorhanden" description="Für diese Person wurde noch kein Mitgliedschaftszeitraum gespeichert." />
+                @else
+                    <div class="record-list">
+                        @foreach ($memberships as $membership)
+                            @php
+                                $membershipStatus = $membership->status();
+                            @endphp
+                            <article class="record-item">
+                                <div class="record-item__main">
+                                    <h3 class="record-item__title">
+                                        <a href="{{ route('administration.memberships.show', $membership) }}">
+                                            Mitgliedschaft ab {{ $membership->starts_on->format('d.m.Y') }}
+                                        </a>
+                                    </h3>
+                                    <div class="record-item__meta">
+                                        <span>Beginn {{ $membership->starts_on->format('d.m.Y') }}</span>
+                                        <span>Ende {{ $membership->ends_on?->format('d.m.Y') ?? 'offen' }}</span>
+                                    </div>
+                                </div>
+                                <div class="record-item__actions">
+                                    <x-vdbs.status :type="\App\Modules\Administration\Support\MembershipStatusPresentation::type($membershipStatus)">
+                                        {{ \App\Modules\Administration\Support\MembershipStatusPresentation::label($membershipStatus) }}
+                                    </x-vdbs.status>
+                                </div>
+                            </article>
+                        @endforeach
                     </div>
                 @endif
-            </header>
-
-            @if ($memberships->isEmpty())
-                <x-vdbs.empty-state title="Keine Mitgliedschaft vorhanden" description="Für diese Person wurde noch kein Mitgliedschaftszeitraum gespeichert." />
-            @else
-                <div class="record-list">
-                    @foreach ($memberships as $membership)
-                        @php
-                            $membershipStatus = $membership->status();
-                        @endphp
-                        <article class="record-item">
-                            <div class="record-item__main">
-                                <h3 class="record-item__title">
-                                    <a href="{{ route('administration.memberships.show', $membership) }}">
-                                        Mitgliedschaft ab {{ $membership->starts_on->format('d.m.Y') }}
-                                    </a>
-                                </h3>
-                                <div class="record-item__meta">
-                                    <span>Beginn {{ $membership->starts_on->format('d.m.Y') }}</span>
-                                    <span>Ende {{ $membership->ends_on?->format('d.m.Y') ?? 'offen' }}</span>
-                                </div>
-                            </div>
-                            <div class="record-item__actions">
-                                <x-vdbs.status :type="\App\Modules\Administration\Support\MembershipStatusPresentation::type($membershipStatus)">
-                                    {{ \App\Modules\Administration\Support\MembershipStatusPresentation::label($membershipStatus) }}
-                                </x-vdbs.status>
-                            </div>
-                        </article>
-                    @endforeach
-                </div>
-            @endif
-        </section>
+            </section>
+        @endif
 
         <section class="stack">
             <header class="page-title page-title--split">
@@ -122,7 +126,7 @@
                     <h2>Portalzugang</h2>
                     <p>Einladungen verbinden einen neuen Portalzugang mit diesem bestehenden Personendatensatz.</p>
                 </div>
-                @if ($canManage && $person->user === null && $openPortalInvitation === null)
+                @if ($canManagePortalInvitations && $person->user === null && $openPortalInvitation === null)
                     <form action="{{ route('administration.persons.portal-invitations.store', $person) }}" method="post">
                         @csrf
                         <button class="btn" type="submit">Portalzugang einladen</button>
@@ -143,7 +147,9 @@
                             </dd>
                         </div>
                     </dl>
-                    <div><a href="{{ route('administration.users.show', $person->user) }}">Benutzerkonto öffnen</a></div>
+                    @if ($canReadUsers)
+                        <div><a href="{{ route('administration.users.show', $person->user) }}">Benutzerkonto öffnen</a></div>
+                    @endif
                 </div>
             @elseif ($openPortalInvitation !== null)
                 <div class="panel stack">
@@ -152,7 +158,7 @@
                         <div><dt>Gültig bis</dt><dd>{{ $openPortalInvitation->expires_at->format('d.m.Y, H:i') }} Uhr</dd></div>
                         <div><dt>Letzter Versand</dt><dd>{{ $openPortalInvitation->sent_at?->format('d.m.Y, H:i') ?? 'noch nicht versendet' }}</dd></div>
                     </dl>
-                    @if ($canManage)
+                    @if ($canManagePortalInvitations)
                         <div class="page-title__actions">
                             <form action="{{ route('administration.portal-invitations.resend', $openPortalInvitation) }}" method="post">
                                 @csrf
