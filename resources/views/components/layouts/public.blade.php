@@ -31,22 +31,51 @@
         $pageTitle = $pageTitles[$routeName] ?? 'Vereinsportal';
         $documentTitle = $title ?? $pageTitle.' · VDBS Portal';
         $homeUrl = route('my.home');
+        $user = auth()->user();
 
-        $administrationUser = auth()->user();
-        $hasAdministrationAccess =
-            $administrationUser instanceof \App\Modules\Identity\Models\User
-            && app(\App\Modules\Administration\Support\AdministrationAccess::class)
-                ->allows($administrationUser);
+        $staffAccess = app(\App\Modules\Administration\Support\AdministrationAccess::class);
+        $areas = [];
 
-        $areas = [
-            [
-                'label' => 'Verwaltung',
-                'url' => $hasAdministrationAccess
-                    && \Illuminate\Support\Facades\Route::has('administration.home')
-                        ? route('administration.home')
-                        : null,
-            ],
-        ];
+        if ($user instanceof \App\Modules\Identity\Models\User) {
+            if (
+                $staffAccess->allowsCapability(
+                    $user,
+                    \App\Modules\Administration\Enums\AdministrationCapability::AdministrationAreaAccess,
+                )
+                && \Illuminate\Support\Facades\Route::has('administration.home')
+            ) {
+                $areas[] = [
+                    'label' => 'Verwaltung',
+                    'url' => route('administration.home'),
+                ];
+            }
+
+            if (
+                $staffAccess->allowsCapability(
+                    $user,
+                    \App\Modules\Administration\Enums\AdministrationCapability::BoardAreaAccess,
+                )
+                && \Illuminate\Support\Facades\Route::has('board.home')
+            ) {
+                $areas[] = [
+                    'label' => 'Vorstand',
+                    'url' => route('board.home'),
+                ];
+            }
+
+            if (
+                $staffAccess->allowsCapability(
+                    $user,
+                    \App\Modules\Administration\Enums\AdministrationCapability::CoordinationAreaAccess,
+                )
+                && \Illuminate\Support\Facades\Route::has('coordination.home')
+            ) {
+                $areas[] = [
+                    'label' => 'Koordination',
+                    'url' => route('coordination.home'),
+                ];
+            }
+        }
 
         if (\Illuminate\Support\Facades\Route::has('design.index')) {
             $areas[] = [
@@ -99,7 +128,6 @@
             ],
         ];
 
-        $user = auth()->user();
         $accountAccess = app(\App\Modules\Identity\Support\AccountAccess::class);
         $hasMembershipArea = $user instanceof \App\Modules\Identity\Models\User
             && $accountAccess->hasActiveRole(

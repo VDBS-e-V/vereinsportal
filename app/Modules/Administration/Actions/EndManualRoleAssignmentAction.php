@@ -60,6 +60,12 @@ final class EndManualRoleAssignmentAction
                 ->lockForUpdate()
                 ->firstOrFail();
 
+            if ($lockedAssignment->role?->key === RoleKey::Member->value) {
+                throw new AdministrationActionRejected(
+                    'Die Mitgliedsrolle wird ausschließlich durch das System aus Mitgliedschaften verwaltet.'
+                );
+            }
+
             if (
                 $lockedAssignment->user_id !== $target->id
                 || $lockedAssignment->source !== RoleAssignmentSource::Manual

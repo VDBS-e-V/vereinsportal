@@ -9,6 +9,7 @@ use App\Modules\Identity\Models\Person;
 use App\Modules\Identity\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 final class PersonShowController extends Controller
 {
@@ -17,11 +18,25 @@ final class PersonShowController extends Controller
         Person $person,
         AdministrationAccess $access,
     ): View {
+        $actor = $request->user();
+        abort_unless($actor instanceof User, 403);
+
+        $canReadMemberships = $access->allowsCapability(
+            $actor,
+            AdministrationCapability::MembershipsRead,
+        );
+        $canManageMemberships = $access->allowsCapability(
+            $actor,
+            AdministrationCapability::MembershipsManage,
+        );
+
         $person->load('user');
-        $memberships = $person->memberships()
-            ->orderByDesc('starts_on')
-            ->orderByDesc('id')
-            ->get();
+        $memberships = $canReadMemberships
+            ? $person->memberships()
+                ->orderByDesc('starts_on')
+                ->orderByDesc('id')
+                ->get()
+            : new Collection;
         $portalInvitations = $person->portalInvitations()
             ->orderByDesc('created_at')
             ->orderByDesc('id')
@@ -35,9 +50,6 @@ final class PersonShowController extends Controller
             $person->last_name,
         );
 
-        $actor = $request->user();
-        abort_unless($actor instanceof User, 403);
-
         return view('administration.persons.show', [
             'person' => $person,
             'memberships' => $memberships,
@@ -47,14 +59,8 @@ final class PersonShowController extends Controller
                 $actor,
                 AdministrationCapability::PersonsManage,
             ),
-            'canReadMemberships' => $access->allowsCapability(
-                $actor,
-                AdministrationCapability::MembershipsRead,
-            ),
-            'canManageMemberships' => $access->allowsCapability(
-                $actor,
-                AdministrationCapability::MembershipsManage,
-            ),
+            'canReadMemberships' => $canReadMemberships,
+            'canManageMemberships' => $canManageMemberships,
             'canManagePortalInvitations' => $access->allowsCapability(
                 $actor,
                 AdministrationCapability::PortalInvitationsManage,

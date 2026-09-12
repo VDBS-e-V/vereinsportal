@@ -1,6 +1,6 @@
 <?php
 
-it('builds administration pages from the existing design system patterns', function () {
+it('builds internal staff pages from the existing design system patterns', function () {
     $layout = file_get_contents(
         resource_path('views/layouts/administration.blade.php'),
     );
@@ -15,6 +15,11 @@ it('builds administration pages from the existing design system patterns', funct
         ->toContain('<x-vdbs.portal-header')
         ->toContain("route('my.logout')")
         ->toContain("'method' => 'post'")
+        ->toContain("'Verwaltung'")
+        ->toContain("'Vorstand'")
+        ->toContain("'Koordination'")
+        ->toContain("route('board.home')")
+        ->toContain("route('coordination.home')")
         ->not->toContain('sidebar');
 
     expect($index)
@@ -29,7 +34,7 @@ it('builds administration pages from the existing design system patterns', funct
         ->toContain('class="record-list"');
 });
 
-it('links the Verwaltung area only through the central access decision', function () {
+it('links staff areas through their dedicated capabilities', function () {
     $publicLayout = file_get_contents(
         resource_path('views/components/layouts/public.blade.php'),
     );
@@ -37,11 +42,14 @@ it('links the Verwaltung area only through the central access decision', functio
         resource_path('views/design/layout.blade.php'),
     );
 
-    expect($publicLayout)
-        ->toContain('AdministrationAccess::class')
-        ->toContain("route('administration.home')");
-
-    expect($designLayout)
-        ->toContain('AdministrationAccess::class')
-        ->toContain("route('administration.home')");
+    foreach ([$publicLayout, $designLayout] as $layout) {
+        expect($layout)
+            ->toContain('AdministrationAccess::class')
+            ->toContain('AdministrationCapability::AdministrationAreaAccess')
+            ->toContain('AdministrationCapability::BoardAreaAccess')
+            ->toContain('AdministrationCapability::CoordinationAreaAccess')
+            ->toContain("route('administration.home')")
+            ->toContain("route('board.home')")
+            ->toContain("route('coordination.home')");
+    }
 });

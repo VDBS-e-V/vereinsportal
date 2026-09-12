@@ -40,9 +40,9 @@ final class MembershipCreateController extends Controller
             'person' => $person,
             'displayName' => $displayName,
             'breadcrumbs' => [
-                ['label' => 'Verwaltung', 'url' => route('administration.home')],
-                ['label' => 'Personen', 'url' => route('administration.persons.index')],
-                ['label' => $displayName, 'url' => route('administration.persons.show', $person)],
+                ['label' => 'Vorstand', 'url' => route('board.home')],
+                ['label' => 'Mitgliedschaften', 'url' => route('administration.memberships.index')],
+                ['label' => $displayName, 'url' => null],
                 ['label' => 'Mitgliedschaft anlegen', 'url' => null],
             ],
         ]);

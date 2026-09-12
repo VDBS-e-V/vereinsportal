@@ -104,7 +104,7 @@ it('searches and filters the administration user directory', function () {
         ->assertDontSee('Max Beispiel');
 });
 
-it('shows account, person and role information on the detail page', function () {
+it('keeps the system managed member role out of the user detail page', function () {
     $admin = makeAdministrationDirectoryAdmin();
 
     $user = makeAdministrationDirectoryPersonUser(
@@ -119,7 +119,7 @@ it('shows account, person and role information on the detail page', function () 
             'key' => RoleKey::Member->value,
         ],
         [
-            'name' => 'Vereinsmitglied',
+            'name' => 'SYSTEM_MEMBER_ROLE_SHOULD_NOT_RENDER',
             'is_system' => true,
         ],
     );
@@ -141,7 +141,7 @@ it('shows account, person and role information on the detail page', function () 
         ->assertOk()
         ->assertSee('Erika Muster')
         ->assertSee('detail.muster@example.test')
-        ->assertSee('Vereinsmitglied')
+        ->assertDontSee('SYSTEM_MEMBER_ROLE_SHOULD_NOT_RENDER')
         ->assertSee('Aktiv');
 });
 

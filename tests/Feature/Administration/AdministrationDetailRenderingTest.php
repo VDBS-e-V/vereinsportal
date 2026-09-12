@@ -15,10 +15,12 @@ use App\Modules\Membership\Models\MembershipConsent;
 use App\Modules\Membership\Models\MembershipDocument;
 use Illuminate\Support\Str;
 
-function makeAdministrationDetailActor(): User
-{
+function makeAdministrationDetailActor(
+    RoleKey $roleKey,
+    string $email,
+): User {
     $actor = User::query()->create([
-        'email' => 'detail-rendering-admin@example.test',
+        'email' => $email,
         'password' => 'Sicher123!',
         'status' => UserStatus::Active,
         'session_version' => 1,
@@ -27,9 +29,13 @@ function makeAdministrationDetailActor(): User
     $actor->save();
 
     $role = Role::query()->firstOrCreate(
-        ['key' => RoleKey::Administration->value],
+        ['key' => $roleKey->value],
         [
-            'name' => 'Administration',
+            'name' => match ($roleKey) {
+                RoleKey::Administration => 'Administration',
+                RoleKey::BoardMember => 'Vorstand',
+                default => $roleKey->value,
+            },
             'is_system' => true,
         ],
     );
@@ -52,8 +58,15 @@ function administrationDetailSession(): array
     ];
 }
 
-it('renders person and membership details with linked beta records', function () {
-    $actor = makeAdministrationDetailActor();
+it('keeps membership details with the board while administration sees person and account data', function () {
+    $administration = makeAdministrationDetailActor(
+        RoleKey::Administration,
+        'detail-rendering-admin@example.test',
+    );
+    $board = makeAdministrationDetailActor(
+        RoleKey::BoardMember,
+        'detail-rendering-board@example.test',
+    );
 
     $person = Person::query()->create([
         'first_name' => 'Mira',
@@ -90,7 +103,7 @@ it('renders person and membership details with linked beta records', function ()
         'expires_at' => now()->addDay(),
         'sent_at' => now()->subHour(),
         'accepted_at' => now()->subMinutes(30),
-        'created_by_user_id' => $actor->id,
+        'created_by_user_id' => $administration->id,
     ]);
 
     MembershipDocument::query()->create([
@@ -103,7 +116,7 @@ it('renders person and membership details with linked beta records', function ()
         'size_bytes' => 4096,
         'sha256' => hash('sha256', 'detail-rendering-document'),
         'received_on' => now()->subYear()->toDateString(),
-        'uploaded_by_user_id' => $actor->id,
+        'uploaded_by_user_id' => $administration->id,
     ]);
 
     MembershipConsent::query()->create([
@@ -113,22 +126,28 @@ it('renders person and membership details with linked beta records', function ()
         'version' => '2026-01',
         'source' => MembershipConsentSource::Paper,
         'granted_at' => now()->subMonths(6),
-        'recorded_by_user_id' => $actor->id,
+        'recorded_by_user_id' => $administration->id,
     ]);
 
     $this
         ->withSession(administrationDetailSession())
-        ->actingAs($actor)
+        ->actingAs($administration)
         ->get('http://my.vdb.test/verwaltung/personen/'.$person->id)
         ->assertOk()
         ->assertSee('Mira Mitglied')
-        ->assertSee('Mitgliedschaft ab')
+        ->assertDontSee('Mitgliedschaft ab')
         ->assertSee('Benutzerkonto öffnen');
 
     $this
         ->withSession(administrationDetailSession())
-        ->actingAs($actor)
-        ->get('http://my.vdb.test/verwaltung/mitgliedschaften/'.$membership->id)
+        ->actingAs($administration)
+        ->get('http://my.vdb.test/vorstand/mitgliedschaften/'.$membership->id)
+        ->assertForbidden();
+
+    $this
+        ->withSession(administrationDetailSession())
+        ->actingAs($board)
+        ->get('http://my.vdb.test/vorstand/mitgliedschaften/'.$membership->id)
         ->assertOk()
         ->assertSee('Mira Mitglied')
         ->assertSee('beitritt.pdf')

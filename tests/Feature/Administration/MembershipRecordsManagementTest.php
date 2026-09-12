@@ -49,6 +49,23 @@ function makeMembershipRecordsActor(
         'starts_at' => now()->subMinute(),
     ]);
 
+    if ($roleKey === RoleKey::Administration) {
+        $boardRole = Role::query()->firstOrCreate(
+            ['key' => RoleKey::BoardMember->value],
+            [
+                'name' => 'Vorstand',
+                'is_system' => true,
+            ],
+        );
+
+        RoleAssignment::query()->create([
+            'user_id' => $actor->id,
+            'role_id' => $boardRole->id,
+            'source' => RoleAssignmentSource::Console,
+            'starts_at' => now()->subMinute(),
+        ]);
+    }
+
     return $actor->refresh();
 }
 
@@ -92,7 +109,7 @@ it('stores membership documents only on the private disk and audits the upload',
         ->withSession(membershipRecordsSession())
         ->actingAs($admin)
         ->post(
-            'http://my.vdb.test/verwaltung/mitgliedschaften/'.$membership->id.'/dokumente',
+            'http://my.vdb.test/vorstand/mitgliedschaften/'.$membership->id.'/dokumente',
             [
                 'document_type' => MembershipDocumentType::ApplicationForm->value,
                 'label' => 'Beitrittserklärung 2026',
@@ -141,7 +158,7 @@ it('rejects unsupported and oversized membership documents', function () {
     $membership = makeMembershipRecordsMembership(
         'membership-records-validation@example.test',
     );
-    $url = 'http://my.vdb.test/verwaltung/mitgliedschaften/'.$membership->id.'/dokumente';
+    $url = 'http://my.vdb.test/vorstand/mitgliedschaften/'.$membership->id.'/dokumente';
 
     $this
         ->withSession(membershipRecordsSession())
@@ -182,7 +199,7 @@ it('keeps the previous document when a new version replaces it', function () {
     $membership = makeMembershipRecordsMembership(
         'membership-records-replace@example.test',
     );
-    $baseUrl = 'http://my.vdb.test/verwaltung/mitgliedschaften/'.$membership->id;
+    $baseUrl = 'http://my.vdb.test/vorstand/mitgliedschaften/'.$membership->id;
 
     $this
         ->withSession(membershipRecordsSession())
@@ -263,7 +280,7 @@ it('allows board members to download and manage membership documents', function 
         'sha256' => hash('sha256', 'private document'),
     ]);
 
-    $baseUrl = 'http://my.vdb.test/verwaltung/mitgliedschaften/'.$membership->id;
+    $baseUrl = 'http://my.vdb.test/vorstand/mitgliedschaften/'.$membership->id;
 
     $this
         ->withSession(membershipRecordsSession())
@@ -313,7 +330,7 @@ it('records revokes and re-records membership consents without losing history', 
     $membership = makeMembershipRecordsMembership(
         'membership-records-consent@example.test',
     );
-    $baseUrl = 'http://my.vdb.test/verwaltung/mitgliedschaften/'.$membership->id;
+    $baseUrl = 'http://my.vdb.test/vorstand/mitgliedschaften/'.$membership->id;
 
     $this
         ->withSession(membershipRecordsSession())
@@ -409,7 +426,7 @@ it('allows board members to read and manage membership consents', function () {
         'granted_at' => now()->subDay(),
     ]);
 
-    $baseUrl = 'http://my.vdb.test/verwaltung/mitgliedschaften/'.$membership->id;
+    $baseUrl = 'http://my.vdb.test/vorstand/mitgliedschaften/'.$membership->id;
 
     $this
         ->withSession(membershipRecordsSession())
