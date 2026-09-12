@@ -11,11 +11,11 @@
 <body class="vdbs-app-shell">
     @php
         $pageTitle = trim($__env->yieldContent('title')) ?: 'Verwaltung';
-        $homeUrl = route('administration.home');
+        $portalHomeUrl = route('my.home');
+        $areaHomeUrl = route('administration.home');
         $user = auth()->user();
         $areas = [
-            ['label' => 'Portal', 'url' => route('my.home')],
-            ['label' => 'Verwaltung', 'url' => $homeUrl, 'active' => true],
+            ['label' => 'Verwaltung', 'url' => $areaHomeUrl, 'active' => true],
         ];
         if (\Illuminate\Support\Facades\Route::has('design.index')) {
             $areas[] = ['label' => 'Design', 'url' => route('design.index')];
@@ -35,7 +35,7 @@
         );
 
         $navigation = [
-            ['label' => 'Übersicht', 'url' => $homeUrl, 'active' => request()->routeIs('administration.home')],
+            ['label' => 'Übersicht', 'url' => $areaHomeUrl, 'active' => request()->routeIs('administration.home')],
         ];
         if ($can(\App\Modules\Administration\Enums\AdministrationCapability::PersonsRead)) {
             $navigation[] = ['label' => 'Personen', 'url' => route('administration.persons.index'), 'active' => request()->routeIs('administration.persons.*')];
@@ -85,7 +85,7 @@
         }
     @endphp
     <a class="vdbs-skip-link" href="#administration-content">Zum Inhalt</a>
-    <x-vdbs.portal-header area="Verwaltung" :page-title="$pageTitle" :home-url="$homeUrl" :area-url="$homeUrl" :areas="$areas" :navigation="$navigation" :account="$account" :breadcrumbs="$breadcrumbs ?? []" />
+    <x-vdbs.portal-header area="Verwaltung" :page-title="$pageTitle" :home-url="$portalHomeUrl" :area-url="$areaHomeUrl" :areas="$areas" :navigation="$navigation" :account="$account" :breadcrumbs="$breadcrumbs ?? []" />
     <main id="administration-content" class="site-main vdbs-public-main">
         <x-vdbs.frame width="normal" gutter="both">
             @if (session('status'))
@@ -98,6 +98,6 @@
             @yield('content')
         </x-vdbs.frame>
     </main>
-    <x-vdbs.portal-footer :home-url="$homeUrl" :links="[['label' => 'Vereinsportal', 'url' => route('my.home')], ['label' => 'Verwaltung', 'url' => $homeUrl]]" />
+    <x-vdbs.portal-footer :home-url="$portalHomeUrl" :links="[['label' => 'Vereinsportal', 'url' => $portalHomeUrl], ['label' => 'Verwaltung', 'url' => $areaHomeUrl]]" />
 </body>
 </html>
