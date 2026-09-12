@@ -55,7 +55,7 @@ function communicationAdministrationSession(): array
     ];
 }
 
-it('allows administration staff to inspect communication data but not edit templates', function () {
+it('allows administration staff to inspect and edit communication templates', function () {
     $this->seed(PortalInvitationEmailTemplateSeeder::class);
     $staff = communicationAdministrationActor(
         RoleKey::AdministrationStaff,
@@ -78,12 +78,12 @@ it('allows administration staff to inspect communication data but not edit templ
     $this->withSession(communicationAdministrationSession())
         ->actingAs($staff)
         ->put(route('administration.communication.templates.draft.update', $template), [
-            'draft_subject' => 'Nicht erlaubt',
-            'draft_html' => '<p>Nicht erlaubt</p>',
+            'draft_subject' => 'Verwaltung darf bearbeiten',
+            'draft_html' => '<p>Verwaltung darf bearbeiten</p>',
         ])
-        ->assertForbidden();
+        ->assertRedirect(route('administration.communication.templates.show', $template));
 
-    expect($template->refresh()->draft_subject)->toBe('Einladung zum Vereinsportal');
+    expect($template->refresh()->draft_subject)->toBe('Verwaltung darf bearbeiten');
 });
 
 it('allows administration to edit publish and activate a template', function () {
