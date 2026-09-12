@@ -75,32 +75,28 @@
                                     && $listedUser->id !== $actorUserId;
                             @endphp
                             <tr>
-                                <td>
-                                    <div class="table__cell-content">
-                                        @if ($listedUser !== null)
-                                            <x-vdbs.status :type="\App\Modules\Administration\Support\UserStatusPresentation::type($listedUser->status)">
-                                                {{ \App\Modules\Administration\Support\UserStatusPresentation::label($listedUser->status) }}
-                                            </x-vdbs.status>
-                                        @else
-                                            <x-vdbs.status type="info">Kein Konto</x-vdbs.status>
-                                        @endif
-                                    </div>
+                                <td style="vertical-align: middle;">
+                                    @if ($listedUser !== null)
+                                        <x-vdbs.status :type="\App\Modules\Administration\Support\UserStatusPresentation::type($listedUser->status)">
+                                            {{ \App\Modules\Administration\Support\UserStatusPresentation::label($listedUser->status) }}
+                                        </x-vdbs.status>
+                                    @else
+                                        <x-vdbs.status type="info">Kein Konto</x-vdbs.status>
+                                    @endif
                                 </td>
-                                <td><div class="table__cell-content">{{ $displayName }}</div></td>
-                                <td><div class="table__cell-content">{{ $listedPerson->email }}</div></td>
-                                <td><div class="table__cell-content">{{ trim(($listedPerson->postal_code ?? '').' '.($listedPerson->city ?? '')) ?: '—' }}</div></td>
-                                <td>
-                                    <div class="table__cell-content">
-                                        @if ($listedUser === null)
-                                            —
-                                        @elseif ($listedUser->last_login_at !== null)
-                                            {{ $listedUser->last_login_at->format('d.m.Y, H:i') }} Uhr
-                                        @else
-                                            Noch nie
-                                        @endif
-                                    </div>
+                                <td style="vertical-align: middle;">{{ $displayName }}</td>
+                                <td style="vertical-align: middle;">{{ $listedPerson->email }}</td>
+                                <td style="vertical-align: middle;">{{ trim(($listedPerson->postal_code ?? '').' '.($listedPerson->city ?? '')) ?: '—' }}</td>
+                                <td style="vertical-align: middle;">
+                                    @if ($listedUser === null)
+                                        —
+                                    @elseif ($listedUser->last_login_at !== null)
+                                        {{ $listedUser->last_login_at->format('d.m.Y, H:i') }} Uhr
+                                    @else
+                                        Noch nie
+                                    @endif
                                 </td>
-                                <td class="table__actions">
+                                <td class="table__actions" style="vertical-align: middle;">
                                     <div class="button-group" aria-label="Aktionen für {{ $displayName }}">
                                         <a
                                             class="btn btn--secondary btn--icon btn--sm"
