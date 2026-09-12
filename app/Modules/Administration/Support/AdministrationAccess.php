@@ -16,6 +16,7 @@ final class AdministrationAccess
      */
     private const ROLE_CAPABILITIES = [
         'administration_staff' => [
+            'areas.administration.access',
             'persons.read',
             'persons.manage',
             'portal_invitations.manage',
@@ -25,6 +26,7 @@ final class AdministrationAccess
             'communication.manage',
         ],
         'board_member' => [
+            'areas.board.access',
             'memberships.read',
             'memberships.manage',
             'membership_documents.read',
@@ -32,7 +34,16 @@ final class AdministrationAccess
             'membership_consents.read',
             'membership_consents.manage',
         ],
+        'coordination' => [
+            'areas.coordination.access',
+        ],
+        'education_coordination' => [
+            'areas.coordination.access',
+        ],
         'administration' => [
+            'areas.administration.access',
+            'areas.board.access',
+            'areas.coordination.access',
             'persons.read',
             'persons.manage',
             'memberships.read',
