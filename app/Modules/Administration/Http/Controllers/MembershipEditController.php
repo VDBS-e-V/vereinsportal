@@ -36,7 +36,7 @@ final class MembershipEditController extends Controller
             'membership' => $membership,
             'displayName' => $displayName,
             'breadcrumbs' => [
-                ['label' => 'Verwaltung', 'url' => route('administration.home')],
+                ['label' => 'Vorstand', 'url' => route('board.home')],
                 ['label' => 'Mitgliedschaften', 'url' => route('administration.memberships.index')],
                 ['label' => $displayName, 'url' => route('administration.memberships.show', $membership)],
                 ['label' => 'Bearbeiten', 'url' => null],
