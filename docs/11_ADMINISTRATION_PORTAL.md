@@ -2,56 +2,94 @@
 
 ## Ziel
 
-Der Verwaltungsbereich ist die erste reale Fachoberfläche, die auf dem
-VDBS-Designsystem aufsetzt. Er befindet sich unter:
+Der Verwaltungsbereich ist die interne Fachoberfläche des Vereinsportals. Er befindet sich unter:
 
 ```text
 http://my.vdb.test/verwaltung
 ```
 
-Damit bleibt die bestehende lokale Domain- und Session-Konfiguration erhalten.
-Es wird für diese Phase keine zusätzliche Subdomain eingeführt.
+Damit bleibt die bestehende Domain- und Session-Konfiguration erhalten. Es wird keine zusätzliche Verwaltungs-Subdomain eingeführt.
 
-## Zugriff
+## Zugriff und Berechtigungsmodell
 
-Der Bereich ist durch folgende Middleware-Kette geschützt:
+Der Bereich ist grundsätzlich durch folgende Middleware-Kette geschützt:
 
 ```text
 web
 → auth
 → identity.revalidate
 → administration.access
+→ administration.capability:<fachliche Fähigkeit>
 ```
 
-`administration.access` erlaubt ausschließlich aktive, bestätigte Konten mit
-einer aktuell gültigen Zuweisung einer dieser Rollen:
+`administration.access` ist das Eingangstor. Zugriff erhalten nur aktive, bestätigte Konten mit einer aktuell gültigen Rollenzuweisung, die mindestens eine Verwaltungsfähigkeit bereitstellt. Zukünftige oder bereits beendete Rollenzuweisungen zählen nicht. Andere vorhandene Rollen werden nicht automatisch freigeschaltet.
 
-- `administration_staff` – Verwaltung
-- `administration` – Administration
+Die fachliche Autorisierung erfolgt anschließend über typisierte Capabilities aus `AdministrationCapability`. Controller, Routen und sichtbare Aktionen verwenden dieselben fachlichen Fähigkeiten; die Sichtbarkeit einer Schaltfläche ist dabei ausdrücklich kein Ersatz für die serverseitige Prüfung.
 
-Zukünftige oder bereits beendete Rollenzuweisungen geben keinen Zugriff.
-Andere Rollen werden nicht automatisch freigeschaltet.
+## Rollen-Presets der Beta
 
-## Aktuelle Routen
+Die bestehende Rollensemantik bleibt erhalten, wird aber zentral auf Capabilities abgebildet.
+
+`administration_staff` besitzt ausschließlich lesende Verwaltungsfähigkeiten:
 
 ```text
-/verwaltung
-/verwaltung/benutzer
-/verwaltung/benutzer/{user}
+persons.read
+memberships.read
+membership_documents.read
+membership_consents.read
+users.read
+communication.read
 ```
 
-Der Bereich besitzt jetzt zwei Berechtigungsstufen:
+Damit kann die fachliche Verwaltung Personen, Mitgliedschaften, zugehörige Dokumente und Zustimmungsnachweise, Benutzerkonten sowie Kommunikationsdaten einsehen. Schreibaktionen und das Audit-Protokoll bleiben gesperrt.
 
-- `administration_staff` hat lesenden Zugriff auf Übersicht und Benutzerdaten.
-- `administration` darf zusätzlich definierte Verwaltungsaktionen ausführen.
+`administration` besitzt sämtliche aktuell definierten Verwaltungsfähigkeiten:
 
-Schreibende Aktionen werden serverseitig nochmals über
-`AdministrationAccess::canManage()` geprüft. Die reine Sichtbarkeit eines
-Formulars gilt ausdrücklich nicht als Berechtigungsprüfung.
+```text
+persons.read
+persons.manage
+memberships.read
+memberships.manage
+membership_documents.read
+membership_documents.manage
+membership_consents.read
+membership_consents.manage
+portal_invitations.manage
+users.read
+users.status.manage
+roles.manage
+communication.read
+communication.manage
+audit.read
+```
+
+Andere Rollen wie `member`, `board_member`, `team`, `education_coordination` oder `coordination` erhalten durch diese Abbildung keinen Verwaltungszugang.
+
+## Fachliche Gates
+
+Die Routen verwenden jeweils die kleinste erforderliche Capability:
+
+- Personen anzeigen: `persons.read`
+- Personen anlegen oder bearbeiten: `persons.manage`
+- Mitgliedschaften anzeigen: `memberships.read`
+- Mitgliedschaften anlegen, ändern oder beenden: `memberships.manage`
+- Mitgliedschaftsdokumente herunterladen: `membership_documents.read`
+- Dokumente hochladen oder ersetzen: `membership_documents.manage`
+- Zustimmungsnachweise lesen: `membership_consents.read`
+- Zustimmungen erfassen oder widerrufen: `membership_consents.manage`
+- Portal-Einladungen starten, erneut senden oder widerrufen: `portal_invitations.manage`
+- Benutzer lesen: `users.read`
+- Kontostatus ändern: `users.status.manage`
+- Rollen zuweisen oder beenden: `roles.manage`
+- Kommunikationsdaten lesen: `communication.read`
+- Kommunikationsvorlagen ändern, veröffentlichen oder aktivieren/deaktivieren: `communication.manage`
+- Audit-Protokoll lesen: `audit.read`
+
+Sicherheitskritische Schreibaktionen prüfen ihre Capability zusätzlich in Controller beziehungsweise Action. Dadurch bleibt die Autorisierung auch bei einer späteren Wiederverwendung außerhalb der aktuellen Route erhalten.
 
 ## Benutzerverwaltung
 
-Die Benutzerliste bietet aktuell:
+Die Benutzerliste bietet:
 
 - Suche nach Name oder E-Mail-Adresse
 - Statusfilter
@@ -59,95 +97,39 @@ Die Benutzerliste bietet aktuell:
 - Statusdarstellung über das Designsystem
 - Link auf eine strukturierte Detailansicht
 
-Die Detailansicht zeigt:
+Die Detailansicht zeigt Kontodaten, verknüpfte Personendaten und aktuelle beziehungsweise historische Rollenzuweisungen. Schreibrechte sind getrennt:
 
-- Kontostatus
-- E-Mail-Bestätigung
-- letzte Anmeldung
-- technische Kontometadaten
-- verknüpfte Personendaten
-- aktuelle und historische Rollenzuweisungen
+- `users.status.manage` erlaubt Deaktivieren und Reaktivieren von Konten.
+- `roles.manage` erlaubt manuelle Rollenzuweisungen und das Beenden aktiver manueller Zuweisungen.
 
-## Schreibende Verwaltungsaktionen
-
-Für die Rolle `administration` sind im Benutzerdetail folgende Aktionen
-verfügbar:
-
-- aktive Konten deaktivieren
-- deaktivierte, bereits bestätigte Konten reaktivieren
-- Rollen manuell zuweisen
-- aktive manuelle Rollenzuweisungen beenden
-
-Dabei gelten zusätzliche Schutzregeln:
+Dabei gelten weiterhin die Schutzregeln:
 
 - Das eigene Administrationskonto kann nicht deaktiviert werden.
-- Eine aktive eigene `administration`-Rolle kann nicht über die Oberfläche
-  beendet werden.
-- Automatische und per Konsole erzeugte Rollenzuweisungen können hier nicht
-  beendet werden.
-- Doppelte aktive oder bereits vorgemerkte Zuweisungen derselben Rolle werden
-  verhindert.
-- Eine Reaktivierung setzt eine bereits bestätigte E-Mail-Adresse voraus.
-- Eine Deaktivierung erhöht `session_version` und entfernt den Remember-Token,
-  damit bestehende Anmeldesitzungen invalidiert werden.
-- Jede schreibende Aktion verlangt eine Begründung und wird auditierbar
-  protokolliert.
+- Eine aktive eigene `administration`-Rolle kann nicht über die Oberfläche beendet werden.
+- Automatische und per Konsole erzeugte Rollenzuweisungen können hier nicht beendet werden.
+- Doppelte aktive oder bereits vorgemerkte Zuweisungen derselben Rolle werden verhindert.
+- Eine Reaktivierung setzt eine bestätigte E-Mail-Adresse voraus.
+- Eine Deaktivierung erhöht `session_version` und entfernt den Remember-Token, damit bestehende Anmeldesitzungen invalidiert werden.
+- Schreibende Vorgänge werden nachvollziehbar auditiert.
 
-Die POST-Endpunkte lauten:
+## Personen und Mitgliedschaften
 
-```text
-/verwaltung/benutzer/{user}/status
-/verwaltung/benutzer/{user}/rollen
-/verwaltung/benutzer/{user}/rollen/{assignment}/beenden
-```
+Personen- und Mitgliedschaftsansichten richten Verknüpfungen und Aktionen ebenfalls an den konkreten Capabilities aus. Dadurch kann eine spätere Fachrolle beispielsweise Mitgliedschaften bearbeiten, ohne automatisch Rollen oder Kommunikationsvorlagen verwalten zu dürfen.
 
-## Audit
+Mitgliedschaftsdokumente liegen privat im Laravel-Storage und werden ausschließlich über eine geschützte Downloadroute ausgeliefert. Dokumentdaten und Zustimmungsnachweise werden im Mitgliedschaftsdetail nur geladen und angezeigt, wenn die jeweilige Lesecapability vorhanden ist. Ersetzen von Dokumenten und Widerrufen von Zustimmungen erhalten die bestehende Historie.
 
-Der Verwaltungsblock ergänzt folgende Ereignisse:
+## Kommunikation und Audit
 
-```text
-role.manual_assigned
-role.manual_ended
-account.disabled
-account.reactivated
-```
+Kommunikationsvorlagen und Versandhistorie sind über `communication.read` lesbar. Entwürfe ändern, Versionen veröffentlichen und Vorlagen aktivieren oder deaktivieren erfordert `communication.manage`.
 
-Bei einer administrativen Deaktivierung wird zusätzlich das bestehende
-Ereignis `auth.sessions.invalidated` mitgeschrieben.
+Das Audit-Protokoll ist bewusst eine eigene Fähigkeit (`audit.read`). `administration_staff` erhält diese Fähigkeit im Beta-Preset nicht; `administration` kann Audit-Liste und Detailansichten öffnen.
 
 ## Designsystem
 
-Der Verwaltungsbereich verwendet keine eigene Dashboard-Designsprache.
-Verwendet werden die bestehenden Muster:
+Der Verwaltungsbereich verwendet die bestehenden Muster des VDBS-Designsystems, unter anderem Portal Header, Page Title, Key Facts, Suche/Filter, Tabellen, Pagination, Metadata List, Record List, Status, Empty State und Portal Footer. Es gibt weiterhin keine permanente globale Sidebar.
 
-```text
-Portal Header
-Page Title
-Key Facts
-Search / Filter
-Table
-Pagination
-Metadata List
-Record List
-Status
-Empty State
-Portal Footer
-```
+## Weiterentwicklung
 
-Es gibt weiterhin keine permanente globale Sidebar.
+Die Capability-Schicht ist bewusst keine frei konfigurierbare RBAC-Datenbank. Neue Fachrollen können später durch eine zentrale Rollen-zu-Capability-Abbildung ergänzt werden, ohne die einzelnen Controller wieder an Rollennamen zu koppeln.
 
-## Nächste fachliche Schritte
-
-Nach diesem Block liegen Benutzerverzeichnis, Kontostatus und manuelle
-Rollenverwaltung als erste vollständige Verwaltungsstrecke vor. Als nächste
-fachliche Ausbaustufen bieten sich an:
-
-1. Personen- und Mitgliedsdaten anbinden
-2. Einladungs- und Freigabeprozesse
-3. Kommunikationsvorlagen und Versandstatus
-4. Audit-Ansichten für berechtigte Administration
-5. feinere fachliche Berechtigungen innerhalb der Verwaltung
-
-Neue schreibende Workflows benötigen weiterhin eine eindeutige
-Berechtigungsregel, Audit-Ereignisse und eine fachlich definierte
-Bestätigung bzw. Fehlerrückmeldung.
+Der nächste Produkt-Schritt nach diesem Berechtigungsblock ist die vollständige Beta-Abnahme der realen Strecke Person → Mitgliedschaft → Einladung → Konto sowie die Prüfung der noch offenen Punkte aus der funktionalen Beta-Roadmap und der manuellen Design-QA.
