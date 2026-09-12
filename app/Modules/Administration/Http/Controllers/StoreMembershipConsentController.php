@@ -3,6 +3,7 @@
 namespace App\Modules\Administration\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Administration\Enums\AdministrationCapability;
 use App\Modules\Administration\Support\AdministrationAccess;
 use App\Modules\Identity\Models\User;
 use App\Modules\Membership\Actions\RecordMembershipConsentAction;
@@ -22,7 +23,14 @@ final class StoreMembershipConsentController extends Controller
         RecordMembershipConsentAction $recordConsent,
     ): RedirectResponse {
         $actor = $request->user();
-        abort_unless($actor instanceof User && $access->canManage($actor), 403);
+        abort_unless(
+            $actor instanceof User
+            && $access->allowsCapability(
+                $actor,
+                AdministrationCapability::MembershipConsentsManage,
+            ),
+            403,
+        );
 
         $validated = $request->validate([
             'consent_key' => [
