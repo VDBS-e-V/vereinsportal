@@ -2,6 +2,7 @@
 
 namespace App\Modules\Administration\Actions;
 
+use App\Modules\Administration\Enums\AdministrationCapability;
 use App\Modules\Administration\Exceptions\AdministrationActionRejected;
 use App\Modules\Administration\Support\AdministrationAccess;
 use App\Modules\Audit\Enums\AuditActorType;
@@ -25,7 +26,10 @@ final class ReactivateUserAction
         ?string $ipAddress = null,
         ?string $userAgent = null,
     ): User {
-        if (! $this->access->canManage($actor)) {
+        if (! $this->access->allowsCapability(
+            $actor,
+            AdministrationCapability::UserStatusManage,
+        )) {
             throw new AdministrationActionRejected(
                 'Für diese Aktion fehlt die erforderliche Administrationsberechtigung.'
             );
