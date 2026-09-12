@@ -5,6 +5,7 @@ namespace App\Modules\Administration\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Administration\Enums\AdministrationCapability;
 use App\Modules\Administration\Support\AdministrationAccess;
+use App\Modules\Administration\Support\AuditEventVisibility;
 use App\Modules\Audit\Models\AuditEvent;
 use App\Modules\Identity\Models\User;
 use Illuminate\Contracts\View\View;
@@ -16,6 +17,7 @@ final class AuditEventIndexController extends Controller
     public function __invoke(
         Request $request,
         AdministrationAccess $access,
+        AuditEventVisibility $visibility,
     ): View {
         $actor = $request->user();
 
@@ -26,6 +28,11 @@ final class AuditEventIndexController extends Controller
                 AdministrationCapability::AuditRead,
             ),
             403,
+        );
+
+        $canReadMemberships = $access->allowsCapability(
+            $actor,
+            AdministrationCapability::MembershipsRead,
         );
 
         $eventKey = mb_substr(
@@ -49,8 +56,11 @@ final class AuditEventIndexController extends Controller
             ? (int) $subjectIdInput
             : null;
 
-        $events = AuditEvent::query()
-            ->with('actor.person')
+        $events = $visibility
+            ->constrain(
+                AuditEvent::query()->with('actor.person'),
+                $canReadMemberships,
+            )
             ->when(
                 $eventKey !== '',
                 fn (Builder $query) => $query->where(
@@ -100,20 +110,23 @@ final class AuditEventIndexController extends Controller
             ->paginate(50)
             ->withQueryString();
 
-        $eventKeys = AuditEvent::query()
+        $eventKeys = $visibility
+            ->constrain(AuditEvent::query(), $canReadMemberships)
             ->select('event_key')
             ->distinct()
             ->orderBy('event_key')
             ->pluck('event_key');
 
-        $subjectTypes = AuditEvent::query()
+        $subjectTypes = $visibility
+            ->constrain(AuditEvent::query(), $canReadMemberships)
             ->whereNotNull('subject_type')
             ->select('subject_type')
             ->distinct()
             ->orderBy('subject_type')
             ->pluck('subject_type');
 
-        $actorIds = AuditEvent::query()
+        $actorIds = $visibility
+            ->constrain(AuditEvent::query(), $canReadMemberships)
             ->whereNotNull('actor_user_id')
             ->select('actor_user_id')
             ->distinct()
