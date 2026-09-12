@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Administration\Enums\AdministrationCapability;
 use App\Modules\Administration\Support\AdministrationAccess;
 use App\Modules\Administration\Support\AuditEventPresentation;
+use App\Modules\Administration\Support\AuditEventVisibility;
 use App\Modules\Audit\Models\AuditEvent;
 use App\Modules\Identity\Models\User;
 use Illuminate\Contracts\View\View;
@@ -17,6 +18,7 @@ final class AuditEventShowController extends Controller
         Request $request,
         AuditEvent $auditEvent,
         AdministrationAccess $access,
+        AuditEventVisibility $visibility,
     ): View {
         $actor = $request->user();
 
@@ -26,6 +28,16 @@ final class AuditEventShowController extends Controller
                 $actor,
                 AdministrationCapability::AuditRead,
             ),
+            403,
+        );
+
+        $canReadMemberships = $access->allowsCapability(
+            $actor,
+            AdministrationCapability::MembershipsRead,
+        );
+
+        abort_unless(
+            $visibility->allows($auditEvent, $canReadMemberships),
             403,
         );
 
