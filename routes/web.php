@@ -84,6 +84,11 @@ Route::domain(config('domains.my'))
             )->name('my.account');
 
             Volt::route(
+                '/konto/profil',
+                'identity.account-profile',
+            )->name('my.account.profile');
+
+            Volt::route(
                 '/konto/einstellungen',
                 'identity.account-settings',
             )->name('my.account.settings');
