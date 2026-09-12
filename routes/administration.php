@@ -40,8 +40,7 @@ use App\Modules\Administration\Http\Controllers\UserIndexController;
 use App\Modules\Administration\Http\Controllers\UserShowController;
 use Illuminate\Support\Facades\Route;
 
-$requires = static fn (AdministrationCapability $capability): string =>
-    'administration.capability:'.$capability->value;
+$requires = static fn (AdministrationCapability $capability): string => 'administration.capability:'.$capability->value;
 
 Route::middleware([
     'web',
