@@ -4,6 +4,10 @@ namespace App\Modules\Administration\Enums;
 
 enum AdministrationCapability: string
 {
+    case AdministrationAreaAccess = 'areas.administration.access';
+    case BoardAreaAccess = 'areas.board.access';
+    case CoordinationAreaAccess = 'areas.coordination.access';
+
     case PersonsRead = 'persons.read';
     case PersonsManage = 'persons.manage';
 
