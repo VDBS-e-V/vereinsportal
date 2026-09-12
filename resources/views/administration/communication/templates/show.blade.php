@@ -18,7 +18,7 @@
             </div>
         </header>
 
-        @if ($canManage)
+        @if ($canManageCommunication)
             <section class="panel stack">
                 <h2>Entwurf bearbeiten</h2>
                 <form class="form stack" action="{{ route('administration.communication.templates.draft.update', $template) }}" method="post">
@@ -77,7 +77,7 @@
             </div>
         </section>
 
-        @if ($canManage)
+        @if ($canManageCommunication)
             <section class="panel stack">
                 <h2>Veröffentlichung und Status</h2>
                 <p>Veröffentlichen erzeugt eine unveränderliche neue Version. Aktivieren steuert, ob Systemprozesse diese Vorlage tatsächlich versenden dürfen.</p>
