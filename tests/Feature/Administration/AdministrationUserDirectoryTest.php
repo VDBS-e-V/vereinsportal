@@ -119,7 +119,7 @@ it('keeps the system managed member role out of the user detail page', function 
             'key' => RoleKey::Member->value,
         ],
         [
-            'name' => 'Vereinsmitglied',
+            'name' => 'SYSTEM_MEMBER_ROLE_SHOULD_NOT_RENDER',
             'is_system' => true,
         ],
     );
@@ -141,7 +141,7 @@ it('keeps the system managed member role out of the user detail page', function 
         ->assertOk()
         ->assertSee('Erika Muster')
         ->assertSee('detail.muster@example.test')
-        ->assertDontSee('Vereinsmitglied')
+        ->assertDontSee('SYSTEM_MEMBER_ROLE_SHOULD_NOT_RENDER')
         ->assertSee('Aktiv');
 });
 
