@@ -160,29 +160,58 @@
             ->concat($nestedWithoutRoot)
             ->all();
 
-        $designAdministrationUser = auth()->user();
-        $hasAdministrationAccess =
-            $designAdministrationUser instanceof \App\Modules\Identity\Models\User
-            && app(\App\Modules\Administration\Support\AdministrationAccess::class)
-                ->allows($designAdministrationUser);
+        $user = auth()->user();
+        $staffAccess = app(\App\Modules\Administration\Support\AdministrationAccess::class);
+        $designAreas = [];
 
-        $designAreas = [
-            [
-                'label' => 'Verwaltung',
-                'url' => $hasAdministrationAccess
-                    && \Illuminate\Support\Facades\Route::has('administration.home')
-                        ? route('administration.home')
-                        : null,
-            ],
-            [
-                'label' => 'Design',
-                'url' => route('design.index'),
-                'active' => true,
-            ],
+        if ($user instanceof \App\Modules\Identity\Models\User) {
+            if (
+                $staffAccess->allowsCapability(
+                    $user,
+                    \App\Modules\Administration\Enums\AdministrationCapability::AdministrationAreaAccess,
+                )
+                && \Illuminate\Support\Facades\Route::has('administration.home')
+            ) {
+                $designAreas[] = [
+                    'label' => 'Verwaltung',
+                    'url' => route('administration.home'),
+                ];
+            }
+
+            if (
+                $staffAccess->allowsCapability(
+                    $user,
+                    \App\Modules\Administration\Enums\AdministrationCapability::BoardAreaAccess,
+                )
+                && \Illuminate\Support\Facades\Route::has('board.home')
+            ) {
+                $designAreas[] = [
+                    'label' => 'Vorstand',
+                    'url' => route('board.home'),
+                ];
+            }
+
+            if (
+                $staffAccess->allowsCapability(
+                    $user,
+                    \App\Modules\Administration\Enums\AdministrationCapability::CoordinationAreaAccess,
+                )
+                && \Illuminate\Support\Facades\Route::has('coordination.home')
+            ) {
+                $designAreas[] = [
+                    'label' => 'Koordination',
+                    'url' => route('coordination.home'),
+                ];
+            }
+        }
+
+        $designAreas[] = [
+            'label' => 'Design',
+            'url' => route('design.index'),
+            'active' => true,
         ];
 
         $designAccount = null;
-        $user = auth()->user();
 
         if ($user !== null) {
             $person = $user->person;
@@ -221,12 +250,12 @@
                         [
                             'label' => 'Mein Profil',
                             'icon' => 'user',
-                            'url' => route('my.profile'),
+                            'url' => route('my.account.profile'),
                         ],
                         [
                             'label' => 'Kontoeinstellungen',
                             'icon' => 'settings',
-                            'url' => route('my.security'),
+                            'url' => route('my.account.settings'),
                         ],
                         [
                             'label' => 'Meine Tickets',
