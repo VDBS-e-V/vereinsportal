@@ -27,7 +27,7 @@ it('uses existing design system patterns for administration management', functio
         ->toContain("['danger', 'warning']");
 });
 
-it('keeps write permission separate from administration read access', function () {
+it('keeps administration permissions capability based', function () {
     $access = file_get_contents(
         app_path('Modules/Administration/Support/AdministrationAccess.php'),
     );
@@ -37,19 +37,29 @@ it('keeps write permission separate from administration read access', function (
     $roleController = file_get_contents(
         app_path('Modules/Administration/Http/Controllers/AssignUserRoleController.php'),
     );
+    $routes = file_get_contents(
+        base_path('routes/administration.php'),
+    );
 
     expect($access)
-        ->toContain('ACCESS_ROLE_KEYS')
-        ->toContain('MANAGEMENT_ROLE_KEYS')
-        ->toContain('RoleKey::AdministrationStaff->value')
-        ->toContain('RoleKey::Administration->value')
-        ->toContain('public function canManage');
+        ->toContain('ROLE_CAPABILITIES')
+        ->toContain('public function allowsCapability')
+        ->toContain('public function capabilities')
+        ->not->toContain('public function canManage');
 
     expect($statusController)
-        ->toContain('$access->canManage($actor)')
+        ->toContain('AdministrationCapability::UserStatusManage')
+        ->toContain('allowsCapability')
         ->toContain('abort_unless');
 
     expect($roleController)
-        ->toContain('$access->canManage($actor)')
+        ->toContain('AdministrationCapability::RolesManage')
+        ->toContain('allowsCapability')
         ->toContain('abort_unless');
+
+    expect($routes)
+        ->toContain('administration.capability:')
+        ->toContain('AdministrationCapability::AuditRead')
+        ->toContain('AdministrationCapability::CommunicationManage')
+        ->toContain('AdministrationCapability::MembershipDocumentsManage');
 });
