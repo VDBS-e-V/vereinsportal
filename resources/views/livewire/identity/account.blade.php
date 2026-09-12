@@ -48,15 +48,12 @@ new #[Layout('components.layouts.public')]
         </div>
 
         <div class="resource-list">
-            <article class="resource-item vdbs-resource-item">
-                <div class="resource-item__content vdbs-resource-item__content">
-                    <h3 class="resource-item__title vdbs-resource-item__title">Mein Profil</h3>
-                    <p class="resource-item__description vdbs-resource-item__description">
-                        Einstellungen für das künftig öffentliche Profil werden in einem späteren Schritt ergänzt.
-                    </p>
-                    <span class="resource-item__meta vdbs-resource-item__meta">In Vorbereitung</span>
-                </div>
-            </article>
+            <x-vdbs.resource-item
+                title="Mein Profil"
+                :url="route('my.account.profile')"
+                description="Eigener Bereich für die Einstellungen des künftig öffentlich sichtbaren Profils."
+                meta="Profil"
+            />
 
             <x-vdbs.resource-item
                 title="Kontoeinstellungen"
