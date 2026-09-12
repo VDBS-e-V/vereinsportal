@@ -6,8 +6,8 @@ it('keeps portal and administration start links distinct in the administration s
     );
 
     expect($layout)
-        ->toContain("$portalHomeUrl = route('my.home');")
-        ->toContain("$areaHomeUrl = route('administration.home');")
+        ->toContain("\$portalHomeUrl = route('my.home');")
+        ->toContain("\$areaHomeUrl = route('administration.home');")
         ->toContain(':home-url="$portalHomeUrl"')
         ->toContain(':area-url="$areaHomeUrl"')
         ->not->toContain("['label' => 'Portal'");
