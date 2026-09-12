@@ -11,17 +11,8 @@ use App\Modules\Identity\Models\Role;
 use App\Modules\Identity\Models\RoleAssignment;
 use App\Modules\Identity\Models\User;
 
-function makeAuditViewActor(RoleKey $roleKey, string $email): User
+function grantAuditViewRole(User $actor, RoleKey $roleKey): void
 {
-    $actor = User::query()->create([
-        'email' => $email,
-        'password' => 'Sicher123!',
-        'status' => UserStatus::Active,
-        'session_version' => 1,
-    ]);
-    $actor->email_verified_at = now();
-    $actor->save();
-
     $role = Role::query()->firstOrCreate(
         ['key' => $roleKey->value],
         [
@@ -36,6 +27,20 @@ function makeAuditViewActor(RoleKey $roleKey, string $email): User
         'source' => RoleAssignmentSource::Console,
         'starts_at' => now()->subMinute(),
     ]);
+}
+
+function makeAuditViewActor(RoleKey $roleKey, string $email): User
+{
+    $actor = User::query()->create([
+        'email' => $email,
+        'password' => 'Sicher123!',
+        'status' => UserStatus::Active,
+        'session_version' => 1,
+    ]);
+    $actor->email_verified_at = now();
+    $actor->save();
+
+    grantAuditViewRole($actor, $roleKey);
 
     return $actor->refresh();
 }
@@ -192,6 +197,102 @@ it('shows whitelisted audit values and subject link but hides technical metadata
         ->assertDontSee('203.0.113.77')
         ->assertDontSee('SensitiveBrowser/9.9')
         ->assertDontSee('secret-device-token');
+});
+
+it('keeps membership audit data hidden unless administration also has a board role', function () {
+    $admin = makeAuditViewActor(
+        RoleKey::Administration,
+        'audit-membership-admin@example.test',
+    );
+    $adminBoard = makeAuditViewActor(
+        RoleKey::Administration,
+        'audit-membership-board@example.test',
+    );
+    grantAuditViewRole($adminBoard, RoleKey::BoardMember);
+
+    $normalEvent = app(AuditWriter::class)->write(
+        eventKey: AuditEventCatalog::AUTH_PASSWORD_CHANGED,
+        actorType: AuditActorType::User,
+        actorUserId: $admin->id,
+        subjectType: 'user',
+        subjectId: $admin->id,
+    );
+    $membershipEvent = app(AuditWriter::class)->write(
+        eventKey: AuditEventCatalog::MEMBERSHIP_CREATED,
+        actorType: AuditActorType::User,
+        actorUserId: $adminBoard->id,
+        subjectType: 'membership',
+        subjectId: 9001,
+        newValues: [
+            'person_id' => 4001,
+            'starts_on' => '2026-01-01',
+            'ends_on' => null,
+        ],
+    );
+    $memberRoleEvent = app(AuditWriter::class)->write(
+        eventKey: AuditEventCatalog::ROLE_AUTOMATIC_ASSIGNED,
+        actorType: AuditActorType::System,
+        subjectType: 'role_assignment',
+        subjectId: 9002,
+        newValues: [
+            'role' => RoleKey::Member->value,
+            'source' => RoleAssignmentSource::Automatic->value,
+        ],
+    );
+
+    $this
+        ->withSession(auditViewSession())
+        ->actingAs($admin)
+        ->get('http://my.vdb.test/verwaltung/audit')
+        ->assertOk()
+        ->assertViewHas('events', function ($events) use (
+            $normalEvent,
+            $membershipEvent,
+            $memberRoleEvent,
+        ): bool {
+            $ids = $events->getCollection()->pluck('id');
+
+            return $ids->contains($normalEvent->id)
+                && ! $ids->contains($membershipEvent->id)
+                && ! $ids->contains($memberRoleEvent->id);
+        })
+        ->assertViewHas('eventKeys', function ($eventKeys): bool {
+            return ! $eventKeys->contains(AuditEventCatalog::MEMBERSHIP_CREATED)
+                && ! $eventKeys->contains(AuditEventCatalog::ROLE_AUTOMATIC_ASSIGNED);
+        });
+
+    $this
+        ->withSession(auditViewSession())
+        ->actingAs($admin)
+        ->get('http://my.vdb.test/verwaltung/audit/'.$membershipEvent->id)
+        ->assertForbidden();
+
+    $this
+        ->withSession(auditViewSession())
+        ->actingAs($admin)
+        ->get('http://my.vdb.test/verwaltung/audit/'.$memberRoleEvent->id)
+        ->assertForbidden();
+
+    $this
+        ->withSession(auditViewSession())
+        ->actingAs($adminBoard)
+        ->get('http://my.vdb.test/verwaltung/audit')
+        ->assertOk()
+        ->assertViewHas('events', function ($events) use (
+            $membershipEvent,
+            $memberRoleEvent,
+        ): bool {
+            $ids = $events->getCollection()->pluck('id');
+
+            return $ids->contains($membershipEvent->id)
+                && $ids->contains($memberRoleEvent->id);
+        });
+
+    $this
+        ->withSession(auditViewSession())
+        ->actingAs($adminBoard)
+        ->get('http://my.vdb.test/verwaltung/audit/'.$membershipEvent->id)
+        ->assertOk();
 });
 
 it('does not expose audit navigation to administration staff', function () {
