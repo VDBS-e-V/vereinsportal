@@ -19,6 +19,13 @@ final class UserShowController extends Controller
         $user->load([
             'person',
             'roleAssignments' => fn ($query) => $query
+                ->whereDoesntHave(
+                    'role',
+                    fn ($roleQuery) => $roleQuery->where(
+                        'key',
+                        RoleKey::Member->value,
+                    ),
+                )
                 ->with([
                     'role',
                     'grantedBy',
@@ -59,6 +66,7 @@ final class UserShowController extends Controller
 
         $availableRoles = $canManageRoles
             ? Role::query()
+                ->where('key', '!=', RoleKey::Member->value)
                 ->orderBy('name')
                 ->get()
                 ->reject(
