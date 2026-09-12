@@ -56,20 +56,6 @@
     vertical-align: top;
 }
 
-.table tbody th,
-.table tbody td,
-.vdbs-table tbody th,
-.vdbs-table tbody td {
-    vertical-align: middle;
-}
-
-.table__cell-content,
-.vdbs-table__cell-content {
-    display: flex;
-    min-height: var(--control-height-sm);
-    align-items: center;
-}
-
 .table thead th,
 .vdbs-table thead th {
     border-top: var(--border-width-strong) solid var(--color-ink);
