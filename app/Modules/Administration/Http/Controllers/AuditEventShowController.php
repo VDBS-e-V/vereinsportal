@@ -3,6 +3,7 @@
 namespace App\Modules\Administration\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Administration\Enums\AdministrationCapability;
 use App\Modules\Administration\Support\AdministrationAccess;
 use App\Modules\Administration\Support\AuditEventPresentation;
 use App\Modules\Audit\Models\AuditEvent;
@@ -21,7 +22,10 @@ final class AuditEventShowController extends Controller
 
         abort_unless(
             $actor instanceof User
-            && $access->canManage($actor),
+            && $access->allowsCapability(
+                $actor,
+                AdministrationCapability::AuditRead,
+            ),
             403,
         );
 
