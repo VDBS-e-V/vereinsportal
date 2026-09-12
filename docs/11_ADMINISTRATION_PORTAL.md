@@ -58,20 +58,62 @@ Berechtigungsprüfung.
 
 ## Rollen-Presets der aktuellen Beta-Basis
 
-Die Capability-Infrastruktur trennt Rollen und Fachrechte bewusst. Der
-aktuelle Beta-Stand bildet zunächst die bisherige Semantik ab:
+Die Capability-Infrastruktur trennt Rollen und Fachrechte bewusst. Die bereits
+vorhandenen Fachmodule sind nach Zuständigkeit aufgeteilt:
 
-- `administration_staff` erhält lesende Fähigkeiten für Personen,
-  Mitgliedschaften, Dokumente, Zustimmungen, Benutzer und Kommunikation.
-- `administration` erhält zusätzlich die aktuell vorhandenen schreibenden
-  Verwaltungsfähigkeiten und Audit-Lesezugriff.
-- Andere Rollen erhalten durch diesen Basisschritt noch keinen zusätzlichen
-  Verwaltungszugang.
+### Verwaltung (`administration_staff`)
 
-Diese Presets sind eine Übergangsbasis. Die fachliche Trennung von Verwaltung,
-Vorstand und Koordination wird separat in #37 konkretisiert. Weil Controller,
-Routen und UI bereits auf Capabilities statt Rollennamen prüfen, kann diese
-Zuordnung angepasst werden, ohne die Fachendpunkte erneut umzubauen.
+Die Verwaltung verantwortet im aktuellen System allgemeine Datenverwaltung,
+Nutzerkonten sowie Kommunikation:
+
+```text
+persons.read
+persons.manage
+portal_invitations.manage
+users.read
+users.status.manage
+communication.read
+communication.manage
+```
+
+Mitgliedschaften, Mitgliedschaftsdokumente und mitgliedschaftsbezogene
+Zustimmungen gehören nicht zu diesem Preset.
+
+### Vorstand (`board_member`)
+
+Der Vorstand verantwortet die bereits implementierte Mitgliederverwaltung:
+
+```text
+memberships.read
+memberships.manage
+membership_documents.read
+membership_documents.manage
+membership_consents.read
+membership_consents.manage
+```
+
+Das Preset erhält bewusst keinen allgemeinen Zugriff auf Personenverzeichnis,
+Nutzerkonten, Kommunikation, Rollenverwaltung oder Audit. Dadurch wird vermieden,
+dass die Mitgliederzuständigkeit stillschweigend einen allgemeinen
+Personendatenzugriff eröffnet.
+
+### Koordination
+
+Für `coordination` und `education_coordination` werden noch keine künstlichen
+Verwaltungs-Capabilities vergeben. Die in #37 vorgesehenen Zuständigkeiten für
+Mitarbeitende und Freiwillige, Seminare sowie Schulen benötigen zuerst eigene
+Fachmodule und eigene Capabilities. Bis dahin öffnet eine reine
+Koordinationsrolle den Verwaltungsbereich nicht.
+
+### Volladministration (`administration`)
+
+`administration` bleibt der bewusst separate Vollzugriff und erhält alle
+aktuell definierten Capabilities. Insbesondere bleiben die sensiblen Rechte
+`roles.manage` und `audit.read` zunächst ausschließlich bei diesem Preset.
+
+Diese Zuordnung bildet die bereits implementierbaren Teile von #37 ab. Neue
+Fachmodule werden später mit eigenen Capabilities ergänzt, statt bestehende
+breite Rechte dafür zweckzuentfremden.
 
 ## Aktuelle Fachbereiche
 
@@ -161,11 +203,18 @@ Es gibt weiterhin keine permanente globale Sidebar.
 
 ## Nächste fachliche Schritte
 
-Die Capability-Basis ist die Voraussetzung für die nächsten organisatorischen
-Ausbaustufen. Als Nächstes werden die Zuständigkeiten aus #37 auf die bereits
-vorhandenen und künftigen Fachmodule abgebildet. Zusätzlich bleiben in der
-Communication-Domain insbesondere Vorlagenvorschau und ein kontrollierter Retry
-fehlgeschlagener Zustellungen als Beta-Gaps offen.
+Für #37 sind die heute vorhandenen Module damit fachlich getrennt. Noch offen
+sind eigene Capability-Gruppen und Fachmodule für:
+
+- Finanzen
+- Fundraising
+- Vereinsrechtliches
+- Mitarbeitende und Freiwillige
+- Seminare
+- Schulen / Schulkoordination
+
+Zusätzlich bleiben in der Communication-Domain insbesondere Vorlagenvorschau
+und ein kontrollierter Retry fehlgeschlagener Zustellungen als Beta-Gaps offen.
 
 Neue Workflows benötigen weiterhin eine eindeutige Capability, serverseitige
 Absicherung, passende UI-Sichtbarkeit, Audit-Ereignisse bei relevanten
