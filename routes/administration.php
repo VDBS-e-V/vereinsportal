@@ -6,6 +6,7 @@ use App\Modules\Administration\Http\Controllers\AuditEventIndexController;
 use App\Modules\Administration\Http\Controllers\AuditEventShowController;
 use App\Modules\Administration\Http\Controllers\BoardHomeController;
 use App\Modules\Administration\Http\Controllers\CoordinationHomeController;
+use App\Modules\Administration\Http\Controllers\DisablePersonUserController;
 use App\Modules\Administration\Http\Controllers\DownloadMembershipDocumentController;
 use App\Modules\Administration\Http\Controllers\EmailDeliveryIndexController;
 use App\Modules\Administration\Http\Controllers\EmailDeliveryShowController;
@@ -25,6 +26,7 @@ use App\Modules\Administration\Http\Controllers\PersonIndexController;
 use App\Modules\Administration\Http\Controllers\PersonShowController;
 use App\Modules\Administration\Http\Controllers\PublishEmailTemplateController;
 use App\Modules\Administration\Http\Controllers\ReplaceMembershipDocumentController;
+use App\Modules\Administration\Http\Controllers\RequestPersonPasswordResetController;
 use App\Modules\Administration\Http\Controllers\ResendPortalInvitationController;
 use App\Modules\Administration\Http\Controllers\RevokeMembershipConsentController;
 use App\Modules\Administration\Http\Controllers\RevokePortalInvitationController;
@@ -74,6 +76,14 @@ Route::middleware([
             ->middleware($requires(AdministrationCapability::PortalInvitationsManage))
             ->whereNumber('person')
             ->name('persons.portal-invitations.store');
+        Route::post('/personen/{person}/passwort-zuruecksetzen', RequestPersonPasswordResetController::class)
+            ->middleware($requires(AdministrationCapability::UserStatusManage))
+            ->whereNumber('person')
+            ->name('persons.password-reset');
+        Route::post('/personen/{person}/konto-sperren', DisablePersonUserController::class)
+            ->middleware($requires(AdministrationCapability::UserStatusManage))
+            ->whereNumber('person')
+            ->name('persons.account.disable');
         Route::get('/personen/{person}', PersonShowController::class)
             ->middleware($requires(AdministrationCapability::PersonsRead))
             ->whereNumber('person')
