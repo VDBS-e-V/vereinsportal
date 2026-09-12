@@ -239,7 +239,7 @@ it('maps coordination roles to their own area without unrelated fach capabilitie
     RoleKey::EducationCoordination,
 ]);
 
-it('maps administration to every beta capability and every internal area', function () {
+it('keeps membership capabilities exclusive to board members even for full administration', function () {
     $user = makeAdministrationAccessTestUser(
         'administration-capabilities@example.test',
     );
@@ -248,13 +248,41 @@ it('maps administration to every beta capability and every internal area', funct
         RoleKey::Administration,
     );
 
-    $expected = array_map(
-        static fn (AdministrationCapability $capability): string => $capability->value,
-        AdministrationCapability::cases(),
-    );
+    $expected = [
+        AdministrationCapability::AdministrationAreaAccess->value,
+        AdministrationCapability::AuditRead->value,
+        AdministrationCapability::CommunicationManage->value,
+        AdministrationCapability::CommunicationRead->value,
+        AdministrationCapability::CoordinationAreaAccess->value,
+        AdministrationCapability::PersonsManage->value,
+        AdministrationCapability::PersonsRead->value,
+        AdministrationCapability::PortalInvitationsManage->value,
+        AdministrationCapability::RolesManage->value,
+        AdministrationCapability::UsersRead->value,
+        AdministrationCapability::UserStatusManage->value,
+    ];
     sort($expected);
 
     expect(administrationCapabilityValues($user))->toBe($expected);
+
+    $access = app(AdministrationAccess::class);
+
+    expect($access->allowsCapability(
+        $user,
+        AdministrationCapability::BoardAreaAccess,
+    ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::MembershipsRead,
+        ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::MembershipDocumentsRead,
+        ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::MembershipConsentsRead,
+        ))->toBeFalse();
 });
 
 it('does not grant internal staff capabilities to unrelated roles', function (RoleKey $roleKey) {
@@ -341,7 +369,7 @@ it('keeps coordination roles inside the coordination area', function (RoleKey $r
     RoleKey::EducationCoordination,
 ]);
 
-it('allows full administration to enter every separated area', function () {
+it('keeps full administration out of board data without a board role', function () {
     $admin = makeAdministrationAccessTestUser(
         'administration-routes@example.test',
     );
@@ -357,6 +385,29 @@ it('allows full administration to enter every separated area', function () {
     $client->get('http://my.vdb.test/verwaltung')->assertOk();
     $client->get('http://my.vdb.test/verwaltung/personen/anlegen')->assertOk();
     $client->get('http://my.vdb.test/verwaltung/audit')->assertOk();
+    $client->get('http://my.vdb.test/koordination')->assertOk();
+    $client->get('http://my.vdb.test/vorstand')->assertForbidden();
+    $client->get('http://my.vdb.test/vorstand/mitgliedschaften')->assertForbidden();
+});
+
+it('combines administration and board capabilities only when both roles are assigned', function () {
+    $adminBoard = makeAdministrationAccessTestUser(
+        'administration-board-routes@example.test',
+    );
+    grantAdministrationAccessTestRole(
+        $adminBoard,
+        RoleKey::Administration,
+    );
+    grantAdministrationAccessTestRole(
+        $adminBoard,
+        RoleKey::BoardMember,
+    );
+
+    $client = $this
+        ->withSession(administrationAccessTestSession())
+        ->actingAs($adminBoard);
+
+    $client->get('http://my.vdb.test/verwaltung')->assertOk();
     $client->get('http://my.vdb.test/vorstand')->assertOk();
     $client->get('http://my.vdb.test/vorstand/mitgliedschaften')->assertOk();
     $client->get('http://my.vdb.test/koordination')->assertOk();

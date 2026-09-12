@@ -40,6 +40,12 @@ final class AssignManualRoleAction
             );
         }
 
+        if ($roleKey === RoleKey::Member) {
+            throw new AdministrationActionRejected(
+                'Die Mitgliedsrolle wird ausschließlich durch das System aus Mitgliedschaften verwaltet.'
+            );
+        }
+
         $normalizedComment = trim($comment);
 
         if ($normalizedComment === '') {

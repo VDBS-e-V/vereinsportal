@@ -49,6 +49,23 @@ function makeMembershipRecordsActor(
         'starts_at' => now()->subMinute(),
     ]);
 
+    if ($roleKey === RoleKey::Administration) {
+        $boardRole = Role::query()->firstOrCreate(
+            ['key' => RoleKey::BoardMember->value],
+            [
+                'name' => 'Vorstand',
+                'is_system' => true,
+            ],
+        );
+
+        RoleAssignment::query()->create([
+            'user_id' => $actor->id,
+            'role_id' => $boardRole->id,
+            'source' => RoleAssignmentSource::Console,
+            'starts_at' => now()->subMinute(),
+        ]);
+    }
+
     return $actor->refresh();
 }
 

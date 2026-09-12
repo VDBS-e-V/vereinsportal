@@ -46,6 +46,23 @@ function makeMembershipManagementActor(
         'starts_at' => now()->subMinute(),
     ]);
 
+    if ($roleKey === RoleKey::Administration) {
+        $boardRole = Role::query()->firstOrCreate(
+            ['key' => RoleKey::BoardMember->value],
+            [
+                'name' => 'Vorstand',
+                'is_system' => true,
+            ],
+        );
+
+        RoleAssignment::query()->create([
+            'user_id' => $actor->id,
+            'role_id' => $boardRole->id,
+            'source' => RoleAssignmentSource::Console,
+            'starts_at' => now()->subMinute(),
+        ]);
+    }
+
     Role::query()->firstOrCreate(
         ['key' => RoleKey::Member->value],
         [
@@ -519,7 +536,7 @@ it('filters memberships by person and derived status', function () {
         ->assertDontSee('active-filter@example.test');
 });
 
-it('shows membership history to full administration and paginates memberships for board members', function () {
+it('shows membership history to administration with an additional board role and paginates memberships for board members', function () {
     $admin = makeMembershipManagementActor(
         RoleKey::Administration,
         'membership-history-admin@example.test',

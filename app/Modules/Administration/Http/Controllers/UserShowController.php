@@ -5,6 +5,7 @@ namespace App\Modules\Administration\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Administration\Enums\AdministrationCapability;
 use App\Modules\Administration\Support\AdministrationAccess;
+use App\Modules\Identity\Enums\RoleKey;
 use App\Modules\Identity\Models\Role;
 use App\Modules\Identity\Models\User;
 use Illuminate\Contracts\View\View;
@@ -18,6 +19,13 @@ final class UserShowController extends Controller
         $user->load([
             'person',
             'roleAssignments' => fn ($query) => $query
+                ->whereDoesntHave(
+                    'role',
+                    fn ($roleQuery) => $roleQuery->where(
+                        'key',
+                        RoleKey::Member->value,
+                    ),
+                )
                 ->with([
                     'role',
                     'grantedBy',
@@ -53,6 +61,7 @@ final class UserShowController extends Controller
             'canManageRoles' => $canManageRoles,
             'availableRoles' => $canManageRoles
                 ? Role::query()
+                    ->where('key', '!=', RoleKey::Member->value)
                     ->orderBy('name')
                     ->get()
                 : collect(),
