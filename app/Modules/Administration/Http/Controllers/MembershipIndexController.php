@@ -73,8 +73,8 @@ final class MembershipIndexController extends Controller
             'status' => $status,
             'breadcrumbs' => [
                 [
-                    'label' => 'Verwaltung',
-                    'url' => route('administration.home'),
+                    'label' => 'Vorstand',
+                    'url' => route('board.home'),
                 ],
                 [
                     'label' => 'Mitgliedschaften',
