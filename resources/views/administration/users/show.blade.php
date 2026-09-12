@@ -102,7 +102,7 @@
             </section>
         @endif
 
-        @if ($canManage)
+        @if ($canManageStatus)
             <section class="stack">
                 <header class="stack stack--sm">
                     <h2>Kontostatus verwalten</h2>
@@ -207,7 +207,7 @@
                 </p>
             </header>
 
-            @if ($canManage)
+            @if ($canManageRoles)
                 <div class="panel stack">
                     <h3>Rolle manuell zuweisen</h3>
 
@@ -327,7 +327,7 @@
                                 </x-vdbs.status>
 
                                 @if (
-                                    $canManage
+                                    $canManageRoles
                                     && $assignmentActive
                                     && $assignmentIsManual
                                     && ! $protectOwnAdministration
