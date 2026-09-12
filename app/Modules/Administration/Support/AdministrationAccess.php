@@ -112,18 +112,6 @@ final class AdministrationAccess
     }
 
     /**
-     * Compatibility helper for legacy callers. New authorization decisions
-     * must use allowsCapability() with the concrete fachliche capability.
-     */
-    public function canManage(?User $user): bool
-    {
-        return $this->allowsCapability(
-            $user,
-            AdministrationCapability::PersonsManage,
-        );
-    }
-
-    /**
      * @param  list<string>  $roleKeys
      */
     private function hasAnyActiveRole(
