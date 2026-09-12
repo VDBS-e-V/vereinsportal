@@ -63,19 +63,19 @@ function portalInvitationAdministrationPerson(string $email): Person
     ]);
 }
 
-it('keeps portal invitation write actions restricted to administration', function () {
+it('allows administration staff to create portal invitations', function () {
     $staff = portalInvitationAdministrationActor(
         RoleKey::AdministrationStaff,
         'invitation-staff@example.test',
     );
-    $person = portalInvitationAdministrationPerson('invitation-readonly@example.test');
+    $person = portalInvitationAdministrationPerson('invitation-staff-target@example.test');
 
     $this->withSession(portalInvitationAdministrationSession())
         ->actingAs($staff)
         ->post(route('administration.persons.portal-invitations.store', $person))
-        ->assertForbidden();
+        ->assertRedirect(route('administration.persons.show', $person));
 
-    expect(PortalInvitation::query()->count())->toBe(0);
+    expect(PortalInvitation::query()->where('person_id', $person->id)->count())->toBe(1);
 });
 
 it('keeps a fail closed invitation visible when the email template is not ready', function () {
@@ -108,14 +108,14 @@ it('keeps a fail closed invitation visible when the email template is not ready'
         ->assertSee('Einladungshistorie');
 });
 
-it('shows invitation state to staff but does not expose invitation controls', function () {
+it('shows invitation state and controls to administration staff', function () {
     $admin = portalInvitationAdministrationActor(
         RoleKey::Administration,
         'invitation-create-admin@example.test',
     );
     $staff = portalInvitationAdministrationActor(
         RoleKey::AdministrationStaff,
-        'invitation-view-staff@example.test',
+        'invitation-manage-staff@example.test',
     );
     $person = portalInvitationAdministrationPerson('invitation-visible@example.test');
 
@@ -130,16 +130,17 @@ it('shows invitation state to staff but does not expose invitation controls', fu
         ->get(route('administration.persons.show', $person))
         ->assertOk()
         ->assertSee('Einladung offen')
-        ->assertDontSee('Erneut senden')
-        ->assertDontSee('Widerrufen')
+        ->assertSee('Erneut senden')
+        ->assertSee('Widerrufen')
         ->assertDontSee('Portalzugang einladen');
 
     $this->withSession(portalInvitationAdministrationSession())
         ->actingAs($staff)
         ->post(route('administration.portal-invitations.revoke', $invitation))
-        ->assertForbidden();
+        ->assertRedirect(route('administration.persons.show', $person))
+        ->assertSessionHas('status_type', 'success');
 
-    expect($invitation->refresh()->revoked_at)->toBeNull();
+    expect($invitation->refresh()->revoked_at)->not->toBeNull();
 });
 
 it('allows administration to revoke an open invitation', function () {
