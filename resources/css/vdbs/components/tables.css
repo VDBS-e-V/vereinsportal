@@ -56,6 +56,13 @@
     vertical-align: top;
 }
 
+.table tbody th,
+.table tbody td,
+.vdbs-table tbody th,
+.vdbs-table tbody td {
+    vertical-align: middle;
+}
+
 .table thead th,
 .vdbs-table thead th {
     border-top: var(--border-width-strong) solid var(--color-ink);
