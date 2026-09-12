@@ -93,14 +93,14 @@ it('allows board members to read and manage membership data', function () {
     $this
         ->withSession(membershipManagementSession())
         ->actingAs($board)
-        ->get('http://my.vdb.test/verwaltung/mitgliedschaften')
+        ->get('http://my.vdb.test/vorstand/mitgliedschaften')
         ->assertOk()
         ->assertSee('Erika Muster');
 
     $this
         ->withSession(membershipManagementSession())
         ->actingAs($board)
-        ->get('http://my.vdb.test/verwaltung/mitgliedschaften/'.$membership->id)
+        ->get('http://my.vdb.test/vorstand/mitgliedschaften/'.$membership->id)
         ->assertOk()
         ->assertSee('Bearbeiten')
         ->assertSee('Mitgliedschaft beenden');
@@ -108,14 +108,14 @@ it('allows board members to read and manage membership data', function () {
     $this
         ->withSession(membershipManagementSession())
         ->actingAs($board)
-        ->get('http://my.vdb.test/verwaltung/personen/'.$newPerson->id.'/mitgliedschaften/anlegen')
+        ->get('http://my.vdb.test/vorstand/personen/'.$newPerson->id.'/mitgliedschaften/anlegen')
         ->assertOk();
 
     $response = $this
         ->withSession(membershipManagementSession())
         ->actingAs($board)
         ->post(
-            'http://my.vdb.test/verwaltung/personen/'.$newPerson->id.'/mitgliedschaften',
+            'http://my.vdb.test/vorstand/personen/'.$newPerson->id.'/mitgliedschaften',
             [
                 'starts_on' => now()->toDateString(),
                 'ends_on' => null,
@@ -128,14 +128,14 @@ it('allows board members to read and manage membership data', function () {
     $this
         ->withSession(membershipManagementSession())
         ->actingAs($board)
-        ->get('http://my.vdb.test/verwaltung/mitgliedschaften/'.$membership->id.'/bearbeiten')
+        ->get('http://my.vdb.test/vorstand/mitgliedschaften/'.$membership->id.'/bearbeiten')
         ->assertOk();
 
     $this
         ->withSession(membershipManagementSession())
         ->actingAs($board)
         ->put(
-            'http://my.vdb.test/verwaltung/mitgliedschaften/'.$membership->id,
+            'http://my.vdb.test/vorstand/mitgliedschaften/'.$membership->id,
             [
                 'starts_on' => now()->subMonth()->toDateString(),
                 'ends_on' => now()->addMonth()->toDateString(),
@@ -157,7 +157,7 @@ it('blocks membership administration for users without administration access', f
     $this
         ->withSession(membershipManagementSession())
         ->actingAs($user)
-        ->get('http://my.vdb.test/verwaltung/mitgliedschaften')
+        ->get('http://my.vdb.test/vorstand/mitgliedschaften')
         ->assertForbidden();
 });
 
@@ -180,7 +180,7 @@ it('creates a membership, audit event and synchronized member role', function ()
         ->withSession(membershipManagementSession())
         ->actingAs($admin)
         ->post(
-            'http://my.vdb.test/verwaltung/personen/'.$person->id.'/mitgliedschaften',
+            'http://my.vdb.test/vorstand/personen/'.$person->id.'/mitgliedschaften',
             [
                 'starts_on' => $startsOn,
                 'ends_on' => null,
@@ -235,7 +235,7 @@ it('creates memberships for persons without portal accounts without role assignm
         ->withSession(membershipManagementSession())
         ->actingAs($admin)
         ->post(
-            'http://my.vdb.test/verwaltung/personen/'.$person->id.'/mitgliedschaften',
+            'http://my.vdb.test/vorstand/personen/'.$person->id.'/mitgliedschaften',
             [
                 'starts_on' => now()->toDateString(),
                 'ends_on' => null,
@@ -274,7 +274,7 @@ it('rejects overlapping membership periods for the same person', function () {
         ->withSession(membershipManagementSession())
         ->actingAs($admin)
         ->post(
-            'http://my.vdb.test/verwaltung/personen/'.$person->id.'/mitgliedschaften',
+            'http://my.vdb.test/vorstand/personen/'.$person->id.'/mitgliedschaften',
             [
                 'starts_on' => now()->toDateString(),
                 'ends_on' => now()->addMonths(2)->toDateString(),
@@ -317,7 +317,7 @@ it('updates membership dates and keeps the automatic member role synchronized', 
         ->withSession(membershipManagementSession())
         ->actingAs($admin)
         ->put(
-            'http://my.vdb.test/verwaltung/mitgliedschaften/'.$membership->id,
+            'http://my.vdb.test/vorstand/mitgliedschaften/'.$membership->id,
             [
                 'starts_on' => $newStart,
                 'ends_on' => $newEnd,
@@ -377,7 +377,7 @@ it('ends an open membership with a required reason and audits it', function () {
         ->withSession(membershipManagementSession())
         ->actingAs($admin)
         ->post(
-            'http://my.vdb.test/verwaltung/mitgliedschaften/'.$membership->id.'/beenden',
+            'http://my.vdb.test/vorstand/mitgliedschaften/'.$membership->id.'/beenden',
             [
                 'ends_on' => now()->toDateString(),
                 'reason' => 'Austritt auf eigenen Wunsch',
@@ -425,7 +425,7 @@ it('requires an end date and reason when ending a membership', function () {
         ->withSession(membershipManagementSession())
         ->actingAs($admin)
         ->post(
-            'http://my.vdb.test/verwaltung/mitgliedschaften/'.$membership->id.'/beenden',
+            'http://my.vdb.test/vorstand/mitgliedschaften/'.$membership->id.'/beenden',
             [
                 'ends_on' => '',
                 'reason' => '',
@@ -454,7 +454,7 @@ it('does not reopen ended memberships and supports resumption as a new period', 
         ->withSession(membershipManagementSession())
         ->actingAs($admin)
         ->put(
-            'http://my.vdb.test/verwaltung/mitgliedschaften/'.$membership->id,
+            'http://my.vdb.test/vorstand/mitgliedschaften/'.$membership->id,
             [
                 'starts_on' => $oldStart,
                 'ends_on' => null,
@@ -466,7 +466,7 @@ it('does not reopen ended memberships and supports resumption as a new period', 
         ->withSession(membershipManagementSession())
         ->actingAs($admin)
         ->post(
-            'http://my.vdb.test/verwaltung/personen/'.$person->id.'/mitgliedschaften',
+            'http://my.vdb.test/vorstand/personen/'.$person->id.'/mitgliedschaften',
             [
                 'starts_on' => now()->toDateString(),
                 'ends_on' => null,
@@ -505,7 +505,7 @@ it('filters memberships by person and derived status', function () {
     $this
         ->withSession(membershipManagementSession())
         ->actingAs($board)
-        ->get('http://my.vdb.test/verwaltung/mitgliedschaften?q=active-filter&status=active')
+        ->get('http://my.vdb.test/vorstand/mitgliedschaften?q=active-filter&status=active')
         ->assertOk()
         ->assertSee('active-filter@example.test')
         ->assertDontSee('ended-filter@example.test');
@@ -513,7 +513,7 @@ it('filters memberships by person and derived status', function () {
     $this
         ->withSession(membershipManagementSession())
         ->actingAs($board)
-        ->get('http://my.vdb.test/verwaltung/mitgliedschaften?status=ended')
+        ->get('http://my.vdb.test/vorstand/mitgliedschaften?status=ended')
         ->assertOk()
         ->assertSee('ended-filter@example.test')
         ->assertDontSee('active-filter@example.test');
@@ -562,7 +562,7 @@ it('shows membership history to full administration and paginates memberships fo
     $this
         ->withSession(membershipManagementSession())
         ->actingAs($board)
-        ->get('http://my.vdb.test/verwaltung/mitgliedschaften')
+        ->get('http://my.vdb.test/vorstand/mitgliedschaften')
         ->assertOk()
         ->assertSee('26 Mitgliedschaften')
         ->assertSee('Seite 1 von 2')
