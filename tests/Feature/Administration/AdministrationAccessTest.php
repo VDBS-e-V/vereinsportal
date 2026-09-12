@@ -72,25 +72,29 @@ function administrationCapabilityValues(User $user): array
     return $values;
 }
 
-it('redirects guests from administration to login', function () {
-    $this
-        ->get('http://my.vdb.test/verwaltung')
-        ->assertRedirect(route('my.login'));
+it('redirects guests from all internal staff areas to login', function () {
+    foreach (['verwaltung', 'vorstand', 'koordination'] as $path) {
+        $this
+            ->get("http://my.vdb.test/{$path}")
+            ->assertRedirect(route('my.login'));
+    }
 });
 
-it('forbids authenticated users without an administration capability role', function () {
+it('forbids authenticated users without an internal staff role', function () {
     $user = makeAdministrationAccessTestUser(
         'regular-administration-access@example.test',
     );
 
-    $this
-        ->withSession(administrationAccessTestSession())
-        ->actingAs($user)
-        ->get('http://my.vdb.test/verwaltung')
-        ->assertForbidden();
+    foreach (['verwaltung', 'vorstand', 'koordination'] as $path) {
+        $this
+            ->withSession(administrationAccessTestSession())
+            ->actingAs($user)
+            ->get("http://my.vdb.test/{$path}")
+            ->assertForbidden();
+    }
 });
 
-it('maps administration staff to data account and communication responsibilities', function () {
+it('maps administration staff to the administration area and its responsibilities', function () {
     $user = makeAdministrationAccessTestUser(
         'administration-staff-capabilities@example.test',
     );
@@ -100,6 +104,7 @@ it('maps administration staff to data account and communication responsibilities
     );
 
     $expected = [
+        AdministrationCapability::AdministrationAreaAccess->value,
         AdministrationCapability::CommunicationManage->value,
         AdministrationCapability::CommunicationRead->value,
         AdministrationCapability::PersonsManage->value,
@@ -117,19 +122,19 @@ it('maps administration staff to data account and communication responsibilities
     expect($access->allows($user))->toBeTrue()
         ->and($access->allowsCapability(
             $user,
+            AdministrationCapability::AdministrationAreaAccess,
+        ))->toBeTrue()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::BoardAreaAccess,
+        ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::CoordinationAreaAccess,
+        ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
             AdministrationCapability::MembershipsRead,
-        ))->toBeFalse()
-        ->and($access->allowsCapability(
-            $user,
-            AdministrationCapability::MembershipsManage,
-        ))->toBeFalse()
-        ->and($access->allowsCapability(
-            $user,
-            AdministrationCapability::MembershipDocumentsRead,
-        ))->toBeFalse()
-        ->and($access->allowsCapability(
-            $user,
-            AdministrationCapability::MembershipConsentsRead,
         ))->toBeFalse()
         ->and($access->allowsCapability(
             $user,
@@ -141,7 +146,7 @@ it('maps administration staff to data account and communication responsibilities
         ))->toBeFalse();
 });
 
-it('maps board members to membership responsibilities only', function () {
+it('maps board members to the board area and membership responsibilities only', function () {
     $user = makeAdministrationAccessTestUser(
         'board-member-capabilities@example.test',
     );
@@ -151,6 +156,7 @@ it('maps board members to membership responsibilities only', function () {
     );
 
     $expected = [
+        AdministrationCapability::BoardAreaAccess->value,
         AdministrationCapability::MembershipConsentsManage->value,
         AdministrationCapability::MembershipConsentsRead->value,
         AdministrationCapability::MembershipDocumentsManage->value,
@@ -165,6 +171,18 @@ it('maps board members to membership responsibilities only', function () {
     $access = app(AdministrationAccess::class);
 
     expect($access->allows($user))->toBeTrue()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::BoardAreaAccess,
+        ))->toBeTrue()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::AdministrationAreaAccess,
+        ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::CoordinationAreaAccess,
+        ))->toBeFalse()
         ->and($access->allowsCapability(
             $user,
             AdministrationCapability::PersonsRead,
@@ -191,7 +209,37 @@ it('maps board members to membership responsibilities only', function () {
         ))->toBeFalse();
 });
 
-it('maps administration to every beta capability', function () {
+it('maps coordination roles to their own area without unrelated fach capabilities', function (RoleKey $roleKey) {
+    $user = makeAdministrationAccessTestUser(
+        $roleKey->value.'-coordination-area@example.test',
+    );
+    grantAdministrationAccessTestRole($user, $roleKey);
+
+    expect(administrationCapabilityValues($user))->toBe([
+        AdministrationCapability::CoordinationAreaAccess->value,
+    ]);
+
+    $access = app(AdministrationAccess::class);
+
+    expect($access->allows($user))->toBeTrue()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::CoordinationAreaAccess,
+        ))->toBeTrue()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::AdministrationAreaAccess,
+        ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::BoardAreaAccess,
+        ))->toBeFalse();
+})->with([
+    RoleKey::Coordination,
+    RoleKey::EducationCoordination,
+]);
+
+it('maps administration to every beta capability and every internal area', function () {
     $user = makeAdministrationAccessTestUser(
         'administration-capabilities@example.test',
     );
@@ -209,7 +257,7 @@ it('maps administration to every beta capability', function () {
     expect(administrationCapabilityValues($user))->toBe($expected);
 });
 
-it('does not grant administration capabilities to roles without implemented administration modules', function (RoleKey $roleKey) {
+it('does not grant internal staff capabilities to unrelated roles', function (RoleKey $roleKey) {
     $user = makeAdministrationAccessTestUser(
         $roleKey->value.'-no-administration-capabilities@example.test',
     );
@@ -223,11 +271,9 @@ it('does not grant administration capabilities to roles without implemented admi
     RoleKey::Guest,
     RoleKey::Member,
     RoleKey::Team,
-    RoleKey::EducationCoordination,
-    RoleKey::Coordination,
 ]);
 
-it('keeps administration staff inside data account and communication routes', function () {
+it('keeps administration staff inside the administration area', function () {
     $staff = makeAdministrationAccessTestUser(
         'administration-staff-routes@example.test',
     );
@@ -246,11 +292,14 @@ it('keeps administration staff inside data account and communication routes', fu
     $client->get('http://my.vdb.test/verwaltung/benutzer')->assertOk();
     $client->get('http://my.vdb.test/verwaltung/kommunikation/vorlagen')->assertOk();
 
-    $client->get('http://my.vdb.test/verwaltung/mitgliedschaften')->assertForbidden();
+    $client->get('http://my.vdb.test/vorstand')->assertForbidden();
+    $client->get('http://my.vdb.test/vorstand/mitgliedschaften')->assertForbidden();
+    $client->get('http://my.vdb.test/koordination')->assertForbidden();
     $client->get('http://my.vdb.test/verwaltung/audit')->assertForbidden();
+    $client->get('http://my.vdb.test/verwaltung/mitgliedschaften')->assertNotFound();
 });
 
-it('keeps board members inside membership routes', function () {
+it('keeps board members inside the board area and moves membership urls there', function () {
     $board = makeAdministrationAccessTestUser(
         'board-member-routes@example.test',
     );
@@ -263,16 +312,36 @@ it('keeps board members inside membership routes', function () {
         ->withSession(administrationAccessTestSession())
         ->actingAs($board);
 
-    $client->get('http://my.vdb.test/verwaltung')->assertOk();
-    $client->get('http://my.vdb.test/verwaltung/mitgliedschaften')->assertOk();
+    $client->get('http://my.vdb.test/vorstand')->assertOk();
+    $client->get('http://my.vdb.test/vorstand/mitgliedschaften')->assertOk();
 
+    $client->get('http://my.vdb.test/verwaltung')->assertForbidden();
     $client->get('http://my.vdb.test/verwaltung/personen')->assertForbidden();
     $client->get('http://my.vdb.test/verwaltung/benutzer')->assertForbidden();
     $client->get('http://my.vdb.test/verwaltung/kommunikation/vorlagen')->assertForbidden();
-    $client->get('http://my.vdb.test/verwaltung/audit')->assertForbidden();
+    $client->get('http://my.vdb.test/koordination')->assertForbidden();
+    $client->get('http://my.vdb.test/verwaltung/mitgliedschaften')->assertNotFound();
 });
 
-it('allows administration capability-protected management and audit routes', function () {
+it('keeps coordination roles inside the coordination area', function (RoleKey $roleKey) {
+    $coordinator = makeAdministrationAccessTestUser(
+        $roleKey->value.'-routes@example.test',
+    );
+    grantAdministrationAccessTestRole($coordinator, $roleKey);
+
+    $client = $this
+        ->withSession(administrationAccessTestSession())
+        ->actingAs($coordinator);
+
+    $client->get('http://my.vdb.test/koordination')->assertOk();
+    $client->get('http://my.vdb.test/verwaltung')->assertForbidden();
+    $client->get('http://my.vdb.test/vorstand')->assertForbidden();
+})->with([
+    RoleKey::Coordination,
+    RoleKey::EducationCoordination,
+]);
+
+it('allows full administration to enter every separated area', function () {
     $admin = makeAdministrationAccessTestUser(
         'administration-routes@example.test',
     );
@@ -287,11 +356,13 @@ it('allows administration capability-protected management and audit routes', fun
 
     $client->get('http://my.vdb.test/verwaltung')->assertOk();
     $client->get('http://my.vdb.test/verwaltung/personen/anlegen')->assertOk();
-    $client->get('http://my.vdb.test/verwaltung/mitgliedschaften')->assertOk();
     $client->get('http://my.vdb.test/verwaltung/audit')->assertOk();
+    $client->get('http://my.vdb.test/vorstand')->assertOk();
+    $client->get('http://my.vdb.test/vorstand/mitgliedschaften')->assertOk();
+    $client->get('http://my.vdb.test/koordination')->assertOk();
 });
 
-it('rejects future and expired administration assignments', function () {
+it('rejects future and expired internal staff assignments', function () {
     $futureUser = makeAdministrationAccessTestUser(
         'future-administration-access@example.test',
     );
@@ -326,7 +397,7 @@ it('rejects future and expired administration assignments', function () {
     $this
         ->withSession(administrationAccessTestSession())
         ->actingAs($expiredUser)
-        ->get('http://my.vdb.test/verwaltung')
+        ->get('http://my.vdb.test/vorstand')
         ->assertForbidden();
 });
 
