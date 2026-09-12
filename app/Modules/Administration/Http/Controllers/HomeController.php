@@ -62,10 +62,6 @@ final class HomeController extends Controller
                 $actor,
                 AdministrationCapability::PersonsRead,
             ),
-            'canReadMemberships' => $access->allowsCapability(
-                $actor,
-                AdministrationCapability::MembershipsRead,
-            ),
             'canReadCommunication' => $access->allowsCapability(
                 $actor,
                 AdministrationCapability::CommunicationRead,
