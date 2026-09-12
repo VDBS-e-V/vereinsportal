@@ -219,8 +219,7 @@ it('keeps membership audit data hidden unless administration also has a board ro
     );
     $membershipEvent = app(AuditWriter::class)->write(
         eventKey: AuditEventCatalog::MEMBERSHIP_CREATED,
-        actorType: AuditActorType::User,
-        actorUserId: $adminBoard->id,
+        actorType: AuditActorType::System,
         subjectType: 'membership',
         subjectId: 9001,
         newValues: [
