@@ -27,12 +27,16 @@ final class RequestPasswordResetAction
         ?string $ipAddress = null,
         ?string $userAgent = null,
         ?array $deviceInfo = null,
+        ?User $actor = null,
+        ?string $actorContext = null,
     ): void {
         $email = EmailNormalizer::normalize($email);
 
         $user = User::query()
             ->where('email', $email)
             ->first();
+
+        $auditActor = $actor ?? $user;
 
         /*
          * Die Anfrage selbst wird immer auditiert.
@@ -42,11 +46,11 @@ final class RequestPasswordResetAction
          */
         $this->auditWriter->write(
             eventKey: AuditEventCatalog::AUTH_PASSWORD_RESET_REQUESTED,
-            actorType: $user !== null
+            actorType: $auditActor !== null
                 ? AuditActorType::User
                 : AuditActorType::System,
-            actorUserId: $user?->id,
-            actorContext: 'password_reset_request',
+            actorUserId: $auditActor?->id,
+            actorContext: $actorContext ?? 'password_reset_request',
             subjectType: $user !== null ? 'user' : null,
             subjectId: $user?->id,
             ipAddress: $ipAddress,
