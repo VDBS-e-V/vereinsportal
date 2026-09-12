@@ -174,6 +174,11 @@
             <path d="M8 10V7a4 4 0 0 1 8 0v3" />
             @break
 
+        @case('key')
+            <circle cx="8" cy="15" r="4" />
+            <path d="m11 12 8-8M16 7l2 2M14 9l2 2" />
+            @break
+
         @case('eye')
             <path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" />
             <circle cx="12" cy="12" r="2.5" />
