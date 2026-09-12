@@ -14,10 +14,13 @@
             'my.password.request' => 'Passwort vergessen',
             'my.password.reset' => 'Neues Passwort',
             'my.home' => 'Start',
-            'my.profile' => 'Profil',
-            'my.email-change' => 'E-Mail-Adresse',
-            'my.password.change' => 'Passwort',
-            'my.security' => 'Sicherheit',
+            'my.account' => 'Konto',
+            'my.account.settings' => 'Kontoeinstellungen',
+            'my.membership' => 'Mitgliedschaft',
+            'my.profile' => 'Kontodaten',
+            'my.email-change' => 'E-Mail-Änderung',
+            'my.password.change' => 'Passwort ändern',
+            'my.security' => '2FA',
             'my.account-deletion' => 'Konto löschen',
             'my.registration.create' => 'Registrieren',
             'my.registration.status' => 'Registrierung',
@@ -51,7 +54,8 @@
             ];
         }
 
-        $accountRouteNames = [
+        $settingsRouteNames = [
+            'my.account.settings',
             'my.profile',
             'my.email-change',
             'my.password.change',
@@ -59,39 +63,90 @@
             'my.account-deletion',
         ];
 
-        $accountNavigation = [
+        $accountRouteNames = [
+            'my.account',
+            'my.membership',
+            ...$settingsRouteNames,
+        ];
+
+        $settingsNavigation = [
             [
-                'label' => 'Profil',
+                'label' => 'Kontodaten',
                 'url' => route('my.profile'),
                 'active' => request()->routeIs('my.profile'),
             ],
             [
-                'label' => 'E-Mail-Adresse',
+                'label' => '2FA',
+                'url' => route('my.security'),
+                'active' => request()->routeIs('my.security'),
+            ],
+            [
+                'label' => 'E-Mail-Änderung',
                 'url' => route('my.email-change'),
                 'active' => request()->routeIs('my.email-change'),
             ],
             [
-                'label' => 'Passwort',
+                'label' => 'Passwort ändern',
                 'url' => route('my.password.change'),
                 'active' => request()->routeIs('my.password.change'),
             ],
             [
-                'label' => 'Sicherheit',
-                'url' => route('my.security'),
-                'active' => request()->routeIs('my.security'),
-            ],
-        ];
-
-        if (\Illuminate\Support\Facades\Route::has('my.account-deletion')) {
-            $accountNavigation[] = [
                 'label' => 'Konto löschen',
                 'url' => route('my.account-deletion'),
                 'active' => request()->routeIs('my.account-deletion'),
+            ],
+        ];
+
+        $user = auth()->user();
+        $accountAccess = app(\App\Modules\Identity\Support\AccountAccess::class);
+        $hasMembershipArea = $user instanceof \App\Modules\Identity\Models\User
+            && $accountAccess->hasActiveRole(
+                $user,
+                \App\Modules\Identity\Enums\RoleKey::Member,
+            );
+        $hasTeamArea = $user instanceof \App\Modules\Identity\Models\User
+            && $accountAccess->hasActiveRole(
+                $user,
+                \App\Modules\Identity\Enums\RoleKey::Team,
+            );
+
+        $accountAreaNavigation = [
+            [
+                'label' => 'Mein Profil',
+                'url' => null,
+                'active' => false,
+            ],
+            [
+                'label' => 'Kontoeinstellungen',
+                'url' => route('my.account.settings'),
+                'active' => request()->routeIs(...$settingsRouteNames),
+            ],
+        ];
+
+        if ($hasMembershipArea) {
+            $accountAreaNavigation[] = [
+                'label' => 'Mitgliedschaft',
+                'url' => route('my.membership'),
+                'active' => request()->routeIs('my.membership'),
             ];
         }
 
-        $showAccountNavigation = auth()->check()
-            && request()->routeIs(...$accountRouteNames);
+        if ($hasTeamArea) {
+            $accountAreaNavigation[] = [
+                'label' => 'Teamendeneinstellungen',
+                'url' => null,
+                'active' => false,
+            ];
+        }
+
+        $accountAreaNavigation[] = [
+            'label' => 'Meine Tickets',
+            'url' => null,
+            'active' => false,
+        ];
+
+        $showSettingsNavigation = auth()->check()
+            && request()->routeIs(...$settingsRouteNames);
 
         if (auth()->check()) {
             $navigation = [
@@ -102,15 +157,9 @@
                 ],
                 [
                     'label' => 'Konto',
-                    'url' => route('my.profile'),
+                    'url' => route('my.account'),
                     'active' => request()->routeIs(...$accountRouteNames),
-                    'children' => collect($accountNavigation)
-                        ->reject(
-                            fn (array $item): bool =>
-                                $item['url'] === route('my.profile')
-                        )
-                        ->values()
-                        ->all(),
+                    'children' => $accountAreaNavigation,
                 ],
             ];
         } else {
@@ -149,17 +198,24 @@
 
             if (
                 auth()->check()
-                && request()->routeIs(
-                    'my.email-change',
-                    'my.password.change',
-                    'my.security',
-                    'my.account-deletion',
-                )
+                && request()->routeIs(...$accountRouteNames)
             ) {
-                $breadcrumbs[] = [
-                    'label' => 'Konto',
-                    'url' => route('my.profile'),
-                ];
+                if (! request()->routeIs('my.account')) {
+                    $breadcrumbs[] = [
+                        'label' => 'Konto',
+                        'url' => route('my.account'),
+                    ];
+                }
+
+                if (
+                    request()->routeIs(...$settingsRouteNames)
+                    && ! request()->routeIs('my.account.settings')
+                ) {
+                    $breadcrumbs[] = [
+                        'label' => 'Kontoeinstellungen',
+                        'url' => route('my.account.settings'),
+                    ];
+                }
             }
 
             $breadcrumbs[] = [
@@ -169,7 +225,6 @@
         }
 
         $account = null;
-        $user = auth()->user();
 
         if ($user !== null) {
             $person = $user->person;
@@ -199,28 +254,47 @@
                 )
                 ->implode('');
 
+            $accountMenuItems = [
+                [
+                    'label' => 'Mein Profil',
+                    'icon' => 'user',
+                    'url' => null,
+                ],
+                [
+                    'label' => 'Kontoeinstellungen',
+                    'icon' => 'settings',
+                    'url' => route('my.account.settings'),
+                ],
+            ];
+
+            if ($hasMembershipArea) {
+                $accountMenuItems[] = [
+                    'label' => 'Mitgliedschaft',
+                    'icon' => 'records',
+                    'url' => route('my.membership'),
+                ];
+            }
+
+            if ($hasTeamArea) {
+                $accountMenuItems[] = [
+                    'label' => 'Teamendeneinstellungen',
+                    'icon' => 'users',
+                    'url' => null,
+                ];
+            }
+
+            $accountMenuItems[] = [
+                'label' => 'Meine Tickets',
+                'icon' => 'ticket',
+                'url' => null,
+            ];
+
             $account = [
                 'name' => $displayName,
                 'handle' => $user->email,
                 'initials' => $initials !== '' ? $initials : 'VB',
                 'groups' => [
-                    [
-                        [
-                            'label' => 'Mein Profil',
-                            'icon' => 'user',
-                            'url' => route('my.profile'),
-                        ],
-                        [
-                            'label' => 'Kontoeinstellungen',
-                            'icon' => 'settings',
-                            'url' => route('my.security'),
-                        ],
-                        [
-                            'label' => 'Meine Tickets',
-                            'icon' => 'ticket',
-                            'url' => null,
-                        ],
-                    ],
+                    $accountMenuItems,
                     [
                         [
                             'label' => 'Kontakt',
@@ -256,8 +330,8 @@
 
         if (auth()->check()) {
             $footerLinks[] = [
-                'label' => 'Profil',
-                'url' => route('my.profile'),
+                'label' => 'Konto',
+                'url' => route('my.account'),
             ];
         } else {
             $footerLinks[] = [
@@ -300,12 +374,12 @@
         :account="$account"
     />
 
-    @if ($showAccountNavigation)
+    @if ($showSettingsNavigation)
         <div class="account-local-navigation">
             <x-vdbs.frame width="normal" gutter="both">
                 <nav class="local-nav" aria-label="Kontoeinstellungen">
                     <ul class="local-nav__list">
-                        @foreach ($accountNavigation as $item)
+                        @foreach ($settingsNavigation as $item)
                             <li>
                                 <a
                                     class="local-nav__link"
