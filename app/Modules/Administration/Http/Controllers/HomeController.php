@@ -56,7 +56,7 @@ final class HomeController extends Controller
                     ->latest('updated_at')
                     ->limit(6)
                     ->get()
-                : new Collection(),
+                : new Collection,
             'canReadUsers' => $canReadUsers,
             'canReadPersons' => $access->allowsCapability(
                 $actor,
