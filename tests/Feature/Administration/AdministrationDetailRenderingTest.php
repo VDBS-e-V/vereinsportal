@@ -22,8 +22,9 @@ function makeAdministrationDetailActor(): User
         'password' => 'Sicher123!',
         'status' => UserStatus::Active,
         'session_version' => 1,
-        'email_verified_at' => now(),
     ]);
+    $actor->email_verified_at = now();
+    $actor->save();
 
     $role = Role::query()->firstOrCreate(
         ['key' => RoleKey::Administration->value],
@@ -65,14 +66,15 @@ it('renders person and membership details with linked beta records', function ()
         'country_code' => 'DE',
     ]);
 
-    User::query()->create([
+    $linkedUser = User::query()->create([
         'person_id' => $person->id,
         'email' => $person->email,
         'password' => 'Sicher123!',
         'status' => UserStatus::Active,
         'session_version' => 1,
-        'email_verified_at' => now(),
     ]);
+    $linkedUser->email_verified_at = now();
+    $linkedUser->save();
 
     $membership = Membership::query()->create([
         'person_id' => $person->id,
