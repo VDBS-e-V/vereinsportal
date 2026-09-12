@@ -32,9 +32,12 @@ function makeMembershipRecordsActor(
     $role = Role::query()->firstOrCreate(
         ['key' => $roleKey->value],
         [
-            'name' => $roleKey === RoleKey::Administration
-                ? 'Administration'
-                : 'Verwaltung',
+            'name' => match ($roleKey) {
+                RoleKey::Administration => 'Administration',
+                RoleKey::BoardMember => 'Vorstand',
+                RoleKey::AdministrationStaff => 'Verwaltung',
+                default => $roleKey->value,
+            },
             'is_system' => true,
         ],
     );
@@ -235,15 +238,15 @@ it('keeps the previous document when a new version replaces it', function () {
     )->toBeTrue();
 });
 
-it('allows read-only administration staff to download but not change documents', function () {
+it('allows board members to download and manage membership documents', function () {
     Storage::fake('local');
 
-    $staff = makeMembershipRecordsActor(
-        RoleKey::AdministrationStaff,
-        'membership-records-staff@example.test',
+    $board = makeMembershipRecordsActor(
+        RoleKey::BoardMember,
+        'membership-records-board@example.test',
     );
     $membership = makeMembershipRecordsMembership(
-        'membership-records-staff-person@example.test',
+        'membership-records-board-person@example.test',
     );
     Storage::disk('local')->put(
         'memberships/'.$membership->id.'/documents/test.pdf',
@@ -264,22 +267,22 @@ it('allows read-only administration staff to download but not change documents',
 
     $this
         ->withSession(membershipRecordsSession())
-        ->actingAs($staff)
+        ->actingAs($board)
         ->get($baseUrl)
         ->assertOk()
         ->assertSee('beitritt.pdf')
-        ->assertDontSee('Dokument hinzufügen');
+        ->assertSee('Dokument hinzufügen');
 
     $this
         ->withSession(membershipRecordsSession())
-        ->actingAs($staff)
+        ->actingAs($board)
         ->get($baseUrl.'/dokumente/'.$document->id)
         ->assertOk()
         ->assertDownload('beitritt.pdf');
 
     $this
         ->withSession(membershipRecordsSession())
-        ->actingAs($staff)
+        ->actingAs($board)
         ->post($baseUrl.'/dokumente', [
             'document_type' => MembershipDocumentType::Other->value,
             'document' => UploadedFile::fake()->create(
@@ -288,14 +291,18 @@ it('allows read-only administration staff to download but not change documents',
                 'application/pdf',
             ),
         ])
-        ->assertForbidden();
+        ->assertRedirect(route('administration.memberships.show', $membership))
+        ->assertSessionHasNoErrors();
 
-    expect(
-        AuditEvent::query()
-            ->where('event_key', AuditEventCatalog::MEMBERSHIP_DOCUMENT_DOWNLOADED)
-            ->where('subject_id', $document->id)
-            ->exists(),
-    )->toBeTrue();
+    expect(MembershipDocument::query()->count())
+        ->toBe(2)
+        ->and(
+            AuditEvent::query()
+                ->where('event_key', AuditEventCatalog::MEMBERSHIP_DOCUMENT_DOWNLOADED)
+                ->where('subject_id', $document->id)
+                ->exists(),
+        )
+        ->toBeTrue();
 });
 
 it('records revokes and re-records membership consents without losing history', function () {
@@ -385,13 +392,13 @@ it('records revokes and re-records membership consents without losing history', 
         ->toBe(1);
 });
 
-it('keeps membership consent writes admin-only while staff can read the history', function () {
-    $staff = makeMembershipRecordsActor(
-        RoleKey::AdministrationStaff,
-        'membership-records-consent-staff@example.test',
+it('allows board members to read and manage membership consents', function () {
+    $board = makeMembershipRecordsActor(
+        RoleKey::BoardMember,
+        'membership-records-consent-board@example.test',
     );
     $membership = makeMembershipRecordsMembership(
-        'membership-records-consent-staff-person@example.test',
+        'membership-records-consent-board-person@example.test',
     );
     MembershipConsent::query()->create([
         'membership_id' => $membership->id,
@@ -406,22 +413,25 @@ it('keeps membership consent writes admin-only while staff can read the history'
 
     $this
         ->withSession(membershipRecordsSession())
-        ->actingAs($staff)
+        ->actingAs($board)
         ->get($baseUrl)
         ->assertOk()
         ->assertSee('Vereinsinformationen')
-        ->assertDontSee('Zustimmung erfassen')
-        ->assertDontSee('Widerruf erfassen');
+        ->assertSee('Zustimmung erfassen')
+        ->assertSee('Widerruf erfassen');
 
     $this
         ->withSession(membershipRecordsSession())
-        ->actingAs($staff)
+        ->actingAs($board)
         ->post($baseUrl.'/zustimmungen', [
-            'consent_key' => 'newsletter',
-            'label' => 'Vereinsinformationen',
-            'version' => '2',
+            'consent_key' => 'foto.veroeffentlichung',
+            'label' => 'Fotoveröffentlichung',
+            'version' => '1',
             'source' => 'paper',
             'granted_at' => now()->format('Y-m-d\TH:i'),
         ])
-        ->assertForbidden();
+        ->assertRedirect(route('administration.memberships.show', $membership))
+        ->assertSessionHasNoErrors();
+
+    expect(MembershipConsent::query()->count())->toBe(2);
 });

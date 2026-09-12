@@ -63,7 +63,7 @@ function administrationManagementSession(
     ];
 }
 
-it('keeps administration staff read only', function () {
+it('allows administration staff to manage account status but not roles', function () {
     $staff = makeAdministrationManagementUser(
         'staff-management@example.test'
     );
@@ -90,10 +90,46 @@ it('keeps administration staff read only', function () {
                 'status_comment' => 'Testweise Sperrung',
             ],
         )
-        ->assertForbidden();
+        ->assertRedirect()
+        ->assertSessionHas(
+            'status_type',
+            'success',
+        );
 
     expect($target->refresh()->status)
-        ->toBe(UserStatus::Active);
+        ->toBe(UserStatus::Disabled);
+
+    Role::query()->updateOrCreate(
+        [
+            'key' => RoleKey::Team->value,
+        ],
+        [
+            'name' => 'Teamende',
+            'is_system' => true,
+        ],
+    );
+
+    $this
+        ->withSession(
+            administrationManagementSession($staff)
+        )
+        ->actingAs($staff)
+        ->post(
+            'http://my.vdb.test/verwaltung/benutzer/'.
+            $target->id.
+            '/rollen',
+            [
+                'role_key' => RoleKey::Team->value,
+                'role_comment' => 'Nicht erlaubt',
+            ],
+        )
+        ->assertForbidden();
+
+    expect(
+        RoleAssignment::query()
+            ->where('user_id', $target->id)
+            ->exists()
+    )->toBeFalse();
 });
 
 it('assigns a manual role and audits the action', function () {

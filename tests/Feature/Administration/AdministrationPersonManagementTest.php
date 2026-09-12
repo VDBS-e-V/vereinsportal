@@ -85,13 +85,13 @@ function duplicateConfirmationFromHtml(string $html): string
     return html_entity_decode($matches[1], ENT_QUOTES);
 }
 
-it('allows administration staff to search and view persons read only', function () {
+it('allows administration staff to search view and manage persons', function () {
     $staff = makePersonManagementActor(RoleKey::AdministrationStaff, 'person-staff@example.test');
     $visible = Person::query()->create(personManagementPayload(['first_name' => 'Erika', 'last_name' => 'Muster', 'email' => 'visible.person@example.test']));
     Person::query()->create(personManagementPayload(['first_name' => 'Max', 'last_name' => 'Beispiel', 'email' => 'hidden.person@example.test']));
 
-    $this->withSession(personManagementSession())->actingAs($staff)->get('http://my.vdb.test/verwaltung/personen?q=Muster')->assertOk()->assertSee('Erika Muster')->assertSee('visible.person@example.test')->assertDontSee('Max Beispiel')->assertDontSee('Person anlegen');
-    $this->withSession(personManagementSession())->actingAs($staff)->get('http://my.vdb.test/verwaltung/personen/'.$visible->id)->assertOk()->assertSee('Erika Muster')->assertSee('visible.person@example.test')->assertDontSee('Bearbeiten');
+    $this->withSession(personManagementSession())->actingAs($staff)->get('http://my.vdb.test/verwaltung/personen?q=Muster')->assertOk()->assertSee('Erika Muster')->assertSee('visible.person@example.test')->assertDontSee('Max Beispiel')->assertSee('Person anlegen');
+    $this->withSession(personManagementSession())->actingAs($staff)->get('http://my.vdb.test/verwaltung/personen/'.$visible->id)->assertOk()->assertSee('Erika Muster')->assertSee('visible.person@example.test')->assertSee('Bearbeiten');
 });
 
 it('blocks person administration for users without an administration role', function () {
@@ -99,13 +99,29 @@ it('blocks person administration for users without an administration role', func
     $this->withSession(personManagementSession())->actingAs($user)->get('http://my.vdb.test/verwaltung/personen')->assertForbidden();
 });
 
-it('keeps administration staff read only on person write routes', function () {
-    $staff = makePersonManagementActor(RoleKey::AdministrationStaff, 'person-readonly@example.test');
-    $person = Person::query()->create(personManagementPayload(['email' => 'readonly.person@example.test']));
-    $this->withSession(personManagementSession())->actingAs($staff)->get('http://my.vdb.test/verwaltung/personen/anlegen')->assertForbidden();
-    $this->withSession(personManagementSession())->actingAs($staff)->post('http://my.vdb.test/verwaltung/personen', personManagementPayload(['email' => 'blocked.create@example.test']))->assertForbidden();
-    $this->withSession(personManagementSession())->actingAs($staff)->get('http://my.vdb.test/verwaltung/personen/'.$person->id.'/bearbeiten')->assertForbidden();
-    $this->withSession(personManagementSession())->actingAs($staff)->put('http://my.vdb.test/verwaltung/personen/'.$person->id, personManagementPayload(['email' => $person->email, 'city' => 'Nicht erlaubt']))->assertForbidden();
+it('allows administration staff to use person write routes', function () {
+    $staff = makePersonManagementActor(RoleKey::AdministrationStaff, 'person-manage@example.test');
+    $person = Person::query()->create(personManagementPayload(['email' => 'managed.person@example.test']));
+
+    $this->withSession(personManagementSession())->actingAs($staff)->get('http://my.vdb.test/verwaltung/personen/anlegen')->assertOk();
+
+    $response = $this->withSession(personManagementSession())->actingAs($staff)->post(
+        'http://my.vdb.test/verwaltung/personen',
+        personManagementPayload([
+            'first_name' => 'Neue',
+            'last_name' => 'Person',
+            'birth_date' => '1985-01-01',
+            'email' => 'allowed.create@example.test',
+        ]),
+    );
+
+    $created = Person::query()->where('email', 'allowed.create@example.test')->firstOrFail();
+    $response->assertRedirect(route('administration.persons.show', $created));
+
+    $this->withSession(personManagementSession())->actingAs($staff)->get('http://my.vdb.test/verwaltung/personen/'.$person->id.'/bearbeiten')->assertOk();
+    $this->withSession(personManagementSession())->actingAs($staff)->put('http://my.vdb.test/verwaltung/personen/'.$person->id, personManagementPayload(['email' => $person->email, 'city' => 'Erlaubt']))->assertRedirect(route('administration.persons.show', $person));
+
+    expect($person->refresh()->city)->toBe('Erlaubt');
 });
 
 it('creates a normalized person and writes an audit event', function () {

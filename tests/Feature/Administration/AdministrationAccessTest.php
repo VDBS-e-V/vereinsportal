@@ -90,7 +90,7 @@ it('forbids authenticated users without an administration capability role', func
         ->assertForbidden();
 });
 
-it('maps administration staff to the exact read-only beta capabilities', function () {
+it('maps administration staff to data account and communication responsibilities', function () {
     $user = makeAdministrationAccessTestUser(
         'administration-staff-capabilities@example.test',
     );
@@ -100,12 +100,13 @@ it('maps administration staff to the exact read-only beta capabilities', functio
     );
 
     $expected = [
+        AdministrationCapability::CommunicationManage->value,
         AdministrationCapability::CommunicationRead->value,
-        AdministrationCapability::MembershipConsentsRead->value,
-        AdministrationCapability::MembershipDocumentsRead->value,
-        AdministrationCapability::MembershipsRead->value,
+        AdministrationCapability::PersonsManage->value,
         AdministrationCapability::PersonsRead->value,
+        AdministrationCapability::PortalInvitationsManage->value,
         AdministrationCapability::UsersRead->value,
+        AdministrationCapability::UserStatusManage->value,
     ];
     sort($expected);
 
@@ -116,7 +117,7 @@ it('maps administration staff to the exact read-only beta capabilities', functio
     expect($access->allows($user))->toBeTrue()
         ->and($access->allowsCapability(
             $user,
-            AdministrationCapability::PersonsManage,
+            AdministrationCapability::MembershipsRead,
         ))->toBeFalse()
         ->and($access->allowsCapability(
             $user,
@@ -124,19 +125,11 @@ it('maps administration staff to the exact read-only beta capabilities', functio
         ))->toBeFalse()
         ->and($access->allowsCapability(
             $user,
-            AdministrationCapability::MembershipDocumentsManage,
+            AdministrationCapability::MembershipDocumentsRead,
         ))->toBeFalse()
         ->and($access->allowsCapability(
             $user,
-            AdministrationCapability::MembershipConsentsManage,
-        ))->toBeFalse()
-        ->and($access->allowsCapability(
-            $user,
-            AdministrationCapability::PortalInvitationsManage,
-        ))->toBeFalse()
-        ->and($access->allowsCapability(
-            $user,
-            AdministrationCapability::UserStatusManage,
+            AdministrationCapability::MembershipConsentsRead,
         ))->toBeFalse()
         ->and($access->allowsCapability(
             $user,
@@ -144,7 +137,53 @@ it('maps administration staff to the exact read-only beta capabilities', functio
         ))->toBeFalse()
         ->and($access->allowsCapability(
             $user,
-            AdministrationCapability::CommunicationManage,
+            AdministrationCapability::AuditRead,
+        ))->toBeFalse();
+});
+
+it('maps board members to membership responsibilities only', function () {
+    $user = makeAdministrationAccessTestUser(
+        'board-member-capabilities@example.test',
+    );
+    grantAdministrationAccessTestRole(
+        $user,
+        RoleKey::BoardMember,
+    );
+
+    $expected = [
+        AdministrationCapability::MembershipConsentsManage->value,
+        AdministrationCapability::MembershipConsentsRead->value,
+        AdministrationCapability::MembershipDocumentsManage->value,
+        AdministrationCapability::MembershipDocumentsRead->value,
+        AdministrationCapability::MembershipsManage->value,
+        AdministrationCapability::MembershipsRead->value,
+    ];
+    sort($expected);
+
+    expect(administrationCapabilityValues($user))->toBe($expected);
+
+    $access = app(AdministrationAccess::class);
+
+    expect($access->allows($user))->toBeTrue()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::PersonsRead,
+        ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::PortalInvitationsManage,
+        ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::UsersRead,
+        ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::CommunicationRead,
+        ))->toBeFalse()
+        ->and($access->allowsCapability(
+            $user,
+            AdministrationCapability::RolesManage,
         ))->toBeFalse()
         ->and($access->allowsCapability(
             $user,
@@ -170,7 +209,7 @@ it('maps administration to every beta capability', function () {
     expect(administrationCapabilityValues($user))->toBe($expected);
 });
 
-it('does not grant administration capabilities to unrelated roles', function (RoleKey $roleKey) {
+it('does not grant administration capabilities to roles without implemented administration modules', function (RoleKey $roleKey) {
     $user = makeAdministrationAccessTestUser(
         $roleKey->value.'-no-administration-capabilities@example.test',
     );
@@ -183,13 +222,12 @@ it('does not grant administration capabilities to unrelated roles', function (Ro
 })->with([
     RoleKey::Guest,
     RoleKey::Member,
-    RoleKey::BoardMember,
     RoleKey::Team,
     RoleKey::EducationCoordination,
     RoleKey::Coordination,
 ]);
 
-it('keeps staff read routes available while capability-protected writes and audit stay forbidden', function () {
+it('keeps administration staff inside data account and communication routes', function () {
     $staff = makeAdministrationAccessTestUser(
         'administration-staff-routes@example.test',
     );
@@ -204,12 +242,34 @@ it('keeps staff read routes available while capability-protected writes and audi
 
     $client->get('http://my.vdb.test/verwaltung')->assertOk();
     $client->get('http://my.vdb.test/verwaltung/personen')->assertOk();
-    $client->get('http://my.vdb.test/verwaltung/mitgliedschaften')->assertOk();
+    $client->get('http://my.vdb.test/verwaltung/personen/anlegen')->assertOk();
     $client->get('http://my.vdb.test/verwaltung/benutzer')->assertOk();
     $client->get('http://my.vdb.test/verwaltung/kommunikation/vorlagen')->assertOk();
 
+    $client->get('http://my.vdb.test/verwaltung/mitgliedschaften')->assertForbidden();
     $client->get('http://my.vdb.test/verwaltung/audit')->assertForbidden();
-    $client->get('http://my.vdb.test/verwaltung/personen/anlegen')->assertForbidden();
+});
+
+it('keeps board members inside membership routes', function () {
+    $board = makeAdministrationAccessTestUser(
+        'board-member-routes@example.test',
+    );
+    grantAdministrationAccessTestRole(
+        $board,
+        RoleKey::BoardMember,
+    );
+
+    $client = $this
+        ->withSession(administrationAccessTestSession())
+        ->actingAs($board);
+
+    $client->get('http://my.vdb.test/verwaltung')->assertOk();
+    $client->get('http://my.vdb.test/verwaltung/mitgliedschaften')->assertOk();
+
+    $client->get('http://my.vdb.test/verwaltung/personen')->assertForbidden();
+    $client->get('http://my.vdb.test/verwaltung/benutzer')->assertForbidden();
+    $client->get('http://my.vdb.test/verwaltung/kommunikation/vorlagen')->assertForbidden();
+    $client->get('http://my.vdb.test/verwaltung/audit')->assertForbidden();
 });
 
 it('allows administration capability-protected management and audit routes', function () {
@@ -227,6 +287,7 @@ it('allows administration capability-protected management and audit routes', fun
 
     $client->get('http://my.vdb.test/verwaltung')->assertOk();
     $client->get('http://my.vdb.test/verwaltung/personen/anlegen')->assertOk();
+    $client->get('http://my.vdb.test/verwaltung/mitgliedschaften')->assertOk();
     $client->get('http://my.vdb.test/verwaltung/audit')->assertOk();
 });
 
@@ -255,7 +316,7 @@ it('rejects future and expired administration assignments', function () {
 
     grantAdministrationAccessTestRole(
         $expiredUser,
-        RoleKey::AdministrationStaff,
+        RoleKey::BoardMember,
         now()->subDays(2),
         now()->subDay(),
     );
