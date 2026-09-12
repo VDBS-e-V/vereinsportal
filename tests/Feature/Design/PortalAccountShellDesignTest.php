@@ -8,6 +8,8 @@ it('groups authenticated account pages under a single role-aware header item', f
     expect($layout)
         ->toContain("'label' => 'Konto'")
         ->toContain("'children' => \$accountAreaNavigation")
+        ->toContain("'label' => 'Mein Profil'")
+        ->toContain("route('my.account.profile')")
         ->toContain("'label' => 'Kontoeinstellungen'")
         ->toContain("'label' => 'Mitgliedschaft'")
         ->toContain("'label' => 'Teamendeneinstellungen'")
@@ -58,9 +60,12 @@ it('uses hierarchical account breadcrumbs for nested settings', function () {
         ->toContain("'label' => \$pageTitle");
 });
 
-it('provides account and settings overview pages', function () {
+it('provides account profile and settings overview pages', function () {
     $account = file_get_contents(
         resource_path('views/livewire/identity/account.blade.php'),
+    );
+    $profile = file_get_contents(
+        resource_path('views/livewire/identity/account-profile.blade.php'),
     );
     $settings = file_get_contents(
         resource_path('views/livewire/identity/account-settings.blade.php'),
@@ -68,10 +73,15 @@ it('provides account and settings overview pages', function () {
 
     expect($account)
         ->toContain('Mein Profil')
+        ->toContain("route('my.account.profile')")
         ->toContain('Kontoeinstellungen')
         ->toContain('Mitgliedschaft')
         ->toContain('Teamendeneinstellungen')
         ->toContain('Meine Tickets')
+        ->and($profile)
+        ->toContain('Mein Profil')
+        ->toContain('Öffentliches Profil')
+        ->toContain('von den Kontoeinstellungen getrennt')
         ->and($settings)
         ->toContain('Kontodaten')
         ->toContain('2FA')

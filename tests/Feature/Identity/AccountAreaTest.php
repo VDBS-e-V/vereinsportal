@@ -67,10 +67,20 @@ it('shows the account structure and links every implemented setting correctly', 
         ->get('http://my.vdb.test/konto')
         ->assertOk()
         ->assertSee('Mein Profil')
+        ->assertSee(route('my.account.profile'), false)
         ->assertSee('Kontoeinstellungen')
         ->assertSee('Meine Tickets')
         ->assertDontSee('Mitgliedschaft')
         ->assertDontSee('Teamendeneinstellungen');
+
+    $this
+        ->withSession(accountAreaSession($user))
+        ->actingAs($user)
+        ->get('http://my.vdb.test/konto/profil')
+        ->assertOk()
+        ->assertSee('Mein Profil')
+        ->assertSee('Öffentliches Profil')
+        ->assertSee('von den Kontoeinstellungen getrennt');
 
     $response = $this
         ->withSession(accountAreaSession($user))

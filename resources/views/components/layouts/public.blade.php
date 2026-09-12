@@ -15,6 +15,7 @@
             'my.password.reset' => 'Neues Passwort',
             'my.home' => 'Start',
             'my.account' => 'Konto',
+            'my.account.profile' => 'Mein Profil',
             'my.account.settings' => 'Kontoeinstellungen',
             'my.membership' => 'Mitgliedschaft',
             'my.profile' => 'Kontodaten',
@@ -65,6 +66,7 @@
 
         $accountRouteNames = [
             'my.account',
+            'my.account.profile',
             'my.membership',
             ...$settingsRouteNames,
         ];
@@ -113,8 +115,8 @@
         $accountAreaNavigation = [
             [
                 'label' => 'Mein Profil',
-                'url' => null,
-                'active' => false,
+                'url' => route('my.account.profile'),
+                'active' => request()->routeIs('my.account.profile'),
             ],
             [
                 'label' => 'Kontoeinstellungen',
@@ -258,7 +260,7 @@
                 [
                     'label' => 'Mein Profil',
                     'icon' => 'user',
-                    'url' => null,
+                    'url' => route('my.account.profile'),
                 ],
                 [
                     'label' => 'Kontoeinstellungen',
