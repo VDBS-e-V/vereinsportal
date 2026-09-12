@@ -29,9 +29,12 @@ function makeMembershipManagementActor(
     $role = Role::query()->firstOrCreate(
         ['key' => $roleKey->value],
         [
-            'name' => $roleKey === RoleKey::Administration
-                ? 'Administration'
-                : 'Verwaltung',
+            'name' => match ($roleKey) {
+                RoleKey::Administration => 'Administration',
+                RoleKey::BoardMember => 'Vorstand',
+                RoleKey::AdministrationStaff => 'Verwaltung',
+                default => $roleKey->value,
+            },
             'is_system' => true,
         ],
     );
@@ -73,61 +76,64 @@ function makeMembershipPerson(string $email): Person
     ]);
 }
 
-it('allows administration staff to read membership data but blocks write routes', function () {
-    $staff = makeMembershipManagementActor(
-        RoleKey::AdministrationStaff,
-        'membership-staff@example.test',
+it('allows board members to read and manage membership data', function () {
+    $board = makeMembershipManagementActor(
+        RoleKey::BoardMember,
+        'membership-board@example.test',
     );
     $person = makeMembershipPerson(
-        'membership-person-staff@example.test',
+        'membership-person-board@example.test',
     );
     $membership = Membership::query()->create([
         'person_id' => $person->id,
         'starts_on' => now()->subMonth()->toDateString(),
     ]);
+    $newPerson = makeMembershipPerson('membership-new-board@example.test');
 
     $this
         ->withSession(membershipManagementSession())
-        ->actingAs($staff)
+        ->actingAs($board)
         ->get('http://my.vdb.test/verwaltung/mitgliedschaften')
         ->assertOk()
         ->assertSee('Erika Muster');
 
     $this
         ->withSession(membershipManagementSession())
-        ->actingAs($staff)
+        ->actingAs($board)
         ->get('http://my.vdb.test/verwaltung/mitgliedschaften/'.$membership->id)
         ->assertOk()
-        ->assertDontSee('Bearbeiten')
-        ->assertDontSee('Mitgliedschaft beenden');
+        ->assertSee('Bearbeiten')
+        ->assertSee('Mitgliedschaft beenden');
 
     $this
         ->withSession(membershipManagementSession())
-        ->actingAs($staff)
-        ->get('http://my.vdb.test/verwaltung/personen/'.$person->id.'/mitgliedschaften/anlegen')
-        ->assertForbidden();
+        ->actingAs($board)
+        ->get('http://my.vdb.test/verwaltung/personen/'.$newPerson->id.'/mitgliedschaften/anlegen')
+        ->assertOk();
 
-    $this
+    $response = $this
         ->withSession(membershipManagementSession())
-        ->actingAs($staff)
+        ->actingAs($board)
         ->post(
-            'http://my.vdb.test/verwaltung/personen/'.$person->id.'/mitgliedschaften',
+            'http://my.vdb.test/verwaltung/personen/'.$newPerson->id.'/mitgliedschaften',
             [
                 'starts_on' => now()->toDateString(),
                 'ends_on' => null,
             ],
-        )
-        ->assertForbidden();
+        );
+
+    $newMembership = Membership::query()->where('person_id', $newPerson->id)->firstOrFail();
+    $response->assertRedirect(route('administration.memberships.show', $newMembership));
 
     $this
         ->withSession(membershipManagementSession())
-        ->actingAs($staff)
+        ->actingAs($board)
         ->get('http://my.vdb.test/verwaltung/mitgliedschaften/'.$membership->id.'/bearbeiten')
-        ->assertForbidden();
+        ->assertOk();
 
     $this
         ->withSession(membershipManagementSession())
-        ->actingAs($staff)
+        ->actingAs($board)
         ->put(
             'http://my.vdb.test/verwaltung/mitgliedschaften/'.$membership->id,
             [
@@ -135,7 +141,7 @@ it('allows administration staff to read membership data but blocks write routes'
                 'ends_on' => now()->addMonth()->toDateString(),
             ],
         )
-        ->assertForbidden();
+        ->assertRedirect(route('administration.memberships.show', $membership));
 });
 
 it('blocks membership administration for users without administration access', function () {
@@ -479,8 +485,8 @@ it('does not reopen ended memberships and supports resumption as a new period', 
 });
 
 it('filters memberships by person and derived status', function () {
-    $staff = makeMembershipManagementActor(
-        RoleKey::AdministrationStaff,
+    $board = makeMembershipManagementActor(
+        RoleKey::BoardMember,
         'membership-filter@example.test',
     );
     $activePerson = makeMembershipPerson('active-filter@example.test');
@@ -498,7 +504,7 @@ it('filters memberships by person and derived status', function () {
 
     $this
         ->withSession(membershipManagementSession())
-        ->actingAs($staff)
+        ->actingAs($board)
         ->get('http://my.vdb.test/verwaltung/mitgliedschaften?q=active-filter&status=active')
         ->assertOk()
         ->assertSee('active-filter@example.test')
@@ -506,17 +512,21 @@ it('filters memberships by person and derived status', function () {
 
     $this
         ->withSession(membershipManagementSession())
-        ->actingAs($staff)
+        ->actingAs($board)
         ->get('http://my.vdb.test/verwaltung/mitgliedschaften?status=ended')
         ->assertOk()
         ->assertSee('ended-filter@example.test')
         ->assertDontSee('active-filter@example.test');
 });
 
-it('shows membership history on person details and paginates the directory', function () {
-    $staff = makeMembershipManagementActor(
-        RoleKey::AdministrationStaff,
-        'membership-pagination@example.test',
+it('shows membership history to full administration and paginates memberships for board members', function () {
+    $admin = makeMembershipManagementActor(
+        RoleKey::Administration,
+        'membership-history-admin@example.test',
+    );
+    $board = makeMembershipManagementActor(
+        RoleKey::BoardMember,
+        'membership-pagination-board@example.test',
     );
     $firstPerson = makeMembershipPerson('history@example.test');
 
@@ -542,16 +552,16 @@ it('shows membership history on person details and paginates the directory', fun
 
     $this
         ->withSession(membershipManagementSession())
-        ->actingAs($staff)
+        ->actingAs($admin)
         ->get('http://my.vdb.test/verwaltung/personen/'.$firstPerson->id)
         ->assertOk()
         ->assertSee('Mitgliedschaftsverlauf')
         ->assertSee('2')
-        ->assertDontSee('Mitgliedschaft anlegen');
+        ->assertSee('Mitgliedschaft anlegen');
 
     $this
         ->withSession(membershipManagementSession())
-        ->actingAs($staff)
+        ->actingAs($board)
         ->get('http://my.vdb.test/verwaltung/mitgliedschaften')
         ->assertOk()
         ->assertSee('26 Mitgliedschaften')
