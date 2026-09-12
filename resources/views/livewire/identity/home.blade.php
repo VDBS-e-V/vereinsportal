@@ -59,13 +59,13 @@ new #[Layout('components.layouts.public')]
         </div>
 
         <div class="resource-list">
-            <x-vdbs.resource-item title="Profil" :url="route('my.profile')"
-                description="Persönliche Daten, Kontaktangaben und Adresse verwalten." meta="Konto" />
-            <x-vdbs.resource-item title="E-Mail-Adresse" :url="route('my.email-change')"
-                description="Aktuelle E-Mail-Adresse einsehen oder eine Änderung anfordern." meta="Konto" />
-            <x-vdbs.resource-item title="Sicherheit" :url="route('my.security')"
+            <x-vdbs.resource-item title="Konto" :url="route('my.account')"
+                description="Profil, Kontoeinstellungen und rollenabhängige persönliche Bereiche öffnen." meta="Konto" />
+            <x-vdbs.resource-item title="Kontoeinstellungen" :url="route('my.account.settings')"
+                description="Kontodaten, E-Mail-Adresse, Passwort und Sicherheit verwalten." meta="Konto" />
+            <x-vdbs.resource-item title="2FA" :url="route('my.security')"
                 description="Zwei-Faktor-Authentifizierung und Recovery Codes verwalten." meta="Sicherheit" />
-            <x-vdbs.resource-item title="Passwort" :url="route('my.password.change')"
+            <x-vdbs.resource-item title="Passwort ändern" :url="route('my.password.change')"
                 description="Das aktuelle Kontopasswort ändern." meta="Sicherheit" />
         </div>
     </section>

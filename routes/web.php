@@ -78,6 +78,21 @@ Route::domain(config('domains.my'))
                 'identity.home',
             )->name('my.home');
 
+            Volt::route(
+                '/konto',
+                'identity.account',
+            )->name('my.account');
+
+            Volt::route(
+                '/konto/einstellungen',
+                'identity.account-settings',
+            )->name('my.account.settings');
+
+            Volt::route(
+                '/konto/mitgliedschaft',
+                'identity.membership',
+            )->name('my.membership');
+
             Route::post(
                 '/abmelden',
                 LogoutController::class,

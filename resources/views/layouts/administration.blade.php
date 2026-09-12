@@ -77,8 +77,8 @@
                 'handle' => $user->email,
                 'initials' => $initials !== '' ? $initials : 'VB',
                 'groups' => [[
-                    ['label' => 'Mein Profil', 'icon' => 'user', 'url' => route('my.profile')],
-                    ['label' => 'Sicherheit', 'icon' => 'lock', 'url' => route('my.security')],
+                    ['label' => 'Konto', 'icon' => 'user', 'url' => route('my.account')],
+                    ['label' => 'Kontoeinstellungen', 'icon' => 'settings', 'url' => route('my.account.settings')],
                 ]],
                 'logout' => ['label' => 'Abmelden', 'url' => route('my.logout'), 'method' => 'post'],
             ];
