@@ -7,7 +7,7 @@
         <header class="page-title">
             <p class="page-title__kicker">Verwaltung</p>
             <h1 class="page-title__title">Verwaltungsübersicht</h1>
-            <p class="page-title__lead">Einstieg in die internen Verwaltungsfunktionen des Vereinsportals.</p>
+            <p class="page-title__lead">Einstieg in Datenverwaltung, Nutzerkonten sowie Kommunikation und Öffentlichkeitsarbeit.</p>
         </header>
 
         @if ($canReadUsers)
@@ -23,16 +23,13 @@
             <header class="stack stack--sm"><h2>Arbeitsbereiche</h2><p>Es werden nur die fachlich freigegebenen Verwaltungsbereiche angezeigt.</p></header>
             <ul class="related-links">
                 @if ($canReadPersons)
-                    <li><a href="{{ route('administration.persons.index') }}">Personenverwaltung</a></li>
-                @endif
-                @if ($canReadMemberships)
-                    <li><a href="{{ route('administration.memberships.index') }}">Mitgliedschaften</a></li>
+                    <li><a href="{{ route('administration.persons.index') }}">Personen- und Datenverwaltung</a></li>
                 @endif
                 @if ($canReadUsers)
                     <li><a href="{{ route('administration.users.index') }}">Benutzerverwaltung</a></li>
                 @endif
                 @if ($canReadCommunication)
-                    <li><a href="{{ route('administration.communication.templates.index') }}">Kommunikation</a></li>
+                    <li><a href="{{ route('administration.communication.templates.index') }}">Kommunikation und Öffentlichkeitsarbeit</a></li>
                 @endif
                 @if ($canReadAudit)
                     <li><a href="{{ route('administration.audit.index') }}">Audit-Protokoll</a></li>
