@@ -48,15 +48,23 @@ final class PersonIndexController extends Controller
             ->withQueryString();
 
         $actor = $request->user();
+        $canManagePersons = $actor instanceof User
+            && $access->allowsCapability(
+                $actor,
+                AdministrationCapability::PersonsManage,
+            );
+        $canManageUserStatus = $actor instanceof User
+            && $access->allowsCapability(
+                $actor,
+                AdministrationCapability::UserStatusManage,
+            );
 
         return view('administration.persons.index', [
             'persons' => $persons,
             'search' => $search,
-            'canManage' => $actor instanceof User
-                && $access->allowsCapability(
-                    $actor,
-                    AdministrationCapability::PersonsManage,
-                ),
+            'canManagePersons' => $canManagePersons,
+            'canManageUserStatus' => $canManageUserStatus,
+            'actorUserId' => $actor instanceof User ? $actor->id : null,
             'breadcrumbs' => [
                 [
                     'label' => 'Verwaltung',
