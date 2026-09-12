@@ -37,7 +37,8 @@ it('turns the portal home into a useful account overview', function () {
     expect($home)
         ->toContain('Schnellzugriff')
         ->toContain('Kontoinformationen')
-        ->toContain("route('my.profile')")
+        ->toContain("route('my.account')")
+        ->toContain("route('my.account.settings')")
         ->toContain("route('my.security')")
         ->toContain('<x-vdbs.resource-item')
         ->toContain('<x-vdbs.status');
