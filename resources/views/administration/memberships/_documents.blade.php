@@ -34,7 +34,7 @@
                     <div class="record-item__actions stack stack--xs">
                         <a class="btn btn--quiet" href="{{ route('administration.memberships.documents.download', [$membership, $document]) }}">Herunterladen</a>
 
-                        @if ($canManage && $document->supersededBy === null)
+                        @if ($canManageDocuments && $document->supersededBy === null)
                             <details>
                                 <summary>Neue Version hinterlegen</summary>
                                 <form class="form stack" method="post" enctype="multipart/form-data" action="{{ route('administration.memberships.documents.replace', [$membership, $document]) }}">
@@ -57,7 +57,7 @@
         </div>
     @endif
 
-    @if ($canManage)
+    @if ($canManageDocuments)
         <details class="stack">
             <summary>Dokument hinzufügen</summary>
             <form class="form stack" method="post" enctype="multipart/form-data" action="{{ route('administration.memberships.documents.store', $membership) }}">
