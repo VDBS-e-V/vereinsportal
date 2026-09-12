@@ -11,7 +11,7 @@
                 <p class="page-title__lead">Personenstammdaten finden und vorhandene Portalzugänge nachvollziehen.</p>
             </div>
 
-            @if ($canManage)
+            @if ($canManagePersons)
                 <div class="page-title__actions">
                     <a class="btn" href="{{ route('administration.persons.create') }}">Person anlegen</a>
                 </div>
@@ -41,7 +41,7 @@
 
         @if ($persons->isEmpty())
             <x-vdbs.empty-state title="Keine Personen gefunden" :description="$search !== '' ? 'Passen Sie die Suche an.' : 'Es sind noch keine Personen gespeichert.'">
-                @if ($canManage)
+                @if ($canManagePersons)
                     <x-slot:actions>
                         <a class="btn" href="{{ route('administration.persons.create') }}">Person anlegen</a>
                     </x-slot:actions>
@@ -52,35 +52,130 @@
                 <table class="table">
                     <thead>
                         <tr>
+                            <th>Status</th>
                             <th>Name</th>
-                            <th>E-Mail-Adresse</th>
-                            <th>Geburtsdatum</th>
-                            <th>Portalzugang</th>
+                            <th>E-Mail</th>
                             <th>Ort</th>
-                            <th>Aktion</th>
+                            <th>Letzte Anmeldung</th>
+                            <th>Aktionen</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($persons as $listedPerson)
                             @php
                                 $displayName = trim($listedPerson->first_name.' '.($listedPerson->name_addition !== null ? $listedPerson->name_addition.' ' : '').$listedPerson->last_name);
+                                $listedUser = $listedPerson->user;
+                                $canResetPassword = $canManageUserStatus
+                                    && $listedUser !== null
+                                    && $listedUser->status === \App\Modules\Identity\Enums\UserStatus::Active
+                                    && $listedUser->email_verified_at !== null;
+                                $canLockAccount = $canManageUserStatus
+                                    && $listedUser !== null
+                                    && $listedUser->status === \App\Modules\Identity\Enums\UserStatus::Active
+                                    && $listedUser->id !== $actorUserId;
                             @endphp
                             <tr>
-                                <td>{{ $displayName }}</td>
-                                <td>{{ $listedPerson->email }}</td>
-                                <td>{{ $listedPerson->birth_date->format('d.m.Y') }}</td>
                                 <td>
-                                    @if ($listedPerson->user !== null)
-                                        <x-vdbs.status :type="\App\Modules\Administration\Support\UserStatusPresentation::type($listedPerson->user->status)">
-                                            {{ \App\Modules\Administration\Support\UserStatusPresentation::label($listedPerson->user->status) }}
+                                    @if ($listedUser !== null)
+                                        <x-vdbs.status :type="\App\Modules\Administration\Support\UserStatusPresentation::type($listedUser->status)">
+                                            {{ \App\Modules\Administration\Support\UserStatusPresentation::label($listedUser->status) }}
                                         </x-vdbs.status>
                                     @else
                                         <x-vdbs.status type="info">Kein Konto</x-vdbs.status>
                                     @endif
                                 </td>
+                                <td>{{ $displayName }}</td>
+                                <td>{{ $listedPerson->email }}</td>
                                 <td>{{ trim(($listedPerson->postal_code ?? '').' '.($listedPerson->city ?? '')) ?: '—' }}</td>
+                                <td>
+                                    @if ($listedUser === null)
+                                        —
+                                    @elseif ($listedUser->last_login_at !== null)
+                                        {{ $listedUser->last_login_at->format('d.m.Y, H:i') }} Uhr
+                                    @else
+                                        Noch nie
+                                    @endif
+                                </td>
                                 <td class="table__actions">
-                                    <a href="{{ route('administration.persons.show', $listedPerson) }}">Öffnen</a>
+                                    <div class="button-group" aria-label="Aktionen für {{ $displayName }}">
+                                        <a
+                                            class="btn btn--secondary btn--icon btn--sm"
+                                            href="{{ route('administration.persons.show', $listedPerson) }}"
+                                            title="Ansehen"
+                                            aria-label="{{ $displayName }} ansehen"
+                                        >
+                                            <x-vdbs.icon name="eye" size="17" />
+                                        </a>
+
+                                        @if ($canManagePersons)
+                                            <a
+                                                class="btn btn--secondary btn--icon btn--sm"
+                                                href="{{ route('administration.persons.edit', $listedPerson) }}"
+                                                title="Bearbeiten"
+                                                aria-label="{{ $displayName }} bearbeiten"
+                                            >
+                                                <x-vdbs.icon name="edit" size="17" />
+                                            </a>
+                                        @endif
+
+                                        @if ($canManageUserStatus)
+                                            @if ($canResetPassword)
+                                                <form
+                                                    method="POST"
+                                                    action="{{ route('administration.persons.password-reset', $listedPerson) }}"
+                                                >
+                                                    @csrf
+                                                    <button
+                                                        class="btn btn--secondary btn--icon btn--sm"
+                                                        type="submit"
+                                                        title="Passwort zurücksetzen"
+                                                        aria-label="Passwort für {{ $displayName }} zurücksetzen"
+                                                        onclick="return confirm('Reset-Link für dieses Konto anfordern?')"
+                                                    >
+                                                        <x-vdbs.icon name="key" size="17" />
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <button
+                                                    class="btn btn--secondary btn--icon btn--sm"
+                                                    type="button"
+                                                    title="Passwort zurücksetzen – kein aktives und bestätigtes Konto"
+                                                    aria-label="Passwort zurücksetzen nicht verfügbar"
+                                                    disabled
+                                                >
+                                                    <x-vdbs.icon name="key" size="17" />
+                                                </button>
+                                            @endif
+
+                                            @if ($canLockAccount)
+                                                <form
+                                                    method="POST"
+                                                    action="{{ route('administration.persons.account.disable', $listedPerson) }}"
+                                                >
+                                                    @csrf
+                                                    <button
+                                                        class="btn btn--danger btn--icon btn--sm"
+                                                        type="submit"
+                                                        title="Konto sperren"
+                                                        aria-label="Konto von {{ $displayName }} sperren"
+                                                        onclick="return confirm('Konto wirklich sperren? Bestehende Sitzungen werden beendet.')"
+                                                    >
+                                                        <x-vdbs.icon name="lock" size="17" />
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <button
+                                                    class="btn btn--danger btn--icon btn--sm"
+                                                    type="button"
+                                                    title="Konto sperren – nicht verfügbar"
+                                                    aria-label="Konto sperren nicht verfügbar"
+                                                    disabled
+                                                >
+                                                    <x-vdbs.icon name="lock" size="17" />
+                                                </button>
+                                            @endif
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
