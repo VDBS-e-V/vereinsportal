@@ -128,7 +128,7 @@ it('renders person and membership details with linked beta records', function ()
     $this
         ->withSession(administrationDetailSession())
         ->actingAs($actor)
-        ->get('http://my.vdb.test/verwaltung/mitgliedschaften/'.$membership->id)
+        ->get('http://my.vdb.test/vorstand/mitgliedschaften/'.$membership->id)
         ->assertOk()
         ->assertSee('Mira Mitglied')
         ->assertSee('beitritt.pdf')
