@@ -34,22 +34,28 @@ it('builds internal staff pages from the existing design system patterns', funct
         ->toContain('class="record-list"');
 });
 
-it('links staff areas through their dedicated capabilities', function () {
+it('builds area switchers through the central portal area catalog', function () {
     $publicLayout = file_get_contents(
         resource_path('views/components/layouts/public.blade.php'),
+    );
+    $administrationLayout = file_get_contents(
+        resource_path('views/layouts/administration.blade.php'),
     );
     $designLayout = file_get_contents(
         resource_path('views/design/layout.blade.php'),
     );
 
+    foreach ([$publicLayout, $administrationLayout, $designLayout] as $layout) {
+        expect($layout)
+            ->toContain('PortalAreaCatalog::class')
+            ->toContain('->switcherAreas(');
+    }
+
     foreach ([$publicLayout, $designLayout] as $layout) {
         expect($layout)
-            ->toContain('AdministrationAccess::class')
-            ->toContain('AdministrationCapability::AdministrationAreaAccess')
-            ->toContain('AdministrationCapability::BoardAreaAccess')
-            ->toContain('AdministrationCapability::CoordinationAreaAccess')
-            ->toContain("route('administration.home')")
-            ->toContain("route('board.home')")
-            ->toContain("route('coordination.home')");
+            ->not->toContain('AdministrationAccess::class')
+            ->not->toContain('AdministrationAreaAccess')
+            ->not->toContain('BoardAreaAccess')
+            ->not->toContain('CoordinationAreaAccess');
     }
 });

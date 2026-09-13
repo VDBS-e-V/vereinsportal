@@ -161,55 +161,13 @@
             ->all();
 
         $user = auth()->user();
-        $staffAccess = app(\App\Modules\Administration\Support\AdministrationAccess::class);
-        $designAreas = [];
-
-        if ($user instanceof \App\Modules\Identity\Models\User) {
-            if (
-                $staffAccess->allowsCapability(
-                    $user,
-                    \App\Modules\Administration\Enums\AdministrationCapability::AdministrationAreaAccess,
-                )
-                && \Illuminate\Support\Facades\Route::has('administration.home')
-            ) {
-                $designAreas[] = [
-                    'label' => 'Verwaltung',
-                    'url' => route('administration.home'),
-                ];
-            }
-
-            if (
-                $staffAccess->allowsCapability(
-                    $user,
-                    \App\Modules\Administration\Enums\AdministrationCapability::BoardAreaAccess,
-                )
-                && \Illuminate\Support\Facades\Route::has('board.home')
-            ) {
-                $designAreas[] = [
-                    'label' => 'Vorstand',
-                    'url' => route('board.home'),
-                ];
-            }
-
-            if (
-                $staffAccess->allowsCapability(
-                    $user,
-                    \App\Modules\Administration\Enums\AdministrationCapability::CoordinationAreaAccess,
-                )
-                && \Illuminate\Support\Facades\Route::has('coordination.home')
-            ) {
-                $designAreas[] = [
-                    'label' => 'Koordination',
-                    'url' => route('coordination.home'),
-                ];
-            }
-        }
-
-        $designAreas[] = [
-            'label' => 'Design',
-            'url' => route('design.index'),
-            'active' => true,
-        ];
+        $designAreas = app(\App\Support\PortalAreaCatalog::class)
+            ->switcherAreas(
+                $user instanceof \App\Modules\Identity\Models\User
+                    ? $user
+                    : null,
+                \App\Support\PortalAreaCatalog::DESIGN,
+            );
 
         $designAccount = null;
 

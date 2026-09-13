@@ -33,57 +33,12 @@
         $documentTitle = $title ?? $pageTitle.' · VDBS Portal';
         $homeUrl = route('my.home');
         $user = auth()->user();
-
-        $staffAccess = app(\App\Modules\Administration\Support\AdministrationAccess::class);
-        $areas = [];
-
-        if ($user instanceof \App\Modules\Identity\Models\User) {
-            if (
-                $staffAccess->allowsCapability(
-                    $user,
-                    \App\Modules\Administration\Enums\AdministrationCapability::AdministrationAreaAccess,
-                )
-                && \Illuminate\Support\Facades\Route::has('administration.home')
-            ) {
-                $areas[] = [
-                    'label' => 'Verwaltung',
-                    'url' => route('administration.home'),
-                ];
-            }
-
-            if (
-                $staffAccess->allowsCapability(
-                    $user,
-                    \App\Modules\Administration\Enums\AdministrationCapability::BoardAreaAccess,
-                )
-                && \Illuminate\Support\Facades\Route::has('board.home')
-            ) {
-                $areas[] = [
-                    'label' => 'Vorstand',
-                    'url' => route('board.home'),
-                ];
-            }
-
-            if (
-                $staffAccess->allowsCapability(
-                    $user,
-                    \App\Modules\Administration\Enums\AdministrationCapability::CoordinationAreaAccess,
-                )
-                && \Illuminate\Support\Facades\Route::has('coordination.home')
-            ) {
-                $areas[] = [
-                    'label' => 'Koordination',
-                    'url' => route('coordination.home'),
-                ];
-            }
-        }
-
-        if (\Illuminate\Support\Facades\Route::has('design.index')) {
-            $areas[] = [
-                'label' => 'Design',
-                'url' => route('design.index'),
-            ];
-        }
+        $areas = app(\App\Support\PortalAreaCatalog::class)
+            ->switcherAreas(
+                $user instanceof \App\Modules\Identity\Models\User
+                    ? $user
+                    : null,
+            );
 
         $settingsRouteNames = [
             'my.account.settings',
