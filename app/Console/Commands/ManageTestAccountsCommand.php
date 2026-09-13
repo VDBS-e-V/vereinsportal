@@ -11,6 +11,7 @@ use App\Modules\Identity\Models\Role;
 use App\Modules\Identity\Models\RoleAssignment;
 use App\Modules\Identity\Models\TwoFactorMethod;
 use App\Modules\Identity\Models\User;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
@@ -155,7 +156,7 @@ final class ManageTestAccountsCommand extends Command
 
                 $person->first_name = 'Testkonto';
                 $person->last_name = $role->name;
-                $person->birth_date = '2000-01-01';
+                $person->birth_date = Carbon::parse('2000-01-01');
                 $person->email = $email;
                 $person->country_code = 'DE';
                 $person->save();
