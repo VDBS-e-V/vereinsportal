@@ -57,6 +57,6 @@ it('provides a view for every start page route', function () {
         'resources/views/livewire/portal/privacy.blade.php',
         'resources/views/livewire/portal/accessibility.blade.php',
     ] as $path) {
-        expect(base_path($path))->toBeFile();
+        expect(file_exists(base_path($path)))->toBeTrue();
     }
 });
