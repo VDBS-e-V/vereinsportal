@@ -75,7 +75,7 @@ it('uploads an image privately and records an audit event without storing the pa
         ->not->toContain('profile-avatars');
 });
 
-it('replaces the previous avatar and deletes the old file', function () {
+it('replaces the previous avatar, deletes the old file and changes the cache-busting URL', function () {
     Storage::fake('local');
 
     $user = makeProfileAvatarUser();
@@ -84,6 +84,8 @@ it('replaces the previous avatar and deletes the old file', function () {
     Storage::disk('local')->put($oldPath, 'old-avatar');
     $user->avatar_path = $oldPath;
     $user->save();
+
+    $oldAvatarUrl = $user->avatarUrl();
 
     app(StoreProfileAvatarAction::class)->execute(
         user: $user,
@@ -96,7 +98,9 @@ it('replaces the previous avatar and deletes the old file', function () {
 
     expect($user->avatar_path)
         ->not->toBe($oldPath)
-        ->toStartWith('profile-avatars/'.$user->id.'/');
+        ->toStartWith('profile-avatars/'.$user->id.'/')
+        ->and($user->avatarUrl())
+        ->not->toBe($oldAvatarUrl);
 
     Storage::disk('local')->assertMissing($oldPath);
     Storage::disk('local')->assertExists($user->avatar_path);
