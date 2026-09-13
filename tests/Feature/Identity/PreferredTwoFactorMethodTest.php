@@ -5,6 +5,7 @@ use App\Modules\Identity\Actions\TwoFactor\SetPreferredTwoFactorMethodAction;
 use App\Modules\Identity\Actions\TwoFactor\VerifyEmailTwoFactorChallengeAction;
 use App\Modules\Identity\Enums\TwoFactorMethodType;
 use App\Modules\Identity\Enums\UserStatus;
+use App\Modules\Identity\Exceptions\TwoFactorChallengeFailed;
 use App\Modules\Identity\Exceptions\TwoFactorSetupFailed;
 use App\Modules\Identity\Models\TwoFactorEmailChallenge;
 use App\Modules\Identity\Models\TwoFactorMethod;
