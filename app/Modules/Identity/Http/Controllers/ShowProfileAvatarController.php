@@ -24,12 +24,16 @@ final class ShowProfileAvatarController
             404,
         );
 
-        return response()->file(
+        $response = response()->file(
             Storage::disk('local')->path($path),
             [
-                'Cache-Control' => 'private, max-age=3600',
                 'X-Content-Type-Options' => 'nosniff',
             ],
         );
+
+        $response->setPrivate();
+        $response->setMaxAge(3600);
+
+        return $response;
     }
 }
