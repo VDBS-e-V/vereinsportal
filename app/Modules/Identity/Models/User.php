@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * @property string|null $remember_token
@@ -55,7 +54,7 @@ class User extends Authenticatable
             return null;
         }
 
-        return Storage::disk('public')->url($this->avatar_path);
+        return route('my.account.avatar');
     }
 
     /** @return BelongsTo<Person, $this> */
