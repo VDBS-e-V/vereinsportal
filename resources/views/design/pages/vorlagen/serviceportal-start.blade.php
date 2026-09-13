@@ -44,7 +44,7 @@
                             Die zentrale Anlaufstelle für Informationen und Dienstleistungen rund um den VDBS.
                         </p>
                         <div class="service-area-links" aria-label="Beispielbereiche">
-                            @foreach (['Vorstand', 'Verwaltung', 'Development', 'Teamende', 'Schule', 'Bibliocollect'] as $area)
+                            @foreach (['Vorstand', 'Verwaltung', 'Development', 'Teamende', 'Schule', 'Bibliocollect', 'Webmail', 'Moodle', 'Nextcloud', 'MethodenMatrix'] as $area)
                                 <span class="service-area-links__item">{{ $area }}</span>
                             @endforeach
                         </div>
