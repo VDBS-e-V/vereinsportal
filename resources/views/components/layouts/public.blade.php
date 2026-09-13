@@ -33,12 +33,12 @@
         $documentTitle = $title ?? $pageTitle.' · VDBS Portal';
         $homeUrl = route('my.home');
         $user = auth()->user();
-        $areas = app(\App\Support\PortalAreaCatalog::class)
-            ->switcherAreas(
-                $user instanceof \App\Modules\Identity\Models\User
-                    ? $user
-                    : null,
-            );
+        $portalAreaCatalog = app(\App\Support\PortalAreaCatalog::class);
+        $areas = $portalAreaCatalog->switcherAreas(
+            $user instanceof \App\Modules\Identity\Models\User
+                ? $user
+                : null,
+        );
 
         $settingsRouteNames = [
             'my.account.settings',
@@ -55,6 +55,29 @@
             'my.membership',
             ...$settingsRouteNames,
         ];
+
+        $personalAreaKey = null;
+
+        if ($user instanceof \App\Modules\Identity\Models\User) {
+            if (request()->routeIs('my.home')) {
+                $personalAreaKey = \App\Support\PortalAreaCatalog::START;
+            } elseif (request()->routeIs(...$accountRouteNames)) {
+                $personalAreaKey = \App\Support\PortalAreaCatalog::PROFILE;
+            }
+        }
+
+        $areaContext = $personalAreaKey !== null
+            ? collect(
+                $portalAreaCatalog->areas(
+                    $user instanceof \App\Modules\Identity\Models\User
+                        ? $user
+                        : null,
+                    $personalAreaKey,
+                )
+            )->firstWhere('key', $personalAreaKey)
+            : null;
+        $areaLabel = $areaContext['label'] ?? 'VDBS Portal';
+        $areaUrl = $areaContext['url'] ?? $homeUrl;
 
         $settingsNavigation = [
             [
@@ -349,10 +372,10 @@
     </a>
 
     <x-vdbs.portal-header
-        area="VDBS Portal"
+        :area="$areaLabel"
         :page-title="$pageTitle"
         :home-url="$homeUrl"
-        :area-url="$homeUrl"
+        :area-url="$areaUrl"
         :areas="$areas"
         :navigation="$navigation"
         :breadcrumbs="$breadcrumbs"
