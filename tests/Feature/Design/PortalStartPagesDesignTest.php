@@ -1,12 +1,25 @@
 <?php
 
-it('wires the start information pages into header account menu and footer', function () {
+it('wires the start information pages into routes header account menu and footer', function () {
+    $routes = file_get_contents(base_path('routes/web.php'));
     $layout = file_get_contents(
         resource_path('views/components/layouts/public.blade.php'),
     );
     $footer = file_get_contents(
         resource_path('views/components/vdbs/portal-footer.blade.php'),
     );
+
+    foreach ([
+        'portal.about',
+        'portal.access',
+        'portal.faq',
+        'portal.contact',
+        'portal.imprint',
+        'portal.privacy',
+        'portal.accessibility',
+    ] as $routeName) {
+        expect($routes)->toContain("->name('{$routeName}')");
+    }
 
     foreach ([
         'portal.about',
