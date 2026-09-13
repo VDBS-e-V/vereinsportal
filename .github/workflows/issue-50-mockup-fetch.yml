@@ -11,30 +11,26 @@ permissions:
   contents: read
 
 jobs:
-  resolve:
+  upload:
     runs-on: ubuntu-latest
     steps:
-      - name: Resolve GitHub attachment URLs
+      - name: Fetch branch mockups
         env:
           GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-          urls=(
-            'ffd5c1d5-7580-4406-a547-cc05ecaf372d'
-            'af7c95cc-6a54-4f4d-8de5-569cf08b6a00'
-            '07be1171-39fc-4d15-9b97-6c298e301fad'
-            '2d761616-5843-4dbe-8a19-9ce1271c8bad'
-            'b789e979-6ba7-4f0d-a359-46ac7d778601'
-            '02cec0af-abd7-4ef3-9139-608eea66e05c'
-            'c76afa83-0c23-4722-ac36-a8ab46a7c4aa'
-            '9762b60e-a9cd-43e7-bba0-b785c154dd6e'
-          )
-          for i in "${!urls[@]}"; do
-            n=$((i + 1))
-            printf 'MOCKUP_%s=' "$n"
-            curl --fail --silent --show-error --location \
-              -H "Authorization: token ${GH_TOKEN}" \
-              -o /dev/null \
-              -w '%{url_effective}\n' \
-              "https://github.com/user-attachments/assets/${urls[$i]}"
-          done
+          git init repo
+          cd repo
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${BRANCH}"
+          git checkout -B "${BRANCH}" FETCH_HEAD
+          cp -a .issue-50-mockups ../mockups
+
+      - name: Upload mockups
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: issue-50-mockups
+          path: mockups/
+          if-no-files-found: error
+          retention-days: 1
