@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
+use Throwable;
 
 final class ManageTestAccountsCommand extends Command
 {
@@ -121,129 +122,152 @@ final class ManageTestAccountsCommand extends Command
 
         /** @var list<array{role: string, role_name: string, email: string, password: string, totp_secret: string}> $credentials */
         $credentials = [];
+        $credentialsDisk = Storage::disk('local');
+        $credentialsFileExisted = $credentialsDisk->exists(
+            self::CREDENTIALS_PATH,
+        );
+        $previousCredentials = $credentialsFileExisted
+            ? $credentialsDisk->get(self::CREDENTIALS_PATH)
+            : null;
 
-        DB::transaction(function () use ($roles, &$credentials): void {
-            foreach (RoleKey::cases() as $roleKey) {
-                $email = $this->emailFor($roleKey);
-                $password = Str::password(24);
-                $totpSecret = $this->generateTotpSecret();
+        try {
+            DB::transaction(function () use (
+                $roles,
+                &$credentials,
+                $credentialsDisk,
+            ): void {
+                foreach (RoleKey::cases() as $roleKey) {
+                    $email = $this->emailFor($roleKey);
+                    $password = Str::password(24);
+                    $totpSecret = $this->generateTotpSecret();
 
-                $user = User::query()
-                    ->where('email', $email)
-                    ->first();
-
-                $wasExisting = $user !== null;
-
-                $person = $user?->person;
-
-                if ($person === null) {
-                    $person = Person::query()
+                    $user = User::query()
                         ->where('email', $email)
                         ->first();
+
+                    $wasExisting = $user !== null;
+
+                    $person = $user?->person;
+
+                    if ($person === null) {
+                        $person = Person::query()
+                            ->where('email', $email)
+                            ->first();
+                    }
+
+                    if ($person === null) {
+                        $person = new Person;
+                    }
+
+                    $role = $roles->get($roleKey->value);
+
+                    if (! $role instanceof Role) {
+                        throw new RuntimeException(
+                            'Systemrolle konnte nicht geladen werden.',
+                        );
+                    }
+
+                    $person->first_name = 'Testkonto';
+                    $person->last_name = $role->name;
+                    $person->birth_date = Carbon::parse('2000-01-01');
+                    $person->email = $email;
+                    $person->country_code = 'DE';
+                    $person->save();
+
+                    if ($user === null) {
+                        $user = new User;
+                        $user->session_version = 1;
+                    } else {
+                        $user->session_version = max(
+                            1,
+                            $user->session_version + 1,
+                        );
+                    }
+
+                    $user->person_id = $person->id;
+                    $user->email = $email;
+                    $user->password = $password;
+                    $user->status = UserStatus::Active;
+                    $user->email_verified_at = now();
+                    $user->force_password_change_at = null;
+                    $user->last_login_at = null;
+                    $user->remember_token = null;
+                    $user->anonymized_at = null;
+                    $user->anonymized_ref = null;
+                    $user->save();
+
+                    if ($wasExisting) {
+                        $this->clearTransientAccountData($user);
+                    }
+
+                    RoleAssignment::query()
+                        ->where('user_id', $user->id)
+                        ->delete();
+
+                    RoleAssignment::query()->create([
+                        'user_id' => $user->id,
+                        'role_id' => $role->id,
+                        'source' => RoleAssignmentSource::Console,
+                        'source_type' => self::class,
+                        'source_id' => null,
+                        'starts_at' => now(),
+                        'ends_at' => null,
+                        'granted_by_user_id' => null,
+                        'comment' => 'Lokales Testkonto für Rollenprüfungen.',
+                    ]);
+
+                    TwoFactorMethod::query()
+                        ->where('user_id', $user->id)
+                        ->delete();
+
+                    TwoFactorMethod::query()->create([
+                        'user_id' => $user->id,
+                        'type' => TwoFactorMethodType::Totp,
+                        'secret' => $totpSecret,
+                        'confirmed_at' => now(),
+                        'disabled_at' => null,
+                    ]);
+
+                    $credentials[] = [
+                        'role' => $roleKey->value,
+                        'role_name' => $role->name,
+                        'email' => $email,
+                        'password' => $password,
+                        'totp_secret' => $totpSecret,
+                    ];
                 }
 
-                if ($person === null) {
-                    $person = new Person;
-                }
-
-                $role = $roles->get($roleKey->value);
-
-                if (! $role instanceof Role) {
+                if (! $credentialsDisk->put(
+                    self::CREDENTIALS_PATH,
+                    $this->credentialsPayload($credentials),
+                )) {
                     throw new RuntimeException(
-                        'Systemrolle konnte nicht geladen werden.',
+                        'Zugangsdaten-Datei konnte nicht geschrieben werden.',
                     );
                 }
+            });
+        } catch (Throwable $exception) {
+            $credentialsRestored = $credentialsFileExisted
+                ? is_string($previousCredentials)
+                    && $credentialsDisk->put(
+                        self::CREDENTIALS_PATH,
+                        $previousCredentials,
+                    )
+                : $credentialsDisk->delete(self::CREDENTIALS_PATH);
 
-                $person->first_name = 'Testkonto';
-                $person->last_name = $role->name;
-                $person->birth_date = Carbon::parse('2000-01-01');
-                $person->email = $email;
-                $person->country_code = 'DE';
-                $person->save();
-
-                if ($user === null) {
-                    $user = new User;
-                    $user->session_version = 1;
-                } else {
-                    $user->session_version = max(
-                        1,
-                        $user->session_version + 1,
-                    );
-                }
-
-                $user->person_id = $person->id;
-                $user->email = $email;
-                $user->password = $password;
-                $user->status = UserStatus::Active;
-                $user->email_verified_at = now();
-                $user->force_password_change_at = null;
-                $user->last_login_at = null;
-                $user->remember_token = null;
-                $user->anonymized_at = null;
-                $user->anonymized_ref = null;
-                $user->save();
-
-                if ($wasExisting) {
-                    $this->clearTransientAccountData($user);
-                }
-
-                RoleAssignment::query()
-                    ->where('user_id', $user->id)
-                    ->delete();
-
-                RoleAssignment::query()->create([
-                    'user_id' => $user->id,
-                    'role_id' => $role->id,
-                    'source' => RoleAssignmentSource::Console,
-                    'source_type' => self::class,
-                    'source_id' => null,
-                    'starts_at' => now(),
-                    'ends_at' => null,
-                    'granted_by_user_id' => null,
-                    'comment' => 'Lokales Testkonto für Rollenprüfungen.',
-                ]);
-
-                TwoFactorMethod::query()
-                    ->where('user_id', $user->id)
-                    ->delete();
-
-                TwoFactorMethod::query()->create([
-                    'user_id' => $user->id,
-                    'type' => TwoFactorMethodType::Totp,
-                    'secret' => $totpSecret,
-                    'confirmed_at' => now(),
-                    'disabled_at' => null,
-                ]);
-
-                $credentials[] = [
-                    'role' => $roleKey->value,
-                    'role_name' => $role->name,
-                    'email' => $email,
-                    'password' => $password,
-                    'totp_secret' => $totpSecret,
-                ];
+            if (! $credentialsRestored) {
+                throw new RuntimeException(
+                    'Testkonten wurden zurückgerollt, aber die vorherige Zugangsdaten-Datei konnte nicht wiederhergestellt werden.',
+                    previous: $exception,
+                );
             }
-        });
 
-        $payload = json_encode(
-            [
-                'generated_at' => now()->toIso8601String(),
-                'warning' => 'Nur für lokale Tests. Nicht committen oder weitergeben.',
-                'accounts' => $credentials,
-            ],
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
-        );
-
-        if (! is_string($payload)) {
-            throw new RuntimeException(
-                'Zugangsdaten konnten nicht serialisiert werden.',
+            $this->components->error(
+                'Testkonten konnten nicht vollständig erstellt oder aktualisiert werden. Alle Datenbankänderungen wurden zurückgerollt.',
             );
-        }
+            report($exception);
 
-        if (! Storage::disk('local')->put(self::CREDENTIALS_PATH, $payload)) {
-            throw new RuntimeException(
-                'Zugangsdaten-Datei konnte nicht geschrieben werden.',
-            );
+            return self::FAILURE;
         }
 
         $this->components->info(
@@ -253,7 +277,7 @@ final class ManageTestAccountsCommand extends Command
             ),
         );
         $this->line(
-            'Zugangsdaten: '.Storage::disk('local')->path(self::CREDENTIALS_PATH),
+            'Zugangsdaten: '.$credentialsDisk->path(self::CREDENTIALS_PATH),
         );
         $this->components->warn(
             'Die Datei liegt im privaten, gitignored Storage und enthält Test-Passwörter sowie TOTP-Secrets.',
@@ -273,29 +297,45 @@ final class ManageTestAccountsCommand extends Command
             ->unique()
             ->values();
 
+        $users = User::query()
+            ->whereIn('id', $userIds)
+            ->get();
+
         $deleted = 0;
+        $currentUserEmail = '';
+        /** @var list<string> $avatarPaths */
+        $avatarPaths = [];
 
-        foreach ($userIds as $userId) {
-            $user = User::query()->find($userId);
+        try {
+            DB::transaction(function () use (
+                $users,
+                $protectedAdminEmail,
+                &$deleted,
+                &$currentUserEmail,
+                &$avatarPaths,
+            ): void {
+                foreach ($users as $user) {
+                    $currentUserEmail = $user->email;
 
-            if (! $user instanceof User) {
-                continue;
-            }
+                    if (
+                        $protectedAdminEmail !== ''
+                        && mb_strtolower($user->email) === $protectedAdminEmail
+                    ) {
+                        $this->components->warn(
+                            'Das konfigurierte Default-Admin-Konto wurde bewusst übersprungen.',
+                        );
 
-            if (
-                $protectedAdminEmail !== ''
-                && mb_strtolower($user->email) === $protectedAdminEmail
-            ) {
-                $this->components->warn(
-                    'Das konfigurierte Default-Admin-Konto wurde bewusst übersprungen.',
-                );
+                        continue;
+                    }
 
-                continue;
-            }
-
-            try {
-                DB::transaction(function () use ($user): void {
                     $personId = $user->person_id;
+
+                    if (
+                        is_string($user->avatar_path)
+                        && $user->avatar_path !== ''
+                    ) {
+                        $avatarPaths[] = $user->avatar_path;
+                    }
 
                     $this->clearTransientAccountData($user);
 
@@ -336,33 +376,68 @@ final class ManageTestAccountsCommand extends Command
                             $person->delete();
                         }
                     }
-                });
-            } catch (QueryException $exception) {
-                $this->components->error(
-                    sprintf(
-                        'Testkonto %s ist noch mit dauerhaften Testdaten verknüpft und konnte nicht sicher gelöscht werden.',
-                        $user->email,
-                    ),
-                );
-                $this->line(
-                    'Entfernen Sie die abhängigen lokalen Testdaten oder setzen Sie die lokale Datenbank zurück.',
-                );
 
-                report($exception);
+                    $deleted++;
+                }
+            });
+        } catch (QueryException $exception) {
+            $this->components->error(
+                sprintf(
+                    'Testkonto %s ist noch mit dauerhaften Testdaten verknüpft. Es wurde kein Testkonto gelöscht.',
+                    $currentUserEmail,
+                ),
+            );
+            $this->line(
+                'Entfernen Sie die abhängigen lokalen Testdaten oder setzen Sie die lokale Datenbank zurück.',
+            );
 
-                return self::FAILURE;
-            }
+            report($exception);
 
-            $deleted++;
+            return self::FAILURE;
         }
 
-        Storage::disk('local')->delete(self::CREDENTIALS_PATH);
+        $disk = Storage::disk('local');
+        $avatarFilesDeleted = $disk->delete(array_values(array_unique(
+            $avatarPaths,
+        )));
+        $credentialsDeleted = $disk->delete(self::CREDENTIALS_PATH);
+
+        if (! $avatarFilesDeleted || ! $credentialsDeleted) {
+            $this->components->error(
+                'Die Testkonten wurden gelöscht, aber nicht alle privaten Dateien konnten entfernt werden.',
+            );
+
+            return self::FAILURE;
+        }
 
         $this->components->info(
             sprintf('%d verwaltete Testkonten wurden gelöscht.', $deleted),
         );
 
         return self::SUCCESS;
+    }
+
+    /**
+     * @param  list<array{role: string, role_name: string, email: string, password: string, totp_secret: string}>  $credentials
+     */
+    private function credentialsPayload(array $credentials): string
+    {
+        $payload = json_encode(
+            [
+                'generated_at' => now()->toIso8601String(),
+                'warning' => 'Nur für lokale Tests. Nicht committen oder weitergeben.',
+                'accounts' => $credentials,
+            ],
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
+        );
+
+        if (! is_string($payload)) {
+            throw new RuntimeException(
+                'Zugangsdaten konnten nicht serialisiert werden.',
+            );
+        }
+
+        return $payload;
     }
 
     private function clearTransientAccountData(User $user): void

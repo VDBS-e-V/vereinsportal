@@ -4,7 +4,7 @@ Für Rollen- und Berechtigungstests kann die lokale Entwicklungsumgebung je ein 
 
 ## Erstellen oder zurücksetzen
 
-```bash
+```cmd
 php artisan vdbs:test-accounts create
 ```
 
@@ -16,6 +16,7 @@ Der Befehl:
 - hinterlegt jeweils eine bestätigte TOTP-Methode,
 - rotiert bei erneutem Aufruf Passwort und TOTP-Secret,
 - erhöht bei bestehenden Testkonten die Session-Version und verwirft transiente Auth-Daten,
+- übernimmt die Änderungen nur, wenn auch die neue Zugangsdaten-Datei sicher geschrieben wurde,
 - übernimmt keine bereits vorhandenen regulären Konten oder Personen mit kollidierender E-Mail-Adresse.
 
 Die Zugangsdaten werden nicht auf der Konsole ausgegeben. Sie liegen nach erfolgreichem Lauf ausschließlich lokal unter:
@@ -28,15 +29,15 @@ storage/app/private/test-accounts.json
 
 ## Löschen
 
-```bash
+```cmd
 php artisan vdbs:test-accounts delete
 ```
 
-Gelöscht werden ausschließlich Konten, die über diesen Befehl angelegt und durch dessen Console-Rollenzuweisung markiert wurden. Die lokale Zugangsdaten-Datei wird ebenfalls entfernt.
+Gelöscht werden ausschließlich Konten, die über diesen Befehl angelegt und durch dessen Console-Rollenzuweisung markiert wurden. Zugehörige private Profilbilder und die lokale Zugangsdaten-Datei werden ebenfalls entfernt.
 
 Das über `VDB_DEV_ADMIN_EMAIL` konfigurierte Entwicklungs-Admin-Konto gehört nicht zu diesen Testkonten und wird bewusst nicht verändert oder gelöscht.
 
-Falls ein Testkonto bereits dauerhafte fachliche Daten erzeugt hat und eine Fremdschlüsselbeziehung die harte Löschung verhindert, bricht der Befehl ab. Er entfernt keine fachliche Historie nur deshalb, um eine Testidentität zu löschen. In diesem Fall die abhängigen lokalen Testdaten gezielt entfernen oder die lokale Entwicklungsdatenbank zurücksetzen.
+Falls ein Testkonto bereits dauerhafte fachliche Daten erzeugt hat und eine Fremdschlüsselbeziehung die harte Löschung verhindert, bricht der Befehl ab und löscht keines der Testkonten. Er entfernt keine fachliche Historie nur deshalb, um eine Testidentität zu löschen. In diesem Fall die abhängigen lokalen Testdaten gezielt entfernen oder die lokale Entwicklungsdatenbank zurücksetzen.
 
 ## Adressschema
 

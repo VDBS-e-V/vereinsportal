@@ -1,6 +1,8 @@
 <?php
 
 use App\Console\Commands\ManageTestAccountsCommand;
+use App\Modules\Communication\Models\EmailTemplate;
+use App\Modules\Communication\Models\EmailTemplateVersion;
 use App\Modules\Identity\Enums\RoleAssignmentSource;
 use App\Modules\Identity\Enums\RoleKey;
 use App\Modules\Identity\Enums\TwoFactorMethodType;
@@ -164,6 +166,15 @@ it('deletes only managed test accounts and leaves the configured development adm
     $this->artisan('vdbs:test-accounts', ['action' => 'create'])
         ->assertSuccessful();
 
+    $teamUser = User::query()
+        ->where('email', fixtureEmailFor(RoleKey::Team))
+        ->firstOrFail();
+    $avatarPath = 'profile-avatars/'.$teamUser->id.'/avatar.webp';
+
+    Storage::disk('local')->put($avatarPath, 'avatar');
+    $teamUser->avatar_path = $avatarPath;
+    $teamUser->save();
+
     $this->artisan('vdbs:test-accounts', ['action' => 'delete'])
         ->assertSuccessful();
 
@@ -190,6 +201,58 @@ it('deletes only managed test accounts and leaves the configured development adm
         ->toBe($adminTotpSecret);
 
     Storage::disk('local')->assertMissing('test-accounts.json');
+    Storage::disk('local')->assertMissing($avatarPath);
+});
+
+it('rolls back deletion of all managed accounts when one account still has durable data', function () {
+    Storage::fake('local');
+    seedTestAccountRoles();
+
+    $this->artisan('vdbs:test-accounts', ['action' => 'create'])
+        ->assertSuccessful();
+
+    $blockedUser = User::query()
+        ->where('email', fixtureEmailFor(RoleKey::Administration))
+        ->firstOrFail();
+
+    $template = EmailTemplate::query()->create([
+        'key' => 'test-account-delete-rollback',
+        'name' => 'Testkonto-Löschschutz',
+        'is_active' => true,
+        'draft_subject' => 'Test',
+        'draft_html' => '<p>Test</p>',
+        'updated_by_user_id' => $blockedUser->id,
+    ]);
+
+    EmailTemplateVersion::query()->create([
+        'email_template_id' => $template->id,
+        'version' => 1,
+        'subject' => 'Test',
+        'html' => '<p>Test</p>',
+        'published_by_user_id' => $blockedUser->id,
+        'published_at' => now(),
+    ]);
+
+    $this->artisan('vdbs:test-accounts', ['action' => 'delete'])
+        ->assertFailed();
+
+    foreach (RoleKey::cases() as $roleKey) {
+        $user = User::query()
+            ->where('email', fixtureEmailFor($roleKey))
+            ->firstOrFail();
+
+        expect(
+            RoleAssignment::query()
+                ->where('user_id', $user->id)
+                ->where('source_type', ManageTestAccountsCommand::class)
+                ->exists(),
+        )->toBeTrue();
+    }
+
+    expect($template->refresh()->updated_by_user_id)
+        ->toBe($blockedUser->id);
+
+    Storage::disk('local')->assertExists('test-accounts.json');
 });
 
 it('refuses to take over an existing regular account with a fixture email', function () {
