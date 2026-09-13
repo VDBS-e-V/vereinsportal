@@ -1,0 +1,142 @@
+name: Finalize Issue 50 reference assets
+
+on:
+  push:
+    branches:
+      - feat/issue-50-start-pages
+    paths:
+      - .github/workflows/issue-50-reference-assets.yml
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out feature branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          git init repo
+          cd repo
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${BRANCH}"
+          git checkout -B "${BRANCH}" FETCH_HEAD
+
+      - name: Download reference screenshot
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 \
+            'https://github.com/user-attachments/assets/ffd5c1d5-7580-4406-a547-cc05ecaf372d' \
+            --output /tmp/issue-50-start.png
+
+      - name: Create reference image assets
+        working-directory: repo
+        run: |
+          set -euo pipefail
+          python3 -m pip install --user --quiet 'Pillow==11.3.0'
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+
+          source = Image.open('/tmp/issue-50-start.png').convert('RGB')
+          base_width, base_height = 1870, 3778
+          scale_x = source.width / base_width
+          scale_y = source.height / base_height
+
+          crops = {
+              'portal-hero.jpg': (330, 190, 1210, 450),
+              'article-security.jpg': (330, 1400, 375, 205),
+              'article-admin.jpg': (720, 1400, 390, 205),
+              'article-cloud.jpg': (1155, 1420, 360, 185),
+              'portal-access.jpg': (825, 2180, 710, 345),
+              'portal-contact.jpg': (333, 2760, 662, 338),
+          }
+
+          target = Path('public/images/portal')
+          target.mkdir(parents=True, exist_ok=True)
+
+          for name, (x, y, width, height) in crops.items():
+              box = (
+                  round(x * scale_x),
+                  round(y * scale_y),
+                  round((x + width) * scale_x),
+                  round((y + height) * scale_y),
+              )
+              image = source.crop(box)
+              image.save(target / name, 'JPEG', quality=84, optimize=True, progressive=True)
+          PY
+
+      - name: Match shared Start header to the references
+        working-directory: repo
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('resources/views/components/layouts/public.blade.php')
+          source = path.read_text()
+
+          old = "        $pageTitle = $pageTitles[$routeName] ?? 'Vereinsportal';\n        $documentTitle = $title ?? $pageTitle.' · VDBS Portal';"
+          new = """        $pageTitle = $pageTitles[$routeName] ?? 'Vereinsportal';
+          $startRouteNames = [
+              'my.home',
+              'portal.about',
+              'portal.access',
+              'portal.faq',
+              'portal.contact',
+          ];
+          $headerPageTitle = request()->routeIs(...$startRouteNames)
+              ? 'Start'
+              : $pageTitle;
+          $documentTitle = $title ?? $pageTitle.' · VDBS Portal';"""
+          if old not in source:
+              raise SystemExit('page title anchor not found')
+          source = source.replace(old, new, 1)
+
+          old = "        $areaLabel = $areaContext['label'] ?? 'VDBS Portal';\n        $areaUrl = $areaContext['url'] ?? $homeUrl;"
+          new = """        $areaLabel = $areaContext['label'] ?? 'VDBS Portal';
+          $areaUrl = $areaContext['url'] ?? $homeUrl;
+
+          if (request()->routeIs(...$startRouteNames)) {
+              $areaLabel = 'VDBS Portal';
+              $areaUrl = $homeUrl;
+          }"""
+          if old not in source:
+              raise SystemExit('area context anchor not found')
+          source = source.replace(old, new, 1)
+
+          source = source.replace(
+              "        if (auth()->check()) {\n            $navigation = [",
+              "        if (auth()->check() && ! request()->routeIs(...$startRouteNames)) {\n            $navigation = [",
+              1,
+          )
+          source = source.replace(
+              "        if (! request()->routeIs('my.home')) {",
+              "        if (! request()->routeIs(...$startRouteNames)) {",
+              1,
+          )
+          source = source.replace(
+              '        :page-title="$pageTitle"',
+              '        :page-title="$headerPageTitle"',
+              1,
+          )
+
+          path.write_text(source)
+          PY
+
+      - name: Remove temporary workflow and commit
+        working-directory: repo
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          git rm -f .github/workflows/issue-50-reference-assets.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'fix(portal): align issue 50 pages with references'
+          git push origin "HEAD:${BRANCH}"
