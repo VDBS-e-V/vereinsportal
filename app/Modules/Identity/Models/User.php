@@ -2,6 +2,7 @@
 
 namespace App\Modules\Identity\Models;
 
+use App\Modules\Identity\Enums\TwoFactorMethodType;
 use App\Modules\Identity\Enums\UserStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,6 +12,7 @@ use Illuminate\Notifications\Notifiable;
 
 /**
  * @property string|null $remember_token
+ * @property TwoFactorMethodType|null $preferred_two_factor_method
  * @property-read Person|null $person
  */
 class User extends Authenticatable
@@ -23,6 +25,7 @@ class User extends Authenticatable
         'email',
         'password',
         'status',
+        'preferred_two_factor_method',
         'session_version',
         'force_password_change_at',
         'last_login_at',
@@ -39,6 +42,7 @@ class User extends Authenticatable
     {
         return [
             'status' => UserStatus::class,
+            'preferred_two_factor_method' => TwoFactorMethodType::class,
             'email_verified_at' => 'datetime',
             'force_password_change_at' => 'datetime',
             'last_login_at' => 'datetime',
