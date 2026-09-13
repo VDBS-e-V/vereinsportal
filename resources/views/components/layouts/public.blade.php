@@ -37,7 +37,17 @@
         ];
 
         $pageTitle = $pageTitles[$routeName] ?? 'Vereinsportal';
-        $documentTitle = $title ?? $pageTitle.' · VDBS Portal';
+$startRouteNames = [
+    'my.home',
+    'portal.about',
+    'portal.access',
+    'portal.faq',
+    'portal.contact',
+];
+$headerPageTitle = request()->routeIs(...$startRouteNames)
+    ? 'Start'
+    : $pageTitle;
+$documentTitle = $title ?? $pageTitle.' · VDBS Portal';
         $homeUrl = route('my.home');
         $user = auth()->user();
         $portalAreaCatalog = app(\App\Support\PortalAreaCatalog::class);
@@ -84,7 +94,12 @@
             )->firstWhere('key', $personalAreaKey)
             : null;
         $areaLabel = $areaContext['label'] ?? 'VDBS Portal';
-        $areaUrl = $areaContext['url'] ?? $homeUrl;
+$areaUrl = $areaContext['url'] ?? $homeUrl;
+
+if (request()->routeIs(...$startRouteNames)) {
+    $areaLabel = 'VDBS Portal';
+    $areaUrl = $homeUrl;
+}
 
         $settingsNavigation = [
             [
@@ -187,7 +202,7 @@
         $showSettingsNavigation = auth()->check()
             && request()->routeIs(...$settingsRouteNames);
 
-        if (auth()->check()) {
+        if (auth()->check() && ! request()->routeIs(...$startRouteNames)) {
             $navigation = [
                 [
                     'label' => 'Start',
@@ -208,7 +223,7 @@
 
         $breadcrumbs = [];
 
-        if (! request()->routeIs('my.home')) {
+        if (! request()->routeIs(...$startRouteNames)) {
             $breadcrumbs[] = [
                 'label' => 'VDBS Portal',
                 'url' => $homeUrl,
@@ -382,7 +397,7 @@
 
     <x-vdbs.portal-header
         :area="$areaLabel"
-        :page-title="$pageTitle"
+        :page-title="$headerPageTitle"
         :home-url="$homeUrl"
         :area-url="$areaUrl"
         :areas="$areas"
