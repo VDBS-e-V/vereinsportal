@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * @property string|null $remember_token
+ * @property string|null $avatar_path
  * @property-read Person|null $person
  */
 class User extends Authenticatable
@@ -28,6 +30,7 @@ class User extends Authenticatable
         'last_login_at',
         'anonymized_at',
         'anonymized_ref',
+        'avatar_path',
     ];
 
     protected $hidden = [
@@ -45,6 +48,15 @@ class User extends Authenticatable
             'anonymized_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function avatarUrl(): ?string
+    {
+        if (! is_string($this->avatar_path) || $this->avatar_path === '') {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->avatar_path);
     }
 
     /** @return BelongsTo<Person, $this> */
