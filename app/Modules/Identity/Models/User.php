@@ -30,7 +30,6 @@ class User extends Authenticatable
         'last_login_at',
         'anonymized_at',
         'anonymized_ref',
-        'avatar_path',
     ];
 
     protected $hidden = [
