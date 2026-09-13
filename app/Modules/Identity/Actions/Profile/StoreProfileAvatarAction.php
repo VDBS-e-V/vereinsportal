@@ -44,7 +44,7 @@ final class StoreProfileAvatarAction
                 ?? 'bin',
         );
 
-        $newPath = Storage::disk('public')->putFileAs(
+        $newPath = Storage::disk('local')->putFileAs(
             'profile-avatars/'.$user->id,
             $avatar,
             Str::uuid()->toString().'.'.$extension,
@@ -89,13 +89,13 @@ final class StoreProfileAvatarAction
                 );
             });
         } catch (Throwable $exception) {
-            Storage::disk('public')->delete($newPath);
+            Storage::disk('local')->delete($newPath);
 
             throw $exception;
         }
 
         if (is_string($oldPath) && $oldPath !== '' && $oldPath !== $newPath) {
-            Storage::disk('public')->delete($oldPath);
+            Storage::disk('local')->delete($oldPath);
         }
 
         return $user->refresh();
