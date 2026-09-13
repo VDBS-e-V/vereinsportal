@@ -58,6 +58,11 @@ Route::domain(config('domains.my'))
         )->name('my.two-factor.challenge');
 
         Volt::route(
+            '/anmeldung/2fa/methode',
+            'identity.two-factor-method',
+        )->name('my.two-factor.method');
+
+        Volt::route(
             '/passwort/vergessen',
             'identity.password-forgot',
         )->name('my.password.request');
