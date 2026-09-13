@@ -86,7 +86,7 @@ new #[Layout('components.layouts.public')]
         <p class="page-title__kicker">Persönlicher Bereich</p>
         <h1>Mein Profil</h1>
         <p class="portal-page__lead">
-            Hier gestalten Sie die Inhalte, die zu Ihrem persönlichen Profil im Vereinsportal gehören.
+            Hier gestalten Sie die Inhalte, die zu Ihrem öffentlich sichtbaren Profil im Vereinsportal gehören.
         </p>
     </header>
 
@@ -104,7 +104,12 @@ new #[Layout('components.layouts.public')]
 
     <section class="portal-page__section" aria-labelledby="public-profile-heading">
         <div class="portal-page__section-header">
-            <h2 id="public-profile-heading">Profilbild</h2>
+            <h2 id="public-profile-heading">Öffentliches Profil</h2>
+            <p>Dieser Bereich ist eigenständig angelegt und von den Kontoeinstellungen getrennt.</p>
+        </div>
+
+        <div class="portal-page__section-header">
+            <h3>Profilbild</h3>
             <p>JPEG-, PNG- oder WebP-Datei mit maximal 5 MB.</p>
         </div>
 
