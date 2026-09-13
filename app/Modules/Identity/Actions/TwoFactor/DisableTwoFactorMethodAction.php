@@ -62,6 +62,14 @@ final class DisableTwoFactorMethodAction
                 $method->save();
             }
 
+            if (
+                $lockedUser->preferred_two_factor_method === $type
+                && ! $this->requirement->canUse($lockedUser, $type)
+            ) {
+                $lockedUser->preferred_two_factor_method = null;
+                $lockedUser->save();
+            }
+
             $this->auditWriter->write(
                 eventKey: AuditEventCatalog::AUTH_2FA_DISABLED,
                 actorType: AuditActorType::User,
