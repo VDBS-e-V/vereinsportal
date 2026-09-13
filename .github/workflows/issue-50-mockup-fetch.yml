@@ -36,15 +36,15 @@ jobs:
         working-directory: repo
         run: |
           set -euo pipefail
-          command -v convert >/dev/null
+          command -v ffmpeg >/dev/null
           mkdir -p public/images/portal
 
-          convert .issue-50-mockups/1.img -crop 1210x450+330+190 +repage -strip -quality 88 public/images/portal/portal-hero.jpg
-          convert .issue-50-mockups/1.img -crop 375x205+330+1400 +repage -strip -quality 88 public/images/portal/article-security.jpg
-          convert .issue-50-mockups/1.img -crop 390x205+720+1400 +repage -strip -quality 88 public/images/portal/article-admin.jpg
-          convert .issue-50-mockups/1.img -crop 360x185+1155+1420 +repage -strip -quality 88 public/images/portal/article-cloud.jpg
-          convert .issue-50-mockups/1.img -crop 710x345+825+2180 +repage -strip -quality 88 public/images/portal/portal-access.jpg
-          convert .issue-50-mockups/1.img -crop 662x338+333+2760 +repage -strip -quality 88 public/images/portal/portal-contact.jpg
+          ffmpeg -hide_banner -loglevel error -y -i .issue-50-mockups/1.img -vf "crop=1210:450:330:190" -q:v 2 public/images/portal/portal-hero.jpg
+          ffmpeg -hide_banner -loglevel error -y -i .issue-50-mockups/1.img -vf "crop=375:205:330:1400" -q:v 2 public/images/portal/article-security.jpg
+          ffmpeg -hide_banner -loglevel error -y -i .issue-50-mockups/1.img -vf "crop=390:205:720:1400" -q:v 2 public/images/portal/article-admin.jpg
+          ffmpeg -hide_banner -loglevel error -y -i .issue-50-mockups/1.img -vf "crop=360:185:1155:1420" -q:v 2 public/images/portal/article-cloud.jpg
+          ffmpeg -hide_banner -loglevel error -y -i .issue-50-mockups/1.img -vf "crop=710:345:825:2180" -q:v 2 public/images/portal/portal-access.jpg
+          ffmpeg -hide_banner -loglevel error -y -i .issue-50-mockups/1.img -vf "crop=662:338:333:2760" -q:v 2 public/images/portal/portal-contact.jpg
 
       - name: Match the shared header context to the reference pages
         working-directory: repo
