@@ -14,11 +14,11 @@
         [
             'title' => 'Service-Portal',
             'links' => [
-                ['label' => 'Startseite', 'href' => url('/')],
-                ['label' => 'Über das Portal', 'href' => '#'],
-                ['label' => 'Zugang zum Portal', 'href' => '#'],
-                ['label' => 'FAQ', 'href' => '#'],
-                ['label' => 'Kontakt', 'href' => '#'],
+                ['label' => 'Startseite', 'href' => route('my.home')],
+                ['label' => 'Über das Portal', 'href' => route('portal.about')],
+                ['label' => 'Zugang zum Portal', 'href' => route('portal.access')],
+                ['label' => 'FAQ', 'href' => route('portal.faq')],
+                ['label' => 'Kontakt', 'href' => route('portal.contact')],
             ],
         ],
         [
@@ -34,19 +34,19 @@
         [
             'title' => 'Diese Seite',
             'links' => [
-                ['label' => 'Impressum', 'href' => '#'],
-                ['label' => 'Datenschutz', 'href' => '#'],
-                ['label' => 'Barrierefreiheit', 'href' => '#'],
+                ['label' => 'Impressum', 'href' => route('portal.imprint')],
+                ['label' => 'Datenschutz', 'href' => route('portal.privacy')],
+                ['label' => 'Barrierefreiheit', 'href' => route('portal.accessibility')],
                 ['label' => 'Beratung', 'href' => '#'],
             ],
         ],
     ];
 
     $metaLinks = [
-        ['label' => 'Kontakt', 'href' => '#'],
-        ['label' => 'Impressum', 'href' => '#'],
-        ['label' => 'Datenschutz', 'href' => '#'],
-        ['label' => 'Barrierefreiheit', 'href' => '#'],
+        ['label' => 'Kontakt', 'href' => route('portal.contact')],
+        ['label' => 'Impressum', 'href' => route('portal.imprint')],
+        ['label' => 'Datenschutz', 'href' => route('portal.privacy')],
+        ['label' => 'Barrierefreiheit', 'href' => route('portal.accessibility')],
     ];
 
     $footerLogo = null;
