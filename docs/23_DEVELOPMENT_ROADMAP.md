@@ -35,9 +35,11 @@ Security-Basis:
 
 ## Milestone 1 – GitHub Settings und `main`-Schutz
 
-**Status: Basis abgeschlossen; einzelne Entscheidungen/Settings bleiben offen**
+**Status: weitgehend abgeschlossen; ein Ruleset-Punkt sowie UI-Prüfungen offen**
 
-Umgesetzt:
+Tracking: #13, #14, #15
+
+Verifiziert umgesetzt:
 
 - Squash Merge an
 - Merge Commits aus
@@ -52,11 +54,12 @@ Umgesetzt:
 - kein Ruleset-Bypass
 - Required Checks: `Quality`, `Static Analysis`, `Composer Audit`, `NPM Audit`, `Dependency Review`, `Secret Scan`
 
-Bewusst offen:
+Noch offen:
 
-- Branch vor Merge zwingend auf neuesten `main`-Stand bringen (`strict`)
+- #13: Branch vor Merge zwingend auf neuesten `main`-Stand bringen (`strict_required_status_checks_policy` steht aktuell auf `false`)
+- #14: nicht über den Connector auslesbare Actions-Einstellungen manuell prüfen
+- #15: nicht über den Connector auslesbare Security-and-quality-Schalter manuell prüfen
 - spätere Review-/Approval-Regeln bei mehreren verlässlichen Reviewern
-- manuelle Verifikation der nicht vollständig auslesbaren GitHub-Security-Settings
 
 ## Milestone 2 – Designsystem v1 abschließen
 
@@ -79,7 +82,7 @@ Abschluss ausschließlich nach `docs/22_DESIGN_SYSTEM_V1_FREEZE.md`. Es dürfen 
 
 ## Milestone 3 – Dokumentation konsolidieren
 
-**Status: abgeschlossen**
+**Status: abgeschlossen; laufende Statuspflege bleibt Teil jedes Abschlusses**
 
 Ergebnis:
 
@@ -90,11 +93,37 @@ Ergebnis:
 - Produktiv-Checkliste nur mit verifizierten Punkten abgehakt
 - aktuelle und zukünftige Arbeit über diese Roadmap zusammengeführt
 
-Abgeschlossen mit PR #18.
+## Aktuelles Gate – Funktionale Beta-Abnahme
+
+**Status: Feature-Implementierung abgeschlossen, manuelle Abnahme offen**
+
+Tracking: #22 und `docs/24_BETA_ACCEPTANCE.md`
+
+Die wesentlichen Beta-Fachblöcke sind umgesetzt:
+
+- Personenverwaltung (#23)
+- Mitgliedschafts-Lebenszyklus (#25)
+- Audit-Ansichten (#27)
+- Mitgliedschaftsdokumente und Zustimmungsnachweise (#29)
+- Portal-Einladungen und Kommunikationsverwaltung (#30)
+- capability-basierte fachliche Berechtigungen (#33)
+- Trennung Verwaltung / Vorstand / Koordination (#37)
+- Nacharbeit Personenliste und Schnellaktionen (#43)
+
+Vor dem Wechsel zu Hosting/Staging bleiben:
+
+- End-to-End-Test Person → Mitgliedschaft → Einladung → Konto → Login/2FA
+- Rollen-/Berechtigungsgrenzen manuell prüfen
+- Fehler-/Leerzustände stichprobenartig prüfen
+- Design-/Accessibility-QA aus #16 abschließen
+- Repository-/Security-Gate aus #13/#14/#15 abschließen
+- Beta-Abnahme dokumentieren und #22 schließen
+
+Die konkrete Abfolge steht in `docs/24_BETA_ACCEPTANCE.md`.
 
 ## Milestone 4 – Hosting- und Betriebsarchitektur
 
-**Status: offen – Entscheidungstask angelegt**
+**Status: offen; bis zum erfolgreichen Beta-Gate zurückgestellt**
 
 Tracking: Issue #19
 
@@ -116,6 +145,8 @@ Vor Deployment-Code verbindlich entscheiden:
 - Backup, Restore und Rollback
 - Verantwortlichkeiten im Betrieb
 
+Bereits entschieden: STRATO, eigene VM/VPS.
+
 Definition of Done: Die offenen Voraussetzungen aus `docs/05_PHASE_5_DEPLOYMENT_PLAN.md` und Issue #19 sind konkret beantwortet.
 
 ## Milestone 5 – Staging
@@ -129,7 +160,7 @@ Zielbild:
 - zunächst manuell gestarteter Deployment-Workflow
 - Deployment aus bekanntem grünen `main`-Commit
 - Build/Artifact, Upload, Dependencies, Migrationen, Caches, Worker/Scheduler, Health Check und Smoke Test nachvollziehbar
-- Login, Registrierung, 2FA, Konto, Verwaltung, Mail, Sessions, Queue, Scheduler, Dateien und Fehlerseiten prüfen
+- Login, Registrierung, 2FA, Konto, Verwaltung, Vorstand, Kommunikation, Mail, Sessions, Queue, Scheduler, Dateien und Fehlerseiten prüfen
 - Rollback praktisch durchführen
 - Restore aus Backup praktisch durchführen
 
@@ -158,59 +189,33 @@ Erst nach erfolgreichem Staging-/Release-Probelauf:
 - definierter Fehler- und Rollback-Pfad
 - vollständige Abnahme von `docs/07_PHASE_7_PRODUKTIV_CHECKLISTE.md`
 
-## Milestone 8 – Fachliche Weiterentwicklung
+## Milestone 8 – Fachliche Weiterentwicklung nach Beta
 
-**Status: offen; nach stabiler Betriebsbasis priorisieren**
+**Status: spätere Priorisierung nach stabiler Betriebsbasis**
 
-### 8.1 Personen und Mitgliedschaften
+Der ursprünglich hier vorgesehene Beta-Kern wurde vorgezogen und ist bereits umgesetzt. Neue Fachmodule werden nach dem Betriebs-/Release-Gate anhand realer Anforderungen priorisiert.
 
-- Personendaten
-- Mitgliedschaft und Statusverlauf
-- Verwaltungsliste/-detail
-- Suche und Filter
-- Berechtigungen
-- Audit für Schreibvorgänge
+Mögliche spätere Themen sind unter anderem:
 
-### 8.2 Audit-Ansichten
+- Finanzen und Fundraising
+- vereinsrechtliche Fachvorgänge
+- Koordination von Mitarbeitenden/Freiwilligen
+- Seminar- und Schulkoordination
+- weitergehende Mitglieder- und Teamfunktionen
+- konfigurierbare Benachrichtigungen
+- Tickets/Serviceprozesse
+- Newsletter-/Massenmailing, falls fachlich beschlossen
 
-- Zeit, Akteur, Objekt, Aktion, Grund und zulässige Metadaten
-- Zugriffsschutz für sensible Informationen
-- früh umsetzen, bevor viele weitere Schreibworkflows entstehen
-
-### 8.3 Kommunikation
-
-- Vorlagen und veröffentlichte Versionen
-- Zustellstatus
-- Fehler/Retry
-- Vorschau
-- Audit
-
-### 8.4 Einladungen und Freigaben
-
-- Person → Einladung → sicherer Token → Annahme → Konto → Freigabe
-- Ablauf, Widerruf und erneuter Versand
-- klare Statusmodelle und Audit
-
-### 8.5 Feinere Berechtigungen
-
-Berechtigungen aus echten Workflows ableiten, zum Beispiel:
-
-- Personen lesen/bearbeiten
-- Mitgliedschaften bearbeiten
-- Rollen verwalten
-- Kommunikation verwalten
-- Audit lesen
-
-Keine abstrakte komplexe RBAC-Struktur auf Vorrat bauen.
+Keine abstrakte komplexe RBAC- oder Komponentenstruktur auf Vorrat bauen.
 
 ## Empfohlene Reihenfolge
 
 Aktuell parallel:
 
-`M2 manuelle Design-QA (#16)` und `M4 Betriebsentscheidungen (#19)`
+`Beta-End-to-End-Abnahme (#22)` + `Design-QA (#16)` + `Repository/Security-Gate (#13/#14/#15)`
 
 Danach:
 
-`M5 Staging` → `M6 Release-Probelauf` → `M7 Produktion` → `M8 Fachmodule`
+`M4 Hosting/Betriebsarchitektur (#19)` → `M5 Staging` → `M6 Release-Probelauf` → `M7 Produktion` → `M8 neue Fachmodule`
 
-M2 kann parallel zu reinen Dokumentations- und Planungsarbeiten laufen, darf aber nicht ohne die manuelle QA als abgeschlossen markiert werden. M5 beginnt erst, wenn M4 ausreichend entschieden ist.
+Hosting/Staging beginnt erst, wenn die funktionale Beta als abgenommen dokumentiert ist. Manuelle QA wird nicht durch grüne CI ersetzt.
