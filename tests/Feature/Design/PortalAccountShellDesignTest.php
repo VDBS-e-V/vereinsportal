@@ -35,26 +35,27 @@ it('shows the public start navigation to guests', function () {
         ->toContain("'label' => 'Kontakt'")
         ->toContain('$navigation = $portalNavigation;')
         ->and($access)
-        ->toContain("route('my.login')")
-        ->toContain("route('my.registration.create')")
-        ->toContain("route('my.password.request')");
+        ->toContain('Antrag - Zugang zum Portal')
+        ->toContain('Verbindung zum Verein')
+        ->toContain('Kontaktdaten')
+        ->toContain('Antrag absenden');
 });
 
-it('turns the portal home into the start overview', function () {
+it('turns the portal home into the issue 50 start overview', function () {
     $home = file_get_contents(
         resource_path('views/livewire/identity/home.blade.php'),
     );
 
     expect($home)
-        ->toContain('Das Portal auf einen Blick')
-        ->toContain('Ihre Zugänge')
+        ->toContain('Willkommen im VDBS Serviceportal')
+        ->toContain('Das VDBS Serviceportal')
+        ->toContain('Empfohlene Artikel')
         ->toContain("route('portal.about')")
         ->toContain("route('portal.access')")
         ->toContain("route('portal.faq')")
         ->toContain("route('portal.contact')")
-        ->toContain("route('my.account.profile')")
-        ->toContain('switcherAreas(')
-        ->toContain('<x-vdbs.resource-item');
+        ->toContain('Mein Konto')
+        ->toContain('Hilfe');
 });
 
 it('uses hierarchical account breadcrumbs for nested settings', function () {
