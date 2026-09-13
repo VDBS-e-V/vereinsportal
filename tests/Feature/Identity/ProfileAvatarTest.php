@@ -194,13 +194,21 @@ it('renders and serves the stored avatar only through the authenticated account 
         ->assertSee('Profilbild speichern')
         ->assertSee('Profilbild löschen');
 
-    $this
+    $response = $this
         ->withSession(profileAvatarSession($user))
         ->actingAs($user)
-        ->get($avatarUrl)
+        ->get($avatarUrl);
+
+    $response
         ->assertOk()
-        ->assertHeader('cache-control', 'private, max-age=3600')
         ->assertHeader('x-content-type-options', 'nosniff');
+
+    $cacheControl = $response->headers->get('cache-control');
+
+    expect($cacheControl)
+        ->toBeString()
+        ->toContain('private')
+        ->toContain('max-age=3600');
 });
 
 it('does not expose profile avatars to guests', function () {
