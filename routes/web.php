@@ -3,8 +3,11 @@
 use App\Modules\Identity\Http\Controllers\AcceptPortalInvitationController;
 use App\Modules\Identity\Http\Controllers\ConfirmAccountDeletionController;
 use App\Modules\Identity\Http\Controllers\ConfirmEmailChangeController;
+use App\Modules\Identity\Http\Controllers\DeleteProfileAvatarController;
 use App\Modules\Identity\Http\Controllers\LogoutController;
 use App\Modules\Identity\Http\Controllers\ShowPortalInvitationController;
+use App\Modules\Identity\Http\Controllers\ShowProfileAvatarController;
+use App\Modules\Identity\Http\Controllers\StoreProfileAvatarController;
 use App\Modules\Identity\Http\Controllers\VerifyRegistrationController;
 use App\Modules\Identity\Http\Controllers\WithdrawAccountDeletionController;
 use Illuminate\Support\Facades\Route;
@@ -87,6 +90,21 @@ Route::domain(config('domains.my'))
                 '/konto/profil',
                 'identity.account-profile',
             )->name('my.account.profile');
+
+            Route::get(
+                '/konto/profilbild',
+                ShowProfileAvatarController::class,
+            )->name('my.account.avatar');
+
+            Route::post(
+                '/konto/profilbild',
+                StoreProfileAvatarController::class,
+            )->name('my.account.avatar.store');
+
+            Route::delete(
+                '/konto/profilbild',
+                DeleteProfileAvatarController::class,
+            )->name('my.account.avatar.delete');
 
             Volt::route(
                 '/konto/einstellungen',
