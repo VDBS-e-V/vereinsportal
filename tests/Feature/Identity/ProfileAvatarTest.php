@@ -2,7 +2,6 @@
 
 use App\Modules\Audit\Models\AuditEvent;
 use App\Modules\Audit\Support\AuditEventCatalog;
-use App\Modules\Identity\Actions\Profile\DeleteProfileAvatarAction;
 use App\Modules\Identity\Actions\Profile\StoreProfileAvatarAction;
 use App\Modules\Identity\Enums\UserStatus;
 use App\Modules\Identity\Models\Person;
@@ -10,7 +9,6 @@ use App\Modules\Identity\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
-use Livewire\Volt\Volt;
 
 function makeProfileAvatarUser(): User
 {
@@ -76,30 +74,25 @@ it('uploads an image privately and records an audit event without storing the pa
         ->not->toContain('profile-avatars');
 });
 
-it('enables and triggers the avatar save action after selecting an image', function () {
+it('uploads an avatar through the authenticated profile form', function () {
     Storage::fake('local');
 
     $user = makeProfileAvatarUser();
-    $this->actingAs($user);
 
-    $component = Volt::test('identity.account-profile')
-        ->set(
-            'avatar',
-            UploadedFile::fake()
+    $this
+        ->withSession(profileAvatarSession($user))
+        ->actingAs($user)
+        ->post('http://my.vdb.test/konto/profilbild', [
+            'avatar' => UploadedFile::fake()
                 ->image('avatar.jpg', 400, 400)
                 ->size(120),
-        )
-        ->assertHasNoErrors();
-
-    expect($component->html())->toMatch(
-        '/<button\b(?=[^>]*\btype="submit")(?=[^>]*\bwire:target="saveAvatar")(?![^>]*\sdisabled(?:\s|=|>))[^>]*>\s*Profilbild speichern\s*<\/button>/s',
-    );
-
-    $component
-        ->call('saveAvatar')
-        ->assertHasNoErrors()
-        ->assertSet('saved', true)
-        ->assertSet('avatar', null);
+        ])
+        ->assertRedirect(route('my.account.profile'))
+        ->assertSessionHasNoErrors()
+        ->assertSessionHas(
+            'avatar_status',
+            'Ihr Profilbild wurde gespeichert.',
+        );
 
     $user->refresh();
 
@@ -141,7 +134,7 @@ it('replaces the previous avatar, deletes the old file and changes the cache-bus
     Storage::disk('local')->assertExists($user->avatar_path);
 });
 
-it('deletes the avatar and falls back to the profile without an image', function () {
+it('deletes the avatar through the authenticated profile form', function () {
     Storage::fake('local');
 
     $user = makeProfileAvatarUser();
@@ -151,7 +144,15 @@ it('deletes the avatar and falls back to the profile without an image', function
     $user->avatar_path = $path;
     $user->save();
 
-    app(DeleteProfileAvatarAction::class)->execute($user);
+    $this
+        ->withSession(profileAvatarSession($user))
+        ->actingAs($user)
+        ->delete('http://my.vdb.test/konto/profilbild')
+        ->assertRedirect(route('my.account.profile'))
+        ->assertSessionHas(
+            'avatar_status',
+            'Ihr Profilbild wurde gelöscht.',
+        );
 
     $user->refresh();
 

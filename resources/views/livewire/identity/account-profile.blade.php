@@ -1,76 +1,11 @@
 <?php
 
-use App\Modules\Identity\Actions\Profile\DeleteProfileAvatarAction;
-use App\Modules\Identity\Actions\Profile\StoreProfileAvatarAction;
 use App\Modules\Identity\Models\User;
 use Livewire\Attributes\Layout;
-use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\Volt\Component;
-use Livewire\WithFileUploads;
 
 new #[Layout('components.layouts.public')]
-    class extends Component {
-    use WithFileUploads;
-
-    public ?TemporaryUploadedFile $avatar = null;
-
-    public bool $saved = false;
-
-    public bool $removed = false;
-
-    public function saveAvatar(StoreProfileAvatarAction $storeAvatar): void
-    {
-        $user = auth()->user();
-
-        if (! $user instanceof User || $this->avatar === null) {
-            return;
-        }
-
-        $this->saved = false;
-        $this->removed = false;
-
-        $this->validate([
-            'avatar' => [
-                'required',
-                'image',
-                'mimes:jpg,jpeg,png,webp',
-                'max:5120',
-            ],
-        ]);
-
-        $storeAvatar->execute(
-            user: $user,
-            avatar: $this->avatar,
-            ipAddress: request()->ip(),
-            userAgent: request()->userAgent(),
-        );
-
-        $this->reset('avatar');
-        $this->saved = true;
-    }
-
-    public function deleteAvatar(DeleteProfileAvatarAction $deleteAvatar): void
-    {
-        $user = auth()->user();
-
-        if (! $user instanceof User) {
-            return;
-        }
-
-        $this->saved = false;
-        $this->removed = false;
-
-        $deleteAvatar->execute(
-            user: $user,
-            ipAddress: request()->ip(),
-            userAgent: request()->userAgent(),
-        );
-
-        $this->reset('avatar');
-        $this->resetValidation('avatar');
-        $this->removed = true;
-    }
-};
+    class extends Component {};
 
 ?>
 
@@ -90,15 +25,9 @@ new #[Layout('components.layouts.public')]
         </p>
     </header>
 
-    @if ($saved)
+    @if (session('avatar_status'))
         <x-vdbs.notice type="success" role="status">
-            Ihr Profilbild wurde gespeichert.
-        </x-vdbs.notice>
-    @endif
-
-    @if ($removed)
-        <x-vdbs.notice type="success" role="status">
-            Ihr Profilbild wurde gelöscht.
+            {{ session('avatar_status') }}
         </x-vdbs.notice>
     @endif
 
@@ -116,11 +45,7 @@ new #[Layout('components.layouts.public')]
         <div class="form__field">
             <span class="form__label">Aktuelles Bild</span>
 
-            @if ($avatar !== null)
-                <div class="avatar avatar--large vdbs-avatar vdbs-avatar--large">
-                    <img src="{{ $avatar->temporaryUrl() }}" alt="Vorschau Ihres Profilbilds">
-                </div>
-            @elseif ($currentAvatarUrl !== null)
+            @if ($currentAvatarUrl !== null)
                 <div class="avatar avatar--large vdbs-avatar vdbs-avatar--large">
                     <img src="{{ $currentAvatarUrl }}" alt="Ihr Profilbild">
                 </div>
@@ -129,15 +54,23 @@ new #[Layout('components.layouts.public')]
             @endif
         </div>
 
-        <form class="form" wire:submit="saveAvatar">
+        <form
+            class="form"
+            method="POST"
+            action="{{ route('my.account.avatar.store') }}"
+            enctype="multipart/form-data"
+        >
+            @csrf
+
             <div class="form__field">
                 <label class="form__label" for="profile-avatar">Profilbild auswählen</label>
                 <input
                     class="form__control"
                     id="profile-avatar"
                     type="file"
-                    wire:model="avatar"
+                    name="avatar"
                     accept="image/jpeg,image/png,image/webp"
+                    required
                     @error('avatar')
                         aria-invalid="true"
                         aria-describedby="profile-avatar-error"
@@ -150,13 +83,7 @@ new #[Layout('components.layouts.public')]
             </div>
 
             <div class="portal-page__actions">
-                <button
-                    class="btn"
-                    type="submit"
-                    wire:loading.attr="disabled"
-                    wire:target="saveAvatar"
-                    @disabled($avatar === null)
-                >
+                <button class="btn" type="submit">
                     Profilbild speichern
                 </button>
             </div>
@@ -164,15 +91,17 @@ new #[Layout('components.layouts.public')]
 
         @if ($currentAvatarUrl !== null)
             <div class="portal-page__actions">
-                <button
-                    class="btn btn--secondary"
-                    type="button"
-                    wire:click="deleteAvatar"
-                    wire:loading.attr="disabled"
-                    wire:target="deleteAvatar"
+                <form
+                    method="POST"
+                    action="{{ route('my.account.avatar.delete') }}"
                 >
-                    Profilbild löschen
-                </button>
+                    @csrf
+                    @method('DELETE')
+
+                    <button class="btn btn--secondary" type="submit">
+                        Profilbild löschen
+                    </button>
+                </form>
             </div>
         @endif
     </section>
