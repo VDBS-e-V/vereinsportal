@@ -154,7 +154,7 @@ new #[Layout('components.layouts.public')]
                     class="btn"
                     type="submit"
                     wire:loading.attr="disabled"
-                    wire:target="avatar,saveAvatar"
+                    wire:target="saveAvatar"
                     @disabled($avatar === null)
                 >
                     Profilbild speichern

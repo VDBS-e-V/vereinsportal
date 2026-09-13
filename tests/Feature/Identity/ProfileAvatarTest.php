@@ -10,6 +10,7 @@ use App\Modules\Identity\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Livewire\Volt\Volt;
 
 function makeProfileAvatarUser(): User
 {
@@ -73,6 +74,40 @@ it('uploads an image privately and records an audit event without storing the pa
         ->toBe($user->id)
         ->and(json_encode($audit->new_values))
         ->not->toContain('profile-avatars');
+});
+
+it('enables and triggers the avatar save action after selecting an image', function () {
+    Storage::fake('local');
+
+    $user = makeProfileAvatarUser();
+    $this->actingAs($user);
+
+    $component = Volt::test('identity.account-profile')
+        ->set(
+            'avatar',
+            UploadedFile::fake()
+                ->image('avatar.jpg', 400, 400)
+                ->size(120),
+        )
+        ->assertHasNoErrors();
+
+    expect($component->html())->toMatch(
+        '/<button\b(?=[^>]*\btype="submit")(?=[^>]*\bwire:target="saveAvatar")(?![^>]*\sdisabled(?:\s|=|>))[^>]*>\s*Profilbild speichern\s*<\/button>/s',
+    );
+
+    $component
+        ->call('saveAvatar')
+        ->assertHasNoErrors()
+        ->assertSet('saved', true)
+        ->assertSet('avatar', null);
+
+    $user->refresh();
+
+    expect($user->avatar_path)
+        ->toBeString()
+        ->toStartWith('profile-avatars/'.$user->id.'/');
+
+    Storage::disk('local')->assertExists($user->avatar_path);
 });
 
 it('replaces the previous avatar, deletes the old file and changes the cache-busting URL', function () {
