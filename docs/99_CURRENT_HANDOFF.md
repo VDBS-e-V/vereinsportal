@@ -10,6 +10,12 @@
 
 Die übergreifende Reihenfolge steht in `docs/23_DEVELOPMENT_ROADMAP.md`. Die konkrete manuelle Abnahme steht in `docs/24_BETA_ACCEPTANCE.md`.
 
+Zusätzliche Ausführungsrunbooks auf `main`:
+
+- GitHub-Settings-Gate: `docs/25_GITHUB_SETTINGS_RUNBOOK.md`
+- Design-/Accessibility-QA: `docs/26_DESIGN_QA_EXECUTION.md`
+- spätere Betriebsentscheidungen: `docs/27_OPERATIONS_DECISION_MATRIX.md`
+
 ## Implementiert
 
 Technische Basis:
@@ -47,11 +53,13 @@ Funktionale Beta:
 
 ## Automatisierter Qualitätsstand
 
-Referenz beim Wechsel in die Beta-Abnahme:
+Referenz beim letzten Aktualisieren dieses Beta-Branches:
 
-`959b7810a978078d0fbd9097919e0fc096a48cb5`
+`56ea6cea19c607ea9236975fbb7577247e4e1362`
 
-Auf diesem `main`-Stand waren erfolgreich:
+Dieser `main`-Stand enthält die aktuellen GitHub-/QA-/Operations-Runbooks. Der Beta-Branch wurde mit diesem Stand zusammengeführt und muss nach seinen eigenen Änderungen erneut vollständig durch CI und Security laufen.
+
+Verbindliche Checks:
 
 - `Quality`
 - `Static Analysis`
@@ -68,13 +76,16 @@ Die automatisierten Checks ersetzen keine manuelle Produkt-, Browser- oder Acces
 
 ### Repository / GitHub
 
+Tracking: #13, #14 und #15. Ausführung: `docs/25_GITHUB_SETTINGS_RUNBOOK.md`.
+
 - #13: `Protect main` auf strict status checks umstellen; aktuell ist `strict_required_status_checks_policy = false`
+- #13: Abschlussprobe mit veraltetem PR-Branch, Conversation Resolution, Squash-only und Branch-Löschung durchführen
 - #14: Actions-Einstellungen in der GitHub-Oberfläche manuell gegen Zielwerte prüfen
 - #15: Security-and-quality-Einstellungen in der GitHub-Oberfläche manuell gegen Zielwerte prüfen
 
 ### Designsystem / Accessibility
 
-Tracking: #16
+Tracking: #16. Ausführung: `docs/26_DESIGN_QA_EXECUTION.md`.
 
 - Responsive 320 / 375 / 768 / 1024 / 1280+
 - Tastatur- und Fokusprüfung
@@ -87,7 +98,7 @@ Tracking: #16
 
 ### Funktionale Beta
 
-Tracking: #22 und `docs/24_BETA_ACCEPTANCE.md`
+Tracking: #22 und `docs/24_BETA_ACCEPTANCE.md`.
 
 - End-to-End: Person → Mitgliedschaft → Einladung → Konto → Login/2FA
 - Rollen-/Berechtigungsgrenzen manuell als unterschiedliche Rollen prüfen
@@ -103,7 +114,7 @@ Erst wenn #13, #14, #15, #16 und das Beta-Abnahme-Gate aus #22 abgeschlossen sin
 1. Designsystem v1 als freigegeben/frozen dokumentieren.
 2. #16 und #22 schließen.
 3. #19 zur aktiven Priorität machen.
-4. Hosting-/Betriebsarchitektur konkretisieren.
+4. Die vorbereiteten Entscheidungen aus `docs/27_OPERATIONS_DECISION_MATRIX.md` verbindlich treffen.
 5. Danach Staging, Release-Probelauf und Produktion vorbereiten.
 
 ## Grundsatz
