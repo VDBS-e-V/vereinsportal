@@ -2,7 +2,7 @@
 
 ## Status
 
-Die Phase-1-Basis ist umgesetzt. `main` ist der einzige dauerhafte Entwicklungs- und Release-Branch und wird durch das aktive Ruleset `Protect main` geschützt.
+Die Phase-1-Basis ist umgesetzt. `main` ist der einzige dauerhafte Entwicklungs- und Release-Branch und wird durch das aktive Ruleset `Protect main` geschützt. Ein letzter manueller Ruleset-Schritt aus Issue #13 ist noch offen.
 
 ## Branch-Struktur
 
@@ -46,14 +46,19 @@ Aktuell aktiv:
 
 Der Probe-PR für die Designsystem-Dokumentation hat bestätigt, dass eine offene Review-Conversation den Merge tatsächlich blockiert und erst nach Auflösung gemergt werden kann.
 
-### Bewusst noch offen
+### Noch umzusetzen
 
-- Require branches to be up to date before merging / strict status checks: derzeit Nein
+- Require branches to be up to date before merging / strict status checks: derzeit **Nein**, Zielzustand **Ja**
+
+Der verbleibende GitHub-Schritt und die Abschlussprobe stehen in Issue #13 und `docs/25_GITHUB_SETTINGS_RUNBOOK.md`.
+
+### Bewusst nicht bzw. später vorgesehen
+
 - Require signed commits: optional
-- Require merge queue: Nein
+- Require merge queue: derzeit nicht erforderlich
 - Require deployments to succeed: erst mit Deployment-Pipeline
 
-Die Update-Branch-Funktion des Repositories ist aktiviert, obwohl ein Update vor Merge derzeit nicht zwingend vorgeschrieben ist.
+Die Update-Branch-Funktion des Repositories ist bereits aktiviert und unterstützt damit den vorgesehenen Strict-Modus.
 
 ## Reviews
 

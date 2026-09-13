@@ -19,15 +19,15 @@ Die Entwicklungsbasis für Repository, CI und versionierte Security-Maßnahmen i
 - Dependabot ist für GitHub Actions, Composer und npm konfiguriert.
 - Designsystem v1 ist technisch vorbereitet; die manuelle Freigabe nach `docs/09_DESIGN_QA_CHECKLIST.md` ist noch offen.
 
-Nicht automatisch als erledigt gelten GitHub-Security-Schalter, die nicht zuverlässig über den verwendeten Connector verifiziert werden können. Diese werden über die Settings-Checklisten bzw. direkt in GitHub geprüft.
+Nicht automatisch als erledigt gelten GitHub-Security-Schalter, die nicht zuverlässig über den verwendeten Connector verifiziert werden können. Diese werden nach `docs/25_GITHUB_SETTINGS_RUNBOOK.md` direkt in GitHub geprüft.
 
 ## Phasen
 
-1. Repository-Grundlage und Branch-Modell – **Basis hergestellt**
+1. Repository-Grundlage und Branch-Modell – **Basis hergestellt; finales Settings-Gate offen**
 2. GitHub-Struktur und Zusammenarbeit – **Basis hergestellt**
 3. CI / QA – **automatisierte Basis hergestellt**
 4. Security – **versionierte Basis hergestellt; manuelle GitHub-Settings teilweise noch zu verifizieren**
-5. Deployment-Struktur – **offen**
+5. Deployment-Struktur – **vorbereitet, Aktivierung nach Beta-Gate**
 6. Release-Prozess – **fachlich beschrieben, operativer Probelauf offen**
 7. Produktiv-Check – **offen**
 
@@ -75,7 +75,7 @@ Required Checks:
 - `Dependency Review`
 - `Secret Scan`
 
-Approval-Pflicht bleibt bei nur einem verlässlichen Maintainer auf 0. Die Pflicht, den PR-Branch vor dem Merge zwingend auf den neuesten `main`-Stand zu aktualisieren, ist derzeit nicht aktiviert und bleibt eine bewusste offene Entscheidung.
+Approval-Pflicht bleibt bei nur einem verlässlichen Maintainer auf 0. Die Pflicht, den PR-Branch vor dem Merge auf den neuesten `main`-Stand zu aktualisieren, ist derzeit noch nicht aktiviert, gehört aber inzwischen zum festgelegten Zielzustand. Der verbleibende Schritt und die Abschlussprobe sind in Issue #13 und `docs/25_GITHUB_SETTINGS_RUNBOOK.md` beschrieben.
 
 ## CI / QA
 
@@ -91,7 +91,7 @@ Versioniert in `.github/workflows/ci.yml`:
 - PHP-Kompatibilitätschecks für 8.4.1 und 8.5
 - statische PHP-Analyse mit Larastan/PHPStan
 
-Die manuelle Design-QA wird getrennt davon nach `docs/09_DESIGN_QA_CHECKLIST.md` durchgeführt.
+Die manuelle Design-QA wird getrennt davon nach `docs/09_DESIGN_QA_CHECKLIST.md` durchgeführt. Die konkrete Ausführungsabfolge steht in `docs/26_DESIGN_QA_EXECUTION.md`.
 
 ## Security
 
@@ -115,9 +115,13 @@ Zusätzlich direkt in GitHub verifizieren:
 - Push Protection
 - Private Vulnerability Reporting
 
+Die manuelle Verifikation erfolgt nach `docs/25_GITHUB_SETTINGS_RUNBOOK.md`.
+
 ## Deployment
 
 Deployment wird erst nach geklärtem Hosting-, Backup- und Rollback-Konzept automatisiert. Production-Secrets gehören ausschließlich in ein geschütztes GitHub Environment oder den Secret Store des Hostings.
+
+Die aktuell belegten Laufzeitanforderungen stehen in `docs/05_PHASE_5_DEPLOYMENT_PLAN.md`; die noch offenen Betriebsentscheidungen und empfohlenen Startvarianten sind in `docs/27_OPERATIONS_DECISION_MATRIX.md` vorbereitet.
 
 ## Releases
 

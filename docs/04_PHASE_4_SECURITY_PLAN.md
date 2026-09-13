@@ -4,6 +4,8 @@
 
 Die versionierte Security-Basis ist umgesetzt. Die Repository-Schalter für GitHub-eigene Security-Funktionen werden getrennt davon direkt in GitHub verifiziert, weil sie über den verwendeten Connector nicht vollständig zuverlässig auslesbar sind.
 
+Die konkrete manuelle Prüfung und das Nachweisformat stehen in `docs/25_GITHUB_SETTINGS_RUNBOOK.md` und Issue #15.
+
 ## Versionierte Schutzmaßnahmen
 
 ### `.github/workflows/security.yml`
@@ -44,17 +46,24 @@ Aktiv bzw. als verbindliche Regel vorgesehen:
 - `pull_request_target` für untrusted Code vermeiden
 - Timeouts und Concurrency verwenden
 
+Die Repository-weiten Actions-UI-Einstellungen werden zusätzlich über Issue #14 und `docs/25_GITHUB_SETTINGS_RUNBOOK.md` geprüft.
+
 ## Repository-Einstellungen
 
 Direkt in GitHub verifizieren und erst danach in der Produktiv-Checkliste abhaken:
 
+- Dependency Graph
 - Dependabot Alerts
 - Dependabot Security Updates
 - Secret Scanning
 - Push Protection
+- Generic secret patterns, falls verfügbar
+- Validity checks, falls verfügbar
 - Private Vulnerability Reporting
 
-Für diese Prüfungen stehen die versionierten Settings-Issue-Formulare unter `.github/ISSUE_TEMPLATE/` zur Verfügung.
+Nicht in jedem GitHub-Plan bzw. Repository stehen alle Optionen identisch zur Verfügung. Nicht verfügbare Schalter werden als `nicht verfügbar` dokumentiert und nicht als erfolgreich geprüft ausgegeben.
+
+Für diese Prüfungen stehen außerdem die versionierten Settings-Issue-Formulare unter `.github/ISSUE_TEMPLATE/` zur Verfügung.
 
 ## Security Issues
 
@@ -75,7 +84,7 @@ Vertrauliche Schwachstellen ausschließlich über die in `SECURITY.md` beschrieb
 Phase 4 gilt vollständig als abgenommen, wenn:
 
 1. `Static Analysis`, `Composer Audit`, `NPM Audit`, `Dependency Review` und `Secret Scan` auf einem Probe-PR grün laufen,
-2. die manuellen GitHub-Security-Einstellungen geprüft und dokumentiert sind,
+2. die manuellen GitHub-Security-Einstellungen nach `docs/25_GITHUB_SETTINGS_RUNBOOK.md` geprüft und dokumentiert sind,
 3. keine vertraulichen Meldungen über öffentliche Issues abgewickelt werden müssen.
 
 Punkt 1 ist technisch hergestellt; Punkt 2 bleibt bis zur manuellen Verifikation offen.
