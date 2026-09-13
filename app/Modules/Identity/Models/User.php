@@ -2,6 +2,7 @@
 
 namespace App\Modules\Identity\Models;
 
+use App\Modules\Identity\Enums\TwoFactorMethodType;
 use App\Modules\Identity\Enums\UserStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,6 +12,8 @@ use Illuminate\Notifications\Notifiable;
 
 /**
  * @property string|null $remember_token
+ * @property TwoFactorMethodType|null $preferred_two_factor_method
+ * @property string|null $avatar_path
  * @property-read Person|null $person
  */
 class User extends Authenticatable
@@ -39,12 +42,24 @@ class User extends Authenticatable
     {
         return [
             'status' => UserStatus::class,
+            'preferred_two_factor_method' => TwoFactorMethodType::class,
             'email_verified_at' => 'datetime',
             'force_password_change_at' => 'datetime',
             'last_login_at' => 'datetime',
             'anonymized_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function avatarUrl(): ?string
+    {
+        if (! is_string($this->avatar_path) || $this->avatar_path === '') {
+            return null;
+        }
+
+        return route('my.account.avatar', [
+            'v' => substr(hash('sha256', $this->avatar_path), 0, 12),
+        ]);
     }
 
     /** @return BelongsTo<Person, $this> */

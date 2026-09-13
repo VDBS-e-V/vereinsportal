@@ -38,31 +38,18 @@
             ? route('board.home')
             : ($isCoordinationArea ? route('coordination.home') : route('administration.home'));
 
-        $areas = [];
-        if ($can(\App\Modules\Administration\Enums\AdministrationCapability::AdministrationAreaAccess)) {
-            $areas[] = [
-                'label' => 'Verwaltung',
-                'url' => route('administration.home'),
-                'active' => $isAdministrationArea,
-            ];
-        }
-        if ($can(\App\Modules\Administration\Enums\AdministrationCapability::BoardAreaAccess)) {
-            $areas[] = [
-                'label' => 'Vorstand',
-                'url' => route('board.home'),
-                'active' => $isBoardArea,
-            ];
-        }
-        if ($can(\App\Modules\Administration\Enums\AdministrationCapability::CoordinationAreaAccess)) {
-            $areas[] = [
-                'label' => 'Koordination',
-                'url' => route('coordination.home'),
-                'active' => $isCoordinationArea,
-            ];
-        }
-        if (\Illuminate\Support\Facades\Route::has('design.index')) {
-            $areas[] = ['label' => 'Design', 'url' => route('design.index')];
-        }
+        $activeAreaKey = $isBoardArea
+            ? \App\Support\PortalAreaCatalog::BOARD
+            : ($isCoordinationArea
+                ? \App\Support\PortalAreaCatalog::COORDINATION
+                : \App\Support\PortalAreaCatalog::ADMINISTRATION);
+        $areas = app(\App\Support\PortalAreaCatalog::class)
+            ->switcherAreas(
+                $user instanceof \App\Modules\Identity\Models\User
+                    ? $user
+                    : null,
+                $activeAreaKey,
+            );
 
         $navigation = [
             ['label' => 'Übersicht', 'url' => $areaHomeUrl, 'active' => request()->url() === $areaHomeUrl],

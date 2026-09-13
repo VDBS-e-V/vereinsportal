@@ -48,20 +48,31 @@ it('ships final small screen content refinements', function () {
         ->toContain('width: 100%');
 });
 
-it('documents the transition from design construction to manual qa', function () {
+it('tracks beta acceptance and the remaining manual design qa', function () {
     $handoff = file_get_contents(
         base_path('docs/99_CURRENT_HANDOFF.md'),
     );
     $status = file_get_contents(
         base_path('docs/10_DESIGN_SYSTEM_STATUS.md'),
     );
+    $betaAcceptance = file_get_contents(
+        base_path('docs/24_BETA_ACCEPTANCE.md'),
+    );
 
     expect($handoff)
-        ->toContain('manuelle Responsive-Abnahme')
-        ->toContain('Designsystem-Baukasten');
+        ->toContain('Funktionale Beta-Abnahme vor Hosting/Staging')
+        ->toContain('docs/24_BETA_ACCEPTANCE.md')
+        ->toContain('Designsystem / Accessibility')
+        ->not->toContain('aktuelle und zukünftige arbeit')
+        ->not->toContain('vor dem produktiven rollout');
 
     expect($status)
         ->toContain('Implementierung des Designsystem-Baukastens abgeschlossen, manuelle v1-QA offen')
         ->toContain('Noch durchzuführen')
         ->toContain('Fachanforderung');
+
+    expect($betaAcceptance)
+        ->toContain('## 1. End-to-End-Hauptstrecke')
+        ->toContain('## 4. Design- und Accessibility-QA')
+        ->toContain('Erst nach tatsächlicher Durchführung ausfüllen');
 });

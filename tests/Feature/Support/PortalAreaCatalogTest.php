@@ -153,3 +153,19 @@ it('does not expose internal staff areas without matching capabilities', functio
         ),
     )->toBe([]);
 });
+
+it('marks the requested switcher area as active', function () {
+    $areas = app(PortalAreaCatalog::class)->switcherAreas(
+        null,
+        PortalAreaCatalog::DESIGN,
+    );
+
+    expect($areas)
+        ->toHaveCount(1)
+        ->and($areas[0])
+        ->toMatchArray([
+            'key' => PortalAreaCatalog::DESIGN,
+            'label' => 'Design',
+            'active' => true,
+        ]);
+});
