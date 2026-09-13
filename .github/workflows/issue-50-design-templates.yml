@@ -1,0 +1,45 @@
+name: Apply Issue 50 service portal templates
+
+on:
+  push:
+    branches:
+      - feat/issue-50-start-pages
+    paths:
+      - .github/workflows/issue-50-design-templates.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply design template implementation
+        run: |
+          set -euo pipefail
+          tar -xJf .issue-50-design-template-impl.tar.xz -C .
+          rm -f .issue-50-design-template-impl.tar.xz
+          rm -f .github/workflows/issue-50-design-templates.yml
+
+      - name: Check PHP and Blade syntax
+        run: |
+          set -euo pipefail
+          find routes/design/pages/vorlagen resources/views/components/vdbs/templates resources/views/design/pages/vorlagen tests/Feature/Design -type f \( -name '*.php' -o -name '*.blade.php' \) -print0 \
+            | xargs -0 -n1 php -l
+
+      - name: Commit service portal templates
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "feat(design): add service portal page templates"
+          git push origin HEAD:${GITHUB_REF_NAME}
