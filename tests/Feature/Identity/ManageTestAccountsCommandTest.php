@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
 
 function seedTestAccountRoles(): void
 {
-    (new RoleSeeder())->run();
+    (new RoleSeeder)->run();
 }
 
 function fixtureEmailFor(RoleKey $roleKey): string
