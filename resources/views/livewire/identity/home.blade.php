@@ -48,16 +48,15 @@ new #[Layout('components.layouts.public')]
 
 <div class="service-start">
     <section class="service-hero" aria-labelledby="service-hero-title">
-        <div class="service-hero__media">
-            <img
-                class="service-hero__image"
-                src="{{ asset('images/portal/portal-hero.jpg') }}"
-                alt="Heller Bibliotheksraum mit Bücherregalen"
-            >
-            <h1 id="service-hero-title" class="service-hero__title">
-                Willkommen im VDBS Serviceportal
-            </h1>
-        </div>
+        <h1 id="service-hero-title" class="vdbs-visually-hidden">
+            Willkommen im VDBS Serviceportal
+        </h1>
+
+        <img
+            class="service-hero__image"
+            src="{{ asset('images/portal/portal-hero.jpg') }}"
+            alt="Bibliotheksraum des VDBS Serviceportals"
+        >
 
         <nav class="service-hero__tiles" aria-label="Schnelleinstiege">
             <a class="service-hero__tile service-hero__tile--about" href="{{ route('portal.about') }}">
