@@ -8,4 +8,4 @@ new #[Layout('components.layouts.public')]
 
 ?>
 
-<x-vdbs.service-portal-information />
+<x-vdbs.templates.service-information />
