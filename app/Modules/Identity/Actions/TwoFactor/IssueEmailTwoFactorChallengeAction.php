@@ -21,13 +21,6 @@ final class IssueEmailTwoFactorChallengeAction
     public function execute(
         User $user,
     ): TwoFactorEmailChallenge {
-        if (
-            ! $this->requirement
-                ->canUseEmail($user)
-        ) {
-            throw TwoFactorChallengeFailed::unavailable();
-        }
-
         [$challenge, $plainCode] =
             DB::transaction(
                 function () use ($user): array {
@@ -35,6 +28,10 @@ final class IssueEmailTwoFactorChallengeAction
                         ->whereKey($user->id)
                         ->lockForUpdate()
                         ->firstOrFail();
+
+                    if (! $this->requirement->canUseEmail($lockedUser)) {
+                        throw TwoFactorChallengeFailed::unavailable();
+                    }
 
                     TwoFactorEmailChallenge::query()
                         ->where(

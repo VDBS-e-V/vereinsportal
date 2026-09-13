@@ -13,6 +13,7 @@ use Illuminate\Notifications\Notifiable;
 /**
  * @property string|null $remember_token
  * @property TwoFactorMethodType|null $preferred_two_factor_method
+ * @property string|null $avatar_path
  * @property-read Person|null $person
  */
 class User extends Authenticatable
@@ -25,7 +26,6 @@ class User extends Authenticatable
         'email',
         'password',
         'status',
-        'preferred_two_factor_method',
         'session_version',
         'force_password_change_at',
         'last_login_at',
@@ -49,6 +49,17 @@ class User extends Authenticatable
             'anonymized_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function avatarUrl(): ?string
+    {
+        if (! is_string($this->avatar_path) || $this->avatar_path === '') {
+            return null;
+        }
+
+        return route('my.account.avatar', [
+            'v' => substr(hash('sha256', $this->avatar_path), 0, 12),
+        ]);
     }
 
     /** @return BelongsTo<Person, $this> */

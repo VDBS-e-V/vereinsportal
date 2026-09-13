@@ -11,6 +11,7 @@
         $pageTitles = [
             'my.login' => 'Anmelden',
             'my.two-factor.challenge' => 'Zwei-Faktor-Anmeldung',
+            'my.two-factor.method' => '2FA-Methode auswählen',
             'my.password.request' => 'Passwort vergessen',
             'my.password.reset' => 'Neues Passwort',
             'my.home' => 'Start',

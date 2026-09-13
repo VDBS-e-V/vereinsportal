@@ -9,6 +9,7 @@ use App\Modules\Identity\Exceptions\TwoFactorChallengeFailed;
 use App\Modules\Identity\Models\TwoFactorEmailChallenge;
 use App\Modules\Identity\Models\User;
 use App\Modules\Identity\Support\TwoFactorRateLimiter;
+use App\Modules\Identity\Support\TwoFactorRequirement;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -17,6 +18,7 @@ final class VerifyEmailTwoFactorChallengeAction
     public function __construct(
         private readonly TwoFactorRateLimiter $rateLimiter,
         private readonly AuditWriter $auditWriter,
+        private readonly TwoFactorRequirement $requirement,
     ) {}
 
     public function execute(
@@ -49,11 +51,20 @@ final class VerifyEmailTwoFactorChallengeAction
                 $user,
                 $code,
             ): bool {
+                $lockedUser = User::query()
+                    ->whereKey($user->id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                if (! $this->requirement->canUseEmail($lockedUser)) {
+                    throw TwoFactorChallengeFailed::unavailable();
+                }
+
                 $challenge =
                     TwoFactorEmailChallenge::query()
                         ->where(
                             'user_id',
-                            $user->id,
+                            $lockedUser->id,
                         )
                         ->whereNotNull('sent_at')
                         ->whereNull('used_at')
