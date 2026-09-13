@@ -11,10 +11,10 @@ permissions:
   contents: write
 
 jobs:
-  fetch:
+  render:
     runs-on: ubuntu-latest
     steps:
-      - name: Download and commit issue mockups
+      - name: Render mockups as review PDF
         env:
           GH_TOKEN: ${{ github.token }}
           BRANCH: ${{ github.ref_name }}
@@ -25,28 +25,50 @@ jobs:
           git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git fetch --depth=1 origin "${BRANCH}"
           git checkout -B "${BRANCH}" FETCH_HEAD
-          mkdir -p .issue-50-mockups
-          urls=(
-            'ffd5c1d5-7580-4406-a547-cc05ecaf372d'
-            'af7c95cc-6a54-4f4d-8de5-569cf08b6a00'
-            '07be1171-39fc-4d15-9b97-6c298e301fad'
-            '2d761616-5843-4dbe-8a19-9ce1271c8bad'
-            'b789e979-6ba7-4f0d-a359-46ac7d778601'
-            '02cec0af-abd7-4ef3-9139-608eea66e05c'
-            'c76afa83-0c23-4722-ac36-a8ab46a7c4aa'
-            '9762b60e-a9cd-43e7-bba0-b785c154dd6e'
+          python3 -m pip install --quiet pillow
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image, ImageDraw
+
+          source = Path('.issue-50-mockups')
+          # 1=2=3 and 6=7 byte-for-byte; render one representative of each duplicate set.
+          items = [
+              ('Mockup 1 (identisch mit 2 und 3)', source / '1.img'),
+              ('Mockup 4', source / '4.img'),
+              ('Mockup 5', source / '5.img'),
+              ('Mockup 6 (identisch mit 7)', source / '6.img'),
+              ('Mockup 8', source / '8.img'),
+          ]
+
+          pages = []
+          manifest = []
+          page_no = 1
+          chunk_height = 1050
+          for label, path in items:
+              image = Image.open(path).convert('RGB')
+              for y in range(0, image.height, chunk_height):
+                  bottom = min(y + chunk_height, image.height)
+                  crop = image.crop((0, y, image.width, bottom))
+                  canvas = Image.new('RGB', (image.width, chunk_height + 60), 'white')
+                  canvas.paste(crop, (0, 60))
+                  draw = ImageDraw.Draw(canvas)
+                  draw.text((20, 20), f'{label} | Original y={y}..{bottom}', fill='black')
+                  pages.append(canvas)
+                  manifest.append(f'PDF-Seite {page_no}: {label}, y={y}..{bottom}')
+                  page_no += 1
+
+          pages[0].save(
+              '.issue-50-review.pdf',
+              'PDF',
+              save_all=True,
+              append_images=pages[1:],
+              resolution=150.0,
+              quality=95,
           )
-          for i in "${!urls[@]}"; do
-            n=$((i + 1))
-            curl --fail --silent --show-error --location \
-              -H "Authorization: token ${GH_TOKEN}" \
-              -H 'Accept: application/vnd.github.v3+json' \
-              "https://github.com/user-attachments/assets/${urls[$i]}" \
-              -o ".issue-50-mockups/${n}.img"
-          done
-          file .issue-50-mockups/*
+          Path('.issue-50-review-manifest.txt').write_text('\n'.join(manifest) + '\n', encoding='utf-8')
+          PY
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .issue-50-mockups
-          git commit -m 'chore: stage issue 50 mockups for review'
+          git add .issue-50-review.pdf .issue-50-review-manifest.txt
+          git commit -m 'chore: stage issue 50 review PDF'
           git push origin HEAD:"${BRANCH}"
