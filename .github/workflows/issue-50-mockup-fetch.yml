@@ -1,0 +1,49 @@
+name: Issue 50 mockup fetch
+
+on:
+  push:
+    branches:
+      - feat/issue-50-start-pages
+    paths:
+      - .github/workflows/issue-50-mockup-fetch.yml
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download issue mockups
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p mockups
+          urls=(
+            'ffd5c1d5-7580-4406-a547-cc05ecaf372d'
+            'af7c95cc-6a54-4f4d-8de5-569cf08b6a00'
+            '07be1171-39fc-4d15-9b97-6c298e301fad'
+            '2d761616-5843-4dbe-8a19-9ce1271c8bad'
+            'b789e979-6ba7-4f0d-a359-46ac7d778601'
+            '02cec0af-abd7-4ef3-9139-608eea66e05c'
+            'c76afa83-0c23-4722-ac36-a8ab46a7c4aa'
+            '9762b60e-a9cd-43e7-bba0-b785c154dd6e'
+          )
+          for i in "${!urls[@]}"; do
+            n=$((i + 1))
+            curl --fail --silent --show-error --location \
+              -H "Authorization: token ${GH_TOKEN}" \
+              -H 'Accept: application/vnd.github.v3+json' \
+              "https://github.com/user-attachments/assets/${urls[$i]}" \
+              -o "mockups/${n}.img"
+          done
+          file mockups/*
+
+      - name: Upload mockups
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-50-mockups
+          path: mockups/
+          if-no-files-found: error
+          retention-days: 1
