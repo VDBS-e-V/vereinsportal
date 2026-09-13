@@ -1,4 +1,4 @@
-name: Issue 50 mockup fetch
+name: Finalize Issue 50 mockup implementation
 
 on:
   push:
@@ -8,13 +8,13 @@ on:
       - .github/workflows/issue-50-mockup-fetch.yml
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  upload:
+  finalize:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch branch mockups
+      - name: Check out feature branch
         env:
           GH_TOKEN: ${{ github.token }}
           BRANCH: ${{ github.ref_name }}
@@ -25,12 +25,100 @@ jobs:
           git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git fetch --depth=1 origin "${BRANCH}"
           git checkout -B "${BRANCH}" FETCH_HEAD
-          cp -a .issue-50-mockups ../mockups
 
-      - name: Upload mockups
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: issue-50-mockups
-          path: mockups/
-          if-no-files-found: error
-          retention-days: 1
+      - name: Apply Issue 50 page implementation
+        working-directory: repo
+        run: |
+          set -euo pipefail
+          cat .issue-50-impl/part* | base64 --decode | tar -xz -C .
+
+      - name: Create reference image crops
+        working-directory: repo
+        run: |
+          set -euo pipefail
+          command -v convert >/dev/null
+          mkdir -p public/images/portal
+
+          convert .issue-50-mockups/1.img -crop 1210x450+330+190 +repage -strip -quality 88 public/images/portal/portal-hero.jpg
+          convert .issue-50-mockups/1.img -crop 375x205+330+1400 +repage -strip -quality 88 public/images/portal/article-security.jpg
+          convert .issue-50-mockups/1.img -crop 390x205+720+1400 +repage -strip -quality 88 public/images/portal/article-admin.jpg
+          convert .issue-50-mockups/1.img -crop 360x185+1155+1420 +repage -strip -quality 88 public/images/portal/article-cloud.jpg
+          convert .issue-50-mockups/1.img -crop 710x345+825+2180 +repage -strip -quality 88 public/images/portal/portal-access.jpg
+          convert .issue-50-mockups/1.img -crop 662x338+333+2760 +repage -strip -quality 88 public/images/portal/portal-contact.jpg
+
+      - name: Match the shared header context to the reference pages
+        working-directory: repo
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('resources/views/components/layouts/public.blade.php')
+          source = path.read_text()
+
+          title_needle = """        $pageTitle = $pageTitles[$routeName] ?? 'Vereinsportal';
+          $documentTitle = $title ?? $pageTitle.' · VDBS Portal';
+          """
+          title_replacement = """        $pageTitle = $pageTitles[$routeName] ?? 'Vereinsportal';
+          $startRouteNames = [
+              'my.home',
+              'portal.about',
+              'portal.access',
+              'portal.faq',
+              'portal.contact',
+          ];
+          $headerPageTitle = request()->routeIs(...$startRouteNames)
+              ? 'Start'
+              : $pageTitle;
+          $documentTitle = $title ?? $pageTitle.' · VDBS Portal';
+          """
+
+          if title_needle not in source:
+              raise SystemExit('Could not patch start-page header title context.')
+          source = source.replace(title_needle, title_replacement, 1)
+
+          area_needle = """        $areaLabel = $areaContext['label'] ?? 'VDBS Portal';
+          $areaUrl = $areaContext['url'] ?? $homeUrl;
+          """
+          area_replacement = """        $areaLabel = $areaContext['label'] ?? 'VDBS Portal';
+          $areaUrl = $areaContext['url'] ?? $homeUrl;
+
+          if (request()->routeIs(...$startRouteNames)) {
+              $areaLabel = 'VDBS Portal';
+              $areaUrl = $homeUrl;
+          }
+          """
+
+          if area_needle not in source:
+              raise SystemExit('Could not patch start-page area context.')
+          source = source.replace(area_needle, area_replacement, 1)
+
+          header_needle = '        :page-title="$pageTitle"\n'
+          header_replacement = '        :page-title="$headerPageTitle"\n'
+
+          if header_needle not in source:
+              raise SystemExit('Could not patch portal header page title prop.')
+          source = source.replace(header_needle, header_replacement, 1)
+
+          path.write_text(source)
+          PY
+
+      - name: Remove temporary implementation files
+        working-directory: repo
+        run: |
+          set -euo pipefail
+          git rm -rf .issue-50-mockups .issue-50-impl
+          git rm -f .issue-50-review.pdf .issue-50-review-manifest.txt || true
+          git rm -f .github/workflows/issue-50-mockup-fetch.yml
+
+      - name: Commit final Issue 50 implementation
+        working-directory: repo
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat(portal): match issue 50 reference pages"
+          git push origin "HEAD:${BRANCH}"
