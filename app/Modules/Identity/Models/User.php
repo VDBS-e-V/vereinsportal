@@ -54,7 +54,9 @@ class User extends Authenticatable
             return null;
         }
 
-        return route('my.account.avatar');
+        return route('my.account.avatar', [
+            'v' => substr(hash('sha256', $this->avatar_path), 0, 12),
+        ]);
     }
 
     /** @return BelongsTo<Person, $this> */
