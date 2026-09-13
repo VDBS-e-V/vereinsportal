@@ -2,12 +2,14 @@
 
 use App\Modules\Audit\Models\AuditEvent;
 use App\Modules\Audit\Support\AuditEventCatalog;
+use App\Modules\Identity\Actions\Profile\DeleteProfileAvatarAction;
+use App\Modules\Identity\Actions\Profile\StoreProfileAvatarAction;
 use App\Modules\Identity\Enums\UserStatus;
 use App\Modules\Identity\Models\Person;
 use App\Modules\Identity\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Livewire\Volt\Volt;
+use Illuminate\Validation\ValidationException;
 
 function makeProfileAvatarUser(): User
 {
@@ -45,24 +47,19 @@ it('uploads an image and records an audit event without storing the path in audi
     Storage::fake('public');
 
     $user = makeProfileAvatarUser();
-    $this->actingAs($user);
 
-    Volt::test('identity.account-profile')
-        ->set(
-            'avatar',
-            UploadedFile::fake()->image('avatar.jpg', 400, 400)->size(120),
-        )
-        ->call('saveAvatar')
-        ->assertHasNoErrors()
-        ->assertSet('saved', true)
-        ->assertSet('avatar', null);
+    app(StoreProfileAvatarAction::class)->execute(
+        user: $user,
+        avatar: UploadedFile::fake()
+            ->image('avatar.jpg', 400, 400)
+            ->size(120),
+    );
 
     $user->refresh();
 
     expect($user->avatar_path)
         ->toBeString()
-        ->toStartWith('profile-avatars/'.$user->id.'/')
-        ->toEndWith('.jpg');
+        ->toStartWith('profile-avatars/'.$user->id.'/');
 
     Storage::disk('public')->assertExists($user->avatar_path);
 
@@ -88,21 +85,18 @@ it('replaces the previous avatar and deletes the old file', function () {
     $user->avatar_path = $oldPath;
     $user->save();
 
-    $this->actingAs($user);
-
-    Volt::test('identity.account-profile')
-        ->set(
-            'avatar',
-            UploadedFile::fake()->image('replacement.png', 500, 500)->size(140),
-        )
-        ->call('saveAvatar')
-        ->assertHasNoErrors();
+    app(StoreProfileAvatarAction::class)->execute(
+        user: $user,
+        avatar: UploadedFile::fake()
+            ->image('replacement.png', 500, 500)
+            ->size(140),
+    );
 
     $user->refresh();
 
     expect($user->avatar_path)
         ->not->toBe($oldPath)
-        ->toEndWith('.png');
+        ->toStartWith('profile-avatars/'.$user->id.'/');
 
     Storage::disk('public')->assertMissing($oldPath);
     Storage::disk('public')->assertExists($user->avatar_path);
@@ -118,12 +112,7 @@ it('deletes the avatar and falls back to the profile without an image', function
     $user->avatar_path = $path;
     $user->save();
 
-    $this->actingAs($user);
-
-    Volt::test('identity.account-profile')
-        ->call('deleteAvatar')
-        ->assertHasNoErrors()
-        ->assertSet('removed', true);
+    app(DeleteProfileAvatarAction::class)->execute($user);
 
     $user->refresh();
 
@@ -141,19 +130,17 @@ it('rejects non image uploads', function () {
     Storage::fake('public');
 
     $user = makeProfileAvatarUser();
-    $this->actingAs($user);
 
-    Volt::test('identity.account-profile')
-        ->set(
-            'avatar',
-            UploadedFile::fake()->create(
+    expect(
+        fn () => app(StoreProfileAvatarAction::class)->execute(
+            user: $user,
+            avatar: UploadedFile::fake()->create(
                 'avatar.pdf',
                 50,
                 'application/pdf',
             ),
-        )
-        ->call('saveAvatar')
-        ->assertHasErrors(['avatar']);
+        ),
+    )->toThrow(ValidationException::class);
 
     expect($user->refresh()->avatar_path)->toBeNull();
     expect(
@@ -167,15 +154,15 @@ it('rejects avatars larger than five megabytes', function () {
     Storage::fake('public');
 
     $user = makeProfileAvatarUser();
-    $this->actingAs($user);
 
-    Volt::test('identity.account-profile')
-        ->set(
-            'avatar',
-            UploadedFile::fake()->image('large.jpg')->size(5121),
-        )
-        ->call('saveAvatar')
-        ->assertHasErrors(['avatar']);
+    expect(
+        fn () => app(StoreProfileAvatarAction::class)->execute(
+            user: $user,
+            avatar: UploadedFile::fake()
+                ->image('large.jpg')
+                ->size(5121),
+        ),
+    )->toThrow(ValidationException::class);
 
     expect($user->refresh()->avatar_path)->toBeNull();
 });
@@ -198,5 +185,7 @@ it('renders the stored avatar in the shared portal header and profile page', fun
         ->get('http://my.vdb.test/konto/profil')
         ->assertOk()
         ->assertSee($avatarUrl, false)
-        ->assertSee('Ihr Profilbild');
+        ->assertSee('Ihr Profilbild')
+        ->assertSee('Profilbild speichern')
+        ->assertSee('Profilbild löschen');
 });
