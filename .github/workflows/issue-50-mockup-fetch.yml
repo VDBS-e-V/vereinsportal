@@ -32,20 +32,6 @@ jobs:
           set -euo pipefail
           cat .issue-50-impl/part* | base64 --decode | tar -xz -C .
 
-      - name: Create reference image crops
-        working-directory: repo
-        run: |
-          set -euo pipefail
-          command -v ffmpeg >/dev/null
-          mkdir -p public/images/portal
-
-          ffmpeg -hide_banner -loglevel error -y -i .issue-50-mockups/1.img -vf "crop=1210:450:330:190" -q:v 2 public/images/portal/portal-hero.jpg
-          ffmpeg -hide_banner -loglevel error -y -i .issue-50-mockups/1.img -vf "crop=375:205:330:1400" -q:v 2 public/images/portal/article-security.jpg
-          ffmpeg -hide_banner -loglevel error -y -i .issue-50-mockups/1.img -vf "crop=390:205:720:1400" -q:v 2 public/images/portal/article-admin.jpg
-          ffmpeg -hide_banner -loglevel error -y -i .issue-50-mockups/1.img -vf "crop=360:185:1155:1420" -q:v 2 public/images/portal/article-cloud.jpg
-          ffmpeg -hide_banner -loglevel error -y -i .issue-50-mockups/1.img -vf "crop=710:345:825:2180" -q:v 2 public/images/portal/portal-access.jpg
-          ffmpeg -hide_banner -loglevel error -y -i .issue-50-mockups/1.img -vf "crop=662:338:333:2760" -q:v 2 public/images/portal/portal-contact.jpg
-
       - name: Match the shared header context to the reference pages
         working-directory: repo
         run: |
