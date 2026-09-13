@@ -2,9 +2,14 @@
 
 ## Status
 
-Die Deployment-Automatisierung ist bewusst noch nicht begonnen. Zuerst wird in Issue #19 die Hosting- und Betriebsarchitektur festgelegt.
+Die Deployment-Automatisierung ist bewusst noch nicht begonnen. Zuerst wird in Issue #19 die Hosting- und Betriebsarchitektur festgelegt. Der funktionale Beta-/QA-Gate aus #22/#16 bleibt Voraussetzung für die Aktivierung dieser Phase.
 
-Das Repository definiert aber bereits konkrete Laufzeitanforderungen. Diese Anforderungen sind unabhängig vom später gewählten Hosting-Anbieter und werden hier als Grundlage für die Entscheidung festgehalten.
+Bereits entschieden:
+
+- Hosting-Anbieter: STRATO
+- Servermodell: eigene VM/VPS
+
+Das Repository definiert bereits konkrete Laufzeit- und Persistenzanforderungen. Diese Anforderungen sind unabhängig von den noch offenen Betriebsentscheidungen und werden hier als Grundlage festgehalten.
 
 ## Grundsatz
 
@@ -19,8 +24,21 @@ Kein Deployment-Workflow soll während seiner Implementierung grundlegende Betri
 - minimale unterstützte PHP-Basis: 8.4.1
 - PHP 8.5 wird ebenfalls kontinuierlich in CI geprüft
 - die Zielumgebung muss `composer check-platform-reqs` erfüllen
+- die CI installiert mindestens `mbstring`, `pdo_mysql`, `fileinfo` und `sodium`
 - die Anwendung benötigt einen dauerhaft verfügbaren SQL-Dienst
-- das konkrete Produktions-Datenbanksystem und dessen Version werden in Issue #19 festgelegt
+- der vollständige Quality-Job läuft aktuell gegen MySQL 8.4 und führt dort Migrationen sowie die gesamte Pest-Suite aus
+
+Damit ist MySQL 8.4 derzeit die am stärksten automatisiert verifizierte Datenbankreferenz. Die endgültige Produktionsentscheidung bleibt trotzdem Teil von Issue #19.
+
+### Frontend-Build
+
+Die Frontend-Artefakte werden mit Vite erzeugt. Die CI verwendet aktuell Node.js 22 und führt `npm ci` sowie `npm run build` aus.
+
+Daraus folgt:
+
+- Node.js ist für den Build erforderlich, aber nicht zwingend für die laufende PHP-Web-Runtime
+- ob Node.js auf dem Zielserver installiert wird, hängt von der späteren Entscheidung `CI-Artefakt` vs. `Build auf Zielserver` ab
+- ein vorgebautes Release muss die erzeugten Frontend-Artefakte vollständig enthalten
 
 ### Queue Worker
 
@@ -62,7 +80,7 @@ Damit kann eine erste Installation Sessions, Cache und Queue über denselben sau
 
 ### Mail
 
-Registrierung, Passwortprozesse, E-Mail-Änderung, Zwei-Faktor-Abläufe und Kontolöschungsprozesse verwenden das zentrale Mail-/Delivery-System.
+Registrierung, Passwortprozesse, E-Mail-Änderung, Zwei-Faktor-Abläufe, Portal-Einladungen und Kontolöschungsprozesse verwenden das zentrale Mail-/Delivery-System.
 
 Vor Staging festlegen:
 
@@ -88,16 +106,20 @@ Vor einem vollständigen Staging-Test müssen deshalb feststehen:
 
 Für HTTPS ist außerdem `SESSION_SECURE_COOKIE=true` als Produktionskonfiguration zu prüfen und im Staging zu verifizieren.
 
-### Dateisystem
+### Dateisystem und persistente Fachdateien
 
-Laravel ist aktuell für lokalen privaten und öffentlichen Storage sowie optional S3 konfiguriert.
+Die Anwendung besitzt inzwischen einen produktiven Fach-Upload-Workflow: Mitgliedschaftsdokumente werden auf dem privaten Laravel-Disk `local` gespeichert und kontrolliert über den Anwendungscontroller ausgeliefert. Sie liegen bewusst nicht auf dem öffentlichen Disk.
 
-Für den aktuellen Anwendungscode ist noch kein produktiver Fach-Upload-Workflow belegt. Dennoch benötigt die Runtime:
+Daraus folgt für Staging und Produktion:
 
 - Schreibrechte für `storage/`
 - Schreibrechte für `bootstrap/cache`
+- der private lokale Storage mit Mitgliedschaftsdokumenten muss releaseübergreifend persistent sein
+- Deployments dürfen diese Dateien weder überschreiben noch beim Release-Wechsel verlieren
+- Mitgliedschaftsdokumente müssen in Backup, Restore und Aufbewahrungsregeln einbezogen werden
+- direkte öffentliche Webserver-Freigabe dieses privaten Dokumentverzeichnisses ist nicht vorgesehen
 
-Ob Fachdateien später releaseübergreifend lokal persistent oder in Object Storage liegen, wird entschieden, sobald ein echter Datei-/Upload-Anwendungsfall dies verlangt. S3 wird nicht vorsorglich zur Voraussetzung gemacht.
+Ob die erste Betriebsstufe diesen privaten Storage lokal auf der VM hält oder später auf Object Storage migriert, bleibt eine Architekturentscheidung aus #19. S3 wird nicht vorsorglich zur Voraussetzung gemacht.
 
 ### Entwicklungsadmin
 
@@ -114,18 +136,20 @@ Für Produktion gilt trotzdem:
 Ein geeigneter erster Zielbetrieb muss mindestens ermöglichen:
 
 1. PHP innerhalb der unterstützten 8.4.1+-Basis und alle Composer-Plattformanforderungen
-2. dauerhaft verfügbaren SQL-Dienst
+2. dauerhaft verfügbaren SQL-Dienst; MySQL 8.4 ist die aktuelle CI-Referenz
 3. Web-Runtime mit eigener Domain und HTTPS
 4. zuverlässig laufenden Queue Worker
 5. Cron/Scheduler oder gleichwertige Plattformfunktion
 6. ausgehenden Mailversand über einen echten Provider
 7. sicheren Secret Store mit stabilem `APP_KEY`
 8. schreibbare Laravel-Runtime-Verzeichnisse
-9. Datenbank-Backup und Restore
-10. kontrollierbaren Worker-/Prozess-Restart beim Deployment
-11. Zugriff auf Logs und eine geeignete Monitoring-/Alarmierungsmöglichkeit
+9. persistenten privaten Storage für Mitgliedschaftsdokumente
+10. Datenbank- und Datei-Backup samt dokumentiertem Restore
+11. kontrollierbaren Worker-/Prozess-Restart beim Deployment
+12. Zugriff auf Logs und eine geeignete Monitoring-/Alarmierungsmöglichkeit
+13. einen definierten Frontend-Build-Pfad; aktuelle Build-Referenz ist Node.js 22
 
-Hosting-Angebote, die keine Background Worker oder keinen Scheduler unterstützen, passen nur, wenn die Anwendungsarchitektur vorher bewusst geändert wird.
+Hosting-Angebote, die keine Background Worker, keinen Scheduler oder keinen persistenten privaten Storage unterstützen, passen nur, wenn die Anwendungsarchitektur vorher bewusst geändert wird.
 
 ## Staging
 
@@ -138,6 +162,7 @@ Zielmodell nach Abschluss der Betriebsentscheidungen:
 - keine Production-Secrets in Pull-Request-Workflows
 - nach Deployment Health Check und definierte Smoke Tests
 - Rollback und Restore praktisch testen
+- beim Restore sowohl SQL-Daten als auch persistente Mitgliedschaftsdokumente berücksichtigen
 
 Ein optionales Preview-Deployment für ausgewählte Pull Requests ist erst später zu bewerten.
 
@@ -203,26 +228,33 @@ Produktions-Trigger:
 
 Tracking: Issue #19
 
-- Hosting / Servertyp / Plattform
-- Betriebssystem und Webserver bzw. Managed Runtime
-- produktive PHP-Version
-- Datenbanksystem und Version
-- Queue-Worker-Betrieb
-- Scheduler-Ausführung
-- Mail-Provider
-- Storage-/Persistenzmodell
-- Deployment-Transport
-- Schlüssel-/Credential-Management
-- Build-Artefakt oder Build auf Server
-- Migrationsstrategie
-- Wartungsmodus
-- Health Check und Smoke Tests
-- Logging und Monitoring
-- Backup und Aufbewahrung
-- Restore-Verfahren
-- Code- und Datenbank-Rollback
-- Verantwortlichkeiten
+Bereits entschieden:
+
+- [x] Hosting-Anbieter: STRATO
+- [x] Servertyp: eigene VM/VPS
+
+Noch festzulegen:
+
+- [ ] Betriebssystem
+- [ ] Webserver
+- [ ] produktive PHP-Version innerhalb der unterstützten Basis
+- [ ] Datenbanksystem und Version; MySQL 8.4 ist Referenzkandidat
+- [ ] Queue-Worker-Betrieb
+- [ ] Scheduler-Ausführung
+- [ ] Mail-Provider
+- [ ] Storage-/Persistenzmodell für private Mitgliedschaftsdokumente
+- [ ] Deployment-Transport
+- [ ] Schlüssel-/Credential-Management
+- [ ] Build-Artefakt oder Build auf Server
+- [ ] Migrationsstrategie
+- [ ] Wartungsmodus
+- [ ] Health Check und Smoke Tests
+- [ ] Logging und Monitoring
+- [ ] Backup und Aufbewahrung für SQL und Fachdateien
+- [ ] Restore-Verfahren
+- [ ] Code- und Datenbank-Rollback
+- [ ] Verantwortlichkeiten
 
 ## Gate für die Implementierung von Staging
 
-`deploy-staging.yml` wird erst entworfen, wenn Issue #19 ausreichend beantwortet ist, sodass Hosting-, Secret-, Migrations-, Backup-, Restore- und Rollback-Verhalten nicht während der Workflow-Implementierung improvisiert werden müssen.
+`deploy-staging.yml` wird erst entworfen, wenn die funktionale Beta abgenommen und Issue #19 ausreichend beantwortet ist, sodass Hosting-, Secret-, Migrations-, Persistenz-, Backup-, Restore- und Rollback-Verhalten nicht während der Workflow-Implementierung improvisiert werden müssen.
