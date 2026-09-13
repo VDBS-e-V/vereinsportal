@@ -43,8 +43,8 @@ function profileAvatarSession(User $user): array
     ];
 }
 
-it('uploads an image and records an audit event without storing the path in audit data', function () {
-    Storage::fake('public');
+it('uploads an image privately and records an audit event without storing the path in audit data', function () {
+    Storage::fake('local');
 
     $user = makeProfileAvatarUser();
 
@@ -61,7 +61,7 @@ it('uploads an image and records an audit event without storing the path in audi
         ->toBeString()
         ->toStartWith('profile-avatars/'.$user->id.'/');
 
-    Storage::disk('public')->assertExists($user->avatar_path);
+    Storage::disk('local')->assertExists($user->avatar_path);
 
     $audit = AuditEvent::query()
         ->where('event_key', AuditEventCatalog::ACCOUNT_AVATAR_UPDATED)
@@ -76,12 +76,12 @@ it('uploads an image and records an audit event without storing the path in audi
 });
 
 it('replaces the previous avatar and deletes the old file', function () {
-    Storage::fake('public');
+    Storage::fake('local');
 
     $user = makeProfileAvatarUser();
     $oldPath = 'profile-avatars/'.$user->id.'/old.jpg';
 
-    Storage::disk('public')->put($oldPath, 'old-avatar');
+    Storage::disk('local')->put($oldPath, 'old-avatar');
     $user->avatar_path = $oldPath;
     $user->save();
 
@@ -98,17 +98,17 @@ it('replaces the previous avatar and deletes the old file', function () {
         ->not->toBe($oldPath)
         ->toStartWith('profile-avatars/'.$user->id.'/');
 
-    Storage::disk('public')->assertMissing($oldPath);
-    Storage::disk('public')->assertExists($user->avatar_path);
+    Storage::disk('local')->assertMissing($oldPath);
+    Storage::disk('local')->assertExists($user->avatar_path);
 });
 
 it('deletes the avatar and falls back to the profile without an image', function () {
-    Storage::fake('public');
+    Storage::fake('local');
 
     $user = makeProfileAvatarUser();
     $path = 'profile-avatars/'.$user->id.'/avatar.webp';
 
-    Storage::disk('public')->put($path, 'avatar');
+    Storage::disk('local')->put($path, 'avatar');
     $user->avatar_path = $path;
     $user->save();
 
@@ -117,7 +117,7 @@ it('deletes the avatar and falls back to the profile without an image', function
     $user->refresh();
 
     expect($user->avatar_path)->toBeNull();
-    Storage::disk('public')->assertMissing($path);
+    Storage::disk('local')->assertMissing($path);
 
     expect(
         AuditEvent::query()
@@ -127,7 +127,7 @@ it('deletes the avatar and falls back to the profile without an image', function
 });
 
 it('rejects non image uploads', function () {
-    Storage::fake('public');
+    Storage::fake('local');
 
     $user = makeProfileAvatarUser();
 
@@ -151,7 +151,7 @@ it('rejects non image uploads', function () {
 });
 
 it('rejects avatars larger than five megabytes', function () {
-    Storage::fake('public');
+    Storage::fake('local');
 
     $user = makeProfileAvatarUser();
 
@@ -167,13 +167,14 @@ it('rejects avatars larger than five megabytes', function () {
     expect($user->refresh()->avatar_path)->toBeNull();
 });
 
-it('renders the stored avatar in the shared portal header and profile page', function () {
-    Storage::fake('public');
+it('renders and serves the stored avatar only through the authenticated account route', function () {
+    Storage::fake('local');
 
     $user = makeProfileAvatarUser();
     $path = 'profile-avatars/'.$user->id.'/visible.jpg';
+    $image = UploadedFile::fake()->image('visible.jpg', 120, 120);
 
-    Storage::disk('public')->put($path, 'avatar');
+    Storage::disk('local')->put($path, $image->getContent());
     $user->avatar_path = $path;
     $user->save();
 
@@ -188,4 +189,30 @@ it('renders the stored avatar in the shared portal header and profile page', fun
         ->assertSee('Ihr Profilbild')
         ->assertSee('Profilbild speichern')
         ->assertSee('Profilbild löschen');
+
+    $this
+        ->withSession(profileAvatarSession($user))
+        ->actingAs($user)
+        ->get($avatarUrl)
+        ->assertOk()
+        ->assertHeader('cache-control', 'private, max-age=3600')
+        ->assertHeader('x-content-type-options', 'nosniff');
+});
+
+it('does not expose profile avatars to guests', function () {
+    $this
+        ->get('http://my.vdb.test/konto/profilbild')
+        ->assertRedirect(route('my.login'));
+});
+
+it('returns not found when the authenticated user has no avatar', function () {
+    Storage::fake('local');
+
+    $user = makeProfileAvatarUser();
+
+    $this
+        ->withSession(profileAvatarSession($user))
+        ->actingAs($user)
+        ->get('http://my.vdb.test/konto/profilbild')
+        ->assertNotFound();
 });
