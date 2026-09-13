@@ -2,12 +2,13 @@
 
 use App\Modules\Identity\Actions\Auth\FinalizeLoginAction;
 use App\Modules\Identity\Actions\TwoFactor\IssueEmailTwoFactorChallengeAction;
+use App\Modules\Identity\Actions\TwoFactor\SetPreferredTwoFactorMethodAction;
 use App\Modules\Identity\Actions\TwoFactor\UseRecoveryCodeAction;
 use App\Modules\Identity\Actions\TwoFactor\VerifyEmailTwoFactorChallengeAction;
 use App\Modules\Identity\Actions\TwoFactor\VerifyTotpChallengeAction;
+use App\Modules\Identity\Enums\TwoFactorMethodType;
 use App\Modules\Identity\Exceptions\LoginFailed;
 use App\Modules\Identity\Exceptions\TwoFactorChallengeFailed;
-use App\Modules\Identity\Models\TwoFactorRecoveryCode;
 use App\Modules\Identity\Support\PendingLogin;
 use App\Modules\Identity\Support\TwoFactorRequirement;
 use Livewire\Attributes\Layout;
@@ -21,11 +22,9 @@ new #[Layout('components.layouts.public')]
 
     public string $recoveryCode = '';
 
-    public bool $emailAvailable = false;
+    public string $selectedMethod = '';
 
-    public bool $totpAvailable = false;
-
-    public bool $recoveryAvailable = false;
+    public int $availableMethodCount = 0;
 
     public bool $emailSent = false;
 
@@ -46,23 +45,53 @@ new #[Layout('components.layouts.public')]
             return;
         }
 
-        $this->emailAvailable =
-            $requirement->canUseEmail($user);
+        $available = [];
 
-        $this->totpAvailable =
-            $requirement->canUseTotp($user);
+        if ($requirement->canUseTotp($user)) {
+            $available[] = TwoFactorMethodType::Totp->value;
+        }
 
-        $this->recoveryAvailable =
-            TwoFactorRecoveryCode::query()
-                ->where(
-                    'user_id',
-                    $user->id,
-                )
-                ->whereNull('used_at')
-                ->whereNull(
-                    'invalidated_at'
-                )
-                ->exists();
+        if ($requirement->canUseEmail($user)) {
+            $available[] = TwoFactorMethodType::Email->value;
+        }
+
+        if ($requirement->hasRecoveryCodes($user)) {
+            $available[] = 'recovery';
+        }
+
+        $this->availableMethodCount = count($available);
+
+        $requested = request()->query('method');
+
+        if (
+            is_string($requested)
+            && in_array($requested, $available, true)
+        ) {
+            $this->selectedMethod = $requested;
+
+            return;
+        }
+
+        $default = $requirement->defaultChallengeMethod($user);
+
+        if ($default instanceof TwoFactorMethodType) {
+            $this->selectedMethod = $default->value;
+
+            return;
+        }
+
+        if (in_array('recovery', $available, true)) {
+            $this->selectedMethod = 'recovery';
+
+            return;
+        }
+
+        $pendingLogin->clear();
+
+        $this->redirectRoute(
+            'my.login',
+            navigate: false,
+        );
     }
 
     public function sendEmailCode(
@@ -100,6 +129,7 @@ new #[Layout('components.layouts.public')]
         PendingLogin $pendingLogin,
         VerifyEmailTwoFactorChallengeAction $verify,
         FinalizeLoginAction $finalize,
+        SetPreferredTwoFactorMethodAction $setPreferred,
     ): void {
         $this->validate([
             'emailCode' => [
@@ -133,8 +163,9 @@ new #[Layout('components.layouts.public')]
             $this->finish(
                 pendingLogin: $pendingLogin,
                 finalize: $finalize,
-                method:
-                'password+email_2fa',
+                setPreferred: $setPreferred,
+                method: 'password+email_2fa',
+                preferredType: TwoFactorMethodType::Email,
             );
         } catch (
             TwoFactorChallengeFailed $exception
@@ -149,6 +180,7 @@ new #[Layout('components.layouts.public')]
         PendingLogin $pendingLogin,
         VerifyTotpChallengeAction $verify,
         FinalizeLoginAction $finalize,
+        SetPreferredTwoFactorMethodAction $setPreferred,
     ): void {
         $this->validate([
             'totpCode' => [
@@ -182,8 +214,9 @@ new #[Layout('components.layouts.public')]
             $this->finish(
                 pendingLogin: $pendingLogin,
                 finalize: $finalize,
-                method:
-                'password+totp',
+                setPreferred: $setPreferred,
+                method: 'password+totp',
+                preferredType: TwoFactorMethodType::Totp,
             );
         } catch (
             TwoFactorChallengeFailed $exception
@@ -198,6 +231,7 @@ new #[Layout('components.layouts.public')]
         PendingLogin $pendingLogin,
         UseRecoveryCodeAction $verify,
         FinalizeLoginAction $finalize,
+        SetPreferredTwoFactorMethodAction $setPreferred,
     ): void {
         $this->validate([
             'recoveryCode' => [
@@ -232,8 +266,9 @@ new #[Layout('components.layouts.public')]
             $this->finish(
                 pendingLogin: $pendingLogin,
                 finalize: $finalize,
-                method:
-                'password+recovery_code',
+                setPreferred: $setPreferred,
+                method: 'password+recovery_code',
+                preferredType: null,
             );
         } catch (
             TwoFactorChallengeFailed $exception
@@ -247,7 +282,9 @@ new #[Layout('components.layouts.public')]
     private function finish(
         PendingLogin $pendingLogin,
         FinalizeLoginAction $finalize,
+        SetPreferredTwoFactorMethodAction $setPreferred,
         string $method,
+        ?TwoFactorMethodType $preferredType,
     ): void {
         $data = $pendingLogin->data();
         $user = $pendingLogin->user();
@@ -290,6 +327,13 @@ new #[Layout('components.layouts.public')]
             return;
         }
 
+        if ($preferredType instanceof TwoFactorMethodType) {
+            $setPreferred->execute(
+                user: $user,
+                type: $preferredType,
+            );
+        }
+
         $this->redirectRoute(
             'my.home',
             navigate: false,
@@ -315,7 +359,7 @@ new #[Layout('components.layouts.public')]
         </x-vdbs.notice>
     @endif
 
-    @if ($emailAvailable)
+    @if ($selectedMethod === 'email')
         <section class="portal-page__section">
             <div class="portal-page__section-header">
                 <h2>E-Mail-Code</h2>
@@ -370,9 +414,7 @@ new #[Layout('components.layouts.public')]
                 </div>
             </form>
         </section>
-    @endif
-
-    @if ($totpAvailable)
+    @elseif ($selectedMethod === 'totp')
         <section class="portal-page__section">
             <div class="portal-page__section-header">
                 <h2>Authenticator-App</h2>
@@ -414,9 +456,7 @@ new #[Layout('components.layouts.public')]
                 </div>
             </form>
         </section>
-    @endif
-
-    @if ($recoveryAvailable)
+    @elseif ($selectedMethod === 'recovery')
         <section class="portal-page__section">
             <div class="portal-page__section-header">
                 <h2>Recovery Code</h2>
@@ -455,5 +495,13 @@ new #[Layout('components.layouts.public')]
                 </div>
             </form>
         </section>
+    @endif
+
+    @if ($availableMethodCount > 1)
+        <div class="portal-page__actions">
+            <a class="btn btn--secondary" href="{{ route('my.two-factor.method') }}">
+                Andere 2FA-Methode verwenden
+            </a>
+        </div>
     @endif
 </div>
