@@ -4,14 +4,17 @@
 
 Die fachlichen Beta-Bausteine sind implementiert. Dieses Dokument ist das gemeinsame Abnahme-Gate vor Hosting und Staging.
 
-Automatisierte Referenzbasis beim Erstellen dieser Checkliste:
+Automatisierte Referenzbasis nach der letzten Aktualisierung des Beta-Branches:
 
-- `main`: `959b7810a978078d0fbd9097919e0fc096a48cb5`
-- CI: grün
-- Security: grün
+- `main`: `56ea6cea19c607ea9236975fbb7577247e4e1362`
+- CI: grün auf dem zugrunde liegenden `main`-Stand
+- Security: grün auf dem zugrunde liegenden `main`-Stand
 - Designsystem: technische Basis vollständig, manuelle QA aus #16 offen
+- GitHub-Settings-Ausführung: `docs/25_GITHUB_SETTINGS_RUNBOOK.md`
+- Design-/Accessibility-Ausführung: `docs/26_DESIGN_QA_EXECUTION.md`
+- spätere Betriebsentscheidungen: `docs/27_OPERATIONS_DECISION_MATRIX.md`
 
-Automatische Checks ersetzen die folgenden manuellen Produkt- und Browserprüfungen nicht.
+Automatische Checks ersetzen die folgenden manuellen Produkt- und Browserprüfungen nicht. Nach Änderungen an diesem Branch müssen CI und Security erneut vollständig grün sein, bevor eine Beta-Freigabe überhaupt bewertet wird.
 
 ## 1. End-to-End-Hauptstrecke
 
@@ -82,7 +85,7 @@ Stichprobenartig prüfen:
 
 ## 4. Design- und Accessibility-QA
 
-Die verbindliche Detailcheckliste steht in `docs/09_DESIGN_QA_CHECKLIST.md` und Issue #16.
+Die verbindlichen Kriterien stehen in `docs/09_DESIGN_QA_CHECKLIST.md`; die reproduzierbare Ausführung steht in `docs/26_DESIGN_QA_EXECUTION.md`. Tracking: Issue #16.
 
 Mindestens dokumentieren:
 
@@ -101,19 +104,24 @@ Mindestens dokumentieren:
 - [ ] Safari
 - [ ] Print-Stichprobe
 
-Gefundene Fehler werden als gezielte QA-Patches behoben und anschließend erneut geprüft.
+Gefundene Fehler werden als gezielte QA-Patches behoben und anschließend erneut geprüft. Manuelle Punkte werden nur nach tatsächlicher Durchführung abgehakt.
 
 ## 5. Repository- und Security-Gate
+
+Die genaue manuelle Ausführung für #13/#14/#15 steht in `docs/25_GITHUB_SETTINGS_RUNBOOK.md`.
 
 Vor Beta-Freigabe:
 
 - [ ] #13: `Protect main` verlangt aktuellen Branch vor Merge (`strict`)
+- [ ] #13: Probe-PR bestätigt Update-Pflicht, Conversation Resolution, Squash-only und Branch-Löschung
 - [ ] #14: Actions-Einstellungen in GitHub manuell gegen Zielwerte geprüft
 - [ ] #15: Security-and-quality-Schalter in GitHub manuell gegen Zielwerte geprüft
 - [ ] finaler `main` hat grünes `Quality`
 - [ ] finaler `main` hat grüne `Static Analysis`
 - [ ] finaler `main` hat grüne Security-Checks
 - [ ] PHP 8.4.1 und PHP 8.5 sind grün
+
+Nicht über den Connector auslesbare GitHub-Schalter werden nicht aufgrund von Annahmen als bestanden markiert.
 
 ## 6. Abschlussdokumentation
 
@@ -127,6 +135,8 @@ Nach erfolgreicher manueller Abnahme:
 - [ ] Issue #22 schließen
 - [ ] Issue #19 als nächste aktive Phase übernehmen
 
+Die bereits vorbereitete Betriebs-Entscheidungsmatrix in `docs/27_OPERATIONS_DECISION_MATRIX.md` darf vor diesem Gate als Planungsgrundlage dienen, aktiviert aber Staging nicht vorzeitig.
+
 ## Abnahmeprotokoll
 
 Erst nach tatsächlicher Durchführung ausfüllen:
@@ -135,5 +145,7 @@ Erst nach tatsächlicher Durchführung ausfüllen:
 - Testumgebung / Commit:
 - Browser / Betriebssysteme:
 - getestete Rollen:
+- GitHub-Settings-Gate:
 - offene Befunde:
+- zugehörige Tickets:
 - Ergebnis: `bestanden` / `nicht bestanden`
