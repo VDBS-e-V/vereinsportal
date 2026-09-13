@@ -20,30 +20,41 @@ it('groups authenticated account pages under a single role-aware header item', f
         ->toContain('class="local-nav__link"');
 });
 
-it('groups guest entry pages under Zugang', function () {
+it('shows the public start navigation to guests', function () {
     $layout = file_get_contents(
         resource_path('views/components/layouts/public.blade.php'),
     );
+    $access = file_get_contents(
+        resource_path('views/livewire/portal/access.blade.php'),
+    );
 
     expect($layout)
-        ->toContain("'label' => 'Zugang'")
-        ->toContain("'label' => 'Registrieren'")
-        ->toContain("'label' => 'Passwort vergessen'");
+        ->toContain("'label' => 'Über das Portal'")
+        ->toContain("'label' => 'Zugang zum Portal'")
+        ->toContain("'label' => 'FAQ'")
+        ->toContain("'label' => 'Kontakt'")
+        ->toContain('$navigation = $portalNavigation;')
+        ->and($access)
+        ->toContain("route('my.login')")
+        ->toContain("route('my.registration.create')")
+        ->toContain("route('my.password.request')");
 });
 
-it('turns the portal home into a useful account overview', function () {
+it('turns the portal home into the start overview', function () {
     $home = file_get_contents(
         resource_path('views/livewire/identity/home.blade.php'),
     );
 
     expect($home)
-        ->toContain('Schnellzugriff')
-        ->toContain('Kontoinformationen')
-        ->toContain("route('my.account')")
-        ->toContain("route('my.account.settings')")
-        ->toContain("route('my.security')")
-        ->toContain('<x-vdbs.resource-item')
-        ->toContain('<x-vdbs.status');
+        ->toContain('Das Portal auf einen Blick')
+        ->toContain('Ihre Zugänge')
+        ->toContain("route('portal.about')")
+        ->toContain("route('portal.access')")
+        ->toContain("route('portal.faq')")
+        ->toContain("route('portal.contact')")
+        ->toContain("route('my.account.profile')")
+        ->toContain('switcherAreas(')
+        ->toContain('<x-vdbs.resource-item');
 });
 
 it('uses hierarchical account breadcrumbs for nested settings', function () {
