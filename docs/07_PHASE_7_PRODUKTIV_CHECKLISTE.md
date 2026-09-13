@@ -18,7 +18,7 @@ Diese Checkliste bildet ausschließlich den verifizierten Stand ab. Vorhandene D
 - [x] Branch-Löschung auf `main` blockiert
 - [x] nur gewünschte Merge-Methode aktiviert (Squash)
 - [x] gemergte Head-Branches werden automatisch gelöscht
-- [ ] Branch muss vor Merge zwingend auf aktuellem `main` sein – derzeit bewusst nicht erzwungen
+- [ ] Branch muss vor Merge zwingend auf aktuellem `main` sein – `strict_required_status_checks_policy` ist derzeit noch `false`
 
 ## Qualität und Security
 
@@ -53,18 +53,34 @@ Der manuelle Design-Abschluss wird in Issue #16 verfolgt.
 
 ## Betrieb
 
-- [ ] Hosting- und Servermodell festgelegt
+Bereits entschieden:
+
+- [x] Hosting-Anbieter: STRATO
+- [x] Servermodell: eigene VM/VPS
+
+Vor Staging/Produktion noch festzulegen und praktisch zu prüfen:
+
+- [ ] Betriebssystem und Webserver festgelegt
+- [ ] produktive PHP-Version innerhalb der unterstützten 8.4.1+-Basis festgelegt
+- [ ] Datenbanksystem und Version festgelegt; MySQL 8.4 ist die aktuelle CI-Referenz
 - [ ] Staging-Environment eingerichtet und getestet
 - [ ] Deployment-Verfahren reproduzierbar getestet
+- [ ] Frontend-Build-Pfad festgelegt (CI-Artefakt oder Build auf Zielserver; Node 22 ist CI-Referenz)
+- [ ] persistenter privater Storage für Mitgliedschaftsdokumente eingerichtet
+- [ ] Deployment verliert/überschreibt bestehende Mitgliedschaftsdokumente nicht
 - [ ] Rollback dokumentiert und praktisch getestet
-- [ ] Backup-Konzept dokumentiert
-- [ ] Restore aus Backup praktisch getestet
+- [ ] Backup-Konzept für Datenbank **und** private Mitgliedschaftsdokumente dokumentiert
+- [ ] Backup-Aufbewahrung und Backup-Ziel festgelegt
+- [ ] Restore von Datenbank **und** privaten Mitgliedschaftsdokumenten praktisch getestet
+- [ ] Konsistenz zwischen Datenbankeinträgen und wiederhergestellten Fachdateien geprüft
 - [ ] Produktions-Secrets ausschließlich im Secret Store
 - [ ] `.env`-Handhabung für Produktion geprüft; keine produktive `.env` versioniert
 - [ ] `APP_DEBUG=0`
 - [ ] HTTPS aktiv
 - [ ] Mailversand getestet
-- [ ] Queue/Scheduler für Produktion geprüft
+- [ ] Queue Worker dauerhaft betrieben und überwacht
+- [ ] Scheduler dauerhaft betrieben und überwacht
+- [ ] Worker-Restart beim Deployment getestet
 - [ ] Admin-Zugänge geprüft
 - [ ] Demo-/Entwicklungszugänge entfernt oder deaktiviert
 - [ ] DSGVO-Prozesse getestet
