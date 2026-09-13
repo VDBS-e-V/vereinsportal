@@ -3,7 +3,6 @@
 namespace App\View\Components\Vdbs;
 
 use App\Modules\Identity\Models\User;
-use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Component;
@@ -43,7 +42,7 @@ final class PortalHeader extends Component
         $this->account['avatar_url'] = $user->avatarUrl();
     }
 
-    public function render(): View|Closure|string
+    public function render(): View
     {
         return view('components.vdbs.portal-header');
     }
