@@ -176,6 +176,9 @@ it('deletes only managed test accounts and leaves the configured development adm
     }
 
     $admin->refresh();
+    $adminMethod = TwoFactorMethod::query()
+        ->where('user_id', $admin->id)
+        ->sole();
 
     expect($admin->email)
         ->toBe('default-admin@vdbs.test')
@@ -183,11 +186,7 @@ it('deletes only managed test accounts and leaves the configured development adm
         ->toBe(7)
         ->and(Hash::check($adminPassword, $admin->password))
         ->toBeTrue()
-        ->and(
-            TwoFactorMethod::query()
-                ->where('user_id', $admin->id)
-                ->value('secret'),
-        )
+        ->and($adminMethod->secret)
         ->toBe($adminTotpSecret);
 
     Storage::disk('local')->assertMissing('test-accounts.json');
