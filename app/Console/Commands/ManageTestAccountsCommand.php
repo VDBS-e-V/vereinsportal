@@ -143,7 +143,7 @@ final class ManageTestAccountsCommand extends Command
                 }
 
                 if ($person === null) {
-                    $person = new Person();
+                    $person = new Person;
                 }
 
                 $role = $roles->get($roleKey->value);
@@ -162,7 +162,7 @@ final class ManageTestAccountsCommand extends Command
                 $person->save();
 
                 if ($user === null) {
-                    $user = new User();
+                    $user = new User;
                     $user->session_version = 1;
                 } else {
                     $user->session_version = max(
