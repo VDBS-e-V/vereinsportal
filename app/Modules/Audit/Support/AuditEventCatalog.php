@@ -26,6 +26,10 @@ final class AuditEventCatalog
 
     public const ACCOUNT_REGISTERED = 'account.registered';
 
+    public const ACCOUNT_AVATAR_UPDATED = 'account.avatar.updated';
+
+    public const ACCOUNT_AVATAR_REMOVED = 'account.avatar.removed';
+
     public const ROLE_AUTOMATIC_ASSIGNED = 'role.automatic_assigned';
 
     public const ROLE_MANUAL_ASSIGNED = 'role.manual_assigned';
@@ -112,6 +116,8 @@ final class AuditEventCatalog
         self::AUTH_PASSWORD_RESET_COMPLETED => [],
         self::AUTH_EMAIL_VERIFIED => ['verified_at'],
         self::ACCOUNT_REGISTERED => ['linkage_type'],
+        self::ACCOUNT_AVATAR_UPDATED => ['mime_type', 'size_bytes'],
+        self::ACCOUNT_AVATAR_REMOVED => [],
         self::ROLE_AUTOMATIC_ASSIGNED => ['role', 'source'],
         self::ROLE_MANUAL_ASSIGNED => ['role', 'source', 'starts_at'],
         self::ROLE_MANUAL_ENDED => ['role', 'source', 'ends_at'],
