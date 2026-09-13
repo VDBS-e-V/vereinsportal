@@ -54,7 +54,7 @@ final class DeleteProfileAvatarAction
         });
 
         if (is_string($oldPath) && $oldPath !== '') {
-            Storage::disk('public')->delete($oldPath);
+            Storage::disk('local')->delete($oldPath);
         }
 
         return $user->refresh();
