@@ -15,6 +15,13 @@
             'my.password.request' => 'Passwort vergessen',
             'my.password.reset' => 'Neues Passwort',
             'my.home' => 'Start',
+            'portal.about' => 'Über das Portal',
+            'portal.access' => 'Zugang zum Portal',
+            'portal.faq' => 'FAQ',
+            'portal.contact' => 'Kontakt',
+            'portal.imprint' => 'Impressum',
+            'portal.privacy' => 'Datenschutz',
+            'portal.accessibility' => 'Barrierefreiheit',
             'my.account' => 'Konto',
             'my.account.profile' => 'Mein Profil',
             'my.account.settings' => 'Kontoeinstellungen',
@@ -154,6 +161,29 @@
             'active' => false,
         ];
 
+        $portalNavigation = [
+            [
+                'label' => 'Über das Portal',
+                'url' => route('portal.about'),
+                'active' => request()->routeIs('portal.about'),
+            ],
+            [
+                'label' => 'Zugang zum Portal',
+                'url' => route('portal.access'),
+                'active' => request()->routeIs('portal.access'),
+            ],
+            [
+                'label' => 'FAQ',
+                'url' => route('portal.faq'),
+                'active' => request()->routeIs('portal.faq'),
+            ],
+            [
+                'label' => 'Kontakt',
+                'url' => route('portal.contact'),
+                'active' => request()->routeIs('portal.contact'),
+            ],
+        ];
+
         $showSettingsNavigation = auth()->check()
             && request()->routeIs(...$settingsRouteNames);
 
@@ -170,31 +200,10 @@
                     'active' => request()->routeIs(...$accountRouteNames),
                     'children' => $accountAreaNavigation,
                 ],
+                ...$portalNavigation,
             ];
         } else {
-            $navigation = [
-                [
-                    'label' => 'Zugang',
-                    'url' => route('my.login'),
-                    'active' => request()->routeIs(
-                        'my.login',
-                        'my.registration.create',
-                        'my.password.request',
-                    ),
-                    'children' => [
-                        [
-                            'label' => 'Registrieren',
-                            'url' => route('my.registration.create'),
-                            'active' => request()->routeIs('my.registration.create'),
-                        ],
-                        [
-                            'label' => 'Passwort vergessen',
-                            'url' => route('my.password.request'),
-                            'active' => request()->routeIs('my.password.request'),
-                        ],
-                    ],
-                ],
-            ];
+            $navigation = $portalNavigation;
         }
 
         $breadcrumbs = [];
@@ -308,17 +317,17 @@
                         [
                             'label' => 'Kontakt',
                             'icon' => 'mail',
-                            'url' => null,
+                            'url' => route('portal.contact'),
                         ],
                         [
                             'label' => 'FAQ',
                             'icon' => 'help',
-                            'url' => null,
+                            'url' => route('portal.faq'),
                         ],
                         [
                             'label' => 'Hilfe',
                             'icon' => 'help',
-                            'url' => null,
+                            'url' => route('portal.faq'),
                         ],
                     ],
                 ],
