@@ -73,8 +73,8 @@ Für `main` sind aktuell verpflichtend:
 
 Ein Pull Request darf erst integriert werden, wenn die verpflichtenden Checks grün und offene Review-Conversations aufgelöst sind.
 
-Die zusätzliche Regel „Branch muss vor Merge auf dem neuesten `main`-Stand sein“ ist derzeit nicht aktiviert und bleibt eine bewusste offene Entscheidung.
+Die zusätzliche Regel „Branch muss vor Merge auf dem neuesten `main`-Stand sein“ ist aktuell noch nicht aktiviert, gehört inzwischen aber zum verbindlichen Zielzustand des Repository-Gates. Der verbleibende GitHub-Schritt und die Abschlussprobe werden in Issue #13 und `docs/25_GITHUB_SETTINGS_RUNBOOK.md` verfolgt.
 
 ## Manuelle QA
 
-Automatisierte CI ersetzt keine Browser-, Accessibility- oder Print-Abnahme. Für Designsystem v1 gilt zusätzlich `docs/09_DESIGN_QA_CHECKLIST.md`; der aktuelle manuelle Abschluss wird in Issue #16 verfolgt.
+Automatisierte CI ersetzt keine Browser-, Accessibility- oder Print-Abnahme. Für Designsystem v1 gilt zusätzlich `docs/09_DESIGN_QA_CHECKLIST.md`; der aktuelle manuelle Abschluss wird in Issue #16 verfolgt. Die reproduzierbare Ausführungsabfolge steht in `docs/26_DESIGN_QA_EXECUTION.md`.
