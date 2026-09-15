@@ -11,3 +11,13 @@ Route::view(
         'design_title',
         'Muster',
     );
+
+Route::view(
+    '/muster/media-promo',
+    'design.pages.muster.media-promo',
+)
+    ->name('muster.media-promo')
+    ->defaults(
+        'design_title',
+        'Media Promo',
+    );

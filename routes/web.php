@@ -22,6 +22,49 @@ Route::get(
 
 Route::domain(config('domains.my'))
     ->group(function (): void {
+        Route::middleware('identity.revalidate')
+            ->group(function (): void {
+                Volt::route(
+                    '/',
+                    'identity.home',
+                )->name('my.home');
+
+                Volt::route(
+                    '/ueber-das-portal',
+                    'portal.about',
+                )->name('portal.about');
+
+                Volt::route(
+                    '/zugang-zum-portal',
+                    'portal.access',
+                )->name('portal.access');
+
+                Volt::route(
+                    '/faq',
+                    'portal.faq',
+                )->name('portal.faq');
+
+                Volt::route(
+                    '/kontakt',
+                    'portal.contact',
+                )->name('portal.contact');
+
+                Volt::route(
+                    '/impressum',
+                    'portal.imprint',
+                )->name('portal.imprint');
+
+                Volt::route(
+                    '/datenschutz',
+                    'portal.privacy',
+                )->name('portal.privacy');
+
+                Volt::route(
+                    '/barrierefreiheit',
+                    'portal.accessibility',
+                )->name('portal.accessibility');
+            });
+
         Route::get(
             '/einladung/{publicId}/{version}/{token}',
             ShowPortalInvitationController::class,
@@ -81,11 +124,6 @@ Route::domain(config('domains.my'))
             'auth',
             'identity.revalidate',
         ])->group(function (): void {
-            Volt::route(
-                '/',
-                'identity.home',
-            )->name('my.home');
-
             Volt::route(
                 '/konto',
                 'identity.account',
