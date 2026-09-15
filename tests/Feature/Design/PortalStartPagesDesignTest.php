@@ -62,7 +62,37 @@ it('builds the start page with the sections and text shown in the mockup', funct
         ->toContain('support@portal.vdb.schule')
         ->toContain('kontakt@vdb.schule')
         ->toContain("route('portal.access')")
-        ->toContain("route('portal.contact')");
+        ->toContain("route('portal.contact')")
+        ->toContain('<x-vdbs.content-split')
+        ->toContain('layout="visual-dominant"')
+        ->toContain('layout="balanced"')
+        ->toContain('side="right"')
+        ->toContain('side="left"')
+        ->toContain('tone="subtle"')
+        ->toContain('caption="Steinerner Torbogen als Symbol für den Zugang zum VDBS Serviceportal"')
+        ->toContain('source="Projektbestand VDBS Serviceportal"');
+});
+
+it('documents the reusable content split layouts used on the start page', function () {
+    $component = file_get_contents(
+        resource_path('views/components/vdbs/content-split.blade.php'),
+    );
+    $css = file_get_contents(
+        resource_path('css/vdbs/components/content-split.css'),
+    );
+
+    expect($component)
+        ->toContain("'variant' => 'image'")
+        ->toContain("['image', 'actions']")
+        ->toContain('content-split__caption')
+        ->toContain('content-split__button-list')
+        ->toContain('Bildquelle:')
+        ->and($css)
+        ->toContain('.content-split--layout-balanced')
+        ->toContain('.content-split--layout-visual-dominant')
+        ->toContain('.content-split--layout-actions-compact')
+        ->toContain('.content-split--layout-actions-wide')
+        ->toContain('.content-split--tone-subtle');
 });
 
 it('provides the access wizard and contact form shown in the issue mockups', function () {
@@ -90,7 +120,6 @@ it('provides the access wizard and contact form shown in the issue mockups', fun
         ->toContain('Ihre Nachricht...')
         ->toContain('Ich willige ein');
 });
-
 
 it('matches the service portal information and faq reference screen', function () {
     $information = file_get_contents(
