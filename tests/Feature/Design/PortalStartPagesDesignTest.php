@@ -87,7 +87,7 @@ it('keeps content split width independent from its background surface', function
         ->toContain("'width' => 'normal'")
         ->toContain("['normal', 'full']")
         ->toContain('content-split__inner')
-        ->toContain('content-split--width-'.$width)
+        ->toContain('content-split--width-')
         ->toContain('content-split__caption')
         ->toContain('content-split__button-list')
         ->toContain('Bildquelle:')

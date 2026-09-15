@@ -101,12 +101,12 @@
 }
 
 .content-split--tone-subtle::before {
-    inset-inline: calc(-1 * min(var(--spacing-6), var(--layout-frame-gutter, var(--spacing-6))));
+    inset-inline: calc(0px - min(var(--spacing-6), var(--layout-frame-gutter, var(--spacing-6))));
     background: var(--color-surface-subtle);
 }
 
 .content-split--width-full::before {
-    inset-inline: calc(-1 * var(--layout-frame-gutter, var(--spacing-6)));
+    inset-inline: calc(0px - var(--layout-frame-gutter, var(--spacing-6)));
 }
 
 /* Main content */
