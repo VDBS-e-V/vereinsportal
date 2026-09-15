@@ -131,60 +131,73 @@ new #[Layout('components.layouts.public')]
     </x-slot:articles>
 
     <x-slot:access>
-        <section class="service-promo service-promo--access" aria-labelledby="portal-access-heading">
-            <div class="service-promo__copy">
+        <x-vdbs.content-split
+            variant="image"
+            side="right"
+            layout="visual-dominant"
+            tone="transparent"
+            :image="asset('images/portal/portal-access.jpg')"
+            alt="Steinerner Torbogen"
+            caption="Steinerner Torbogen als Symbol für den Zugang zum VDBS Serviceportal"
+            source="Projektbestand VDBS Serviceportal"
+            aria-labelledby="portal-access-heading"
+        >
+            <x-slot:heading>
                 <h2 id="portal-access-heading">Zugang zum Portal</h2>
-                <p>
-                    Hier finden Sie alle Informationen, die Sie benötigen, um auf das VDBS Serviceportal
-                    zuzugreifen. Wenn Sie bereits ein Konto haben, können Sie sich hier anmelden. Wenn Sie
-                    noch kein Konto haben, können Sie sich hier registrieren.
-                </p>
+            </x-slot:heading>
 
-                <div class="service-promo__actions">
-                    <a class="btn" href="{{ route('portal.access') }}">
-                        <x-vdbs.icon name="arrow-right" size="18" />
-                        <span>Zugang zum Portal</span>
-                    </a>
-                    <a class="service-promo__help" href="{{ route('portal.contact') }}">
-                        <x-vdbs.icon name="help" size="18" />
-                        <span>Hilfe kontaktieren</span>
-                    </a>
-                </div>
-            </div>
+            <p>
+                Hier finden Sie alle Informationen, die Sie benötigen, um auf das VDBS Serviceportal
+                zuzugreifen. Wenn Sie bereits ein Konto haben, können Sie sich hier anmelden. Wenn Sie
+                noch kein Konto haben, können Sie sich hier registrieren.
+            </p>
 
-            <img
-                class="service-promo__image"
-                src="{{ asset('images/portal/portal-access.jpg') }}"
-                alt="Steinerner Torbogen"
-            >
-        </section>
+            <x-slot:actions>
+                <a class="btn" href="{{ route('portal.access') }}">
+                    <x-vdbs.icon name="arrow-right" size="18" />
+                    <span>Zugang zum Portal</span>
+                </a>
+                <a class="btn btn--secondary" href="{{ route('portal.contact') }}">
+                    <x-vdbs.icon name="help" size="18" />
+                    <span>Hilfe kontaktieren</span>
+                </a>
+            </x-slot:actions>
+        </x-vdbs.content-split>
     </x-slot:access>
 
     <x-slot:contact>
-        <section class="service-promo service-promo--contact" aria-labelledby="portal-contact-heading">
-            <img
-                class="service-promo__image"
-                src="{{ asset('images/portal/portal-contact.jpg') }}"
-                alt="Leuchtendes Briefumschlag-Symbol"
-            >
-
-            <div class="service-promo__copy">
+        <x-vdbs.content-split
+            variant="image"
+            side="left"
+            layout="balanced"
+            tone="subtle"
+            :image="asset('images/portal/portal-contact.jpg')"
+            alt="Leuchtendes Briefumschlag-Symbol"
+            caption="Leuchtendes Briefumschlag-Symbol für Kontakt und Support"
+            source="Projektbestand VDBS Serviceportal"
+            aria-labelledby="portal-contact-heading"
+        >
+            <x-slot:heading>
                 <h2 id="portal-contact-heading">Kontakt</h2>
-                <p>
-                    Sollten Sie Fragen oder Probleme haben, können Sie uns jederzeit kontaktieren. Wir helfen
-                    Ihnen gerne weiter. Sie erreichen uns unter den E-Mail-Adressen:
-                </p>
-                <p class="service-promo__contacts">
-                    <strong>Support</strong>
-                    <a href="mailto:support@portal.vdb.schule">support@portal.vdb.schule</a><br>
-                    <strong>Kontakt</strong>
-                    <a href="mailto:kontakt@vdb.schule">kontakt@vdb.schule</a>
-                </p>
+            </x-slot:heading>
+
+            <p>
+                Sollten Sie Fragen oder Probleme haben, können Sie uns jederzeit kontaktieren. Wir helfen
+                Ihnen gerne weiter. Sie erreichen uns unter den E-Mail-Adressen:
+            </p>
+            <p>
+                <strong>Support:</strong>
+                <a href="mailto:support@portal.vdb.schule">support@portal.vdb.schule</a><br>
+                <strong>Kontakt:</strong>
+                <a href="mailto:kontakt@vdb.schule">kontakt@vdb.schule</a>
+            </p>
+
+            <x-slot:actions>
                 <a class="btn" href="{{ route('portal.contact') }}">
                     <x-vdbs.icon name="arrow-right" size="18" />
                     <span>Zum Kontaktformular</span>
                 </a>
-            </div>
-        </section>
+            </x-slot:actions>
+        </x-vdbs.content-split>
     </x-slot:contact>
 </x-vdbs.templates.service-start>
