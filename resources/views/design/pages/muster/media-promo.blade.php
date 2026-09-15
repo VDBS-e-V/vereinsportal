@@ -9,7 +9,8 @@
             <h1 class="page-title__title">Content Split</h1>
             <p class="page-title__lead">
                 Zweispaltiges Inhaltsmuster mit Hauptinhalt und Bild oder Button-Liste.
-                Auf kleinen Viewports steht der Inhalt immer vor dem sekundären Bereich.
+                Der Inhalt bleibt immer auf der normalen Seitenbreite. Hintergründe können
+                unabhängig davon normal oder über die volle Rahmenbreite ausgegeben werden.
             </p>
         </header>
 
@@ -49,13 +50,14 @@
         </section>
 
         <section class="stack stack--lg">
-            <h2>Bild · 50/50 · links · Hintergrund</h2>
+            <h2>Bild · 50/50 · links · Hintergrund · volle Fläche</h2>
 
             <x-vdbs.content-split
                 variant="image"
                 side="left"
                 layout="balanced"
                 tone="subtle"
+                width="full"
                 :image="asset('images/portal/portal-contact.jpg')"
                 alt="Leuchtendes Briefumschlag-Symbol"
                 caption="Kontakt und Unterstützung im VDBS Serviceportal"

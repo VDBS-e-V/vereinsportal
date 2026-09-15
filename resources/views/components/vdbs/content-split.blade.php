@@ -3,6 +3,7 @@
     'side' => 'right',
     'layout' => 'balanced',
     'tone' => 'transparent',
+    'width' => 'normal',
     'image' => null,
     'alt' => '',
     'caption' => null,
@@ -22,6 +23,10 @@
 
     if (! in_array($tone, ['transparent', 'subtle'], true)) {
         throw new InvalidArgumentException('content-split: tone muss transparent oder subtle sein.');
+    }
+
+    if (! in_array($width, ['normal', 'full'], true)) {
+        throw new InvalidArgumentException('content-split: width muss normal oder full sein.');
     }
 
     $allowedLayouts = $variant === 'image'
@@ -54,61 +59,64 @@
         'content-split--side-'.$side,
         'content-split--layout-'.$layout,
         'content-split--tone-'.$tone,
+        'content-split--width-'.$width,
     ]) }}
 >
-    <div class="content-split__content">
-        @isset($heading)
-            <div class="content-split__heading">
-                {{ $heading }}
-            </div>
-        @endisset
+    <div class="content-split__inner">
+        <div class="content-split__content">
+            @isset($heading)
+                <div class="content-split__heading">
+                    {{ $heading }}
+                </div>
+            @endisset
 
-        <div class="content-split__body">
-            {{ $slot }}
+            <div class="content-split__body">
+                {{ $slot }}
+            </div>
+
+            @isset($actions)
+                <div class="content-split__actions">
+                    {{ $actions }}
+                </div>
+            @endisset
         </div>
 
-        @isset($actions)
-            <div class="content-split__actions">
-                {{ $actions }}
-            </div>
-        @endisset
-    </div>
+        <div class="content-split__secondary">
+            @if ($variant === 'image')
+                <figure class="content-split__figure">
+                    <img
+                        class="content-split__image"
+                        src="{{ $image }}"
+                        alt="{{ $alt }}"
+                    >
 
-    <div class="content-split__secondary">
-        @if ($variant === 'image')
-            <figure class="content-split__figure">
-                <img
-                    class="content-split__image"
-                    src="{{ $image }}"
-                    alt="{{ $alt }}"
-                >
+                    <figcaption class="content-split__caption">
+                        <span class="content-split__caption-text">
+                            {{ $caption }}
+                        </span>
 
-                <figcaption class="content-split__caption">
-                    <span class="content-split__caption-text">
-                        {{ $caption }}
-                    </span>
-
-                    <span class="content-split__source">
-                        Bildquelle:
-                        @if ($sourceUrl)
-                            <a href="{{ $sourceUrl }}">{{ $source }}</a>
-                        @else
-                            {{ $source }}
-                        @endif
-                    </span>
-                </figcaption>
-            </figure>
-        @else
-            @isset($actionList)
-                <nav
-                    class="content-split__action-nav"
-                    aria-label="{{ $actionListLabel }}"
-                >
-                    <div class="content-split__button-list">
-                        {{ $actionList }}
-                    </div>
-                </nav>
-            @endisset
-        @endif
+                        <span class="content-split__source">
+                            Bildquelle:
+                            @if ($sourceUrl)
+                                <a href="{{ $sourceUrl }}">{{ $source }}</a>
+                            @else
+                                {{ $source }}
+                            @endif
+                        </span>
+                    </figcaption>
+                </figure>
+            @else
+                @isset($actionList)
+                    <nav
+                        class="content-split__action-nav"
+                        aria-label="{{ $actionListLabel }}"
+                    >
+                        <div class="content-split__button-list">
+                            {{ $actionList }}
+                        </div>
+                    </nav>
+                @endisset
+            @endif
+        </div>
     </div>
 </section>

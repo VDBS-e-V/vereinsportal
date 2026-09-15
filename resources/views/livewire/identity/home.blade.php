@@ -171,6 +171,7 @@ new #[Layout('components.layouts.public')]
             side="left"
             layout="balanced"
             tone="subtle"
+            width="full"
             :image="asset('images/portal/portal-contact.jpg')"
             alt="Leuchtendes Briefumschlag-Symbol"
             caption="Leuchtendes Briefumschlag-Symbol für Kontakt und Support"

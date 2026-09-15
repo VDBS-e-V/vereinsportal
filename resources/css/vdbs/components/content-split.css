@@ -8,42 +8,72 @@
  * Erlaubte Layouts:
  * image   -> balanced (50/50), visual-dominant (30/70)
  * actions -> actions-compact (70/30), actions-wide (60/40)
+ *
+ * Breite:
+ * - normal: Inhalt und Fläche orientieren sich an der normalen Inhaltsbreite
+ * - full:   die Fläche darf die verfügbare Rahmenbreite nutzen, der Inhalt
+ *           bleibt trotzdem auf der normalen Inhaltsbreite
  */
 
 .content-split {
+    position: relative;
+    width: 100%;
+    margin-inline: auto;
+}
+
+.content-split::before {
+    position: absolute;
+    z-index: 0;
+    inset-block: 0;
+    inset-inline: 0;
+    content: '';
+    pointer-events: none;
+}
+
+.content-split__inner {
+    position: relative;
+    z-index: 1;
     display: grid;
-    width: min(100%, var(--layout-content-max));
+    width: min(100%, var(--layout-width-normal, var(--layout-content-max)));
     margin-inline: auto;
     align-items: start;
     gap: clamp(var(--spacing-5), 4vw, var(--spacing-8));
 }
 
+.content-split--width-normal {
+    max-width: var(--layout-width-normal, var(--layout-content-max));
+}
+
+.content-split--width-full {
+    max-width: none;
+}
+
 /* Column proportions */
-.content-split--layout-balanced {
+.content-split--layout-balanced .content-split__inner {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 
-.content-split--layout-visual-dominant.content-split--side-right {
+.content-split--layout-visual-dominant.content-split--side-right .content-split__inner {
     grid-template-columns: minmax(0, 3fr) minmax(0, 7fr);
 }
 
-.content-split--layout-visual-dominant.content-split--side-left {
+.content-split--layout-visual-dominant.content-split--side-left .content-split__inner {
     grid-template-columns: minmax(0, 7fr) minmax(0, 3fr);
 }
 
-.content-split--layout-actions-compact.content-split--side-right {
+.content-split--layout-actions-compact.content-split--side-right .content-split__inner {
     grid-template-columns: minmax(0, 7fr) minmax(0, 3fr);
 }
 
-.content-split--layout-actions-compact.content-split--side-left {
+.content-split--layout-actions-compact.content-split--side-left .content-split__inner {
     grid-template-columns: minmax(0, 3fr) minmax(0, 7fr);
 }
 
-.content-split--layout-actions-wide.content-split--side-right {
+.content-split--layout-actions-wide.content-split--side-right .content-split__inner {
     grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
 }
 
-.content-split--layout-actions-wide.content-split--side-left {
+.content-split--layout-actions-wide.content-split--side-left .content-split__inner {
     grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
 }
 
@@ -56,14 +86,27 @@
     order: 2;
 }
 
-/* Tone */
-.content-split--tone-transparent {
+/*
+ * Surface and content width are deliberately independent.
+ * The background bleeds into the surrounding frame instead of adding
+ * horizontal padding to the content grid. This keeps all split content aligned
+ * with the normal page width, matching the FU-style reference layout.
+ */
+.content-split--tone-transparent::before {
     background: transparent;
 }
 
 .content-split--tone-subtle {
-    padding: clamp(var(--spacing-5), 4vw, var(--spacing-7));
+    padding-block: clamp(var(--spacing-5), 4vw, var(--spacing-7));
+}
+
+.content-split--tone-subtle::before {
+    inset-inline: calc(-1 * min(var(--spacing-6), var(--layout-frame-gutter, var(--spacing-6))));
     background: var(--color-surface-subtle);
+}
+
+.content-split--width-full::before {
+    inset-inline: calc(-1 * var(--layout-frame-gutter, var(--spacing-6)));
 }
 
 /* Main content */
@@ -165,14 +208,14 @@
 
 /* Responsive */
 @media (max-width: 50rem) {
-    .content-split,
-    .content-split--layout-balanced,
-    .content-split--layout-visual-dominant.content-split--side-right,
-    .content-split--layout-visual-dominant.content-split--side-left,
-    .content-split--layout-actions-compact.content-split--side-right,
-    .content-split--layout-actions-compact.content-split--side-left,
-    .content-split--layout-actions-wide.content-split--side-right,
-    .content-split--layout-actions-wide.content-split--side-left {
+    .content-split__inner,
+    .content-split--layout-balanced .content-split__inner,
+    .content-split--layout-visual-dominant.content-split--side-right .content-split__inner,
+    .content-split--layout-visual-dominant.content-split--side-left .content-split__inner,
+    .content-split--layout-actions-compact.content-split--side-right .content-split__inner,
+    .content-split--layout-actions-compact.content-split--side-left .content-split__inner,
+    .content-split--layout-actions-wide.content-split--side-right .content-split__inner,
+    .content-split--layout-actions-wide.content-split--side-left .content-split__inner {
         grid-template-columns: minmax(0, 1fr);
     }
 
@@ -187,7 +230,7 @@
     }
 
     .content-split--tone-subtle {
-        padding: var(--spacing-5);
+        padding-block: var(--spacing-5);
     }
 
     .content-split__image {

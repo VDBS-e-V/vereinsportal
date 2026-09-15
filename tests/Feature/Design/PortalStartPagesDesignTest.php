@@ -69,11 +69,12 @@ it('builds the start page with the sections and text shown in the mockup', funct
         ->toContain('side="right"')
         ->toContain('side="left"')
         ->toContain('tone="subtle"')
+        ->toContain('width="full"')
         ->toContain('caption="Steinerner Torbogen als Symbol für den Zugang zum VDBS Serviceportal"')
         ->toContain('source="Projektbestand VDBS Serviceportal"');
 });
 
-it('documents the reusable content split layouts used on the start page', function () {
+it('keeps content split width independent from its background surface', function () {
     $component = file_get_contents(
         resource_path('views/components/vdbs/content-split.blade.php'),
     );
@@ -83,16 +84,23 @@ it('documents the reusable content split layouts used on the start page', functi
 
     expect($component)
         ->toContain("'variant' => 'image'")
-        ->toContain("['image', 'actions']")
+        ->toContain("'width' => 'normal'")
+        ->toContain("['normal', 'full']")
+        ->toContain('content-split__inner')
+        ->toContain('content-split--width-'.$width)
         ->toContain('content-split__caption')
         ->toContain('content-split__button-list')
         ->toContain('Bildquelle:')
         ->and($css)
-        ->toContain('.content-split--layout-balanced')
+        ->toContain('.content-split__inner')
+        ->toContain('.content-split--width-normal')
+        ->toContain('.content-split--width-full')
+        ->toContain('.content-split--tone-subtle::before')
+        ->toContain('var(--layout-frame-gutter')
+        ->toContain('.content-split--layout-balanced .content-split__inner')
         ->toContain('.content-split--layout-visual-dominant')
         ->toContain('.content-split--layout-actions-compact')
-        ->toContain('.content-split--layout-actions-wide')
-        ->toContain('.content-split--tone-subtle');
+        ->toContain('.content-split--layout-actions-wide');
 });
 
 it('provides the access wizard and contact form shown in the issue mockups', function () {
