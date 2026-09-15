@@ -131,7 +131,7 @@ it('provides the access wizard and contact form shown in the issue mockups', fun
 
 it('matches the service portal information and faq reference screen', function () {
     $information = file_get_contents(
-        resource_path('views/components/vdbs/service-portal-information.blade.php'),
+        resource_path('views/components/vdbs/templates/service-information.blade.php'),
     );
     $about = file_get_contents(
         resource_path('views/livewire/portal/about.blade.php'),
@@ -155,9 +155,9 @@ it('matches the service portal information and faq reference screen', function (
         ->toContain('kontakt@portal.vdb.schule')
         ->toContain('Zugang zum Portal')
         ->and($about)
-        ->toContain('<x-vdbs.service-portal-information />')
+        ->toContain('<x-vdbs.templates.service-information />')
         ->and($faq)
-        ->toContain('<x-vdbs.service-portal-information />');
+        ->toContain('<x-vdbs.templates.service-information />');
 });
 
 it('keeps the issue 50 visual assets in the public portal asset set', function () {
