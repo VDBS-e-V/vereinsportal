@@ -52,6 +52,9 @@ it('ships reusable service portal page templates', function () {
     $content = file_get_contents(
         resource_path('views/components/vdbs/templates/service-content.blade.php'),
     );
+    $information = file_get_contents(
+        resource_path('views/components/vdbs/templates/service-information.blade.php'),
+    );
     $panel = file_get_contents(
         resource_path('views/components/vdbs/templates/service-panel.blade.php'),
     );
@@ -70,6 +73,13 @@ it('ships reusable service portal page templates', function () {
         ->toContain('$faq')
         ->toContain('$callout');
 
+    expect($information)
+        ->toContain('class="service-information"')
+        ->toContain('Unser Service-Portal')
+        ->toContain('Häufig gestellte Fragen')
+        ->toContain("route('portal.access')")
+        ->toContain("route('portal.contact')");
+
     expect($panel)
         ->toContain('mockup-page')
         ->toContain('mockup-panel')
@@ -80,8 +90,11 @@ it('uses the new service templates in the product pages', function () {
     $home = file_get_contents(
         resource_path('views/livewire/identity/home.blade.php'),
     );
-    $information = file_get_contents(
-        resource_path('views/components/vdbs/service-portal-information.blade.php'),
+    $about = file_get_contents(
+        resource_path('views/livewire/portal/about.blade.php'),
+    );
+    $faq = file_get_contents(
+        resource_path('views/livewire/portal/faq.blade.php'),
     );
     $contact = file_get_contents(
         resource_path('views/livewire/portal/contact.blade.php'),
@@ -92,11 +105,11 @@ it('uses the new service templates in the product pages', function () {
         ->toContain('class="service-hero__title"')
         ->toContain('Willkommen im VDBS Serviceportal');
 
-    expect($information)
-        ->toContain('<x-vdbs.templates.service-content>')
-        ->toContain('<x-slot:intro>')
-        ->toContain('<x-slot:faq>')
-        ->toContain('<x-slot:callout>');
+    expect($about)
+        ->toContain('<x-vdbs.templates.service-information />');
+
+    expect($faq)
+        ->toContain('<x-vdbs.templates.service-information />');
 
     expect($contact)
         ->toContain('<x-vdbs.templates.service-panel')
