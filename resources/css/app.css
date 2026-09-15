@@ -29,6 +29,7 @@
 @import './vdbs/components/records.css';
 @import './vdbs/components/page-states.css';
 @import './vdbs/components/notices.css';
+@import './vdbs/components/content-split.css';
 @import './vdbs/components/empty-states.css';
 @import './vdbs/components/error-pages.css';
 @import './vdbs/components/code-examples.css';

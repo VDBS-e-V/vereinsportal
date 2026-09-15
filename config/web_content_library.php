@@ -1221,5 +1221,44 @@ return [
                 'Generatoren erinnern an Dokumentation und Tests, ersetzen aber keine Accessibility-Prüfung.',
             ],
         ],
+        [
+            'id' => 'media-promo',
+            'name' => 'Bild-Text-Box',
+            'category' => 'patterns',
+            'status' => 'experimental',
+            'description' =>
+                'Großflächiger Bild-Text-Teaser mit optionaler Aktion.',
+
+            'source' =>
+                'resources/views/components/vdbs/media-promo.blade.php',
+
+            'files' => [
+                'resources/views/components/vdbs/media-promo.blade.php',
+                'resources/css/vdbs/components/media-promo.css',
+            ],
+
+            'tags' => [
+                'teaser',
+                'bild',
+                'content',
+                'cta',
+            ],
+
+            'usage' => [
+                'Für größere redaktionelle Einstiege mit Bild und Inhalt.',
+                'Für maximal eine klar priorisierte Hauptaktion.',
+            ],
+
+            'avoid' => [
+                'Nicht als allgemeiner Container für beliebige Inhalte einsetzen.',
+                'Nicht anstelle kleiner Karten verwenden.',
+            ],
+
+            'accessibility' => [
+                'Aussagekräftige Bilder benötigen einen sinnvollen Alternativtext.',
+                'Dekorative Bilder erhalten einen leeren Alternativtext.',
+                'Die Überschriftenhierarchie muss zur umgebenden Seite passen.',
+            ],
+        ],
     ],
 ];
