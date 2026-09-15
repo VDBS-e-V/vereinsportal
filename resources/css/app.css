@@ -29,6 +29,7 @@
 @import './vdbs/components/records.css';
 @import './vdbs/components/page-states.css';
 @import './vdbs/components/notices.css';
+@import './vdbs/components/content-split.css';
 @import './vdbs/components/empty-states.css';
 @import './vdbs/components/error-pages.css';
 @import './vdbs/components/code-examples.css';
@@ -36,6 +37,7 @@
 @import './vdbs/components/playground.css';
 @import './vdbs/components/tables.css';
 @import './vdbs/pages.css';
+@import './vdbs/templates/service-portal.css';
 @import './vdbs/a11y.css';
 @import './vdbs/design.css';
 @import './vdbs/print.css';

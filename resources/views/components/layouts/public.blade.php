@@ -15,6 +15,13 @@
             'my.password.request' => 'Passwort vergessen',
             'my.password.reset' => 'Neues Passwort',
             'my.home' => 'Start',
+            'portal.about' => 'Über das Portal',
+            'portal.access' => 'Zugang zum Portal',
+            'portal.faq' => 'FAQ',
+            'portal.contact' => 'Kontakt',
+            'portal.imprint' => 'Impressum',
+            'portal.privacy' => 'Datenschutz',
+            'portal.accessibility' => 'Barrierefreiheit',
             'my.account' => 'Konto',
             'my.account.profile' => 'Mein Profil',
             'my.account.settings' => 'Kontoeinstellungen',
@@ -30,15 +37,25 @@
         ];
 
         $pageTitle = $pageTitles[$routeName] ?? 'Vereinsportal';
+        $startRouteNames = [
+            'my.home',
+            'portal.about',
+            'portal.access',
+            'portal.faq',
+            'portal.contact',
+        ];
+        $headerPageTitle = request()->routeIs(...$startRouteNames)
+            ? 'Start'
+            : $pageTitle;
         $documentTitle = $title ?? $pageTitle.' · VDBS Portal';
         $homeUrl = route('my.home');
         $user = auth()->user();
-        $areas = app(\App\Support\PortalAreaCatalog::class)
-            ->switcherAreas(
-                $user instanceof \App\Modules\Identity\Models\User
-                    ? $user
-                    : null,
-            );
+        $portalAreaCatalog = app(\App\Support\PortalAreaCatalog::class);
+        $areas = $portalAreaCatalog->switcherAreas(
+            $user instanceof \App\Modules\Identity\Models\User
+                ? $user
+                : null,
+        );
 
         $settingsRouteNames = [
             'my.account.settings',
@@ -55,6 +72,34 @@
             'my.membership',
             ...$settingsRouteNames,
         ];
+
+        $personalAreaKey = null;
+
+        if ($user instanceof \App\Modules\Identity\Models\User) {
+            if (request()->routeIs('my.home')) {
+                $personalAreaKey = \App\Support\PortalAreaCatalog::START;
+            } elseif (request()->routeIs(...$accountRouteNames)) {
+                $personalAreaKey = \App\Support\PortalAreaCatalog::PROFILE;
+            }
+        }
+
+        $areaContext = $personalAreaKey !== null
+            ? collect(
+                $portalAreaCatalog->areas(
+                    $user instanceof \App\Modules\Identity\Models\User
+                        ? $user
+                        : null,
+                    $personalAreaKey,
+                )
+            )->firstWhere('key', $personalAreaKey)
+            : null;
+        $areaLabel = $areaContext['label'] ?? 'VDBS Portal';
+        $areaUrl = $areaContext['url'] ?? $homeUrl;
+
+        if (request()->routeIs(...$startRouteNames)) {
+            $areaLabel = 'VDBS Portal';
+            $areaUrl = $homeUrl;
+        }
 
         $settingsNavigation = [
             [
@@ -131,10 +176,33 @@
             'active' => false,
         ];
 
+        $portalNavigation = [
+            [
+                'label' => 'Über das Portal',
+                'url' => route('portal.about'),
+                'active' => request()->routeIs('portal.about'),
+            ],
+            [
+                'label' => 'Zugang zum Portal',
+                'url' => route('portal.access'),
+                'active' => request()->routeIs('portal.access'),
+            ],
+            [
+                'label' => 'FAQ',
+                'url' => route('portal.faq'),
+                'active' => request()->routeIs('portal.faq'),
+            ],
+            [
+                'label' => 'Kontakt',
+                'url' => route('portal.contact'),
+                'active' => request()->routeIs('portal.contact'),
+            ],
+        ];
+
         $showSettingsNavigation = auth()->check()
             && request()->routeIs(...$settingsRouteNames);
 
-        if (auth()->check()) {
+        if (auth()->check() && ! request()->routeIs(...$startRouteNames)) {
             $navigation = [
                 [
                     'label' => 'Start',
@@ -147,36 +215,15 @@
                     'active' => request()->routeIs(...$accountRouteNames),
                     'children' => $accountAreaNavigation,
                 ],
+                ...$portalNavigation,
             ];
         } else {
-            $navigation = [
-                [
-                    'label' => 'Zugang',
-                    'url' => route('my.login'),
-                    'active' => request()->routeIs(
-                        'my.login',
-                        'my.registration.create',
-                        'my.password.request',
-                    ),
-                    'children' => [
-                        [
-                            'label' => 'Registrieren',
-                            'url' => route('my.registration.create'),
-                            'active' => request()->routeIs('my.registration.create'),
-                        ],
-                        [
-                            'label' => 'Passwort vergessen',
-                            'url' => route('my.password.request'),
-                            'active' => request()->routeIs('my.password.request'),
-                        ],
-                    ],
-                ],
-            ];
+            $navigation = $portalNavigation;
         }
 
         $breadcrumbs = [];
 
-        if (! request()->routeIs('my.home')) {
+        if (! request()->routeIs(...$startRouteNames)) {
             $breadcrumbs[] = [
                 'label' => 'VDBS Portal',
                 'url' => $homeUrl,
@@ -285,17 +332,17 @@
                         [
                             'label' => 'Kontakt',
                             'icon' => 'mail',
-                            'url' => null,
+                            'url' => route('portal.contact'),
                         ],
                         [
                             'label' => 'FAQ',
                             'icon' => 'help',
-                            'url' => null,
+                            'url' => route('portal.faq'),
                         ],
                         [
                             'label' => 'Hilfe',
                             'icon' => 'help',
-                            'url' => null,
+                            'url' => route('portal.faq'),
                         ],
                     ],
                 ],
@@ -349,10 +396,10 @@
     </a>
 
     <x-vdbs.portal-header
-        area="VDBS Portal"
-        :page-title="$pageTitle"
+        :area="$areaLabel"
+        :page-title="$headerPageTitle"
         :home-url="$homeUrl"
-        :area-url="$homeUrl"
+        :area-url="$areaUrl"
         :areas="$areas"
         :navigation="$navigation"
         :breadcrumbs="$breadcrumbs"
