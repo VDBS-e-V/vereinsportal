@@ -1222,41 +1222,34 @@ return [
             ],
         ],
         [
-            'id' => 'media-promo',
-            'name' => 'Bild-Text-Box',
+            'id' => 'content-split',
+            'name' => 'Content Split',
             'category' => 'patterns',
             'status' => 'experimental',
-            'description' =>
-                'Großflächiger Bild-Text-Teaser mit optionaler Aktion.',
-
-            'source' =>
-                'resources/views/components/vdbs/media-promo.blade.php',
-
+            'description' => 'Zweispaltiges Inhaltsmuster mit Hauptinhalt und Bild oder Button-Liste.',
+            'source' => 'resources/views/components/vdbs/content-split.blade.php',
             'files' => [
-                'resources/views/components/vdbs/media-promo.blade.php',
-                'resources/css/vdbs/components/media-promo.css',
+                'resources/views/components/vdbs/content-split.blade.php',
+                'resources/css/vdbs/components/content-split.css',
             ],
-
             'tags' => [
-                'teaser',
-                'bild',
+                'split',
                 'content',
-                'cta',
+                'bild',
+                'aktion',
+                'teaser',
             ],
-
             'usage' => [
-                'Für größere redaktionelle Einstiege mit Bild und Inhalt.',
-                'Für maximal eine klar priorisierte Hauptaktion.',
+                'Für größere redaktionelle Einstiege mit Inhalt und Bild oder zwei bis drei weiterführenden Aktionen.',
+                'Nur die definierten 50/50-, 30/70-, 60/40- und 70/30-Varianten verwenden.',
             ],
-
             'avoid' => [
-                'Nicht als allgemeiner Container für beliebige Inhalte einsetzen.',
-                'Nicht anstelle kleiner Karten verwenden.',
+                'Keine frei erfundenen Spaltenbreiten oder mehr als drei Links in der Button-Liste verwenden.',
+                'Nicht anstelle kleiner Karten oder einfacher Fließtextabschnitte verwenden.',
             ],
-
             'accessibility' => [
-                'Aussagekräftige Bilder benötigen einen sinnvollen Alternativtext.',
-                'Dekorative Bilder erhalten einen leeren Alternativtext.',
+                'Bei Bildern sind sinnvoller Alternativtext, sichtbare Beschreibung und Quelle erforderlich.',
+                'Button-Listen werden als beschriftete Navigation ausgegeben; auf kleinen Viewports steht der Inhalt zuerst.',
                 'Die Überschriftenhierarchie muss zur umgebenden Seite passen.',
             ],
         ],
