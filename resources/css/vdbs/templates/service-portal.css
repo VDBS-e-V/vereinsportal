@@ -1,0 +1,63 @@
+/*
+ * Service-Portal page templates
+ *
+ * These rules capture the structural patterns from the Issue #50 reference
+ * screens. Product pages keep their content and behaviour, while the
+ * templates define the recurring visual hierarchy.
+ */
+
+.service-hero__media {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--color-ink);
+}
+
+.service-hero__media .service-hero__image {
+    object-position: center 48%;
+    opacity: 0.70;    
+    transition: all ease-in-out .3s;
+}
+
+.service-hero__title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    margin: 0;
+    padding: 1.1rem 2rem;
+    transform: translate(-50%, -50%);
+    box-shadow: none;
+    background: rgb(255 255 255 / 58%);
+    color: var(--color-primary);
+    font-size: clamp(1.85rem, 3.2vw, 3.1rem);
+    font-weight: 700;
+    line-height: 1.15;
+    text-align: center;
+    transition: all ease-in-out .3s;
+}
+
+.service-hero__media:hover .service-hero__image {
+    opacity: 0.6;
+    background-color: var(--color-ink);
+}
+
+.service-template-note {
+    max-width: 70rem;
+}
+
+.service-template-preview {
+    overflow: hidden;
+}
+
+.service-template-preview .service-start,
+.service-template-preview .service-information,
+.service-template-preview .mockup-page {
+    width: 100%;
+}
+
+@media (max-width: 50rem) {
+    .service-hero__title {
+        padding: 0.8rem 1rem;
+        font-size: clamp(1.35rem, 5vw, 2rem);
+    }
+}

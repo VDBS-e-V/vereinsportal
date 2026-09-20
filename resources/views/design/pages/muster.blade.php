@@ -69,6 +69,18 @@
                     <h3><a href="{{ route('design.elemente.datensatzlisten') }}">Datensatzlisten</a></h3>
                     <p>Lineare Datensätze mit wenigen Metadaten als Alternative zur Tabelle.</p>
                 </article>
+                <article class="teaser">
+                    <h3>
+                        <a href="{{ route('design.muster.media-promo') }}">
+                            Bild-Text-Box
+                        </a>
+                    </h3>
+
+                    <p>
+                        Großflächiger Bild-Text-Teaser mit optionaler Aktion
+                        und wechselnder Bildposition.
+                    </p>
+                </article>
             </div>
         </section>
 
