@@ -15,6 +15,25 @@
         </header>
 
         <section class="stack">
+            <h2>Service-Portal</h2>
+
+            <div class="teaser-list">
+                <article class="teaser">
+                    <h3><a href="{{ route('design.vorlagen.serviceportal-start') }}">Service-Portal · Startseite</a></h3>
+                    <p>Hero, Schnelleinstiege, Portalbereiche, Themenartikel sowie Zugang und Kontakt.</p>
+                </article>
+                <article class="teaser">
+                    <h3><a href="{{ route('design.vorlagen.serviceportal-inhalt') }}">Service-Portal · Inhaltsseite</a></h3>
+                    <p>Redaktioneller Inhalt, FAQ-Disclosure und Zugangs-Teaser nach den Issue-50-Referenzen.</p>
+                </article>
+                <article class="teaser">
+                    <h3><a href="{{ route('design.vorlagen.serviceportal-formular') }}">Service-Portal · Formularseiten</a></h3>
+                    <p>Graues Formularpanel für Zugangsanträge, Prozessschritte und Kontaktformulare.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section stack">
             <h2>Verwaltung</h2>
 
             <div class="teaser-list">

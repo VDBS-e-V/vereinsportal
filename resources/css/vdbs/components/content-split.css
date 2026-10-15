@@ -1,0 +1,239 @@
+/*
+ * VDBS Content Split
+ *
+ * Zweispaltiges redaktionelles Muster:
+ * - Hauptinhalt + Bild
+ * - Hauptinhalt + Button-Liste
+ *
+ * Erlaubte Layouts:
+ * image   -> balanced (50/50), visual-dominant (30/70)
+ * actions -> actions-compact (70/30), actions-wide (60/40)
+ *
+ * Breite:
+ * - normal: Inhalt und Fläche orientieren sich an der normalen Inhaltsbreite
+ * - full:   die Fläche darf die verfügbare Rahmenbreite nutzen, der Inhalt
+ *           bleibt trotzdem auf der normalen Inhaltsbreite
+ */
+
+.content-split {
+    position: relative;
+    width: 100%;
+    margin-inline: auto;
+}
+
+.content-split::before {
+    position: absolute;
+    z-index: 0;
+    inset-block: 0;
+    inset-inline: 0;
+    content: '';
+    pointer-events: none;
+}
+
+.content-split__inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    width: min(100%, var(--layout-width-normal, var(--layout-content-max)));
+    margin-inline: auto;
+    align-items: start;
+    gap: clamp(var(--spacing-5), 4vw, var(--spacing-8));
+}
+
+.content-split--width-normal {
+    max-width: var(--layout-width-normal, var(--layout-content-max));
+}
+
+.content-split--width-full {
+    max-width: none;
+}
+
+/* Column proportions */
+.content-split--layout-balanced .content-split__inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.content-split--layout-visual-dominant.content-split--side-right .content-split__inner {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 7fr);
+}
+
+.content-split--layout-visual-dominant.content-split--side-left .content-split__inner {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 3fr);
+}
+
+.content-split--layout-actions-compact.content-split--side-right .content-split__inner {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 3fr);
+}
+
+.content-split--layout-actions-compact.content-split--side-left .content-split__inner {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 7fr);
+}
+
+.content-split--layout-actions-wide.content-split--side-right .content-split__inner {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+}
+
+.content-split--layout-actions-wide.content-split--side-left .content-split__inner {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+}
+
+/* Desktop visual order. DOM order stays content-first. */
+.content-split--side-left .content-split__secondary {
+    order: 1;
+}
+
+.content-split--side-left .content-split__content {
+    order: 2;
+}
+
+/*
+ * Surface and content width are deliberately independent.
+ * The background bleeds into the surrounding frame instead of adding
+ * horizontal padding to the content grid. This keeps all split content aligned
+ * with the normal page width, matching the FU-style reference layout.
+ */
+.content-split--tone-transparent::before {
+    background: transparent;
+}
+
+.content-split--tone-subtle {
+    padding-block: clamp(var(--spacing-5), 4vw, var(--spacing-7));
+}
+
+.content-split--tone-subtle::before {
+    inset-inline: calc(0px - min(var(--spacing-6), var(--layout-frame-gutter, var(--spacing-6))));
+    background: var(--color-surface-subtle);
+}
+
+.content-split--width-full::before {
+    inset-inline: calc(0px - var(--layout-frame-gutter, var(--spacing-6)));
+}
+
+/* Main content */
+.content-split__content {
+    display: grid;
+    min-width: 0;
+    align-content: start;
+    gap: var(--spacing-4);
+}
+
+.content-split__heading > :is(h2, h3, h4) {
+    margin: 0;
+    color: var(--color-ink);
+    line-height: var(--leading-heading);
+}
+
+.content-split__body {
+    display: grid;
+    max-width: var(--layout-text-max);
+    gap: var(--spacing-3);
+    color: var(--color-ink);
+    line-height: var(--leading-body);
+}
+
+.content-split__body > :first-child {
+    margin-top: 0;
+}
+
+.content-split__body > :last-child {
+    margin-bottom: 0;
+}
+
+.content-split__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-3);
+    padding-top: var(--spacing-2);
+}
+
+/* Image variant */
+.content-split__secondary,
+.content-split__figure {
+    min-width: 0;
+}
+
+.content-split__figure {
+    display: grid;
+    margin: 0;
+}
+
+.content-split__image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    object-position: center;
+}
+
+.content-split__caption {
+    display: grid;
+    gap: var(--spacing-1);
+    padding-block: var(--spacing-2);
+    border-bottom: var(--border-width-default) solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+    line-height: 1.4;
+}
+
+.content-split__caption-text,
+.content-split__source {
+    display: block;
+}
+
+.content-split__source a {
+    color: inherit;
+    text-underline-offset: 0.15em;
+}
+
+/* Action-list variant */
+.content-split__action-nav {
+    width: 100%;
+}
+
+.content-split__button-list {
+    display: grid;
+    gap: var(--spacing-3);
+}
+
+.content-split__button-list > * {
+    width: 100%;
+}
+
+.content-split__button-list .btn,
+.content-split__button-list a {
+    justify-content: flex-start;
+    text-align: left;
+}
+
+/* Responsive */
+@media (max-width: 50rem) {
+    .content-split__inner,
+    .content-split--layout-balanced .content-split__inner,
+    .content-split--layout-visual-dominant.content-split--side-right .content-split__inner,
+    .content-split--layout-visual-dominant.content-split--side-left .content-split__inner,
+    .content-split--layout-actions-compact.content-split--side-right .content-split__inner,
+    .content-split--layout-actions-compact.content-split--side-left .content-split__inner,
+    .content-split--layout-actions-wide.content-split--side-right .content-split__inner,
+    .content-split--layout-actions-wide.content-split--side-left .content-split__inner {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .content-split__content,
+    .content-split--side-left .content-split__content {
+        order: 1;
+    }
+
+    .content-split__secondary,
+    .content-split--side-left .content-split__secondary {
+        order: 2;
+    }
+
+    .content-split--tone-subtle {
+        padding-block: var(--spacing-5);
+    }
+
+    .content-split__image {
+        aspect-ratio: 16 / 9;
+    }
+}

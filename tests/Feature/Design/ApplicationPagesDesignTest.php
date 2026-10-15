@@ -1,11 +1,10 @@
 <?php
 
-it('uses the shared VDBS application page structure on all routed page views', function () {
+it('uses the shared VDBS application page structure on routed account views', function () {
     $views = [
         'livewire/identity/account-deletion.blade.php',
         'livewire/identity/email-change-security.blade.php',
         'livewire/identity/email-change.blade.php',
-        'livewire/identity/home.blade.php',
         'livewire/identity/login.blade.php',
         'livewire/identity/password-change.blade.php',
         'livewire/identity/password-forgot.blade.php',

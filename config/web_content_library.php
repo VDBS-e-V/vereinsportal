@@ -1221,5 +1221,37 @@ return [
                 'Generatoren erinnern an Dokumentation und Tests, ersetzen aber keine Accessibility-Prüfung.',
             ],
         ],
+        [
+            'id' => 'content-split',
+            'name' => 'Content Split',
+            'category' => 'patterns',
+            'status' => 'experimental',
+            'description' => 'Zweispaltiges Inhaltsmuster mit Hauptinhalt und Bild oder Button-Liste.',
+            'source' => 'resources/views/components/vdbs/content-split.blade.php',
+            'files' => [
+                'resources/views/components/vdbs/content-split.blade.php',
+                'resources/css/vdbs/components/content-split.css',
+            ],
+            'tags' => [
+                'split',
+                'content',
+                'bild',
+                'aktion',
+                'teaser',
+            ],
+            'usage' => [
+                'Für größere redaktionelle Einstiege mit Inhalt und Bild oder zwei bis drei weiterführenden Aktionen.',
+                'Nur die definierten 50/50-, 30/70-, 60/40- und 70/30-Varianten verwenden.',
+            ],
+            'avoid' => [
+                'Keine frei erfundenen Spaltenbreiten oder mehr als drei Links in der Button-Liste verwenden.',
+                'Nicht anstelle kleiner Karten oder einfacher Fließtextabschnitte verwenden.',
+            ],
+            'accessibility' => [
+                'Bei Bildern sind sinnvoller Alternativtext, sichtbare Beschreibung und Quelle erforderlich.',
+                'Button-Listen werden als beschriftete Navigation ausgegeben; auf kleinen Viewports steht der Inhalt zuerst.',
+                'Die Überschriftenhierarchie muss zur umgebenden Seite passen.',
+            ],
+        ],
     ],
 ];
