@@ -1,0 +1,39 @@
+/*
+ * VDBS Designsystem v2 — gemeinsame Bausteine
+ *
+ * Nur Selektoren, noch ohne Regeln. Beispiele: /design/komponenten#gemeinsam
+ */
+
+/* Aktions-Position: Button sitzt halb über der unteren Kante der Elternfläche.
+ * --flach: normaler Button ohne Überstand, nicht flächig klickbar.
+ * Elternfläche: padding-bottom = --spacing-5, display: flex, flex-direction: column. */
+.vdbs-aktion {
+}
+
+.vdbs-aktion--flach {
+}
+
+/* Gruppe aus einem oder mehreren Buttons ohne Überstand (z. B. Hero, Aufruf). */
+.vdbs-buttons {
+}
+
+/* Bereich mit Überschrift (z. B. „Aktuelles“, „Veranstaltungen“): begrenzt die Breite, Abstand zwischen Überschrift und Inhalt. */
+.vdbs-bereich {
+}
+
+.vdbs-bereich__titel {
+}
+
+/* Etikett (umrandet, Versalien) und Meta-Zeile (Datum | Ort). */
+.vdbs-tag {
+}
+
+.vdbs-meta {
+}
+
+.vdbs-meta strong {
+}
+
+/* Hilfsklasse: zentrierter Text. */
+.is-center {
+}

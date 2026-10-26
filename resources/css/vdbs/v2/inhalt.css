@@ -1,0 +1,152 @@
+/*
+ * VDBS Designsystem v2 — Inhaltsbänder, Zitate, Hinweise, Textabschnitte
+ *
+ * Nur Selektoren, noch ohne Regeln. Struktur und Beispiele:
+ * /design/komponenten (resources/views/design/pages/komponenten.blade.php).
+ * Werte ausschließlich über Tokens aus tokens.css (--color-*, --spacing-*, --text-* …).
+ */
+
+/* ==========================================================================
+ * Zitate  (#zitate)
+ * Drei Aussagen mit Quellenangabe.
+ * Muster: zitate
+ *
+ * Struktur:
+ *   div.vdbs-zitate
+ *     blockquote.vdbs-zitat  ×3
+ * ========================================================================== */
+
+.vdbs-zitate {
+}
+
+.vdbs-zitat {
+}
+
+/* ==========================================================================
+ * Textblock zentriert  (#textblock)
+ * Überschrift und Absatz, zentriert.
+ * Muster: textblock-zentriert
+ *
+ * Struktur:
+ *   section.vdbs-textblock
+ *     h2.is-center.vdbs-textblock__titel
+ *     p.is-center
+ * ========================================================================== */
+
+.vdbs-textblock {
+}
+
+.vdbs-textblock__titel {
+}
+
+/* ==========================================================================
+ * Textfläche  (#flaeche)
+ * Vollbreites Band mit schmaler Textspalte.
+ * Muster: textflaeche
+ *
+ * Struktur:
+ *   section.vdbs-flaeche
+ *     div.vdbs-flaeche__inner
+ *       h2.vdbs-flaeche__titel
+ * ========================================================================== */
+
+.vdbs-flaeche {
+}
+
+.vdbs-flaeche__inner {
+}
+
+.vdbs-flaeche__titel {
+}
+
+/* ==========================================================================
+ * Aufruf  (#aufruf)
+ * Band mit Überschrift, Text und Button (z. B. „Werde Mitglied“).
+ * Muster: aufruf-mitglied
+ *
+ * Struktur:
+ *   section.vdbs-aufruf
+ *     div.vdbs-aufruf__inner
+ *       h2.is-center.vdbs-aufruf__titel
+ *       p.is-center
+ *       div.vdbs-buttons
+ *         a.btn
+ * ========================================================================== */
+
+.vdbs-aufruf {
+}
+
+.vdbs-aufruf__inner {
+}
+
+.vdbs-aufruf__titel {
+}
+
+/* ==========================================================================
+ * Hinweisbox  (#hinweis)
+ * Band mit Icon, Frage, Text und Outline-Button. Varianten: hell, grün.
+ * Muster: hinweisbox, hinweisbox-gruen
+ *
+ * Struktur:
+ *   section.vdbs-hinweis
+ *     div.vdbs-hinweis__icon
+ *     div.vdbs-hinweis__text
+ *       h2.vdbs-hinweis__titel
+ *     div.vdbs-buttons
+ *       a.btn.btn--outline
+ * ========================================================================== */
+
+.vdbs-hinweis {
+}
+
+.vdbs-hinweis__icon {
+}
+
+.vdbs-hinweis__text {
+}
+
+.vdbs-hinweis__titel {
+}
+
+.vdbs-hinweis--gruen {
+}
+
+/* ==========================================================================
+ * Bildpaar  (#bildpaar)
+ * Zwei Bilder nebeneinander mit Quellenangabe.
+ * Muster: bildpaar
+ *
+ * Struktur:
+ *   div.vdbs-bildpaar
+ *     figure.vdbs-bildpaar__bild  ×2
+ * ========================================================================== */
+
+.vdbs-bildpaar {
+}
+
+.vdbs-bildpaar__bild {
+}
+
+/* ==========================================================================
+ * Textabschnitte  (#abschnitte)
+ * Überschrift mit mehreren Zwischenüberschriften und Text.
+ * Muster: textabschnitte
+ *
+ * Struktur:
+ *   section.vdbs-abschnitte
+ *     h2.vdbs-abschnitte__titel
+ *     div.vdbs-abschnitt  ×3
+ *       h3.vdbs-abschnitt__titel
+ * ========================================================================== */
+
+.vdbs-abschnitte {
+}
+
+.vdbs-abschnitte__titel {
+}
+
+.vdbs-abschnitt {
+}
+
+.vdbs-abschnitt__titel {
+}

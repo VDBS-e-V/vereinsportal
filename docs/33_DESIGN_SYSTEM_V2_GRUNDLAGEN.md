@@ -150,7 +150,45 @@ Rollen-Tokens (`--color-text`, `--color-bg`, …) und eine Migration der rund 13
 5. Visuelle QA nach `docs/26_DESIGN_QA_EXECUTION.md` (Desktop/Mobil, hell/dunkel, Kontrast, Fokus, Print).
 6. `docs/22` auf v2 aktualisieren und erneut einfrieren.
 
-## 9. Prüfstand dieses Schritts
+## 9. Komponenten-Werkstatt (CSS von Hand)
+
+Für die Gestaltung der neuen Komponenten gibt es eine reine Struktur-Seite und
+leere CSS-Dateien:
+
+| Was | Wo |
+|---|---|
+| Struktur-Seite (HTML ohne Styling) | `/design/komponenten` → `resources/views/design/pages/komponenten.blade.php` |
+| Route | `routes/design/pages/komponenten.php` (Name `design.komponenten`) |
+| CSS-Stubs (nur Selektoren) | `resources/css/vdbs/v2/*.css`, eingebunden über `v2/index.css` in `app.css` |
+| Platzhalterbild | `public/images/design/platzhalter.svg` |
+
+Die CSS-Dateien liegen bewusst **nicht** unter `css/vdbs/components/`, damit
+`vdbs:library-check` sie nicht als unregistrierte Kern-Dateien meldet. Jede Datei
+beginnt je Komponente mit einem Strukturbaum (Elemente und Klassen) und führt danach
+alle Klassen als leere Regeln.
+
+| Datei | Komponenten |
+|---|---|
+| `shared.css` | Aktions-Position, Bereich, Etikett, Meta-Zeile, `is-center` |
+| `hero.css` | Hero „Bühne“, Banner, Page Hero, Intro-Teaser (3 Ausprägungen) |
+| `teaser.css` | Teaser mit Bild (links, rechts, hervorgehoben), Bild-Text-Versatz |
+| `kacheln.css` | Kachelraster, Schwerpunkte, Karten-Reihe, Kennzahlen, Facts, Zahlenleiste, News |
+| `inhalt.css` | Zitate, Textblock, Textfläche, Aufruf, Hinweisbox, Bildpaar, Textabschnitte |
+| `personen.css` | Infospalten, Ansprechpartner:innen, Vorstand |
+| `termine.css` | Terminliste, Veranstaltungssuche |
+| `angebot.css` | Angebot-Bereich mit Modulen (`details`) |
+| `formular.css` | Kontaktseite und Kontaktformular |
+
+**Namen:** BEM (`vdbs-block__element--variante`), deutsch, identisch mit den Mustern des
+WordPress-Themes. Zwei Namen weichen ab, weil das Portal sie schon belegt:
+`vdbs-teaser` → `vdbs-bildteaser`, `vdbs-form` → `vdbs-formular`; `vdbs-badge`
+(Plätze-Hinweis) heißt hier `vdbs-plaetze`. Im Theme müssten sie bei einer
+gemeinsamen CSS-Quelle entsprechend umbenannt werden.
+
+**Nicht enthalten:** Header, Footer und Brotkrumen (das Portal hat eigene Teile unter
+`resources/css/vdbs/parts/`).
+
+## 10. Prüfstand dieses Schritts
 
 - `npm run build`: erfolgreich.
 - Statische Prüfung der Pest-Tests auf geänderte Werte: keine Test-Assertion

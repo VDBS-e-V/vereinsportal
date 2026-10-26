@@ -1,0 +1,71 @@
+/*
+ * VDBS Designsystem v2 — Teaser und Bild-Text-Versatz
+ *
+ * Nur Selektoren, noch ohne Regeln. Struktur und Beispiele:
+ * /design/komponenten (resources/views/design/pages/komponenten.blade.php).
+ * Werte ausschließlich über Tokens aus tokens.css (--color-*, --spacing-*, --text-* …).
+ */
+
+/* ==========================================================================
+ * Teaser mit Bild  (#teaser)
+ * Bild ragt über eine Fläche hinaus. Varianten: links, rechts, hervorgehoben (dunkle Fläche).
+ * Muster: teaser-bild-links, teaser-bild-rechts, teaser-hervorgehoben
+ *
+ * Struktur:
+ *   section.vdbs-bildteaser
+ *     figure.vdbs-bildteaser__bild
+ *     div.vdbs-bildteaser__inhalt
+ *       h2.vdbs-bildteaser__titel
+ *       div.vdbs-aktion
+ *         a.btn
+ * ========================================================================== */
+
+.vdbs-bildteaser {
+}
+
+.vdbs-bildteaser__bild {
+}
+
+.vdbs-bildteaser__inhalt {
+}
+
+.vdbs-bildteaser__titel {
+}
+
+.vdbs-bildteaser--rechts {
+}
+
+.vdbs-bildteaser--hervorgehoben {
+}
+
+/* ==========================================================================
+ * Bild-Text-Versatz  (#versatz)
+ * Große Bildfläche, Karte überlappt. Varianten: Karte links (hell), Karte rechts (grün).
+ * Muster: bild-text-versatz-links, bild-text-versatz-rechts
+ *
+ * Struktur:
+ *   section.vdbs-versatz
+ *     figure.vdbs-versatz__bild
+ *     div.vdbs-versatz__karte
+ *       h2.vdbs-versatz__titel
+ *       div.vdbs-buttons
+ *         a.btn.btn--outline
+ * ========================================================================== */
+
+.vdbs-versatz {
+}
+
+.vdbs-versatz__bild {
+}
+
+.vdbs-versatz__karte {
+}
+
+.vdbs-versatz__titel {
+}
+
+.vdbs-versatz--rechts {
+}
+
+.vdbs-versatz--gruen {
+}

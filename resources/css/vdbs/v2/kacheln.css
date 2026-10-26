@@ -1,0 +1,267 @@
+/*
+ * VDBS Designsystem v2 — Kacheln, Karten, Kennzahlen, Facts, News
+ *
+ * Nur Selektoren, noch ohne Regeln. Struktur und Beispiele:
+ * /design/komponenten (resources/views/design/pages/komponenten.blade.php).
+ * Werte ausschließlich über Tokens aus tokens.css (--color-*, --spacing-*, --text-* …).
+ */
+
+/* ==========================================================================
+ * Kachelraster (auf Bühne)  (#kacheln)
+ * Lila Fläche mit Überschrift und vier Kacheln, Button halb über der Kante.
+ * Muster: kachelraster
+ *
+ * Struktur:
+ *   section.vdbs-kacheln
+ *     div.vdbs-kacheln__inner
+ *       h2.vdbs-kacheln__titel
+ *       div.vdbs-kachelraster
+ *         div.vdbs-kachel  ×4
+ *           h3.vdbs-kachel__titel
+ *           div.vdbs-aktion
+ *             a.btn
+ * ========================================================================== */
+
+.vdbs-kacheln {
+}
+
+.vdbs-kacheln__inner {
+}
+
+.vdbs-kacheln__titel {
+}
+
+.vdbs-kachelraster {
+}
+
+.vdbs-kachel {
+}
+
+.vdbs-kachel__titel {
+}
+
+/* ==========================================================================
+ * Schwerpunkte (Kacheln mit Text)  (#schwerpunkte)
+ * Drei Kacheln mit Titel, Text und Button.
+ * Muster: schwerpunkte
+ *
+ * Struktur:
+ *   section.vdbs-bereich
+ *     h2.vdbs-bereich__titel
+ *     div.vdbs-kachelraster.vdbs-kachelraster--3
+ *       div.vdbs-kachel.vdbs-kachel--text  ×3
+ *         h3.vdbs-kachel__titel
+ *         div.vdbs-aktion
+ *           a.btn
+ * ========================================================================== */
+
+.vdbs-kachelraster--3 {
+}
+
+.vdbs-kachel--text {
+}
+
+/* ==========================================================================
+ * Karten-Reihe  (#karten)
+ * Drei Karten, Bild steht oben links über der Karte.
+ * Muster: karten-reihe
+ *
+ * Struktur:
+ *   div.vdbs-karten
+ *     div.vdbs-karte  ×3
+ *       figure.vdbs-karte__bild
+ *       div.vdbs-karte__inhalt
+ *         p.vdbs-tag
+ *         h3.vdbs-karte__titel
+ *         div.vdbs-aktion
+ *           a.btn
+ * ========================================================================== */
+
+.vdbs-karten {
+}
+
+.vdbs-karte {
+}
+
+.vdbs-karte__bild {
+}
+
+.vdbs-karte__inhalt {
+}
+
+.vdbs-karte__titel {
+}
+
+/* ==========================================================================
+ * Kennzahlen-Kacheln  (#kennzahlen)
+ * Sechs Kacheln mit Icon-Fläche, Zahl und Text.
+ * Muster: kennzahlen
+ *
+ * Struktur:
+ *   section.vdbs-bereich
+ *     h2.vdbs-bereich__titel
+ *     div.vdbs-kennzahlen
+ *       div.vdbs-kennzahl  ×6
+ *         div.vdbs-kennzahl__icon
+ *         div.vdbs-kennzahl__inhalt
+ *           h3.vdbs-kennzahl__titel
+ * ========================================================================== */
+
+.vdbs-kennzahlen {
+}
+
+.vdbs-kennzahl {
+}
+
+.vdbs-kennzahl__icon {
+}
+
+.vdbs-kennzahl__inhalt {
+}
+
+.vdbs-kennzahl__titel {
+}
+
+/* ==========================================================================
+ * Facts  (#facts)
+ * Große Karte mit Titel und Button, daneben vier Kennzahl-Kacheln.
+ * Muster: facts-statistik
+ *
+ * Struktur:
+ *   section.vdbs-facts
+ *     div.vdbs-facts__inner
+ *       div.vdbs-facts__raster
+ *         div.vdbs-facts__haupt
+ *           h2.vdbs-facts__titel
+ *           div.vdbs-buttons
+ *             a.btn
+ *         div.vdbs-fact  ×4
+ *           p.vdbs-fact__zahl
+ *           p.vdbs-fact__label
+ * ========================================================================== */
+
+.vdbs-facts {
+}
+
+.vdbs-facts__inner {
+}
+
+.vdbs-facts__raster {
+}
+
+.vdbs-facts__haupt {
+}
+
+.vdbs-facts__titel {
+}
+
+.vdbs-fact {
+}
+
+.vdbs-fact__zahl {
+}
+
+.vdbs-fact__label {
+}
+
+/* ==========================================================================
+ * Zahlenleiste  (#zahlen)
+ * Vier Kennzahlen mit Icon, Zahl und Label.
+ * Muster: zahlenleiste
+ *
+ * Struktur:
+ *   section.vdbs-zahlen
+ *     div.vdbs-zahlen__inner
+ *       h2.vdbs-zahlen__titel
+ *       div.vdbs-zahlen__liste
+ *         div.vdbs-zahlen__eintrag  ×4
+ *           div.vdbs-zahlen__icon
+ *           p.vdbs-zahlen__zahl
+ *           p.vdbs-zahlen__label
+ * ========================================================================== */
+
+.vdbs-zahlen {
+}
+
+.vdbs-zahlen__inner {
+}
+
+.vdbs-zahlen__titel {
+}
+
+.vdbs-zahlen__liste {
+}
+
+.vdbs-zahlen__eintrag {
+}
+
+.vdbs-zahlen__icon {
+}
+
+.vdbs-zahlen__zahl {
+}
+
+.vdbs-zahlen__label {
+}
+
+/* ==========================================================================
+ * News-Raster  (#news)
+ * Vier Einträge mit quadratischem Bild, Datum, Etikett, Titel und Weiterlesen.
+ * Muster: news-raster
+ *
+ * Struktur:
+ *   section.vdbs-news
+ *     div.vdbs-news__kopf
+ *       h2.vdbs-news__titel
+ *       p.vdbs-news__alle
+ *     div.vdbs-news__liste
+ *       div.vdbs-news__eintrag
+ *         figure.vdbs-news__bild
+ *         p.vdbs-news__datum
+ *         h3.vdbs-news__eintrag-titel
+ *         p.vdbs-news__mehr
+ *       div.vdbs-news__eintrag
+ *         figure.vdbs-news__bild
+ *         p.vdbs-news__datum
+ *         p.vdbs-news__tag
+ *         h3.vdbs-news__eintrag-titel
+ *         p.vdbs-news__mehr
+ *       div.vdbs-news__eintrag  ×2
+ *         figure.vdbs-news__bild
+ *         p.vdbs-news__datum
+ *         h3.vdbs-news__eintrag-titel
+ *         p.vdbs-news__mehr
+ * ========================================================================== */
+
+.vdbs-news {
+}
+
+.vdbs-news__kopf {
+}
+
+.vdbs-news__titel {
+}
+
+.vdbs-news__alle {
+}
+
+.vdbs-news__liste {
+}
+
+.vdbs-news__eintrag {
+}
+
+.vdbs-news__bild {
+}
+
+.vdbs-news__datum {
+}
+
+.vdbs-news__eintrag-titel {
+}
+
+.vdbs-news__mehr {
+}
+
+.vdbs-news__tag {
+}

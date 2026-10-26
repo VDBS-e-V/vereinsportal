@@ -1,0 +1,92 @@
+/*
+ * VDBS Designsystem v2 — Infospalten, Ansprechpartner, Vorstand
+ *
+ * Nur Selektoren, noch ohne Regeln. Struktur und Beispiele:
+ * /design/komponenten (resources/views/design/pages/komponenten.blade.php).
+ * Werte ausschließlich über Tokens aus tokens.css (--color-*, --spacing-*, --text-* …).
+ */
+
+/* ==========================================================================
+ * Infospalten  (#infospalten)
+ * Zwei Spalten, z. B. Anschrift und Kontakt.
+ * Muster: infospalten
+ *
+ * Struktur:
+ *   div.vdbs-infospalten
+ *     h3.vdbs-infospalten__titel  ×2
+ * ========================================================================== */
+
+.vdbs-infospalten {
+}
+
+.vdbs-infospalten__titel {
+}
+
+/* ==========================================================================
+ * Ansprechpartner:innen  (#personen)
+ * Runde Porträts mit Name, Rolle und E-Mail.
+ * Muster: ansprechpartner
+ *
+ * Struktur:
+ *   section.vdbs-bereich
+ *     h2.is-center.vdbs-bereich__titel
+ *     p.is-center
+ *     div.vdbs-personen
+ *       div.vdbs-person  ×2
+ *         figure.vdbs-person__bild
+ *         h3.vdbs-person__name
+ *         p.vdbs-person__rolle
+ *         p.vdbs-person__mail
+ * ========================================================================== */
+
+.vdbs-personen {
+}
+
+.vdbs-person {
+}
+
+.vdbs-person__bild {
+}
+
+.vdbs-person__name {
+}
+
+.vdbs-person__rolle {
+}
+
+.vdbs-person__mail {
+}
+
+/* ==========================================================================
+ * Vorstand  (#vorstand)
+ * Porträt-Karten (5), 3 pro Reihe, letzte Reihe zentriert.
+ * Muster: vorstand-raster
+ *
+ * Struktur:
+ *   section.vdbs-bereich
+ *     h2.is-center.vdbs-bereich__titel
+ *     div.vdbs-vorstand
+ *       div.vdbs-mitglied  ×5
+ *         figure.vdbs-mitglied__bild
+ *         div.vdbs-mitglied__text
+ *           h3.vdbs-mitglied__name
+ *           p.vdbs-mitglied__rolle
+ * ========================================================================== */
+
+.vdbs-vorstand {
+}
+
+.vdbs-mitglied {
+}
+
+.vdbs-mitglied__bild {
+}
+
+.vdbs-mitglied__text {
+}
+
+.vdbs-mitglied__name {
+}
+
+.vdbs-mitglied__rolle {
+}

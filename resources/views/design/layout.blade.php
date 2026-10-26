@@ -40,6 +40,7 @@
                     'index' => 0,
                     'elemente' => 10,
                     'muster' => 20,
+                    'komponenten' => 25,
                     'grundlagen' => 30,
                     'layout' => 40,
                     'header' => 50,

@@ -91,3 +91,10 @@
         gap: var(--spacing-1);
     }
 }
+
+/* Komponenten-Werkstatt (/design/komponenten): Rahmen um jedes Beispiel. */
+.vdbs-demo {
+    margin-block: var(--spacing-5);
+    outline: 1px dashed var(--color-border-strong);
+    outline-offset: var(--spacing-2);
+}

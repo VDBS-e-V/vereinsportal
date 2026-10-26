@@ -1,0 +1,67 @@
+/*
+ * VDBS Designsystem v2 — Kontaktseite und Formular
+ *
+ * Nur Selektoren, noch ohne Regeln. Struktur und Beispiele:
+ * /design/komponenten (resources/views/design/pages/komponenten.blade.php).
+ * Werte ausschließlich über Tokens aus tokens.css (--color-*, --spacing-*, --text-* …).
+ */
+
+/* ==========================================================================
+ * Kontaktseite  (#kontakt)
+ * Bild und Kontaktdaten links, Formular rechts.
+ * Muster: kontakt-seite
+ *
+ * Struktur:
+ *   section.vdbs-bereich
+ *     h2.vdbs-bereich__titel
+ *     div.vdbs-kontakt
+ *       div.vdbs-kontakt__info
+ *         figure.vdbs-kontakt__bild
+ *         h3.vdbs-kontakt__titel  ×2
+ *       form.vdbs-formular
+ *         p.vdbs-formular__status.vdbs-formular__status--ok
+ *         div.vdbs-formular__feld  ×2
+ *           span.vdbs-formular__pflicht
+ *         div.vdbs-formular__feld.vdbs-formular__feld--voll  ×3
+ *           span.vdbs-formular__pflicht
+ *         div.vdbs-formular__feld.vdbs-formular__feld--voll
+ *           div.vdbs-formular__zustimmung
+ *             span.vdbs-formular__pflicht
+ *         button.vdbs-formular__senden.vdbs-formular__feld--voll
+ * ========================================================================== */
+
+.vdbs-kontakt {
+}
+
+.vdbs-kontakt__info {
+}
+
+.vdbs-kontakt__bild {
+}
+
+.vdbs-kontakt__titel {
+}
+
+.vdbs-formular {
+}
+
+.vdbs-formular__status {
+}
+
+.vdbs-formular__status--ok {
+}
+
+.vdbs-formular__feld {
+}
+
+.vdbs-formular__pflicht {
+}
+
+.vdbs-formular__feld--voll {
+}
+
+.vdbs-formular__zustimmung {
+}
+
+.vdbs-formular__senden {
+}

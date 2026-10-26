@@ -1,0 +1,10 @@
+/* VDBS Designsystem v2 — Komponenten (Stubs, von Hand zu gestalten) */
+@import './shared.css';
+@import './hero.css';
+@import './teaser.css';
+@import './kacheln.css';
+@import './inhalt.css';
+@import './personen.css';
+@import './termine.css';
+@import './angebot.css';
+@import './formular.css';

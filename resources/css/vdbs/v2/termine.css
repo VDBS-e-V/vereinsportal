@@ -1,0 +1,150 @@
+/*
+ * VDBS Designsystem v2 — Terminliste und Veranstaltungssuche
+ *
+ * Nur Selektoren, noch ohne Regeln. Struktur und Beispiele:
+ * /design/komponenten (resources/views/design/pages/komponenten.blade.php).
+ * Werte ausschließlich über Tokens aus tokens.css (--color-*, --spacing-*, --text-* …).
+ */
+
+/* ==========================================================================
+ * Terminliste  (#termine)
+ * Zeilen mit Datum | Ort, Titel, Text und Button auf der Trennlinie.
+ * Muster: terminliste
+ *
+ * Struktur:
+ *   section.vdbs-bereich
+ *     h2.vdbs-bereich__titel
+ *     div.vdbs-termine
+ *       div.vdbs-termin  ×3
+ *         p.vdbs-meta
+ *         h3.vdbs-termin__titel
+ *         div.vdbs-aktion
+ *           a.btn
+ * ========================================================================== */
+
+.vdbs-termine {
+}
+
+.vdbs-termin {
+}
+
+.vdbs-termin__titel {
+}
+
+/* ==========================================================================
+ * Veranstaltungssuche  (#suche)
+ * Suchleiste, Ergebnisleiste und Terminzeilen mit Plätze-Hinweis.
+ * Muster: veranstaltungssuche
+ *
+ * Struktur:
+ *   section.vdbs-bereich
+ *     h2.vdbs-bereich__titel
+ *     div.vdbs-suche
+ *       form.vdbs-suchleiste
+ *         label.vdbs-suchleiste__label
+ *         div.vdbs-suchleiste__feld
+ *           input.vdbs-suchleiste__eingabe
+ *           button.vdbs-suchleiste__senden
+ *       p.vdbs-suche-erweitert
+ *     div.vdbs-ergebnisleiste
+ *     div.vdbs-veranstaltungen
+ *       div.vdbs-veranstaltung
+ *         div.vdbs-veranstaltung__datum
+ *           p.vdbs-veranstaltung__tag
+ *           p.vdbs-veranstaltung__monat
+ *           p.vdbs-veranstaltung__zeit
+ *         div.vdbs-veranstaltung__inhalt
+ *           p.vdbs-plaetze.vdbs-plaetze--voll
+ *           h3.vdbs-veranstaltung__titel
+ *           p.vdbs-veranstaltung__meta  ×3
+ *           p.vdbs-veranstaltung__text
+ *           div.vdbs-aktion.vdbs-aktion--flach
+ *             a.btn
+ *       div.vdbs-veranstaltung
+ *         div.vdbs-veranstaltung__datum
+ *           p.vdbs-veranstaltung__tag
+ *           p.vdbs-veranstaltung__monat
+ *           p.vdbs-veranstaltung__zeit
+ *         div.vdbs-veranstaltung__inhalt
+ *           p.vdbs-plaetze.vdbs-plaetze--voll
+ *           h3.vdbs-veranstaltung__titel
+ *           p.vdbs-veranstaltung__meta  ×2
+ *           p.vdbs-veranstaltung__text
+ *           div.vdbs-aktion.vdbs-aktion--flach
+ *             a.btn
+ *       div.vdbs-veranstaltung
+ *         div.vdbs-veranstaltung__datum
+ *           p.vdbs-veranstaltung__tag
+ *           p.vdbs-veranstaltung__monat
+ *           p.vdbs-veranstaltung__zeit
+ *         div.vdbs-veranstaltung__inhalt
+ *           p.vdbs-plaetze.vdbs-plaetze--frei
+ *           h3.vdbs-veranstaltung__titel
+ *           p.vdbs-veranstaltung__meta  ×2
+ *           p.vdbs-veranstaltung__text
+ *           div.vdbs-aktion.vdbs-aktion--flach
+ *             a.btn
+ * ========================================================================== */
+
+.vdbs-suche {
+}
+
+.vdbs-suchleiste {
+}
+
+.vdbs-suchleiste__label {
+}
+
+.vdbs-suchleiste__feld {
+}
+
+.vdbs-suchleiste__eingabe {
+}
+
+.vdbs-suchleiste__senden {
+}
+
+.vdbs-suche-erweitert {
+}
+
+.vdbs-ergebnisleiste {
+}
+
+.vdbs-veranstaltungen {
+}
+
+.vdbs-veranstaltung {
+}
+
+.vdbs-veranstaltung__datum {
+}
+
+.vdbs-veranstaltung__tag {
+}
+
+.vdbs-veranstaltung__monat {
+}
+
+.vdbs-veranstaltung__zeit {
+}
+
+.vdbs-veranstaltung__inhalt {
+}
+
+.vdbs-plaetze {
+}
+
+.vdbs-plaetze--voll {
+}
+
+.vdbs-veranstaltung__titel {
+}
+
+.vdbs-veranstaltung__meta {
+}
+
+.vdbs-veranstaltung__text {
+}
+
+.vdbs-plaetze--frei {
+}

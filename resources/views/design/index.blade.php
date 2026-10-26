@@ -46,6 +46,11 @@
                 </article>
 
                 <article class="teaser">
+                    <h3><a href="{{ route('design.komponenten') }}">Komponenten-Werkstatt</a></h3>
+                    <p>Designsystem v2: reine HTML-Struktur der neuen Komponenten, Styling per CSS in <code>vdbs/v2</code>.</p>
+                </article>
+
+                <article class="teaser">
                     <h3><a href="{{ route('design.vorlagen') }}">Vorlagen</a></h3>
                     <p>Vollständige Seitenstrukturen für öffentliche und interne Anwendungsfälle.</p>
                 </article>

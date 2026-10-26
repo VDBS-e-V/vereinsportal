@@ -1,0 +1,112 @@
+/*
+ * VDBS Designsystem v2 — Hero, Banner, Page Hero, Intro
+ *
+ * Nur Selektoren, noch ohne Regeln. Struktur und Beispiele:
+ * /design/komponenten (resources/views/design/pages/komponenten.blade.php).
+ * Werte ausschließlich über Tokens aus tokens.css (--color-*, --spacing-*, --text-* …).
+ */
+
+/* ==========================================================================
+ * Hero „Bühne“  (#hero)
+ * Vollbild-Foto mit Lila-Karte, Claim und Button. Variante --welle fügt eine Wellenkante unten an.
+ * Muster: hero-start
+ *
+ * Struktur:
+ *   section.vdbs-banner.vdbs-banner--buehne.vdbs-banner--welle
+ *     figure.vdbs-banner__bild
+ *     div.vdbs-banner__inner
+ *       div.vdbs-banner__karte
+ *         h2.vdbs-banner__titel
+ *         div.vdbs-buttons
+ *           a.btn
+ * ========================================================================== */
+
+.vdbs-banner {
+}
+
+.vdbs-banner--buehne {
+}
+
+.vdbs-banner--welle {
+}
+
+.vdbs-banner__bild {
+}
+
+.vdbs-banner__inner {
+}
+
+.vdbs-banner__karte {
+}
+
+.vdbs-banner__titel {
+}
+
+/* ==========================================================================
+ * Banner mit Karte  (#banner)
+ * Vollbild-Foto mit heller Karte (Titel, Text, Outline-Button).
+ * Muster: banner-mit-karte
+ *
+ * Struktur:
+ *   section.vdbs-banner.vdbs-banner--welle
+ *     figure.vdbs-banner__bild
+ *     div.vdbs-banner__inner
+ *       div.vdbs-banner__karte
+ *         h2.vdbs-banner__titel
+ *         div.vdbs-buttons
+ *           a.btn.btn--outline
+ * ========================================================================== */
+
+/* ==========================================================================
+ * Page Hero  (#pagehero)
+ * Band mit zentriertem Seitentitel und Lead.
+ * Muster: page-hero
+ *
+ * Struktur:
+ *   section.vdbs-pagehero
+ *     div.vdbs-pagehero__inner
+ *       h1.vdbs-pagehero__titel
+ *       p.vdbs-pagehero__lead
+ * ========================================================================== */
+
+.vdbs-pagehero {
+}
+
+.vdbs-pagehero__inner {
+}
+
+.vdbs-pagehero__titel {
+}
+
+.vdbs-pagehero__lead {
+}
+
+/* ==========================================================================
+ * Intro-Teaser  (#intro)
+ * Titel, Lead und Button links, Bild rechts. Drei Ausprägungen: mit Lead, schlank (nur Titel + Button), Seitenkopf (Titel + Lead, ohne Button).
+ * Muster: intro-teaser, intro-teaser-schlank, seitenkopf
+ *
+ * Struktur:
+ *   section.vdbs-intro
+ *     div.vdbs-intro__text
+ *       h2.vdbs-intro__titel
+ *       p.vdbs-intro__lead
+ *       div.vdbs-aktion.vdbs-aktion--flach
+ *         a.btn
+ *     figure.vdbs-intro__bild
+ * ========================================================================== */
+
+.vdbs-intro {
+}
+
+.vdbs-intro__text {
+}
+
+.vdbs-intro__titel {
+}
+
+.vdbs-intro__lead {
+}
+
+.vdbs-intro__bild {
+}

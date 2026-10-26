@@ -36,6 +36,7 @@
 @import './vdbs/components/playground.css';
 @import './vdbs/components/tables.css';
 @import './vdbs/pages.css';
+@import './vdbs/v2/index.css';
 @import './vdbs/a11y.css';
 @import './vdbs/design.css';
 @import './vdbs/print.css';

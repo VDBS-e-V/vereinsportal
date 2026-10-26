@@ -1,0 +1,45 @@
+/*
+ * VDBS Designsystem v2 — Angebot-Bereiche mit Modulen
+ *
+ * Nur Selektoren, noch ohne Regeln. Struktur und Beispiele:
+ * /design/komponenten (resources/views/design/pages/komponenten.blade.php).
+ * Werte ausschließlich über Tokens aus tokens.css (--color-*, --spacing-*, --text-* …).
+ */
+
+/* ==========================================================================
+ * Angebot-Bereich  (#angebot)
+ * Großer Titel mit Strich, Text und ausklappbare Module. Varianten: Titel links/rechts, Farbe grün/petrol/rot.
+ * Muster: angebot-bereich, angebot-bereich-rechts
+ *
+ * Struktur:
+ *   section.vdbs-angebot
+ *     div.vdbs-angebot__kopf
+ *       h2.vdbs-angebot__titel
+ *     div.vdbs-angebot__inhalt
+ *       h3.vdbs-angebot__zwischentitel
+ *       details.vdbs-modul  ×5
+ * ========================================================================== */
+
+.vdbs-angebot {
+}
+
+.vdbs-angebot__kopf {
+}
+
+.vdbs-angebot__titel {
+}
+
+.vdbs-angebot__inhalt {
+}
+
+.vdbs-angebot__zwischentitel {
+}
+
+.vdbs-modul {
+}
+
+.vdbs-angebot--rechts {
+}
+
+.vdbs-angebot--petrol {
+}
