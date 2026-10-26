@@ -18,18 +18,27 @@
             <h2>Brand-Farbpalette</h2>
             <p class="container--narrow">
                 Diese Farben bilden die vollständige Markenpalette des Portals.
-                White und Ink bilden die ruhige Basis; VDBS Green, Ocean Mist und
-                die weiteren Akzentfarben werden gezielt eingesetzt.
+                White und Ink bilden die ruhige Basis; VDBS Green und Lila sind die
+                Markenfarben, die Gruppenfarben werden gezielt eingesetzt. Ocean Mist
+                und die Zusatzfarben unten sind Altbestand und werden im Rahmen von
+                Designsystem v2 neu bewertet (siehe docs/33).
             </p>
 
             <div class="design-swatches">
                 @foreach ([
-                    ['VDBS Green', '#2FBF71', 'var(--color-primary)'],
-                    ['Ocean Mist', '#22B7A3', 'var(--color-secondary-cta)'],
-                    ['Sekundärakzent', '#582759', 'var(--color-secondary-accent)'],
+                    ['VDBS Green', '#2DC08E', 'var(--color-primary)'],
+                    ['Lila (Bühne, Akzent)', '#58275A', 'var(--color-secondary-accent)'],
+                    ['Grün hell', '#DCF8EA', 'var(--color-brand-soft)'],
                     ['Ink', '#0F172A', 'var(--color-ink)'],
                     ['White', '#FFFFFF', 'var(--color-white)'],
-                    ['Amber', '#F59E0B', 'var(--color-accent-amber)'],
+                    ['Gruppe 1 · Hellblau', '#52BDF2', 'var(--color-group-1)'],
+                    ['Gruppe 2 · Gelb', '#FFCB1F', 'var(--color-group-2)'],
+                    ['Gruppe 3 · Petrol', '#0A7FA0', 'var(--color-group-3)'],
+                    ['Gruppe 4 · Rosa', '#F76CA3', 'var(--color-group-4)'],
+                    ['Gruppe 5 · Rot', '#D93425', 'var(--color-group-5)'],
+                    ['Gruppe 6 · Orange', '#F5912B', 'var(--color-group-6)'],
+                    ['Ocean Mist (Altbestand)', '#22B7A3', 'var(--color-secondary-cta)'],
+                    ['Amber (Altbestand)', '#F59E0B', 'var(--color-accent-amber)'],
                     ['Teal', '#14B8A6', 'var(--color-accent-teal)'],
                     ['Berry', '#D946EF', 'var(--color-accent-berry)'],
                     ['Sun Yellow', '#FDE047', 'var(--color-accent-sun-yellow)'],
@@ -65,7 +74,7 @@
                     ['Information', '#285B8F', 'var(--color-info)'],
                     ['Erfolg', '#18794E', 'var(--color-success)'],
                     ['Warnung', '#8A5A00', 'var(--color-warning)'],
-                    ['Gefahr', '#A12622', 'var(--color-danger)'],
+                    ['Gefahr', '#B42318', 'var(--color-danger)'],
                     ['Deaktivierter Text', '#6F7B76', 'var(--color-text-disabled)'],
                     ['Deaktivierte Fläche', '#EEF1F0', 'var(--color-surface-disabled)'],
                 ] as [$name, $hex, $token])
@@ -90,7 +99,7 @@
 
             <div class="design-token-list">
                 <div class="design-token-row">
-                    <strong>IBM Plex Sans</strong>
+                    <strong>Lato</strong>
                     <div class="stack stack--sm">
                         <h1>Seitentitel</h1>
                         <h2>Abschnitt</h2>

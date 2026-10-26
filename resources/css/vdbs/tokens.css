@@ -4,20 +4,41 @@
  * Canonical token names follow the former VDBS Portal structure. The
  * --vdbs-* aliases remain available so already created Blade examples keep
  * working while new components can use the shorter portal-style tokens.
+ *
+ * Design system v2 (Grundlagen): values follow the VDBS corporate design
+ * package v7.2, the same source as the WordPress theme (theme.json).
+ * Token NAMES are unchanged on purpose; see docs/33_DESIGN_SYSTEM_V2_GRUNDLAGEN.md
+ * for the mapping, the open decisions and the migration plan.
  */
 
 :root {
     /* Brand */
     --color-ink: #0f172a;
     --color-white: #ffffff;
-    --color-primary: #2fbf71;
-    --color-secondary-cta: #22b7a3;
-    --color-secondary-accent: #582759;
+    --color-primary: #2dc08e; /* Brand green (v2: was #2fbf71) */
+    --color-secondary-cta: #22b7a3; /* Ocean Mist — no counterpart in the brand package, see docs/33 */
+    --color-secondary-accent: #58275a; /* Brand purple "Lila" (v2: was #582759) */
     --color-accent-amber: #f59e0b;
     --color-accent-teal: #14b8a6;
     --color-accent-berry: #d946ef;
     --color-accent-sun-yellow: #fde047;
     --color-accent-lime: #a3e635;
+
+    /* Brand roles (v2) */
+    --color-brand-soft: #dcf8ea; /* light green surface (brand "gruen-hell") */
+    --color-stage: var(--color-secondary-accent); /* dark brand surface, e.g. hero, footer, call to action */
+    --color-on-stage: #ffffff;
+    --color-stage-highlight: var(--color-primary);
+    --color-accent-text: var(--color-secondary-accent); /* purple used as text or icon colour */
+    --color-on-accent: #ffffff;
+
+    /* Group colours (v2): fixed categorical palette of the brand package */
+    --color-group-1: #52bdf2; /* light blue */
+    --color-group-2: #ffcb1f; /* yellow */
+    --color-group-3: #0a7fa0; /* petrol */
+    --color-group-4: #f76ca3; /* pink */
+    --color-group-5: #d93425; /* red */
+    --color-group-6: #f5912b; /* orange */
 
     /* Neutral UI */
     --color-page: #ffffff;
@@ -25,26 +46,25 @@
     --color-surface-subtle: #f5f7f6;
     --color-surface-strong: #edf1ef;
     --color-border: #d4dbd8;
-    --color-border-strong: #8d9a95;
+    --color-border-strong: #7f8d88; /* v2: brand "Grau Rahmen", was #8d9a95 */
     --color-text-muted: #52605b;
     --color-text-disabled: #6f7b76;
     --color-surface-disabled: #eef1f0;
 
     /* Semantic UI */
-    --color-link: #086f64;
-    --color-focus: var(--color-ink);
+    --color-link: #057f5b; /* v2: brand link green, was #086f64 */
+    --color-link-visited: var(--color-secondary-accent);
+    --color-focus: var(--color-secondary-accent); /* v2: brand focus purple, was ink */
     --color-success: #18794e;
     --color-warning: #8a5a00;
-    --color-danger: #a12622;
+    --color-danger: #b42318; /* v2: brand error, was #a12622 */
     --color-info: #285b8f;
 
     /* Typography */
     --font-family-base:
-        "IBM Plex Sans",
-        system-ui,
-        -apple-system,
-        "Segoe UI",
+        "Lato",
         Arial,
+        "Helvetica Neue",
         sans-serif;
 
     --font-family-accent:
@@ -63,6 +83,7 @@
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
+    --font-weight-black: 900; /* v2: H1/H2 as in the corporate design */
 
     --text-xs: 0.75rem;
     --text-sm: 0.875rem;

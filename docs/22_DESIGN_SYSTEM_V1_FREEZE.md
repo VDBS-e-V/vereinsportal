@@ -29,3 +29,10 @@ git status --short
 
 Wenn diese Prüfungen grün sind und der Browser-Pass auf Desktop/Mobile keine
 offenen Punkte zeigt, gilt Designsystem v1 als abgeschlossen.
+
+## Revision v2 (in Abstimmung)
+
+Eine Überarbeitung der Grundlagen an das Markenpaket v7.2 ist in
+`docs/33_DESIGN_SYSTEM_V2_GRUNDLAGEN.md` beschrieben. Bis zur Freigabe (offene
+Entscheidung D dort) gilt der Freeze weiter; der Branch
+`design-system-v2/grundlagen` ändert nur Token-Werte, keine Komponenten.

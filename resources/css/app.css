@@ -55,14 +55,15 @@
  * component classes from that layer.
  */
 @theme {
-    --font-sans: 'IBM Plex Sans', 'Segoe UI', Arial, sans-serif;
+    --font-sans: 'Lato', Arial, 'Helvetica Neue', sans-serif;
     --font-serif: 'Source Serif 4', Georgia, serif;
 
-    --color-vdbs-green: #2fbf71;
+    --color-vdbs-green: #2dc08e;
     --color-vdbs-ocean: #22b7a3;
     --color-vdbs-ink: #0f172a;
     --color-vdbs-amber: #f59e0b;
     --color-vdbs-teal: #14b8a6;
     --color-vdbs-berry: #d946ef;
     --color-vdbs-white: #ffffff;
+    --color-vdbs-purple: #58275a;
 }

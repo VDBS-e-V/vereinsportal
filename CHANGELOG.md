@@ -16,6 +16,7 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ### Changed
 
+- Designsystem v2 (Grundlagen): Tokens an Markenpaket v7.2 angeglichen (Grün, Lila, Link, Fokus, Fehler), neue Rollen und Gruppenfarben, Lato als Basisschrift; Dokumentation in `docs/33_DESIGN_SYSTEM_V2_GRUNDLAGEN.md`
 - Entwicklungsmodell auf kurze Pull-Request-Branches direkt nach `main` vereinheitlicht
 - GitHub Actions auf feste Commit-SHAs gepinnt
 - PR- und Issue-Templates an aktuelle QA-, Security- und Datenschutzregeln angepasst
