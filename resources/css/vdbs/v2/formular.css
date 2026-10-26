@@ -1,7 +1,7 @@
 /*
  * VDBS Designsystem v2 — Kontaktseite und Formular
  *
- * Nur Selektoren, noch ohne Regeln. Struktur und Beispiele:
+ * Startgestaltung (Entwurf zum Weiterbearbeiten). Struktur und Beispiele:
  * /design/komponenten (resources/views/design/pages/komponenten.blade.php).
  * Werte ausschließlich über Tokens aus tokens.css (--color-*, --spacing-*, --text-* …).
  */
@@ -31,37 +31,147 @@
  * ========================================================================== */
 
 .vdbs-kontakt {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 8fr);
+    gap: var(--spacing-6) var(--spacing-8);
+    align-items: start;
+}
+
+@media (max-width: 48rem) {
+    .vdbs-kontakt {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 .vdbs-kontakt__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
 }
 
-.vdbs-kontakt__bild {
+.vdbs-kontakt__bild img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
 }
 
 .vdbs-kontakt__titel {
+    margin-block-end: var(--spacing-2);
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-bold);
+    line-height: 1.25;
 }
 
+.vdbs-kontakt__info p {
+    font-size: var(--text-sm);
+}
+
+/* Formular: zweispaltiges Raster, --voll über beide Spalten. */
 .vdbs-formular {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-4) var(--spacing-5);
 }
 
-.vdbs-formular__status {
-}
-
-.vdbs-formular__status--ok {
+@media (max-width: 40rem) {
+    .vdbs-formular {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 .vdbs-formular__feld {
-}
-
-.vdbs-formular__pflicht {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
 }
 
 .vdbs-formular__feld--voll {
+    grid-column: 1 / -1;
+}
+
+.vdbs-formular label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-bold);
+}
+
+.vdbs-formular input[type="text"],
+.vdbs-formular input[type="email"],
+.vdbs-formular input[type="tel"],
+.vdbs-formular textarea {
+    width: 100%;
+    padding: var(--spacing-3) var(--spacing-4);
+    border: var(--border-width-default) solid var(--color-border-strong);
+    background: var(--color-white);
+    color: var(--color-ink);
+    font: inherit;
+}
+
+.vdbs-formular textarea {
+    min-height: 11rem;
+    resize: vertical;
+}
+
+.vdbs-formular input:focus-visible,
+.vdbs-formular textarea:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+.vdbs-formular__pflicht {
+    color: var(--color-danger);
 }
 
 .vdbs-formular__zustimmung {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+}
+
+.vdbs-formular__zustimmung input {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-block-start: 0.2rem;
+    accent-color: var(--color-secondary-accent);
+}
+
+.vdbs-formular__zustimmung label {
+    font-weight: var(--font-weight-regular);
 }
 
 .vdbs-formular__senden {
+    justify-self: start;
+    min-height: var(--control-height-md);
+    padding: 0 var(--spacing-6);
+    border: var(--border-width-default) solid var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-ink);
+    cursor: pointer;
+    font: inherit;
+    font-weight: var(--font-weight-bold);
+}
+
+.vdbs-formular__senden:hover,
+.vdbs-formular__senden:focus-visible {
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+    color: var(--color-white);
+}
+
+.vdbs-formular__status {
+    grid-column: 1 / -1;
+    padding: var(--spacing-3) var(--spacing-4);
+    border: 2px solid var(--color-ink);
+    font-weight: var(--font-weight-bold);
+}
+
+.vdbs-formular__status--ok {
+    border-color: var(--color-link);
+    background: var(--color-brand-soft);
+}
+
+.vdbs-formular__status--fehler {
+    border-color: var(--color-danger);
+    color: var(--color-danger);
 }

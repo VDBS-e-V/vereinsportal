@@ -153,7 +153,7 @@ Rollen-Tokens (`--color-text`, `--color-bg`, …) und eine Migration der rund 13
 ## 9. Komponenten-Werkstatt (CSS von Hand)
 
 Für die Gestaltung der neuen Komponenten gibt es eine reine Struktur-Seite und
-leere CSS-Dateien:
+CSS-Dateien mit einer **Startgestaltung** (Entwurf, nur Tokens, zum Weiterbearbeiten):
 
 | Was | Wo |
 |---|---|
@@ -164,8 +164,9 @@ leere CSS-Dateien:
 
 Die CSS-Dateien liegen bewusst **nicht** unter `css/vdbs/components/`, damit
 `vdbs:library-check` sie nicht als unregistrierte Kern-Dateien meldet. Jede Datei
-beginnt je Komponente mit einem Strukturbaum (Elemente und Klassen) und führt danach
-alle Klassen als leere Regeln.
+beginnt je Komponente mit einem Strukturbaum (Elemente und Klassen); darunter stehen
+die Regeln der Komponente mit Varianten und Breakpoints.
+Neu in `tokens.css`: `--text-display` (fluide Display-Schrift für Hero und Page Hero).
 
 | Datei | Komponenten |
 |---|---|

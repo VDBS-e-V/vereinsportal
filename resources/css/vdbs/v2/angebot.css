@@ -1,7 +1,7 @@
 /*
  * VDBS Designsystem v2 — Angebot-Bereiche mit Modulen
  *
- * Nur Selektoren, noch ohne Regeln. Struktur und Beispiele:
+ * Startgestaltung (Entwurf zum Weiterbearbeiten). Struktur und Beispiele:
  * /design/komponenten (resources/views/design/pages/komponenten.blade.php).
  * Werte ausschließlich über Tokens aus tokens.css (--color-*, --spacing-*, --text-* …).
  */
@@ -20,26 +20,124 @@
  *       details.vdbs-modul  ×5
  * ========================================================================== */
 
+/* Titel links (Standard) oder rechts (--rechts); Farbe über --vdbs-akzent. */
 .vdbs-angebot {
-}
-
-.vdbs-angebot__kopf {
-}
-
-.vdbs-angebot__titel {
-}
-
-.vdbs-angebot__inhalt {
-}
-
-.vdbs-angebot__zwischentitel {
-}
-
-.vdbs-modul {
-}
-
-.vdbs-angebot--rechts {
+    --vdbs-akzent: var(--color-link);
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 8fr);
+    gap: var(--spacing-6) var(--spacing-8);
+    align-items: start;
+    max-width: var(--layout-content-small-max);
+    margin-inline: auto;
+    padding-block: var(--spacing-8);
 }
 
 .vdbs-angebot--petrol {
+    --vdbs-akzent: var(--color-group-3);
+}
+
+.vdbs-angebot--rot {
+    --vdbs-akzent: var(--color-group-5);
+}
+
+.vdbs-angebot__kopf {
+    position: sticky;
+    top: var(--spacing-6);
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.vdbs-angebot__titel {
+    /* Mischung mit Ink hält den Kontrast auch bei hellen Akzenten. */
+    color: color-mix(in srgb, var(--vdbs-akzent) 75%, var(--color-ink));
+    font-size: var(--text-4xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--leading-tight);
+    hyphens: auto;
+    overflow-wrap: break-word;
+}
+
+.vdbs-angebot__titel::after {
+    content: "";
+    display: block;
+    width: 5rem;
+    height: var(--border-width-strong);
+    margin-block-start: var(--spacing-4);
+    background: var(--color-ink);
+}
+
+.vdbs-angebot__inhalt {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+.vdbs-angebot__zwischentitel {
+    margin-block-start: var(--spacing-3);
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-bold);
+    line-height: 1.25;
+}
+
+.vdbs-angebot--rechts {
+    grid-template-columns: minmax(0, 8fr) minmax(0, 5fr);
+}
+
+.vdbs-angebot--rechts .vdbs-angebot__kopf {
+    grid-column: 2;
+}
+
+.vdbs-angebot--rechts .vdbs-angebot__inhalt {
+    grid-column: 1;
+}
+
+/* Module: ausklappbar. */
+.vdbs-modul {
+    border: var(--border-width-default) solid var(--color-border);
+    background: var(--color-white);
+    font-size: var(--text-sm);
+}
+
+.vdbs-modul + .vdbs-modul {
+    margin-block-start: var(--spacing-2);
+}
+
+.vdbs-modul summary {
+    padding: var(--spacing-3) var(--spacing-4);
+    cursor: pointer;
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-bold);
+}
+
+.vdbs-modul summary:hover {
+    background: var(--color-surface-subtle);
+}
+
+.vdbs-modul[open] {
+    border-color: var(--color-ink);
+}
+
+.vdbs-modul > :not(summary) {
+    padding: 0 var(--spacing-4) var(--spacing-4);
+}
+
+@media (max-width: 48rem) {
+    .vdbs-angebot,
+    .vdbs-angebot--rechts {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .vdbs-angebot__kopf,
+    .vdbs-angebot--rechts .vdbs-angebot__kopf {
+        position: static;
+        grid-column: 1;
+    }
+
+    .vdbs-angebot__inhalt,
+    .vdbs-angebot--rechts .vdbs-angebot__inhalt {
+        grid-column: 1;
+        grid-row: 2;
+    }
 }

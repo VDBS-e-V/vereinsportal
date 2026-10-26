@@ -1,7 +1,7 @@
 /*
  * VDBS Designsystem v2 — Hero, Banner, Page Hero, Intro
  *
- * Nur Selektoren, noch ohne Regeln. Struktur und Beispiele:
+ * Startgestaltung (Entwurf zum Weiterbearbeiten). Struktur und Beispiele:
  * /design/komponenten (resources/views/design/pages/komponenten.blade.php).
  * Werte ausschließlich über Tokens aus tokens.css (--color-*, --spacing-*, --text-* …).
  */
@@ -22,24 +22,85 @@
  * ========================================================================== */
 
 .vdbs-banner {
-}
-
-.vdbs-banner--buehne {
-}
-
-.vdbs-banner--welle {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    min-height: 28rem;
+    padding: var(--spacing-8) var(--layout-page-gutter) var(--spacing-9);
 }
 
 .vdbs-banner__bild {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+}
+
+.vdbs-banner__bild img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .vdbs-banner__inner {
+    width: 100%;
+    max-width: var(--layout-content-max);
+    margin-inline: auto;
 }
 
 .vdbs-banner__karte {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+    width: min(100%, 21.5rem);
+    padding: var(--spacing-6) var(--spacing-5);
+    background: var(--color-white);
+    color: var(--color-ink);
 }
 
 .vdbs-banner__titel {
+    color: inherit;
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--leading-tight);
+}
+
+.vdbs-banner__karte p {
+    font-size: var(--text-sm);
+}
+
+/* Variante Bühne: Lila-Karte, Claim in Neuland. */
+.vdbs-banner--buehne {
+    min-height: 36rem;
+}
+
+.vdbs-banner--buehne .vdbs-banner__karte {
+    width: min(100%, 34rem);
+    padding: var(--spacing-6);
+    background: var(--color-stage);
+    color: var(--color-on-stage);
+}
+
+.vdbs-banner--buehne .vdbs-banner__titel {
+    font-family: var(--font-family-workshop);
+    font-size: var(--text-display);
+    font-weight: var(--font-weight-regular);
+    line-height: 1.05;
+}
+
+.vdbs-banner--buehne .vdbs-banner__karte p {
+    font-size: var(--text-base);
+}
+
+/* Variante Welle: Wellenkante unten in der Farbe der folgenden Fläche. */
+.vdbs-banner--welle::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 -1px;
+    height: 1.25rem;
+    background: var(--color-surface-subtle);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 20' preserveAspectRatio='none'%3E%3Cpath d='M0 20V10a16 10 0 0 1 32 0 16 10 0 0 1 32 0v10z'/%3E%3C/svg%3E") bottom left / 4rem 100% repeat-x;
 }
 
 /* ==========================================================================
@@ -57,6 +118,8 @@
  *           a.btn.btn--outline
  * ========================================================================== */
 
+/* Regeln: siehe Hero „Bühne“ (gleiche Klassen .vdbs-banner*). Hier gilt: Karte weiß, Outline-Button. */
+
 /* ==========================================================================
  * Page Hero  (#pagehero)
  * Band mit zentriertem Seitentitel und Lead.
@@ -68,17 +131,31 @@
  *       h1.vdbs-pagehero__titel
  *       p.vdbs-pagehero__lead
  * ========================================================================== */
-
+/* Page Hero: Band mit zentriertem Titel. */
 .vdbs-pagehero {
+    padding: var(--spacing-9) var(--layout-page-gutter);
+    background: var(--color-stage);
+    color: var(--color-on-stage);
+    text-align: center;
 }
 
 .vdbs-pagehero__inner {
+    max-width: var(--layout-text-max);
+    margin-inline: auto;
 }
 
 .vdbs-pagehero__titel {
+    color: inherit;
+    font-family: var(--font-family-workshop);
+    font-size: var(--text-display);
+    font-weight: var(--font-weight-regular);
+    line-height: 1.05;
 }
 
 .vdbs-pagehero__lead {
+    margin-block-start: var(--spacing-3);
+    color: inherit;
+    font-size: var(--text-xl);
 }
 
 /* ==========================================================================
@@ -95,18 +172,50 @@
  *         a.btn
  *     figure.vdbs-intro__bild
  * ========================================================================== */
-
+/* Intro-Teaser: Text links, Bild rechts. */
 .vdbs-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 7fr);
+    gap: var(--spacing-6) var(--spacing-8);
+    align-items: center;
+    max-width: var(--layout-content-small-max);
+    margin-inline: auto;
 }
 
 .vdbs-intro__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
 }
 
 .vdbs-intro__titel {
+    font-size: var(--text-4xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--leading-tight);
+    hyphens: auto;
+    overflow-wrap: break-word;
 }
 
 .vdbs-intro__lead {
+    font-size: var(--text-xl);
+    line-height: 1.35;
 }
 
-.vdbs-intro__bild {
+.vdbs-intro__bild img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+}
+
+.vdbs-intro__bild figcaption {
+    margin-block-start: var(--spacing-1);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+@media (max-width: 48rem) {
+    .vdbs-intro {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }

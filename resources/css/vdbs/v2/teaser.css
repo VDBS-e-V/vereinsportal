@@ -1,7 +1,7 @@
 /*
  * VDBS Designsystem v2 — Teaser und Bild-Text-Versatz
  *
- * Nur Selektoren, noch ohne Regeln. Struktur und Beispiele:
+ * Startgestaltung (Entwurf zum Weiterbearbeiten). Struktur und Beispiele:
  * /design/komponenten (resources/views/design/pages/komponenten.blade.php).
  * Werte ausschließlich über Tokens aus tokens.css (--color-*, --spacing-*, --text-* …).
  */
@@ -20,22 +20,130 @@
  *         a.btn
  * ========================================================================== */
 
+/* Bild ragt oben und seitlich über die Fläche hinaus; Inhalt und Bild
+ * liegen im selben Grid-Bereich. Geometrie über drei Variablen. */
 .vdbs-bildteaser {
+    --vdbs-bild: 48%;       /* Breite des Bildes */
+    --vdbs-versatz: 2.25rem; /* Bild steht so weit über der Fläche */
+    --vdbs-einzug: 0.75rem;  /* Bild steht so weit neben der Fläche */
+    position: relative;
+    display: grid;
+    grid-template-columns: var(--vdbs-bild) minmax(0, 1fr);
+    align-items: start;
+    max-width: var(--layout-content-small-max);
+    margin-inline: auto;
+    margin-block-end: var(--spacing-6);
 }
 
 .vdbs-bildteaser__bild {
+    grid-column: 1;
+    grid-row: 1;
+    z-index: 1;
+    margin-block-end: var(--spacing-4);
+}
+
+.vdbs-bildteaser__bild img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+}
+
+.vdbs-bildteaser__bild figcaption {
+    margin: var(--spacing-2) 0 0 calc(var(--vdbs-einzug) + var(--spacing-4));
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
 }
 
 .vdbs-bildteaser__inhalt {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    margin-block-start: var(--vdbs-versatz);
+    margin-inline-start: var(--vdbs-einzug);
+    padding: var(--spacing-6) var(--spacing-5) var(--spacing-5)
+        calc(var(--vdbs-bild) + var(--spacing-5));
+    background: var(--color-brand-soft);
+    color: var(--color-ink);
 }
 
 .vdbs-bildteaser__titel {
+    color: inherit;
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--leading-heading);
 }
 
+.vdbs-bildteaser__inhalt p {
+    font-size: var(--text-base);
+}
+
+.vdbs-bildteaser:has(.btn:focus-visible) .vdbs-bildteaser__inhalt {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+/* Variante rechts: Bild rechts, Inhalt links. */
 .vdbs-bildteaser--rechts {
+    grid-template-columns: minmax(0, 1fr) var(--vdbs-bild);
 }
 
-.vdbs-bildteaser--hervorgehoben {
+.vdbs-bildteaser--rechts .vdbs-bildteaser__bild {
+    grid-column: 2;
+}
+
+.vdbs-bildteaser--rechts .vdbs-bildteaser__bild figcaption {
+    margin-inline-start: var(--spacing-5);
+}
+
+.vdbs-bildteaser--rechts .vdbs-bildteaser__inhalt {
+    margin-inline: 0 var(--vdbs-einzug);
+    padding-inline: var(--spacing-5) calc(var(--vdbs-bild) + var(--spacing-5));
+}
+
+/* Variante hervorgehoben: dunkle Bühne-Fläche. */
+.vdbs-bildteaser--hervorgehoben .vdbs-bildteaser__inhalt {
+    background: var(--color-stage);
+    color: var(--color-on-stage);
+}
+
+.vdbs-bildteaser--hervorgehoben .vdbs-bildteaser__bild figcaption {
+    color: var(--color-on-stage);
+}
+
+.vdbs-bildteaser--hervorgehoben:has(.btn:focus-visible) .vdbs-bildteaser__inhalt {
+    outline-color: var(--color-on-stage);
+}
+
+@media (max-width: 48rem) {
+    .vdbs-bildteaser,
+    .vdbs-bildteaser--rechts {
+        display: block;
+    }
+
+    .vdbs-bildteaser__bild {
+        margin-block-end: 0;
+    }
+
+    .vdbs-bildteaser__bild figcaption,
+    .vdbs-bildteaser--rechts .vdbs-bildteaser__bild figcaption {
+        margin: 0;
+        padding: var(--spacing-2) var(--spacing-5);
+        background: var(--color-brand-soft);
+    }
+
+    .vdbs-bildteaser--hervorgehoben .vdbs-bildteaser__bild figcaption {
+        background: var(--color-stage);
+    }
+
+    .vdbs-bildteaser__inhalt,
+    .vdbs-bildteaser--rechts .vdbs-bildteaser__inhalt {
+        margin: 0;
+        padding: var(--spacing-5);
+    }
 }
 
 /* ==========================================================================
@@ -51,21 +159,80 @@
  *       div.vdbs-buttons
  *         a.btn.btn--outline
  * ========================================================================== */
-
+/* Bild-Text-Versatz: Karte überlappt ein großes Bild, vertikal mittig. */
 .vdbs-versatz {
+    --vdbs-karte: 43%;
+    --vdbs-bild: 67%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    max-width: var(--layout-content-small-max);
+    margin-inline: auto;
+}
+
+.vdbs-versatz > * {
+    grid-area: 1 / 1;
 }
 
 .vdbs-versatz__bild {
+    justify-self: end;
+    width: var(--vdbs-bild);
+}
+
+.vdbs-versatz__bild img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
 }
 
 .vdbs-versatz__karte {
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+    justify-self: start;
+    width: var(--vdbs-karte);
+    padding: var(--spacing-6) var(--spacing-5);
+    background: var(--color-brand-soft);
+    color: var(--color-ink);
 }
 
 .vdbs-versatz__titel {
+    color: inherit;
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--leading-tight);
 }
 
-.vdbs-versatz--rechts {
+.vdbs-versatz__karte p {
+    font-size: var(--text-sm);
 }
 
-.vdbs-versatz--gruen {
+.vdbs-versatz--rechts .vdbs-versatz__bild {
+    justify-self: start;
+}
+
+.vdbs-versatz--rechts .vdbs-versatz__karte {
+    justify-self: end;
+}
+
+.vdbs-versatz--gruen .vdbs-versatz__karte {
+    background: var(--color-primary);
+}
+
+@media (max-width: 48rem) {
+    .vdbs-versatz {
+        display: block;
+    }
+
+    .vdbs-versatz__bild {
+        width: 100%;
+    }
+
+    .vdbs-versatz__karte {
+        width: auto;
+        margin: calc(-1 * var(--spacing-6)) var(--spacing-4) 0;
+    }
 }

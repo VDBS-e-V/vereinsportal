@@ -1,7 +1,7 @@
 /*
  * VDBS Designsystem v2 — Inhaltsbänder, Zitate, Hinweise, Textabschnitte
  *
- * Nur Selektoren, noch ohne Regeln. Struktur und Beispiele:
+ * Startgestaltung (Entwurf zum Weiterbearbeiten). Struktur und Beispiele:
  * /design/komponenten (resources/views/design/pages/komponenten.blade.php).
  * Werte ausschließlich über Tokens aus tokens.css (--color-*, --spacing-*, --text-* …).
  */
@@ -17,9 +17,35 @@
  * ========================================================================== */
 
 .vdbs-zitate {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--spacing-6);
+    max-width: var(--layout-content-small-max);
+    margin-inline: auto;
+}
+
+@media (max-width: 48rem) {
+    .vdbs-zitate {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 .vdbs-zitat {
+    padding-inline-start: var(--spacing-4);
+    border-inline-start: var(--border-width-strong) solid var(--color-secondary-accent);
+    font-family: var(--font-family-accent);
+    font-size: var(--text-xl);
+    font-style: italic;
+    line-height: 1.4;
+}
+
+.vdbs-zitat cite {
+    display: block;
+    margin-block-start: var(--spacing-2);
+    color: var(--color-text-muted);
+    font-family: var(--font-family-base);
+    font-size: var(--text-sm);
+    font-style: normal;
 }
 
 /* ==========================================================================
@@ -34,9 +60,20 @@
  * ========================================================================== */
 
 .vdbs-textblock {
+    max-width: var(--layout-text-max);
+    margin-inline: auto;
+    padding-block: var(--spacing-8);
+}
+
+.vdbs-textblock > * + * {
+    margin-block-start: var(--spacing-4);
 }
 
 .vdbs-textblock__titel {
+    color: var(--color-accent-text);
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--leading-heading);
 }
 
 /* ==========================================================================
@@ -51,12 +88,29 @@
  * ========================================================================== */
 
 .vdbs-flaeche {
+    padding: var(--spacing-8) var(--layout-page-gutter);
+    background: var(--color-brand-soft);
+    color: var(--color-ink);
 }
 
 .vdbs-flaeche__inner {
+    max-width: var(--layout-text-max);
+    margin-inline: auto;
+}
+
+.vdbs-flaeche__inner > * + * {
+    margin-block-start: var(--spacing-5);
 }
 
 .vdbs-flaeche__titel {
+    color: inherit;
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--leading-heading);
+}
+
+.vdbs-flaeche__inner > .vdbs-flaeche__titel + * {
+    margin-block-start: var(--spacing-4);
 }
 
 /* ==========================================================================
@@ -74,12 +128,35 @@
  * ========================================================================== */
 
 .vdbs-aufruf {
+    padding: var(--spacing-8) var(--layout-page-gutter);
+    background: var(--color-stage);
+    color: var(--color-on-stage);
+    text-align: center;
 }
 
 .vdbs-aufruf__inner {
+    max-width: var(--layout-text-max);
+    margin-inline: auto;
+}
+
+.vdbs-aufruf__inner > * + * {
+    margin-block-start: var(--spacing-4);
 }
 
 .vdbs-aufruf__titel {
+    color: inherit;
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--leading-heading);
+}
+
+.vdbs-aufruf p {
+    color: inherit;
+}
+
+.vdbs-aufruf .vdbs-buttons {
+    justify-content: center;
+    margin-block-start: var(--spacing-5);
 }
 
 /* ==========================================================================
@@ -97,18 +174,57 @@
  * ========================================================================== */
 
 .vdbs-hinweis {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--spacing-6);
+    max-width: 56rem;
+    margin-inline: auto;
+    padding: var(--spacing-6);
+    background: var(--color-brand-soft);
+    color: var(--color-ink);
 }
 
 .vdbs-hinweis__icon {
+    width: 4rem;
+    padding-inline: var(--spacing-3);
+}
+
+.vdbs-hinweis__icon svg {
+    width: 100%;
+    height: auto;
 }
 
 .vdbs-hinweis__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
 }
 
 .vdbs-hinweis__titel {
+    color: inherit;
+    font-size: var(--text-xl);
+    line-height: var(--leading-heading);
+}
+
+.vdbs-hinweis__text p {
+    font-size: var(--text-sm);
 }
 
 .vdbs-hinweis--gruen {
+    background: var(--color-primary);
+}
+
+@media (max-width: 48rem) {
+    .vdbs-hinweis {
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--spacing-4);
+    }
+
+    .vdbs-hinweis__icon {
+        width: 3rem;
+        padding-inline: 0;
+    }
 }
 
 /* ==========================================================================
@@ -122,9 +238,30 @@
  * ========================================================================== */
 
 .vdbs-bildpaar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-5);
+    max-width: var(--layout-content-small-max);
+    margin-inline: auto;
 }
 
-.vdbs-bildpaar__bild {
+@media (max-width: 40rem) {
+    .vdbs-bildpaar {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.vdbs-bildpaar__bild img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+}
+
+.vdbs-bildpaar__bild figcaption {
+    margin-block-start: var(--spacing-2);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
 }
 
 /* ==========================================================================
@@ -140,13 +277,29 @@
  * ========================================================================== */
 
 .vdbs-abschnitte {
+    max-width: var(--layout-text-max);
+    margin-inline: auto;
 }
 
 .vdbs-abschnitte__titel {
+    margin-block-end: var(--spacing-5);
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--leading-heading);
 }
 
 .vdbs-abschnitt {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+}
+
+.vdbs-abschnitt + .vdbs-abschnitt {
+    margin-block-start: var(--spacing-6);
 }
 
 .vdbs-abschnitt__titel {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-bold);
+    line-height: 1.25;
 }

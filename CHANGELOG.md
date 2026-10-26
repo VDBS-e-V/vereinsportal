@@ -8,7 +8,7 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ### Added
 
-- Komponenten-Werkstatt unter `/design/komponenten` mit reiner HTML-Struktur der v2-Komponenten und leeren CSS-Stubs in `resources/css/vdbs/v2/`
+- Komponenten-Werkstatt unter `/design/komponenten` mit HTML-Struktur der v2-Komponenten und Startgestaltung in `resources/css/vdbs/v2/`
 - Web Content Library und versioniertes Designsystem als Entwicklungsreferenz
 - Repository-Standards für Branching, CODEOWNERS und Zusammenarbeit
 - gehärtete CI mit PHP-, MySQL-, Node-, Pest-, Pint- und Build-Prüfungen

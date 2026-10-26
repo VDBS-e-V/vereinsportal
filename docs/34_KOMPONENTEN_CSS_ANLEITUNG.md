@@ -3,8 +3,9 @@
 Diese Anleitung beschreibt, wie die v2-Komponenten unter `/design/komponenten`
 gestaltet werden. Hintergrund und Entscheidungen: `docs/33_DESIGN_SYSTEM_V2_GRUNDLAGEN.md`.
 
-**Das Prinzip:** Das HTML steht fest (Blade-Seite), die Klassen sind als leere Regeln
-angelegt. Es wird ausschließlich CSS geschrieben, mit den Tokens aus `tokens.css`.
+**Das Prinzip:** Das HTML steht fest (Blade-Seite). Für jede Klasse gibt es eine
+Startgestaltung in `resources/css/vdbs/v2/*.css` (Entwurf, nur Tokens), die Sie anpassen.
+Es wird ausschließlich CSS geschrieben, mit den Tokens aus `tokens.css`.
 
 ---
 
@@ -91,7 +92,7 @@ umrandet.
 
 ## 3. Arbeitsablauf pro Komponente
 
-1. **Abschnitt öffnen** (Anker) und die Komponente ansehen: Sie ist noch ungestaltet.
+1. **Abschnitt öffnen** (Anker) und die Komponente ansehen: Sie zeigt die Startgestaltung.
 2. **CSS-Datei öffnen.** Jede Komponente beginnt mit einem Kommentar mit Beschreibung und
    **Strukturbaum**, z. B.:
 

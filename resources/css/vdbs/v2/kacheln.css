@@ -1,7 +1,7 @@
 /*
  * VDBS Designsystem v2 — Kacheln, Karten, Kennzahlen, Facts, News
  *
- * Nur Selektoren, noch ohne Regeln. Struktur und Beispiele:
+ * Startgestaltung (Entwurf zum Weiterbearbeiten). Struktur und Beispiele:
  * /design/komponenten (resources/views/design/pages/komponenten.blade.php).
  * Werte ausschließlich über Tokens aus tokens.css (--color-*, --spacing-*, --text-* …).
  */
@@ -22,22 +22,71 @@
  *             a.btn
  * ========================================================================== */
 
+/* Band auf Bühne-Fläche. Breite über __inner. */
 .vdbs-kacheln {
+    padding: var(--spacing-8) var(--layout-page-gutter);
+    background: var(--color-stage);
+    color: var(--color-on-stage);
 }
 
 .vdbs-kacheln__inner {
+    max-width: var(--layout-content-small-max);
+    margin-inline: auto;
 }
 
 .vdbs-kacheln__titel {
+    margin-block-end: var(--spacing-6);
+    color: inherit;
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--leading-heading);
 }
 
+/* Raster: 2 Spalten; Zeilenabstand größer als die halbe Buttonhöhe. */
 .vdbs-kachelraster {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-6);
 }
 
+@media (max-width: 40rem) {
+    .vdbs-kachelraster {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Kachel: helle Fläche, Button hängt halb über der Unterkante. */
 .vdbs-kachel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    min-height: 8rem;
+    padding: var(--spacing-5);
+    background: var(--color-brand-soft);
+    color: var(--color-ink);
 }
 
 .vdbs-kachel__titel {
+    color: inherit;
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-bold);
+    line-height: 1.3;
+}
+
+.vdbs-kachel:hover .btn {
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+    color: var(--color-white);
+}
+
+.vdbs-kachel:has(.btn:focus-visible) {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+.vdbs-kacheln .vdbs-kachel:has(.btn:focus-visible) {
+    outline-color: var(--color-on-stage);
 }
 
 /* ==========================================================================
@@ -55,10 +104,27 @@
  *           a.btn
  * ========================================================================== */
 
-.vdbs-kachelraster--3 {
+/* Drei Spalten ab 64rem, dann zwei, mobil eine. */
+@media (min-width: 64.0625rem) {
+    .vdbs-kachelraster--3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
+/* Kachel mit Fließtext: höher, größerer Titel. */
 .vdbs-kachel--text {
+    gap: var(--spacing-2);
+    min-height: 14rem;
+}
+
+.vdbs-kachel--text .vdbs-kachel__titel {
+    font-size: var(--text-xl);
+    line-height: var(--leading-heading);
+}
+
+.vdbs-kachel p {
+    color: inherit;
+    font-size: var(--text-sm);
 }
 
 /* ==========================================================================
@@ -78,18 +144,87 @@
  * ========================================================================== */
 
 .vdbs-karten {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--spacing-8) var(--spacing-6);
+    max-width: var(--layout-content-small-max);
+    margin-inline: auto;
 }
 
+@media (max-width: 64rem) {
+    .vdbs-karten {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 40rem) {
+    .vdbs-karten {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Fläche per ::before hinter Bild und Text, Bild ragt links heraus. */
 .vdbs-karte {
+    --vdbs-versatz: 0.625rem;
+    --vdbs-einzug: 0.625rem;
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    color: var(--color-ink);
+}
+
+.vdbs-karte::before {
+    content: "";
+    position: absolute;
+    inset: var(--vdbs-versatz) 0 0 0;
+    z-index: -1;
+    background: var(--color-brand-soft);
 }
 
 .vdbs-karte__bild {
+    position: relative;
+    z-index: 1;
+    width: 86%;
+    margin-inline-start: calc(-1 * var(--vdbs-einzug));
+}
+
+.vdbs-karte__bild img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+}
+
+.vdbs-karte__bild figcaption {
+    margin: var(--spacing-2) 0 0 calc(var(--vdbs-einzug) + var(--spacing-4));
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
 }
 
 .vdbs-karte__inhalt {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+    padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
 }
 
 .vdbs-karte__titel {
+    color: inherit;
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--leading-heading);
+}
+
+.vdbs-karte__inhalt p {
+    font-size: var(--text-sm);
+}
+
+.vdbs-karte:has(.btn:focus-visible) {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
 }
 
 /* ==========================================================================
@@ -108,18 +243,77 @@
  * ========================================================================== */
 
 .vdbs-kennzahlen {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--spacing-6);
+}
+
+@media (max-width: 64rem) {
+    .vdbs-kennzahlen {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 40rem) {
+    .vdbs-kennzahlen {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 .vdbs-kennzahl {
+    --vdbs-versatz: 0.625rem;
+    --vdbs-einzug: 0.625rem;
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    color: var(--color-ink);
 }
 
+.vdbs-kennzahl::before {
+    content: "";
+    position: absolute;
+    inset: var(--vdbs-versatz) 0 0 0;
+    z-index: -1;
+    background: var(--color-brand-soft);
+}
+
+/* Icon-Fläche: Lila-Tönung, Icon in Akzent-Textfarbe. */
 .vdbs-kennzahl__icon {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 86%;
+    aspect-ratio: 3 / 2;
+    margin-inline-start: calc(-1 * var(--vdbs-einzug));
+    background: color-mix(in srgb, var(--color-accent-text) 18%, var(--color-white));
+    color: var(--color-accent-text);
+}
+
+.vdbs-kennzahl__icon svg {
+    width: 42%;
+    height: auto;
 }
 
 .vdbs-kennzahl__inhalt {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
 }
 
 .vdbs-kennzahl__titel {
+    color: inherit;
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--leading-heading);
+}
+
+.vdbs-kennzahl__inhalt p {
+    font-size: var(--text-sm);
 }
 
 /* ==========================================================================
@@ -141,27 +335,82 @@
  * ========================================================================== */
 
 .vdbs-facts {
+    padding: var(--spacing-8) var(--layout-page-gutter);
+    background: var(--color-surface-subtle);
+    color: var(--color-ink);
 }
 
 .vdbs-facts__inner {
+    max-width: var(--layout-content-small-max);
+    margin-inline: auto;
 }
 
 .vdbs-facts__raster {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--spacing-5);
 }
 
+/* Große Karte über 2 × 2 Felder. */
 .vdbs-facts__haupt {
+    grid-column: span 2;
+    grid-row: span 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-5);
+    padding: var(--spacing-6);
+    background: var(--color-stage);
+    color: var(--color-on-stage);
 }
 
 .vdbs-facts__titel {
+    color: inherit;
+    font-family: var(--font-family-workshop);
+    font-size: var(--text-4xl);
+    font-weight: var(--font-weight-regular);
+    line-height: 1.05;
 }
 
 .vdbs-fact {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-5);
+    border: var(--border-width-default) solid var(--color-border);
+    background: var(--color-white);
+    text-align: center;
 }
 
 .vdbs-fact__zahl {
+    color: var(--color-accent-text);
+    font-size: var(--text-4xl);
+    font-weight: var(--font-weight-black);
+    line-height: 1;
 }
 
 .vdbs-fact__label {
+    font-size: var(--text-sm);
+}
+
+@media (max-width: 64rem) {
+    .vdbs-facts__raster {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .vdbs-facts__haupt {
+        grid-column: 1 / -1;
+        grid-row: auto;
+    }
+}
+
+@media (max-width: 30rem) {
+    .vdbs-facts__raster {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 /* ==========================================================================
@@ -181,27 +430,65 @@
  * ========================================================================== */
 
 .vdbs-zahlen {
+    padding: var(--spacing-8) var(--layout-page-gutter);
+    background: var(--color-surface-subtle);
+    color: var(--color-ink);
 }
 
 .vdbs-zahlen__inner {
+    max-width: var(--layout-content-small-max);
+    margin-inline: auto;
 }
 
 .vdbs-zahlen__titel {
+    color: inherit;
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--leading-heading);
+    text-align: center;
 }
 
 .vdbs-zahlen__liste {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--spacing-6);
+    max-width: 52rem;
+    margin: var(--spacing-8) auto 0;
+}
+
+@media (max-width: 40rem) {
+    .vdbs-zahlen__liste {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 .vdbs-zahlen__eintrag {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-1);
+    text-align: center;
 }
 
 .vdbs-zahlen__icon {
+    width: 2.75rem;
+    margin-block-end: var(--spacing-2);
+    color: var(--color-accent-text);
+}
+
+.vdbs-zahlen__icon svg {
+    width: 100%;
+    height: auto;
 }
 
 .vdbs-zahlen__zahl {
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-black);
+    line-height: 1.1;
 }
 
 .vdbs-zahlen__label {
+    font-size: var(--text-sm);
 }
 
 /* ==========================================================================
@@ -234,34 +521,112 @@
  * ========================================================================== */
 
 .vdbs-news {
+    max-width: var(--layout-content-small-max);
+    margin-inline: auto;
 }
 
 .vdbs-news__kopf {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--spacing-3) var(--spacing-5);
+    margin-block-end: var(--spacing-5);
 }
 
 .vdbs-news__titel {
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--leading-heading);
 }
 
-.vdbs-news__alle {
+.vdbs-news__alle,
+.vdbs-news__mehr {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-bold);
+}
+
+.vdbs-news__alle::before,
+.vdbs-news__mehr::before {
+    content: "›" / "";
+    margin-inline-end: var(--spacing-2);
+}
+
+.vdbs-news__alle a,
+.vdbs-news__mehr a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.vdbs-news__alle a:hover,
+.vdbs-news__mehr a:hover {
+    text-decoration: underline;
 }
 
 .vdbs-news__liste {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--spacing-6) var(--spacing-5);
+}
+
+@media (max-width: 64rem) {
+    .vdbs-news__liste {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 30rem) {
+    .vdbs-news__liste {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 .vdbs-news__eintrag {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
 }
 
 .vdbs-news__bild {
+    margin-block-end: var(--spacing-2);
+}
+
+.vdbs-news__bild img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
 }
 
 .vdbs-news__datum {
-}
-
-.vdbs-news__eintrag-titel {
-}
-
-.vdbs-news__mehr {
+    font-size: var(--text-sm);
 }
 
 .vdbs-news__tag {
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+}
+
+.vdbs-news__eintrag-titel {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-bold);
+    line-height: 1.3;
+}
+
+.vdbs-news__mehr {
+    margin-block-start: auto;
+    padding-block-start: var(--spacing-2);
+}
+
+/* Ganzer Eintrag klickbar. */
+.vdbs-news__mehr a::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+}
+
+.vdbs-news__eintrag:has(a:focus-visible) {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 4px;
 }
