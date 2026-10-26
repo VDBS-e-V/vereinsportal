@@ -21,10 +21,10 @@
 
 .badge--accent,
 .vdbs-badge--accent {
-    border-color: var(--color-secondary-cta);
+    border-color: var(--color-secondary-accent);
     background: color-mix(
         in srgb,
-        var(--color-secondary-cta) 10%,
+        var(--color-secondary-accent) 10%,
         var(--color-white)
     );
 }

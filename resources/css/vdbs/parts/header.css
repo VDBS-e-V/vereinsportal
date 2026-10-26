@@ -465,9 +465,9 @@
 
 .header-login:hover,
 .vdbs-login-button:hover {
-    border-color: var(--color-ink);
-    background: var(--color-ink);
-    color: var(--color-white);
+    border-color: var(--color-secondary-accent);
+    background: var(--color-secondary-accent);
+    color: var(--color-on-accent);
     text-decoration: none;
 }
 

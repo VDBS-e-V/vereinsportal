@@ -47,7 +47,7 @@
 @source '../**/*.js';
 
 /*
- * Tailwind-facing brand tokens.
+ * Tailwind-facing brand tokens (v2). Hex values must match tokens.css.
  *
  * The VDBS component layer is intentionally kept in resources/css/vdbs,
  * following the same separation used by the former VDBS portal: tokens,
@@ -60,11 +60,14 @@
     --font-serif: 'Source Serif 4', Georgia, serif;
 
     --color-vdbs-green: #2dc08e;
-    --color-vdbs-ocean: #22b7a3;
-    --color-vdbs-ink: #0f172a;
-    --color-vdbs-amber: #f59e0b;
-    --color-vdbs-teal: #14b8a6;
-    --color-vdbs-berry: #d946ef;
-    --color-vdbs-white: #ffffff;
+    --color-vdbs-green-soft: #dcf8ea;
     --color-vdbs-purple: #58275a;
+    --color-vdbs-ink: #0f172a;
+    --color-vdbs-white: #ffffff;
+    --color-vdbs-group-1: #52bdf2;
+    --color-vdbs-group-2: #ffcb1f;
+    --color-vdbs-group-3: #0a7fa0;
+    --color-vdbs-group-4: #f76ca3;
+    --color-vdbs-group-5: #d93425;
+    --color-vdbs-group-6: #f5912b;
 }

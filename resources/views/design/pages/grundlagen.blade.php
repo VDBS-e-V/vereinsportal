@@ -9,8 +9,8 @@
             <h1 class="page-title__title">Grundlagen</h1>
             <p class="page-title__lead">
                 White und Ink bilden die ruhige Basis. VDBS Green ist die primäre
-                Markenakzentfarbe; Ocean Mist und weitere Markenfarben werden gezielt
-                für bestimmte Funktionen und Hervorhebungen eingesetzt.
+                Markenfarbe, Lila die Bühnen- und Akzentfarbe; die Gruppenfarben
+                werden gezielt für Kategorien und Hervorhebungen eingesetzt.
             </p>
         </header>
 
@@ -19,9 +19,9 @@
             <p class="container--narrow">
                 Diese Farben bilden die vollständige Markenpalette des Portals.
                 White und Ink bilden die ruhige Basis; VDBS Green und Lila sind die
-                Markenfarben, die Gruppenfarben werden gezielt eingesetzt. Ocean Mist
-                und die Zusatzfarben unten sind Altbestand und werden im Rahmen von
-                Designsystem v2 neu bewertet (siehe docs/33).
+                Markenfarben, die Gruppenfarben werden gezielt eingesetzt. Die frühere
+                Zusatzpalette (Ocean Mist, Amber, Teal, Berry, Sun Yellow, Lime) ist mit
+                Designsystem v2 entfallen (siehe docs/33).
             </p>
 
             <div class="design-swatches">
@@ -37,12 +37,6 @@
                     ['Gruppe 4 · Rosa', '#F76CA3', 'var(--color-group-4)'],
                     ['Gruppe 5 · Rot', '#D93425', 'var(--color-group-5)'],
                     ['Gruppe 6 · Orange', '#F5912B', 'var(--color-group-6)'],
-                    ['Ocean Mist (Altbestand)', '#22B7A3', 'var(--color-secondary-cta)'],
-                    ['Amber (Altbestand)', '#F59E0B', 'var(--color-accent-amber)'],
-                    ['Teal', '#14B8A6', 'var(--color-accent-teal)'],
-                    ['Berry', '#D946EF', 'var(--color-accent-berry)'],
-                    ['Sun Yellow', '#FDE047', 'var(--color-accent-sun-yellow)'],
-                    ['Lime', '#A3E635', 'var(--color-accent-lime)'],
                 ] as [$name, $hex, $token])
                     <article class="design-swatch">
                         <div

@@ -26,9 +26,9 @@
 
 .btn:hover,
 .vdbs-button:hover {
-    border-color: var(--color-ink);
-    background: var(--color-ink);
-    color: var(--color-white);
+    border-color: var(--color-secondary-accent);
+    background: var(--color-secondary-accent);
+    color: var(--color-on-accent);
     text-decoration: none;
 }
 
@@ -63,13 +63,13 @@
     text-decoration-thickness: 0.12em;
 }
 
-/* Filled supporting action. btn--ocean remains as a compatibility alias. */
+/* Filled supporting action in brand purple. btn--ocean remains as a compatibility alias. */
 .btn--accent,
 .btn--ocean,
 .vdbs-button--accent {
-    border-color: var(--color-secondary-cta) !important;
-    background: var(--color-secondary-cta) !important;
-    color: var(--color-ink) !important;
+    border-color: var(--color-secondary-accent) !important;
+    background: var(--color-secondary-accent) !important;
+    color: var(--color-on-accent) !important;
 }
 
 .btn--accent:hover,

@@ -75,6 +75,20 @@ Unverändert, weil bereits identisch mit dem Markenpaket: `--color-ink`,
 `/design/grundlagen` zeigt die neue Palette (inkl. Gruppenfarben) und markiert
 Ocean Mist und Amber als Altbestand.
 
+### 3.5 Durchgesetzt im Portal (Schritt 2)
+
+| Stelle | Änderung |
+|---|---|
+| Ocean Mist (`--color-secondary-cta`) | entfernt; `btn--accent`, `badge--accent`, Hinweisbalken und Metadaten nutzen Lila (`--color-secondary-accent`), Text auf `btn--accent` weiß (Entscheidung B) |
+| Zusatzfarben Amber, Teal, Berry, Sun Yellow, Lime | entfernt (waren nirgends verwendet); Kategorien laufen über `--color-group-1…6` |
+| Hauptbutton und Login-Button | Hover in Lila statt Ink (Markenregel) |
+| Footer-Leiste unten | Bühne (Lila) statt Ink; Fokusring dort weiß (Entscheidung F, lokal über `--color-focus`) |
+| Besuchte Links in Artikeltexten | `--color-link-visited` (Lila) |
+| Feste Hex-Werte | in `code-examples.css` und `frames.css` auf Tokens bzw. neue Werte umgestellt; Tailwind-`@theme` an die Tokens angeglichen |
+| Docs | `docs/08` (Farben, Schrift, Button-Varianten) aktualisiert |
+
+Bewusst unverändert: `print.css` (Schwarz/Weiß/Grau für den Druck), Pagination-Auswahl (Ink).
+
 ## 4. Was bewusst NICHT geändert wurde
 
 - **Schriftgrößen-Skala** (`--text-*`). Das Markenpaket kennt 13/15/17/18/21/24 px
@@ -134,11 +148,11 @@ Rollen-Tokens (`--color-text`, `--color-bg`, …) und eine Migration der rund 13
 | # | Frage | Vorschlag |
 |---|---|---|
 | A | **Typografie-Skala:** Portal bei 16 px Basis lassen oder auf die 18-px-Skala des Markenpakets ziehen? | Zwei Skalen: öffentliche/redaktionelle Seiten 18 px (Markenpaket), Verwaltungsoberflächen 16 px. Beide aus denselben Tokens. |
-| B | **Ocean Mist** (`--color-secondary-cta`, `btn--accent`, `badge--accent`, Hinweisbalken) hat im Markenpaket keine Entsprechung. | Auf Lila migrieren (Flächen mit weißem Text) oder streichen. Betrifft 7 CSS-Stellen. |
+| B | ~~**Ocean Mist** hat im Markenpaket keine Entsprechung.~~ | **Erledigt:** auf Lila migriert (siehe 3.5). |
 | C | **Dunkelmodus** im Portal? | Ja, aber erst nach Rollen-Tokens (Abschnitt 6), mit Umschalter im Header. |
 | D | **Freeze aufheben?** `docs/22` friert v1 ein. Eine Überarbeitung braucht eine bewusste Freigabe. | `config/web_content_library.php`: Version auf `2.0.0-dev`, `frozen: false` bis zum Abschluss, danach neu einfrieren. |
 | E | **Altlasten:** IBM-Plex-Dateien, Zusatzfarben (Amber, Teal, Berry, Sun Yellow, Lime) | Löschen, sobald nichts mehr referenziert (`vdbs:library-check`). |
-| F | **Fokusring Lila:** auf lila/dunklen Flächen (Header, Footer, Dialoge) ist Lila unsichtbar. | Kontextregel `--color-focus` → `--color-on-stage` innerhalb von `.on-stage`-Flächen. |
+| F | **Fokusring Lila:** auf lila/dunklen Flächen ist Lila unsichtbar. | **Teilweise erledigt:** Footer-Leiste setzt `--color-focus` lokal auf Weiß. Weitere dunkle Flächen beim Einführen prüfen. |
 | G | **Gemeinsame Token-Quelle** für Portal und Theme (z. B. eine `tokens.json`, aus der CSS und `theme.json` erzeugt werden)? | Später; erst wenn A–D entschieden sind. |
 
 ## 8. Vorgehen (Vorschlag)

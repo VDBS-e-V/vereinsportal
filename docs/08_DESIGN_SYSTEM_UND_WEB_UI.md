@@ -40,7 +40,7 @@ Vermeiden:
 
 ### Grundfläche
 
-Die Hauptfarben des Webinterfaces sind White und Ink. VDBS Green ist die primäre Akzentfarbe. Ocean Mist und die übrigen Markenfarben werden gezielt eingesetzt.
+Die Hauptfarben des Webinterfaces sind White und Ink. VDBS Green ist die primäre Markenfarbe, Lila die Bühnen- und Akzentfarbe (Designsystem v2, siehe `docs/33`). Die Gruppenfarben werden gezielt eingesetzt.
 
 ### Formensprache
 
@@ -62,16 +62,14 @@ Schatten sind erlaubt und zeigen Ebene oder Überlagerung an. Typische Einsatzbe
 
 ## 3. Markenfarben
 
-Die zentralen Brand-Tokens lauten:
+Die zentralen Brand-Tokens lauten (Designsystem v2, Quelle: Markenpaket v7.2):
 
 ```css
 --color-ink: #0f172a;
 --color-white: #ffffff;
---color-primary: #2fbf71;
---color-secondary-cta: #22b7a3;
---color-accent-amber: #f59e0b;
---color-accent-teal: #14b8a6;
---color-accent-berry: #d946ef;
+--color-primary: #2dc08e;
+--color-secondary-accent: #58275a;
+--color-brand-soft: #dcf8ea;
 ```
 
 | Token | Name | Verwendung |
@@ -79,10 +77,13 @@ Die zentralen Brand-Tokens lauten:
 | `--color-ink` | Ink | Text, Navigation, starke Linien |
 | `--color-white` | White | Hauptfläche |
 | `--color-primary` | VDBS Green | Marke, aktive Zustände, Hauptaktionen |
-| `--color-secondary-cta` | Ocean Mist | zweite Akzent- / Aktionsfarbe |
-| `--color-accent-amber` | Amber | gezielter Kontext |
-| `--color-accent-teal` | Teal | gezielter Kontext |
-| `--color-accent-berry` | Berry | gezielter Kontext |
+| `--color-secondary-accent` | Lila | Akzent, Hover der Hauptaktion, Fokus, `btn--accent` |
+| `--color-brand-soft` | Grün hell | helle Markenfläche (Karten, Hinweise) |
+| `--color-stage` / `--color-on-stage` | Bühne / Text auf Bühne | dunkle Markenfläche, z. B. Footer-Leiste, Hero |
+| `--color-group-1` … `-6` | Gruppenfarben | feste Kategorienpalette |
+
+Die früheren Zusatzfarben Ocean Mist, Amber, Teal, Berry, Sun Yellow und Lime sind entfallen.
+`btn--ocean` bleibt als Alias von `btn--accent` (jetzt Lila) bestehen.
 
 Keine Fachseite soll eine Markenfarbe neu definieren. Verwende Tokens.
 
@@ -92,7 +93,7 @@ Keine Fachseite soll eine Markenfarbe neu definieren. Verwende Tokens.
 
 ### Standardschrift
 
-`--font-family-base` ist für IBM Plex Sans vorgesehen und wird für Navigation, Fließtext, Überschriften, Formulare, Tabellen, Buttons und Verwaltungsoberflächen verwendet.
+`--font-family-base` ist Lato (selbst gehostet, `public/fonts/lato/`) und wird für Navigation, Fließtext, Überschriften, Formulare, Tabellen, Buttons und Verwaltungsoberflächen verwendet.
 
 ### Akzentschrift
 
@@ -1296,10 +1297,10 @@ Quiet:
 <a class="btn btn--quiet" href="#">Abbrechen</a>
 ```
 
-Ocean:
+Accent (Lila; `btn--ocean` ist ein Alias):
 
 ```html
-<button class="btn btn--ocean">Aktion</button>
+<button class="btn btn--accent">Aktion</button>
 ```
 
 Produktseiten verwenden explizit `.btn` bzw. `.vdbs-button`. Breite Fallback-Selektoren für beliebige Buttons sind nach der Identity-Migration nicht mehr Teil der Zielarchitektur.

@@ -173,3 +173,8 @@
         order: -1;
     }
 }
+
+/* v2: besuchte Links in redaktionellen Texten in Markenlila. */
+.vdbs-article__body a:visited {
+    color: var(--color-link-visited);
+}

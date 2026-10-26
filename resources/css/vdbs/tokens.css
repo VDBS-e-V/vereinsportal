@@ -16,13 +16,7 @@
     --color-ink: #0f172a;
     --color-white: #ffffff;
     --color-primary: #2dc08e; /* Brand green (v2: was #2fbf71) */
-    --color-secondary-cta: #22b7a3; /* Ocean Mist — no counterpart in the brand package, see docs/33 */
     --color-secondary-accent: #58275a; /* Brand purple "Lila" (v2: was #582759) */
-    --color-accent-amber: #f59e0b;
-    --color-accent-teal: #14b8a6;
-    --color-accent-berry: #d946ef;
-    --color-accent-sun-yellow: #fde047;
-    --color-accent-lime: #a3e635;
 
     /* Brand roles (v2) */
     --color-brand-soft: #dcf8ea; /* light green surface (brand "gruen-hell") */
@@ -163,11 +157,8 @@
      * to be rewritten all at once.
      * ------------------------------------------------------------------ */
     --vdbs-color-green: var(--color-primary);
-    --vdbs-color-ocean: var(--color-secondary-cta);
+    --vdbs-color-purple: var(--color-secondary-accent);
     --vdbs-color-ink: var(--color-ink);
-    --vdbs-color-amber: var(--color-accent-amber);
-    --vdbs-color-teal: var(--color-accent-teal);
-    --vdbs-color-berry: var(--color-accent-berry);
     --vdbs-color-white: var(--color-white);
     --vdbs-color-page: var(--color-page);
     --vdbs-color-surface: var(--color-surface);
@@ -177,7 +168,7 @@
     --vdbs-color-muted-text: var(--color-text-muted);
     --vdbs-color-text: var(--color-ink);
     --vdbs-color-link: var(--color-link);
-    --vdbs-color-action: var(--color-secondary-cta);
+    --vdbs-color-action: var(--color-primary);
     --vdbs-color-focus: var(--color-focus);
     --vdbs-color-success: var(--color-success);
     --vdbs-color-warning: var(--color-warning);
