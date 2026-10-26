@@ -98,3 +98,10 @@
     outline: 1px dashed var(--color-border-strong);
     outline-offset: var(--spacing-2);
 }
+
+/* Vollbreite Komponenten (Bänder, Banner) brechen aus dem Seitencontainer aus. */
+.vdbs-demo--full {
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+    outline-offset: calc(-1 * var(--spacing-1));
+}
