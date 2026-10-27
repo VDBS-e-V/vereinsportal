@@ -10,8 +10,8 @@ return [
 
     /*
      * Strikter Modus: ein Bild ohne Quelle oder ohne Alt-Text wirft eine Exception.
-     * Standard: überall außer in Produktion. In Produktion erscheint stattdessen ein sichtbarer
+     * Standard: überall außer bei APP_ENV=production. In Produktion erscheint stattdessen ein sichtbarer
      * Hinweis "Quelle fehlt", und der Fehler wird protokolliert.
      */
-    'strict' => env('IMAGES_STRICT', ! app()->isProduction()),
+    'strict' => (bool) env('IMAGES_STRICT', env('APP_ENV', 'production') !== 'production'),
 ];
