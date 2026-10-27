@@ -169,7 +169,6 @@
 .vdbs-hero--panel .vdbs-field__hint { color: inherit; opacity: 0.85; }
 .vdbs-hero--panel .vdbs-control { background: var(--color-weiss); border-color: var(--color-weiss); color: var(--color-ink); }
 .vdbs-hero--panel .vdbs-hero__content :focus-visible { outline-color: var(--color-weiss); }
-.vdbs-hero--panel .vdbs-hero__actions .vdbs-btn--secondary { border-color: currentColor; color: inherit; }
 
 .vdbs-hero__aside {
     display: grid;
@@ -309,8 +308,6 @@
 
 .vdbs-hero--feature .vdbs-hero__credit { right: auto; left: 0; }
 
-.vdbs-hero--feature .vdbs-link-button--arrow { background: var(--color-weiss); color: var(--color-ink); }
-.vdbs-hero--feature .vdbs-link-button--arrow:hover { color: var(--color-ink); }
 .vdbs-hero--feature .vdbs-hero__content :focus-visible { outline-color: var(--color-weiss); }
 
 .vdbs-hero--feature .vdbs-hero__footer { display: grid; gap: var(--space-4); margin-top: var(--space-4); }

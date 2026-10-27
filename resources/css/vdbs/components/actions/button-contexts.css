@@ -1,0 +1,74 @@
+/* Button-Flächen: dunkle (Lila/Ink/Bild) und Markenfläche (Grün).
+ * Entweder am Button (on="dark|brand") oder an einem Container (.vdbs-on-dark / .vdbs-on-brand).
+ */
+
+.vdbs-btn--on-dark,
+.vdbs-on-dark .vdbs-btn {
+    --btn-line: var(--color-weiss);
+    --focus-ring: var(--color-weiss);
+}
+
+.vdbs-btn--on-dark.vdbs-btn--secondary,
+.vdbs-on-dark .vdbs-btn--secondary {
+    --btn-bg: var(--color-weiss);
+    --btn-fg: var(--color-ink);
+    --btn-hover-bg: rgb(255 255 255 / 15%);
+    --btn-hover-fg: var(--color-weiss);
+}
+
+.vdbs-btn--on-dark.vdbs-btn--tertiary,
+.vdbs-btn--on-dark.vdbs-btn--quiet,
+.vdbs-on-dark .vdbs-btn--tertiary,
+.vdbs-on-dark .vdbs-btn--quiet {
+    --btn-bg: transparent;
+    --btn-fg: var(--color-weiss);
+    --btn-hover-bg: transparent;
+    --btn-hover-fg: var(--color-weiss);
+}
+
+.vdbs-btn--on-dark.vdbs-btn--danger,
+.vdbs-on-dark .vdbs-btn--danger {
+    --btn-bg: #ff8a80;
+    --btn-fg: var(--color-ink);
+    --btn-line: #ff8a80;
+    --btn-hover-bg: #ffb3ad;
+    --btn-hover-fg: var(--color-ink);
+}
+
+.vdbs-btn--on-dark.vdbs-btn--shape-line,
+.vdbs-on-dark .vdbs-btn--shape-line { color: var(--color-weiss); border-color: rgb(255 255 255 / 60%); }
+.vdbs-btn--on-dark.vdbs-btn--shape-line:hover,
+.vdbs-on-dark .vdbs-btn--shape-line:hover { background: rgb(255 255 255 / 15%); color: var(--color-weiss); }
+
+/* Auf Markengrün: Ink statt Grün als Füllung */
+.vdbs-btn--on-brand,
+.vdbs-on-brand .vdbs-btn {
+    --btn-line: var(--color-ink);
+    --focus-ring: var(--color-weiss);
+}
+
+.vdbs-btn--on-brand.vdbs-btn--primary,
+.vdbs-on-brand .vdbs-btn--primary {
+    --btn-bg: var(--color-ink);
+    --btn-fg: var(--color-weiss);
+    --btn-hover-bg: var(--color-weiss);
+    --btn-hover-fg: var(--color-ink);
+}
+
+.vdbs-btn--on-brand.vdbs-btn--secondary,
+.vdbs-on-brand .vdbs-btn--secondary {
+    --btn-bg: var(--color-weiss);
+    --btn-fg: var(--color-ink);
+    --btn-hover-bg: rgb(255 255 255 / 40%);
+    --btn-hover-fg: var(--color-ink);
+}
+
+.vdbs-btn--on-brand.vdbs-btn--tertiary,
+.vdbs-btn--on-brand.vdbs-btn--quiet,
+.vdbs-on-brand .vdbs-btn--tertiary,
+.vdbs-on-brand .vdbs-btn--quiet {
+    --btn-bg: transparent;
+    --btn-fg: var(--color-ink);
+    --btn-hover-bg: transparent;
+    --btn-hover-fg: var(--color-ink);
+}

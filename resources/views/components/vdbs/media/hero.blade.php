@@ -74,7 +74,7 @@
             </figure>
         @endif
 
-        <div class="vdbs-hero__content">
+        <div @class(['vdbs-hero__content', 'vdbs-on-dark' => in_array($variant, ['overlay', 'banner', 'feature'], true), 'vdbs-on-brand' => $variant === 'panel'])>
             @if ($eyebrow)
                 <p class="vdbs-hero__eyebrow">{{ $eyebrow }}</p>
             @endif

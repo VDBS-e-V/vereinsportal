@@ -1,62 +1,79 @@
-/* Buttons (Styleguide 5.1) */
-
-/* Buttons (Styleguide 5.1) — Mindest-Touch-Target 44px, Schrift auf Grün immer Ink */
+/* Button-System: Basis, Größen, Zustände (Styleguide 5.1)
+ *
+ * Farben kommen aus den lokalen Variablen --btn-bg, --btn-fg, --btn-line,
+ * --btn-hover-bg und --btn-hover-fg; Rollen, Formen und Flächen setzen nur diese.
+ */
 
 .vdbs-btn {
+    --btn-height: 2.75rem;
+    --btn-pad-x: var(--space-5);
+    --btn-font-size: var(--font-size-body);
+
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: var(--space-2);
-    min-height: 2.75rem;
-    padding: var(--space-2) var(--space-5);
+    min-height: var(--btn-height);
+    padding: 0 var(--btn-pad-x);
     border: 2px solid transparent;
     border-radius: var(--radius-md);
     font: inherit;
+    font-size: var(--btn-font-size);
     font-weight: var(--font-weight-bold);
     line-height: var(--line-height-tight);
+    text-align: center;
     text-decoration: none;
     cursor: pointer;
-    transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+    transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 
-.vdbs-btn--primary {
-    background: var(--bg-brand);
-    color: var(--text-on-brand);
-}
+/* Größen */
+.vdbs-btn--size-s { --btn-height: 2.25rem; --btn-pad-x: var(--space-3); --btn-font-size: var(--font-size-small); }
+.vdbs-btn--size-m { --btn-height: 2.75rem; --btn-pad-x: var(--space-5); --btn-font-size: var(--font-size-body); }
+.vdbs-btn--size-l { --btn-height: 3.25rem; --btn-pad-x: var(--space-5); --btn-font-size: var(--font-size-body-lg); }
+.vdbs-btn--size-xl { --btn-height: 3.75rem; --btn-pad-x: var(--space-6); --btn-font-size: var(--font-size-h4); }
 
-.vdbs-btn--primary:hover { background: var(--color-gruen-dunkel); color: var(--color-weiss); }
+/* Inhalt */
+.vdbs-btn__icon { flex: 0 0 auto; }
+.vdbs-btn__label { overflow-wrap: anywhere; }
 
-.vdbs-btn--secondary {
-    background: transparent;
-    border-color: var(--text-default);
-    color: var(--text-default);
-}
+.vdbs-btn--full { display: flex; width: 100%; }
 
-.vdbs-btn--secondary:hover { background: var(--bg-surface); color: var(--text-default); }
+.vdbs-btn--icon-only { width: var(--btn-height); padding: 0; }
 
-.vdbs-btn--link {
-    min-height: 0;
-    padding: var(--space-1) 0;
-    background: transparent;
-    color: var(--text-link);
-    text-decoration: underline;
-    text-underline-offset: 0.15em;
-}
+/* Zustände */
+.vdbs-btn:active:not(.vdbs-btn--disabled) { transform: scale(0.98); }
 
-.vdbs-btn--link:hover { color: var(--text-link-hover); }
-
-.vdbs-btn--danger {
-    background: var(--color-fehler);
-    color: var(--color-weiss);
-}
-
-.vdbs-btn--danger:hover { background: #8f1a10; color: var(--color-weiss); }
-
-.vdbs-btn:disabled,
-.vdbs-btn[aria-disabled="true"] {
+.vdbs-btn--disabled {
     opacity: 0.5;
     cursor: not-allowed;
     pointer-events: none;
 }
 
-.vdbs-btn--block { display: flex; width: 100%; }
+.vdbs-btn[aria-pressed="true"] { box-shadow: inset 0 -4px 0 var(--btn-line); }
+
+/* Laden */
+.vdbs-btn--loading { cursor: progress; }
+
+.vdbs-btn__spinner {
+    width: 1em;
+    height: 1em;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: var(--radius-full);
+    animation: vdbs-btn-spin 0.8s linear infinite;
+}
+
+@keyframes vdbs-btn-spin { to { transform: rotate(360deg); } }
+
+/* Gruppe */
+.vdbs-btn-group { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+.vdbs-btn-group--center { justify-content: center; }
+.vdbs-btn-group--end { justify-content: flex-end; }
+.vdbs-btn-group--between { justify-content: space-between; }
+
+@media (max-width: 479px) {
+    .vdbs-btn-group--stack { flex-direction: column; align-items: stretch; }
+    .vdbs-btn-group--stack > .vdbs-btn { width: 100%; }
+}

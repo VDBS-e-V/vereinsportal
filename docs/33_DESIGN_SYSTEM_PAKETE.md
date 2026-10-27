@@ -6,7 +6,7 @@ und `resources/views/components/vdbs/<paket>/`. Eine Komponente = eine Blade-Dat
 | Paket | Blade-Namespace | Inhalt (Stand) |
 | --- | --- | --- |
 | foundation | `x-vdbs.icon` | Icons |
-| actions | `x-vdbs.actions.*` | button, link-button, back-to-top |
+| actions | `x-vdbs.actions.*` | button (einziges Button-System), button-group, link-button (Kurzform), back-to-top |
 | forms | `x-vdbs.forms.*` | input, select, textarea |
 | navigation | `x-vdbs.navigation.*` | portal-header, portal-footer, nav-main, breadcrumb |
 | layout | `x-vdbs.layout.*` | section, split, grid (+ Seitenrahmen, Druck) |

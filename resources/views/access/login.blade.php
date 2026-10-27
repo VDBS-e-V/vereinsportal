@@ -18,7 +18,7 @@
                 <label><input type="checkbox" name="remember" value="1" @checked(old('remember'))> Angemeldet bleiben</label>
             </div>
 
-            <x-vdbs.actions.button type="submit" class="vdbs-btn--block">Anmelden</x-vdbs.actions.button>
+            <x-vdbs.actions.button type="submit" :full="true">Anmelden</x-vdbs.actions.button>
         </form>
     </div>
 </x-layouts.app>

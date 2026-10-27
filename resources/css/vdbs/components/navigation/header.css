@@ -58,5 +58,3 @@
 
 .vdbs-header__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4) var(--space-5); }
 
-.vdbs-header .vdbs-btn--primary { background: var(--bg-action); color: var(--text-on-action); }
-.vdbs-header .vdbs-btn--primary:hover { background: var(--bg-action); filter: brightness(1.15); color: var(--text-on-action); }

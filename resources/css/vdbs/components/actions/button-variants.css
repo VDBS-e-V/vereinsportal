@@ -1,0 +1,41 @@
+/* Button-Rollen (Wichtigkeit): setzen die Farbvariablen für die Fläche "light" */
+
+.vdbs-btn--primary {
+    --btn-bg: var(--bg-brand);
+    --btn-fg: var(--text-on-brand);
+    --btn-line: var(--color-gruen-dunkel);
+    --btn-hover-bg: var(--color-gruen-dunkel);
+    --btn-hover-fg: var(--color-weiss);
+}
+
+.vdbs-btn--secondary {
+    --btn-bg: var(--text-default);
+    --btn-fg: var(--bg-page);
+    --btn-line: var(--text-default);
+    --btn-hover-bg: var(--bg-surface);
+    --btn-hover-fg: var(--text-default);
+}
+
+.vdbs-btn--tertiary {
+    --btn-bg: transparent;
+    --btn-fg: var(--text-link);
+    --btn-line: var(--text-link);
+    --btn-hover-bg: transparent;
+    --btn-hover-fg: var(--text-link-hover);
+}
+
+.vdbs-btn--danger {
+    --btn-bg: var(--color-fehler);
+    --btn-fg: var(--color-weiss);
+    --btn-line: var(--color-fehler);
+    --btn-hover-bg: #8f1a10;
+    --btn-hover-fg: var(--color-weiss);
+}
+
+.vdbs-btn--quiet {
+    --btn-bg: var(--bg-surface);
+    --btn-fg: var(--text-default);
+    --btn-line: var(--text-default);
+    --btn-hover-bg: var(--bg-accent-soft);
+    --btn-hover-fg: var(--text-default);
+}

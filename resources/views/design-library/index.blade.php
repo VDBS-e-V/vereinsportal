@@ -12,7 +12,7 @@
                         <p>
                             <x-vdbs.data.badge :tone="$entry['status']->badgeTone()">{{ $entry['status']->label() }}</x-vdbs.data.badge>
                         </p>
-                        <x-vdbs.actions.button variant="link" :href="route('design-library.show', $entry['slug'])">Ansehen<span class="vdbs-sr-only">: {{ $entry['title'] }}</span></x-vdbs.actions.button>
+                        <x-vdbs.actions.button variant="tertiary" :href="route('design-library.show', $entry['slug'])">Ansehen<span class="vdbs-sr-only">: {{ $entry['title'] }}</span></x-vdbs.actions.button>
                     </x-vdbs.cards.card>
                 @endforeach
             </div>

@@ -1,19 +1,20 @@
 @props(['href', 'variant' => 'arrow', 'external' => false])
 
 {{--
-    Link im Button-Stil (Paket "actions"), Vorbild: FU / Berlin.
-    variant: arrow  dunkler Button mit Pfeil
-             line   Rahmen/Linie unten, Pfeil links
-             all    "Alle anzeigen"-Textlink mit Pfeil
-    external: öffnet in neuem Tab, mit Hinweis für Screenreader
+    Kurzform des Button-Systems für Links (Paket "actions"):
+      arrow  Primär mit Pfeil-Kachel         = button variant primary,   shape arrow
+      line   Rahmen mit Linie unten          = button variant secondary, shape line
+      all    "Alle anzeigen"-Textlink        = button variant tertiary,  shape link, Pfeil-Icon
+    Weitere Eigenschaften (size, on, …) gehen direkt an <x-vdbs.actions.button>.
 --}}
 
 @php
-    $variant = in_array($variant, ['arrow', 'line', 'all'], true) ? $variant : 'arrow';
+    $map = [
+        'arrow' => ['variant' => 'primary', 'shape' => 'arrow'],
+        'line' => ['variant' => 'secondary', 'shape' => 'line'],
+        'all' => ['variant' => 'tertiary', 'shape' => 'link', 'icon' => 'arrow-right'],
+    ];
+    $config = $map[$variant] ?? $map['arrow'];
 @endphp
 
-<a {{ $attributes->class(['vdbs-link-button', "vdbs-link-button--{$variant}"]) }} href="{{ $href }}" @if ($external) target="_blank" rel="noopener noreferrer" @endif>
-    <x-vdbs.icon class="vdbs-link-button__icon" :name="$external ? 'external-link' : 'arrow-right'" :size="18" />
-    <span class="vdbs-link-button__label">{{ $slot }}</span>
-    @if ($external) <span class="vdbs-sr-only">(öffnet in neuem Tab)</span> @endif
-</a>
+<x-vdbs.actions.button :href="$href" :external="$external" {{ $attributes->merge($config) }}>{{ $slot }}</x-vdbs.actions.button>
