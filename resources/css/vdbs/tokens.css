@@ -1,215 +1,177 @@
 /*
- * VDBS Portal — Design Tokens
+ * VDBS Vereinsportal — Design Tokens
  *
- * Canonical token names follow the former VDBS Portal structure. The
- * --vdbs-* aliases remain available so already created Blade examples keep
- * working while new components can use the shorter portal-style tokens.
+ * Quelle: VDBS-Web-Styleguide.md (Stand 2026-10-26, VDBS-Markenpaket v7.2 /
+ * Farbsystem v6.0) — die verbindliche Richtlinie des Vereins, siehe
+ * Konzept-Dokument "VDBS Vereinsportal — Neuaufbau-Konzept", Abschnitt
+ * "Design System: Grundlage und Entscheidungen".
+ *
+ * Einzige bewusste Abweichung vom Styleguide: --radius-sm/md/lg sind auf 0
+ * gesetzt (eckige Formensprache für das Portal), --radius-full bleibt
+ * unverändert für Avatare, Pills und runde Marken-Bausteine.
+ *
+ * Regel für Komponenten-Code: ausschließlich die *semantischen* Tokens
+ * (--bg-*, --text-*, --border-*, --focus-ring) verwenden, niemals die
+ * Rohfarben (--color-*) direkt in Komponenten-Styles.
  */
 
 :root {
-    /* Brand */
+    /* Marken-Grundfarben (Markenpaket v7.2) */
+    --color-gruen: #2dc08e;
     --color-ink: #0f172a;
-    --color-white: #ffffff;
-    --color-primary: #2fbf71;
-    --color-secondary-cta: #22b7a3;
-    --color-secondary-accent: #582759;
-    --color-accent-amber: #f59e0b;
-    --color-accent-teal: #14b8a6;
-    --color-accent-berry: #d946ef;
-    --color-accent-sun-yellow: #fde047;
-    --color-accent-lime: #a3e635;
+    --color-weiss: #ffffff;
+    --color-lila: #58275a;
 
-    /* Neutral UI */
-    --color-page: #ffffff;
-    --color-surface: #ffffff;
-    --color-surface-subtle: #f5f7f6;
-    --color-surface-strong: #edf1ef;
-    --color-border: #d4dbd8;
-    --color-border-strong: #8d9a95;
-    --color-text-muted: #52605b;
-    --color-text-disabled: #6f7b76;
-    --color-surface-disabled: #eef1f0;
+    /* Gruppenfarben — nur für Kategorien/Diagramme/Gruppen-Marken, in dieser Reihenfolge */
+    --color-group-1: #52bdf2; /* Hellblau – Kreis */
+    --color-group-2: #ffcb1f; /* Gelb – Raute */
+    --color-group-3: #0a7fa0; /* Petrol – Quadrat */
+    --color-group-4: #f76ca3; /* Rosa – Stern */
+    --color-group-5: #d93425; /* Rot – Dreieck, ab 5 Gruppen */
+    --color-group-6: #f5912b; /* Orange – Sechseck, ab 6 Gruppen */
 
-    /* Semantic UI */
-    --color-link: #086f64;
-    --color-focus: var(--color-ink);
-    --color-success: #18794e;
-    --color-warning: #8a5a00;
-    --color-danger: #a12622;
-    --color-info: #285b8f;
+    /* Hilfstöne */
+    --color-gruen-dunkel: #057f5b;
+    --color-gruen-hell: #dcf8ea;
+    --color-grau-hell: #f5f7f6;
+    --color-grau-linie: #d4dbd8;
+    --color-grau-rahmen: #7f8d88;
+    --color-grau-text: #52605b;
+    --color-fehler: #b42318;
 
-    /* Typography */
-    --font-family-base:
-        "IBM Plex Sans",
-        system-ui,
-        -apple-system,
-        "Segoe UI",
-        Arial,
-        sans-serif;
+    /* Semantische Tokens — DIESE im Code verwenden */
+    --bg-page: var(--color-weiss);
+    --bg-surface: var(--color-grau-hell); /* Karten, Infoboxen, Tabellenzeilen */
+    --bg-accent-soft: var(--color-gruen-hell); /* ruhige Hinweisflächen */
+    --bg-header-footer: var(--color-lila); /* Kopf-/Fußbereich, Statement-Flächen */
+    --bg-brand: var(--color-gruen); /* Buttons, Akzentflächen */
 
-    --font-family-accent:
-        "Source Serif 4",
-        Georgia,
-        "Times New Roman",
-        serif;
+    --text-default: var(--color-ink);
+    --text-muted: var(--color-grau-text); /* Quellen, Captions, Meta */
+    --text-on-dark: var(--color-weiss); /* Schrift auf Lila/Ink */
+    --text-on-brand: var(--color-ink); /* Schrift auf Grün — NIE Weiß */
+    --text-link: var(--color-gruen-dunkel);
+    --text-link-hover: #046a4d;
+    --text-error: var(--color-fehler);
 
-    --font-family-workshop:
-        "Neuland",
-        "Arial Black",
-        sans-serif;
+    --border-default: var(--color-grau-linie); /* rein dekorativ */
+    --border-input: var(--color-grau-rahmen); /* Formularfelder, Diagrammachsen */
 
-    --font-weight-light: 300;
-    --font-weight-regular: 400;
-    --font-weight-medium: 500;
-    --font-weight-semibold: 600;
-    --font-weight-bold: 700;
+    --focus-ring: var(--color-ink);
+    --focus-ring-offset: 2px;
 
-    --text-xs: 0.75rem;
-    --text-sm: 0.875rem;
-    --text-base: 1rem;
-    --text-lg: 1.125rem;
-    --text-xl: 1.25rem;
-    --text-2xl: 1.5rem;
-    --text-3xl: clamp(1.75rem, 2.4vw, 2.25rem);
-    --text-4xl: clamp(2rem, 3vw, 2.75rem);
+    /* Radius — Portal-Abweichung: eckig statt der Styleguide-Werte 4/8/16px */
+    --radius-sm: 0;
+    --radius-md: 0;
+    --radius-lg: 0;
+    --radius-full: 9999px; /* Badges, Pills, Avatare, runde Marken-Bausteine */
 
-    --leading-tight: 1.15;
-    --leading-heading: 1.22;
-    --leading-body: 1.55;
-
-    /* Spacing — 4px base rhythm */
-    --spacing-1: 0.25rem;
-    --spacing-2: 0.5rem;
-    --spacing-3: 0.75rem;
-    --spacing-4: 1rem;
-    --spacing-5: 1.5rem;
-    --spacing-6: 2rem;
-    --spacing-7: 2.5rem;
-    --spacing-8: 3rem;
-    --spacing-9: 4rem;
-    --spacing-10: 6rem;
-
-    --spacing-gap: var(--spacing-4);
-    --spacing-form: var(--spacing-4);
-    --spacing-card: var(--spacing-5);
-
-    /* Component scales */
-    --border-width-default: 1px;
-    --border-width-strong: 3px;
-    --border-width-accent: 5px;
-    --control-height-sm: 2.25rem;
-    --control-height-md: 2.9rem;
-    --control-height-lg: 3.1rem;
-    --icon-size-sm: 1rem;
-    --icon-size-md: 1.25rem;
-    --icon-size-lg: 1.5rem;
-
-    /* Layout */
-    --layout-content-small-max: 60rem; /* 960px */
-    --layout-content-max: 80rem; /* 1280px */
-    --layout-content-wide-max: 90rem; /* 1440px */
-    --layout-text-max: 46rem;
-    --layout-form-max: 46rem;
-    --layout-page-gutter: clamp(2rem, 4vw, 3.5rem); /* 32–56px */
-    --layout-page-gutter-mobile: 1rem;
-    --layout-main-padding-block: clamp(2rem, 4vw, 4rem);
-    --layout-section-gap: clamp(2rem, 4vw, 3.5rem);
-
-    /* Shape */
-    --radius-default: 0;
-    --radius-avatar: 999px;
-
-    /* Elevation */
-    --shadow-sm: 0 2px 8px rgb(15 23 42 / 10%);
-    --shadow-md: 0 8px 24px rgb(15 23 42 / 16%);
-    --shadow-lg: 0 14px 34px rgb(15 23 42 / 22%);
-
-    /* Layers */
-    --z-header: 100;
-    --z-dropdown: 130;
-    --z-popover: 140;
-    --z-overlay: 200;
-    --z-skip-link: 1000;
+    /* Elevation (Ink-basierte Schatten statt generischem Schwarz) */
+    --shadow-sm: 0 1px 2px rgb(15 23 42 / 6%);
+    --shadow-md: 0 4px 12px rgb(15 23 42 / 10%);
+    --shadow-lg: 0 12px 32px rgb(15 23 42 / 16%);
 
     /* Motion */
-    --transition-fast: 160ms ease;
-    --transition-normal: 240ms ease;
+    --transition-fast: 150ms ease-out;
+    --transition-base: 200ms ease-out;
 
-    /* ------------------------------------------------------------------
-     * Compatibility aliases for the initial Laravel design foundation.
-     * New code may use the canonical names above; old examples do not need
-     * to be rewritten all at once.
-     * ------------------------------------------------------------------ */
-    --vdbs-color-green: var(--color-primary);
-    --vdbs-color-ocean: var(--color-secondary-cta);
-    --vdbs-color-ink: var(--color-ink);
-    --vdbs-color-amber: var(--color-accent-amber);
-    --vdbs-color-teal: var(--color-accent-teal);
-    --vdbs-color-berry: var(--color-accent-berry);
-    --vdbs-color-white: var(--color-white);
-    --vdbs-color-page: var(--color-page);
-    --vdbs-color-surface: var(--color-surface);
-    --vdbs-color-surface-subtle: var(--color-surface-subtle);
-    --vdbs-color-border: var(--color-border);
-    --vdbs-color-border-strong: var(--color-border-strong);
-    --vdbs-color-muted-text: var(--color-text-muted);
-    --vdbs-color-text: var(--color-ink);
-    --vdbs-color-link: var(--color-link);
-    --vdbs-color-action: var(--color-secondary-cta);
-    --vdbs-color-focus: var(--color-focus);
-    --vdbs-color-success: var(--color-success);
-    --vdbs-color-warning: var(--color-warning);
-    --vdbs-color-danger: var(--color-danger);
+    /* Typografie — Hausschrift Lato, selbst gehostet (kein Google-Fonts-CDN) */
+    --font-family-base: "Lato", "Segoe UI", system-ui, -apple-system, sans-serif;
 
-    --vdbs-font-sans: var(--font-family-base);
-    --vdbs-font-serif: var(--font-family-accent);
-    --vdbs-font-workshop: var(--font-family-workshop);
+    --font-size-display: 2.5rem; /* 40px – Hero/Kampagnentitel */
+    --font-size-h1: 2rem; /* 32px */
+    --font-size-h2: 1.5rem; /* 24px */
+    --font-size-h3: 1.25rem; /* 20px */
+    --font-size-h4: 1.125rem; /* 18px */
+    --font-size-body-lg: 1.125rem; /* 18px – lange Lesetexte */
+    --font-size-body: 1rem; /* 16px – Standard, Minimum für Kerninhalte */
+    --font-size-small: 0.875rem; /* 14px – Meta, Captions, Labels */
+    --font-size-caption: 0.75rem; /* 12px – sparsam, Mindestkontrast bleibt Pflicht */
 
-    --vdbs-text-xs: var(--text-xs);
-    --vdbs-text-sm: var(--text-sm);
-    --vdbs-text-base: var(--text-base);
-    --vdbs-text-lg: var(--text-lg);
-    --vdbs-text-xl: var(--text-xl);
-    --vdbs-text-2xl: var(--text-2xl);
-    --vdbs-text-3xl: var(--text-3xl);
-    --vdbs-text-4xl: var(--text-4xl);
+    --line-height-heading: 1.2;
+    --line-height-body: 1.6; /* WCAG 1.4.8: min. 1.5 */
+    --line-height-tight: 1.3;
 
-    --vdbs-leading-tight: var(--leading-tight);
-    --vdbs-leading-heading: var(--leading-heading);
-    --vdbs-leading-body: var(--leading-body);
+    --font-weight-regular: 400;
+    --font-weight-bold: 700;
+    --font-weight-black: 900; /* nur Überschriften, dosiert einsetzen */
 
-    --vdbs-space-1: var(--spacing-1);
-    --vdbs-space-2: var(--spacing-2);
-    --vdbs-space-3: var(--spacing-3);
-    --vdbs-space-4: var(--spacing-4);
-    --vdbs-space-5: var(--spacing-5);
-    --vdbs-space-6: var(--spacing-6);
-    --vdbs-space-7: var(--spacing-7);
-    --vdbs-space-8: var(--spacing-8);
-    --vdbs-space-9: var(--spacing-9);
-    --vdbs-space-10: var(--spacing-10);
+    --max-line-length: 75ch; /* WCAG 1.4.8 */
 
-    --vdbs-radius-sm: var(--radius-default);
-    --vdbs-radius-md: var(--radius-default);
-    --vdbs-radius-lg: var(--radius-default);
-    --vdbs-radius-pill: var(--radius-avatar);
+    /* Spacing (4px-Basisraster) */
+    --space-1: 0.25rem; /* 4px */
+    --space-2: 0.5rem; /* 8px */
+    --space-3: 0.75rem; /* 12px */
+    --space-4: 1rem; /* 16px */
+    --space-5: 1.5rem; /* 24px */
+    --space-6: 2rem; /* 32px */
+    --space-8: 3rem; /* 48px */
+    --space-10: 4rem; /* 64px */
+    --space-12: 6rem; /* 96px */
 
-    --vdbs-content-max: var(--layout-content-max);
-    --vdbs-content-wide-max: var(--layout-content-wide-max);
-    --vdbs-text-max: var(--layout-text-max);
-    --vdbs-form-max: var(--layout-form-max);
-    --vdbs-page-gutter: var(--layout-page-gutter);
+    /* Breakpoints (Mobile-First, min-width) */
+    --bp-sm: 480px; /* große Mobilgeräte */
+    --bp-md: 768px; /* Tablet */
+    --bp-lg: 1024px; /* kleiner Desktop */
+    --bp-xl: 1280px; /* Desktop */
+    --bp-2xl: 1536px; /* großer Desktop */
+}
 
-    --vdbs-shadow-sm: var(--shadow-sm);
-    --vdbs-shadow-md: var(--shadow-md);
-    --vdbs-shadow-lg: var(--shadow-lg);
-    --vdbs-transition-fast: var(--transition-fast);
-    --vdbs-transition-normal: var(--transition-normal);
+/*
+ * Dark Mode — laut Styleguide offiziell nur für die Webapp vorgesehen.
+ * Das Vereinsportal IST diese Webapp, bekommt also von Anfang an einen
+ * Hell/Dunkel-Umschalter ([data-theme="dark"]) zusätzlich zu
+ * prefers-color-scheme als Fallback für Nutzer ohne manuelle Wahl.
+ */
+:root[data-theme="dark"] {
+    --bg-page: #180f18;
+    --bg-surface: #261926;
+    --bg-accent-soft: #381d39;
+    --bg-header-footer: #261926;
+    --bg-brand: #2dc08e;
+
+    --text-default: #f1f4f2;
+    --text-muted: #a49ca3;
+    --text-on-dark: #f1f4f2;
+    --text-link: #40cd9a;
+    --text-error: #ff8a80;
+
+    --border-default: #3d303e;
+    --border-input: #3d303e;
+
+    --focus-ring: #ffffff;
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
+    --shadow-md: 0 4px 12px rgb(0 0 0 / 40%);
+    --shadow-lg: 0 12px 32px rgb(0 0 0 / 50%);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg-page: #180f18;
+        --bg-surface: #261926;
+        --bg-accent-soft: #381d39;
+        --bg-header-footer: #261926;
+        --bg-brand: #2dc08e;
+
+        --text-default: #f1f4f2;
+        --text-muted: #a49ca3;
+        --text-on-dark: #f1f4f2;
+        --text-link: #40cd9a;
+        --text-error: #ff8a80;
+
+        --border-default: #3d303e;
+        --border-input: #3d303e;
+
+        --focus-ring: #ffffff;
+        --shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
+        --shadow-md: 0 4px 12px rgb(0 0 0 / 40%);
+        --shadow-lg: 0 12px 32px rgb(0 0 0 / 50%);
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
     :root {
         --transition-fast: 0ms;
-        --transition-normal: 0ms;
+        --transition-base: 0ms;
     }
 }
