@@ -14,3 +14,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function (): string {
     return 'VDBS Vereinsportal (im Neuaufbau)';
 })->name('home');
+
+// Platzhalter, bis die Login-Seite (Schritt 3: UI für People/Access) gebaut ist;
+// der auth-Middleware-Redirect für Gäste braucht eine Route namens "login".
+Route::get('/login', function (): string {
+    return 'Anmeldung (im Neuaufbau)';
+})->name('login');

@@ -1,0 +1,21 @@
+/* Hinweise (5.7) — Icon + Text, nie nur Farbe */
+
+.vdbs-alert {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border: 1px solid var(--border-input);
+    border-left-width: 6px;
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+    margin-bottom: var(--space-4);
+}
+
+.vdbs-alert__body > :last-child { margin-bottom: 0; }
+.vdbs-alert__title { margin: 0 0 var(--space-1); font-size: var(--font-size-body); }
+
+.vdbs-alert--info { border-color: var(--color-group-3); }
+.vdbs-alert--success { border-color: var(--color-gruen-dunkel); background: var(--bg-accent-soft); }
+.vdbs-alert--warning { border-color: var(--color-group-6); }
+.vdbs-alert--error { border-color: var(--text-error); }
+.vdbs-alert--error .vdbs-alert__title { color: var(--text-error); }

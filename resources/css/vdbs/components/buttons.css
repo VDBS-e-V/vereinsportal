@@ -1,176 +1,60 @@
-/* VDBS Portal — buttons */
+/* Buttons (Styleguide 5.1) — Mindest-Touch-Target 44px, Schrift auf Grün immer Ink */
 
-.btn,
-.vdbs-button {
+.vdbs-btn {
     display: inline-flex;
-    min-height: var(--control-height-md);
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-2);
-    padding: 0.65rem 1.15rem;
-    border: var(--border-width-default) solid var(--color-primary);
-    border-radius: 0;
-    background: var(--color-primary);
-    color: var(--color-ink);
-    font-family: var(--font-family-base);
-    font-size: var(--text-base);
-    font-weight: 700;
-    line-height: 1.2;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    padding: var(--space-2) var(--space-5);
+    border: 2px solid transparent;
+    border-radius: var(--radius-md);
+    font: inherit;
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
     text-decoration: none;
-    transition:
-        background var(--transition-fast),
-        border-color var(--transition-fast),
-        color var(--transition-fast),
-        box-shadow var(--transition-fast);
+    cursor: pointer;
+    transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
 }
 
-.btn:hover,
-.vdbs-button:hover {
-    border-color: var(--color-ink);
-    background: var(--color-ink);
-    color: var(--color-white);
-    text-decoration: none;
+.vdbs-btn--primary {
+    background: var(--bg-brand);
+    color: var(--text-on-brand);
 }
 
-.btn--secondary,
-.btn--outline,
-.vdbs-button--secondary {
-    border-color: var(--color-ink) !important;
-    background: var(--color-white) !important;
-    color: var(--color-ink) !important;
+.vdbs-btn--primary:hover { background: var(--color-gruen-dunkel); color: var(--color-weiss); }
+
+.vdbs-btn--secondary {
+    background: transparent;
+    border-color: var(--text-default);
+    color: var(--text-default);
 }
 
-.btn--secondary:hover,
-.btn--outline:hover,
-.vdbs-button--secondary:hover {
-    background: var(--color-ink) !important;
-    color: var(--color-white) !important;
-}
+.vdbs-btn--secondary:hover { background: var(--bg-surface); color: var(--text-default); }
 
-.btn--quiet,
-.vdbs-button--quiet {
-    border-color: transparent !important;
-    background: transparent !important;
-    color: var(--color-link) !important;
-    padding-inline: 0.25rem !important;
+.vdbs-btn--link {
+    min-height: 0;
+    padding: var(--space-1) 0;
+    background: transparent;
+    color: var(--text-link);
     text-decoration: underline;
-    text-underline-offset: 0.18em;
+    text-underline-offset: 0.15em;
 }
 
-.btn--quiet:hover,
-.vdbs-button--quiet:hover {
-    color: var(--color-ink) !important;
-    text-decoration-thickness: 0.12em;
+.vdbs-btn--link:hover { color: var(--text-link-hover); }
+
+.vdbs-btn--danger {
+    background: var(--color-fehler);
+    color: var(--color-weiss);
 }
 
-/* Filled supporting action. btn--ocean remains as a compatibility alias. */
-.btn--accent,
-.btn--ocean,
-.vdbs-button--accent {
-    border-color: var(--color-secondary-cta) !important;
-    background: var(--color-secondary-cta) !important;
-    color: var(--color-ink) !important;
-}
+.vdbs-btn--danger:hover { background: #8f1a10; color: var(--color-weiss); }
 
-.btn--accent:hover,
-.btn--ocean:hover,
-.vdbs-button--accent:hover {
-    border-color: var(--color-ink) !important;
-    background: var(--color-ink) !important;
-    color: var(--color-white) !important;
-}
-
-.btn--sm {
-    min-height: var(--control-height-sm);
-    padding: 0.45rem 0.75rem;
-    font-size: var(--text-sm);
-}
-
-.btn--lg {
-    min-height: var(--control-height-lg);
-    padding: 0.8rem 1.35rem;
-    font-size: var(--text-lg);
-}
-
-.btn--icon {
-    width: var(--control-height-md);
-    min-width: var(--control-height-md);
-    padding: 0;
-}
-
-.btn--icon.btn--sm {
-    width: var(--control-height-sm);
-    min-width: var(--control-height-sm);
-}
-
-.btn--icon.btn--lg {
-    width: var(--control-height-lg);
-    min-width: var(--control-height-lg);
-}
-
-.btn[disabled],
-.vdbs-button[disabled],
-.btn[aria-disabled='true'],
-.vdbs-button[aria-disabled='true'] {
-    border-color: var(--color-border) !important;
-    background: var(--color-surface-disabled) !important;
-    color: var(--color-text-disabled) !important;
+.vdbs-btn:disabled,
+.vdbs-btn[aria-disabled="true"] {
+    opacity: 0.5;
     cursor: not-allowed;
-    opacity: 1;
+    pointer-events: none;
 }
 
-.btn[aria-busy='true'],
-.vdbs-button[aria-busy='true'] {
-    cursor: wait;
-}
-
-.btn__spinner {
-    width: var(--icon-size-sm);
-    height: var(--icon-size-sm);
-    flex: 0 0 auto;
-    border: 2px solid currentColor;
-    border-right-color: transparent;
-    border-radius: var(--radius-avatar);
-    animation: vdbs-button-spin 0.8s linear infinite;
-}
-
-.btn--danger,
-.vdbs-button--danger {
-    border-color: var(--color-danger) !important;
-    background: var(--color-white) !important;
-    color: var(--color-danger) !important;
-}
-
-.btn--danger:hover,
-.vdbs-button--danger:hover {
-    border-color: var(--color-danger) !important;
-    background: var(--color-danger) !important;
-    color: var(--color-white) !important;
-}
-
-.button-group,
-.vdbs-button-group {
-    display: flex;
-    min-width: 0;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--spacing-3);
-}
-
-.button-group > form,
-.vdbs-button-group > form {
-    margin: 0;
-}
-
-@keyframes vdbs-button-spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .btn__spinner {
-        animation: none;
-        border-right-color: currentColor;
-    }
-}
+.vdbs-btn--block { display: flex; width: 100%; }
