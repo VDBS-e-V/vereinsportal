@@ -13,5 +13,7 @@
         :primary-url="url('/')"
         secondary-label="Erneut versuchen"
         :secondary-url="request()->fullUrl()"
+        :image="asset('images/fehlerseiten/500.webp')"
+        image-alt="Illustration: Ein Student sitzt nachdenklich am Laptop, neben ihm steht ein Serverschrank mit der Anzeige 500."
     />
 @endsection

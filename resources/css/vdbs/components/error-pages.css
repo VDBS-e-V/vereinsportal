@@ -300,8 +300,9 @@
 }
 
 /*
- * Variante mit Bild (Eigenschaft image): Das Bild füllt die linke Fläche, der
- * Fehlercode bleibt als Marke unten links sichtbar, das Signal entfällt.
+ * Variante mit Bild (Eigenschaft image): Das Bild füllt die linke Fläche. Die
+ * Illustration zeigt den Fehlercode selbst, deshalb entfallen große Zahl und
+ * Signal; die Zeile „Fehlercode …“ im Text bleibt erhalten.
  */
 .error-page--bild .error-page__visual,
 .vdbs-error-page--bild .vdbs-error-page__visual {
@@ -320,19 +321,10 @@
 }
 
 .error-page--bild .error-page__signal,
-.vdbs-error-page--bild .vdbs-error-page__signal {
-    display: none;
-}
-
+.vdbs-error-page--bild .vdbs-error-page__signal,
 .error-page--bild .error-page__code,
 .vdbs-error-page--bild .vdbs-error-page__code {
-    margin: var(--spacing-4);
-    padding: var(--spacing-2) var(--spacing-3);
-    background: var(--color-stage);
-    color: var(--color-on-stage);
-    font-size: var(--text-3xl);
-    letter-spacing: 0;
-    line-height: 1;
+    display: none;
 }
 
 @media (max-width: 48rem) {

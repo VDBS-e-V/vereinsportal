@@ -56,3 +56,26 @@ it('provides styles and a reference for the image-text component', function () {
         ->toContain('.error-page--bild')
         ->toContain('.vdbs-error-page--bild');
 });
+
+it('uses the error page illustrations and tolerates a missing 429 image', function () {
+    foreach (['404', '500', '401', '403'] as $code) {
+        $view = file_get_contents(
+            resource_path('views/errors/'.$code.'.blade.php'),
+        );
+
+        expect($view)
+            ->toContain("asset('images/fehlerseiten/".$code.".webp')")
+            ->toContain('image-alt=');
+
+        expect(public_path('images/fehlerseiten/'.$code.'.webp'))
+            ->toBeFile();
+    }
+
+    $view429 = file_get_contents(
+        resource_path('views/errors/429.blade.php'),
+    );
+
+    expect($view429)
+        ->toContain('code="429"')
+        ->toContain("file_exists(public_path('images/fehlerseiten/429.webp'))");
+});

@@ -57,7 +57,7 @@
                 class="error-page__bild vdbs-error-page__bild"
                 src="{{ $image }}"
                 alt="{{ $imageAlt }}"
-                loading="lazy"
+                decoding="async"
             >
         @endif
 

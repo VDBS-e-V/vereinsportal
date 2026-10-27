@@ -22,6 +22,12 @@ erkennbar halten und einen sicheren Rückweg anbieten.
 
 ## Varianten
 
+### 401 — Anmeldung erforderlich
+
+Für Seiten, die eine Anmeldung voraussetzen, wenn der Zugriff nicht über die
+normale Weiterleitung zur Anmeldung läuft (z. B. `abort(401)`).
+Rückweg: Anmeldung; optional Startseite.
+
 ### 403 — Zugriff nicht erlaubt
 
 Für existierende Inhalte, auf die das aktuelle Konto nicht zugreifen darf.
@@ -36,6 +42,11 @@ Rückweg: Startseite.
 
 Für abgelaufene CSRF-/Sitzungskontexte.
 Rückweg: erneute Anmeldung.
+
+### 429 — Zu viele Anfragen
+
+Für Drosselung (Rate Limiting), z. B. bei Anmeldeversuchen.
+Rückweg: später erneut versuchen; optional Startseite.
 
 ### 500 — Technischer Fehler
 
@@ -91,10 +102,25 @@ nur nachgezogen werden, wenn sie auch auf Fehlerseiten erscheinen sollen.
 ## Variante mit Bild
 
 `<x-vdbs.error-page … :image="asset('images/…')" />` zeigt statt des Signals ein Bild in
-der linken Fläche („Bild links, Text rechts“). Der Fehlercode bleibt als Marke unten
-links sichtbar, die technische Zeile „Fehlercode …“ bleibt erhalten. Ohne
+der linken Fläche („Bild links, Text rechts“). Die Illustration zeigt den Fehlercode
+selbst, deshalb entfallen große Zahl und Signal; die technische Zeile „Fehlercode …“
+bleibt erhalten. Ohne
 `image-alt` gilt das Bild als dekorativ (`aria-hidden`), mit `image-alt="…"` wird es
-vorgelesen. Die Variante ist standardmäßig nicht aktiv; sie wird pro Fehlerseite in
-`resources/views/errors/*.blade.php` über die Eigenschaft eingeschaltet. Beispiel:
+vorgelesen. Die Variante wird pro Fehlerseite in `resources/views/errors/*.blade.php`
+über die Eigenschaft eingeschaltet. Beispiel:
 `/design/fehlerseiten`. Styles: Abschnitt „Variante mit Bild“ in
 `resources/css/vdbs/components/error-pages.css`.
+
+### Bilder der Fehlerseiten
+
+Ablage: `public/images/fehlerseiten/<code>.webp` (Verhältnis 3:2, z. B. 1536 × 1024).
+
+| Datei | Fehlerseite | Stand |
+|---|---|---|
+| `404.webp` | 404 Seite nicht gefunden | im Repo |
+| `500.webp` | 500 Technischer Fehler | im Repo |
+| `401.webp` | 401 Anmeldung erforderlich | im Repo |
+| `403.webp` | 403 Zugriff nicht erlaubt | im Repo |
+| `429.webp` | 429 Zu viele Anfragen | manuell ablegen; fehlt die Datei, zeigt die Seite die Signalfläche |
+
+419 und 503 haben bisher kein Bild.

@@ -13,5 +13,7 @@
         :primary-url="url('/')"
         secondary-label="Zur Anmeldung"
         :secondary-url="url('/anmelden')"
+        :image="asset('images/fehlerseiten/403.webp')"
+        image-alt="Illustration: Eine Studentin steht vor einer abgesperrten Glastür mit Stoppschild und der Aufschrift 403."
     />
 @endsection

@@ -71,9 +71,13 @@
                 <p class="page-title__kicker">Variante</p>
                 <h2>Mit Bild</h2>
                 <p class="container--narrow">
-                    Die Eigenschaft <code>image</code> ersetzt die Signalfläche durch ein Bild.
-                    Der Fehlercode bleibt als Marke sichtbar. Mit <code>image-alt</code>
-                    erhält das Bild eine Beschreibung; ohne bleibt es dekorativ.
+                    Die Eigenschaft <code>image</code> ersetzt die Signalfläche durch eine
+                    Illustration, die den Fehlercode selbst zeigt. Die Zeile „Fehlercode …“
+                    im Text bleibt. Mit <code>image-alt</code> erhält das Bild eine
+                    Beschreibung; ohne bleibt es dekorativ. Bilder liegen in
+                    <code>public/images/fehlerseiten/</code> (<code>404.webp</code>,
+                    <code>500.webp</code>, <code>401.webp</code>, <code>403.webp</code>,
+                    <code>429.webp</code>).
                 </p>
             </header>
 
@@ -86,7 +90,8 @@
                     variant="info"
                     primary-label="Zur Startseite"
                     primary-url="#"
-                    :image="asset('images/design/platzhalter.svg')"
+                    :image="asset('images/fehlerseiten/404.webp')"
+                    image-alt="Illustration: Eine Studentin sitzt mit einer Karte auf dem Campus und schaut zu einem Wegweiser mit der Aufschrift 404."
                 />
             </div>
         </section>
@@ -98,6 +103,21 @@
             </header>
 
             <div class="stack stack--lg">
+                <div class="design-example">
+                    <x-vdbs.error-page
+                        code="401"
+                        title="Anmeldung erforderlich"
+                        description="Für diese Seite müssen Sie angemeldet sein."
+                        support="Melden Sie sich an, um fortzufahren."
+                        variant="warning"
+                        primary-label="Zur Anmeldung"
+                        primary-url="#"
+                        secondary-label="Zur Startseite"
+                        secondary-url="#"
+                        compact
+                    />
+                </div>
+
                 <div class="design-example">
                     <x-vdbs.error-page
                         code="403"
@@ -122,6 +142,21 @@
                         variant="warning"
                         primary-label="Erneut anmelden"
                         primary-url="#"
+                        compact
+                    />
+                </div>
+
+                <div class="design-example">
+                    <x-vdbs.error-page
+                        code="429"
+                        title="Zu viele Anfragen"
+                        description="Es wurden in kurzer Zeit zu viele Anfragen gesendet. Zur Sicherheit wird der Zugriff kurz begrenzt."
+                        support="Bitte warten Sie einen Moment und versuchen Sie es dann erneut."
+                        variant="warning"
+                        primary-label="Erneut versuchen"
+                        primary-url="#"
+                        secondary-label="Zur Startseite"
+                        secondary-url="#"
                         compact
                     />
                 </div>
