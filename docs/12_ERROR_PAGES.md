@@ -161,4 +161,3 @@ Aufbau von oben nach unten: helle Fläche (`--color-brand-soft`) aus **Text link
 - Die kompakte Fassung (`compact`) ist für Übersichten gedacht und bleibt zweispaltig.
 - Das CSS steht in `resources/css/vdbs/components/error-pages.css`. Die `vdbs-`-Selektoren
   sind Kopien der kurzen Namen und werden immer zusammen geändert.
-
