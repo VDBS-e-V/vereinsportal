@@ -1,7 +1,5 @@
 <?php
 
-use App\Models\User;
-
 return [
 
     /*
@@ -44,6 +42,13 @@ return [
     'guards' => [
         'web' => [
             'driver' => 'session',
+            'provider' => 'users',
+        ],
+
+        // Modul: SSO. Fuer Laravel Passport als OIDC-Provider fuer
+        // Nextcloud/Moodle/Umfragetools (siehe Konzept-Dokument).
+        'api' => [
+            'driver' => 'passport',
             'provider' => 'users',
         ],
     ],

@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Sso\SsoServiceProvider;
 use App\Providers\AppServiceProvider;
 use App\Providers\VoltServiceProvider;
 
@@ -12,4 +13,5 @@ use App\Providers\VoltServiceProvider;
 return [
     AppServiceProvider::class,
     VoltServiceProvider::class,
+    SsoServiceProvider::class,
 ];
