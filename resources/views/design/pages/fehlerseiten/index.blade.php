@@ -68,6 +68,31 @@
 
         <section class="stack stack--lg">
             <header class="stack stack--sm">
+                <p class="page-title__kicker">Variante</p>
+                <h2>Mit Bild</h2>
+                <p class="container--narrow">
+                    Die Eigenschaft <code>image</code> ersetzt die Signalfläche durch ein Bild.
+                    Der Fehlercode bleibt als Marke sichtbar. Mit <code>image-alt</code>
+                    erhält das Bild eine Beschreibung; ohne bleibt es dekorativ.
+                </p>
+            </header>
+
+            <div class="design-example">
+                <x-vdbs.error-page
+                    code="404"
+                    title="Seite nicht gefunden"
+                    description="Die gewünschte Seite konnte nicht gefunden werden. Möglicherweise wurde sie verschoben oder die Adresse ist nicht mehr aktuell."
+                    support="Von hier aus gelangen Sie schnell zurück in das Portal."
+                    variant="info"
+                    primary-label="Zur Startseite"
+                    primary-url="#"
+                    :image="asset('images/design/platzhalter.svg')"
+                />
+            </div>
+        </section>
+
+        <section class="stack stack--lg">
+            <header class="stack stack--sm">
                 <p class="page-title__kicker">Varianten</p>
                 <h2>Weitere Fehlerzustände</h2>
             </header>

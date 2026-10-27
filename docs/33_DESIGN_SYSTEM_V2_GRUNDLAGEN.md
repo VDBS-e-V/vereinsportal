@@ -186,7 +186,7 @@ Neu in `tokens.css`: `--text-display` (fluide Display-Schrift für Hero und Page
 |---|---|
 | `shared.css` | Aktions-Position, Bereich, Etikett, Meta-Zeile, `is-center` |
 | `hero.css` | Hero „Bühne“, Banner, Page Hero, Intro-Teaser (3 Ausprägungen) |
-| `teaser.css` | Teaser mit Bild (links, rechts, hervorgehoben), Bild-Text-Versatz |
+| `teaser.css` | Teaser mit Bild (links, rechts, hervorgehoben), Bild-Text-Versatz, Bild-Text (Bild links/rechts) |
 | `kacheln.css` | Kachelraster, Schwerpunkte, Karten-Reihe, Kennzahlen, Facts, Zahlenleiste, News |
 | `inhalt.css` | Zitate, Textblock, Textfläche, Aufruf, Hinweisbox, Bildpaar, Textabschnitte |
 | `personen.css` | Infospalten, Ansprechpartner:innen, Vorstand |

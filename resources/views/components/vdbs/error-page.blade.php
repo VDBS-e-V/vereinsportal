@@ -10,6 +10,8 @@
     'secondaryLabel' => null,
     'secondaryUrl' => null,
     'compact' => false,
+    'image' => null,
+    'imageAlt' => '',
 ])
 
 @php
@@ -41,10 +43,24 @@
         'vdbs-error-page--'.$variant,
         'error-page--compact' => $compact,
         'vdbs-error-page--compact' => $compact,
+        'error-page--bild' => $image !== null,
+        'vdbs-error-page--bild' => $image !== null,
     ]) }}
     aria-labelledby="{{ $titleId }}"
 >
-    <div class="error-page__visual vdbs-error-page__visual" aria-hidden="true">
+    <div
+        class="error-page__visual vdbs-error-page__visual"
+        @if ($image === null || $imageAlt === '') aria-hidden="true" @endif
+    >
+        @if ($image !== null)
+            <img
+                class="error-page__bild vdbs-error-page__bild"
+                src="{{ $image }}"
+                alt="{{ $imageAlt }}"
+                loading="lazy"
+            >
+        @endif
+
         <span class="error-page__signal vdbs-error-page__signal"></span>
         <p class="error-page__code vdbs-error-page__code">
             {{ $code }}

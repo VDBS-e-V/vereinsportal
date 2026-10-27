@@ -236,3 +236,67 @@
         margin: calc(-1 * var(--spacing-6)) var(--spacing-4) 0;
     }
 }
+
+/* ==========================================================================
+ * Bild-Text  (#bildtext)
+ * Bild links, rechts Überschrift, Text und Buttons. Variante --rechts spiegelt.
+ * Muster: bildtext, bildtext-rechts
+ *
+ * Struktur:
+ *   section.vdbs-bildtext
+ *     figure.vdbs-bildtext__bild
+ *     div.vdbs-bildtext__inhalt
+ *       h2.vdbs-bildtext__titel
+ *       div.vdbs-buttons
+ *         a.btn
+ * ========================================================================== */
+
+.vdbs-bildtext {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--spacing-6) var(--spacing-8);
+    align-items: center;
+    max-width: var(--layout-content-small-max);
+    margin-inline: auto;
+}
+
+.vdbs-bildtext__bild img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+}
+
+.vdbs-bildtext__bild figcaption {
+    margin-block-start: var(--spacing-2);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+}
+
+.vdbs-bildtext__inhalt {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+.vdbs-bildtext__titel {
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-black);
+    line-height: var(--leading-heading);
+}
+
+/* Variante: Bild rechts. */
+.vdbs-bildtext--rechts .vdbs-bildtext__bild {
+    order: 2;
+}
+
+/* Schmal: einspaltig, Bild immer oben. */
+@media (max-width: 48rem) {
+    .vdbs-bildtext {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .vdbs-bildtext--rechts .vdbs-bildtext__bild {
+        order: 0;
+    }
+}

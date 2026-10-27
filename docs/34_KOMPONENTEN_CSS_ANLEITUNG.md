@@ -80,7 +80,7 @@ umrandet.
 |---|---|
 | `shared.css` | Aktions-Position, Bereich, Etikett, Meta-Zeile, `is-center` |
 | `hero.css` | Hero, Banner, Page Hero, Intro |
-| `teaser.css` | Teaser mit Bild, Bild-Text-Versatz |
+| `teaser.css` | Teaser mit Bild, Bild-Text-Versatz, Bild-Text |
 | `kacheln.css` | Kacheln, Schwerpunkte, Karten, Kennzahlen, Facts, Zahlenleiste, News |
 | `inhalt.css` | Zitate, Textblock, Textfläche, Aufruf, Hinweisbox, Bildpaar, Textabschnitte |
 | `personen.css` | Infospalten, Ansprechpartner, Vorstand |

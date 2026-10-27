@@ -87,3 +87,14 @@ Der Header der Fehlerseiten ist bewusst einfacher als der des normalen Layouts:
 Navigation (Start, Konto bzw. Zugang), Brotkrumen und Konto-Menü (Profil,
 Einstellungen, Abmelden). Änderungen an der Hauptnavigation des Portals müssen hier
 nur nachgezogen werden, wenn sie auch auf Fehlerseiten erscheinen sollen.
+
+## Variante mit Bild
+
+`<x-vdbs.error-page … :image="asset('images/…')" />` zeigt statt des Signals ein Bild in
+der linken Fläche („Bild links, Text rechts“). Der Fehlercode bleibt als Marke unten
+links sichtbar, die technische Zeile „Fehlercode …“ bleibt erhalten. Ohne
+`image-alt` gilt das Bild als dekorativ (`aria-hidden`), mit `image-alt="…"` wird es
+vorgelesen. Die Variante ist standardmäßig nicht aktiv; sie wird pro Fehlerseite in
+`resources/views/errors/*.blade.php` über die Eigenschaft eingeschaltet. Beispiel:
+`/design/fehlerseiten`. Styles: Abschnitt „Variante mit Bild“ in
+`resources/css/vdbs/components/error-pages.css`.

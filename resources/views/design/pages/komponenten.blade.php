@@ -25,6 +25,7 @@
                 <li><a href="#intro">Intro-Teaser</a></li>
                 <li><a href="#teaser">Teaser mit Bild</a></li>
                 <li><a href="#versatz">Bild-Text-Versatz</a></li>
+                <li><a href="#bildtext">Bild-Text</a></li>
                 <li><a href="#kacheln">Kachelraster (auf Bühne)</a></li>
                 <li><a href="#schwerpunkte">Schwerpunkte (Kacheln mit Text)</a></li>
                 <li><a href="#karten">Karten-Reihe</a></li>
@@ -357,6 +358,53 @@
         
                     </div>
     
+                </section>
+            </div>
+        </section>
+
+        <section class="section stack" id="bildtext">
+            <h2>Bild-Text</h2>
+            <p class="container--narrow">Bild links, rechts Überschrift, Text und Buttons. Variante --rechts spiegelt. <code>v2/teaser.css</code></p>
+
+            {{-- bildtext · Breite: wide --}}
+            <div class="vdbs-demo vdbs-demo--wide">
+                <section class="vdbs-bildtext" aria-labelledby="bildtext-titel">
+                    <figure class="vdbs-bildtext__bild">
+                        <img src="{{ asset('images/design/platzhalter.svg') }}" alt="" loading="lazy">
+                        <figcaption>Bild: Quelle/Urheber</figcaption>
+                    </figure>
+
+                    <div class="vdbs-bildtext__inhalt">
+                        <h2 class="vdbs-bildtext__titel" id="bildtext-titel">Überschrift</h2>
+                        <p>
+                            Kurzer Text, der erklärt, worum es geht. Zwei bis vier Zeilen genügen.
+                        </p>
+                        <div class="vdbs-buttons">
+                            <a class="btn" href="#">Hauptaktion</a>
+                            <a class="btn btn--outline" href="#">Zweite Aktion</a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            {{-- bildtext-rechts · Breite: wide --}}
+            <div class="vdbs-demo vdbs-demo--wide">
+                <section class="vdbs-bildtext vdbs-bildtext--rechts" aria-labelledby="bildtext-titel-rechts">
+                    <figure class="vdbs-bildtext__bild">
+                        <img src="{{ asset('images/design/platzhalter.svg') }}" alt="" loading="lazy">
+                        <figcaption>Bild: Quelle/Urheber</figcaption>
+                    </figure>
+
+                    <div class="vdbs-bildtext__inhalt">
+                        <h2 class="vdbs-bildtext__titel" id="bildtext-titel-rechts">Überschrift (Bild rechts)</h2>
+                        <p>
+                            Kurzer Text, der erklärt, worum es geht. Zwei bis vier Zeilen genügen.
+                        </p>
+                        <div class="vdbs-buttons">
+                            <a class="btn" href="#">Hauptaktion</a>
+                            <a class="btn btn--outline" href="#">Zweite Aktion</a>
+                        </div>
+                    </div>
                 </section>
             </div>
         </section>

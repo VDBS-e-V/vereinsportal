@@ -299,6 +299,42 @@
     font-size: var(--text-base);
 }
 
+/*
+ * Variante mit Bild (Eigenschaft image): Das Bild füllt die linke Fläche, der
+ * Fehlercode bleibt als Marke unten links sichtbar, das Signal entfällt.
+ */
+.error-page--bild .error-page__visual,
+.vdbs-error-page--bild .vdbs-error-page__visual {
+    padding: 0;
+    border-left: 0;
+    background: var(--color-surface-strong);
+}
+
+.error-page__bild,
+.vdbs-error-page__bild {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.error-page--bild .error-page__signal,
+.vdbs-error-page--bild .vdbs-error-page__signal {
+    display: none;
+}
+
+.error-page--bild .error-page__code,
+.vdbs-error-page--bild .vdbs-error-page__code {
+    margin: var(--spacing-4);
+    padding: var(--spacing-2) var(--spacing-3);
+    background: var(--color-stage);
+    color: var(--color-on-stage);
+    font-size: var(--text-3xl);
+    letter-spacing: 0;
+    line-height: 1;
+}
+
 @media (max-width: 48rem) {
     .error-shell__header-inner,
     .vdbs-error-shell__header-inner,
