@@ -161,13 +161,17 @@
             ->all();
 
         $user = auth()->user();
-        $designAreas = app(\App\Support\PortalAreaCatalog::class)
-            ->switcherAreas(
-                $user instanceof \App\Modules\Identity\Models\User
-                    ? $user
-                    : null,
-                \App\Support\PortalAreaCatalog::DESIGN,
-            );
+
+        /*
+         * PortalAreaCatalog + App\Modules\Administration sind im
+         * Rahmen des Neuaufbaus entfernt worden. Der rollenbasierte
+         * Bereichs-Switcher (Vorstand/Koordination/Geschaeftsstelle/
+         * Admins) kommt zurueck, wenn Access-Governance seine
+         * Bereichs-Konfiguration bekommt - bis dahin zeigt die
+         * Design-Seite nur sich selbst, ohne Switcher-Abhaengigkeit
+         * von einem eingeloggten Nutzer.
+         */
+        $designAreas = [];
 
         $designAccount = null;
 

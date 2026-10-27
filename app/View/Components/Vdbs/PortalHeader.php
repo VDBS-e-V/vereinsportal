@@ -2,7 +2,7 @@
 
 namespace App\View\Components\Vdbs;
 
-use App\Modules\Identity\Models\User;
+use App\Modules\Access\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Component;

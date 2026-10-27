@@ -1,16 +1,15 @@
 <?php
 
-use App\Modules\Audit\AuditServiceProvider;
-use App\Modules\Communication\CommunicationServiceProvider;
-use App\Modules\Identity\IdentityServiceProvider;
 use App\Providers\AppServiceProvider;
 use App\Providers\VoltServiceProvider;
 
+/*
+ * IdentityServiceProvider, AuditServiceProvider und
+ * CommunicationServiceProvider sind mit ihren Modulen entfernt worden
+ * und kommen zurueck, sobald Access/Compliance-Log/Messaging neu
+ * aufgebaut sind.
+ */
 return [
     AppServiceProvider::class,
     VoltServiceProvider::class,
-
-    IdentityServiceProvider::class,
-    AuditServiceProvider::class,
-    CommunicationServiceProvider::class,
 ];

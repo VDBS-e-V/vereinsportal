@@ -1,7 +1,7 @@
 <?php
 
-use App\Modules\Identity\Enums\UserStatus;
-use App\Modules\Identity\Models\User;
+use App\Modules\Access\Enums\UserStatus;
+use App\Modules\Access\Models\User;
 use Illuminate\Support\Str;
 
 function makeDesignWorkbenchUser(): User
