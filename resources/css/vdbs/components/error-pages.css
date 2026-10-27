@@ -257,6 +257,52 @@
     font-size: var(--text-sm);
 }
 
+/* Weiterführende Links unter den Buttons. */
+.error-page__links,
+.vdbs-error-page__links {
+    margin-top: var(--spacing-3);
+    padding-top: var(--spacing-4);
+    border-top: var(--border-width-default) solid var(--color-border);
+}
+
+.error-page__links-title,
+.vdbs-error-page__links-title {
+    margin: 0 0 var(--spacing-2);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.06em;
+    line-height: 1.3;
+    text-transform: uppercase;
+}
+
+.error-page__links-list,
+.vdbs-error-page__links-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2) var(--spacing-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.error-page__links-list a,
+.vdbs-error-page__links-list a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    font-weight: var(--font-weight-semibold);
+}
+
+.error-page__links-list a::before,
+.vdbs-error-page__links-list a::before {
+    content: "›" / "";
+    color: var(--color-primary);
+    font-size: 1.2em;
+    font-weight: var(--font-weight-bold);
+    line-height: 1;
+}
+
 .error-page--compact,
 .vdbs-error-page--compact {
     grid-template-columns: minmax(9rem, 0.45fr) minmax(0, 1.55fr);
@@ -304,8 +350,18 @@
  * Illustration zeigt den Fehlercode selbst, deshalb entfallen große Zahl und
  * Signal; die Zeile „Fehlercode …“ im Text bleibt erhalten.
  */
+.error-page--bild,
+.vdbs-error-page--bild {
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    align-items: center;
+}
+
+/* Bildfläche im Format 3:2, das Bild füllt sie ohne Zuschnitt. */
 .error-page--bild .error-page__visual,
 .vdbs-error-page--bild .vdbs-error-page__visual {
+    align-self: center;
+    min-height: 0;
+    aspect-ratio: 3 / 2;
     padding: 0;
     border-left: 0;
     background: var(--color-surface-strong);
@@ -393,7 +449,9 @@
     .vdbs-error-shell__header,
     .vdbs-error-shell__footer,
     .error-page__actions,
-    .vdbs-error-page__actions {
+    .vdbs-error-page__actions,
+    .error-page__links,
+    .vdbs-error-page__links {
         display: none;
     }
 

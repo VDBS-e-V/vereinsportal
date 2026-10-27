@@ -13,5 +13,6 @@
         :primary-url="url('/')"
         :image="asset('images/fehlerseiten/404.webp')"
         image-alt="Illustration: Eine Studentin sitzt mit einer Karte auf dem Campus und schaut zu einem Wegweiser mit der Aufschrift 404."
+        :links="\App\Support\ErrorPageLinks::for('404')"
     />
 @endsection

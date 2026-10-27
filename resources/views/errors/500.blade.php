@@ -15,5 +15,6 @@
         :secondary-url="request()->fullUrl()"
         :image="asset('images/fehlerseiten/500.webp')"
         image-alt="Illustration: Ein Student sitzt nachdenklich am Laptop, neben ihm steht ein Serverschrank mit der Anzeige 500."
+        :links="\App\Support\ErrorPageLinks::for('500')"
     />
 @endsection

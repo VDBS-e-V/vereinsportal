@@ -3,7 +3,6 @@
 @section('documentTitle', 'Zu viele Anfragen')
 
 @section('content')
-    {{-- Das Bild wird manuell abgelegt: public/images/fehlerseiten/429.webp. Fehlt die Datei, zeigt die Seite die Signalfläche. --}}
     <x-vdbs.error-page
         code="429"
         title="Zu viele Anfragen"
@@ -14,7 +13,8 @@
         :primary-url="request()->fullUrl()"
         secondary-label="Zur Startseite"
         :secondary-url="url('/')"
-        :image="file_exists(public_path('images/fehlerseiten/429.webp')) ? asset('images/fehlerseiten/429.webp') : null"
+        :image="asset('images/fehlerseiten/429.webp')"
         image-alt="Illustration: Ein Student sitzt am Laptop, um ihn herum schweben viele Fenster und eine Uhr, dazu die Zahl 429."
+        :links="\App\Support\ErrorPageLinks::for('429')"
     />
 @endsection

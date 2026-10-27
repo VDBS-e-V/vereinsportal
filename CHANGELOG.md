@@ -19,6 +19,7 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 - Designsystem v2 (Grundlagen): Tokens an Markenpaket v7.2 angeglichen (Grün, Lila, Link, Fokus, Fehler), neue Rollen und Gruppenfarben, Lato als Basisschrift; Dokumentation in `docs/33_DESIGN_SYSTEM_V2_GRUNDLAGEN.md`
 - Designsystem v2 im Portal durchgesetzt: Ocean Mist und Zusatzfarben entfernt (Lila statt Ocean), Hauptbutton-Hover und Footer-Leiste in Markenfarben, Tokens statt fester Werte
+- Fehlerseiten: Bildfläche im Format 3:2, weiterführende Links auf jeder Fehlerseite (`ErrorPageLinks`), Bilder für 429 und 503 (Wartungsarbeiten)
 - Komponente „Bild-Text“ (`vdbs-bildtext`, Bild links, Text und Buttons rechts) und Bild-Variante der Fehlerseite (`image`)
 - Fehlerseiten verwenden den normalen Portal-Header und -Footer (abgesichert über `ErrorPageChrome`, mit Rückfall auf die reduzierte Hülle)
 - Entwicklungsmodell auf kurze Pull-Request-Branches direkt nach `main` vereinheitlicht

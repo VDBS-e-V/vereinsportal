@@ -12,6 +12,8 @@
     'compact' => false,
     'image' => null,
     'imageAlt' => '',
+    'links' => [],
+    'linksTitle' => 'Das könnte Ihnen helfen',
 ])
 
 @php
@@ -33,6 +35,30 @@
     $titleId = 'vdbs-error-'.\Illuminate\Support\Str::slug(
         $code.'-'.$title,
     );
+
+    // Weiterführende Links: Ziele, die schon als Button vorkommen, entfallen
+    // (Vergleich über den Pfad); höchstens vier Links, keine doppelten Texte.
+    $normalizePath = static function (?string $url): string {
+        $path = parse_url((string) $url, PHP_URL_PATH);
+
+        return $path === null || $path === '' ? '' : '/'.trim($path, '/');
+    };
+
+    $buttonPaths = collect([$primaryUrl, $secondaryUrl])
+        ->map($normalizePath)
+        ->filter()
+        ->all();
+
+    $visibleLinks = collect($links)
+        ->filter(fn ($link): bool => isset($link['label'], $link['url']))
+        ->reject(fn ($link): bool => in_array(
+            $normalizePath($link['url']),
+            $buttonPaths,
+            true,
+        ))
+        ->unique('label')
+        ->take(4)
+        ->values();
 @endphp
 
 <section
@@ -57,6 +83,8 @@
                 class="error-page__bild vdbs-error-page__bild"
                 src="{{ $image }}"
                 alt="{{ $imageAlt }}"
+                width="1536"
+                height="1024"
                 decoding="async"
             >
         @endif
@@ -106,6 +134,28 @@
                     </a>
                 @endif
             </div>
+        @endif
+
+        @if ($visibleLinks->isNotEmpty())
+            <nav
+                class="error-page__links vdbs-error-page__links"
+                aria-labelledby="{{ $titleId }}-links"
+            >
+                <h2
+                    class="error-page__links-title vdbs-error-page__links-title"
+                    id="{{ $titleId }}-links"
+                >
+                    {{ $linksTitle }}
+                </h2>
+
+                <ul class="error-page__links-list vdbs-error-page__links-list" role="list">
+                    @foreach ($visibleLinks as $link)
+                        <li>
+                            <a href="{{ $link['url'] }}">{{ $link['label'] }}</a>
+                        </li>
+                    @endforeach
+                </ul>
+            </nav>
         @endif
 
         <p class="error-page__technical vdbs-error-page__technical">

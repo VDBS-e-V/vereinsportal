@@ -12,6 +12,9 @@ erkennbar halten und einen sicheren Rückweg anbieten.
 - Pro Fehlerseite gibt es genau eine primäre Aktion.
 - Eine zweite Aktion ist nur sinnvoll, wenn sie einen echten alternativen
   Rückweg anbietet.
+- Zusätzlich bietet jede Fehlerseite mehrere weiterführende Links („Das könnte
+  Ihnen helfen“), damit niemand in einer Sackgasse landet (siehe „Weiterführende
+  Links“).
 - Fehlermeldungen enthalten keine Stacktraces, internen IDs oder technischen
   Details für Endnutzer:innen.
 - Sicherheitsrelevante Zustände wie 403 und 419 bleiben sachlich.
@@ -121,6 +124,27 @@ Ablage: `public/images/fehlerseiten/<code>.webp` (Verhältnis 3:2, z. B. 1536 ×
 | `500.webp` | 500 Technischer Fehler | im Repo |
 | `401.webp` | 401 Anmeldung erforderlich | im Repo |
 | `403.webp` | 403 Zugriff nicht erlaubt | im Repo |
-| `429.webp` | 429 Zu viele Anfragen | manuell ablegen; fehlt die Datei, zeigt die Seite die Signalfläche |
+| `429.webp` | 429 Zu viele Anfragen | im Repo |
+| `wartungsarbeiten.webp` | 503 Vorübergehend nicht verfügbar | im Repo |
 
-419 und 503 haben bisher kein Bild.
+419 hat bisher kein Bild. Die Bilder werden im Format 3:2 gezeigt (Bildfläche mit festem
+Seitenverhältnis, kein Zuschnitt). Dateien bitte als WebP in 1536 × 1024 und möglichst unter
+250 KB ablegen; Fehlerseiten müssen schnell laden.
+
+## Weiterführende Links
+
+Jede Fehlerseite zeigt unter den Buttons die Liste „Das könnte Ihnen helfen“ mit bis zu
+vier Links. Die Links liefert `app/Support/ErrorPageLinks.php`; die Views übergeben sie
+über `:links="\App\Support\ErrorPageLinks::for('404')"`.
+
+| Link | Wann |
+|---|---|
+| Zur Startseite | immer |
+| Zurück zur vorherigen Seite | nur Status < 500, nur wenn die vorherige Seite auf demselben Host liegt |
+| Anmelden, Konto registrieren, Passwort vergessen | für Gäste |
+| Mein Konto, Mein Profil | für angemeldete Personen (nur Status < 500) |
+
+Der Baustein entfernt Links, deren Ziel schon als Button vorkommt (Vergleich über den
+Pfad), und zeigt jeden Text nur einmal. Ab Status 500 gibt es weder Sitzungs- noch
+Anmeldeabfrage, also nur Gast-Links. Eigene Links: Eigenschaft `links` mit einer Liste
+aus `['label' => …, 'url' => …]`, Überschrift über `links-title`.

@@ -13,5 +13,6 @@
         :primary-url="url('/anmelden')"
         secondary-label="Zur Startseite"
         :secondary-url="url('/')"
+        :links="\App\Support\ErrorPageLinks::for('419')"
     />
 @endsection
