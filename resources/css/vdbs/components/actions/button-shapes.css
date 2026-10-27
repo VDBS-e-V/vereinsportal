@@ -23,9 +23,9 @@
 }
 
 .vdbs-btn--shape-outline:hover {
-    background: var(--btn-hover-bg);
-    border-color: var(--btn-line);
-    color: var(--btn-hover-fg);
+    background: var(--btn-fill);
+    border-color: var(--btn-fill);
+    color: var(--btn-fill-fg);
 }
 
 /* link: wie ein Textlink; beim Überfahren erscheint die Hover-Fläche (Padding wird durch negativen Rand ausgeglichen) */
@@ -43,8 +43,8 @@
 }
 
 .vdbs-btn--shape-link:hover {
-    background: var(--btn-hover-bg);
-    color: var(--btn-hover-fg);
+    background: var(--btn-fill);
+    color: var(--btn-fill-fg);
     text-decoration-thickness: 2px;
 }
 
@@ -71,7 +71,12 @@
     color: var(--text-default);
 }
 
-.vdbs-btn--shape-line:hover { background: var(--bg-brand); border-color: var(--bg-brand); border-bottom-color: var(--btn-line); color: var(--text-on-brand); }
+.vdbs-btn--shape-line:hover {
+    background: var(--btn-fill);
+    border-color: var(--btn-fill);
+    border-bottom-color: var(--btn-line);
+    color: var(--btn-fill-fg);
+}
 
 /* Der Chevron hat seitlich Leerraum im Icon-Feld; ausgleichen, damit links und rechts gleich viel Rand sichtbar ist */
 .vdbs-btn--shape-line .vdbs-btn__icon--chevron { margin-left: -0.375rem; }

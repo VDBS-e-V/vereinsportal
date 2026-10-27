@@ -1,11 +1,19 @@
 /* Button-Flächen: dunkle (Lila/Ink/Bild) und Markenfläche (Grün).
  * Entweder am Button (on="dark|brand") oder an einem Container (.vdbs-on-dark / .vdbs-on-brand).
+ * Gesetzt werden nur die Farbvariablen; die Formen bleiben unverändert.
  */
 
+/* ---------- dark ---------- */
 .vdbs-btn--on-dark,
 .vdbs-on-dark .vdbs-btn {
     --btn-line: var(--color-weiss);
     --focus-ring: var(--color-weiss);
+}
+
+.vdbs-btn--on-dark.vdbs-btn--primary,
+.vdbs-on-dark .vdbs-btn--primary {
+    --btn-fill: var(--bg-brand);
+    --btn-fill-fg: var(--text-on-brand);
 }
 
 .vdbs-btn--on-dark.vdbs-btn--secondary,
@@ -14,6 +22,8 @@
     --btn-fg: var(--color-ink);
     --btn-hover-bg: rgb(255 255 255 / 15%);
     --btn-hover-fg: var(--color-weiss);
+    --btn-fill: var(--color-weiss);
+    --btn-fill-fg: var(--color-ink);
 }
 
 .vdbs-btn--on-dark.vdbs-btn--tertiary,
@@ -24,6 +34,14 @@
     --btn-fg: var(--color-weiss);
     --btn-hover-bg: rgb(255 255 255 / 15%);
     --btn-hover-fg: var(--color-weiss);
+    --btn-fill: var(--bg-brand);
+    --btn-fill-fg: var(--text-on-brand);
+}
+
+.vdbs-btn--on-dark.vdbs-btn--quiet,
+.vdbs-on-dark .vdbs-btn--quiet {
+    --btn-fill: rgb(255 255 255 / 25%);
+    --btn-fill-fg: var(--color-weiss);
 }
 
 .vdbs-btn--on-dark.vdbs-btn--danger,
@@ -33,14 +51,14 @@
     --btn-line: #ff8a80;
     --btn-hover-bg: #ffb3ad;
     --btn-hover-fg: var(--color-ink);
+    --btn-fill: #ff8a80;
+    --btn-fill-fg: var(--color-ink);
 }
 
 .vdbs-btn--on-dark.vdbs-btn--shape-line,
 .vdbs-on-dark .vdbs-btn--shape-line { color: var(--color-weiss); border-color: rgb(255 255 255 / 60%); }
-.vdbs-btn--on-dark.vdbs-btn--shape-line:hover,
-.vdbs-on-dark .vdbs-btn--shape-line:hover { background: rgb(255 255 255 / 25%); border-color: rgb(255 255 255 / 60%); border-bottom-color: var(--color-weiss); color: var(--color-weiss); }
 
-/* Auf Markengrün: Ink statt Grün als Füllung */
+/* ---------- brand (auf Markengrün: Ink statt Grün) ---------- */
 .vdbs-btn--on-brand,
 .vdbs-on-brand .vdbs-btn {
     --btn-line: var(--color-ink);
@@ -53,6 +71,8 @@
     --btn-fg: var(--color-weiss);
     --btn-hover-bg: var(--color-weiss);
     --btn-hover-fg: var(--color-ink);
+    --btn-fill: var(--color-ink);
+    --btn-fill-fg: var(--color-weiss);
 }
 
 .vdbs-btn--on-brand.vdbs-btn--secondary,
@@ -61,6 +81,8 @@
     --btn-fg: var(--color-ink);
     --btn-hover-bg: rgb(255 255 255 / 40%);
     --btn-hover-fg: var(--color-ink);
+    --btn-fill: var(--color-ink);
+    --btn-fill-fg: var(--color-weiss);
 }
 
 .vdbs-btn--on-brand.vdbs-btn--tertiary,
@@ -71,10 +93,9 @@
     --btn-fg: var(--color-ink);
     --btn-hover-bg: rgb(15 23 42 / 12%);
     --btn-hover-fg: var(--color-ink);
+    --btn-fill: rgb(15 23 42 / 15%);
+    --btn-fill-fg: var(--color-ink);
 }
 
 .vdbs-btn--on-brand.vdbs-btn--shape-line,
 .vdbs-on-brand .vdbs-btn--shape-line { color: var(--color-ink); border-color: rgb(15 23 42 / 60%); }
-
-.vdbs-btn--on-brand.vdbs-btn--shape-line:hover,
-.vdbs-on-brand .vdbs-btn--shape-line:hover { background: rgb(15 23 42 / 15%); border-color: rgb(15 23 42 / 60%); border-bottom-color: var(--color-ink); color: var(--color-ink); }

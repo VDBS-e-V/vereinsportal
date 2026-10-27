@@ -1,4 +1,5 @@
-/* Button-Rollen (Wichtigkeit): setzen die Farbvariablen für die Fläche "light" */
+/* Button-Rollen (Wichtigkeit): setzen die Farbvariablen für die Fläche "light".
+ * --btn-fill/--btn-fill-fg: kräftige Hover-Fläche der Formen outline, line und link in der Farbe der Rolle. */
 
 .vdbs-btn--primary {
     --btn-bg: var(--bg-brand);
@@ -6,6 +7,8 @@
     --btn-line: var(--color-gruen-dunkel);
     --btn-hover-bg: var(--color-gruen-dunkel);
     --btn-hover-fg: var(--color-weiss);
+    --btn-fill: var(--bg-brand);
+    --btn-fill-fg: var(--text-on-brand);
 }
 
 .vdbs-btn--secondary {
@@ -14,6 +17,8 @@
     --btn-line: var(--text-default);
     --btn-hover-bg: var(--bg-surface);
     --btn-hover-fg: var(--text-default);
+    --btn-fill: var(--text-default);
+    --btn-fill-fg: var(--bg-page);
 }
 
 .vdbs-btn--tertiary {
@@ -22,6 +27,8 @@
     --btn-line: var(--text-link);
     --btn-hover-bg: var(--bg-brand);
     --btn-hover-fg: var(--text-on-brand);
+    --btn-fill: var(--bg-brand);
+    --btn-fill-fg: var(--text-on-brand);
 }
 
 .vdbs-btn--danger {
@@ -30,6 +37,8 @@
     --btn-line: var(--color-fehler);
     --btn-hover-bg: #8f1a10;
     --btn-hover-fg: var(--color-weiss);
+    --btn-fill: var(--color-fehler);
+    --btn-fill-fg: var(--color-weiss);
 }
 
 .vdbs-btn--quiet {
@@ -38,4 +47,6 @@
     --btn-line: var(--text-default);
     --btn-hover-bg: var(--bg-accent-soft);
     --btn-hover-fg: var(--text-default);
+    --btn-fill: var(--color-grau-linie);
+    --btn-fill-fg: var(--color-ink);
 }
