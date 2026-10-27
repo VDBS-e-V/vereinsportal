@@ -1,7 +1,58 @@
-/* Hero-Kachel (Paket media) — Klassen sind angelegt, Stile folgen. */
+/* Hero-Kachel (Paket media): Bild mit Titel, ganze Kachel ist der Link */
 
-.vdbs-hero-tile {}
-.vdbs-hero-tile__image {}
-.vdbs-hero-tile__title {}
-.vdbs-hero-tile__link {}
-.vdbs-hero-tile__credit {}
+.vdbs-hero-tile {
+    position: relative;
+    min-height: 10rem;
+    overflow: hidden;
+    background: var(--color-ink);
+    color: var(--color-weiss);
+}
+
+.vdbs-hero-tile__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-base);
+}
+
+.vdbs-hero-tile::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(to top, rgb(15 23 42 / 85%), rgb(15 23 42 / 0%) 70%);
+}
+
+.vdbs-hero-tile__title {
+    position: absolute;
+    inset: auto 0 0 0;
+    z-index: 2;
+    margin: 0;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--font-size-h4);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+}
+
+.vdbs-hero-tile__link { color: inherit; text-decoration: none; }
+
+.vdbs-hero-tile__link::after { content: ""; position: absolute; inset: 0; z-index: 3; }
+
+.vdbs-hero-tile__link:hover { color: inherit; text-decoration: underline; }
+
+.vdbs-hero-tile:hover .vdbs-hero-tile__image { transform: scale(1.04); }
+
+.vdbs-hero-tile:focus-within { outline: 3px solid var(--focus-ring); outline-offset: -3px; }
+
+.vdbs-hero-tile__credit {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    margin: 0;
+    padding: 0 var(--space-2);
+    background: rgb(15 23 42 / 70%);
+    font-size: var(--font-size-caption);
+}

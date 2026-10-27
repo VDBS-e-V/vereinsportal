@@ -1,4 +1,13 @@
-/* Quick-Links (Kachelreihe) — Klassen sind angelegt, Stile folgen. */
+/* Quick-Links (Kachelreihe) */
 
-.vdbs-quick-links {}
-.vdbs-quick-links__list {}
+.vdbs-quick-links__list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+@media (min-width: 768px) {
+    .vdbs-quick-links__list { grid-template-columns: repeat(4, 1fr); }
+}

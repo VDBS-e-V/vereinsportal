@@ -1,12 +1,31 @@
-/* Quick-Link (einzelne Kachel) — Klassen sind angelegt, Stile folgen. */
+/* Quick-Link (einzelne Kachel): Gruppenfarbe nur als Akzent, Schrift bleibt Ink */
 
-.vdbs-quick-link {}
-.vdbs-quick-link--tone-1 {}
-.vdbs-quick-link--tone-2 {}
-.vdbs-quick-link--tone-3 {}
-.vdbs-quick-link--tone-4 {}
-.vdbs-quick-link--tone-5 {}
-.vdbs-quick-link--tone-6 {}
-.vdbs-quick-link__link {}
-.vdbs-quick-link__icon {}
-.vdbs-quick-link__label {}
+.vdbs-quick-link { --tone: var(--bg-brand); }
+
+.vdbs-quick-link--tone-1 { --tone: var(--color-group-1); }
+.vdbs-quick-link--tone-2 { --tone: var(--color-group-2); }
+.vdbs-quick-link--tone-3 { --tone: var(--color-group-3); }
+.vdbs-quick-link--tone-4 { --tone: var(--color-group-4); }
+.vdbs-quick-link--tone-5 { --tone: var(--color-group-5); }
+.vdbs-quick-link--tone-6 { --tone: var(--color-group-6); }
+
+.vdbs-quick-link__link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 4.5rem;
+    padding: var(--space-3) var(--space-4);
+    border-top: 8px solid var(--tone);
+    background: var(--bg-surface);
+    color: var(--text-default);
+    font-weight: var(--font-weight-bold);
+    text-align: center;
+    text-decoration: none;
+    transition: background-color var(--transition-fast);
+}
+
+.vdbs-quick-link__link:hover { background: var(--bg-accent-soft); color: var(--text-default); }
+
+.vdbs-quick-link__icon { flex: 0 0 auto; }
+.vdbs-quick-link__label { overflow-wrap: anywhere; }
