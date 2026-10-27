@@ -21,8 +21,8 @@
 
 <x-vdbs.layout.section title="Empfohlene Artikel" lead="Aktuelle Themenartikel" align="center">
     <x-vdbs.layout.grid :columns="3">
-        <x-vdbs.cards.teaser title="Mehr Sicherheit" href="#" text="Anreißer." :image="placeholder('teaser')" category="Themenartikel" />
-        <x-vdbs.cards.teaser title="Digitalisierte Verwaltung" href="#" text="Anreißer." :image="placeholder('teaser')" category="Themenartikel" />
+        <x-vdbs.cards.teaser title="Mehr Sicherheit" href="#" text="Anreißer." :image="placeholder('teaser', 1)" category="Themenartikel" />
+        <x-vdbs.cards.teaser title="Digitalisierte Verwaltung" href="#" text="Anreißer." :image="placeholder('teaser', 2)" category="Themenartikel" />
         <x-vdbs.cards.teaser title="Eigene Cloud" href="#" text="Anreißer." category="Themenartikel" />
     </x-vdbs.layout.grid>
     <x-slot:actions><x-vdbs.actions.link-button href="#" variant="all">Alle Artikel anzeigen</x-vdbs.actions.link-button></x-slot:actions>
