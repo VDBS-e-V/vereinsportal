@@ -16,3 +16,5 @@ Nummer zweistellig ab `01`. Ohne eigene Bilder greift der Fallback `<art>.svg`.
 
 Verwendung im Code: `placeholder('hero')`, `placeholder('teaser', 2)` (Blade und PHP).
 Übersicht und JSON: `/design/platzhalterbilder` und `/design/api/platzhalter`.
+
+Bestand: siehe `CREDITS.md` (Pexels-Fotos, Originalnamen). Die Fotos sind ca. 1280 px breit; Bilder werden per `object-fit: cover` zugeschnitten.
