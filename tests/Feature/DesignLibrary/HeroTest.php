@@ -56,3 +56,25 @@ it('renders the overlay, split and compact variants with size and bleed', functi
 it('falls back to size m for unknown sizes', function () {
     expect(Blade::render('<x-vdbs.media.hero title="T" size="xl" />'))->toContain('vdbs-hero--size-m');
 });
+
+it('renders the banner variant with the title as heading', function () {
+    $html = Blade::render('<x-vdbs.media.hero variant="banner" title="Politik und Verwaltung" image="/x.svg" credit="© Test" />');
+
+    expect($html)->toContain('vdbs-hero--banner')->toContain('<h1 class="vdbs-hero__title"')->toContain('© Test');
+});
+
+it('renders the feature variant with a heading above and a nested title', function () {
+    $html = Blade::render('<x-vdbs.media.hero variant="feature" :level="2" heading="Bildung" title="Gemeinsam" image="/x.svg"><x-slot:footer>Karten</x-slot:footer></x-vdbs.media.hero>');
+
+    expect($html)
+        ->toContain('<h2 class="vdbs-hero__heading"')
+        ->toContain('<h3 class="vdbs-hero__title"')
+        ->toContain('aria-labelledby="hero-bildung-title"')
+        ->toContain('vdbs-hero__footer');
+});
+
+it('renders card actions at the end of the card', function () {
+    $html = Blade::render('<x-vdbs.cards.card title="T">Text<x-slot:actions>Aktion</x-slot:actions></x-vdbs.cards.card>');
+
+    expect($html)->toContain('vdbs-card__body')->toContain('vdbs-card__actions');
+});

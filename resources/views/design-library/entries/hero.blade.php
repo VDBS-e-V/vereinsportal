@@ -51,6 +51,37 @@
     <x-slot:actions><x-vdbs.actions.button variant="secondary">Bearbeiten</x-vdbs.actions.button></x-slot:actions>
 </x-vdbs.media.hero>
 
+<h2>Variante „banner“</h2>
+<x-vdbs.media.hero variant="banner" title="Politik und Verwaltung für Berlin" :image="placeholder('hero', 4)" image-alt="" credit="© Platzhalterbild" />
+
+<h2>Variante „feature“</h2>
+<x-vdbs.media.hero
+    variant="feature"
+    :level="2"
+    heading="Bildung, Jugend und Familie"
+    title="Gemeinsam für bessere Bildung"
+    lead="Mit unserer Strategie wollen wir erreichen, dass jedes Kind besser lesen, schreiben und rechnen kann."
+    :image="placeholder('split', 3)"
+    image-alt=""
+    credit="© Platzhalterbild"
+>
+    <x-slot:actions><x-vdbs.actions.link-button href="#">Weitere Informationen</x-vdbs.actions.link-button></x-slot:actions>
+    <x-slot:footer>
+        <x-vdbs.cards.card title="Wohin nach der Grundschule?">
+            In der Regel steht im sechsten Schuljahr die Wahl der weiterführenden Schule an.
+            <x-slot:actions><x-vdbs.actions.link-button href="#" variant="line">Weitere Informationen</x-vdbs.actions.link-button></x-slot:actions>
+        </x-vdbs.cards.card>
+        <x-vdbs.cards.card title="Karriere">
+            Wir suchen für unsere Schulen dringend Lehrkräfte und Studierende.
+            <x-slot:actions><x-vdbs.actions.link-button href="#" variant="line">Weitere Informationen</x-vdbs.actions.link-button></x-slot:actions>
+        </x-vdbs.cards.card>
+        <x-vdbs.cards.card title="Newsletter">
+            Wöchentlich informieren wir zu aktuellen Ereignissen und Veranstaltungen.
+            <x-slot:actions><x-vdbs.actions.link-button href="#" variant="line">Weitere Informationen</x-vdbs.actions.link-button></x-slot:actions>
+        </x-vdbs.cards.card>
+    </x-slot:footer>
+</x-vdbs.media.hero>
+
 <h2>Höhen</h2>
 <p>Mit <code>size="s|m|l"</code> bestimmen Sie die Höhe von image, overlay und split. Mit <code>:bleed="true"</code> läuft ein Hero in einem Layout mit <code>width="full"</code> über die ganze Breite; siehe <a href="{{ route('design-library.show', 'startseite') }}">Startseite (Muster)</a>.</p>
 

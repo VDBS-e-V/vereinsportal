@@ -8,10 +8,14 @@
     border-radius: var(--radius-lg);
     background: var(--bg-surface);
     color: var(--text-default);
+    display: flex;
+    flex-direction: column;
 }
 
+.vdbs-card__body > :last-child { margin-bottom: 0; }
+.vdbs-card__actions { margin-top: auto; padding-top: var(--space-4); }
+
 .vdbs-card__title { margin-bottom: var(--space-2); }
-.vdbs-card > :last-child { margin-bottom: 0; }
 
 .vdbs-card--info {
     background: var(--bg-accent-soft);

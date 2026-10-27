@@ -249,3 +249,74 @@
 }
 
 .vdbs-hero--compact.vdbs-hero--bleed .vdbs-hero__content { width: auto; margin-inline: 0; padding-inline: max(var(--gutter), calc((100% - var(--container-default)) / 2 + var(--gutter))); }
+
+/* ---------- Variante banner: flacher Bildstreifen, Titel unten links ---------- */
+.vdbs-hero--banner { --banner-height: clamp(10rem, 24vw, 18rem); margin-bottom: var(--space-6); }
+.vdbs-hero--banner.vdbs-hero--size-l { --banner-height: clamp(14rem, 32vw, 24rem); }
+.vdbs-hero--banner.vdbs-hero--size-s { --banner-height: clamp(7rem, 16vw, 11rem); }
+
+.vdbs-hero--banner .vdbs-hero__stage { display: grid; min-height: var(--banner-height); background: var(--color-ink); }
+
+.vdbs-hero--banner .vdbs-hero__media,
+.vdbs-hero--banner .vdbs-hero__content { grid-area: 1 / 1; }
+
+.vdbs-hero--banner .vdbs-hero__media { position: relative; min-height: inherit; }
+.vdbs-hero--banner .vdbs-hero__image { position: absolute; inset: 0; }
+.vdbs-hero--banner .vdbs-hero__media::after { content: ""; position: absolute; inset: 0; background: rgb(15 23 42 / 45%); }
+
+.vdbs-hero--banner .vdbs-hero__credit { background: none; color: var(--color-weiss); opacity: 0.85; }
+
+.vdbs-hero--banner .vdbs-hero__content {
+    z-index: 1;
+    align-self: end;
+    padding: var(--space-5) var(--gutter);
+    color: var(--color-weiss);
+}
+
+.vdbs-hero--banner .vdbs-hero__title { margin: 0; font-size: var(--font-size-h1); }
+.vdbs-hero--banner .vdbs-hero__lead,
+.vdbs-hero--banner .vdbs-hero__actions { display: none; }
+
+.vdbs-hero--bleed.vdbs-hero--banner .vdbs-hero__content {
+    width: min(100% - 2 * var(--gutter), var(--container-default));
+    margin-inline: auto;
+    padding-inline: 0;
+}
+
+/* ---------- Variante feature: Überschrift, Bild links, dunkle Textfläche rechts ---------- */
+.vdbs-hero--feature .vdbs-hero__heading {
+    margin: 0 0 var(--space-4);
+    font-size: var(--font-size-h2);
+    font-weight: var(--font-weight-black);
+}
+
+.vdbs-hero--feature .vdbs-hero__stage { display: grid; }
+
+.vdbs-hero--feature .vdbs-hero__media { position: relative; min-height: 14rem; }
+.vdbs-hero--feature .vdbs-hero__image { position: absolute; inset: 0; }
+
+.vdbs-hero--feature .vdbs-hero__content {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-5);
+    background: var(--bg-header-footer);
+    color: var(--text-on-dark);
+}
+
+.vdbs-hero--feature .vdbs-hero__title { font-size: var(--font-size-h3); }
+.vdbs-hero--feature .vdbs-hero__lead { font-size: var(--font-size-small); flex: 1; }
+.vdbs-hero--feature .vdbs-hero__actions { margin-top: auto; }
+
+.vdbs-hero--feature .vdbs-hero__credit { right: auto; left: 0; }
+
+.vdbs-hero--feature .vdbs-link-button--arrow { background: var(--color-weiss); color: var(--color-ink); }
+.vdbs-hero--feature .vdbs-link-button--arrow:hover { color: var(--color-ink); }
+.vdbs-hero--feature .vdbs-hero__content :focus-visible { outline-color: var(--color-weiss); }
+
+.vdbs-hero--feature .vdbs-hero__footer { display: grid; gap: var(--space-4); margin-top: var(--space-4); }
+
+@media (min-width: 768px) {
+    .vdbs-hero--feature .vdbs-hero__stage { grid-template-columns: 2fr 1fr; min-height: var(--hero-height); }
+    .vdbs-hero--feature .vdbs-hero__media { min-height: 0; }
+    .vdbs-hero--feature .vdbs-hero__footer { grid-template-columns: repeat(3, 1fr); }
+}

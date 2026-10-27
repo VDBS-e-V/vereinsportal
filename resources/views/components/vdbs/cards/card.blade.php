@@ -7,6 +7,9 @@
 
 <{{ $tag }} {{ $attributes->class(['vdbs-card', "vdbs-card--{$variant}" => $variant !== 'standard']) }}>
     @if ($title) <h3 class="vdbs-card__title">{{ $title }}</h3> @endif
-    {{ $slot }}
+    <div class="vdbs-card__body">{{ $slot }}</div>
     @if ($source) <p class="vdbs-card__source">{{ $source }}</p> @endif
+    @isset($actions)
+        <div class="vdbs-card__actions">{{ $actions }}</div>
+    @endisset
 </{{ $tag }}>
