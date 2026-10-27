@@ -17,6 +17,19 @@
 </x-vdbs.layout.grid>
 <p><code>below</code> eignet sich für Bilder im Text, <code>edge</code> für große Bilder (Hero, Teaser), bei denen eine Zeile darunter stören würde. Auf dem Handy wird <code>edge</code> zu einem waagerechten Streifen unten im Bild.</p>
 
+<h2>Lange Quellen (Overflow)</h2>
+<x-vdbs.layout.grid :columns="2">
+    <div>
+        <h3><code>credit-overflow="wrap"</code> (Standard)</h3>
+        <x-vdbs.media.image :src="placeholder('teaser', 2)" alt="" ratio="3-2" credit="Travel With Lenses mit einem sehr langen Namen, Pexels" credit-placement="edge" />
+    </div>
+    <div>
+        <h3><code>credit-overflow="truncate"</code></h3>
+        <x-vdbs.media.image :src="placeholder('teaser', 2)" alt="" ratio="3-2" credit="Travel With Lenses mit einem sehr langen Namen, Pexels" credit-placement="edge" credit-overflow="truncate" />
+    </div>
+</x-vdbs.layout.grid>
+<p>Zu lange Quellen brechen standardmäßig in eine zweite Spalte um und bleiben im Bild. Mit <code>truncate</code> werden sie stattdessen einzeilig gekürzt.</p>
+
 <h2>Seitenverhältnisse</h2>
 <x-vdbs.layout.grid :columns="4">
     @foreach (['16-9', '3-2', '4-3', '1-1'] as $ratio)

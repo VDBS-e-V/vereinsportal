@@ -115,3 +115,9 @@ it('uses placeholder images only inside the design library', function () {
         expect(file_get_contents($file->getPathname()))->not->toContain('placeholder(');
     }
 });
+
+it('wraps long sources by default and can truncate them instead', function () {
+    expect(img('src="/images/placeholder/hero-01.jpg" alt="" credit-placement="edge"'))->not->toContain('vdbs-image-credit--truncate')
+        ->and(img('src="/images/placeholder/hero-01.jpg" alt="" credit-placement="edge" credit-overflow="truncate"'))->toContain('vdbs-image-credit--truncate')
+        ->and(img('src="/images/placeholder/hero-01.jpg" alt="" credit-placement="edge" credit-overflow="quer"'))->not->toContain('vdbs-image-credit--truncate');
+});

@@ -5,6 +5,7 @@
     'ratio' => 'original',
     'focus' => null,
     'creditPlacement' => 'below',
+    'creditOverflow' => 'wrap',
     'loading' => 'lazy',
 ])
 
@@ -18,6 +19,7 @@
     ratio            original | 16-9 | 3-2 | 4-3 | 1-1 | 21-9
     focus            Fokuspunkt beim Zuschnitt, z. B. "30% 20%"
     credit-placement below | edge | none   (none: Quelle zeigt der umgebende Baustein, z. B. <x-vdbs.media.figure>)
+    credit-overflow  wrap | truncate   lange Quelle in weitere Zeile/Spalte umbrechen (Standard) oder abschneiden
     loading          lazy | eager
 
     Fehlt die Quelle oder der Alt-Text: im strikten Modus (config images.strict, Standard außerhalb der
@@ -51,6 +53,6 @@
     <img class="vdbs-image__img" src="{{ $src }}" alt="{{ $alt }}" loading="{{ $loading }}" @if ($focus) style="object-position: {{ $focus }}" @endif>
 
     @if ($creditPlacement !== 'none')
-        <x-vdbs.media.image-credit :source="$source" :placement="$creditPlacement" />
+        <x-vdbs.media.image-credit :source="$source" :placement="$creditPlacement" :overflow="$creditOverflow" />
     @endif
 </div>

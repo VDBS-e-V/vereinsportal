@@ -20,10 +20,14 @@
     writing-mode: vertical-rl;
     transform: rotate(180deg);
     transform-origin: center;
-    white-space: nowrap;
+    /* Zu lange Quellen brechen in eine zweite Spalte um, statt über das Bild hinauszuragen */
+    white-space: normal;
+    overflow-wrap: anywhere;
     overflow: hidden;
-    text-overflow: ellipsis;
 }
+
+/* credit-overflow="truncate": einzeilig mit Auslassungspunkten statt Umbruch */
+.vdbs-image-credit--truncate.vdbs-image-credit--edge { white-space: nowrap; overflow-wrap: normal; text-overflow: ellipsis; }
 
 .vdbs-image-credit--edge a { text-decoration: none; }
 .vdbs-image-credit--edge a:hover { text-decoration: underline; }
@@ -37,6 +41,7 @@
         left: auto;
         max-height: none;
         max-width: 100%;
+        white-space: normal;
         padding: var(--space-1) var(--space-2);
         writing-mode: horizontal-tb;
         transform: none;

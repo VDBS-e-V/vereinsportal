@@ -1,4 +1,4 @@
-@props(['src', 'alt' => null, 'caption' => null, 'credit' => null, 'ratio' => 'original', 'focus' => null, 'creditPlacement' => 'below'])
+@props(['src', 'alt' => null, 'caption' => null, 'credit' => null, 'ratio' => 'original', 'focus' => null, 'creditPlacement' => 'below', 'creditOverflow' => 'wrap'])
 
 {{--
     Bild mit Unterschrift und Quelle (Paket "media").
@@ -13,7 +13,7 @@
 @endphp
 
 <figure {{ $attributes->class(['vdbs-figure', "vdbs-figure--credit-{$creditPlacement}"]) }}>
-    <x-vdbs.media.image :src="$src" :alt="$alt" :credit="$credit" :ratio="$ratio" :focus="$focus" :credit-placement="$creditPlacement === 'edge' ? 'edge' : 'none'" />
+    <x-vdbs.media.image :src="$src" :alt="$alt" :credit="$credit" :ratio="$ratio" :focus="$focus" :credit-placement="$creditPlacement === 'edge' ? 'edge' : 'none'" :credit-overflow="$creditOverflow" />
 
     @if ($caption || $creditPlacement === 'below')
         <figcaption class="vdbs-figure__caption">

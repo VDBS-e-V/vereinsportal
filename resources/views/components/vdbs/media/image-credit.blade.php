@@ -1,4 +1,4 @@
-@props(['source', 'placement' => 'below'])
+@props(['source', 'placement' => 'below', 'overflow' => 'wrap'])
 
 {{--
     Quellenangabe eines Bildes (Paket "media").
@@ -6,14 +6,17 @@
     $source   App\Support\Media\ImageSource (oder null: zeigt den Hinweis "Quelle fehlt")
     placement below  Zeile unter dem Bild ("Bildquelle: Name"), Vorbild FU: Unterschrift
               edge   senkrechtes Etikett am rechten Bildrand, Vorbild FU: Hero; am Handy waagerecht unten
+    overflow wrap     zu lange Quelle bricht in eine weitere Zeile bzw. Spalte um (Standard)
+             truncate einzeilig, mit Auslassungspunkten (nur bei edge)
 --}}
 
 @php
     $placement = in_array($placement, ['below', 'edge'], true) ? $placement : 'below';
+    $overflow = $overflow === 'truncate' ? 'truncate' : 'wrap';
     $label = $source?->label();
 @endphp
 
-<small {{ $attributes->class(['vdbs-image-credit', "vdbs-image-credit--{$placement}", 'vdbs-image-credit--missing' => blank($label)]) }}>
+<small {{ $attributes->class(['vdbs-image-credit', "vdbs-image-credit--{$placement}", 'vdbs-image-credit--truncate' => $overflow === 'truncate', 'vdbs-image-credit--missing' => blank($label)]) }}>
     <span class="vdbs-image-credit__prefix">Bildquelle:</span>
     @if (blank($label))
         <span class="vdbs-image-credit__name">fehlt</span>
