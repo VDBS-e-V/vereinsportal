@@ -10,6 +10,7 @@ Route::middleware(['web', 'auth'])
     ->name('design-library.')
     ->group(function (): void {
         Route::get('/', [DesignLibraryController::class, 'index'])->name('index');
+        Route::get('/api/platzhalter', [DesignLibraryController::class, 'placeholders'])->name('placeholders');
         Route::get('/{slug}', [DesignLibraryController::class, 'show'])
             ->where('slug', '[a-z0-9-]+')
             ->name('show');

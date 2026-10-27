@@ -1,6 +1,6 @@
 <p>Zusammenspiel der Komponenten für die Startseite (Platzhalterinhalte).</p>
 
-<x-vdbs.media.hero variant="image" title="Willkommen im VDBS Serviceportal" image="/images/placeholder/hero.svg" image-alt="" align="center">
+<x-vdbs.media.hero variant="image" title="Willkommen im VDBS Serviceportal" :image="placeholder('hero')" image-alt="" align="center">
     <x-slot:footer>
         <x-vdbs.cards.quick-links>
             <x-vdbs.cards.quick-link label="Über das Portal" href="#" :tone="4" />
@@ -21,8 +21,8 @@
 
 <x-vdbs.layout.section title="Empfohlene Artikel" lead="Aktuelle Themenartikel" align="center">
     <x-vdbs.layout.grid :columns="3">
-        <x-vdbs.cards.teaser title="Mehr Sicherheit" href="#" text="Anreißer." image="/images/placeholder/tile.svg" category="Themenartikel" />
-        <x-vdbs.cards.teaser title="Digitalisierte Verwaltung" href="#" text="Anreißer." image="/images/placeholder/tile.svg" category="Themenartikel" />
+        <x-vdbs.cards.teaser title="Mehr Sicherheit" href="#" text="Anreißer." :image="placeholder('teaser')" category="Themenartikel" />
+        <x-vdbs.cards.teaser title="Digitalisierte Verwaltung" href="#" text="Anreißer." :image="placeholder('teaser')" category="Themenartikel" />
         <x-vdbs.cards.teaser title="Eigene Cloud" href="#" text="Anreißer." category="Themenartikel" />
     </x-vdbs.layout.grid>
     <x-slot:actions><x-vdbs.actions.link-button href="#" variant="all">Alle Artikel anzeigen</x-vdbs.actions.link-button></x-slot:actions>
@@ -32,13 +32,13 @@
     <x-vdbs.layout.split title="Zugang zum Portal">
         <p>Hier finden Sie alle Informationen, um auf das Portal zuzugreifen.</p>
         <x-slot:actions><x-vdbs.actions.link-button href="#">Zugang zum Portal</x-vdbs.actions.link-button></x-slot:actions>
-        <x-slot:media><x-vdbs.media.figure src="/images/placeholder/hero.svg" alt="" /></x-slot:media>
+        <x-slot:media><x-vdbs.media.figure :src="placeholder('split')" alt="" /></x-slot:media>
     </x-vdbs.layout.split>
 </x-vdbs.layout.section>
 
 <x-vdbs.layout.section variant="band">
     <x-vdbs.cards.contact-block :lines="[['label' => 'Support', 'value' => 'support@example.org', 'href' => 'mailto:support@example.org']]">
-        <x-slot:media><x-vdbs.media.figure src="/images/placeholder/hero.svg" alt="" /></x-slot:media>
+        <x-slot:media><x-vdbs.media.figure :src="placeholder('contact')" alt="" /></x-slot:media>
         <x-slot:actions><x-vdbs.actions.link-button href="#">Zum Kontaktformular</x-vdbs.actions.link-button></x-slot:actions>
     </x-vdbs.cards.contact-block>
 </x-vdbs.layout.section>

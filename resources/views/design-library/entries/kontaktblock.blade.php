@@ -8,7 +8,7 @@
             ['label' => 'Kontakt', 'value' => 'kontakt@example.org', 'href' => 'mailto:kontakt@example.org'],
         ]"
     >
-        <x-slot:media><x-vdbs.media.figure src="/images/placeholder/hero.svg" alt="" /></x-slot:media>
+        <x-slot:media><x-vdbs.media.figure :src="placeholder('contact')" alt="" /></x-slot:media>
         <x-slot:actions><x-vdbs.actions.link-button href="#">Zum Kontaktformular</x-vdbs.actions.link-button></x-slot:actions>
     </x-vdbs.cards.contact-block>
 </x-vdbs.layout.section>

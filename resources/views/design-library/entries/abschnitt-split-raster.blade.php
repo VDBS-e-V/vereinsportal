@@ -15,13 +15,13 @@
 <x-vdbs.layout.split title="Zugang zum Portal">
     <p>Text neben dem Bild.</p>
     <x-slot:actions><x-vdbs.actions.button>Zum Portal</x-vdbs.actions.button></x-slot:actions>
-    <x-slot:media><x-vdbs.media.figure src="/images/placeholder/hero.svg" alt="" credit="Bild: Platzhalter" /></x-slot:media>
+    <x-slot:media><x-vdbs.media.figure :src="placeholder('split')" alt="" credit="Bild: Platzhalter" /></x-slot:media>
 </x-vdbs.layout.split>
 
 <h2>Split umgekehrt</h2>
 <x-vdbs.layout.split title="Forschung" :reverse="true">
     <p>Bild links, Text rechts.</p>
-    <x-slot:media><x-vdbs.media.figure src="/images/placeholder/hero.svg" alt="" /></x-slot:media>
+    <x-slot:media><x-vdbs.media.figure :src="placeholder('split', 2)" alt="" /></x-slot:media>
 </x-vdbs.layout.split>
 
 <h2>Raster</h2>

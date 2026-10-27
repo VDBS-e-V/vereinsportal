@@ -5,7 +5,7 @@
     variant="image"
     title="Willkommen im VDBS Serviceportal"
     lead="Die zentrale Anlaufstelle für alle Informationen und Dienstleistungen rund um den VDBS."
-    image="/images/placeholder/hero.svg"
+    :image="placeholder('hero')"
     image-alt=""
     credit="Bild: Platzhalter"
     align="center"
@@ -15,7 +15,7 @@
 <x-vdbs.media.hero
     variant="caption"
     title="Statement des Vorstands"
-    image="/images/placeholder/hero.svg"
+    :image="placeholder('hero')"
     image-alt="Platzhalterbild mit Kreis und Linien"
     credit="Bild: Platzhalter"
     caption="Statement des Vorstands zur aktuellen Lage"
@@ -29,10 +29,10 @@
         <x-vdbs.forms.input name="hero_search" label="Suchbegriff" type="search" />
     </x-slot:search>
     <x-slot:aside>
-        <x-vdbs.media.hero-tile title="Teamende" href="#" image="/images/placeholder/tile.svg" credit="Bild: Platzhalter" />
-        <x-vdbs.media.hero-tile title="Schulen" href="#" image="/images/placeholder/tile.svg" />
-        <x-vdbs.media.hero-tile title="Mitglieder" href="#" image="/images/placeholder/tile.svg" />
-        <x-vdbs.media.hero-tile title="Hilfe" href="#" image="/images/placeholder/tile.svg" />
+        <x-vdbs.media.hero-tile title="Teamende" href="#" :image="placeholder('tile')" credit="Bild: Platzhalter" />
+        <x-vdbs.media.hero-tile title="Schulen" href="#" :image="placeholder('tile')" />
+        <x-vdbs.media.hero-tile title="Mitglieder" href="#" :image="placeholder('tile')" />
+        <x-vdbs.media.hero-tile title="Hilfe" href="#" :image="placeholder('tile')" />
     </x-slot:aside>
 </x-vdbs.media.hero>
 
