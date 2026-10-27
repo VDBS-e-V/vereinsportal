@@ -108,17 +108,36 @@
     font-weight: var(--font-weight-semibold);
 }
 
+/* ==========================================================================
+ * Fehlerseite (Baustein x-vdbs.error-page)
+ *
+ * Aufbau: helle Fläche aus Text (links) und Bild bzw. Signalfläche (rechts),
+ * darunter eine Reihe mit weiterführenden Links. Variante --bild zeigt das Bild
+ * im Format 3:2, --compact ist die kleine Fassung für Übersichten.
+ * ========================================================================== */
 .error-page,
 .vdbs-error-page {
-    --error-accent: var(--color-info);
+    --error-accent: var(--color-secondary-accent);
 
     display: grid;
-    grid-template-columns: minmax(14rem, 0.8fr) minmax(0, 1.2fr);
-    gap: clamp(2rem, 6vw, 5rem);
-    align-items: stretch;
-    padding-block: var(--spacing-7);
-    border-top: var(--border-width-strong) solid var(--color-ink);
-    border-bottom: var(--border-width-default) solid var(--color-border);
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    align-items: center;
+}
+
+/* Helle Fläche hinter Text und Bild (nur Zeile 1, nicht hinter den Links). */
+.error-page::before,
+.vdbs-error-page::before {
+    content: "";
+    z-index: -1;
+    grid-column: 1 / -1;
+    grid-row: 1;
+    align-self: stretch;
+    background: var(--color-brand-soft);
+}
+
+.error-page,
+.vdbs-error-page {
+    isolation: isolate;
 }
 
 .error-page--warning,
@@ -136,83 +155,37 @@
     --error-accent: var(--color-success);
 }
 
-.error-page__visual,
-.vdbs-error-page__visual {
-    position: relative;
-    min-height: 20rem;
-    overflow: hidden;
-    display: flex;
-    align-items: flex-end;
-    padding: var(--spacing-6);
-    border-left: var(--border-width-accent) solid var(--error-accent);
-    background: var(--color-surface-subtle);
-}
-
-.error-page__code,
-.vdbs-error-page__code {
-    position: relative;
-    z-index: 2;
-    margin: 0;
-    color: var(--color-ink);
-    font-family: var(--font-family-accent);
-    font-size: clamp(5rem, 13vw, 9.5rem);
-    font-weight: var(--font-weight-bold);
-    letter-spacing: -0.06em;
-    line-height: 0.8;
-}
-
-.error-page__signal,
-.vdbs-error-page__signal {
-    position: absolute;
-    inset: var(--spacing-5) var(--spacing-5) auto auto;
-    width: 7rem;
-    height: 7rem;
-}
-
-.error-page__signal::before,
-.error-page__signal::after,
-.vdbs-error-page__signal::before,
-.vdbs-error-page__signal::after {
-    content: '';
-    position: absolute;
-}
-
-.error-page__signal::before,
-.vdbs-error-page__signal::before {
-    top: 0.5rem;
-    right: 0;
-    width: 5.5rem;
-    height: 5.5rem;
-    border-top: var(--border-width-strong) solid var(--color-ink);
-    border-right: var(--border-width-strong) solid var(--color-ink);
-}
-
-.error-page__signal::after,
-.vdbs-error-page__signal::after {
-    right: 3.5rem;
-    bottom: 0;
-    width: 2rem;
-    height: 2rem;
-    background: var(--error-accent);
-}
-
+/* Text */
 .error-page__content,
 .vdbs-error-page__content {
+    grid-column: 1;
+    grid-row: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
     gap: var(--spacing-4);
-    max-width: var(--layout-text-max);
+    padding: var(--spacing-8) var(--spacing-7);
 }
 
 .error-page__eyebrow,
 .vdbs-error-page__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
     margin: 0;
-    color: var(--color-text-muted);
-    font-size: var(--text-sm);
+    color: var(--error-accent);
+    font-size: var(--text-xs);
     font-weight: var(--font-weight-bold);
-    letter-spacing: 0.06em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
+}
+
+.error-page__eyebrow::before,
+.vdbs-error-page__eyebrow::before {
+    content: "";
+    width: 0.6rem;
+    height: 0.6rem;
+    background: var(--error-accent);
 }
 
 .error-page__title,
@@ -220,15 +193,15 @@
     margin: 0;
     color: var(--color-ink);
     font-size: var(--text-4xl);
-    line-height: var(--leading-heading);
+    line-height: var(--leading-tight);
 }
 
 .error-page__description,
-.error-page__support,
 .vdbs-error-page__description,
+.error-page__support,
 .vdbs-error-page__support {
     margin: 0;
-    max-width: 42rem;
+    max-width: 36rem;
     line-height: var(--leading-body);
 }
 
@@ -254,66 +227,210 @@
 .vdbs-error-page__technical {
     margin: var(--spacing-2) 0 0;
     color: var(--color-text-muted);
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
 }
 
-/* Weiterführende Links unter den Buttons. */
+/* Bild- bzw. Signalfläche */
+.error-page__visual,
+.vdbs-error-page__visual {
+    position: relative;
+    grid-column: 2;
+    grid-row: 1;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    align-self: stretch;
+    min-height: 20rem;
+    margin: var(--spacing-6) var(--spacing-6) var(--spacing-6) 0;
+    padding: var(--spacing-6);
+    background: var(--color-white);
+}
+
+.error-page__code,
+.vdbs-error-page__code {
+    position: relative;
+    z-index: 2;
+    margin: 0;
+    color: var(--color-ink);
+    font-family: var(--font-family-accent);
+    font-size: clamp(5rem, 13vw, 9.5rem);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: -0.06em;
+    line-height: 0.8;
+}
+
+.error-page__signal,
+.vdbs-error-page__signal {
+    position: absolute;
+    inset: var(--spacing-5) var(--spacing-5) auto auto;
+    width: 7rem;
+    height: 7rem;
+}
+
+.error-page__signal::before,
+.vdbs-error-page__signal::before,
+.error-page__signal::after,
+.vdbs-error-page__signal::after {
+    content: "";
+    position: absolute;
+}
+
+.error-page__signal::before,
+.vdbs-error-page__signal::before {
+    top: 0.5rem;
+    right: 0;
+    width: 5.5rem;
+    height: 5.5rem;
+    border-top: var(--border-width-strong) solid var(--color-ink);
+    border-right: var(--border-width-strong) solid var(--color-ink);
+}
+
+.error-page__signal::after,
+.vdbs-error-page__signal::after {
+    right: 3.5rem;
+    bottom: 0;
+    width: 2rem;
+    height: 2rem;
+    background: var(--error-accent);
+}
+
+/* Variante mit Bild: Bild im Format 3:2. Die Illustration zeigt den Fehlercode
+ * selbst, deshalb entfallen große Zahl und Signal. */
+.error-page--bild .error-page__visual,
+.vdbs-error-page--bild .vdbs-error-page__visual {
+    align-items: center;
+    align-self: center;
+    min-height: 0;
+    padding: 0;
+    background: transparent;
+}
+
+.error-page__bild,
+.vdbs-error-page__bild {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+}
+
+.error-page--bild .error-page__signal,
+.vdbs-error-page--bild .vdbs-error-page__signal,
+.error-page--bild .error-page__code,
+.vdbs-error-page--bild .vdbs-error-page__code {
+    display: none;
+}
+
+/* Weiterführende Links: Kacheln unter der Fläche. */
 .error-page__links,
 .vdbs-error-page__links {
-    margin-top: var(--spacing-3);
-    padding-top: var(--spacing-4);
-    border-top: var(--border-width-default) solid var(--color-border);
+    grid-column: 1 / -1;
+    grid-row: 2;
+    padding-block: var(--spacing-6) var(--spacing-2);
 }
 
 .error-page__links-title,
 .vdbs-error-page__links-title {
-    margin: 0 0 var(--spacing-2);
+    margin: 0 0 var(--spacing-3);
     color: var(--color-text-muted);
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
     font-weight: var(--font-weight-bold);
-    letter-spacing: 0.06em;
+    letter-spacing: 0.1em;
     line-height: 1.3;
     text-transform: uppercase;
 }
 
 .error-page__links-list,
 .vdbs-error-page__links-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-2) var(--spacing-5);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: var(--spacing-3);
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
+.error-page__links-list li,
+.vdbs-error-page__links-list li {
+    display: flex;
+}
+
 .error-page__links-list a,
 .vdbs-error-page__links-list a {
-    display: inline-flex;
+    flex: 1;
+    display: flex;
     align-items: center;
-    gap: var(--spacing-2);
-    font-weight: var(--font-weight-semibold);
-}
-
-.error-page__links-list a::before,
-.vdbs-error-page__links-list a::before {
-    content: "›" / "";
-    color: var(--color-primary);
-    font-size: 1.2em;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+    min-height: var(--control-height-lg);
+    padding: var(--spacing-3) var(--spacing-4);
+    border: var(--border-width-default) solid var(--color-border);
+    background: var(--color-white);
+    color: var(--color-ink);
     font-weight: var(--font-weight-bold);
-    line-height: 1;
+    line-height: 1.3;
+    text-decoration: none;
+    transition:
+        border-color var(--transition-fast),
+        background var(--transition-fast);
 }
 
+.error-page__links-list a::after,
+.vdbs-error-page__links-list a::after {
+    content: "→" / "";
+    color: var(--color-secondary-accent);
+    transition: transform var(--transition-fast);
+}
+
+.error-page__links-list a:hover,
+.vdbs-error-page__links-list a:hover,
+.error-page__links-list a:focus-visible,
+.vdbs-error-page__links-list a:focus-visible {
+    border-color: var(--color-ink);
+    background: var(--color-surface-subtle);
+    text-decoration: none;
+}
+
+.error-page__links-list a:hover::after,
+.vdbs-error-page__links-list a:hover::after,
+.error-page__links-list a:focus-visible::after,
+.vdbs-error-page__links-list a:focus-visible::after {
+    transform: translateX(0.25em);
+}
+
+/* Kompakte Fassung (Übersichten, Referenzseite). */
 .error-page--compact,
 .vdbs-error-page--compact {
-    grid-template-columns: minmax(9rem, 0.45fr) minmax(0, 1.55fr);
-    gap: var(--spacing-6);
-    padding-block: var(--spacing-5);
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+}
+
+.error-page--compact .error-page__content,
+.vdbs-error-page--compact .vdbs-error-page__content {
+    gap: var(--spacing-3);
+    padding: var(--spacing-5);
+}
+
+.error-page--compact .error-page__title,
+.vdbs-error-page--compact .vdbs-error-page__title {
+    font-size: var(--text-3xl);
+}
+
+.error-page--compact .error-page__description,
+.vdbs-error-page--compact .vdbs-error-page__description {
+    font-size: var(--text-base);
 }
 
 .error-page--compact .error-page__visual,
 .vdbs-error-page--compact .vdbs-error-page__visual {
     min-height: 11rem;
+    margin: var(--spacing-4) var(--spacing-4) var(--spacing-4) 0;
     padding: var(--spacing-4);
+}
+
+.error-page--compact.error-page--bild .error-page__visual,
+.vdbs-error-page--compact.vdbs-error-page--bild .vdbs-error-page__visual {
+    min-height: 0;
+    padding: 0;
 }
 
 .error-page--compact .error-page__code,
@@ -340,47 +457,9 @@
     height: 1.25rem;
 }
 
-.error-page--compact .error-page__description,
-.vdbs-error-page--compact .vdbs-error-page__description {
-    font-size: var(--text-base);
-}
-
-/*
- * Variante mit Bild (Eigenschaft image): Das Bild füllt die linke Fläche. Die
- * Illustration zeigt den Fehlercode selbst, deshalb entfallen große Zahl und
- * Signal; die Zeile „Fehlercode …“ im Text bleibt erhalten.
- */
-.error-page--bild,
-.vdbs-error-page--bild {
-    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
-    align-items: center;
-}
-
-/* Bildfläche im Format 3:2, das Bild füllt sie ohne Zuschnitt. */
-.error-page--bild .error-page__visual,
-.vdbs-error-page--bild .vdbs-error-page__visual {
-    align-self: center;
-    min-height: 0;
-    aspect-ratio: 3 / 2;
-    padding: 0;
-    border-left: 0;
-    background: var(--color-surface-strong);
-}
-
-.error-page__bild,
-.vdbs-error-page__bild {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.error-page--bild .error-page__signal,
-.vdbs-error-page--bild .vdbs-error-page__signal,
-.error-page--bild .error-page__code,
-.vdbs-error-page--bild .vdbs-error-page__code {
-    display: none;
+.error-page--compact .error-page__links,
+.vdbs-error-page--compact .vdbs-error-page__links {
+    padding-block-start: var(--spacing-4);
 }
 
 @media (max-width: 48rem) {
@@ -406,14 +485,45 @@
     .error-page--compact,
     .vdbs-error-page--compact {
         grid-template-columns: minmax(0, 1fr);
-        gap: var(--spacing-5);
+    }
+
+    /* Reihenfolge mobil: Bild, Text, Links. Die helle Fläche deckt Bild und Text ab. */
+    .error-page::before,
+    .vdbs-error-page::before {
+        grid-row: 1 / 3;
     }
 
     .error-page__visual,
     .vdbs-error-page__visual,
     .error-page--compact .error-page__visual,
     .vdbs-error-page--compact .vdbs-error-page__visual {
+        grid-column: 1;
+        grid-row: 1;
         min-height: 9rem;
+        margin: var(--spacing-4) var(--spacing-4) 0;
+        padding: var(--spacing-4);
+    }
+
+    .error-page--bild .error-page__visual,
+    .vdbs-error-page--bild .vdbs-error-page__visual,
+    .error-page--compact.error-page--bild .error-page__visual,
+    .vdbs-error-page--compact.vdbs-error-page--bild .vdbs-error-page__visual {
+        min-height: 0;
+        padding: 0;
+    }
+
+    .error-page__content,
+    .vdbs-error-page__content,
+    .error-page--compact .error-page__content,
+    .vdbs-error-page--compact .vdbs-error-page__content {
+        grid-column: 1;
+        grid-row: 2;
+        padding: var(--spacing-5) var(--spacing-4);
+    }
+
+    .error-page__links,
+    .vdbs-error-page__links {
+        grid-row: 3;
     }
 
     .error-page__code,
@@ -447,7 +557,10 @@
     .error-shell__header,
     .error-shell__footer,
     .vdbs-error-shell__header,
-    .vdbs-error-shell__footer,
+    .vdbs-error-shell__footer {
+        display: none;
+    }
+
     .error-page__actions,
     .vdbs-error-page__actions,
     .error-page__links,
@@ -457,6 +570,11 @@
 
     .error-page,
     .vdbs-error-page {
-        grid-template-columns: 1fr;
+        display: block;
+    }
+
+    .error-page::before,
+    .vdbs-error-page::before {
+        display: none;
     }
 }

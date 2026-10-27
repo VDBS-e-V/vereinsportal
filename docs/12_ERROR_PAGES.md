@@ -148,3 +148,17 @@ Der Baustein entfernt Links, deren Ziel schon als Button vorkommt (Vergleich üb
 Pfad), und zeigt jeden Text nur einmal. Ab Status 500 gibt es weder Sitzungs- noch
 Anmeldeabfrage, also nur Gast-Links. Eigene Links: Eigenschaft `links` mit einer Liste
 aus `['label' => …, 'url' => …]`, Überschrift über `links-title`.
+
+## Layout des Bausteins
+
+Aufbau von oben nach unten: helle Fläche (`--color-brand-soft`) aus **Text links** und
+**Bild bzw. Signalfläche rechts**, darunter die Linkkacheln „Das könnte Ihnen helfen“.
+
+- Das Bild steht mit Abstand in der Fläche und hat immer das Format 3:2.
+- Das Eyebrow („Fehler“) und sein Quadrat tragen die Farbe der Variante (`info` Lila,
+  `warning`, `danger`, `success`).
+- Mobil (bis 48 rem): Bild, Text mit vollbreiten Buttons, Linkkacheln untereinander.
+- Die kompakte Fassung (`compact`) ist für Übersichten gedacht und bleibt zweispaltig.
+- Das CSS steht in `resources/css/vdbs/components/error-pages.css`. Die `vdbs-`-Selektoren
+  sind Kopien der kurzen Namen und werden immer zusammen geändert.
+

@@ -136,30 +136,30 @@
             </div>
         @endif
 
-        @if ($visibleLinks->isNotEmpty())
-            <nav
-                class="error-page__links vdbs-error-page__links"
-                aria-labelledby="{{ $titleId }}-links"
-            >
-                <h2
-                    class="error-page__links-title vdbs-error-page__links-title"
-                    id="{{ $titleId }}-links"
-                >
-                    {{ $linksTitle }}
-                </h2>
-
-                <ul class="error-page__links-list vdbs-error-page__links-list" role="list">
-                    @foreach ($visibleLinks as $link)
-                        <li>
-                            <a href="{{ $link['url'] }}">{{ $link['label'] }}</a>
-                        </li>
-                    @endforeach
-                </ul>
-            </nav>
-        @endif
-
         <p class="error-page__technical vdbs-error-page__technical">
             Fehlercode {{ $code }}
         </p>
     </div>
+
+    @if ($visibleLinks->isNotEmpty())
+        <nav
+            class="error-page__links vdbs-error-page__links"
+            aria-labelledby="{{ $titleId }}-links"
+        >
+            <h2
+                class="error-page__links-title vdbs-error-page__links-title"
+                id="{{ $titleId }}-links"
+            >
+                {{ $linksTitle }}
+            </h2>
+
+            <ul class="error-page__links-list vdbs-error-page__links-list" role="list">
+                @foreach ($visibleLinks as $link)
+                    <li>
+                        <a href="{{ $link['url'] }}">{{ $link['label'] }}</a>
+                    </li>
+                @endforeach
+            </ul>
+        </nav>
+    @endif
 </section>
