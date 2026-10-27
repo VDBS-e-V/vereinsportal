@@ -151,7 +151,10 @@
 
 .group-mark--3,
 .vdbs-group-mark--3 {
+    /* Petrol: Ink-Text faellt auf 3.87:1 (< AA 4.5:1 fuer Normaltext,
+       14px/900 zaehlt nicht als "gross"). Weiss erreicht 4.61:1. */
     background: var(--color-group-3);
+    color: var(--color-white);
 }
 
 .group-mark--4,
@@ -161,7 +164,9 @@
 
 .group-mark--5,
 .vdbs-group-mark--5 {
+    /* Rot: Ink-Text faellt auf 3.80:1 (< AA 4.5:1). Weiss erreicht 4.70:1. */
     background: var(--color-group-5);
+    color: var(--color-white);
 }
 
 .group-mark--6,
