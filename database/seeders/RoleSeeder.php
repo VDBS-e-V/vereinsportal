@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Modules\Identity\Enums\RoleKey;
-use App\Modules\Identity\Models\Role;
+use App\Modules\AccessGovernance\Enums\RoleKey;
+use App\Modules\AccessGovernance\Models\Role;
 use Illuminate\Database\Seeder;
 
 class RoleSeeder extends Seeder
@@ -15,8 +15,8 @@ class RoleSeeder extends Seeder
             RoleKey::Member->value => 'Vereinsmitglied',
             RoleKey::BoardMember->value => 'Vorstandsmitglied',
             RoleKey::Team->value => 'Teamende',
-            RoleKey::AdministrationStaff->value => 'Verwaltung',
-            RoleKey::EducationCoordination->value => 'Bildungskoordination',
+            RoleKey::AdministrationStaff->value => 'Geschaeftsstelle',
+            RoleKey::EducationCoordination->value => 'Bildungsreferenten',
             RoleKey::Coordination->value => 'Koordination',
             RoleKey::Administration->value => 'Administration',
         ];

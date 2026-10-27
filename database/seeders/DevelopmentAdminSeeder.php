@@ -2,14 +2,14 @@
 
 namespace Database\Seeders;
 
-use App\Modules\Identity\Enums\RoleAssignmentSource;
-use App\Modules\Identity\Enums\RoleKey;
-use App\Modules\Identity\Enums\TwoFactorMethodType;
-use App\Modules\Identity\Enums\UserStatus;
-use App\Modules\Identity\Models\Role;
-use App\Modules\Identity\Models\RoleAssignment;
-use App\Modules\Identity\Models\TwoFactorMethod;
-use App\Modules\Identity\Models\User;
+use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
+use App\Modules\AccessGovernance\Enums\RoleKey;
+use App\Modules\AccessGovernance\Models\Role;
+use App\Modules\AccessGovernance\Models\RoleAssignment;
+use App\Modules\Access\Enums\TwoFactorMethodType;
+use App\Modules\Access\Enums\UserStatus;
+use App\Modules\Access\Models\TwoFactorMethod;
+use App\Modules\Access\Models\User;
 use Illuminate\Database\Seeder;
 use InvalidArgumentException;
 
@@ -17,59 +17,27 @@ class DevelopmentAdminSeeder extends Seeder
 {
     public function run(): void
     {
-        if (! app()->environment([
-            'local',
-            'testing',
-        ])) {
+        if (! app()->environment(['local', 'testing'])) {
             return;
         }
 
-        $email = mb_strtolower(
-            trim(
-                (string) config(
-                    'development.admin.email',
-                )
-            )
-        );
-
-        $password = (string) config(
-            'development.admin.default_password',
-        );
-
+        $email = mb_strtolower(trim((string) config('development.admin.email')));
+        $password = (string) config('development.admin.default_password');
         $totpSecret = strtoupper(
-            preg_replace(
-                '/\s+/',
-                '',
-                (string) config(
-                    'development.admin.totp_secret',
-                ),
-            ) ?? ''
+            preg_replace('/\s+/', '', (string) config('development.admin.totp_secret')) ?? '',
         );
 
-        if (
-            $email === ''
-            && $password === ''
-            && $totpSecret === ''
-        ) {
+        if ($email === '' && $password === '' && $totpSecret === '') {
             return;
         }
 
-        if (
-            $email === ''
-            || $password === ''
-            || $totpSecret === ''
-        ) {
+        if ($email === '' || $password === '' || $totpSecret === '') {
             throw new InvalidArgumentException(
                 'VDB_DEV_ADMIN_EMAIL, VDB_DEV_ADMIN_DEFAULT_PASSWORD and VDB_DEV_ADMIN_TOTP_SECRET must be configured together.',
             );
         }
 
-        if (
-            filter_var(
-                $email,
-                FILTER_VALIDATE_EMAIL,
-            ) === false
-        ) {
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             throw new InvalidArgumentException(
                 'VDB_DEV_ADMIN_EMAIL must be a valid email address.',
             );
@@ -81,20 +49,13 @@ class DevelopmentAdminSeeder extends Seeder
             );
         }
 
-        if (
-            preg_match(
-                '/^[A-Z2-7]{32}$/',
-                $totpSecret,
-            ) !== 1
-        ) {
+        if (preg_match('/^[A-Z2-7]{32}$/', $totpSecret) !== 1) {
             throw new InvalidArgumentException(
                 'VDB_DEV_ADMIN_TOTP_SECRET must be a 32-character Base32 secret.',
             );
         }
 
-        $user = User::query()->firstOrNew([
-            'email' => $email,
-        ]);
+        $user = User::query()->firstOrNew(['email' => $email]);
 
         $user->password = $password;
         $user->status = UserStatus::Active;
@@ -107,10 +68,7 @@ class DevelopmentAdminSeeder extends Seeder
         $user->save();
 
         $administrationRole = Role::query()
-            ->where(
-                'key',
-                RoleKey::Administration->value,
-            )
+            ->where('key', RoleKey::Administration->value)
             ->firstOrFail();
 
         RoleAssignment::query()->firstOrCreate(
@@ -129,19 +87,14 @@ class DevelopmentAdminSeeder extends Seeder
         );
 
         /*
-         * Der lokale Test-/Entwicklungsadmin bekommt bewusst genau
-         * eine deterministische TOTP-Methode. So bleibt derselbe
-         * Authenticator-Eintrag auch nach erneutem Seeding gültig.
-         *
-         * Die Methode ist ausschließlich in local/testing aktiv;
-         * das Secret kommt aus der lokalen ENV-Konfiguration.
+         * Der lokale Test-/Entwicklungsadmin bekommt bewusst genau eine
+         * deterministische TOTP-Methode, damit derselbe Authenticator-
+         * Eintrag auch nach erneutem Seeding gueltig bleibt. Nur in
+         * local/testing aktiv; das Secret kommt aus der lokalen ENV.
          */
         TwoFactorMethod::query()
             ->where('user_id', $user->id)
-            ->where(
-                'type',
-                TwoFactorMethodType::Totp,
-            )
+            ->where('type', TwoFactorMethodType::Totp)
             ->delete();
 
         TwoFactorMethod::query()->create([

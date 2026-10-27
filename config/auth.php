@@ -70,7 +70,7 @@ return [
             'driver' => 'eloquent',
             'model' => env(
                 'AUTH_MODEL',
-                App\Modules\Identity\Models\User::class,
+                App\Modules\Access\Models\User::class,
             ),
         ],
 
