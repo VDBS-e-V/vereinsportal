@@ -71,7 +71,7 @@
     color: var(--text-default);
 }
 
-.vdbs-btn--shape-line:hover { background: var(--bg-accent-soft); color: var(--text-default); }
+.vdbs-btn--shape-line:hover { background: var(--bg-brand); border-color: var(--bg-brand); border-bottom-color: var(--btn-line); color: var(--text-on-brand); }
 
 /* Der Chevron hat seitlich Leerraum im Icon-Feld; ausgleichen, damit links und rechts gleich viel Rand sichtbar ist */
 .vdbs-btn--shape-line .vdbs-btn__icon--chevron { margin-left: -0.375rem; }
