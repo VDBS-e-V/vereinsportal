@@ -19,7 +19,8 @@
     Varianten:
       image   Titel über oder neben dem Bild (Vorbild: eigener Entwurf)
       caption Bild mit Bildunterschrift-Leiste und Pfeil-Link (Vorbild: FU Berlin)
-      panel   Farbfläche mit Titel/Suche und Bildkacheln im Slot "aside" (Vorbild: Berlin.de)
+      panel   Farbfläche mit Titel/Suche und Bildkacheln im Slot "aside" (Vorbild: Berlin.de);
+              ein gesetztes $image wird hier nicht dargestellt
 
     Slots:
       search   optionales Suchfeld (variant panel)

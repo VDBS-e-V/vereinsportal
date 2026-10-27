@@ -143,7 +143,18 @@
     font-size: var(--font-size-h2);
 }
 
-.vdbs-hero--panel .vdbs-hero__search { max-width: 32rem; }
+.vdbs-hero--panel .vdbs-hero__search { width: 100%; max-width: 32rem; }
+
+/* Das Panel nutzt kein Hintergrundbild; die Bildfläche entsteht durch die Kacheln. */
+.vdbs-hero--panel .vdbs-hero__media { display: none; }
+
+/* Suchfeld auf der Farbfläche: Label hell, Feld weiß, Fokus weiß statt Ink */
+.vdbs-hero--panel .vdbs-field { margin-bottom: 0; }
+.vdbs-hero--panel .vdbs-field__label { color: inherit; }
+.vdbs-hero--panel .vdbs-field__hint { color: inherit; opacity: 0.85; }
+.vdbs-hero--panel .vdbs-control { background: var(--color-weiss); border-color: var(--color-weiss); color: var(--color-ink); }
+.vdbs-hero--panel .vdbs-hero__content :focus-visible { outline-color: var(--color-weiss); }
+.vdbs-hero--panel .vdbs-hero__actions .vdbs-btn--secondary { border-color: currentColor; color: inherit; }
 
 .vdbs-hero__aside {
     display: grid;
@@ -152,6 +163,7 @@
 
 @media (min-width: 768px) {
     .vdbs-hero--panel .vdbs-hero__stage { grid-template-columns: 1fr 1fr; min-height: 20rem; }
+    .vdbs-hero__aside { grid-template-rows: repeat(2, 1fr); }
     .vdbs-hero--panel .vdbs-hero__content { padding: var(--space-8); }
     .vdbs-hero--image .vdbs-hero__content { padding: var(--space-6) var(--space-8); }
     .vdbs-hero--caption .vdbs-hero__title { font-size: var(--font-size-display); }
