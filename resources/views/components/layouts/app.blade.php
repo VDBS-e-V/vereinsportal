@@ -14,21 +14,7 @@
 <body>
     <a class="vdbs-skip-link" href="#inhalt">Zum Inhalt springen</a>
 
-    <header class="vdbs-header">
-        <div class="vdbs-container vdbs-header__inner">
-            <a class="vdbs-header__brand" href="{{ url('/') }}">VDBS Vereinsportal</a>
-            {{ $navigation ?? '' }}
-            <button class="vdbs-theme-toggle" type="button" data-vdbs-theme-toggle>
-                <x-vdbs.icon name="sun" /> Darstellung wechseln
-            </button>
-            @auth
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button class="vdbs-theme-toggle" type="submit"><x-vdbs.icon name="log-out" /> Abmelden</button>
-                </form>
-            @endauth
-        </div>
-    </header>
+    <x-vdbs.portal-header :title="$title" />
 
     <main id="inhalt" class="vdbs-main">
         <div class="vdbs-container">
@@ -36,8 +22,6 @@
         </div>
     </main>
 
-    <footer class="vdbs-footer">
-        <div class="vdbs-container">VDBS e. V.</div>
-    </footer>
+    <x-vdbs.portal-footer />
 </body>
 </html>

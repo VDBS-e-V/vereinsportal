@@ -13,8 +13,10 @@
     <a class="vdbs-skip-link" href="#error-content">Zum Inhalt</a>
 
     <header class="vdbs-header">
-        <div class="vdbs-container vdbs-header__inner">
-            <a class="vdbs-header__brand" href="{{ url('/') }}">VDBS Portal</a>
+        <div class="vdbs-container vdbs-header__top-inner">
+            <a class="vdbs-header__logo" href="{{ url('/') }}" aria-label="VDBS Vereinsportal – Startseite">
+                <img src="{{ asset('images/brand/vdbs-bildmarke-breit.png') }}" alt="VDBS e. V." height="40">
+            </a>
         </div>
     </header>
 
@@ -25,9 +27,8 @@
     </main>
 
     <footer class="vdbs-footer">
-        <div class="vdbs-container">
-            Verband für Demokratiebildung und Bibliotheken an Schulen e.V.
-            · <a href="{{ url('/') }}">Zur Startseite</a>
+        <div class="vdbs-container vdbs-footer__bottom" style="padding-top:0">
+            <p>Verband für Demokratiebildung und Bibliotheken an Schulen e. V.</p>
         </div>
     </footer>
 </body>

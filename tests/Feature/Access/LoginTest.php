@@ -84,3 +84,12 @@ it('shows the start page to authenticated users', function () {
         ->assertSee('Willkommen')
         ->assertSee('Abmelden');
 });
+
+it('shows header and footer navigation depending on the login state', function () {
+    $this->get('/login')->assertSee('Anmelden')->assertDontSee('Design-Bibliothek');
+
+    $this->actingAs(User::factory()->create())
+        ->get('/')
+        ->assertSee('Design-Bibliothek')
+        ->assertSee('Abmelden');
+});
