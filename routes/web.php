@@ -1,22 +1,16 @@
 <?php
 
+use App\Support\PortalAreas;
 use Illuminate\Support\Facades\Route;
 
 /*
- * Alle frueheren Routen gehoerten zu app/Modules/Identity (Login,
- * Registrierung, 2FA, Konto, E-Mail-Aenderung, Konto-Loeschung,
- * Portal-Einladung) - dieses Modul wurde im Rahmen des Neuaufbaus
- * entfernt und wird modul- fuer modul neu aufgebaut (Access,
- * Onboarding, Offboarding, ...). Diese Datei bleibt bis dahin leer.
+ * Login/Logout liegen im Access-Modul, die Design-Bibliothek unter /design.
+ * Weitere Bereiche kommen modulweise dazu (Onboarding, Offboarding, ...).
  *
  * Siehe Konzept: https://claude.ai/artifact/6T9qoinqTT6m6UoQMXptKs
  */
-Route::get('/', function (): string {
-    return 'VDBS Vereinsportal (im Neuaufbau)';
+Route::middleware(['web', 'auth'])->get('/', function () {
+    return view('portal.home', [
+        'areas' => [PortalAreas::Start, PortalAreas::Konto],
+    ]);
 })->name('home');
-
-// Platzhalter, bis die Login-Seite (Schritt 3: UI für People/Access) gebaut ist;
-// der auth-Middleware-Redirect für Gäste braucht eine Route namens "login".
-Route::get('/login', function (): string {
-    return 'Anmeldung (im Neuaufbau)';
-})->name('login');

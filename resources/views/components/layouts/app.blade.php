@@ -21,6 +21,12 @@
             <button class="vdbs-theme-toggle" type="button" data-vdbs-theme-toggle>
                 <x-vdbs.icon name="sun" /> Darstellung wechseln
             </button>
+            @auth
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button class="vdbs-theme-toggle" type="submit"><x-vdbs.icon name="log-out" /> Abmelden</button>
+                </form>
+            @endauth
         </div>
     </header>
 

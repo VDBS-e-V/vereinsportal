@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Access\AccessServiceProvider;
 use App\Modules\DesignLibrary\DesignLibraryServiceProvider;
 use App\Modules\Sso\SsoServiceProvider;
 use App\Providers\AppServiceProvider;
@@ -14,6 +15,7 @@ use App\Providers\VoltServiceProvider;
 return [
     AppServiceProvider::class,
     VoltServiceProvider::class,
+    AccessServiceProvider::class,
     SsoServiceProvider::class,
     DesignLibraryServiceProvider::class,
 ];
