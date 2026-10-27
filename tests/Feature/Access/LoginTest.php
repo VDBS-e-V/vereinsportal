@@ -36,14 +36,15 @@ it('rejects a wrong password with a generic message', function () {
 });
 
 it('does not reveal whether an account exists', function () {
-    $unknown = $this->post('/login', ['email' => 'niemand@example.org', 'password' => 'x'])
-        ->getSession()->get('errors')->first('email');
+    $message = 'Die Anmeldedaten sind nicht korrekt oder das Konto ist nicht aktiv.';
+
+    $this->post('/login', ['email' => 'niemand@example.org', 'password' => 'x'])
+        ->assertSessionHasErrors(['email' => $message]);
 
     User::factory()->create(['email' => 'erika@example.org']);
-    $wrong = $this->post('/login', ['email' => 'erika@example.org', 'password' => 'x'])
-        ->getSession()->get('errors')->first('email');
 
-    expect($unknown)->toBe($wrong);
+    $this->post('/login', ['email' => 'erika@example.org', 'password' => 'x'])
+        ->assertSessionHasErrors(['email' => $message]);
 });
 
 it('refuses users that are not active', function () {
