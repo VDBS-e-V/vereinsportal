@@ -22,3 +22,10 @@ it('wraps layout content in a container unless the width is full', function () {
     $full = $this->get('/design/startseite')->assertOk()->getContent();
     expect($full)->toContain('vdbs-main--full')->toContain('vdbs-hero--overlay');
 });
+
+it('shows the hero examples in the wide container', function () {
+    $this->withoutVite();
+    $this->actingAs(User::factory()->create());
+
+    $this->get('/design/hero')->assertOk()->assertSee('vdbs-container--wide', false);
+});
