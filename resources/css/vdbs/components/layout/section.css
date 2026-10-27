@@ -1,0 +1,13 @@
+/* Abschnitt — Klassen sind angelegt, Stile folgen. */
+
+.vdbs-section {}
+.vdbs-section--default {}
+.vdbs-section--band {}
+.vdbs-section--align-start {}
+.vdbs-section--align-center {}
+.vdbs-section__inner {}
+.vdbs-section__header {}
+.vdbs-section__title {}
+.vdbs-section__lead {}
+.vdbs-section__body {}
+.vdbs-section__actions {}

@@ -1,0 +1,9 @@
+/* Split: Text neben Bild — Klassen sind angelegt, Stile folgen. */
+
+.vdbs-split {}
+.vdbs-split--reverse {}
+.vdbs-split__text {}
+.vdbs-split__title {}
+.vdbs-split__body {}
+.vdbs-split__actions {}
+.vdbs-split__media {}

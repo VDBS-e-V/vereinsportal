@@ -11,7 +11,7 @@
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
+<body id="top">
     <a class="vdbs-skip-link" href="#inhalt">Zum Inhalt springen</a>
 
     <x-vdbs.navigation.portal-header :title="$title" />

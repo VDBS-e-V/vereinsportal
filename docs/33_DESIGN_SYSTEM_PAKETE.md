@@ -6,15 +6,15 @@ und `resources/views/components/vdbs/<paket>/`. Eine Komponente = eine Blade-Dat
 | Paket | Blade-Namespace | Inhalt (Stand) |
 | --- | --- | --- |
 | foundation | `x-vdbs.icon` | Icons |
-| actions | `x-vdbs.actions.*` | button |
+| actions | `x-vdbs.actions.*` | button, link-button, back-to-top |
 | forms | `x-vdbs.forms.*` | input, select, textarea |
 | navigation | `x-vdbs.navigation.*` | portal-header, portal-footer, nav-main, breadcrumb |
-| layout | – | Seitenrahmen, Druck |
-| cards | `x-vdbs.cards.*` | card |
-| data | `x-vdbs.data.*` | table, badge, group-mark |
+| layout | `x-vdbs.layout.*` | section, split, grid (+ Seitenrahmen, Druck) |
+| cards | `x-vdbs.cards.*` | card, quick-links, quick-link, teaser, contact-block |
+| data | `x-vdbs.data.*` | table, badge, group-mark, chip-list, chip |
 | feedback | `x-vdbs.feedback.*` | alert, error-page |
 | overlays | `x-vdbs.overlays.*` | modal |
-| media | `x-vdbs.media.*` | hero, hero-tile |
+| media | `x-vdbs.media.*` | hero, hero-tile, figure |
 
 Regeln: eine Komponente pro Datei (CSS möglichst unter ~100 Zeilen), BEM-Klassen `.vdbs-name__teil--variante`,
 nur semantische Tokens, jede Komponente bekommt einen Eintrag in `app/Modules/DesignLibrary/Support/Registry.php`
