@@ -16,7 +16,9 @@ erkennbar halten und einen sicheren Rückweg anbieten.
   Details für Endnutzer:innen.
 - Sicherheitsrelevante Zustände wie 403 und 419 bleiben sachlich.
 - 500 und 503 versprechen keine konkrete Wiederherstellungszeit.
-- Die Seiten bleiben auch ohne die vollständige Portalnavigation verständlich.
+- Die Seiten zeigen den normalen Portal-Header und -Footer. Sie bleiben aber
+  auch ohne die vollständige Portalnavigation verständlich und dürfen nie selbst
+  fehlschlagen (siehe „Header und Footer“).
 
 ## Varianten
 
@@ -50,7 +52,14 @@ Rückweg: erneuter Versuch oder Startseite.
 - `resources/views/components/vdbs/error-page.blade.php`
   enthält das wiederverwendbare Fehlermuster.
 - `resources/views/errors/layout.blade.php`
-  stellt eine bewusst robuste, reduzierte VDBS-Hülle bereit.
+  ist die Hülle der Fehlerseiten. Sie bindet den normalen Portal-Header und
+  -Footer ein (über `App\Support\ErrorPageChrome`) und fällt bei Problemen auf
+  die reduzierte Hülle zurück.
+- `app/Support/ErrorPageChrome.php`
+  baut Header und Footer abgesichert (siehe unten).
+- `resources/views/errors/partials/fallback-header.blade.php` und
+  `fallback-footer.blade.php`
+  sind die reduzierte Kopf- und Fußzeile für den Notfall.
 - `resources/views/errors/{403,404,419,500,503}.blade.php`
   sind die Laravel-Runtime-Fehlerseiten.
 - `resources/css/vdbs/components/error-pages.css`
@@ -61,3 +70,20 @@ Rückweg: erneuter Versuch oder Startseite.
 Die Runtime-Fehlerseiten verwenden bewusst nicht den vollständigen interaktiven
 Portal-Header. Dadurch bleibt die Fehlerdarstellung auch dann robust, wenn ein
 Fehler innerhalb der Portalnavigation oder einer Fachseite entsteht.
+
+## Header und Footer
+
+Die Fehlerseiten verwenden `x-vdbs.portal-header` und `x-vdbs.portal-footer`
+wie das normale Portal-Layout. Weil eine Fehlerseite auch erscheint, wenn
+Datenbank oder Sitzung ausgefallen sind, baut `ErrorPageChrome` sie abgesichert:
+
+| Fall | Header |
+|---|---|
+| Status < 500 (403, 404, 419) | mit angemeldeter Person (Bereiche, Konto-Menü), wenn Sitzung und Datenbank antworten |
+| Status ≥ 500 (500, 503, Wartungsmodus) | immer Gast-Header, ohne Sitzung, Anmeldung und Datenbank |
+| Aufbau schlägt fehl | reduzierte Kopf- und Fußzeile (`errors/partials/fallback-*`) |
+
+Der Header der Fehlerseiten ist bewusst einfacher als der des normalen Layouts:
+Navigation (Start, Konto bzw. Zugang), Brotkrumen und Konto-Menü (Profil,
+Einstellungen, Abmelden). Änderungen an der Hauptnavigation des Portals müssen hier
+nur nachgezogen werden, wenn sie auch auf Fehlerseiten erscheinen sollen.

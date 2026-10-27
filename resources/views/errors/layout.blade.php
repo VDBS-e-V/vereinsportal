@@ -10,33 +10,36 @@
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
+
+    @php
+        /*
+         * Normaler Portal-Header und -Footer. Ab Status 500 ohne Sitzung und
+         * Datenbank; schlägt das fehl, greift die reduzierte Hülle (null).
+         * Siehe App\Support\ErrorPageChrome.
+         */
+        $errorStatus = isset($exception)
+            && $exception instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface
+                ? $exception->getStatusCode()
+                : null;
+
+        $errorHeader = \App\Support\ErrorPageChrome::header(
+            $errorStatus,
+            trim($__env->yieldContent('documentTitle')) ?: 'Fehler',
+        );
+        $errorFooter = \App\Support\ErrorPageChrome::footer();
+    @endphp
 </head>
 
-<body class="error-shell vdbs-error-shell">
+<body class="vdbs-app-shell error-shell vdbs-error-shell">
     <a class="vdbs-skip-link" href="#error-content">
         Zum Inhalt
     </a>
 
-    <header class="error-shell__header vdbs-error-shell__header">
-        <div class="error-shell__header-inner vdbs-error-shell__header-inner">
-            <a
-                class="error-shell__brand vdbs-error-shell__brand"
-                href="{{ url('/') }}"
-                aria-label="VDBS Startseite"
-            >
-                <img
-                    src="{{ asset('images/brand/vdbs-bildmarke-breit.png') }}"
-                    alt=""
-                    aria-hidden="true"
-                >
-                <span>VDBS Portal</span>
-            </a>
-
-            <span class="error-shell__context vdbs-error-shell__context">
-                Sichere Orientierung bei technischen Fehlern
-            </span>
-        </div>
-    </header>
+    @if ($errorHeader !== null)
+        {!! $errorHeader !!}
+    @else
+        @include('errors.partials.fallback-header')
+    @endif
 
     <main
         class="error-shell__main vdbs-error-shell__main"
@@ -47,17 +50,11 @@
         </div>
     </main>
 
-    <footer class="error-shell__footer vdbs-error-shell__footer">
-        <div class="error-shell__footer-inner vdbs-error-shell__footer-inner">
-            <span>
-                Verband für Demokratiebildung und Bibliotheken an Schulen e.V.
-            </span>
-
-            <a href="{{ url('/') }}">
-                Zur Startseite
-            </a>
-        </div>
-    </footer>
+    @if ($errorFooter !== null)
+        {!! $errorFooter !!}
+    @else
+        @include('errors.partials.fallback-footer')
+    @endif
 </body>
 
 </html>
