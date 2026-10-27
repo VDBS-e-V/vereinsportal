@@ -1,43 +1,28 @@
-@php
-    $systems = collect(config('portal.systems'))->filter(fn (array $system): bool => filled($system['url']));
-@endphp
-
 <footer class="vdbs-footer">
     <div class="vdbs-container">
         <div class="vdbs-footer__columns">
-            <nav aria-labelledby="footer-portal">
-                <h2 id="footer-portal" class="vdbs-footer__heading">Portal</h2>
-                <ul class="vdbs-footer__list">
-                    @auth
-                        <li><a href="{{ route('home') }}">Startseite</a></li>
-                        <li><a href="{{ route('design-library.index') }}">Design-Bibliothek</a></li>
-                    @else
-                        <li><a href="{{ route('login') }}">Anmelden</a></li>
-                    @endauth
-                </ul>
-            </nav>
-
-            @auth
-                <nav aria-labelledby="footer-areas">
-                    <h2 id="footer-areas" class="vdbs-footer__heading">Bereiche</h2>
+            @foreach (config('portal.footer') as $column)
+                <nav aria-labelledby="footer-col-{{ $loop->index }}">
+                    <h2 id="footer-col-{{ $loop->index }}" class="vdbs-footer__heading">{{ $column['heading'] }}</h2>
                     <ul class="vdbs-footer__list">
-                        @foreach ([\App\Support\PortalAreas::Start, \App\Support\PortalAreas::Konto] as $area)
-                            <li><a href="{{ $area === \App\Support\PortalAreas::Start ? route('home') : '#' }}">{{ $area->label() }}</a></li>
+                        @foreach ($column['links'] as $link)
+                            <li>
+                                <a href="{{ $link['url'] }}" @class(['vdbs-footer__link--icon' => ! empty($link['icon'])])>
+                                    @if (! empty($link['icon'])) <x-vdbs.icon :name="$link['icon']" :size="18" /> @endif
+                                    {{ $link['label'] }}
+                                </a>
+                            </li>
                         @endforeach
+                        @if ($loop->index === 1)
+                            @auth
+                                <li><a href="{{ route('design-library.index') }}">Design-Bibliothek</a></li>
+                            @else
+                                <li><a href="{{ route('login') }}">Anmelden</a></li>
+                            @endauth
+                        @endif
                     </ul>
                 </nav>
-            @endauth
-
-            @if ($systems->isNotEmpty())
-                <nav aria-labelledby="footer-systems">
-                    <h2 id="footer-systems" class="vdbs-footer__heading">Externe Systeme</h2>
-                    <ul class="vdbs-footer__list">
-                        @foreach ($systems as $system)
-                            <li><a href="{{ $system['url'] }}">{{ $system['label'] }}</a></li>
-                        @endforeach
-                    </ul>
-                </nav>
-            @endif
+            @endforeach
 
             <div>
                 <h2 class="vdbs-footer__heading">Diese Seite</h2>

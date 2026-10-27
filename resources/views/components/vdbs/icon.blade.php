@@ -2,6 +2,10 @@
 
 @php
     $path = resource_path('icons/lucide/'.basename($name).'.svg');
+
+    if (! is_file($path)) {
+        $path = resource_path('icons/brand/'.basename($name).'.svg');
+    }
     $inner = '';
 
     if (is_file($path)) {

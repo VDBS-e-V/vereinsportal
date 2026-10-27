@@ -100,3 +100,11 @@ it('shows the area placeholders and a login button to guests on public pages', f
     $response = $this->get('/login');
     $response->assertSee('Vorstand')->assertSee('Geschäftsstelle');
 });
+
+it('renders the configured footer columns', function () {
+    $this->get('/login')
+        ->assertSee('Informationen für')
+        ->assertSee('Service-Portal')
+        ->assertSee('Soziale Medien')
+        ->assertSee('Impressum');
+});
