@@ -9,6 +9,14 @@
 
 .vdbs-header__top { border-bottom: 1px solid var(--border-default); }
 
+.vdbs-header > .vdbs-container,
+.vdbs-header__top > .vdbs-container { max-width: none; padding-inline: var(--space-8); }
+
+@media (max-width: 767px) {
+    .vdbs-header > .vdbs-container,
+    .vdbs-header__top > .vdbs-container { padding-inline: var(--space-4); }
+}
+
 .vdbs-header__top-inner,
 .vdbs-header__main {
     display: flex;

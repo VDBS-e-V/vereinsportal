@@ -10,4 +10,15 @@ return [
         ['label' => 'Moodle', 'url' => env('PORTAL_MOODLE_URL')],
         ['label' => 'Umfragen', 'url' => env('PORTAL_SURVEY_URL')],
     ],
+
+    /*
+     * Öffentliche Navigation im Kopfbereich (nur für Gäste sichtbar).
+     * Platzhalter '#', bis die jeweiligen Seiten existieren.
+     */
+    'public_links' => [
+        ['label' => 'Über das Portal', 'url' => '#'],
+        ['label' => 'Zugang zum Portal', 'url' => '#'],
+        ['label' => 'FAQ', 'url' => '#'],
+        ['label' => 'Kontakt', 'url' => '#'],
+    ],
 ];

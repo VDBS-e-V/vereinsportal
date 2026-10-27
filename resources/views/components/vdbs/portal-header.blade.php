@@ -50,6 +50,14 @@
                     <x-vdbs.button type="submit" variant="secondary" icon="log-out">Abmelden</x-vdbs.button>
                 </form>
             @else
+                <nav aria-label="Portal-Informationen">
+                    <ul class="vdbs-header__links vdbs-header__links--large">
+                        @foreach (config('portal.public_links') as $link)
+                            <li><a href="{{ $link['url'] }}">{{ $link['label'] }}</a></li>
+                        @endforeach
+                    </ul>
+                </nav>
+
                 @unless (request()->routeIs('login'))
                     <x-vdbs.button :href="route('login')" icon="log-in">Login</x-vdbs.button>
                 @endunless
