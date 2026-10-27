@@ -24,13 +24,14 @@ it('uses the default shape of each role and accepts explicit shapes', function (
         ->and(button('shape="line"'))->toContain('vdbs-btn--shape-line');
 });
 
-it('falls back for unknown values and keeps the old link alias', function () {
+it('falls back for unknown values', function () {
     expect(button('variant="bunt" size="xxl" on="mond"'))
         ->toContain('vdbs-btn--primary')
         ->toContain('vdbs-btn--size-m')
         ->not->toContain('vdbs-btn--on-');
 
-    expect(button('variant="link"'))->toContain('vdbs-btn--tertiary');
+    expect(button('variant="link"'))->toContain('vdbs-btn--primary');
+    expect(button('on="light"'))->not->toContain('vdbs-btn--on-');
 });
 
 it('supports the xl size and the dark and brand surfaces', function () {
@@ -107,4 +108,9 @@ it('maps the link button variants to the button system', function () {
         ->toContain('vdbs-btn--secondary')->toContain('vdbs-btn--shape-line')
         ->and(Blade::render('<x-vdbs.actions.link-button href="/a" variant="all">A</x-vdbs.actions.link-button>'))
         ->toContain('vdbs-btn--tertiary')->toContain('vdbs-btn--shape-link');
+});
+
+it('marks only disabled buttons as disabled, loading buttons keep their colors', function () {
+    expect(button(':disabled="true"'))->toContain('vdbs-btn--disabled')
+        ->and(button(':loading="true"'))->not->toContain('vdbs-btn--disabled')->toContain('vdbs-btn--loading');
 });

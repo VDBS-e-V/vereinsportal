@@ -1,0 +1,60 @@
+/* Button-Zustände: deaktiviert, laden, gedrückt.
+ * Wird nach Formen und Flächen geladen und hat höhere Spezifität.
+ */
+
+/* Deaktiviert (Styleguide 5.1): graue Fläche und gedämpfter Text; Rahmen-/Linkformen ohne Fläche */
+.vdbs-btn.vdbs-btn--disabled {
+    background: var(--bg-surface);
+    border-color: var(--border-default);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    pointer-events: none;
+    text-decoration: none;
+}
+
+.vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-outline,
+.vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-line,
+.vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-link { background: transparent; }
+
+.vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-link { border-color: transparent; }
+.vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-line { border-bottom-color: var(--border-default); }
+.vdbs-btn.vdbs-btn--disabled .vdbs-btn__arrow { border-left-color: var(--border-default); }
+
+.vdbs-on-dark .vdbs-btn.vdbs-btn--disabled,
+.vdbs-btn--on-dark.vdbs-btn--disabled {
+    background: rgb(255 255 255 / 12%);
+    border-color: rgb(255 255 255 / 25%);
+    color: rgb(255 255 255 / 60%);
+}
+
+.vdbs-on-brand .vdbs-btn.vdbs-btn--disabled,
+.vdbs-btn--on-brand.vdbs-btn--disabled {
+    background: rgb(15 23 42 / 12%);
+    border-color: rgb(15 23 42 / 25%);
+    color: rgb(15 23 42 / 60%);
+}
+
+.vdbs-on-dark .vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-outline,
+.vdbs-on-dark .vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-line,
+.vdbs-on-dark .vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-link,
+.vdbs-on-brand .vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-outline,
+.vdbs-on-brand .vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-line,
+.vdbs-on-brand .vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-link { background: transparent; }
+
+/* Laden: Farben bleiben, Bedienung ist gesperrt */
+.vdbs-btn--loading { cursor: progress; pointer-events: none; }
+
+/* Gedrückt (Umschalter): gefüllte Fläche in der Rollenfarbe plus Balken unten, damit der Zustand nicht nur an der Farbe hängt */
+.vdbs-btn[aria-pressed="true"] {
+    background: var(--btn-fill);
+    border-color: var(--btn-fill);
+    color: var(--btn-fill-fg);
+    box-shadow: inset 0 -4px 0 currentColor;
+}
+
+.vdbs-btn--shape-solid[aria-pressed="true"],
+.vdbs-btn--shape-arrow[aria-pressed="true"] {
+    background: var(--btn-hover-bg);
+    border-color: var(--btn-hover-bg);
+    color: var(--btn-hover-fg);
+}

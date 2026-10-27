@@ -42,7 +42,7 @@
 </div>
 
 <h2>Flächen (<code>on</code>)</h2>
-@foreach (['light' => 'background:var(--bg-page)', 'dark' => 'background:var(--bg-header-footer);color:var(--text-on-dark)', 'brand' => 'background:var(--bg-brand);color:var(--text-on-brand)'] as $on => $style)
+@foreach (['default' => 'background:var(--bg-page)', 'dark' => 'background:var(--bg-header-footer);color:var(--text-on-dark)', 'brand' => 'background:var(--bg-brand);color:var(--text-on-brand)'] as $on => $style)
     <div style="{{ $style }};padding:var(--space-5);margin-bottom:var(--space-3);border:1px solid var(--border-default)">
         <p style="margin:0 0 var(--space-3)"><code>on="{{ $on }}"</code></p>
         <x-vdbs.actions.button-group>
@@ -113,7 +113,7 @@
     <tr><th scope="row"><code>variant</code></th><td>primary, secondary, tertiary, danger, quiet</td><td>Wichtigkeit der Aktion</td></tr>
     <tr><th scope="row"><code>shape</code></th><td>solid, outline, link, arrow, line</td><td>Form; Standard je Rolle</td></tr>
     <tr><th scope="row"><code>size</code></th><td>s, m (Standard), l, xl</td><td>36, 44, 52, 60 px Höhe</td></tr>
-    <tr><th scope="row"><code>on</code></th><td>light, dark, brand</td><td>Fläche hinter dem Button</td></tr>
+    <tr><th scope="row"><code>on</code></th><td>default (Standard), dark, brand</td><td>Fläche hinter dem Button; default = normale Seitenfläche, folgt dem Theme</td></tr>
     <tr><th scope="row"><code>href</code></th><td>URL</td><td>Link statt Button</td></tr>
     <tr><th scope="row"><code>icon</code>, <code>icon-position</code></th><td>Lucide-Name; start, end</td><td>Icon mit Text</td></tr>
     <tr><th scope="row"><code>label</code></th><td>Text</td><td>Pflicht bei reinen Icon-Buttons</td></tr>

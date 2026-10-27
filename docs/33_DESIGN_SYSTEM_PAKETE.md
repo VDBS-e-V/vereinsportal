@@ -19,3 +19,11 @@ und `resources/views/components/vdbs/<paket>/`. Eine Komponente = eine Blade-Dat
 Regeln: eine Komponente pro Datei (CSS möglichst unter ~100 Zeilen), BEM-Klassen `.vdbs-name__teil--variante`,
 nur semantische Tokens, jede Komponente bekommt einen Eintrag in `app/Modules/DesignLibrary/Support/Registry.php`
 und einen Test. Alte, noch nicht überarbeitete CSS-Dateien liegen unter `components/_legacy/`.
+
+## Kontrastprüfung Buttons
+
+`python scripts/button_contrast.py` (Windows: `py scripts\button_contrast.py`) rechnet für alle Kombinationen aus
+Thema (hell/dunkel), Fläche (default/dark/brand), Rolle, Form und Zustand (Ruhe, Hover, Gedrückt) nach:
+Text mindestens 4,5:1, Rahmen/Linie mindestens 3:1. Mit `--all` werden auch bestandene Fälle gelistet.
+Deaktivierte Buttons sind nach WCAG ausgenommen. Nach Änderungen an `tokens.css`, `button-variants.css`
+oder `button-contexts.css` erneut ausführen.

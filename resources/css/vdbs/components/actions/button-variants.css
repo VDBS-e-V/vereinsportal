@@ -4,7 +4,7 @@
 .vdbs-btn--primary {
     --btn-bg: var(--bg-brand);
     --btn-fg: var(--text-on-brand);
-    --btn-line: var(--color-gruen-dunkel);
+    --btn-line: var(--text-link);
     --btn-hover-bg: var(--color-gruen-dunkel);
     --btn-hover-fg: var(--color-weiss);
     --btn-fill: var(--bg-brand);
@@ -34,7 +34,7 @@
 .vdbs-btn--danger {
     --btn-bg: var(--color-fehler);
     --btn-fg: var(--color-weiss);
-    --btn-line: var(--color-fehler);
+    --btn-line: var(--text-error);
     --btn-hover-bg: #8f1a10;
     --btn-hover-fg: var(--color-weiss);
     --btn-fill: var(--color-fehler);

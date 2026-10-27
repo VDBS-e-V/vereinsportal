@@ -2,7 +2,7 @@
     'variant' => 'primary',
     'shape' => null,
     'size' => 'm',
-    'on' => 'light',
+    'on' => 'default',
     'href' => null,
     'type' => 'button',
     'icon' => null,
@@ -21,7 +21,8 @@
     variant  primary | secondary | tertiary | danger | quiet      Wichtigkeit der Aktion
     shape    solid | outline | link | arrow | line                  Form (Standard je Variante)
     size     s | m | l | xl
-    on       light | dark | brand                                   Fläche, auf der der Button steht
+    on       default | dark | brand                                 Fläche, auf der der Button steht
+             default = die normale Seitenfläche (folgt dem Theme, im Dark Mode also dunkel)
              (Alternativ ein Container mit .vdbs-on-dark bzw. .vdbs-on-brand)
     href     gesetzt = <a>, sonst <button>
     icon     Lucide-Name; iconPosition start | end — in jeder Form möglich (ein Icon vor oder nach dem Text).
@@ -34,18 +35,16 @@
     disabled deaktiviert (bei Links: aria-disabled, ohne href)
 
     Standard-Form: primary=solid, secondary=outline, tertiary=link, danger=solid, quiet=link.
-    "link" wird als Alias für variant "tertiary" noch akzeptiert.
 --}}
 
 @php
-    $variant = ['link' => 'tertiary'][$variant] ?? $variant;
     $variant = in_array($variant, ['primary', 'secondary', 'tertiary', 'danger', 'quiet'], true) ? $variant : 'primary';
 
     $defaultShape = ['primary' => 'solid', 'secondary' => 'outline', 'tertiary' => 'link', 'danger' => 'solid', 'quiet' => 'link'][$variant];
     $shape = in_array($shape, ['solid', 'outline', 'link', 'arrow', 'line'], true) ? $shape : $defaultShape;
 
     $size = in_array($size, ['s', 'm', 'l', 'xl'], true) ? $size : 'm';
-    $on = in_array($on, ['light', 'dark', 'brand'], true) ? $on : 'light';
+    $on = in_array($on, ['default', 'dark', 'brand'], true) ? $on : 'default';
     $iconPosition = $iconPosition === 'end' ? 'end' : 'start';
 
     $iconOnly = $label !== null && $slot->isEmpty();
@@ -82,11 +81,11 @@
         "vdbs-btn--{$variant}",
         "vdbs-btn--shape-{$shape}",
         "vdbs-btn--size-{$size}",
-        "vdbs-btn--on-{$on}" => $on !== 'light',
+        "vdbs-btn--on-{$on}" => $on !== 'default',
         'vdbs-btn--full' => $full,
         'vdbs-btn--icon-only' => $iconOnly,
         'vdbs-btn--loading' => $loading,
-        'vdbs-btn--disabled' => $inactive,
+        'vdbs-btn--disabled' => $disabled,
     ]) }}
 >
     @if ($loading)
