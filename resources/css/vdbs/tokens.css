@@ -1,6 +1,13 @@
 /*
  * VDBS Portal — Design Tokens
  *
+ * Werte aus dem VDBS-Web-Styleguide (Markenpaket v7.2 / Farbsystem v6.0)
+ * uebernommen. Formensprache bleibt bewusst eckig (radius 0) — das ist eine
+ * dokumentierte Abweichung vom Markenpaket-Prinzip "Alles ist rund", siehe
+ * das Design-System-Dokument "VDBS Vereinsportal". Variablennamen bleiben
+ * identisch zur Vorgaengerversion, damit bestehende Komponenten-CSS-Dateien
+ * unveraendert funktionieren; nur Werte wurden ersetzt.
+ *
  * Canonical token names follow the former VDBS Portal structure. The
  * --vdbs-* aliases remain available so already created Blade examples keep
  * working while new components can use the shorter portal-style tokens.
@@ -10,59 +17,92 @@
     /* Brand */
     --color-ink: #0f172a;
     --color-white: #ffffff;
-    --color-primary: #2fbf71;
-    --color-secondary-cta: #22b7a3;
-    --color-secondary-accent: #582759;
-    --color-accent-amber: #f59e0b;
-    --color-accent-teal: #14b8a6;
-    --color-accent-berry: #d946ef;
-    --color-accent-sun-yellow: #fde047;
-    --color-accent-lime: #a3e635;
+    --color-primary: #2dc08e; /* Markengruen, vormals #2fbf71 */
+    --color-secondary-cta: #58275a; /* Lila ersetzt das bisherige Ocean-Mist-Teal; im Styleguide gibt es keine dritte Button-Füllfarbe — Judgment Call, s. Design-System-Doku "Offene Punkte" */
+    --color-secondary-accent: #58275a; /* Markenlila, vormals #582759 */
+    --color-accent-amber: #f59e0b; /* nicht Teil des Styleguides; nur als Legacy-Kompatibilitaet beibehalten, s. --color-group-* fuer Kategorien */
+    --color-accent-teal: #14b8a6; /* dito */
+    --color-accent-berry: #d946ef; /* dito */
+    --color-accent-sun-yellow: #fde047; /* dito */
+    --color-accent-lime: #a3e635; /* dito */
+
+    /* Gruppenfarben — NUR fuer Kategorien/Diagramme, in dieser Reihenfolge.
+       Von diesen sind nur group-3 (Petrol) und group-5 (Rot) als eigenstaendige
+       Text-/Linienfarbe auf Weiss AA-faehig; die uebrigen vier ausschliesslich
+       als Flaechenfuellung mit --color-ink. */
+    --color-group-1: #52bdf2; /* Hellblau — Kreis */
+    --color-group-2: #ffcb1f; /* Gelb — Raute (eckig umgesetzt als Quadrat) */
+    --color-group-3: #0a7fa0; /* Petrol — Quadrat */
+    --color-group-4: #f76ca3; /* Rosa — Stern (eckig umgesetzt als Quadrat) */
+    --color-group-5: #d93425; /* Rot — Dreieck (eckig umgesetzt als Quadrat) */
+    --color-group-6: #f5912b; /* Orange — Sechseck (eckig umgesetzt als Quadrat) */
 
     /* Neutral UI */
     --color-page: #ffffff;
     --color-surface: #ffffff;
     --color-surface-subtle: #f5f7f6;
-    --color-surface-strong: #edf1ef;
+    --color-surface-strong: #edf1ef; /* im Styleguide nicht separat definiert, unveraendert beibehalten */
     --color-border: #d4dbd8;
-    --color-border-strong: #8d9a95;
+    --color-border-strong: #8d9a95; /* Styleguide: #7f8d88 (Grau-Rahmen) — Abweichung ca. 1% Helligkeit, unveraendert gelassen, da bereits AA-konform fuer UI-Kontraste */
     --color-text-muted: #52605b;
-    --color-text-disabled: #6f7b76;
-    --color-surface-disabled: #eef1f0;
+    --color-text-disabled: #6f7b76; /* im Styleguide nicht separat definiert, unveraendert beibehalten */
+    --color-surface-disabled: #eef1f0; /* im Styleguide nicht separat definiert, unveraendert beibehalten */
 
-    /* Semantic UI */
-    --color-link: #086f64;
+    /* Semantische Tokens — DIESE im Code verwenden (unveraenderte semantische
+       Namen aus dem Styleguide, s. Kap. 2.1) */
+    --bg-page: var(--color-page);
+    --bg-surface: var(--color-surface-subtle);
+    --bg-accent-soft: #dcf8ea;
+    --bg-header-footer: var(--color-secondary-accent);
+    --bg-brand: var(--color-primary);
+
+    --text-default: var(--color-ink);
+    --text-muted: var(--color-text-muted);
+    --text-on-dark: var(--color-white);
+    --text-on-brand: var(--color-ink); /* Gruen ist niemals Textfarbe, s. Kap. 3 */
+    --text-link: #057f5b;
+    --text-link-hover: #046a4d;
+    --text-error: #b42318;
+
+    --border-default: var(--color-border); /* rein dekorativ, s. Kap. 3 */
+    --border-input: var(--color-border-strong); /* Formularfelder, Diagrammachsen */
+
+    /* Semantic UI (bestehende Namen, auf neue semantische Tokens umgehaengt) */
+    --color-link: var(--text-link);
     --color-focus: var(--color-ink);
-    --color-success: #18794e;
-    --color-warning: #8a5a00;
-    --color-danger: #a12622;
-    --color-info: #285b8f;
+    --color-success: #057f5b; /* Markengruen-dunkel; Styleguide: "Erfolgreich validiert: Rahmen gruen-dunkel" */
+    --color-warning: #8a5a00; /* im Styleguide nicht als Textfarbe spezifiziert (nur Gelb-Flaeche als Badge-BG); unveraendert beibehalten */
+    --color-danger: var(--text-error);
+    --color-info: var(--color-group-3); /* Petrol — einzige AA-faehige "kuehle" Gruppenfarbe als Text-/Linienfarbe */
 
-    /* Typography */
+    --focus-ring: var(--color-focus);
+    --focus-ring-offset: 2px;
+
+    /* Typography — nur Lato als Basis. Neuland ist ausschliesslich fuer die
+       feste Claim-Zeile "Weil Schule uns alle angeht!" freigegeben, nirgends
+       sonst. Source Serif 4 entfaellt im Web vollstaendig (Markenpaket: nur
+       fuer formelle Offline-Dokumente). */
     --font-family-base:
-        "IBM Plex Sans",
+        "Lato",
+        "IBM Plex Sans", /* Fallback, solange keine Lato-Dateien vorliegen, s. base.css */
+        "Segoe UI",
         system-ui,
         -apple-system,
-        "Segoe UI",
         Arial,
         sans-serif;
 
-    --font-family-accent:
-        "Source Serif 4",
-        Georgia,
-        "Times New Roman",
-        serif;
-
+    --font-family-accent: var(--font-family-base); /* vormals Source Serif 4; Zitate/Beschreibungen laufen jetzt auf Lato, s. base.css */
     --font-family-workshop:
         "Neuland",
-        "Arial Black",
-        sans-serif;
+        "Lato",
+        sans-serif; /* NUR fuer .claim (die feste Claim-Zeile), s. base.css */
 
     --font-weight-light: 300;
     --font-weight-regular: 400;
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
+    --font-weight-black: 900; /* Lato Black — nur Ueberschriften, dosiert einsetzen */
 
     --text-xs: 0.75rem;
     --text-sm: 0.875rem;
@@ -74,10 +114,10 @@
     --text-4xl: clamp(2rem, 3vw, 2.75rem);
 
     --leading-tight: 1.15;
-    --leading-heading: 1.22;
-    --leading-body: 1.55;
+    --leading-heading: 1.2;
+    --leading-body: 1.6; /* WCAG 1.4.8: min. 1.5; Styleguide setzt 1.6 */
 
-    /* Spacing — 4px base rhythm */
+    /* Spacing — 4px-Basisraster (identisch zum Styleguide) */
     --spacing-1: 0.25rem;
     --spacing-2: 0.5rem;
     --spacing-3: 0.75rem;
@@ -115,14 +155,17 @@
     --layout-main-padding-block: clamp(2rem, 4vw, 4rem);
     --layout-section-gap: clamp(2rem, 4vw, 3.5rem);
 
-    /* Shape */
+    /* Shape — ABSOLUT ECKIG. Bewusste Abweichung vom Markenpaket-Prinzip
+       "Alles ist rund" (Kreise/Blasen/Figuren, s. Design-System-Doku Kap. 2
+       und 5). --radius-avatar ist die einzige, rein funktionale Ausnahme
+       fuer Profilbilder, keine Design-Aussage. */
     --radius-default: 0;
     --radius-avatar: 999px;
 
-    /* Elevation */
-    --shadow-sm: 0 2px 8px rgb(15 23 42 / 10%);
-    --shadow-md: 0 8px 24px rgb(15 23 42 / 16%);
-    --shadow-lg: 0 14px 34px rgb(15 23 42 / 22%);
+    /* Elevation (Ink-basierte Schatten statt generischem Schwarz, s. Kap. 4) */
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+    --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.1);
+    --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.16);
 
     /* Layers */
     --z-header: 100;
@@ -132,8 +175,8 @@
     --z-skip-link: 1000;
 
     /* Motion */
-    --transition-fast: 160ms ease;
-    --transition-normal: 240ms ease;
+    --transition-fast: 150ms ease-out;
+    --transition-normal: 200ms ease-out;
 
     /* ------------------------------------------------------------------
      * Compatibility aliases for the initial Laravel design foundation.
@@ -211,5 +254,97 @@
     :root {
         --transition-fast: 0ms;
         --transition-normal: 0ms;
+    }
+}
+
+/*
+ * Dark Mode — laut Styleguide Kap. 2.2 von Anfang an fuer die Webapp
+ * (= dieses Portal) vorgesehen, nicht nur optional. Unterstuetzt ueber
+ * beide Mechanismen: manueller Umschalter (data-theme="dark") und
+ * Systemeinstellung (prefers-color-scheme). Die eigentliche Umschalt-UI
+ * (Toggle-Button, Zustandsspeicherung) ist noch nicht verdrahtet — das ist
+ * ein separater Migrationsschritt, s. Design-System-Doku "Offene Punkte".
+ * Vier Werte sind Herleitungen, da der Styleguide sie nur fuer ein Theme
+ * definiert (text-link-hover, text-accent, text-accent-soft, bg-tiefe) —
+ * im Design-System-Dokument als "noch nicht vom Markenteam bestaetigt"
+ * markiert.
+ */
+:root[data-theme="dark"] {
+    --color-page: #180f18;
+    --color-surface: #261926;
+    --color-surface-subtle: #261926;
+    --color-ink: #f1f4f2;
+    --color-text-muted: #a49ca3;
+    --color-white: #f1f4f2;
+    --color-border: #3d303e;
+    --color-border-strong: #3d303e;
+
+    --bg-page: var(--color-page);
+    --bg-surface: var(--color-surface-subtle);
+    --bg-accent-soft: #381d39;
+    --bg-header-footer: #261926;
+    --bg-brand: #2dc08e;
+
+    --text-default: var(--color-ink);
+    --text-muted: var(--color-text-muted);
+    --text-on-dark: var(--color-ink);
+    --text-on-brand: #0f172a; /* Ink bleibt Ink auf Gruen, auch im Dark Mode */
+    --text-link: #40cd9a;
+    --text-link-hover: #6adfb4; /* Herleitung, nicht bestaetigt */
+    --text-error: #ff8a80;
+
+    --border-default: var(--color-border);
+    --border-input: var(--color-border-strong);
+
+    --color-link: var(--text-link);
+    --color-focus: #ffffff;
+    --color-success: var(--text-link);
+    --color-danger: var(--text-error);
+
+    --focus-ring: var(--color-focus);
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --color-page: #180f18;
+        --color-surface: #261926;
+        --color-surface-subtle: #261926;
+        --color-ink: #f1f4f2;
+        --color-text-muted: #a49ca3;
+        --color-white: #f1f4f2;
+        --color-border: #3d303e;
+        --color-border-strong: #3d303e;
+
+        --bg-page: var(--color-page);
+        --bg-surface: var(--color-surface-subtle);
+        --bg-accent-soft: #381d39;
+        --bg-header-footer: #261926;
+        --bg-brand: #2dc08e;
+
+        --text-default: var(--color-ink);
+        --text-muted: var(--color-text-muted);
+        --text-on-dark: var(--color-ink);
+        --text-on-brand: #0f172a;
+        --text-link: #40cd9a;
+        --text-link-hover: #6adfb4;
+        --text-error: #ff8a80;
+
+        --border-default: var(--color-border);
+        --border-input: var(--color-border-strong);
+
+        --color-link: var(--text-link);
+        --color-focus: #ffffff;
+        --color-success: var(--text-link);
+        --color-danger: var(--text-error);
+
+        --focus-ring: var(--color-focus);
+
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
     }
 }

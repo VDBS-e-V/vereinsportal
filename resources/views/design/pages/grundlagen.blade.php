@@ -9,8 +9,9 @@
             <h1 class="page-title__title">Grundlagen</h1>
             <p class="page-title__lead">
                 White und Ink bilden die ruhige Basis. VDBS Green ist die primäre
-                Markenakzentfarbe; Ocean Mist und weitere Markenfarben werden gezielt
-                für bestimmte Funktionen und Hervorhebungen eingesetzt.
+                Markenakzentfarbe; Lila und die sechs Gruppenfarben werden gezielt
+                für bestimmte Funktionen, Statement-Flächen und Kategorisierung
+                eingesetzt.
             </p>
         </header>
 
@@ -18,22 +19,25 @@
             <h2>Brand-Farbpalette</h2>
             <p class="container--narrow">
                 Diese Farben bilden die vollständige Markenpalette des Portals.
-                White und Ink bilden die ruhige Basis; VDBS Green, Ocean Mist und
-                die weiteren Akzentfarben werden gezielt eingesetzt.
+                White und Ink bilden die ruhige Basis; VDBS Green und Lila sind die
+                Grundfarben, die sechs Gruppenfarben dienen ausschließlich der
+                Kategorisierung (Workshops, Angebotstypen, Filtergruppen) als
+                Flächenfüllung mit Ink-Beschriftung — nur Petrol und Rot sind auch
+                als eigenständige Text-/Linienfarbe AA-fähig.
             </p>
 
             <div class="design-swatches">
                 @foreach ([
-                    ['VDBS Green', '#2FBF71', 'var(--color-primary)'],
-                    ['Ocean Mist', '#22B7A3', 'var(--color-secondary-cta)'],
-                    ['Sekundärakzent', '#582759', 'var(--color-secondary-accent)'],
+                    ['VDBS Green', '#2DC08E', 'var(--color-primary)'],
+                    ['Lila', '#58275A', 'var(--color-secondary-accent)'],
                     ['Ink', '#0F172A', 'var(--color-ink)'],
                     ['White', '#FFFFFF', 'var(--color-white)'],
-                    ['Amber', '#F59E0B', 'var(--color-accent-amber)'],
-                    ['Teal', '#14B8A6', 'var(--color-accent-teal)'],
-                    ['Berry', '#D946EF', 'var(--color-accent-berry)'],
-                    ['Sun Yellow', '#FDE047', 'var(--color-accent-sun-yellow)'],
-                    ['Lime', '#A3E635', 'var(--color-accent-lime)'],
+                    ['Gruppe 1 · Hellblau', '#52BDF2', 'var(--color-group-1)'],
+                    ['Gruppe 2 · Gelb', '#FFCB1F', 'var(--color-group-2)'],
+                    ['Gruppe 3 · Petrol', '#0A7FA0', 'var(--color-group-3)'],
+                    ['Gruppe 4 · Rosa', '#F76CA3', 'var(--color-group-4)'],
+                    ['Gruppe 5 · Rot', '#D93425', 'var(--color-group-5)'],
+                    ['Gruppe 6 · Orange', '#F5912B', 'var(--color-group-6)'],
                 ] as [$name, $hex, $token])
                     <article class="design-swatch">
                         <div
@@ -62,8 +66,8 @@
 
             <div class="design-swatches">
                 @foreach ([
-                    ['Information', '#285B8F', 'var(--color-info)'],
-                    ['Erfolg', '#18794E', 'var(--color-success)'],
+                    ['Information', '#0A7FA0', 'var(--color-info)'],
+                    ['Erfolg', '#057F5B', 'var(--color-success)'],
                     ['Warnung', '#8A5A00', 'var(--color-warning)'],
                     ['Gefahr', '#A12622', 'var(--color-danger)'],
                     ['Deaktivierter Text', '#6F7B76', 'var(--color-text-disabled)'],
@@ -90,19 +94,28 @@
 
             <div class="design-token-list">
                 <div class="design-token-row">
-                    <strong>IBM Plex Sans</strong>
+                    <strong>Lato</strong>
                     <div class="stack stack--sm">
                         <h1>Seitentitel</h1>
                         <h2>Abschnitt</h2>
-                        <p>Fließtext, Formulare und Navigation verwenden die Sans-Serif-Basis.</p>
+                        <p>Fließtext, Formulare und Navigation verwenden ausschließlich Lato (400/700, Black 900 nur für Überschriften, dosiert).</p>
                     </div>
                 </div>
 
                 <div class="design-token-row">
-                    <strong>Source Serif 4</strong>
+                    <strong>Lato kursiv</strong>
                     <p class="editorial-accent">
-                        Besondere Aussagen und kurze redaktionelle Hervorhebungen dürfen
-                        bewusst eine wärmere typografische Stimme erhalten.
+                        Besondere Aussagen und kurze redaktionelle Hervorhebungen laufen
+                        auf Lato kursiv — Source Serif 4 entfällt im Web vollständig.
+                    </p>
+                </div>
+
+                <div class="design-token-row">
+                    <strong>Neuland — nur der Claim</strong>
+                    <p class="claim">Weil Schule uns alle angeht!</p>
+                    <p class="container--narrow">
+                        Neuland ist ausschließlich für diese eine feste Claim-Zeile
+                        freigegeben, nirgends sonst im Web.
                     </p>
                 </div>
             </div>

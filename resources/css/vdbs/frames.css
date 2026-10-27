@@ -116,7 +116,7 @@
     display: flex;
     min-height: 4rem;
     align-items: center;
-    border-inline: 1px dashed var(--color-primary, #2fbf71);
+    border-inline: 1px dashed var(--color-primary, #2dc08e);
     background: var(--color-white, #ffffff);
 }
 
