@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    // Modul: Access-Governance.
     public function up(): void
     {
         Schema::create('role_assignments', function (Blueprint $table): void {
@@ -23,19 +24,12 @@ return new class extends Migration
 
             $table->string('source', 32);
 
-            $table
-                ->string('source_type', 150)
-                ->nullable();
-
-            $table
-                ->unsignedBigInteger('source_id')
-                ->nullable();
+            // Polymorphe Herkunft, z. B. eine bestimmte Mitgliedschaft.
+            $table->string('source_type', 150)->nullable();
+            $table->unsignedBigInteger('source_id')->nullable();
 
             $table->timestamp('starts_at');
-
-            $table
-                ->timestamp('ends_at')
-                ->nullable();
+            $table->timestamp('ends_at')->nullable();
 
             $table
                 ->foreignId('granted_by_user_id')
@@ -47,16 +41,8 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->index([
-                'user_id',
-                'role_id',
-                'ends_at',
-            ]);
-
-            $table->index([
-                'source_type',
-                'source_id',
-            ]);
+            $table->index(['user_id', 'role_id', 'ends_at']);
+            $table->index(['source_type', 'source_id']);
         });
     }
 

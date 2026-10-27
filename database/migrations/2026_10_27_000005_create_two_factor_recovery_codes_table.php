@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    // Modul: Access.
     public function up(): void
     {
         Schema::create(
@@ -19,26 +20,18 @@ return new class extends Migration
                     ->restrictOnDelete();
 
                 /*
-                 * Ausschließlich Hash.
-                 * Der Klartext wird später genau einmal nach
-                 * der Erzeugung an den Benutzer ausgegeben.
+                 * Ausschliesslich Hash. Der Klartext wird nur einmal,
+                 * direkt nach der Erzeugung, an den Benutzer ausgegeben.
                  */
                 $table->string('code_hash', 255);
 
-                /*
-                 * Recovery Code erfolgreich eingesetzt.
-                 */
-                $table
-                    ->timestamp('used_at')
-                    ->nullable();
+                $table->timestamp('used_at')->nullable();
 
                 /*
-                 * Bei Regeneration werden noch ungenutzte alte
-                 * Codes invalidiert statt wiederverwendet.
+                 * Bei Regeneration werden noch ungenutzte alte Codes
+                 * invalidiert statt wiederverwendet.
                  */
-                $table
-                    ->timestamp('invalidated_at')
-                    ->nullable();
+                $table->timestamp('invalidated_at')->nullable();
 
                 $table->timestamps();
 
@@ -53,8 +46,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists(
-            'two_factor_recovery_codes'
-        );
+        Schema::dropIfExists('two_factor_recovery_codes');
     }
 };
