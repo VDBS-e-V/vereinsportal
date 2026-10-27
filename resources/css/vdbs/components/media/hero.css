@@ -14,24 +14,8 @@
 /* Bild */
 .vdbs-hero__media { margin: 0; }
 
-.vdbs-hero__image {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.vdbs-hero__credit {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    max-width: 100%;
-    padding: var(--space-1) var(--space-3);
-    background: rgb(15 23 42 / 70%);
-    color: var(--color-weiss);
-    font-size: var(--font-size-caption);
-    line-height: var(--line-height-tight);
-}
+.vdbs-hero__image { display: block; width: 100%; height: 100%; }
+.vdbs-hero__image .vdbs-image__img { width: 100%; height: 100%; object-fit: cover; }
 
 /* Inhalt */
 .vdbs-hero__content { position: relative; }
@@ -202,7 +186,6 @@
     background: linear-gradient(to top, rgb(15 23 42 / 85%) 0%, rgb(15 23 42 / 35%) 55%, rgb(15 23 42 / 0%) 100%);
 }
 
-.vdbs-hero--overlay .vdbs-hero__credit { top: 0; right: 0; bottom: auto; }
 
 .vdbs-hero--overlay .vdbs-hero__content {
     z-index: 1;
@@ -263,7 +246,6 @@
 .vdbs-hero--banner .vdbs-hero__image { position: absolute; inset: 0; }
 .vdbs-hero--banner .vdbs-hero__media::after { content: ""; position: absolute; inset: 0; background: rgb(15 23 42 / 45%); }
 
-.vdbs-hero--banner .vdbs-hero__credit { background: none; color: var(--color-weiss); opacity: 0.85; }
 
 .vdbs-hero--banner .vdbs-hero__content {
     z-index: 1;
@@ -305,8 +287,6 @@
 .vdbs-hero--feature .vdbs-hero__title { font-size: var(--font-size-h3); }
 .vdbs-hero--feature .vdbs-hero__lead { font-size: var(--font-size-small); flex: 1; }
 .vdbs-hero--feature .vdbs-hero__actions { margin-top: auto; }
-
-.vdbs-hero--feature .vdbs-hero__credit { right: auto; left: 0; }
 
 .vdbs-hero--feature .vdbs-hero__content :focus-visible { outline-color: var(--color-weiss); }
 

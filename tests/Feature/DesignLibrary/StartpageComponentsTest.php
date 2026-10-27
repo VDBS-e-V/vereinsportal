@@ -56,7 +56,7 @@ it('renders chips, figure, link buttons and back to top', function () {
     expect($html)
         ->toContain('aria-label="Bereiche"')
         ->toContain('vdbs-chip__label')
-        ->toContain('vdbs-figure__credit')
+        ->toContain('vdbs-image-credit--below')
         ->toContain('vdbs-btn--shape-line')
         ->toContain('rel="noopener noreferrer"')
         ->toContain('öffnet in neuem Tab')

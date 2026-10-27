@@ -3,14 +3,11 @@
 {{-- Bildkachel im Hero (Variante panel, Slot "aside"): Bild, Titel und ein Link über die ganze Kachel. --}}
 <article {{ $attributes->class('vdbs-hero-tile') }}>
     @if ($image)
-        <img class="vdbs-hero-tile__image" src="{{ $image }}" alt="{{ $imageAlt }}">
+        <x-vdbs.media.image class="vdbs-hero-tile__image" :src="$image" :alt="$imageAlt" :credit="$credit" credit-placement="edge" />
     @endif
 
     <h2 class="vdbs-hero-tile__title">
         <a class="vdbs-hero-tile__link" href="{{ $href }}">{{ $title }}</a>
     </h2>
 
-    @if ($credit)
-        <p class="vdbs-hero-tile__credit">{{ $credit }}</p>
-    @endif
 </article>

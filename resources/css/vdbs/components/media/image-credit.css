@@ -1,0 +1,48 @@
+/* Bildquelle (Paket media): below = Zeile unter dem Bild, edge = senkrechtes Etikett am rechten Bildrand */
+
+.vdbs-image-credit { font-size: var(--font-size-caption); line-height: var(--line-height-tight); }
+
+.vdbs-image-credit a { color: inherit; }
+
+/* below: "Bildquelle: Name" in gedämpfter Schrift */
+.vdbs-image-credit--below { display: block; padding-top: var(--space-2); color: var(--text-muted); }
+
+/* edge: schmales dunkles Etikett, Schrift von unten nach oben, klebt am oberen Ende des rechten Randes */
+.vdbs-image-credit--edge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+    max-height: 100%;
+    padding: var(--space-2) var(--space-1);
+    background: rgb(15 23 42 / 70%);
+    color: var(--color-weiss);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    transform-origin: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vdbs-image-credit--edge a { text-decoration: none; }
+.vdbs-image-credit--edge a:hover { text-decoration: underline; }
+
+/* Auf kleinen Bildschirmen: waagerechter Streifen unten statt senkrechtem Etikett */
+@media (max-width: 639px) {
+    .vdbs-image-credit--edge {
+        top: auto;
+        right: 0;
+        bottom: 0;
+        left: auto;
+        max-height: none;
+        max-width: 100%;
+        padding: var(--space-1) var(--space-2);
+        writing-mode: horizontal-tb;
+        transform: none;
+    }
+}
+
+/* Fehlende Quelle (nur in Produktion sichtbar, sonst gibt es vorher eine Exception) */
+.vdbs-image-credit--missing { color: var(--text-error); font-weight: var(--font-weight-bold); }
+.vdbs-image-credit--edge.vdbs-image-credit--missing { background: var(--bg-page); }

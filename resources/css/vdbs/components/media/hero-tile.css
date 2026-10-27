@@ -8,14 +8,10 @@
     color: var(--color-weiss);
 }
 
-.vdbs-hero-tile__image {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform var(--transition-base);
-}
+/* Das Bild füllt die Kachel; die Quelle (edge) liegt über dem Verlauf */
+.vdbs-hero-tile__image { position: absolute; inset: 0; width: 100%; height: 100%; transition: transform var(--transition-base); }
+.vdbs-hero-tile__image .vdbs-image__img { width: 100%; height: 100%; object-fit: cover; }
+.vdbs-hero-tile .vdbs-image-credit { z-index: 2; }
 
 .vdbs-hero-tile::before {
     content: "";
@@ -46,13 +42,3 @@
 
 .vdbs-hero-tile:focus-within { outline: 3px solid var(--focus-ring); outline-offset: -3px; }
 
-.vdbs-hero-tile__credit {
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 2;
-    margin: 0;
-    padding: 0 var(--space-2);
-    background: rgb(15 23 42 / 70%);
-    font-size: var(--font-size-caption);
-}

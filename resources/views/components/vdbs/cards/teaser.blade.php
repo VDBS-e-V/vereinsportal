@@ -20,12 +20,9 @@
 
 <article {{ $attributes->class('vdbs-teaser') }}>
     @if ($image)
-        <figure class="vdbs-teaser__media">
-            <img class="vdbs-teaser__image" src="{{ $image }}" alt="{{ $imageAlt }}">
-            @if ($credit)
-                <figcaption class="vdbs-teaser__credit">{{ $credit }}</figcaption>
-            @endif
-        </figure>
+        <div class="vdbs-teaser__media">
+            <x-vdbs.media.image class="vdbs-teaser__image" :src="$image" :alt="$imageAlt" :credit="$credit" ratio="3-2" credit-placement="edge" />
+        </div>
     @endif
 
     <div class="vdbs-teaser__body">

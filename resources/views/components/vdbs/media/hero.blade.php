@@ -45,7 +45,8 @@
       aside    Bildkacheln (<x-vdbs.media.hero-tile>), nur variant panel
       footer   Streifen unter dem Hero, z. B. <x-vdbs.cards.quick-links>
 
-    $imageAlt = '' markiert das Bild als dekorativ.
+    $imageAlt = '' markiert das Bild als dekorativ. Die Bildquelle kommt aus dem Manifest (sources.json) oder
+    per credit="…" und erscheint als senkrechtes Etikett am Bildrand.
 --}}
 
 @php
@@ -66,12 +67,9 @@
 
     <div class="vdbs-hero__stage">
         @if ($image)
-            <figure class="vdbs-hero__media">
-                <img class="vdbs-hero__image" src="{{ $image }}" alt="{{ $imageAlt }}">
-                @if ($credit)
-                    <figcaption class="vdbs-hero__credit">{{ $credit }}</figcaption>
-                @endif
-            </figure>
+            <div class="vdbs-hero__media">
+                <x-vdbs.media.image class="vdbs-hero__image" :src="$image" :alt="$imageAlt" :credit="$credit" credit-placement="edge" loading="eager" />
+            </div>
         @endif
 
         <div @class(['vdbs-hero__content', 'vdbs-on-dark' => in_array($variant, ['overlay', 'banner', 'feature'], true), 'vdbs-on-brand' => $variant === 'panel'])>

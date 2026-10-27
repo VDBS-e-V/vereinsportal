@@ -15,7 +15,7 @@
 <x-vdbs.layout.split title="Zugang zum Portal">
     <p>Text neben dem Bild.</p>
     <x-slot:actions><x-vdbs.actions.button>Zum Portal</x-vdbs.actions.button></x-slot:actions>
-    <x-slot:media><x-vdbs.media.figure :src="placeholder('split')" alt="" credit="Bild: Platzhalter" /></x-slot:media>
+    <x-slot:media><x-vdbs.media.figure :src="placeholder('split')" alt="" /></x-slot:media>
 </x-vdbs.layout.split>
 
 <h2>Split umgekehrt</h2>

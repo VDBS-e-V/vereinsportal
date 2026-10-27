@@ -7,7 +7,6 @@
     lead="Die zentrale Anlaufstelle für alle Informationen und Dienstleistungen rund um den VDBS."
     :image="placeholder('hero', 1)"
     image-alt=""
-    credit="Bild: Platzhalter"
     align="center"
 />
 
@@ -17,7 +16,6 @@
     title="Statement des Vorstands"
     :image="placeholder('hero', 2)"
     image-alt="Platzhalterbild mit Kreis und Linien"
-    credit="Bild: Platzhalter"
     caption="Statement des Vorstands zur aktuellen Lage"
     caption-href="#"
     caption-label="Statement lesen"
@@ -29,7 +27,7 @@
         <x-vdbs.forms.input name="hero_search" label="Suchbegriff" type="search" />
     </x-slot:search>
     <x-slot:aside>
-        <x-vdbs.media.hero-tile title="Teamende" href="#" :image="placeholder('tile', 1)" credit="Bild: Platzhalter" />
+        <x-vdbs.media.hero-tile title="Teamende" href="#" :image="placeholder('tile', 1)" />
         <x-vdbs.media.hero-tile title="Schulen" href="#" :image="placeholder('tile', 2)" />
         <x-vdbs.media.hero-tile title="Mitglieder" href="#" :image="placeholder('tile', 3)" />
         <x-vdbs.media.hero-tile title="Hilfe" href="#" :image="placeholder('tile', 4)" />
@@ -37,7 +35,7 @@
 </x-vdbs.media.hero>
 
 <h2>Variante „overlay“</h2>
-<x-vdbs.media.hero variant="overlay" title="Wir gestalten Bildung mit" lead="Der VDBS e. V. verbindet Schulen, Bibliotheken und Teamende." :image="placeholder('hero', 3)" image-alt="" credit="Platzhalterbild">
+<x-vdbs.media.hero variant="overlay" title="Wir gestalten Bildung mit" lead="Der VDBS e. V. verbindet Schulen, Bibliotheken und Teamende." :image="placeholder('hero', 3)" image-alt="">
     <x-slot:actions><x-vdbs.actions.link-button href="#">Mehr erfahren</x-vdbs.actions.link-button></x-slot:actions>
 </x-vdbs.media.hero>
 
@@ -52,7 +50,7 @@
 </x-vdbs.media.hero>
 
 <h2>Variante „banner“</h2>
-<x-vdbs.media.hero variant="banner" title="Politik und Verwaltung für Berlin" :image="placeholder('hero', 4)" image-alt="" credit="© Platzhalterbild" />
+<x-vdbs.media.hero variant="banner" title="Politik und Verwaltung für Berlin" :image="placeholder('hero', 4)" image-alt="" />
 
 <h2>Variante „feature“</h2>
 <x-vdbs.media.hero
@@ -63,7 +61,6 @@
     lead="Mit unserer Strategie wollen wir erreichen, dass jedes Kind besser lesen, schreiben und rechnen kann."
     :image="placeholder('split', 3)"
     image-alt=""
-    credit="© Platzhalterbild"
 >
     <x-slot:actions><x-vdbs.actions.link-button href="#">Weitere Informationen</x-vdbs.actions.link-button></x-slot:actions>
     <x-slot:footer>

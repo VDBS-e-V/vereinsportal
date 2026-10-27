@@ -8,7 +8,6 @@
     lead="Die zentrale Anlaufstelle für alle Informationen und Dienstleistungen rund um den VDBS."
     :image="placeholder('hero', 1)"
     image-alt=""
-    credit="Platzhalterbild"
 >
     <x-slot:actions>
         <x-vdbs.actions.link-button href="#">Zugang zum Portal</x-vdbs.actions.link-button>

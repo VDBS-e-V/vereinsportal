@@ -13,7 +13,7 @@ it('renders the image hero with title, credit and decorative image', function ()
 });
 
 it('renders the caption variant with an accessible link', function () {
-    $html = Blade::render('<x-vdbs.media.hero variant="caption" title="T" image="/x.svg" image-alt="Alt" caption="Unterzeile" caption-href="/mehr" />');
+    $html = Blade::render('<x-vdbs.media.hero variant="caption" title="T" image="/x.svg" credit="Test" image-alt="Alt" caption="Unterzeile" caption-href="/mehr" />');
 
     expect($html)
         ->toContain('vdbs-hero--caption')
@@ -44,7 +44,7 @@ it('falls back to the image variant for unknown variants', function () {
 
 it('renders the overlay, split and compact variants with size and bleed', function () {
     foreach (['overlay', 'split', 'compact'] as $variant) {
-        $html = Blade::render('<x-vdbs.media.hero variant="'.$variant.'" size="l" :bleed="true" title="T" image="/x.svg" />');
+        $html = Blade::render('<x-vdbs.media.hero variant="'.$variant.'" size="l" :bleed="true" title="T" image="/x.svg" credit="Test" />');
 
         expect($html)
             ->toContain("vdbs-hero--{$variant}")
@@ -64,7 +64,7 @@ it('renders the banner variant with the title as heading', function () {
 });
 
 it('renders the feature variant with a heading above and a nested title', function () {
-    $html = Blade::render('<x-vdbs.media.hero variant="feature" :level="2" heading="Bildung" title="Gemeinsam" image="/x.svg"><x-slot:footer>Karten</x-slot:footer></x-vdbs.media.hero>');
+    $html = Blade::render('<x-vdbs.media.hero variant="feature" :level="2" heading="Bildung" title="Gemeinsam" image="/x.svg" credit="Test"><x-slot:footer>Karten</x-slot:footer></x-vdbs.media.hero>');
 
     expect($html)
         ->toContain('<h2 class="vdbs-hero__heading"')
