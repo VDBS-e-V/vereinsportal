@@ -236,6 +236,17 @@
             </nav>
 
             <div class="header-account vdbs-portal-account">
+                <button
+                    class="theme-toggle vdbs-theme-toggle"
+                    type="button"
+                    data-vdbs-theme-toggle
+                    aria-pressed="false"
+                    aria-label="Dunkles Farbschema umschalten"
+                >
+                    <x-vdbs.icon name="moon" class="theme-toggle__icon-dark" aria-hidden="true" />
+                    <x-vdbs.icon name="sun" class="theme-toggle__icon-light" aria-hidden="true" />
+                </button>
+
                 @if ($account !== null)
                     <div class="account-menu vdbs-account-menu" data-vdbs-account-menu>
                         <button

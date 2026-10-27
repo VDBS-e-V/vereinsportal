@@ -43,6 +43,26 @@
         </section>
 
         <section class="section stack">
+            <h2>Gruppenmarken</h2>
+            <p>
+                Gruppenmarken kategorisieren Workshops, Angebotstypen oder
+                Filtergruppen (bis zu 6 Gruppen). Das Markenpaket unterscheidet die
+                Gruppen durch Form, Farbe und Zahl — in diesem eckigen Designsystem
+                bleibt jede Marke ein Quadrat; die Zahl ist deshalb der primäre,
+                farbunabhängige Unterscheidungs-Kanal und nie nur dekorativ.
+            </p>
+
+            <div class="design-example group-mark-row">
+                <x-vdbs.group-mark number="1" label="Hellblau" />
+                <x-vdbs.group-mark number="2" label="Gelb" />
+                <x-vdbs.group-mark number="3" label="Petrol" />
+                <x-vdbs.group-mark number="4" label="Rosa" />
+                <x-vdbs.group-mark number="5" label="Rot" />
+                <x-vdbs.group-mark number="6" label="Orange" />
+            </div>
+        </section>
+
+        <section class="section stack">
             <h2>Metadaten</h2>
             <p>
                 Schlüssel-Wert-Daten bleiben semantische Definitionslisten.

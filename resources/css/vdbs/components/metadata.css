@@ -21,12 +21,8 @@
 
 .badge--accent,
 .vdbs-badge--accent {
-    border-color: var(--color-secondary-cta);
-    background: color-mix(
-        in srgb,
-        var(--color-secondary-cta) 10%,
-        var(--color-white)
-    );
+    border-color: var(--color-highlight);
+    background: color-mix(in srgb, var(--color-highlight) 10%, var(--color-white));
 }
 
 .status,
@@ -117,4 +113,65 @@
         grid-template-columns: minmax(0, 1fr);
         gap: var(--spacing-1);
     }
+}
+
+/*
+ * Gruppenmarke — eckige Umsetzung der Markenpaket-Gruppen-Marken (Kap. 9.2).
+ * Das Original unterscheidet 6 Kategorien durch Form + Farbe + Zahl
+ * (Kreis/Raute/Quadrat/Stern/Dreieck/Sechseck). Da dieses Portal bewusst
+ * eckig bleibt, entfaellt die Formunterscheidung — stattdessen ist JEDE
+ * Gruppenmarke ein Quadrat, und die Zahl (1–6) bleibt der primaere,
+ * farbunabhaengige Unterscheidungs-Kanal (funktioniert ohne Farbsehen).
+ * Zahl ist daher Pflicht, nie nur Farbe allein — s. aria-label am <span>.
+ */
+.group-mark,
+.vdbs-group-mark {
+    display: inline-flex;
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+    color: var(--color-ink);
+    font-size: var(--text-sm);
+    font-weight: 900;
+    line-height: 1;
+}
+
+.group-mark--1,
+.vdbs-group-mark--1 {
+    background: var(--color-group-1);
+}
+
+.group-mark--2,
+.vdbs-group-mark--2 {
+    background: var(--color-group-2);
+}
+
+.group-mark--3,
+.vdbs-group-mark--3 {
+    background: var(--color-group-3);
+}
+
+.group-mark--4,
+.vdbs-group-mark--4 {
+    background: var(--color-group-4);
+}
+
+.group-mark--5,
+.vdbs-group-mark--5 {
+    background: var(--color-group-5);
+}
+
+.group-mark--6,
+.vdbs-group-mark--6 {
+    background: var(--color-group-6);
+}
+
+.group-mark-row,
+.vdbs-group-mark-row {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
 }

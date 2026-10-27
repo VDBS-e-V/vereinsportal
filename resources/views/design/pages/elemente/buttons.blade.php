@@ -25,7 +25,7 @@
                 <div class="button-group">
                     <button class="btn" type="button">Primäre Aktion</button>
                     <button class="btn btn--secondary" type="button">Sekundäre Aktion</button>
-                    <button class="btn btn--accent" type="button">Unterstützende Aktion</button>
+                    <button class="btn btn--statement" type="button">Hervorgehobene Zweit-Aktion</button>
                     <a class="btn btn--quiet" href="#">Textaktion</a>
                     <button class="btn btn--danger" type="button">Löschen</button>
                 </div>

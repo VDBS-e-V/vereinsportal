@@ -476,6 +476,69 @@
     position: relative;
 }
 
+/*
+ * Theme-Toggle — manueller Hell/Dunkel-Umschalter fuer die Webapp (laut
+ * Styleguide Kap. 2.2 von Anfang an vorgesehen). JS in
+ * resources/js/portal-theme-toggle.js setzt data-theme auf <html> und
+ * speichert die Wahl; ohne JS bleibt der Button inaktiv, aber sichtbar
+ * (prefers-color-scheme greift dann trotzdem automatisch).
+ */
+.theme-toggle,
+.vdbs-theme-toggle {
+    display: inline-flex;
+    width: 2.75rem;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border: var(--border-width-default) solid transparent;
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-on-dark);
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+.theme-toggle:hover,
+.vdbs-theme-toggle:hover {
+    border-color: var(--text-on-dark);
+}
+
+.theme-toggle:focus-visible,
+.vdbs-theme-toggle:focus-visible {
+    outline: 2px solid var(--text-on-dark);
+    outline-offset: 2px;
+}
+
+.theme-toggle__icon-light,
+.theme-toggle__icon-dark {
+    display: none;
+}
+
+/* Hell (Standard): Mond zeigen ("zu Dunkel wechseln"). */
+.theme-toggle__icon-dark {
+    display: block;
+}
+
+/* Dunkel: Sonne zeigen ("zu Hell wechseln"). */
+:root[data-theme="dark"] .theme-toggle__icon-dark {
+    display: none;
+}
+
+:root[data-theme="dark"] .theme-toggle__icon-light {
+    display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .theme-toggle__icon-dark {
+        display: none;
+    }
+
+    :root:not([data-theme="light"]) .theme-toggle__icon-light {
+        display: block;
+    }
+}
+
 .account-trigger,
 .vdbs-account-trigger,
 .avatar,

@@ -1,52 +1,65 @@
 /*
  * VDBS Portal — Design Tokens
  *
- * Werte aus dem VDBS-Web-Styleguide (Markenpaket v7.2 / Farbsystem v6.0)
- * uebernommen. Formensprache bleibt bewusst eckig (radius 0) — das ist eine
- * dokumentierte Abweichung vom Markenpaket-Prinzip "Alles ist rund", siehe
- * das Design-System-Dokument "VDBS Vereinsportal". Variablennamen bleiben
- * identisch zur Vorgaengerversion, damit bestehende Komponenten-CSS-Dateien
- * unveraendert funktionieren; nur Werte wurden ersetzt.
+ * Werte und Struktur folgen ausschliesslich dem VDBS-Web-Styleguide
+ * (Markenpaket v7.2 / Farbsystem v6.0). Dies ist ein bewusster Neuaufbau,
+ * kein Alias-Kompromiss mit der Vorgaengerversion: Tokens, die im
+ * Styleguide nicht vorkommen und im Code nirgends mehr referenziert wurden
+ * (die fuenf alten Akzentfarben, der gesamte --vdbs-*-Alias-Block), wurden
+ * entfernt statt nur dokumentiert. Tokens, die weiterhin gebraucht werden,
+ * aber im Styleguide nicht vorkommen (--color-surface-strong,
+ * --color-text-disabled, --color-surface-disabled), sind als projekteigene
+ * Ergaenzung gekennzeichnet.
  *
- * Canonical token names follow the former VDBS Portal structure. The
- * --vdbs-* aliases remain available so already created Blade examples keep
- * working while new components can use the shorter portal-style tokens.
+ * Formensprache bleibt bewusst eckig (radius 0) — das ist eine
+ * dokumentierte Abweichung vom Markenpaket-Prinzip "Alles ist rund", siehe
+ * das Design-System-Dokument "VDBS Vereinsportal".
  */
 
 :root {
     /* Brand */
     --color-ink: #0f172a;
     --color-white: #ffffff;
-    --color-primary: #2dc08e; /* Markengruen, vormals #2fbf71 */
-    --color-secondary-cta: #58275a; /* Lila ersetzt das bisherige Ocean-Mist-Teal; im Styleguide gibt es keine dritte Button-Füllfarbe — Judgment Call, s. Design-System-Doku "Offene Punkte" */
-    --color-secondary-accent: #58275a; /* Markenlila, vormals #582759 */
-    --color-accent-amber: #f59e0b; /* nicht Teil des Styleguides; nur als Legacy-Kompatibilitaet beibehalten, s. --color-group-* fuer Kategorien */
-    --color-accent-teal: #14b8a6; /* dito */
-    --color-accent-berry: #d946ef; /* dito */
-    --color-accent-sun-yellow: #fde047; /* dito */
-    --color-accent-lime: #a3e635; /* dito */
+    --color-primary: #2dc08e; /* Markengruen */
+    --color-secondary-accent: #58275a; /* Markenlila */
 
-    /* Gruppenfarben — NUR fuer Kategorien/Diagramme, in dieser Reihenfolge.
+    /* Lila ist laut Styleguide Kap. 4.1 NUR fuer Header/Footer und max. 1–2
+       Statement-/CTA-Flaechen pro Seite — bewusst selten, nie fuer
+       wiederkehrende UI-Elemente. --color-statement ist dieser eine,
+       seltene Anwendungsfall (z. B. eine hervorgehobene Zweit-Aktion). */
+    --color-statement: var(--color-secondary-accent);
+
+    /* Fuer wiederkehrende Akzente (Badges, Hinweis-Randlinien, die beliebig
+       oft pro Seite vorkommen koennen) ist Lila ungeeignet. Petrol ist die
+       einzige "kuehle" Gruppenfarbe, die laut Kap. 3 als eigenstaendige
+       Text-/Linienfarbe auf Weiss AA-faehig ist (4,61:1) — deshalb die
+       bewusste Wahl fuer diesen Zweck statt einer frei erfundenen Farbe.
+       Ersetzt die alte --color-secondary-cta (Ocean-Mist-Teal), die im
+       Styleguide keine Entsprechung hatte. */
+    --color-highlight: var(--color-group-3);
+
+    /* Gruppenfarben — NUR fuer Kategorien/Diagramme/Gruppenmarken (s.
+       components/metadata.css .group-mark), in dieser Reihenfolge.
        Von diesen sind nur group-3 (Petrol) und group-5 (Rot) als eigenstaendige
        Text-/Linienfarbe auf Weiss AA-faehig; die uebrigen vier ausschliesslich
        als Flaechenfuellung mit --color-ink. */
-    --color-group-1: #52bdf2; /* Hellblau — Kreis */
-    --color-group-2: #ffcb1f; /* Gelb — Raute (eckig umgesetzt als Quadrat) */
+    --color-group-1: #52bdf2; /* Hellblau — Kreis im Markenpaket, hier eckig als Quadrat */
+    --color-group-2: #ffcb1f; /* Gelb — Raute im Markenpaket, hier eckig als Quadrat */
     --color-group-3: #0a7fa0; /* Petrol — Quadrat */
-    --color-group-4: #f76ca3; /* Rosa — Stern (eckig umgesetzt als Quadrat) */
-    --color-group-5: #d93425; /* Rot — Dreieck (eckig umgesetzt als Quadrat) */
-    --color-group-6: #f5912b; /* Orange — Sechseck (eckig umgesetzt als Quadrat) */
+    --color-group-4: #f76ca3; /* Rosa — Stern im Markenpaket, hier eckig als Quadrat */
+    --color-group-5: #d93425; /* Rot — Dreieck im Markenpaket, hier eckig als Quadrat */
+    --color-group-6: #f5912b; /* Orange — Sechseck im Markenpaket, hier eckig als Quadrat */
 
     /* Neutral UI */
     --color-page: #ffffff;
     --color-surface: #ffffff;
     --color-surface-subtle: #f5f7f6;
-    --color-surface-strong: #edf1ef; /* im Styleguide nicht separat definiert, unveraendert beibehalten */
+    --color-surface-strong: #edf1ef; /* projekteigene Ergaenzung, im Styleguide nicht definiert; weiterhin benoetigt (loading.css, media.css) */
     --color-border: #d4dbd8;
-    --color-border-strong: #8d9a95; /* Styleguide: #7f8d88 (Grau-Rahmen) — Abweichung ca. 1% Helligkeit, unveraendert gelassen, da bereits AA-konform fuer UI-Kontraste */
+    --color-border-strong: #7f8d88; /* = Styleguide Grau-Rahmen, exakter Wert */
     --color-text-muted: #52605b;
-    --color-text-disabled: #6f7b76; /* im Styleguide nicht separat definiert, unveraendert beibehalten */
-    --color-surface-disabled: #eef1f0; /* im Styleguide nicht separat definiert, unveraendert beibehalten */
+    --color-text-disabled: #6f7b76; /* projekteigene Ergaenzung, im Styleguide nicht definiert; weiterhin benoetigt (forms.css, navigation.css, buttons.css) */
+    --color-surface-disabled: #eef1f0; /* projekteigene Ergaenzung, im Styleguide nicht definiert; weiterhin benoetigt (forms.css, navigation.css, buttons.css) */
 
     /* Semantische Tokens — DIESE im Code verwenden (unveraenderte semantische
        Namen aus dem Styleguide, s. Kap. 2.1) */
@@ -90,11 +103,15 @@
         Arial,
         sans-serif;
 
-    --font-family-accent: var(--font-family-base); /* vormals Source Serif 4; Zitate/Beschreibungen laufen jetzt auf Lato, s. base.css */
-    --font-family-workshop:
+    --font-family-accent: var(--font-family-base); /* Zitate/Beschreibungen laufen auf Lato, s. base.css */
+
+    /* Nur fuer .claim (die feste Claim-Zeile "Weil Schule uns alle angeht!"),
+       s. base.css — bewusst NICHT mehr "--font-family-workshop" genannt, da
+       Workshop-Labels jetzt Lato Black verwenden, nicht Neuland. */
+    --font-family-claim:
         "Neuland",
         "Lato",
-        sans-serif; /* NUR fuer .claim (die feste Claim-Zeile), s. base.css */
+        sans-serif;
 
     --font-weight-light: 300;
     --font-weight-regular: 400;
@@ -177,76 +194,6 @@
     --transition-fast: 150ms ease-out;
     --transition-normal: 200ms ease-out;
 
-    /* ------------------------------------------------------------------
-     * Compatibility aliases for the initial Laravel design foundation.
-     * New code may use the canonical names above; old examples do not need
-     * to be rewritten all at once.
-     * ------------------------------------------------------------------ */
-    --vdbs-color-green: var(--color-primary);
-    --vdbs-color-ocean: var(--color-secondary-cta);
-    --vdbs-color-ink: var(--color-ink);
-    --vdbs-color-amber: var(--color-accent-amber);
-    --vdbs-color-teal: var(--color-accent-teal);
-    --vdbs-color-berry: var(--color-accent-berry);
-    --vdbs-color-white: var(--color-white);
-    --vdbs-color-page: var(--color-page);
-    --vdbs-color-surface: var(--color-surface);
-    --vdbs-color-surface-subtle: var(--color-surface-subtle);
-    --vdbs-color-border: var(--color-border);
-    --vdbs-color-border-strong: var(--color-border-strong);
-    --vdbs-color-muted-text: var(--color-text-muted);
-    --vdbs-color-text: var(--color-ink);
-    --vdbs-color-link: var(--color-link);
-    --vdbs-color-action: var(--color-secondary-cta);
-    --vdbs-color-focus: var(--color-focus);
-    --vdbs-color-success: var(--color-success);
-    --vdbs-color-warning: var(--color-warning);
-    --vdbs-color-danger: var(--color-danger);
-
-    --vdbs-font-sans: var(--font-family-base);
-    --vdbs-font-serif: var(--font-family-accent);
-    --vdbs-font-workshop: var(--font-family-workshop);
-
-    --vdbs-text-xs: var(--text-xs);
-    --vdbs-text-sm: var(--text-sm);
-    --vdbs-text-base: var(--text-base);
-    --vdbs-text-lg: var(--text-lg);
-    --vdbs-text-xl: var(--text-xl);
-    --vdbs-text-2xl: var(--text-2xl);
-    --vdbs-text-3xl: var(--text-3xl);
-    --vdbs-text-4xl: var(--text-4xl);
-
-    --vdbs-leading-tight: var(--leading-tight);
-    --vdbs-leading-heading: var(--leading-heading);
-    --vdbs-leading-body: var(--leading-body);
-
-    --vdbs-space-1: var(--spacing-1);
-    --vdbs-space-2: var(--spacing-2);
-    --vdbs-space-3: var(--spacing-3);
-    --vdbs-space-4: var(--spacing-4);
-    --vdbs-space-5: var(--spacing-5);
-    --vdbs-space-6: var(--spacing-6);
-    --vdbs-space-7: var(--spacing-7);
-    --vdbs-space-8: var(--spacing-8);
-    --vdbs-space-9: var(--spacing-9);
-    --vdbs-space-10: var(--spacing-10);
-
-    --vdbs-radius-sm: var(--radius-default);
-    --vdbs-radius-md: var(--radius-default);
-    --vdbs-radius-lg: var(--radius-default);
-    --vdbs-radius-pill: var(--radius-avatar);
-
-    --vdbs-content-max: var(--layout-content-max);
-    --vdbs-content-wide-max: var(--layout-content-wide-max);
-    --vdbs-text-max: var(--layout-text-max);
-    --vdbs-form-max: var(--layout-form-max);
-    --vdbs-page-gutter: var(--layout-page-gutter);
-
-    --vdbs-shadow-sm: var(--shadow-sm);
-    --vdbs-shadow-md: var(--shadow-md);
-    --vdbs-shadow-lg: var(--shadow-lg);
-    --vdbs-transition-fast: var(--transition-fast);
-    --vdbs-transition-normal: var(--transition-normal);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -260,13 +207,15 @@
  * Dark Mode — laut Styleguide Kap. 2.2 von Anfang an fuer die Webapp
  * (= dieses Portal) vorgesehen, nicht nur optional. Unterstuetzt ueber
  * beide Mechanismen: manueller Umschalter (data-theme="dark") und
- * Systemeinstellung (prefers-color-scheme). Die eigentliche Umschalt-UI
- * (Toggle-Button, Zustandsspeicherung) ist noch nicht verdrahtet — das ist
- * ein separater Migrationsschritt, s. Design-System-Doku "Offene Punkte".
- * Vier Werte sind Herleitungen, da der Styleguide sie nur fuer ein Theme
- * definiert (text-link-hover, text-accent, text-accent-soft, bg-tiefe) —
- * im Design-System-Dokument als "noch nicht vom Markenteam bestaetigt"
- * markiert.
+ * Systemeinstellung (prefers-color-scheme), s. portal-theme-toggle.js fuer
+ * die Umschalt-UI und Zustandsspeicherung.
+ *
+ * --text-link-hover ist im Styleguide nur fuer Hell definiert; der Dark-Wert
+ * ist eine Herleitung (heller statt dunkler, wie im Dark Mode ueblich) und
+ * hiermit als Projektentscheidung festgesetzt. --text-accent, --text-accent-soft
+ * und --bg-tiefe aus dem Styleguide wurden NICHT uebernommen, da sie aktuell
+ * von keiner Komponente benoetigt werden (keine Tokens auf Vorrat, s.
+ * docs/22_DESIGN_SYSTEM_V1_FREEZE.md) — bei Bedarf spaeter ergaenzen.
  */
 :root[data-theme="dark"] {
     --color-page: #180f18;
@@ -289,7 +238,7 @@
     --text-on-dark: var(--color-ink);
     --text-on-brand: #0f172a; /* Ink bleibt Ink auf Gruen, auch im Dark Mode */
     --text-link: #40cd9a;
-    --text-link-hover: #6adfb4; /* Herleitung, nicht bestaetigt */
+    --text-link-hover: #6adfb4; /* Herleitung, festgesetzt s. Kommentar oben */
     --text-error: #ff8a80;
 
     --border-default: var(--color-border);

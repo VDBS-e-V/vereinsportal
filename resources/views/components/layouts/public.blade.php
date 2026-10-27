@@ -5,6 +5,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    {{-- Verhindert Flackern: setzt data-theme VOR dem ersten Render, falls
+         eine manuelle Wahl gespeichert ist (s. portal-theme-toggle.js).
+         Ohne gespeicherte Wahl bleibt es bei prefers-color-scheme (reines
+         CSS, kein Script noetig). --}}
+    <script>
+        try {
+            var vdbsTheme = window.localStorage.getItem('vdbs-theme');
+
+            if (vdbsTheme === 'light' || vdbsTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', vdbsTheme);
+            }
+        } catch (e) {}
+    </script>
+
     @php
         $routeName = request()->route()?->getName();
 

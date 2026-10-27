@@ -208,6 +208,15 @@
             <circle cx="19" cy="12" r="1" />
             @break
 
+        @case('sun')
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2.5v3M12 18.5v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2.5 12h3M18.5 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
+            @break
+
+        @case('moon')
+            <path d="M20 14.1A8.5 8.5 0 1 1 9.9 4a7 7 0 0 0 10.1 10.1Z" />
+            @break
+
         @default
             <rect x="5" y="5" width="14" height="14" />
     @endswitch

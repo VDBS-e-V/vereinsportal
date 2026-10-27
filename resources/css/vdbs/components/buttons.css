@@ -63,18 +63,19 @@
     text-decoration-thickness: 0.12em;
 }
 
-/* Filled supporting action. btn--ocean remains as a compatibility alias. */
-.btn--accent,
-.btn--ocean,
-.vdbs-button--accent {
-    border-color: var(--color-secondary-cta) !important;
-    background: var(--color-secondary-cta) !important;
-    color: var(--color-ink) !important;
+/* Statement-Button: gefuellte Lila-Flaeche fuer die EINE hervorgehobene
+   Zweit-Aktion pro Seite (Styleguide Kap. 4.1: Lila nur Header/Footer + max.
+   1–2 Statement-Flaechen, nie ein wiederkehrendes UI-Muster). Text ist immer
+   Weiss, nie Ink — Ink auf Lila ist mit 1,58:1 nicht AA-faehig (Kap. 3). */
+.btn--statement,
+.vdbs-button--statement {
+    border-color: var(--color-statement) !important;
+    background: var(--color-statement) !important;
+    color: var(--color-white) !important;
 }
 
-.btn--accent:hover,
-.btn--ocean:hover,
-.vdbs-button--accent:hover {
+.btn--statement:hover,
+.vdbs-button--statement:hover {
     border-color: var(--color-ink) !important;
     background: var(--color-ink) !important;
     color: var(--color-white) !important;

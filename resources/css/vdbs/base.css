@@ -192,7 +192,7 @@
    im Styleguide freigegebene Verwendung von Neuland, nicht kursiv, s. Kap.
    4.6. Nicht fuer sonstigen Display-Text verwenden. */
 .claim {
-    font-family: var(--font-family-workshop);
+    font-family: var(--font-family-claim);
     font-style: normal;
 }
 
