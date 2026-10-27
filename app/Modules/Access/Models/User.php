@@ -7,6 +7,7 @@ use App\Modules\Access\Enums\UserStatus;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\People\Models\Person;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -25,6 +26,7 @@ use Laravel\Passport\HasApiTokens;
  * @property string|null $avatar_path
  * @property-read Person|null $person
  */
+#[UseFactory(UserFactory::class)]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */

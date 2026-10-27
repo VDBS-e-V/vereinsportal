@@ -18,6 +18,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Partner extends Model
 {
+    protected $attributes = [
+        'status' => 'active',
+    ];
+
     protected $fillable = [
         'public_id',
         'type',

@@ -4,6 +4,7 @@ namespace App\Modules\People\Models;
 
 use App\Modules\Access\Models\User;
 use Database\Factories\PersonFactory;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  *
  * @property-read User|null $user
  */
+#[UseFactory(PersonFactory::class)]
 class Person extends Model
 {
     /** @use HasFactory<PersonFactory> */
