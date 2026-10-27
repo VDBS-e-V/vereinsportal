@@ -49,8 +49,11 @@
         </div>
 
         <div class="vdbs-footer__bottom">
-            <img class="vdbs-footer__logo" src="{{ asset('images/brand/vdbs-bildmarke-kompakt.png') }}" alt="" height="96">
-            <p>Verband für Demokratiebildung und Bibliotheken an Schulen e. V.</p>
+            <img class="vdbs-footer__logo" src="{{ asset('images/brand/vdbs-logo.png') }}" alt="" width="128" height="128">
+            <div>
+                <p class="vdbs-footer__org">Verband für Demokratiebildung und Bibliotheken an Schulen e.&nbsp;V.</p>
+                <p class="vdbs-footer__claim">Weil Schule uns alle angeht!</p>
+            </div>
         </div>
     </div>
 </footer>

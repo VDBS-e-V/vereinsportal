@@ -57,6 +57,11 @@
     --border-default: var(--color-grau-linie); /* rein dekorativ */
     --border-input: var(--color-grau-rahmen); /* Formularfelder, Diagrammachsen */
 
+    /* Navigations-Aktion (Login-Button im Kopfbereich) und Vereinsname im Footer */
+    --bg-action: #0b3a5a;
+    --text-on-action: var(--color-weiss);
+    --text-org: #0b3a5a;
+
     --focus-ring: var(--color-ink);
     --focus-ring-offset: 2px;
 
@@ -139,6 +144,10 @@
     --border-default: #3d303e;
     --border-input: #3d303e;
 
+    --bg-action: #2dc08e;
+    --text-on-action: #0f172a;
+    --text-org: #a8e6cf;
+
     --focus-ring: #ffffff;
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
     --shadow-md: 0 4px 12px rgb(0 0 0 / 40%);
@@ -161,6 +170,10 @@
 
         --border-default: #3d303e;
         --border-input: #3d303e;
+
+        --bg-action: #2dc08e;
+        --text-on-action: #0f172a;
+        --text-org: #a8e6cf;
 
         --focus-ring: #ffffff;
         --shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
