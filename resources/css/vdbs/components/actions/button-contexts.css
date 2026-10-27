@@ -22,7 +22,7 @@
 .vdbs-on-dark .vdbs-btn--quiet {
     --btn-bg: transparent;
     --btn-fg: var(--color-weiss);
-    --btn-hover-bg: transparent;
+    --btn-hover-bg: rgb(255 255 255 / 15%);
     --btn-hover-fg: var(--color-weiss);
 }
 
@@ -69,6 +69,6 @@
 .vdbs-on-brand .vdbs-btn--quiet {
     --btn-bg: transparent;
     --btn-fg: var(--color-ink);
-    --btn-hover-bg: transparent;
+    --btn-hover-bg: rgb(15 23 42 / 12%);
     --btn-hover-fg: var(--color-ink);
 }

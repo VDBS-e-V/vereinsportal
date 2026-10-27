@@ -52,8 +52,8 @@
 
     // Ein Icon vor oder nach dem Text ist in jeder Form möglich. Der Pfeil-Button hat zusätzlich
     // immer den Pfeil am Ende; der Linien-Button zeigt ohne eigenes Icon einen Chevron am Anfang.
-    if ($shape === 'line' && ! $icon) { $icon = 'chevron-right'; $iconPosition = 'start'; }
     if ($external && ! $icon && $shape !== 'arrow') { $icon = 'external-link'; $iconPosition = 'end'; }
+    if ($shape === 'line' && ! $icon) { $icon = 'chevron-right'; $iconPosition = 'start'; }
 
     $startIcon = $icon && $iconPosition === 'start' ? $icon : null;
     $endIcon = $icon && $iconPosition === 'end' ? $icon : null;

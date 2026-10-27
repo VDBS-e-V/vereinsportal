@@ -57,7 +57,7 @@ it('renders chips, figure, link buttons and back to top', function () {
         ->toContain('aria-label="Bereiche"')
         ->toContain('vdbs-chip__label')
         ->toContain('vdbs-figure__credit')
-        ->toContain('vdbs-link-button--line')
+        ->toContain('vdbs-btn--shape-line')
         ->toContain('rel="noopener noreferrer"')
         ->toContain('öffnet in neuem Tab')
         ->toContain('href="#top"');

@@ -20,8 +20,8 @@
     --btn-bg: transparent;
     --btn-fg: var(--text-link);
     --btn-line: var(--text-link);
-    --btn-hover-bg: transparent;
-    --btn-hover-fg: var(--text-link-hover);
+    --btn-hover-bg: var(--bg-brand);
+    --btn-hover-fg: var(--text-on-brand);
 }
 
 .vdbs-btn--danger {

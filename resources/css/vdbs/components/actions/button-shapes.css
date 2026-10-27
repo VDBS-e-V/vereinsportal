@@ -28,12 +28,13 @@
     color: var(--btn-hover-fg);
 }
 
-/* link: wie ein Textlink */
+/* link: wie ein Textlink; beim Überfahren erscheint die Hover-Fläche (Padding wird durch negativen Rand ausgeglichen) */
 .vdbs-btn--shape-link {
     --btn-height: auto;
 
     min-height: 2.75rem;
-    padding: var(--space-1) 0;
+    margin-inline: calc(-1 * var(--space-2));
+    padding: var(--space-1) var(--space-2);
     background: transparent;
     border-color: transparent;
     color: var(--btn-line);
@@ -41,7 +42,12 @@
     text-underline-offset: 0.2em;
 }
 
-.vdbs-btn--shape-link:hover { color: var(--btn-hover-fg); text-decoration-thickness: 2px; }
+.vdbs-btn--shape-link:hover {
+    background: var(--btn-hover-bg);
+    color: var(--btn-hover-fg);
+    text-decoration-thickness: 2px;
+}
+
 .vdbs-btn--shape-link.vdbs-btn--size-s { min-height: 2rem; }
 
 /* arrow: wie solid, mit Pfeil am Ende; eine Fläche pro Zustand, nur eine feine Trennlinie */
