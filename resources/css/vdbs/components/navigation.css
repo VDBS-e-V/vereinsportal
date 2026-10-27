@@ -42,14 +42,15 @@
     align-items: center;
     min-height: 2.75rem;
     color: var(--text-default);
+    font-weight: var(--font-weight-regular);
     text-decoration: none;
     font-size: var(--font-size-small);
 }
 
-.vdbs-header__links a:hover { color: var(--text-link); text-decoration: underline; }
-.vdbs-header__links a[aria-current="page"] { font-weight: var(--font-weight-bold); text-decoration: underline; text-decoration-color: var(--bg-brand); text-decoration-thickness: 3px; }
+.vdbs-header__links a:hover { color: var(--text-default); text-decoration: underline; }
+.vdbs-header__links a[aria-current="page"] { text-decoration: underline; text-decoration-color: var(--bg-brand); text-decoration-thickness: 3px; }
 
-.vdbs-header__links--large a { font-size: var(--font-size-h4); color: var(--text-muted); }
+.vdbs-header__links--large a { font-size: var(--font-size-h4); }
 .vdbs-header__links--large { gap: var(--space-1) var(--space-6); }
 
 .vdbs-header__eyebrow { margin: 0; color: var(--text-muted); font-size: var(--font-size-small); }
