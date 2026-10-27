@@ -9,19 +9,20 @@
     <div class="vdbs-header__top">
         <div class="vdbs-container vdbs-header__top-inner">
             <a class="vdbs-header__logo" href="{{ url('/') }}" aria-label="VDBS Vereinsportal – Startseite">
-                <img src="{{ asset('images/brand/vdbs-logo.png') }}" alt="" width="32" height="32">
-                <span class="vdbs-header__wordmark" aria-hidden="true">VDBS</span>
+                <img src="{{ asset('images/brand/vdbs-bildmarke-breit.png') }}" alt="VDBS e. V." height="40">
             </a>
 
-            @if ($systems->isNotEmpty())
-                <nav aria-label="Externe Systeme">
-                    <ul class="vdbs-header__links">
-                        @foreach ($systems as $system)
-                            <li><a href="{{ $system['url'] }}">{{ $system['label'] }}</a></li>
-                        @endforeach
-                    </ul>
-                </nav>
-            @endif
+            <nav aria-label="Bereiche und externe Systeme">
+                <ul class="vdbs-header__links">
+                    {{-- Platzhalter: die Bereiche verlinken erst, wenn sie gebaut sind und per Rechte sichtbar werden. --}}
+                    @foreach (\App\Support\PortalAreas::withGroupMark() as $topArea)
+                        <li><a href="#">{{ $topArea->label() }}</a></li>
+                    @endforeach
+                    @foreach ($systems as $system)
+                        <li><a href="{{ $system['url'] }}">{{ $system['label'] }}</a></li>
+                    @endforeach
+                </ul>
+            </nav>
         </div>
     </div>
 

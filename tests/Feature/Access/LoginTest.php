@@ -93,3 +93,10 @@ it('shows header and footer navigation depending on the login state', function (
         ->assertSee('Design-Bibliothek')
         ->assertSee('Abmelden');
 });
+
+it('shows the area placeholders and a login button to guests on public pages', function () {
+    $this->get('/design')->assertRedirect(route('login'));
+
+    $response = $this->get('/login');
+    $response->assertSee('Vorstand')->assertSee('Geschäftsstelle');
+});
