@@ -1,47 +1,140 @@
-/* Bildquelle (Paket media): below = Zeile unter dem Bild, edge = senkrechtes Etikett am rechten Bildrand */
+/* Bildquelle (Paket media).
+ * Formen: below, edge, edge-left, bottom, corner, hover, toggle.
+ * Farben der Etiketten über --credit-bg und --credit-fg (Tonwert dark, light, brand).
+ */
 
-.vdbs-image-credit { font-size: var(--font-size-caption); line-height: var(--line-height-tight); }
+.vdbs-image-credit {
+    --credit-bg: rgb(15 23 42 / 70%);
+    --credit-fg: var(--color-weiss);
+    --credit-size: var(--font-size-caption);
+
+    font-size: var(--credit-size);
+    line-height: var(--line-height-tight);
+}
+
+.vdbs-image-credit--size-m { --credit-size: var(--font-size-small); }
+
+.vdbs-image-credit--tone-light { --credit-bg: rgb(255 255 255 / 88%); --credit-fg: var(--color-ink); }
+.vdbs-image-credit--tone-brand { --credit-bg: var(--color-gruen); --credit-fg: var(--color-ink); }
 
 .vdbs-image-credit a { color: inherit; }
 
-/* below: "Bildquelle: Name" in gedämpfter Schrift */
+/* below: Zeile in gedämpfter Schrift unter dem Bild */
 .vdbs-image-credit--below { display: block; padding-top: var(--space-2); color: var(--text-muted); }
 
-/* edge: schmales dunkles Etikett, Schrift von unten nach oben, klebt am oberen Ende des rechten Randes */
-.vdbs-image-credit--edge {
+/* Gemeinsam für alle Etiketten im Bild */
+.vdbs-image-credit--edge,
+.vdbs-image-credit--edge-left,
+.vdbs-image-credit--bottom,
+.vdbs-image-credit--corner,
+.vdbs-image-credit--hover {
     position: absolute;
-    top: 0;
-    right: 0;
     z-index: 1;
+    background: var(--credit-bg);
+    color: var(--credit-fg);
+}
+
+/* edge, edge-left: senkrecht, von unten nach oben; zu lange Quellen brechen in eine weitere Spalte um */
+.vdbs-image-credit--edge,
+.vdbs-image-credit--edge-left {
+    top: 0;
     max-height: 100%;
     padding: var(--space-2) var(--space-1);
-    background: rgb(15 23 42 / 70%);
-    color: var(--color-weiss);
     writing-mode: vertical-rl;
     transform: rotate(180deg);
     transform-origin: center;
-    /* Zu lange Quellen brechen in eine zweite Spalte um, statt über das Bild hinauszuragen */
     white-space: normal;
     overflow-wrap: anywhere;
     overflow: hidden;
 }
 
-/* credit-overflow="truncate": einzeilig mit Auslassungspunkten statt Umbruch */
-.vdbs-image-credit--truncate.vdbs-image-credit--edge { white-space: nowrap; overflow-wrap: normal; text-overflow: ellipsis; }
+.vdbs-image-credit--edge { right: 0; }
+.vdbs-image-credit--edge-left { left: 0; }
 
-.vdbs-image-credit--edge a { text-decoration: none; }
-.vdbs-image-credit--edge a:hover { text-decoration: underline; }
+/* bottom: Streifen über die ganze Breite */
+.vdbs-image-credit--bottom,
+.vdbs-image-credit--hover {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: var(--space-1) var(--space-3);
+}
 
-/* Auf kleinen Bildschirmen: waagerechter Streifen unten statt senkrechtem Etikett */
+/* corner: kleines Etikett unten rechts */
+.vdbs-image-credit--corner {
+    right: 0;
+    bottom: 0;
+    max-width: 100%;
+    padding: var(--space-1) var(--space-2);
+}
+
+/* hover: sichtbar bei Hover und Tastaturfokus; bleibt für Screenreader immer lesbar */
+.vdbs-image-credit--hover { opacity: 0; transition: opacity var(--transition-base); }
+
+.vdbs-image:hover .vdbs-image-credit--hover,
+.vdbs-image:focus-within .vdbs-image-credit--hover { opacity: 1; }
+
+@media (hover: none) {
+    .vdbs-image-credit--hover { opacity: 1; }
+}
+
+/* Überlauf: truncate (einzeilig mit Auslassungspunkten), expand (volle Länge bei Hover/Fokus) */
+.vdbs-image-credit--truncate,
+.vdbs-image-credit--expand { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
+
+.vdbs-image-credit--expand:hover,
+.vdbs-image-credit--expand:focus-within { white-space: normal; overflow-wrap: anywhere; }
+
+.vdbs-image-credit--edge.vdbs-image-credit--expand:hover,
+.vdbs-image-credit--edge.vdbs-image-credit--expand:focus-within,
+.vdbs-image-credit--edge-left.vdbs-image-credit--expand:hover,
+.vdbs-image-credit--edge-left.vdbs-image-credit--expand:focus-within { white-space: nowrap; overflow-wrap: normal; }
+
+.vdbs-image-credit--edge a,
+.vdbs-image-credit--edge-left a { text-decoration: none; }
+.vdbs-image-credit--edge a:hover,
+.vdbs-image-credit--edge-left a:hover { text-decoration: underline; }
+
+/* toggle: Knopf "©", die Quelle klappt auf */
+.vdbs-image-credit--toggle { position: absolute; right: 0; bottom: 0; z-index: 1; }
+
+.vdbs-image-credit__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    background: var(--credit-bg);
+    color: var(--credit-fg);
+    font-size: var(--font-size-body);
+    font-weight: var(--font-weight-bold);
+    list-style: none;
+    cursor: pointer;
+}
+
+.vdbs-image-credit__toggle::-webkit-details-marker { display: none; }
+
+.vdbs-image-credit__panel {
+    position: absolute;
+    right: 0;
+    bottom: 2rem;
+    width: max-content;
+    max-width: min(18rem, 90vw);
+    padding: var(--space-2) var(--space-3);
+    background: var(--credit-bg);
+    color: var(--credit-fg);
+}
+
+/* Handy: edge und edge-left werden zu einem waagerechten Streifen unten im Bild */
 @media (max-width: 639px) {
-    .vdbs-image-credit--edge {
+    .vdbs-image-credit--edge,
+    .vdbs-image-credit--edge-left {
         top: auto;
         right: 0;
         bottom: 0;
         left: auto;
         max-height: none;
         max-width: 100%;
-        white-space: normal;
         padding: var(--space-1) var(--space-2);
         writing-mode: horizontal-tb;
         transform: none;
@@ -49,5 +142,5 @@
 }
 
 /* Fehlende Quelle (nur in Produktion sichtbar, sonst gibt es vorher eine Exception) */
-.vdbs-image-credit--missing { color: var(--text-error); font-weight: var(--font-weight-bold); }
-.vdbs-image-credit--edge.vdbs-image-credit--missing { background: var(--bg-page); }
+.vdbs-image-credit--missing { font-weight: var(--font-weight-bold); }
+.vdbs-image-credit--below.vdbs-image-credit--missing { color: var(--text-error); }

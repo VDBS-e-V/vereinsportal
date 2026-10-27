@@ -2,7 +2,7 @@
 
 use App\Support\Media\ImageManifest;
 use App\Support\Media\ImageSource;
-use App\Support\Media\MissingImageSourceException;
+use Illuminate\View\ViewException;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Log;
 
@@ -32,12 +32,12 @@ it('refuses images without a source in strict mode', function () {
     config(['images.strict' => true]);
 
     img('src="/images/unbekannt.jpg" alt=""');
-})->throws(MissingImageSourceException::class);
+})->throws(ViewException::class, 'keine Quellenangabe');
 
 it('refuses images without an alt text in strict mode but accepts the decorative alt', function () {
     config(['images.strict' => true]);
 
-    expect(fn () => img('src="/images/placeholder/hero-01.jpg"'))->toThrow(MissingImageSourceException::class);
+    expect(fn () => img('src="/images/placeholder/hero-01.jpg"'))->toThrow(ViewException::class, 'keinen Alt-Text');
     expect(img('src="/images/placeholder/hero-01.jpg" alt=""'))->toContain('alt=""');
 });
 
@@ -120,4 +120,42 @@ it('wraps long sources by default and can truncate them instead', function () {
     expect(img('src="/images/placeholder/hero-01.jpg" alt="" credit-placement="edge"'))->not->toContain('vdbs-image-credit--truncate')
         ->and(img('src="/images/placeholder/hero-01.jpg" alt="" credit-placement="edge" credit-overflow="truncate"'))->toContain('vdbs-image-credit--truncate')
         ->and(img('src="/images/placeholder/hero-01.jpg" alt="" credit-placement="edge" credit-overflow="quer"'))->not->toContain('vdbs-image-credit--truncate');
+});
+
+it('supports all placements of the source', function () {
+    foreach (['below', 'edge', 'edge-left', 'bottom', 'corner', 'hover'] as $placement) {
+        expect(img('src="/images/placeholder/hero-01.jpg" alt="" credit-placement="'.$placement.'"'))
+            ->toContain("vdbs-image-credit--{$placement}")
+            ->toContain('Bildquelle:');
+    }
+
+    $toggle = img('src="/images/placeholder/hero-01.jpg" alt="" credit-placement="toggle"');
+
+    expect($toggle)->toContain('<details')->toContain('<summary')->toContain('aria-label="Bildquelle anzeigen"')->toContain('Berlinerlights');
+});
+
+it('supports prefix, tone, size, license and the expand overflow', function () {
+    $html = img('src="/images/placeholder/hero-01.jpg" alt="" credit-placement="bottom" credit-prefix="Foto" credit-tone="light" credit-size="m" :credit-license="true" credit-overflow="expand"');
+
+    expect($html)
+        ->toContain('Foto:')
+        ->not->toContain('Bildquelle:')
+        ->toContain('vdbs-image-credit--tone-light')
+        ->toContain('vdbs-image-credit--size-m')
+        ->toContain('Pexels-Lizenz')
+        ->toContain('vdbs-image-credit--expand');
+
+    expect(img('src="/images/placeholder/hero-01.jpg" alt="" credit-placement="corner" credit-prefix=""'))->not->toContain('vdbs-image-credit__prefix');
+});
+
+it('falls back for unknown credit options', function () {
+    $html = img('src="/images/placeholder/hero-01.jpg" alt="" credit-placement="oben" credit-tone="neon" credit-size="xxl"');
+
+    expect($html)->toContain('vdbs-image-credit--below')->toContain('vdbs-image-credit--tone-dark')->toContain('vdbs-image-credit--size-s');
+});
+
+it('lets the figure show the source inside the image for overlay placements', function () {
+    $html = Blade::render('<x-vdbs.media.figure src="/images/placeholder/split-01.jpg" alt="" caption="Text" credit-placement="corner" />');
+
+    expect($html)->toContain('vdbs-image-credit--corner')->toContain('<figcaption')->not->toContain('vdbs-image-credit--below');
 });

@@ -17,18 +17,42 @@
 </x-vdbs.layout.grid>
 <p><code>below</code> eignet sich für Bilder im Text, <code>edge</code> für große Bilder (Hero, Teaser), bei denen eine Zeile darunter stören würde. Auf dem Handy wird <code>edge</code> zu einem waagerechten Streifen unten im Bild.</p>
 
+<h2>Alle Formen der Quellenangabe</h2>
+<x-vdbs.layout.grid :columns="3">
+    @foreach (['below' => 'unter dem Bild', 'edge' => 'senkrecht rechts', 'edge-left' => 'senkrecht links', 'bottom' => 'Streifen unten', 'corner' => 'Ecke unten rechts', 'hover' => 'bei Hover/Fokus', 'toggle' => 'Knopf ©'] as $placement => $hint)
+        <div>
+            <h3><code>{{ $placement }}</code></h3>
+            <x-vdbs.media.image :src="placeholder('teaser', 3)" alt="" ratio="3-2" :credit-placement="$placement" />
+            <p style="font-size:var(--font-size-small);color:var(--text-muted)">{{ $hint }}</p>
+        </div>
+    @endforeach
+</x-vdbs.layout.grid>
+<p><code>hover</code> zeigt die Quelle bei Mausüberfahrt und Tastaturfokus (auf Touch-Geräten immer) und bleibt für Screenreader lesbar. <code>toggle</code> klappt die Quelle ohne JavaScript per <code>details</code> auf. Am Handy werden <code>edge</code> und <code>edge-left</code> zu einem Streifen unten.</p>
+
+<h2>Farbe, Größe, Präfix, Lizenz</h2>
+<x-vdbs.layout.grid :columns="3">
+    <x-vdbs.media.image :src="placeholder('teaser', 4)" alt="" ratio="3-2" credit-placement="bottom" credit-tone="dark" />
+    <x-vdbs.media.image :src="placeholder('teaser', 4)" alt="" ratio="3-2" credit-placement="bottom" credit-tone="light" credit-size="m" />
+    <x-vdbs.media.image :src="placeholder('teaser', 4)" alt="" ratio="3-2" credit-placement="bottom" credit-tone="brand" credit-prefix="Foto" :credit-license="true" />
+</x-vdbs.layout.grid>
+<p>Von links: <code>tone="dark"</code>, <code>tone="light" size="m"</code>, <code>tone="brand" prefix="Foto" license</code>. Ohne Präfix: <code>credit-prefix=""</code>.</p>
+
 <h2>Lange Quellen (Overflow)</h2>
-<x-vdbs.layout.grid :columns="2">
+<x-vdbs.layout.grid :columns="3">
     <div>
-        <h3><code>credit-overflow="wrap"</code> (Standard)</h3>
+        <h3><code>wrap</code> (Standard)</h3>
         <x-vdbs.media.image :src="placeholder('teaser', 2)" alt="" ratio="3-2" credit="Travel With Lenses mit einem sehr langen Namen, Pexels" credit-placement="edge" />
     </div>
     <div>
-        <h3><code>credit-overflow="truncate"</code></h3>
-        <x-vdbs.media.image :src="placeholder('teaser', 2)" alt="" ratio="3-2" credit="Travel With Lenses mit einem sehr langen Namen, Pexels" credit-placement="edge" credit-overflow="truncate" />
+        <h3><code>truncate</code></h3>
+        <x-vdbs.media.image :src="placeholder('teaser', 2)" alt="" ratio="3-2" credit="Travel With Lenses mit einem sehr langen Namen, Pexels" credit-placement="bottom" credit-overflow="truncate" />
+    </div>
+    <div>
+        <h3><code>expand</code> (Hover)</h3>
+        <x-vdbs.media.image :src="placeholder('teaser', 2)" alt="" ratio="3-2" credit="Travel With Lenses mit einem sehr langen Namen, Pexels" credit-placement="bottom" credit-overflow="expand" />
     </div>
 </x-vdbs.layout.grid>
-<p>Zu lange Quellen brechen standardmäßig in eine zweite Spalte um und bleiben im Bild. Mit <code>truncate</code> werden sie stattdessen einzeilig gekürzt.</p>
+<p><code>wrap</code> bricht in eine weitere Zeile bzw. Spalte um, <code>truncate</code> kürzt einzeilig, <code>expand</code> kürzt und zeigt bei Hover oder Fokus den vollen Text (bei senkrechten Etiketten wie <code>truncate</code>).</p>
 
 <h2>Seitenverhältnisse</h2>
 <x-vdbs.layout.grid :columns="4">

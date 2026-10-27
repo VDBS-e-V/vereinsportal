@@ -6,6 +6,10 @@
     'focus' => null,
     'creditPlacement' => 'below',
     'creditOverflow' => 'wrap',
+    'creditPrefix' => 'Bildquelle',
+    'creditTone' => 'dark',
+    'creditSize' => 's',
+    'creditLicense' => false,
     'loading' => 'lazy',
 ])
 
@@ -18,8 +22,14 @@
                      Ohne credit wird die Quelle über den Dateinamen im Manifest (sources.json) gesucht.
     ratio            original | 16-9 | 3-2 | 4-3 | 1-1 | 21-9
     focus            Fokuspunkt beim Zuschnitt, z. B. "30% 20%"
-    credit-placement below | edge | none   (none: Quelle zeigt der umgebende Baustein, z. B. <x-vdbs.media.figure>)
-    credit-overflow  wrap | truncate   lange Quelle in weitere Zeile/Spalte umbrechen (Standard) oder abschneiden
+    credit-placement below | edge | edge-left | bottom | corner | hover | toggle | none
+                     (none: Quelle zeigt der umgebende Baustein, z. B. <x-vdbs.media.figure>)
+    credit-overflow  wrap | truncate | expand   lange Quelle umbrechen (Standard), abschneiden oder bei Hover ausklappen
+    credit-prefix    Text vor dem Namen (Standard "Bildquelle"; "Foto", "Quelle" oder "")
+    credit-tone      dark | light | brand      Farbe des Etiketts im Bild
+    credit-size      s | m
+    credit-license   true: Lizenz anhängen
+    Alle Optionen im Detail: siehe <x-vdbs.media.image-credit>
     loading          lazy | eager
 
     Fehlt die Quelle oder der Alt-Text: im strikten Modus (config images.strict, Standard außerhalb der
@@ -44,7 +54,7 @@
     }
 
     $ratio = in_array($ratio, ['original', '16-9', '3-2', '4-3', '1-1', '21-9'], true) ? $ratio : 'original';
-    $creditPlacement = in_array($creditPlacement, ['below', 'edge', 'none'], true) ? $creditPlacement : 'below';
+    $creditPlacement = in_array($creditPlacement, ['below', 'edge', 'edge-left', 'bottom', 'corner', 'hover', 'toggle', 'none'], true) ? $creditPlacement : 'below';
     $focus = is_string($focus) && preg_match('/^\d{1,3}% \d{1,3}%$/', $focus) ? $focus : null;
     $loading = $loading === 'eager' ? 'eager' : 'lazy';
 @endphp
@@ -53,6 +63,6 @@
     <img class="vdbs-image__img" src="{{ $src }}" alt="{{ $alt }}" loading="{{ $loading }}" @if ($focus) style="object-position: {{ $focus }}" @endif>
 
     @if ($creditPlacement !== 'none')
-        <x-vdbs.media.image-credit :source="$source" :placement="$creditPlacement" :overflow="$creditOverflow" />
+        <x-vdbs.media.image-credit :source="$source" :placement="$creditPlacement" :overflow="$creditOverflow" :prefix="$creditPrefix" :tone="$creditTone" :size="$creditSize" :license="$creditLicense" />
     @endif
 </div>
