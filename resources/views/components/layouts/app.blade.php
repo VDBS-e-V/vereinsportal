@@ -14,7 +14,7 @@
 <body>
     <a class="vdbs-skip-link" href="#inhalt">Zum Inhalt springen</a>
 
-    <x-vdbs.portal-header :title="$title" />
+    <x-vdbs.navigation.portal-header :title="$title" />
 
     <main id="inhalt" class="vdbs-main">
         <div class="vdbs-container">
@@ -22,6 +22,6 @@
         </div>
     </main>
 
-    <x-vdbs.portal-footer />
+    <x-vdbs.navigation.portal-footer />
 </body>
 </html>

@@ -1,0 +1,19 @@
+/* Formularfeld: Label, Hinweis, Meldungen */
+
+.vdbs-field { display: grid; gap: var(--space-1); margin-bottom: var(--space-4); }
+
+.vdbs-field__label { font-weight: var(--font-weight-bold); font-size: var(--font-size-small); }
+
+.vdbs-field__hint { margin: 0; color: var(--text-muted); font-size: var(--font-size-small); }
+
+.vdbs-field__message {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin: 0;
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-bold);
+}
+
+.vdbs-field__message--error { color: var(--text-error); }
+.vdbs-field__message--success { color: var(--color-gruen-dunkel); }

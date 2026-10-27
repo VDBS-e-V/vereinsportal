@@ -1,0 +1,9 @@
+/* Seitenrahmen: Hauptbereich und Seitenleisten-Layout */
+
+.vdbs-main { padding-block: var(--space-6); }
+
+.vdbs-layout-sidebar { display: grid; gap: var(--space-6); }
+
+@media (min-width: 768px) {
+    .vdbs-layout-sidebar { grid-template-columns: 16rem 1fr; }
+}

@@ -116,7 +116,7 @@
         }
     @endphp
     <a class="vdbs-skip-link" href="#administration-content">Zum Inhalt</a>
-    <x-vdbs.portal-header :area="$areaLabel" :page-title="$pageTitle" :home-url="$portalHomeUrl" :area-url="$areaHomeUrl" :areas="$areas" :navigation="$navigation" :account="$account" :breadcrumbs="$breadcrumbs ?? []" />
+    <x-vdbs.navigation.portal-header :area="$areaLabel" :page-title="$pageTitle" :home-url="$portalHomeUrl" :area-url="$areaHomeUrl" :areas="$areas" :navigation="$navigation" :account="$account" :breadcrumbs="$breadcrumbs ?? []" />
     <main id="administration-content" class="site-main vdbs-public-main">
         <x-vdbs.frame width="normal" gutter="both">
             @if (session('status'))
@@ -129,6 +129,6 @@
             @yield('content')
         </x-vdbs.frame>
     </main>
-    <x-vdbs.portal-footer :home-url="$portalHomeUrl" :links="[['label' => 'Vereinsportal', 'url' => $portalHomeUrl], ['label' => $areaLabel, 'url' => $areaHomeUrl]]" />
+    <x-vdbs.navigation.portal-footer :home-url="$portalHomeUrl" :links="[['label' => 'Vereinsportal', 'url' => $portalHomeUrl], ['label' => $areaLabel, 'url' => $areaHomeUrl]]" />
 </body>
 </html>

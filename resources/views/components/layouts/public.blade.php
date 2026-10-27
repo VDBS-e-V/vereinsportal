@@ -348,7 +348,7 @@
         Zum Inhalt
     </a>
 
-    <x-vdbs.portal-header
+    <x-vdbs.navigation.portal-header
         area="VDBS Portal"
         :page-title="$pageTitle"
         :home-url="$homeUrl"
@@ -390,7 +390,7 @@
         </x-vdbs.frame>
     </main>
 
-    <x-vdbs.portal-footer
+    <x-vdbs.navigation.portal-footer
         :home-url="$homeUrl"
         :links="$footerLinks"
     />

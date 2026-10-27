@@ -2,18 +2,19 @@
 
 @import './vdbs/tokens.css';
 @import './vdbs/base.css';
-@import './vdbs/components/icons.css';
-@import './vdbs/components/buttons.css';
-@import './vdbs/components/forms.css';
-@import './vdbs/components/cards.css';
-@import './vdbs/components/badges.css';
-@import './vdbs/components/alerts.css';
-@import './vdbs/components/dialogs.css';
-@import './vdbs/components/navigation.css';
-@import './vdbs/components/tables.css';
+@import './vdbs/components/foundation/index.css';
+@import './vdbs/components/actions/index.css';
+@import './vdbs/components/forms/index.css';
+@import './vdbs/components/navigation/index.css';
+@import './vdbs/components/layout/index.css';
+@import './vdbs/components/cards/index.css';
+@import './vdbs/components/data/index.css';
+@import './vdbs/components/feedback/index.css';
+@import './vdbs/components/overlays/index.css';
+@import './vdbs/components/media/index.css';
 
 /*
- * Weitere Dateien unter ./vdbs/components/ (editorial, events, contacts,
+ * Dateien unter ./vdbs/components/_legacy/ (editorial, events, contacts,
  * records, ...) sind bewusst nicht eingebunden: sie nutzen noch alte
  * Token-Namen und werden überarbeitet, sobald ihr fachlicher Bereich gebaut wird.
  */

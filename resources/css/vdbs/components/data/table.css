@@ -1,3 +1,5 @@
+/* Tabellen (Styleguide 5.5) */
+
 /* Tabellen (5.5): Zebra, sortierbare Spalten */
 
 .vdbs-table-wrap { overflow-x: auto; border: 1px solid var(--border-default); }

@@ -1,3 +1,5 @@
+/* Buttons (Styleguide 5.1) */
+
 /* Buttons (Styleguide 5.1) — Mindest-Touch-Target 44px, Schrift auf Grün immer Ink */
 
 .vdbs-btn {
@@ -58,6 +60,3 @@
 }
 
 .vdbs-btn--block { display: flex; width: 100%; }
-
-.vdbs-header .vdbs-btn--primary { background: var(--bg-action); color: var(--text-on-action); }
-.vdbs-header .vdbs-btn--primary:hover { background: var(--bg-action); filter: brightness(1.15); color: var(--text-on-action); }

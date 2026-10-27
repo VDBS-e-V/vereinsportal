@@ -1,0 +1,17 @@
+/* Hauptnavigation */
+
+.vdbs-nav { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-1); }
+
+.vdbs-nav__link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 3px solid transparent;
+    color: var(--text-default);
+    text-decoration: none;
+}
+
+.vdbs-nav__link:hover { color: var(--text-link); border-bottom-color: var(--bg-brand); }
+.vdbs-nav__link[aria-current="page"] { border-bottom-color: var(--bg-brand); font-weight: var(--font-weight-bold); }

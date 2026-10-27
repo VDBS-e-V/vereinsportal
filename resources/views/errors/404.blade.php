@@ -3,7 +3,7 @@
 @section('documentTitle', 'Seite nicht gefunden')
 
 @section('content')
-    <x-vdbs.error-page
+    <x-vdbs.feedback.error-page
         code="404"
         title="Seite nicht gefunden"
         description="Die gewünschte Seite konnte nicht gefunden werden. Möglicherweise wurde sie verschoben oder die Adresse ist nicht mehr aktuell."

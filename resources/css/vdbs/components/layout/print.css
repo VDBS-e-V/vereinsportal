@@ -1,0 +1,7 @@
+/* Druckansicht */
+
+@media print {
+    .vdbs-header__top,
+    .vdbs-header__actions,
+    .vdbs-footer__columns { display: none; }
+}

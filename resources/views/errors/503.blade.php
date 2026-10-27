@@ -3,7 +3,7 @@
 @section('documentTitle', 'Vorübergehend nicht verfügbar')
 
 @section('content')
-    <x-vdbs.error-page
+    <x-vdbs.feedback.error-page
         code="503"
         title="Vorübergehend nicht verfügbar"
         description="Dieser Bereich ist aktuell vorübergehend nicht verfügbar."

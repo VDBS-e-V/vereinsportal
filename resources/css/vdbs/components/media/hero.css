@@ -1,0 +1,39 @@
+/* Hero (Paket media) — Klassen sind angelegt, Stile folgen. */
+
+.vdbs-hero {}
+
+/* Varianten */
+.vdbs-hero--image {}
+.vdbs-hero--caption {}
+.vdbs-hero--panel {}
+
+/* Ausrichtung */
+.vdbs-hero--align-start {}
+.vdbs-hero--align-center {}
+
+/* Bühne: Bild + Inhalt (+ Aside) */
+.vdbs-hero__stage {}
+
+/* Bild */
+.vdbs-hero__media {}
+.vdbs-hero__image {}
+.vdbs-hero__credit {}
+
+/* Inhalt */
+.vdbs-hero__content {}
+.vdbs-hero__eyebrow {}
+.vdbs-hero__title {}
+.vdbs-hero__lead {}
+.vdbs-hero__search {}
+.vdbs-hero__actions {}
+
+/* Kacheln rechts (panel) */
+.vdbs-hero__aside {}
+
+/* Bildunterschrift-Leiste (caption) */
+.vdbs-hero__caption {}
+.vdbs-hero__caption-text {}
+.vdbs-hero__caption-link {}
+
+/* Streifen unter dem Hero (z. B. Quick-Links) */
+.vdbs-hero__footer {}

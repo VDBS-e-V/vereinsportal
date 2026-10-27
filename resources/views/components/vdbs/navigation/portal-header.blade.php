@@ -48,7 +48,7 @@
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <x-vdbs.button type="submit" variant="secondary" icon="log-out">Abmelden</x-vdbs.button>
+                    <x-vdbs.actions.button type="submit" variant="secondary" icon="log-out">Abmelden</x-vdbs.actions.button>
                 </form>
             @else
                 <nav aria-label="Portal-Informationen">
@@ -60,7 +60,7 @@
                 </nav>
 
                 @unless (request()->routeIs('login'))
-                    <x-vdbs.button :href="route('login')" icon="log-in">Login</x-vdbs.button>
+                    <x-vdbs.actions.button :href="route('login')" icon="log-in">Login</x-vdbs.actions.button>
                 @endunless
             @endauth
         </div>

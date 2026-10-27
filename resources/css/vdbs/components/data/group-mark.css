@@ -1,0 +1,22 @@
+/* Gruppen-Marken (Styleguide 9.2) */
+
+.vdbs-group-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    flex: 0 0 auto;
+    background: var(--mark);
+    color: var(--color-ink);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-black);
+    line-height: 1;
+}
+
+.vdbs-group-mark--1 { --mark: var(--color-group-1); border-radius: var(--radius-full); }
+.vdbs-group-mark--2 { --mark: var(--color-group-2); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.vdbs-group-mark--3 { --mark: var(--color-group-3); color: var(--color-weiss); }
+.vdbs-group-mark--4 { --mark: var(--color-group-4); clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+.vdbs-group-mark--5 { --mark: var(--color-group-5); color: var(--color-weiss); clip-path: polygon(50% 0, 100% 100%, 0 100%); padding-top: 0.5rem; }
+.vdbs-group-mark--6 { --mark: var(--color-group-6); clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%); }

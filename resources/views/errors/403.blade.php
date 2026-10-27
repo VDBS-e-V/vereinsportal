@@ -3,7 +3,7 @@
 @section('documentTitle', 'Zugriff nicht erlaubt')
 
 @section('content')
-    <x-vdbs.error-page
+    <x-vdbs.feedback.error-page
         code="403"
         title="Zugriff nicht erlaubt"
         description="Sie haben derzeit keine Berechtigung, diese Seite aufzurufen."
