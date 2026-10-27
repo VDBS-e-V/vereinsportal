@@ -46,3 +46,11 @@ it('assigns group marks cyclically to the eight role areas', function () {
         ->and(PortalAreas::Bildungsreferenten->groupMark())->toBe(1)
         ->and(PortalAreas::Admins->groupMark())->toBe(2);
 });
+
+it('renders the error pages with the new components', function () {
+    $this->withoutVite();
+
+    foreach ([403, 404, 419, 500, 503] as $code) {
+        expect(view("errors.{$code}")->render())->toContain('Fehler '.$code);
+    }
+});
