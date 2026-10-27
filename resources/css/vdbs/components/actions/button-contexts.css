@@ -7,6 +7,8 @@
 .vdbs-btn--on-dark,
 .vdbs-on-dark .vdbs-btn {
     --btn-line: var(--color-weiss);
+    --btn-line-fg: var(--color-weiss);
+    --btn-edge: rgb(255 255 255 / 60%);
     --focus-ring: var(--color-weiss);
 }
 
@@ -55,13 +57,13 @@
     --btn-fill-fg: var(--color-ink);
 }
 
-.vdbs-btn--on-dark.vdbs-btn--shape-line,
-.vdbs-on-dark .vdbs-btn--shape-line { color: var(--color-weiss); border-color: rgb(255 255 255 / 60%); }
 
 /* ---------- brand (auf Markengrün: Ink statt Grün) ---------- */
 .vdbs-btn--on-brand,
 .vdbs-on-brand .vdbs-btn {
     --btn-line: var(--color-ink);
+    --btn-line-fg: var(--color-ink);
+    --btn-edge: rgb(15 23 42 / 60%);
     --focus-ring: var(--color-weiss);
 }
 
@@ -97,5 +99,3 @@
     --btn-fill-fg: var(--color-ink);
 }
 
-.vdbs-btn--on-brand.vdbs-btn--shape-line,
-.vdbs-on-brand .vdbs-btn--shape-line { color: var(--color-ink); border-color: rgb(15 23 42 / 60%); }

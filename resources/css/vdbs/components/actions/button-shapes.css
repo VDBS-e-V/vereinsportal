@@ -63,12 +63,12 @@
     border-left: 1px solid color-mix(in srgb, currentColor 35%, transparent);
 }
 
-/* line: Rahmen mit dicker Linie unten */
+/* line: Rahmen mit dicker Linie unten. Schrift und Rand kommen aus --btn-line-fg/--btn-edge (Flächen setzen sie) */
 .vdbs-btn--shape-line {
     background: transparent;
-    border: 1px solid var(--border-input);
+    border: 1px solid var(--btn-edge, var(--border-input));
     border-bottom: 3px solid var(--btn-line);
-    color: var(--text-default);
+    color: var(--btn-line-fg, var(--text-default));
 }
 
 .vdbs-btn--shape-line:hover {
