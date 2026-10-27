@@ -1,4 +1,3 @@
-/* Chip-Liste — Klassen sind angelegt, Stile folgen. */
+/* Chip-Liste */
 
-.vdbs-chip-list {}
-.vdbs-chip-list__list {}
+.vdbs-chip-list__list { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }

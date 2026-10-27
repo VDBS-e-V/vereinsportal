@@ -1,4 +1,6 @@
-@props(['title' => null])
+@props(['title' => null, 'width' => 'default'])
+
+{{-- width: narrow | medium | default | wide | full (siehe <x-vdbs.layout.container>). Bei "full" bringen Abschnitte ihren eigenen Container mit. --}}
 
 <!DOCTYPE html>
 <html lang="de">
@@ -16,10 +18,12 @@
 
     <x-vdbs.navigation.portal-header :title="$title" />
 
-    <main id="inhalt" class="vdbs-main">
-        <div class="vdbs-container">
+    <main id="inhalt" @class(['vdbs-main', 'vdbs-main--full' => $width === 'full'])>
+        @if ($width === 'full')
             {{ $slot }}
-        </div>
+        @else
+            <x-vdbs.layout.container :width="$width">{{ $slot }}</x-vdbs.layout.container>
+        @endif
     </main>
 
     <x-vdbs.navigation.portal-footer />

@@ -1,13 +1,28 @@
-/* Abschnitt — Klassen sind angelegt, Stile folgen. */
+/* Abschnitt */
 
-.vdbs-section {}
-.vdbs-section--default {}
-.vdbs-section--band {}
-.vdbs-section--align-start {}
-.vdbs-section--align-center {}
-.vdbs-section__inner {}
-.vdbs-section__header {}
-.vdbs-section__title {}
-.vdbs-section__lead {}
-.vdbs-section__body {}
-.vdbs-section__actions {}
+.vdbs-section { padding-block: var(--space-8); }
+
+.vdbs-section__inner {
+    width: min(100% - 2 * var(--gutter), var(--container-default));
+    margin-inline: auto;
+}
+
+.vdbs-section--band { background: var(--bg-surface); }
+
+.vdbs-section__header { margin-bottom: var(--space-6); }
+
+.vdbs-section__title {
+    margin: 0 0 var(--space-2);
+    font-size: var(--font-size-h1);
+    font-weight: var(--font-weight-black);
+    line-height: var(--line-height-heading);
+}
+
+.vdbs-section__lead { margin: 0; max-width: var(--max-line-length); color: var(--text-muted); font-size: var(--font-size-body-lg); }
+
+.vdbs-section__actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-6); }
+
+.vdbs-section--align-center .vdbs-section__header { text-align: center; }
+.vdbs-section--align-center .vdbs-section__lead { margin-inline: auto; }
+.vdbs-section--align-center .vdbs-section__actions { justify-content: center; }
+.vdbs-section--align-center .vdbs-section__body > .vdbs-chip-list .vdbs-chip-list__list { justify-content: center; }

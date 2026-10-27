@@ -135,13 +135,6 @@
         border: 0;
     }
 
-    .vdbs-container {
-        width: 100%;
-        max-width: 72rem;
-        margin-inline: auto;
-        padding-inline: var(--space-4);
-    }
-
     @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after {
             animation-duration: 0.01ms !important;

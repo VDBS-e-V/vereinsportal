@@ -36,9 +36,28 @@
     </x-slot:aside>
 </x-vdbs.media.hero>
 
+<h2>Variante „overlay“</h2>
+<x-vdbs.media.hero variant="overlay" title="Wir gestalten Bildung mit" lead="Der VDBS e. V. verbindet Schulen, Bibliotheken und Teamende." :image="placeholder('hero', 3)" image-alt="" credit="Platzhalterbild">
+    <x-slot:actions><x-vdbs.actions.link-button href="#">Mehr erfahren</x-vdbs.actions.link-button></x-slot:actions>
+</x-vdbs.media.hero>
+
+<h2>Variante „split“</h2>
+<x-vdbs.media.hero variant="split" size="s" eyebrow="Teamende" title="Für Teamende" lead="Alles Wichtige zu Einsätzen, Materialien und Abrechnung." :image="placeholder('split', 2)" image-alt="">
+    <x-slot:actions><x-vdbs.actions.link-button href="#">Zum Bereich</x-vdbs.actions.link-button></x-slot:actions>
+</x-vdbs.media.hero>
+
+<h2>Variante „compact“ (Seitenkopf ohne Bild)</h2>
+<x-vdbs.media.hero variant="compact" eyebrow="Konto" title="Mein Profil" lead="Ihre Daten und Sicherheitseinstellungen.">
+    <x-slot:actions><x-vdbs.actions.button variant="secondary">Bearbeiten</x-vdbs.actions.button></x-slot:actions>
+</x-vdbs.media.hero>
+
+<h2>Höhen</h2>
+<p>Mit <code>size="s|m|l"</code> bestimmen Sie die Höhe von image, overlay und split. Mit <code>:bleed="true"</code> läuft ein Hero in einem Layout mit <code>width="full"</code> über die ganze Breite; siehe <a href="{{ route('design-library.show', 'startseite') }}">Startseite (Muster)</a>.</p>
+
 <h2>Eigenschaften</h2>
 <ul>
     <li><code>title</code> ist Pflicht; <code>level</code> (1–3) bestimmt die Überschriftenebene, pro Seite genau ein h1.</li>
+    <li><code>size</code>, <code>align</code>, <code>bleed</code>, <code>eyebrow</code>, <code>lead</code> sind optional.</li>
     <li><code>image-alt=""</code> markiert das Bild als dekorativ, sonst eine Beschreibung angeben.</li>
     <li>Der Bildnachweis (<code>credit</code>) steht als sichtbarer Text im Bild.</li>
     <li>Slots: <code>search</code>, <code>actions</code>, <code>aside</code>, <code>footer</code>.</li>

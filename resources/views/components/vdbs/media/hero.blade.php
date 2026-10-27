@@ -11,16 +11,28 @@
     'captionLabel' => 'Mehr erfahren',
     'align' => 'start',
     'level' => 1,
+    'size' => 'm',
+    'bleed' => false,
 ])
 
 {{--
     Hero (Paket "media").
 
-    Varianten:
-      image   Titel über oder neben dem Bild (Vorbild: eigener Entwurf)
-      caption Bild mit Bildunterschrift-Leiste und Pfeil-Link (Vorbild: FU Berlin)
-      panel   Farbfläche mit Titel/Suche und Bildkacheln im Slot "aside" (Vorbild: Berlin.de);
-              ein gesetztes $image wird hier nicht dargestellt
+    Varianten (variant):
+      image    Titel auf heller Fläche über dem Bild (eigener Entwurf)
+      overlay  Bild über die ganze Fläche, Titel in Weiß unten links auf dunklem Verlauf
+      caption  Titel, Bild und Bildunterschrift-Leiste mit Pfeil-Link (Vorbild: FU Berlin)
+      split    Text auf Fläche neben dem Bild, 2 Spalten
+      panel    Farbfläche mit Titel/Suche und Bildkacheln im Slot "aside" (Vorbild: Berlin.de);
+               ein gesetztes $image wird hier nicht dargestellt
+      compact  Seitenkopf ohne Bild: Titel, Einleitung, Aktionen auf Fläche
+
+    Weitere Eigenschaften:
+      size     s | m | l   Höhe der Varianten image, overlay und split
+      align    start | center
+      bleed    true, wenn das Hero in einem Layout mit width="full" über die ganze Seitenbreite läuft;
+               der Inhalt bleibt dann auf Container-Breite
+      level    Überschriftenebene 1–3 (pro Seite genau ein h1)
 
     Slots:
       search   optionales Suchfeld (variant panel)
@@ -32,14 +44,15 @@
 --}}
 
 @php
-    $variant = in_array($variant, ['image', 'caption', 'panel'], true) ? $variant : 'image';
+    $variant = in_array($variant, ['image', 'overlay', 'caption', 'split', 'panel', 'compact'], true) ? $variant : 'image';
+    $size = in_array($size, ['s', 'm', 'l'], true) ? $size : 'm';
     $align = in_array($align, ['start', 'center'], true) ? $align : 'start';
     $level = max(1, min(3, (int) $level));
     $titleId = 'hero-'.\Illuminate\Support\Str::slug($title).'-title';
     $tag = 'h'.$level;
 @endphp
 
-<section {{ $attributes->class(['vdbs-hero', "vdbs-hero--{$variant}", "vdbs-hero--align-{$align}"]) }} aria-labelledby="{{ $titleId }}">
+<section {{ $attributes->class(['vdbs-hero', "vdbs-hero--{$variant}", "vdbs-hero--size-{$size}", "vdbs-hero--align-{$align}", 'vdbs-hero--bleed' => $bleed]) }} aria-labelledby="{{ $titleId }}">
     <div class="vdbs-hero__stage">
         @if ($image)
             <figure class="vdbs-hero__media">

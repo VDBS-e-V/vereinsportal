@@ -1,6 +1,20 @@
-/* Chip — Klassen sind angelegt, Stile folgen. */
+/* Chip */
 
-.vdbs-chip {}
-.vdbs-chip__link {}
-.vdbs-chip__icon {}
-.vdbs-chip__label {}
+.vdbs-chip__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border-input);
+    background: var(--bg-page);
+    color: var(--text-default);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-small);
+    text-decoration: none;
+    transition: background-color var(--transition-fast);
+}
+
+.vdbs-chip__link:hover { background: var(--bg-accent-soft); color: var(--text-default); }
+.vdbs-chip__icon { flex: 0 0 auto; }
+.vdbs-chip__link .vdbs-group-mark { width: 1.5rem; height: 1.5rem; font-size: var(--font-size-caption); }

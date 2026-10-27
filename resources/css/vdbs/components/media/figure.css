@@ -1,7 +1,6 @@
-/* Bild mit Unterschrift — Klassen sind angelegt, Stile folgen. */
+/* Bild mit Unterschrift */
 
-.vdbs-figure {}
-.vdbs-figure__image {}
-.vdbs-figure__caption {}
-.vdbs-figure__text {}
-.vdbs-figure__credit {}
+.vdbs-figure { margin: 0; }
+.vdbs-figure__image { display: block; width: 100%; height: auto; }
+.vdbs-figure__caption { display: grid; gap: var(--space-1); padding-top: var(--space-2); color: var(--text-muted); font-size: var(--font-size-caption); }
+.vdbs-figure__credit::before { content: "Bild: "; }

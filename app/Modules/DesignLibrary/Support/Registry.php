@@ -14,12 +14,12 @@ use Illuminate\Support\Collection;
 final class Registry
 {
     /**
-     * @return Collection<string, array{slug: string, title: string, description: string, category: LibraryCategory, status: LifecycleStatus, view: string, styleguide: string}>
+     * @return Collection<string, array{slug: string, title: string, description: string, category: LibraryCategory, status: LifecycleStatus, view: string, styleguide: string, width: string}>
      */
     public static function all(): Collection
     {
         return collect(self::definitions())
-            ->map(fn (array $entry): array => $entry + ['view' => 'design-library.entries.'.$entry['slug']])
+            ->map(fn (array $entry): array => $entry + ['view' => 'design-library.entries.'.$entry['slug'], 'width' => 'default'])
             ->keyBy('slug');
     }
 
@@ -48,7 +48,8 @@ final class Registry
             ['slug' => 'badges', 'title' => 'Badges', 'description' => 'Neutral, Erfolg, Warnung, Fehler und Kategorie 1–6.', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Stable, 'styleguide' => 'Kap. 5.6'],
             ['slug' => 'hinweise', 'title' => 'Hinweise', 'description' => 'Info-, Erfolgs-, Warn- und Fehlerhinweise.', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Stable, 'styleguide' => 'Kap. 5.7'],
             ['slug' => 'modal', 'title' => 'Modal', 'description' => 'Natives dialog-Element mit Fokus-Falle.', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Beta, 'styleguide' => 'Kap. 5.8'],
-            ['slug' => 'hero', 'title' => 'Hero', 'description' => 'Großer Einstieg einer Seite in den Varianten Bild, Bildunterschrift und Panel mit Kacheln (Paket Medien).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4'],
+            ['slug' => 'seitenlayout', 'title' => 'Seitenbreiten und Layouts', 'description' => 'Container-Breiten (schmal bis voll) und Seitenvorlagen des Portals.', 'category' => LibraryCategory::Patterns, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 6'],
+            ['slug' => 'hero', 'title' => 'Hero', 'description' => 'Großer Einstieg einer Seite in sechs Varianten: image, overlay, caption, split, panel und compact (Paket Medien).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4'],
             ['slug' => 'abschnitt-split-raster', 'title' => 'Abschnitt, Split und Raster', 'description' => 'Seitenabschnitte (auch als graues Band), Text neben Bild und gleichmäßige Raster (Paket Layout).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4'],
             ['slug' => 'quick-links', 'title' => 'Quick-Links', 'description' => 'Reihe farbig akzentuierter Kacheln für den Schnellzugriff (Paket Karten).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.3'],
             ['slug' => 'teaser', 'title' => 'Teaser', 'description' => 'Bild, Kategorie, Titel und Anreißer mit einem Link für die ganze Karte (Paket Karten).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.3'],
@@ -57,7 +58,7 @@ final class Registry
             ['slug' => 'figure', 'title' => 'Bild mit Unterschrift', 'description' => 'Bild mit Bildunterschrift und Bildnachweis (Paket Medien).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4'],
             ['slug' => 'link-button', 'title' => 'Link-Button', 'description' => 'Links im Button-Stil: Pfeil, Linie und „Alle anzeigen“ (Paket Aktionen).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.1'],
             ['slug' => 'back-to-top', 'title' => 'Zum Seitenanfang', 'description' => 'Sprunglink zum Seitenanfang (Paket Aktionen).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.1'],
-            ['slug' => 'startseite', 'title' => 'Startseite (Muster)', 'description' => 'Zusammenspiel von Hero, Quick-Links, Abschnitten, Teasern, Split und Kontaktblock.', 'category' => LibraryCategory::Patterns, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4'],
+            ['slug' => 'startseite', 'title' => 'Startseite (Muster)', 'description' => 'Zusammenspiel von Hero, Quick-Links, Abschnitten, Teasern, Split und Kontaktblock in voller Seitenbreite.', 'category' => LibraryCategory::Patterns, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4', 'width' => 'full'],
             ['slug' => 'gruppen-marken', 'title' => 'Gruppen-Marken', 'description' => 'Form, Farbe und Zahl 1–6; Zuordnung der Portal-Bereiche.', 'category' => LibraryCategory::BrandElements, 'status' => LifecycleStatus::Stable, 'styleguide' => 'Kap. 9.2'],
             ['slug' => 'portal-bereiche', 'title' => 'Portal-Bereiche', 'description' => 'Die zehn Bereiche mit Icon, Label und Gruppen-Marke.', 'category' => LibraryCategory::Patterns, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 9.2'],
             ['slug' => 'platzhalterbilder', 'title' => 'Platzhalterbilder', 'description' => 'Namenskonvention, Formate und Bestand der Platzhalterbilder, inklusive Helfer placeholder().', 'category' => LibraryCategory::Guidelines, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4'],

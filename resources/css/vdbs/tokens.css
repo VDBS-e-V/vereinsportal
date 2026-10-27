@@ -114,12 +114,23 @@
     --space-10: 4rem; /* 64px */
     --space-12: 6rem; /* 96px */
 
+    /* Seitenbreiten (Container) und Seitenrand */
+    --container-narrow: 40rem; /* 640px  – Login, Formulare, Lesetext */
+    --container-medium: 56rem; /* 896px  – Artikel, Konto */
+    --container-default: 72rem; /* 1152px – Standardseiten */
+    --container-wide: 90rem; /* 1440px – Tabellen, Verwaltung */
+    --gutter: var(--space-4);
+
     /* Breakpoints (Mobile-First, min-width) */
     --bp-sm: 480px; /* große Mobilgeräte */
     --bp-md: 768px; /* Tablet */
     --bp-lg: 1024px; /* kleiner Desktop */
     --bp-xl: 1280px; /* Desktop */
     --bp-2xl: 1536px; /* großer Desktop */
+}
+
+@media (min-width: 768px) {
+    :root { --gutter: var(--space-6); }
 }
 
 /*

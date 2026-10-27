@@ -41,3 +41,18 @@ it('falls back to the image variant for unknown variants', function () {
     expect(Blade::render('<x-vdbs.media.hero variant="unbekannt" title="T" />'))
         ->toContain('vdbs-hero--image');
 });
+
+it('renders the overlay, split and compact variants with size and bleed', function () {
+    foreach (['overlay', 'split', 'compact'] as $variant) {
+        $html = Blade::render('<x-vdbs.media.hero variant="'.$variant.'" size="l" :bleed="true" title="T" image="/x.svg" />');
+
+        expect($html)
+            ->toContain("vdbs-hero--{$variant}")
+            ->toContain('vdbs-hero--size-l')
+            ->toContain('vdbs-hero--bleed');
+    }
+});
+
+it('falls back to size m for unknown sizes', function () {
+    expect(Blade::render('<x-vdbs.media.hero title="T" size="xl" />'))->toContain('vdbs-hero--size-m');
+});

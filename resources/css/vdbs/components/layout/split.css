@@ -1,9 +1,19 @@
-/* Split: Text neben Bild — Klassen sind angelegt, Stile folgen. */
+/* Split: Text neben Bild */
 
-.vdbs-split {}
-.vdbs-split--reverse {}
-.vdbs-split__text {}
-.vdbs-split__title {}
-.vdbs-split__body {}
-.vdbs-split__actions {}
-.vdbs-split__media {}
+.vdbs-split { display: grid; gap: var(--space-5); align-items: center; }
+
+.vdbs-split__title {
+    margin: 0 0 var(--space-3);
+    font-size: var(--font-size-h1);
+    font-weight: var(--font-weight-black);
+    line-height: var(--line-height-heading);
+}
+
+.vdbs-split__body > :last-child { margin-bottom: 0; }
+
+.vdbs-split__actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-5); }
+
+@media (min-width: 768px) {
+    .vdbs-split { grid-template-columns: 1fr 1fr; gap: var(--space-8); }
+    .vdbs-split--reverse .vdbs-split__media { order: -1; }
+}

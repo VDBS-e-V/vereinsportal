@@ -1,12 +1,20 @@
-/* Kontaktblock — Klassen sind angelegt, Stile folgen. */
+/* Kontaktblock */
 
-.vdbs-contact-block {}
-.vdbs-contact-block__media {}
-.vdbs-contact-block__content {}
-.vdbs-contact-block__title {}
-.vdbs-contact-block__text {}
-.vdbs-contact-block__lines {}
-.vdbs-contact-block__line {}
-.vdbs-contact-block__label {}
-.vdbs-contact-block__value {}
-.vdbs-contact-block__actions {}
+.vdbs-contact-block { display: grid; gap: var(--space-5); align-items: center; }
+
+.vdbs-contact-block__media img { display: block; width: 100%; height: auto; }
+
+.vdbs-contact-block__title { margin: 0 0 var(--space-3); font-size: var(--font-size-h1); font-weight: var(--font-weight-black); line-height: var(--line-height-heading); }
+
+.vdbs-contact-block__text { margin: 0 0 var(--space-3); }
+
+.vdbs-contact-block__lines { display: grid; gap: var(--space-1); margin: 0 0 var(--space-4); }
+.vdbs-contact-block__line { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.vdbs-contact-block__label { font-weight: var(--font-weight-bold); }
+.vdbs-contact-block__value { margin: 0; }
+
+.vdbs-contact-block__actions { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+
+@media (min-width: 768px) {
+    .vdbs-contact-block { grid-template-columns: 1fr 1fr; gap: var(--space-8); }
+}

@@ -2,6 +2,7 @@
 
 .vdbs-hero {
     --hero-overlay: color-mix(in srgb, var(--bg-page) 90%, transparent);
+    --hero-height: clamp(18rem, 42vw, 28rem);
 
     position: relative;
     margin-bottom: var(--space-8);
@@ -69,10 +70,24 @@
 .vdbs-hero--align-center .vdbs-hero__lead { margin-inline: auto; }
 .vdbs-hero--align-center .vdbs-hero__actions { justify-content: center; }
 
+/* Höhen */
+.vdbs-hero--size-s { --hero-height: clamp(12rem, 28vw, 18rem); }
+.vdbs-hero--size-m { --hero-height: clamp(18rem, 42vw, 28rem); }
+.vdbs-hero--size-l { --hero-height: clamp(24rem, 56vw, 38rem); }
+
+/* Volle Breite (bleed): Inhalt von overlay/caption/compact bleibt auf Container-Breite; image, split und panel füllen die Breite selbst */
+.vdbs-hero--bleed { margin-inline: 0; }
+.vdbs-hero--bleed.vdbs-hero--overlay .vdbs-hero__content,
+.vdbs-hero--bleed.vdbs-hero--caption .vdbs-hero__content {
+    width: min(100% - 2 * var(--gutter), var(--container-default));
+    margin-inline: auto;
+    padding-inline: 0;
+}
+
 /* ---------- Variante image: Titel auf heller Fläche über dem Bild ---------- */
 .vdbs-hero--image .vdbs-hero__stage {
     display: grid;
-    min-height: clamp(18rem, 42vw, 28rem);
+    min-height: var(--hero-height);
 }
 
 .vdbs-hero--image .vdbs-hero__media,
@@ -171,3 +186,66 @@
 
 /* Streifen unter dem Hero */
 .vdbs-hero__footer { margin-top: 0; }
+
+/* ---------- Variante overlay: Titel in Weiß auf dunklem Verlauf ---------- */
+.vdbs-hero--overlay .vdbs-hero__stage { display: grid; min-height: var(--hero-height); background: var(--color-ink); }
+
+.vdbs-hero--overlay .vdbs-hero__media,
+.vdbs-hero--overlay .vdbs-hero__content { grid-area: 1 / 1; }
+
+.vdbs-hero--overlay .vdbs-hero__media { position: relative; min-height: inherit; }
+.vdbs-hero--overlay .vdbs-hero__image { position: absolute; inset: 0; }
+
+.vdbs-hero--overlay .vdbs-hero__media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(15 23 42 / 85%) 0%, rgb(15 23 42 / 35%) 55%, rgb(15 23 42 / 0%) 100%);
+}
+
+.vdbs-hero--overlay .vdbs-hero__credit { top: 0; right: 0; bottom: auto; }
+
+.vdbs-hero--overlay .vdbs-hero__content {
+    z-index: 1;
+    align-self: end;
+    padding: var(--space-6) var(--gutter);
+    color: var(--color-weiss);
+}
+
+.vdbs-hero--overlay .vdbs-hero__title { font-size: var(--font-size-display); }
+.vdbs-hero--overlay .vdbs-hero__lead { max-width: 40rem; }
+.vdbs-hero--overlay.vdbs-hero--align-center .vdbs-hero__lead { margin-inline: auto; }
+.vdbs-hero--overlay .vdbs-hero__content :focus-visible { outline-color: var(--color-weiss); }
+
+/* ---------- Variante split: Fläche mit Text, Bild daneben ---------- */
+.vdbs-hero--split .vdbs-hero__stage { display: grid; }
+
+.vdbs-hero--split .vdbs-hero__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: var(--space-6) var(--gutter);
+    background: var(--bg-surface);
+}
+
+.vdbs-hero--split .vdbs-hero__media { position: relative; min-height: 14rem; }
+.vdbs-hero--split .vdbs-hero__image { position: absolute; inset: 0; }
+
+@media (min-width: 768px) {
+    .vdbs-hero--split .vdbs-hero__stage { grid-template-columns: 1fr 1fr; min-height: var(--hero-height); }
+    .vdbs-hero--split .vdbs-hero__media { order: 2; min-height: 0; }
+    .vdbs-hero--split .vdbs-hero__content { padding: var(--space-8); }
+    .vdbs-hero--split .vdbs-hero__title { font-size: var(--font-size-display); }
+}
+
+/* ---------- Variante compact: Seitenkopf ohne Bild ---------- */
+.vdbs-hero--compact { margin-bottom: var(--space-6); }
+.vdbs-hero--compact .vdbs-hero__media { display: none; }
+
+.vdbs-hero--compact .vdbs-hero__content {
+    padding: var(--space-6) var(--gutter);
+    background: var(--bg-surface);
+    border-bottom: 4px solid var(--bg-brand);
+}
+
+.vdbs-hero--compact.vdbs-hero--bleed .vdbs-hero__content { width: auto; margin-inline: 0; padding-inline: max(var(--gutter), calc((100% - var(--container-default)) / 2 + var(--gutter))); }

@@ -1,6 +1,7 @@
 /* Seitenrahmen: Hauptbereich und Seitenleisten-Layout */
 
 .vdbs-main { padding-block: var(--space-6); }
+.vdbs-main--full { padding-block: 0; }
 
 .vdbs-layout-sidebar { display: grid; gap: var(--space-6); }
 

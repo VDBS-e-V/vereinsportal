@@ -1,6 +1,12 @@
-/* Zum Seitenanfang — Klassen sind angelegt, Stile folgen. */
+/* Zum Seitenanfang */
 
-.vdbs-back-to-top {}
-.vdbs-back-to-top__link {}
-.vdbs-back-to-top__label {}
-.vdbs-back-to-top__icon {}
+.vdbs-back-to-top { padding: var(--space-4) var(--gutter); text-align: right; }
+
+.vdbs-back-to-top__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    color: var(--text-default);
+    font-size: var(--font-size-small);
+}

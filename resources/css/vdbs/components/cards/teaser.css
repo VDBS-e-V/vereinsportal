@@ -1,13 +1,49 @@
-/* Teaser — Klassen sind angelegt, Stile folgen. */
+/* Teaser: die ganze Karte ist über den Titel-Link klickbar */
 
-.vdbs-teaser {}
-.vdbs-teaser__media {}
-.vdbs-teaser__image {}
-.vdbs-teaser__credit {}
-.vdbs-teaser__body {}
-.vdbs-teaser__title {}
-.vdbs-teaser__link {}
-.vdbs-teaser__text {}
-.vdbs-teaser__footer {}
-.vdbs-teaser__category {}
-.vdbs-teaser__arrow {}
+.vdbs-teaser {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-surface);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-base);
+}
+
+.vdbs-teaser:hover { box-shadow: var(--shadow-md); }
+.vdbs-teaser:focus-within { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+
+.vdbs-teaser__media { position: relative; margin: 0; aspect-ratio: 3 / 2; overflow: hidden; }
+.vdbs-teaser__image { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+.vdbs-teaser__credit {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 0 var(--space-2);
+    background: rgb(15 23 42 / 70%);
+    color: var(--color-weiss);
+    font-size: var(--font-size-caption);
+}
+
+.vdbs-teaser__body { display: flex; flex: 1; flex-direction: column; padding: var(--space-4); }
+
+.vdbs-teaser__title { margin: 0 0 var(--space-2); font-size: var(--font-size-h4); font-weight: var(--font-weight-bold); line-height: var(--line-height-tight); }
+
+.vdbs-teaser__link { color: var(--text-default); text-decoration: none; }
+.vdbs-teaser__link::after { content: ""; position: absolute; inset: 0; }
+.vdbs-teaser__link:hover { text-decoration: underline; color: var(--text-default); }
+.vdbs-teaser__link:focus-visible { outline: none; }
+
+.vdbs-teaser__text { margin: 0 0 var(--space-4); color: var(--text-default); font-size: var(--font-size-small); }
+
+.vdbs-teaser__footer { display: flex; align-items: center; justify-content: space-between; margin: auto 0 0; color: var(--text-muted); font-size: var(--font-size-small); }
+
+.vdbs-teaser__arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    background: var(--bg-action);
+    color: var(--text-on-action);
+}

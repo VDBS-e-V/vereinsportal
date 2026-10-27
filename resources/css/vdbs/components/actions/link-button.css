@@ -1,8 +1,32 @@
-/* Link-Button — Klassen sind angelegt, Stile folgen. */
+/* Link-Button */
 
-.vdbs-link-button {}
-.vdbs-link-button--arrow {}
-.vdbs-link-button--line {}
-.vdbs-link-button--all {}
-.vdbs-link-button__icon {}
-.vdbs-link-button__label {}
+.vdbs-link-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    text-decoration: none;
+    font-weight: var(--font-weight-bold);
+}
+
+.vdbs-link-button__icon { flex: 0 0 auto; }
+
+.vdbs-link-button--arrow {
+    padding: var(--space-2) var(--space-5);
+    background: var(--bg-action);
+    color: var(--text-on-action);
+}
+
+.vdbs-link-button--arrow:hover { color: var(--text-on-action); filter: brightness(1.15); }
+
+.vdbs-link-button--line {
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border-input);
+    border-bottom: 3px solid var(--bg-action);
+    color: var(--text-default);
+}
+
+.vdbs-link-button--line:hover { background: var(--bg-accent-soft); color: var(--text-default); }
+
+.vdbs-link-button--all { color: var(--text-link); font-weight: var(--font-weight-regular); }
+.vdbs-link-button--all:hover { color: var(--text-link-hover); text-decoration: underline; }
