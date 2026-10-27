@@ -55,10 +55,7 @@
  * component classes from that layer.
  */
 @theme {
-    /* Lato ist die Markenschrift; "IBM Plex Sans" bleibt als Fallback in der
-       Stack-Kette, solange keine selbst gehosteten Lato-Dateien vorliegen
-       (s. resources/css/vdbs/base.css @font-face, noch nicht ergaenzt). */
-    --font-sans: 'Lato', 'IBM Plex Sans', 'Segoe UI', Arial, sans-serif;
+    --font-sans: 'Lato', 'Segoe UI', Arial, sans-serif;
 
     --color-vdbs-green: #2dc08e;
     --color-vdbs-lila: #58275a;

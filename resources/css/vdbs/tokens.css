@@ -84,7 +84,6 @@
        fuer formelle Offline-Dokumente). */
     --font-family-base:
         "Lato",
-        "IBM Plex Sans", /* Fallback, solange keine Lato-Dateien vorliegen, s. base.css */
         "Segoe UI",
         system-ui,
         -apple-system,
