@@ -71,8 +71,27 @@ it('labels icon-only buttons and exposes the pressed state', function () {
         ->and(button(':pressed="false"'))->toContain('aria-pressed="false"');
 });
 
-it('adds the arrow cell for the arrow shape', function () {
-    expect(button('shape="arrow"'))->toContain('vdbs-btn__arrow');
+it('adds the arrow cell for the arrow shape and keeps an optional leading icon', function () {
+    expect(button('shape="arrow"'))->toContain('vdbs-btn__arrow')
+        ->and(button('shape="arrow" icon="plus"'))->toContain('vdbs-btn__arrow')->toContain('<svg')
+        ->and(substr_count(button('shape="arrow" icon="plus"'), '<svg'))->toBe(2);
+});
+
+it('allows an icon before or after the text in every shape', function () {
+    foreach (['solid', 'outline', 'link', 'arrow', 'line'] as $shape) {
+        expect(button('shape="'.$shape.'" icon="plus"'))->toContain('<svg')
+            ->and(button('shape="'.$shape.'" icon="download" icon-position="end"'))->toContain('<svg');
+    }
+});
+
+it('shows a chevron in the line shape by default', function () {
+    expect(button('shape="line"'))->toContain('vdbs-btn__icon--chevron');
+});
+
+it('ships the lucide icons the design system uses', function () {
+    foreach (['arrow-right', 'chevron-right', 'external-link', 'eye', 'trash-2', 'plus', 'download', 'pencil'] as $icon) {
+        expect(Blade::render('<x-vdbs.icon name="'.$icon.'" />'))->toContain('<path');
+    }
 });
 
 it('groups buttons with an accessible label', function () {

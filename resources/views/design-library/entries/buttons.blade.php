@@ -64,6 +64,25 @@
     <x-vdbs.actions.button icon="pencil" variant="secondary" label="Bearbeiten" size="s" />
     <x-vdbs.actions.button href="https://example.org" :external="true" variant="tertiary">Externer Link</x-vdbs.actions.button>
 </x-vdbs.actions.button-group>
+<h3>Icons in jeder Form</h3>
+<div class="vdbs-table-wrap">
+    <table class="vdbs-table">
+        <caption class="vdbs-sr-only">Icons je Form</caption>
+        <thead><tr><th scope="col">Form</th><th scope="col">Icon links</th><th scope="col">Icon rechts</th><th scope="col">Nur Icon</th></tr></thead>
+        <tbody>
+            @foreach ($shapes as $shape)
+                <tr>
+                    <th scope="row"><code>{{ $shape }}</code></th>
+                    <td><x-vdbs.actions.button :shape="$shape" icon="plus">Neu</x-vdbs.actions.button></td>
+                    <td><x-vdbs.actions.button :shape="$shape" icon="download" icon-position="end">Laden</x-vdbs.actions.button></td>
+                    <td>@if ($shape === 'link') <span style="color:var(--text-muted)">nicht sinnvoll</span> @else <x-vdbs.actions.button :shape="$shape" icon="pencil" label="Bearbeiten" /> @endif</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+<p>Es ist immer ein Icon vor oder nach dem Text möglich. Die Pfeil-Form hat zusätzlich immer den Pfeil am Ende; die Linien-Form zeigt ohne eigenes Icon einen Chevron am Anfang.</p>
+
 <p>Reine Icon-Buttons brauchen <code>label</code> (wird <code>aria-label</code> und <code>title</code>). Gefahr-Buttons tragen immer Icon <em>und</em> Text, außer in Tabellenzeilen mit Label.</p>
 
 <h2>Zustände</h2>

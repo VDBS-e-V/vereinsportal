@@ -24,7 +24,8 @@
     on       light | dark | brand                                   Fläche, auf der der Button steht
              (Alternativ ein Container mit .vdbs-on-dark bzw. .vdbs-on-brand)
     href     gesetzt = <a>, sonst <button>
-    icon     Lucide-Name; iconPosition start | end
+    icon     Lucide-Name; iconPosition start | end — in jeder Form möglich (ein Icon vor oder nach dem Text).
+             Pfeil-Form: zusätzlich immer der Pfeil am Ende. Linien-Form: ohne Icon ein Chevron am Anfang.
     label    Pflicht für reine Icon-Buttons (leerer Slot): wird aria-label und title
     loading  zeigt Spinner, setzt aria-busy und sperrt die Aktion
     full     volle Breite
@@ -49,9 +50,15 @@
 
     $iconOnly = $label !== null && $slot->isEmpty();
 
-    if ($shape === 'arrow' && ! $icon) { $icon = 'arrow-right'; $iconPosition = 'end'; }
+    // Ein Icon vor oder nach dem Text ist in jeder Form möglich. Der Pfeil-Button hat zusätzlich
+    // immer den Pfeil am Ende; der Linien-Button zeigt ohne eigenes Icon einen Chevron am Anfang.
     if ($shape === 'line' && ! $icon) { $icon = 'chevron-right'; $iconPosition = 'start'; }
-    if ($external && ! $icon) { $icon = 'external-link'; $iconPosition = 'end'; }
+    if ($external && ! $icon && $shape !== 'arrow') { $icon = 'external-link'; $iconPosition = 'end'; }
+
+    $startIcon = $icon && $iconPosition === 'start' ? $icon : null;
+    $endIcon = $icon && $iconPosition === 'end' ? $icon : null;
+    $arrowCell = $shape === 'arrow';
+    if ($arrowCell) { $endIcon = $endIcon ?? ($external ? 'external-link' : 'arrow-right'); }
 
     $iconSize = ['s' => 16, 'm' => 18, 'l' => 20, 'xl' => 24][$size];
     $inactive = $disabled || $loading;
@@ -84,19 +91,19 @@
 >
     @if ($loading)
         <span class="vdbs-btn__spinner" aria-hidden="true"></span>
-    @elseif ($icon && $iconPosition === 'start')
-        <x-vdbs.icon class="vdbs-btn__icon" :name="$icon" :size="$iconSize" />
+    @elseif ($startIcon)
+        <x-vdbs.icon @class(['vdbs-btn__icon', 'vdbs-btn__icon--chevron' => $startIcon === 'chevron-right']) :name="$startIcon" :size="$iconSize" />
     @endif
 
     @unless ($iconOnly)
         <span class="vdbs-btn__label">{{ $slot }}</span>
     @endunless
 
-    @if ($icon && $iconPosition === 'end' && ! $loading)
-        @if ($shape === 'arrow')
-            <span class="vdbs-btn__arrow"><x-vdbs.icon class="vdbs-btn__icon" :name="$icon" :size="$iconSize" /></span>
+    @if ($endIcon && ! $loading)
+        @if ($arrowCell)
+            <span class="vdbs-btn__arrow"><x-vdbs.icon class="vdbs-btn__icon" :name="$endIcon" :size="$iconSize" /></span>
         @else
-            <x-vdbs.icon class="vdbs-btn__icon" :name="$icon" :size="$iconSize" />
+            <x-vdbs.icon class="vdbs-btn__icon" :name="$endIcon" :size="$iconSize" />
         @endif
     @endif
 

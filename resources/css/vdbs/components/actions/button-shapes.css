@@ -44,7 +44,7 @@
 .vdbs-btn--shape-link:hover { color: var(--btn-hover-fg); text-decoration-thickness: 2px; }
 .vdbs-btn--shape-link.vdbs-btn--size-s { min-height: 2rem; }
 
-/* arrow: gefüllt mit Pfeil-Kachel am Ende */
+/* arrow: wie solid, mit Pfeil am Ende; eine Fläche pro Zustand, nur eine feine Trennlinie */
 .vdbs-btn--shape-arrow { padding-right: 0; }
 
 .vdbs-btn__arrow {
@@ -54,11 +54,8 @@
     justify-content: center;
     min-width: var(--btn-height);
     margin-left: var(--space-2);
-    background: var(--btn-fg);
-    color: var(--btn-bg);
+    border-left: 1px solid color-mix(in srgb, currentColor 35%, transparent);
 }
-
-.vdbs-btn--shape-arrow:hover .vdbs-btn__arrow { background: var(--btn-hover-fg); color: var(--btn-hover-bg); }
 
 /* line: Rahmen mit dicker Linie unten */
 .vdbs-btn--shape-line {
@@ -69,3 +66,6 @@
 }
 
 .vdbs-btn--shape-line:hover { background: var(--bg-accent-soft); color: var(--text-default); }
+
+/* Der Chevron hat seitlich Leerraum im Icon-Feld; ausgleichen, damit links und rechts gleich viel Rand sichtbar ist */
+.vdbs-btn--shape-line .vdbs-btn__icon--chevron { margin-left: -0.375rem; }
