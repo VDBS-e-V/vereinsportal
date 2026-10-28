@@ -86,3 +86,32 @@ it('falls back to the side variant and no tone for unknown values', function () 
 
     expect($html)->toContain('vdbs-feature--side')->toContain('vdbs-feature--tone-none');
 });
+
+it('renders teaser variants with one link and the tone class', function () {
+    $html = Blade::render('<x-vdbs.cards.teaser variant="compact" tone="white" title="Ort" meta="Adresse 1" href="/o" category="Standort" image="/x.svg" credit="Bild: X" />');
+
+    expect($html)
+        ->toContain('vdbs-teaser--compact')
+        ->toContain('vdbs-teaser--white')
+        ->toContain('vdbs-teaser__meta')
+        ->and(substr_count($html, '<a '))->toBe(1);
+});
+
+it('falls back to the default teaser variant', function () {
+    expect(Blade::render('<x-vdbs.cards.teaser variant="x" title="T" href="/t" />'))->toContain('vdbs-teaser--default');
+});
+
+it('supports start alignment in the grid', function () {
+    expect(Blade::render('<x-vdbs.layout.grid align="start">x</x-vdbs.layout.grid>'))->toContain('vdbs-grid--align-start');
+});
+
+it('renders an event list with items, time and footer', function () {
+    $html = Blade::render('<x-vdbs.data.event-list href="/t"><x-vdbs.data.event-item date="01.11." datetime="2026-11-01" time="13:00" title="Vortrag" href="/v" /><x-slot:controls>1 / 3</x-slot:controls></x-vdbs.data.event-list>');
+
+    expect($html)
+        ->toContain('aria-labelledby="events-veranstaltungskalender-title"')
+        ->toContain('<time datetime="2026-11-01">01.11.</time>')
+        ->toContain('13:00')
+        ->toContain('vdbs-event-list__controls')
+        ->toContain('Alle Termine');
+});

@@ -1,0 +1,15 @@
+.vdbs-event-item {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    gap: var(--space-3);
+    padding-block: var(--space-3);
+    border-top: 1px solid var(--border-default);
+}
+
+.vdbs-event-item:first-child { border-top: 0; padding-top: 0; }
+
+.vdbs-event-item__when { display: flex; flex-direction: column; margin: 0; color: var(--text-muted); font-size: var(--font-size-small); font-weight: var(--font-weight-bold); }
+.vdbs-event-item__time { font-weight: var(--font-weight-regular); }
+
+.vdbs-event-item__title { color: var(--text-default); text-decoration: underline; text-underline-offset: 0.2em; }
+.vdbs-event-item__title:hover { text-decoration-thickness: 2px; }

@@ -37,3 +37,47 @@
     background: var(--bg-action);
     color: var(--text-on-action);
 }
+
+
+/* ---------- Kategorie und Meta ---------- */
+.vdbs-teaser__category { margin: 0 0 var(--space-1); color: var(--text-muted); font-size: var(--font-size-small); }
+.vdbs-teaser__footer .vdbs-teaser__category { margin: 0; }
+.vdbs-teaser__meta { margin: 0 0 var(--space-2); color: var(--text-muted); font-size: var(--font-size-small); }
+
+/* ---------- Ton white: Karte auf grauem Band ---------- */
+.vdbs-teaser--white { background: var(--bg-page); }
+
+/* ---------- flat, featured, compact: flach, Pfeilfläche rechts unten ---------- */
+.vdbs-teaser--flat,
+.vdbs-teaser--featured,
+.vdbs-teaser--compact { box-shadow: none; }
+
+.vdbs-teaser--flat:hover,
+.vdbs-teaser--featured:hover,
+.vdbs-teaser--compact:hover { box-shadow: none; }
+
+.vdbs-teaser--flat:hover .vdbs-teaser__link,
+.vdbs-teaser--featured:hover .vdbs-teaser__link,
+.vdbs-teaser--compact:hover .vdbs-teaser__link { text-decoration: underline; }
+
+.vdbs-teaser--flat .vdbs-teaser__title,
+.vdbs-teaser--featured .vdbs-teaser__title { font-size: var(--font-size-body); font-weight: var(--font-weight-regular); }
+
+.vdbs-teaser--flat .vdbs-teaser__text { color: var(--text-muted); }
+.vdbs-teaser--flat .vdbs-teaser__body { padding: var(--space-3) var(--space-3) var(--space-3); }
+.vdbs-teaser--flat .vdbs-teaser__footer,
+.vdbs-teaser--compact .vdbs-teaser__footer { justify-content: flex-end; margin-top: var(--space-2); }
+.vdbs-teaser--flat .vdbs-teaser__text { margin-bottom: 0; }
+
+/* featured: Titel und Pfeil in einer Zeile */
+.vdbs-teaser--featured .vdbs-teaser__body { flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); padding: var(--space-3); }
+.vdbs-teaser--featured .vdbs-teaser__title { flex: 1 1 16rem; margin: 0; }
+.vdbs-teaser--featured .vdbs-teaser__category,
+.vdbs-teaser--featured .vdbs-teaser__meta,
+.vdbs-teaser--featured .vdbs-teaser__text { flex: 1 0 100%; margin: 0; }
+.vdbs-teaser--featured .vdbs-teaser__footer { margin: 0; }
+
+/* compact */
+.vdbs-teaser--compact .vdbs-teaser__body { padding: var(--space-3); }
+.vdbs-teaser--compact .vdbs-teaser__title { font-size: var(--font-size-body); margin-bottom: var(--space-1); }
+.vdbs-teaser--compact .vdbs-teaser__text { margin-bottom: 0; }
