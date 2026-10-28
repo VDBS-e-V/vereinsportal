@@ -19,7 +19,7 @@
 
 .vdbs-card--info {
     background: var(--bg-accent-soft);
-    border-color: var(--color-gruen);
+    border-color: var(--bg-brand);
 }
 
 .vdbs-card--statement {

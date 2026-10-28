@@ -4,27 +4,27 @@
     position: relative;
     min-height: 10rem;
     overflow: hidden;
-    background: var(--color-ink);
-    color: var(--color-weiss);
+    background: var(--bg-media);
+    color: var(--text-on-media);
 }
 
 /* Das Bild füllt die Kachel; die Quelle (edge) liegt über dem Verlauf */
 .vdbs-hero-tile__image { position: absolute; inset: 0; width: 100%; height: 100%; transition: transform var(--transition-base); }
 .vdbs-hero-tile__image .vdbs-image__img { width: 100%; height: 100%; object-fit: cover; }
-.vdbs-hero-tile .vdbs-image-credit { z-index: 2; }
+.vdbs-hero-tile .vdbs-image-credit { z-index: var(--z-overlay); }
 
 .vdbs-hero-tile::before {
     content: "";
     position: absolute;
     inset: 0;
-    z-index: 1;
-    background: linear-gradient(to top, rgb(15 23 42 / 85%), rgb(15 23 42 / 0%) 70%);
+    z-index: var(--z-raised);
+    background: linear-gradient(to top, var(--scrim-image-strong), transparent 70%);
 }
 
 .vdbs-hero-tile__title {
     position: absolute;
     inset: auto 0 0 0;
-    z-index: 2;
+    z-index: var(--z-overlay);
     margin: 0;
     padding: var(--space-3) var(--space-4);
     font-size: var(--font-size-h4);
@@ -34,7 +34,7 @@
 
 .vdbs-hero-tile__link { color: inherit; text-decoration: none; }
 
-.vdbs-hero-tile__link::after { content: ""; position: absolute; inset: 0; z-index: 3; }
+.vdbs-hero-tile__link::after { content: ""; position: absolute; inset: 0; z-index: var(--z-link); }
 
 .vdbs-hero-tile__link:hover { color: inherit; text-decoration: underline; }
 

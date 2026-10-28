@@ -27,14 +27,14 @@
 @theme {
     --font-sans: 'Lato', 'Segoe UI', system-ui, -apple-system, sans-serif;
 
-    --color-vdbs-gruen: #2dc08e;
-    --color-vdbs-ink: #0f172a;
-    --color-vdbs-weiss: #ffffff;
-    --color-vdbs-lila: #58275a;
-    --color-vdbs-group-1: #52bdf2;
-    --color-vdbs-group-2: #ffcb1f;
-    --color-vdbs-group-3: #0a7fa0;
-    --color-vdbs-group-4: #f76ca3;
-    --color-vdbs-group-5: #d93425;
-    --color-vdbs-group-6: #f5912b;
+    --color-vdbs-gruen: var(--color-gruen);
+    --color-vdbs-ink: var(--color-ink);
+    --color-vdbs-weiss: var(--color-weiss);
+    --color-vdbs-lila: var(--color-lila);
+    --color-vdbs-group-1: var(--color-group-1);
+    --color-vdbs-group-2: var(--color-group-2);
+    --color-vdbs-group-3: var(--color-group-3);
+    --color-vdbs-group-4: var(--color-group-4);
+    --color-vdbs-group-5: var(--color-group-5);
+    --color-vdbs-group-6: var(--color-group-6);
 }

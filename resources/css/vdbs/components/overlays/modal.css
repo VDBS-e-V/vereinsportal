@@ -13,7 +13,7 @@
     box-shadow: var(--shadow-lg);
 }
 
-.vdbs-modal::backdrop { background: rgb(15 23 42 / 60%); }
+.vdbs-modal::backdrop { background: var(--scrim-modal); }
 
 .vdbs-modal__header {
     display: flex;
@@ -38,8 +38,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 2.75rem;
-    min-height: 2.75rem;
+    min-width: var(--size-touch);
+    min-height: var(--size-touch);
     border: 0;
     background: transparent;
     color: inherit;

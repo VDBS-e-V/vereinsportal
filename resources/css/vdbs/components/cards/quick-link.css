@@ -2,12 +2,12 @@
 
 .vdbs-quick-link { --tone: var(--bg-brand); }
 
-.vdbs-quick-link--tone-1 { --tone: var(--color-group-1); }
-.vdbs-quick-link--tone-2 { --tone: var(--color-group-2); }
-.vdbs-quick-link--tone-3 { --tone: var(--color-group-3); }
-.vdbs-quick-link--tone-4 { --tone: var(--color-group-4); }
-.vdbs-quick-link--tone-5 { --tone: var(--color-group-5); }
-.vdbs-quick-link--tone-6 { --tone: var(--color-group-6); }
+.vdbs-quick-link--tone-1 { --tone: var(--group-1); }
+.vdbs-quick-link--tone-2 { --tone: var(--group-2); }
+.vdbs-quick-link--tone-3 { --tone: var(--group-3); }
+.vdbs-quick-link--tone-4 { --tone: var(--group-4); }
+.vdbs-quick-link--tone-5 { --tone: var(--group-5); }
+.vdbs-quick-link--tone-6 { --tone: var(--group-6); }
 
 .vdbs-quick-link__link {
     display: flex;

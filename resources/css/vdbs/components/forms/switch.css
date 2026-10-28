@@ -23,7 +23,7 @@
 }
 
 .vdbs-choice--switch .vdbs-choice__input:checked { background: var(--bg-brand); border-color: var(--text-success); }
-.vdbs-choice--switch .vdbs-choice__input:checked::before { background: var(--color-ink); transform: translateX(1.25rem); }
+.vdbs-choice--switch .vdbs-choice__input:checked::before { background: var(--text-on-brand); transform: translateX(1.25rem); }
 
 .vdbs-choice--switch .vdbs-choice__input:disabled::before { background: var(--text-muted); }
 

@@ -1,31 +1,34 @@
-/* Button-Flächen: dunkle (Lila/Ink/Bild) und Markenfläche (Grün).
+/* Button-Flächen: dunkle (Lila/Ink/Bild) und Markenfläche (helles Grün).
  * Entweder am Button (on="dark|brand") oder an einem Container (.vdbs-on-dark / .vdbs-on-brand).
  * Gesetzt werden nur die Farbvariablen; die Formen bleiben unverändert.
+ * Farben kommen aus den Tokens --on-dark-* und --on-brand-* (tokens.css).
  */
 
 /* ---------- dark ---------- */
 .vdbs-btn--on-dark,
 .vdbs-on-dark .vdbs-btn {
-    --btn-line: var(--color-weiss);
-    --btn-line-fg: var(--color-weiss);
-    --btn-edge: rgb(255 255 255 / 60%);
-    --focus-ring: var(--color-weiss);
+    --btn-line: var(--on-dark-fg);
+    --btn-line-fg: var(--on-dark-fg);
+    --btn-edge: var(--on-dark-line);
+    --focus-ring: var(--on-dark-fg);
 }
 
 .vdbs-btn--on-dark.vdbs-btn--primary,
 .vdbs-on-dark .vdbs-btn--primary {
+    --btn-bg: var(--bg-brand);
+    --btn-fg: var(--text-on-brand);
     --btn-fill: var(--bg-brand);
     --btn-fill-fg: var(--text-on-brand);
 }
 
 .vdbs-btn--on-dark.vdbs-btn--secondary,
 .vdbs-on-dark .vdbs-btn--secondary {
-    --btn-bg: var(--color-weiss);
-    --btn-fg: var(--color-ink);
-    --btn-hover-bg: rgb(255 255 255 / 15%);
-    --btn-hover-fg: var(--color-weiss);
-    --btn-fill: var(--color-weiss);
-    --btn-fill-fg: var(--color-ink);
+    --btn-bg: var(--on-dark-solid);
+    --btn-fg: var(--on-dark-solid-fg);
+    --btn-hover-bg: var(--on-dark-hover);
+    --btn-hover-fg: var(--on-dark-fg);
+    --btn-fill: var(--on-dark-solid);
+    --btn-fill-fg: var(--on-dark-solid-fg);
 }
 
 .vdbs-btn--on-dark.vdbs-btn--tertiary,
@@ -33,58 +36,58 @@
 .vdbs-on-dark .vdbs-btn--tertiary,
 .vdbs-on-dark .vdbs-btn--quiet {
     --btn-bg: transparent;
-    --btn-fg: var(--color-weiss);
-    --btn-hover-bg: rgb(255 255 255 / 15%);
-    --btn-hover-fg: var(--color-weiss);
+    --btn-fg: var(--on-dark-fg);
+    --btn-hover-bg: var(--on-dark-hover);
+    --btn-hover-fg: var(--on-dark-fg);
     --btn-fill: var(--bg-brand);
     --btn-fill-fg: var(--text-on-brand);
 }
 
 .vdbs-btn--on-dark.vdbs-btn--quiet,
 .vdbs-on-dark .vdbs-btn--quiet {
-    --btn-fill: rgb(255 255 255 / 25%);
-    --btn-fill-fg: var(--color-weiss);
+    --btn-fill: var(--on-dark-fill-soft);
+    --btn-fill-fg: var(--on-dark-fg);
 }
 
 .vdbs-btn--on-dark.vdbs-btn--danger,
 .vdbs-on-dark .vdbs-btn--danger {
-    --btn-bg: #ff8a80;
-    --btn-fg: var(--color-ink);
-    --btn-line: #ff8a80;
-    --btn-hover-bg: #ffb3ad;
-    --btn-hover-fg: var(--color-ink);
-    --btn-fill: #ff8a80;
-    --btn-fill-fg: var(--color-ink);
+    --btn-bg: var(--on-dark-danger);
+    --btn-fg: var(--on-dark-solid-fg);
+    --btn-line: var(--on-dark-danger);
+    --btn-hover-bg: var(--on-dark-danger-hover);
+    --btn-hover-fg: var(--on-dark-solid-fg);
+    --btn-fill: var(--on-dark-danger);
+    --btn-fill-fg: var(--on-dark-solid-fg);
 }
 
 
-/* ---------- brand (auf Markengrün: Ink statt Grün) ---------- */
+/* ---------- brand (auf hellem Markengrün: Ink statt Grün) ---------- */
 .vdbs-btn--on-brand,
 .vdbs-on-brand .vdbs-btn {
-    --btn-line: var(--color-ink);
-    --btn-line-fg: var(--color-ink);
-    --btn-edge: rgb(15 23 42 / 60%);
-    --focus-ring: var(--color-weiss);
+    --btn-line: var(--on-brand-fg);
+    --btn-line-fg: var(--on-brand-fg);
+    --btn-edge: var(--on-brand-line);
+    --focus-ring: var(--on-dark-fg);
 }
 
 .vdbs-btn--on-brand.vdbs-btn--primary,
 .vdbs-on-brand .vdbs-btn--primary {
-    --btn-bg: var(--color-ink);
-    --btn-fg: var(--color-weiss);
-    --btn-hover-bg: var(--color-weiss);
-    --btn-hover-fg: var(--color-ink);
-    --btn-fill: var(--color-ink);
-    --btn-fill-fg: var(--color-weiss);
+    --btn-bg: var(--on-brand-solid);
+    --btn-fg: var(--on-brand-solid-fg);
+    --btn-hover-bg: var(--on-dark-solid);
+    --btn-hover-fg: var(--on-dark-solid-fg);
+    --btn-fill: var(--on-brand-solid);
+    --btn-fill-fg: var(--on-brand-solid-fg);
 }
 
 .vdbs-btn--on-brand.vdbs-btn--secondary,
 .vdbs-on-brand .vdbs-btn--secondary {
-    --btn-bg: var(--color-weiss);
-    --btn-fg: var(--color-ink);
-    --btn-hover-bg: rgb(255 255 255 / 40%);
-    --btn-hover-fg: var(--color-ink);
-    --btn-fill: var(--color-ink);
-    --btn-fill-fg: var(--color-weiss);
+    --btn-bg: var(--on-dark-solid);
+    --btn-fg: var(--on-dark-solid-fg);
+    --btn-hover-bg: var(--on-brand-secondary-hover);
+    --btn-hover-fg: var(--on-brand-fg);
+    --btn-fill: var(--on-brand-solid);
+    --btn-fill-fg: var(--on-brand-solid-fg);
 }
 
 .vdbs-btn--on-brand.vdbs-btn--tertiary,
@@ -92,10 +95,9 @@
 .vdbs-on-brand .vdbs-btn--tertiary,
 .vdbs-on-brand .vdbs-btn--quiet {
     --btn-bg: transparent;
-    --btn-fg: var(--color-ink);
-    --btn-hover-bg: rgb(15 23 42 / 12%);
-    --btn-hover-fg: var(--color-ink);
-    --btn-fill: rgb(15 23 42 / 15%);
-    --btn-fill-fg: var(--color-ink);
+    --btn-fg: var(--on-brand-fg);
+    --btn-hover-bg: var(--on-brand-hover);
+    --btn-hover-fg: var(--on-brand-fg);
+    --btn-fill: var(--on-brand-fill-soft);
+    --btn-fill-fg: var(--on-brand-fg);
 }
-

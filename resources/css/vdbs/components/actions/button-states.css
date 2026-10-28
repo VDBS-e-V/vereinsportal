@@ -22,16 +22,16 @@
 
 .vdbs-on-dark .vdbs-btn.vdbs-btn--disabled,
 .vdbs-btn--on-dark.vdbs-btn--disabled {
-    background: rgb(255 255 255 / 12%);
-    border-color: rgb(255 255 255 / 25%);
-    color: rgb(255 255 255 / 60%);
+    background: var(--on-dark-disabled-bg);
+    border-color: var(--on-dark-disabled-line);
+    color: var(--on-dark-disabled-fg);
 }
 
 .vdbs-on-brand .vdbs-btn.vdbs-btn--disabled,
 .vdbs-btn--on-brand.vdbs-btn--disabled {
-    background: rgb(15 23 42 / 12%);
-    border-color: rgb(15 23 42 / 25%);
-    color: rgb(15 23 42 / 60%);
+    background: var(--on-brand-disabled-bg);
+    border-color: var(--on-brand-disabled-line);
+    color: var(--on-brand-disabled-fg);
 }
 
 .vdbs-on-dark .vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-outline,

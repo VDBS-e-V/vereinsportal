@@ -58,6 +58,10 @@ def parse_color(value, theme, depth=0):
     if m:
         a = float(m.group(4)) / 100 if m.group(4) else 1.0
         return (int(m.group(1)), int(m.group(2)), int(m.group(3)), a)
+    m = re.fullmatch(r'color-mix\(in srgb,\s*(.+?)\s+([\d.]+)%,\s*transparent\)', value)
+    if m:
+        r, g, b, _ = parse_color(m.group(1), theme, depth + 1)
+        return (r, g, b, float(m.group(2)) / 100)
     if value == 'transparent':
         return (0, 0, 0, 0.0)
     raise ValueError(f'Unbekannte Farbe: {value}')
@@ -109,7 +113,7 @@ def main():
     for theme_name, theme in (('hell', light), ('dunkel', dark)):
         surfaces = {
             'default': [('bg-page', theme['--bg-page']), ('bg-surface', theme['--bg-surface'])],
-            'dark': [('bg-header-footer', theme['--bg-header-footer']), ('ink', '#0f172a')],
+            'dark': [('bg-header-footer', theme['--bg-header-footer']), ('ink', 'var(--color-ink)')],
             'brand': [('bg-brand', theme['--bg-brand'])],
         }
         for surface, bgs in surfaces.items():

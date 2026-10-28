@@ -3,7 +3,7 @@
  */
 
 .vdbs-control {
-    --control-height: 2.75rem;
+    --control-height: var(--size-touch);
 
     width: 100%;
     min-height: var(--control-height);
@@ -17,7 +17,7 @@
 }
 
 .vdbs-control--size-s { --control-height: 2.25rem; padding-block: var(--space-1); font-size: var(--font-size-small); }
-.vdbs-control--size-m { --control-height: 2.75rem; }
+.vdbs-control--size-m { --control-height: var(--size-touch); }
 .vdbs-control--size-l { --control-height: 3.25rem; font-size: var(--font-size-body-lg); }
 
 .vdbs-control::placeholder { color: var(--text-muted); opacity: 1; }

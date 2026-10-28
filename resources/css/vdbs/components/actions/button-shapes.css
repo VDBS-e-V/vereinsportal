@@ -32,7 +32,7 @@
 .vdbs-btn--shape-link {
     --btn-height: auto;
 
-    min-height: 2.75rem;
+    min-height: var(--size-touch);
     margin-inline: calc(-1 * var(--space-2));
     padding: var(--space-1) var(--space-2);
     background: transparent;

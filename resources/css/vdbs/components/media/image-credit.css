@@ -4,8 +4,8 @@
  */
 
 .vdbs-image-credit {
-    --credit-bg: rgb(15 23 42 / 70%);
-    --credit-fg: var(--color-weiss);
+    --credit-bg: var(--bg-credit);
+    --credit-fg: var(--text-credit);
     --credit-size: var(--font-size-caption);
 
     font-size: var(--credit-size);
@@ -14,8 +14,8 @@
 
 .vdbs-image-credit--size-m { --credit-size: var(--font-size-small); }
 
-.vdbs-image-credit--tone-light { --credit-bg: rgb(255 255 255 / 88%); --credit-fg: var(--color-ink); }
-.vdbs-image-credit--tone-brand { --credit-bg: var(--color-gruen); --credit-fg: var(--color-ink); }
+.vdbs-image-credit--tone-light { --credit-bg: var(--bg-credit-light); --credit-fg: var(--text-credit-light); }
+.vdbs-image-credit--tone-brand { --credit-bg: var(--bg-credit-brand); --credit-fg: var(--text-credit-brand); }
 
 .vdbs-image-credit a { color: inherit; }
 
@@ -29,7 +29,7 @@
 .vdbs-image-credit--corner,
 .vdbs-image-credit--hover {
     position: absolute;
-    z-index: 1;
+    z-index: var(--z-raised);
     background: var(--credit-bg);
     color: var(--credit-fg);
 }
@@ -96,7 +96,7 @@
 .vdbs-image-credit--edge-left a:hover { text-decoration: underline; }
 
 /* toggle: Knopf "©", die Quelle klappt auf */
-.vdbs-image-credit--toggle { position: absolute; right: 0; bottom: 0; z-index: 1; }
+.vdbs-image-credit--toggle { position: absolute; right: 0; bottom: 0; z-index: var(--z-raised); }
 
 .vdbs-image-credit__toggle {
     display: flex;

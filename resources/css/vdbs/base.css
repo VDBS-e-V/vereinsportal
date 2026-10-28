@@ -115,7 +115,7 @@
         position: absolute;
         left: var(--space-2);
         top: -4rem;
-        z-index: 100;
+        z-index: var(--z-sticky);
         padding: var(--space-2) var(--space-4);
         background: var(--bg-header-footer);
         color: var(--text-on-dark);

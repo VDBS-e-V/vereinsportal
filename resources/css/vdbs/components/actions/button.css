@@ -5,7 +5,7 @@
  */
 
 .vdbs-btn {
-    --btn-height: 2.75rem;
+    --btn-height: var(--size-touch);
     --btn-pad-x: var(--space-5);
     --btn-font-size: var(--font-size-body);
 
@@ -30,7 +30,7 @@
 
 /* Größen */
 .vdbs-btn--size-s { --btn-height: 2.25rem; --btn-pad-x: var(--space-3); --btn-font-size: var(--font-size-small); }
-.vdbs-btn--size-m { --btn-height: 2.75rem; --btn-pad-x: var(--space-5); --btn-font-size: var(--font-size-body); }
+.vdbs-btn--size-m { --btn-height: var(--size-touch); --btn-pad-x: var(--space-5); --btn-font-size: var(--font-size-body); }
 .vdbs-btn--size-l { --btn-height: 3.25rem; --btn-pad-x: var(--space-5); --btn-font-size: var(--font-size-body-lg); }
 .vdbs-btn--size-xl { --btn-height: 3.75rem; --btn-pad-x: var(--space-6); --btn-font-size: var(--font-size-h4); }
 

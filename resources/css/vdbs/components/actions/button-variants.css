@@ -1,14 +1,15 @@
 /* Button-Rollen (Wichtigkeit): setzen die Farbvariablen für die Fläche "light".
- * --btn-fill/--btn-fill-fg: kräftige Hover-Fläche der Formen outline, line und link in der Farbe der Rolle. */
+ * --btn-fill/--btn-fill-fg: kräftige Hover-Fläche der Formen outline, line und link in der Farbe der Rolle.
+ * Primär und Tertiär nutzen das dunkle Aktionsgrün mit weißer Schrift (--bg-action). */
 
 .vdbs-btn--primary {
-    --btn-bg: var(--bg-brand);
-    --btn-fg: var(--text-on-brand);
+    --btn-bg: var(--bg-action);
+    --btn-fg: var(--text-on-action);
     --btn-line: var(--text-link);
-    --btn-hover-bg: var(--color-gruen-dunkel);
-    --btn-hover-fg: var(--color-weiss);
-    --btn-fill: var(--bg-brand);
-    --btn-fill-fg: var(--text-on-brand);
+    --btn-hover-bg: var(--bg-action-hover);
+    --btn-hover-fg: var(--text-on-action);
+    --btn-fill: var(--bg-action);
+    --btn-fill-fg: var(--text-on-action);
 }
 
 .vdbs-btn--secondary {
@@ -25,20 +26,20 @@
     --btn-bg: transparent;
     --btn-fg: var(--text-link);
     --btn-line: var(--text-link);
-    --btn-hover-bg: var(--bg-brand);
-    --btn-hover-fg: var(--text-on-brand);
-    --btn-fill: var(--bg-brand);
-    --btn-fill-fg: var(--text-on-brand);
+    --btn-hover-bg: var(--bg-action);
+    --btn-hover-fg: var(--text-on-action);
+    --btn-fill: var(--bg-action);
+    --btn-fill-fg: var(--text-on-action);
 }
 
 .vdbs-btn--danger {
-    --btn-bg: var(--color-fehler);
-    --btn-fg: var(--color-weiss);
+    --btn-bg: var(--bg-danger);
+    --btn-fg: var(--text-on-danger);
     --btn-line: var(--text-error);
-    --btn-hover-bg: #8f1a10;
-    --btn-hover-fg: var(--color-weiss);
-    --btn-fill: var(--color-fehler);
-    --btn-fill-fg: var(--color-weiss);
+    --btn-hover-bg: var(--bg-danger-hover);
+    --btn-hover-fg: var(--text-on-danger);
+    --btn-fill: var(--bg-danger);
+    --btn-fill-fg: var(--text-on-danger);
 }
 
 .vdbs-btn--quiet {
@@ -47,6 +48,6 @@
     --btn-line: var(--text-default);
     --btn-hover-bg: var(--bg-accent-soft);
     --btn-hover-fg: var(--text-default);
-    --btn-fill: var(--color-grau-linie);
-    --btn-fill-fg: var(--color-ink);
+    --btn-fill: var(--border-default);
+    --btn-fill-fg: var(--text-default);
 }

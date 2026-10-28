@@ -70,7 +70,7 @@
 
 .vdbs-js .vdbs-multiselect__panel {
     position: absolute;
-    z-index: 20;
+    z-index: var(--z-dropdown);
     top: 100%;
     right: 0;
     left: 0;

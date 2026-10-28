@@ -2,25 +2,39 @@
  * VDBS Vereinsportal — Design Tokens
  *
  * Quelle: VDBS-Web-Styleguide.md (Stand 2026-10-26, VDBS-Markenpaket v7.2 /
- * Farbsystem v6.0) — die verbindliche Richtlinie des Vereins, siehe
- * Konzept-Dokument "VDBS Vereinsportal — Neuaufbau-Konzept", Abschnitt
- * "Design System: Grundlage und Entscheidungen".
+ * Farbsystem v6.0) und die Entscheidungen aus der Entwicklung der Design-Bibliothek.
+ *
+ * Drei Ebenen — jede verweist nur auf die darunterliegende:
+ *
+ *   1. PRIMITIVE   --color-*, --alpha-*       die festen Werte. NUR hier stehen Farbcodes (#…, rgb(…)).
+ *   2. SEMANTIK    --bg-*, --text-*, --border-*, --accent-*, --on-dark-*, --on-brand-* …
+ *                  Rollen im Code. Verweisen ausschließlich auf Primitive.
+ *   3. KOMPONENTE  lokale Variablen (z. B. --btn-bg) in den Komponenten-CSS. Verweisen auf Semantik.
+ *
+ * Regeln für Komponenten-Code:
+ *   - keine Farbcodes, keine Primitive (--color-…, --alpha-…) direkt; immer die semantischen Tokens
+ *   - neue Farbe nötig? Erst als Primitive hier anlegen, dann eine Rolle (Semantik) darauf zeigen lassen
+ *   - der Dark Mode überschreibt nur die Semantik (siehe unten), nie Primitive
+ *   - Schrift auf --bg-brand (hellem Markengrün) ist immer Ink; Schrift auf --bg-action (dunklem Grün) ist Weiß
  *
  * Einzige bewusste Abweichung vom Styleguide: --radius-sm/md/lg sind auf 0
  * gesetzt (eckige Formensprache für das Portal), --radius-full bleibt
  * unverändert für Avatare, Pills und runde Marken-Bausteine.
  *
- * Regel für Komponenten-Code: ausschließlich die *semantischen* Tokens
- * (--bg-*, --text-*, --border-*, --focus-ring) verwenden, niemals die
- * Rohfarben (--color-*) direkt in Komponenten-Styles.
+ * tests/Feature/DesignLibrary/TokensTest.php prüft die Regeln (keine Farbcodes außerhalb dieser Datei,
+ * Dark-Mode-Blöcke identisch, nur bekannte Primitive).
  */
 
+/* ============================================================
+ * 1. PRIMITIVE — die festen Werte
+ * ============================================================ */
 :root {
     /* Marken-Grundfarben (Markenpaket v7.2) */
     --color-gruen: #2dc08e;
     --color-ink: #0f172a;
     --color-weiss: #ffffff;
     --color-lila: #58275a;
+    --color-schwarz: #000000; /* nur für Schatten im Dark Mode */
 
     /* Gruppenfarben — nur für Kategorien/Diagramme/Gruppen-Marken, in dieser Reihenfolge */
     --color-group-1: #52bdf2; /* Hellblau – Kreis */
@@ -30,41 +44,168 @@
     --color-group-5: #d93425; /* Rot – Dreieck, ab 5 Gruppen */
     --color-group-6: #f5912b; /* Orange – Sechseck, ab 6 Gruppen */
 
-    /* Hilfstöne */
-    --color-gruen-dunkel: #057f5b;
-    --color-gruen-hell: #dcf8ea;
+    /* Grüntöne */
+    --color-gruen-dunkel: #057f5b; /* Aktion (mit Weiß 5,0:1), Links */
+    --color-gruen-dunkler: #046a4d; /* Hover der Aktion und der Links */
+    --color-gruen-hell: #dcf8ea; /* ruhige Hinweisflächen */
+    --color-gruen-leuchtend: #40cd9a; /* Grün auf dunklen Flächen (Dark Mode) */
+    --color-gruen-pastell: #a8e6cf; /* Vereinsname auf dunklen Flächen */
+
+    /* Graustufen (hell) */
     --color-grau-hell: #f5f7f6;
     --color-grau-linie: #d4dbd8;
     --color-grau-rahmen: #7f8d88;
     --color-grau-text: #52605b;
-    --color-fehler: #b42318;
 
-    /* Semantische Tokens — DIESE im Code verwenden */
+    /* Marineblau: Vereinsname im Footer */
+    --color-marine: #0b3a5a;
+
+    /* Status */
+    --color-fehler: #b42318;
+    --color-fehler-dunkel: #8f1a10; /* Hover der Gefahr-Aktion */
+    --color-fehler-hell: #fde8e6;
+    --color-fehler-leuchtend: #ff8a80; /* Fehler auf dunklen Flächen */
+    --color-fehler-pastell: #ffb3ad; /* Hover darauf */
+    --color-fehler-flaeche-dunkel: #3a1210;
+    --color-warnung-hell: #fff4d6;
+    --color-warnung-rand: #8a5a00;
+    --color-warnung-text: #6b4500;
+    --color-warnung-leuchtend: #ffd36b;
+    --color-warnung-flaeche-dunkel: #3a2c05;
+
+    /* Dark-Mode-Palette (Aubergine statt Schwarz, passend zum Lila) */
+    --color-aubergine-950: #180f18;
+    --color-aubergine-900: #261926;
+    --color-aubergine-800: #381d39;
+    --color-aubergine-700: #3d303e;
+    --color-mauve-500: #8a7d89; /* Rahmen, mind. 3:1 gegen die dunklen Flächen */
+    --color-mauve-400: #a49ca3;
+    --color-nebel: #f1f4f2; /* Text im Dark Mode */
+
+    /* Transparenzstufen (für Schleier, Hover-Flächen, Bildquellen) */
+    --alpha-weiss-12: color-mix(in srgb, var(--color-weiss) 12%, transparent);
+    --alpha-weiss-15: color-mix(in srgb, var(--color-weiss) 15%, transparent);
+    --alpha-weiss-25: color-mix(in srgb, var(--color-weiss) 25%, transparent);
+    --alpha-weiss-40: color-mix(in srgb, var(--color-weiss) 40%, transparent);
+    --alpha-weiss-60: color-mix(in srgb, var(--color-weiss) 60%, transparent);
+    --alpha-weiss-88: color-mix(in srgb, var(--color-weiss) 88%, transparent);
+    --alpha-ink-6: color-mix(in srgb, var(--color-ink) 6%, transparent);
+    --alpha-ink-10: color-mix(in srgb, var(--color-ink) 10%, transparent);
+    --alpha-ink-12: color-mix(in srgb, var(--color-ink) 12%, transparent);
+    --alpha-ink-15: color-mix(in srgb, var(--color-ink) 15%, transparent);
+    --alpha-ink-16: color-mix(in srgb, var(--color-ink) 16%, transparent);
+    --alpha-ink-25: color-mix(in srgb, var(--color-ink) 25%, transparent);
+    --alpha-ink-35: color-mix(in srgb, var(--color-ink) 35%, transparent);
+    --alpha-ink-45: color-mix(in srgb, var(--color-ink) 45%, transparent);
+    --alpha-ink-60: color-mix(in srgb, var(--color-ink) 60%, transparent);
+    --alpha-ink-70: color-mix(in srgb, var(--color-ink) 70%, transparent);
+    --alpha-ink-85: color-mix(in srgb, var(--color-ink) 85%, transparent);
+    --alpha-schwarz-30: color-mix(in srgb, var(--color-schwarz) 30%, transparent);
+    --alpha-schwarz-40: color-mix(in srgb, var(--color-schwarz) 40%, transparent);
+    --alpha-schwarz-50: color-mix(in srgb, var(--color-schwarz) 50%, transparent);
+}
+
+/* ============================================================
+ * 2. SEMANTIK — Rollen im Code
+ * ============================================================ */
+:root {
+    /* Flächen */
     --bg-page: var(--color-weiss);
     --bg-surface: var(--color-grau-hell); /* Karten, Infoboxen, Tabellenzeilen */
     --bg-accent-soft: var(--color-gruen-hell); /* ruhige Hinweisflächen */
     --bg-header-footer: var(--color-lila); /* Kopf-/Fußbereich, Statement-Flächen */
-    --bg-brand: var(--color-gruen); /* Buttons, Akzentflächen */
+    --bg-brand: var(--color-gruen); /* helles Markengrün: Akzente, Hover-Flächen; Schrift darauf: Ink */
+    --bg-action: var(--color-gruen-dunkel); /* Primäre Aktion: Buttons, Login, Pfeilflächen; Schrift darauf: Weiß */
+    --bg-action-hover: var(--color-gruen-dunkler);
 
+    /* Schrift */
     --text-default: var(--color-ink);
     --text-muted: var(--color-grau-text); /* Quellen, Captions, Meta */
     --text-on-dark: var(--color-weiss); /* Schrift auf Lila/Ink */
-    --text-on-brand: var(--color-ink); /* Schrift auf Grün — NIE Weiß */
+    --text-on-brand: var(--color-ink); /* Schrift auf hellem Grün — NIE Weiß */
+    --text-on-action: var(--color-weiss); /* Schrift auf dunklem Aktionsgrün */
     --text-link: var(--color-gruen-dunkel);
-    --text-link-hover: #046a4d;
-    --text-error: var(--color-fehler);
-    --text-success: var(--color-gruen-dunkel);
+    --text-link-hover: var(--color-gruen-dunkler);
+    --text-org: var(--color-marine);
 
+    /* Rahmen und Fokus */
     --border-default: var(--color-grau-linie); /* rein dekorativ */
     --border-input: var(--color-grau-rahmen); /* Formularfelder, Diagrammachsen */
-
-    /* Navigations-Aktion (Login-Button im Kopfbereich) und Vereinsname im Footer */
-    --bg-action: var(--color-gruen);
-    --text-on-action: var(--color-ink);
-    --text-org: #0b3a5a;
-
     --focus-ring: var(--color-ink);
     --focus-ring-offset: 2px;
+
+    /* Status: Schrift, Fläche und Rand; Hinweise und Badges bauen darauf auf */
+    --text-error: var(--color-fehler);
+    --text-success: var(--color-gruen-dunkel);
+    --text-warning: var(--color-warnung-text);
+    --text-on-success-soft: var(--color-gruen-dunkler); /* Schrift auf --bg-accent-soft (Badge, Hinweis) */
+    --bg-error-soft: var(--color-fehler-hell);
+    --bg-warning-soft: var(--color-warnung-hell);
+    --border-error: var(--color-fehler);
+    --border-success: var(--color-gruen-dunkel);
+    --border-warning: var(--color-warnung-rand);
+
+    /* Akzentfarben für Hinweise (linker Balken) */
+    --accent-info: var(--color-group-3);
+    --accent-success: var(--color-gruen-dunkel);
+    --accent-warning: var(--color-group-6);
+
+    /* Gefahr-Aktion */
+    --bg-danger: var(--color-fehler);
+    --bg-danger-hover: var(--color-fehler-dunkel);
+    --text-on-danger: var(--color-weiss);
+
+    /* Gruppenfarben und die Schrift darauf (themenunabhängig) */
+    --group-1: var(--color-group-1);
+    --group-2: var(--color-group-2);
+    --group-3: var(--color-group-3);
+    --group-4: var(--color-group-4);
+    --group-5: var(--color-group-5);
+    --group-6: var(--color-group-6);
+    --text-on-group-light: var(--color-ink);
+    --text-on-group-dark: var(--color-weiss);
+
+    /* Flächen mit eigener Farbe — gelten in beiden Themes unverändert:
+       dunkle Flächen (Lila, Ink, Bild), Markenflächen (Grün), Bilder */
+    --on-dark-fg: var(--color-weiss);
+    --on-dark-line: var(--alpha-weiss-60);
+    --on-dark-hover: var(--alpha-weiss-15);
+    --on-dark-fill-soft: var(--alpha-weiss-25);
+    --on-dark-solid: var(--color-weiss);
+    --on-dark-solid-fg: var(--color-ink);
+    --on-dark-danger: var(--color-fehler-leuchtend);
+    --on-dark-danger-hover: var(--color-fehler-pastell);
+    --on-dark-disabled-bg: var(--alpha-weiss-12);
+    --on-dark-disabled-line: var(--alpha-weiss-25);
+    --on-dark-disabled-fg: var(--alpha-weiss-60);
+
+    --on-brand-fg: var(--color-ink);
+    --on-brand-line: var(--alpha-ink-60);
+    --on-brand-solid: var(--color-ink);
+    --on-brand-solid-fg: var(--color-weiss);
+    --on-brand-hover: var(--alpha-ink-12);
+    --on-brand-fill-soft: var(--alpha-ink-15);
+    --on-brand-secondary-hover: var(--alpha-weiss-40);
+    --on-brand-disabled-bg: var(--alpha-ink-12);
+    --on-brand-disabled-line: var(--alpha-ink-25);
+    --on-brand-disabled-fg: var(--alpha-ink-60);
+
+    /* Schleier über Bildern und hinter Dialogen */
+    --scrim-modal: var(--alpha-ink-60);
+    --scrim-image-soft: var(--alpha-ink-45);
+    --scrim-image-strong: var(--alpha-ink-85);
+    --scrim-image-mid: var(--alpha-ink-35);
+    --bg-credit: var(--alpha-ink-70);
+    --text-credit: var(--color-weiss);
+    --bg-credit-light: var(--alpha-weiss-88);
+    --text-credit-light: var(--color-ink);
+    --bg-credit-brand: var(--color-gruen);
+    --text-credit-brand: var(--color-ink);
+
+    /* Bildflächen und Logo-Hintergrund (Hero, Kacheln) */
+    --bg-media: var(--color-ink);
+    --text-on-media: var(--color-weiss);
+    --bg-logo: var(--color-weiss);
 
     /* Radius — Portal-Abweichung: eckig statt der Styleguide-Werte 4/8/16px */
     --radius-sm: 0;
@@ -73,9 +214,9 @@
     --radius-full: 9999px; /* Badges, Pills, Avatare, runde Marken-Bausteine */
 
     /* Elevation (Ink-basierte Schatten statt generischem Schwarz) */
-    --shadow-sm: 0 1px 2px rgb(15 23 42 / 6%);
-    --shadow-md: 0 4px 12px rgb(15 23 42 / 10%);
-    --shadow-lg: 0 12px 32px rgb(15 23 42 / 16%);
+    --shadow-sm: 0 1px 2px var(--alpha-ink-6);
+    --shadow-md: 0 4px 12px var(--alpha-ink-10);
+    --shadow-lg: 0 12px 32px var(--alpha-ink-16);
 
     /* Motion */
     --transition-fast: 150ms ease-out;
@@ -99,6 +240,7 @@
     --line-height-tight: 1.3;
 
     --font-weight-regular: 400;
+    --font-weight-medium: 500; /* Navigationslinks */
     --font-weight-bold: 700;
     --font-weight-black: 900; /* nur Überschriften, dosiert einsetzen */
 
@@ -115,6 +257,19 @@
     --space-10: 4rem; /* 64px */
     --space-12: 6rem; /* 96px */
 
+    /* Größen und Linien */
+    --size-touch: 2.75rem; /* 44px – Mindestgröße für Bedienelemente (WCAG 2.5.5) */
+    --border-width: 1px;
+    --border-width-strong: 2px;
+    --focus-width: 3px;
+
+    /* Ebenen (z-index) */
+    --z-raised: 1;
+    --z-overlay: 2;
+    --z-link: 3;
+    --z-dropdown: 20;
+    --z-sticky: 100;
+
     /* Seitenbreiten (Container) und Seitenrand */
     --container-narrow: 40rem; /* 640px  – Login, Formulare, Lesetext */
     --container-medium: 56rem; /* 896px  – Artikel, Konto */
@@ -125,6 +280,7 @@
     /* Breakpoints (Mobile-First, min-width) */
     --bp-sm: 480px; /* große Mobilgeräte */
     --bp-md: 768px; /* Tablet */
+    --bp-menu: 1100px; /* ab hier steht die volle Navigation im Kopfbereich */
     --bp-lg: 1024px; /* kleiner Desktop */
     --bp-xl: 1280px; /* Desktop */
     --bp-2xl: 1536px; /* großer Desktop */
@@ -135,64 +291,76 @@
 }
 
 /*
- * Dark Mode — laut Styleguide offiziell nur für die Webapp vorgesehen.
- * Das Vereinsportal IST diese Webapp, bekommt also von Anfang an einen
- * Hell/Dunkel-Umschalter ([data-theme="dark"]) zusätzlich zu
+ * 3. DARK MODE — überschreibt nur Semantik, nie Primitive.
+ * Laut Styleguide offiziell nur für die Webapp vorgesehen; das Vereinsportal IST diese Webapp,
+ * bekommt also von Anfang an einen Hell/Dunkel-Umschalter ([data-theme="dark"]) zusätzlich zu
  * prefers-color-scheme als Fallback für Nutzer ohne manuelle Wahl.
+ * Die beiden Blöcke müssen identisch bleiben (Test).
  */
 :root[data-theme="dark"] {
-    --bg-page: #180f18;
-    --bg-surface: #261926;
-    --bg-accent-soft: #381d39;
-    --bg-header-footer: #261926;
-    --bg-brand: #2dc08e;
+    --bg-page: var(--color-aubergine-950);
+    --bg-surface: var(--color-aubergine-900);
+    --bg-accent-soft: var(--color-aubergine-800);
+    --bg-header-footer: var(--color-aubergine-900);
 
-    --text-default: #f1f4f2;
-    --text-muted: #a49ca3;
-    --text-on-dark: #f1f4f2;
-    --text-link: #40cd9a;
-    --text-error: #ff8a80;
-    --text-success: #40cd9a;
+    --text-default: var(--color-nebel);
+    --text-muted: var(--color-mauve-400);
+    --text-on-dark: var(--color-nebel);
+    --text-link: var(--color-gruen-leuchtend);
+    --text-link-hover: var(--color-gruen-pastell);
+    --text-org: var(--color-gruen-pastell);
 
-    --border-default: #3d303e;
-    --border-input: #8a7d89; /* Abweichung vom Styleguide: mind. 3:1 gegen die dunklen Flächen (WCAG 1.4.11) */
+    --border-default: var(--color-aubergine-700);
+    --border-input: var(--color-mauve-500); /* Abweichung vom Styleguide: mind. 3:1 gegen die dunklen Flächen (WCAG 1.4.11) */
+    --focus-ring: var(--color-weiss);
 
-    --bg-action: #2dc08e;
-    --text-on-action: #0f172a;
-    --text-org: #a8e6cf;
+    --text-error: var(--color-fehler-leuchtend);
+    --text-success: var(--color-gruen-leuchtend);
+    --text-warning: var(--color-warnung-leuchtend);
+    --text-on-success-soft: var(--color-gruen-leuchtend);
+    --bg-error-soft: var(--color-fehler-flaeche-dunkel);
+    --bg-warning-soft: var(--color-warnung-flaeche-dunkel);
+    --border-error: var(--color-fehler-leuchtend);
+    --border-success: var(--color-gruen-leuchtend);
+    --border-warning: var(--color-warnung-leuchtend);
 
-    --focus-ring: #ffffff;
-    --shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
-    --shadow-md: 0 4px 12px rgb(0 0 0 / 40%);
-    --shadow-lg: 0 12px 32px rgb(0 0 0 / 50%);
+    --shadow-sm: 0 1px 2px var(--alpha-schwarz-30);
+    --shadow-md: 0 4px 12px var(--alpha-schwarz-40);
+    --shadow-lg: 0 12px 32px var(--alpha-schwarz-50);
 }
 
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-        --bg-page: #180f18;
-        --bg-surface: #261926;
-        --bg-accent-soft: #381d39;
-        --bg-header-footer: #261926;
-        --bg-brand: #2dc08e;
+        --bg-page: var(--color-aubergine-950);
+        --bg-surface: var(--color-aubergine-900);
+        --bg-accent-soft: var(--color-aubergine-800);
+        --bg-header-footer: var(--color-aubergine-900);
 
-        --text-default: #f1f4f2;
-        --text-muted: #a49ca3;
-        --text-on-dark: #f1f4f2;
-        --text-link: #40cd9a;
-        --text-error: #ff8a80;
-        --text-success: #40cd9a;
+        --text-default: var(--color-nebel);
+        --text-muted: var(--color-mauve-400);
+        --text-on-dark: var(--color-nebel);
+        --text-link: var(--color-gruen-leuchtend);
+        --text-link-hover: var(--color-gruen-pastell);
+        --text-org: var(--color-gruen-pastell);
 
-        --border-default: #3d303e;
-        --border-input: #8a7d89;
+        --border-default: var(--color-aubergine-700);
+        --border-input: var(--color-mauve-500);
+        --focus-ring: var(--color-weiss);
 
-        --bg-action: #2dc08e;
-        --text-on-action: #0f172a;
-        --text-org: #a8e6cf;
+        --text-error: var(--color-fehler-leuchtend);
+        --text-success: var(--color-gruen-leuchtend);
+        --text-warning: var(--color-warnung-leuchtend);
+        --text-on-success-soft: var(--color-gruen-leuchtend);
+    --text-on-success-soft: var(--color-gruen-leuchtend);
+        --bg-error-soft: var(--color-fehler-flaeche-dunkel);
+        --bg-warning-soft: var(--color-warnung-flaeche-dunkel);
+        --border-error: var(--color-fehler-leuchtend);
+        --border-success: var(--color-gruen-leuchtend);
+        --border-warning: var(--color-warnung-leuchtend);
 
-        --focus-ring: #ffffff;
-        --shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
-        --shadow-md: 0 4px 12px rgb(0 0 0 / 40%);
-        --shadow-lg: 0 12px 32px rgb(0 0 0 / 50%);
+        --shadow-sm: 0 1px 2px var(--alpha-schwarz-30);
+        --shadow-md: 0 4px 12px var(--alpha-schwarz-40);
+        --shadow-lg: 0 12px 32px var(--alpha-schwarz-50);
     }
 }
 

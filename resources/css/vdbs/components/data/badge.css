@@ -15,22 +15,15 @@
     white-space: nowrap;
 }
 
-.vdbs-badge--success { background: var(--bg-accent-soft); border-color: var(--color-gruen-dunkel); color: var(--color-gruen-dunkel); }
-.vdbs-badge--warning { background: #fff4d6; border-color: #8a5a00; color: #6b4500; }
-.vdbs-badge--error { background: #fde8e6; border-color: var(--color-fehler); color: var(--color-fehler); }
-
-:root[data-theme="dark"] .vdbs-badge--warning { background: #3a2c05; color: #ffd36b; border-color: #ffd36b; }
-:root[data-theme="dark"] .vdbs-badge--error { background: #3a1210; color: var(--text-error); border-color: var(--text-error); }
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .vdbs-badge--warning { background: #3a2c05; color: #ffd36b; border-color: #ffd36b; }
-    :root:not([data-theme="light"]) .vdbs-badge--error { background: #3a1210; color: var(--text-error); border-color: var(--text-error); }
-}
+.vdbs-badge--success { background: var(--bg-accent-soft); border-color: var(--border-success); color: var(--text-on-success-soft); }
+.vdbs-badge--warning { background: var(--bg-warning-soft); border-color: var(--border-warning); color: var(--text-warning); }
+.vdbs-badge--error { background: var(--bg-error-soft); border-color: var(--border-error); color: var(--text-error); }
 
 /* Kategorie 1–6: Gruppenfarbe als Marker, Text bleibt in Standardfarbe */
-.vdbs-badge--cat-1 { --cat: var(--color-group-1); }
-.vdbs-badge--cat-2 { --cat: var(--color-group-2); }
-.vdbs-badge--cat-3 { --cat: var(--color-group-3); }
-.vdbs-badge--cat-4 { --cat: var(--color-group-4); }
-.vdbs-badge--cat-5 { --cat: var(--color-group-5); }
-.vdbs-badge--cat-6 { --cat: var(--color-group-6); }
+.vdbs-badge--cat-1 { --cat: var(--group-1); }
+.vdbs-badge--cat-2 { --cat: var(--group-2); }
+.vdbs-badge--cat-3 { --cat: var(--group-3); }
+.vdbs-badge--cat-4 { --cat: var(--group-4); }
+.vdbs-badge--cat-5 { --cat: var(--group-5); }
+.vdbs-badge--cat-6 { --cat: var(--group-6); }
 .vdbs-badge[class*="vdbs-badge--cat-"] { border-left: 0.5rem solid var(--cat); }

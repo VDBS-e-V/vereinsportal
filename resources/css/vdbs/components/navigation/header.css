@@ -31,18 +31,18 @@
 
 .vdbs-header__logo { display: inline-flex; align-items: center; gap: var(--space-3); color: var(--text-default); text-decoration: none; }
 .vdbs-header__logo:hover { color: var(--text-default); }
-.vdbs-header__logo { background: var(--color-weiss); padding: var(--space-1); }
+.vdbs-header__logo { background: var(--bg-logo); padding: var(--space-1); }
 .vdbs-header__logo img { display: block; width: auto; height: 2.5rem; }
-.vdbs-header__wordmark { padding-left: var(--space-3); border-left: 1px solid var(--text-default); font-family: Georgia, "Times New Roman", serif; font-size: var(--font-size-h2); font-weight: 500; line-height: 1; }
+.vdbs-header__wordmark { padding-left: var(--space-3); border-left: 1px solid var(--text-default); font-family: Georgia, "Times New Roman", serif; font-size: var(--font-size-h2); font-weight: var(--font-weight-medium); line-height: 1; }
 
 .vdbs-header__links { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); margin: 0; padding: 0; list-style: none; }
 
 .vdbs-header__links a {
     display: inline-flex;
     align-items: center;
-    min-height: 2.75rem;
+    min-height: var(--size-touch);
     color: var(--text-default);
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     text-decoration: none;
     font-size: var(--font-size-small);
 }
@@ -66,8 +66,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.75rem;
-    height: 2.75rem;
+    width: var(--size-touch);
+    height: var(--size-touch);
     padding: 0;
     border: 0;
     background: transparent;
