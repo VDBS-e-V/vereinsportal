@@ -23,14 +23,14 @@
 /* Innenabstand oben und seitlich; unten schließt die Fußzeile mit der Pfeilfläche bündig ab */
 .vdbs-teaser__body { display: flex; flex: 1; flex-direction: column; padding: var(--teaser-pad) var(--teaser-pad) 0; }
 
-.vdbs-teaser__title { margin: 0 0 var(--space-3); font-size: var(--font-size-h4); font-weight: var(--font-weight-bold); line-height: var(--line-height-tight); }
+.vdbs-teaser__title { margin: 0 0 var(--space-1); font-size: var(--font-size-h4); font-weight: var(--font-weight-bold); line-height: var(--line-height-tight); }
 
 .vdbs-teaser__link { color: var(--text-default); text-decoration: none; }
 .vdbs-teaser__link::after { content: ""; position: absolute; inset: 0; }
 .vdbs-teaser__link:hover { text-decoration: underline; color: var(--text-default); }
 .vdbs-teaser__link:focus-visible { outline: none; }
 
-.vdbs-teaser__text { margin: 0 0 var(--space-4); color: var(--text-default); font-size: var(--font-size-small); line-height: var(--line-height-body, 1.5); }
+.vdbs-teaser__text { margin: 0 0 var(--space-2); color: var(--text-default); font-size: var(--font-size-small); line-height: var(--line-height-body, 1.5); }
 
 /* Fußzeile: Kategorie links, Pfeilfläche rechts; zieht sich über den Innenabstand bis an den Kartenrand */
 .vdbs-teaser__footer {
@@ -80,12 +80,12 @@
 .vdbs-teaser--flat .vdbs-teaser__title,
 .vdbs-teaser--featured .vdbs-teaser__title { font-size: var(--font-size-body); font-weight: var(--font-weight-regular); }
 
-.vdbs-teaser--flat .vdbs-teaser__text { color: var(--text-muted); margin-bottom: var(--space-3); }
-.vdbs-teaser--flat .vdbs-teaser__title { margin-bottom: var(--space-2); }
+.vdbs-teaser--flat .vdbs-teaser__text { color: var(--text-muted); margin-bottom: var(--space-2); }
+.vdbs-teaser--flat .vdbs-teaser__title { margin-bottom: var(--space-1); }
 
 /* featured: Titelzeile mit Pfeilfläche rechts, Pfeil bündig in der Ecke */
 .vdbs-teaser--featured .vdbs-teaser__body { flex-direction: row; flex-wrap: wrap; align-items: stretch; padding: 0 0 0 var(--teaser-pad); }
-.vdbs-teaser--featured .vdbs-teaser__title { flex: 1 1 16rem; align-self: center; margin: 0; padding-block: var(--space-3); }
+.vdbs-teaser--featured .vdbs-teaser__title { flex: 1 1 16rem; align-self: center; margin: 0; padding-block: var(--space-2); }
 .vdbs-teaser--featured .vdbs-teaser__category,
 .vdbs-teaser--featured .vdbs-teaser__meta,
 .vdbs-teaser--featured .vdbs-teaser__text { flex: 1 0 100%; margin: var(--space-2) 0 0; padding-right: var(--teaser-pad); }
@@ -93,4 +93,5 @@
 
 /* compact */
 .vdbs-teaser--compact .vdbs-teaser__title { font-size: var(--font-size-body); margin-bottom: var(--space-1); }
-.vdbs-teaser--compact .vdbs-teaser__meta { margin-bottom: var(--space-3); }
+.vdbs-teaser--compact .vdbs-teaser__text { margin-bottom: var(--space-2); }
+.vdbs-teaser--compact .vdbs-teaser__meta { margin-bottom: var(--space-2); }
