@@ -113,3 +113,16 @@ it('renders the configured footer columns', function () {
         ->assertSee('Soziale Medien')
         ->assertSee('Impressum');
 });
+
+it('renders the mobile menu toggle with accessible state and controls', function () {
+    $html = $this->get('/login')->getContent();
+
+    expect($html)
+        ->toContain('data-vdbs-header')
+        ->toContain('data-vdbs-menu-toggle')
+        ->toContain('aria-expanded="false"')
+        ->toContain('aria-controls="portal-menu-areas portal-menu-actions"')
+        ->toContain('id="portal-menu-areas"')
+        ->toContain('id="portal-menu-actions"')
+        ->toContain('vdbs-js-only');
+});

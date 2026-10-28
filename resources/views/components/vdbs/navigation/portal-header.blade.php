@@ -5,14 +5,25 @@
     $areas = [\App\Support\PortalAreas::Start, \App\Support\PortalAreas::Konto];
 @endphp
 
-<header class="vdbs-header">
+{{--
+    Kopfbereich (Paket "navigation"). Ab 768 px zweizeilig mit allen Links; darunter klappen Bereiche, Systeme und
+    Aktionen hinter dem Knopf "Menü" (aria-expanded, Esc und Klick daneben schließen). Ohne JavaScript bleibt
+    alles sichtbar und untereinander gestapelt.
+--}}
+<header class="vdbs-header" data-vdbs-header>
     <div class="vdbs-header__top">
         <div class="vdbs-container vdbs-header__top-inner">
             <a class="vdbs-header__logo" href="{{ url('/') }}" aria-label="VDBS Vereinsportal – Startseite">
                 <img src="{{ asset('images/brand/vdbs-bildmarke-breit.png') }}" alt="VDBS e. V." height="40">
             </a>
 
-            <nav aria-label="Bereiche und externe Systeme">
+            <button type="button" class="vdbs-header__menu-toggle vdbs-js-only" data-vdbs-menu-toggle aria-expanded="false" aria-controls="portal-menu-areas portal-menu-actions">
+                <x-vdbs.icon class="vdbs-header__menu-icon-open" name="menu" :size="22" />
+                <x-vdbs.icon class="vdbs-header__menu-icon-close" name="x" :size="22" />
+                <span class="vdbs-header__menu-label">Menü</span>
+            </button>
+
+            <nav id="portal-menu-areas" class="vdbs-header__menu-panel" aria-label="Bereiche und externe Systeme">
                 <ul class="vdbs-header__links">
                     {{-- Platzhalter: die Bereiche verlinken erst, wenn sie gebaut sind und per Rechte sichtbar werden. --}}
                     @foreach (\App\Support\PortalAreas::withGroupMark() as $topArea)
@@ -32,7 +43,7 @@
             <p class="vdbs-header__title">{{ $title ?? 'Start' }}</p>
         </div>
 
-        <div class="vdbs-header__actions">
+        <div class="vdbs-header__actions vdbs-header__menu-panel" id="portal-menu-actions">
             @auth
                 <nav aria-label="Hauptnavigation">
                     <ul class="vdbs-header__links vdbs-header__links--large">
