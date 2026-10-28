@@ -65,7 +65,7 @@
             @if ($category && $categoryInFooter)
                 <span class="vdbs-teaser__category">{{ $category }}</span>
             @endif
-            <span class="vdbs-teaser__arrow" aria-hidden="true"><x-vdbs.icon name="arrow-right" :size="18" /></span>
+            <span class="vdbs-teaser__arrow" aria-hidden="true"><x-vdbs.icon name="arrow-right" :size="22" /></span>
         </p>
     </div>
 </article>

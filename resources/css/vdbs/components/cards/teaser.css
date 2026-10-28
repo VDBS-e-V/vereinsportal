@@ -95,3 +95,6 @@
 .vdbs-teaser--compact .vdbs-teaser__title { font-size: var(--font-size-body); margin-bottom: var(--space-1); }
 .vdbs-teaser--compact .vdbs-teaser__text { margin-bottom: var(--space-2); }
 .vdbs-teaser--compact .vdbs-teaser__meta { margin-bottom: var(--space-2); }
+
+/* Kräftiger Pfeil in der Pfeilfläche */
+.vdbs-teaser__arrow .vdbs-icon { stroke-width: 3; }
