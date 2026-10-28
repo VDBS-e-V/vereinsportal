@@ -10,6 +10,7 @@ und `resources/views/components/vdbs/<paket>/`. Eine Komponente = eine Blade-Dat
 | forms | `x-vdbs.forms.*` | input, select, textarea |
 | navigation | `x-vdbs.navigation.*` | portal-header, portal-footer, nav-main, breadcrumb |
 | layout | `x-vdbs.layout.*` | container, section, split, grid, aside-layout (Bild/Fläche/Seitenleiste neben dem Inhalt), Seitenrahmen, Druck |
+| content | `x-vdbs.content.*` | feature (Inhaltsblock: side, overlap, offset, links; Töne none, surface, soft, dark, brand) |
 | cards | `x-vdbs.cards.*` | card, quick-links, quick-link, teaser, contact-block |
 | data | `x-vdbs.data.*` | table, badge, group-mark, chip-list, chip |
 | feedback | `x-vdbs.feedback.*` | alert, error-page |

@@ -1,0 +1,105 @@
+/* Inhaltsblock: Text, Bild und Aktionen (Paket content) */
+
+.vdbs-feature {
+    --feature-bg: transparent;
+    --feature-fg: var(--text-default);
+    padding-block: var(--space-8);
+}
+
+.vdbs-feature--tone-surface { --feature-bg: var(--bg-surface); }
+.vdbs-feature--tone-soft { --feature-bg: var(--bg-accent-soft); }
+.vdbs-feature--tone-dark { --feature-bg: var(--bg-header-footer); --feature-fg: var(--text-on-dark); }
+.vdbs-feature--tone-brand { --feature-bg: var(--bg-brand); --feature-fg: var(--text-on-brand); }
+
+.vdbs-feature__inner {
+    display: grid;
+    gap: var(--space-5);
+    width: min(100% - 2 * var(--gutter), var(--container-default));
+    margin-inline: auto;
+}
+
+.vdbs-feature__eyebrow { margin: 0 0 var(--space-2); font-size: var(--font-size-small); font-weight: var(--font-weight-bold); }
+
+.vdbs-feature__title {
+    margin: 0 0 var(--space-3);
+    font-size: var(--font-size-h2);
+    font-weight: var(--font-weight-black);
+    line-height: var(--line-height-heading);
+}
+
+.vdbs-feature__body > :last-child { margin-bottom: 0; }
+.vdbs-feature__actions { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-4); margin-top: var(--space-5); }
+.vdbs-feature__media { min-width: 0; }
+
+/* ---------- side und links: Band ---------- */
+.vdbs-feature--side,
+.vdbs-feature--links { background: var(--feature-bg); color: var(--feature-fg); }
+
+.vdbs-feature--side .vdbs-feature__actions--stack,
+.vdbs-feature--links .vdbs-feature__actions--stack { flex-direction: column; align-items: stretch; margin-top: 0; }
+.vdbs-feature--links .vdbs-feature__actions .vdbs-btn { justify-content: flex-start; text-align: left; }
+
+/* ---------- overlap und offset: Farbfläche für den Text ---------- */
+.vdbs-feature--overlap .vdbs-feature__text,
+.vdbs-feature--offset .vdbs-feature__text {
+    position: relative;
+    z-index: 1;
+    padding: var(--space-6);
+    background: var(--feature-bg, var(--bg-surface));
+    color: var(--feature-fg);
+}
+
+.vdbs-feature--overlap.vdbs-feature--tone-none,
+.vdbs-feature--offset.vdbs-feature--tone-none { --feature-bg: var(--bg-surface); }
+
+/* Schmal: Fläche schiebt sich über den unteren Bildrand */
+.vdbs-feature--overlap .vdbs-feature__inner,
+.vdbs-feature--offset .vdbs-feature__inner { gap: 0; }
+
+.vdbs-feature--overlap .vdbs-feature__media,
+.vdbs-feature--offset .vdbs-feature__media { order: -1; }
+
+.vdbs-feature--overlap .vdbs-feature__text,
+.vdbs-feature--offset .vdbs-feature__text { margin: calc(-1 * var(--space-6)) var(--space-4) 0; }
+
+.vdbs-feature--no-media .vdbs-feature__text { margin: 0; }
+
+/* ---------- ab Tablet ---------- */
+@media (min-width: 768px) {
+    .vdbs-feature--side .vdbs-feature__inner { grid-template-columns: 1fr 1fr; align-items: start; gap: var(--space-8); }
+    .vdbs-feature--side.vdbs-feature--media-l .vdbs-feature__inner { grid-template-columns: 1fr 2fr; }
+    .vdbs-feature--side.vdbs-feature--reverse .vdbs-feature__media { order: -1; }
+    .vdbs-feature--side.vdbs-feature--reverse.vdbs-feature--media-l .vdbs-feature__inner { grid-template-columns: 2fr 1fr; }
+    .vdbs-feature--side.vdbs-feature--no-media .vdbs-feature__inner { grid-template-columns: 1fr; }
+
+    .vdbs-feature--links .vdbs-feature__inner { grid-template-columns: 3fr 2fr; align-items: start; gap: var(--space-8); }
+    .vdbs-feature--links.vdbs-feature--reverse .vdbs-feature__actions { order: -1; }
+
+    /* overlap: Fläche links überlappt das Bild rechts */
+    .vdbs-feature--overlap .vdbs-feature__inner { grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: center; }
+    .vdbs-feature--overlap .vdbs-feature__media { order: 0; grid-column: 5 / -1; grid-row: 1; }
+    .vdbs-feature--overlap .vdbs-feature__text { grid-column: 1 / 8; grid-row: 1; margin: var(--space-6) 0; padding: var(--space-8); }
+    .vdbs-feature--overlap.vdbs-feature--reverse .vdbs-feature__media { grid-column: 1 / 9; }
+    .vdbs-feature--overlap.vdbs-feature--reverse .vdbs-feature__text { grid-column: 6 / -1; }
+
+    /* offset: Fläche über die ganze Breite, Bild ragt links heraus */
+    .vdbs-feature--offset .vdbs-feature__inner { grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: center; position: relative; }
+    .vdbs-feature--offset .vdbs-feature__inner::before {
+        content: "";
+        grid-column: 3 / -1;
+        grid-row: 1;
+        align-self: stretch;
+        margin-block: var(--space-6);
+        background: var(--feature-bg);
+    }
+    .vdbs-feature--offset .vdbs-feature__media { order: 0; grid-column: 1 / 7; grid-row: 1; position: relative; z-index: 1; }
+    .vdbs-feature--offset .vdbs-feature__text { grid-column: 7 / -1; grid-row: 1; margin: var(--space-6) 0; padding: var(--space-6) var(--space-6) var(--space-6) var(--space-8); background: transparent; }
+    .vdbs-feature--offset.vdbs-feature--reverse .vdbs-feature__inner::before { grid-column: 1 / 11; }
+    .vdbs-feature--offset.vdbs-feature--reverse .vdbs-feature__media { grid-column: 7 / -1; }
+    .vdbs-feature--offset.vdbs-feature--reverse .vdbs-feature__text { grid-column: 1 / 7; padding: var(--space-6) var(--space-8) var(--space-6) var(--space-6); }
+}
+
+/* offset schmal: Fläche hinter Bild und Text */
+@media (max-width: 767px) {
+    .vdbs-feature--offset .vdbs-feature__text { background: var(--feature-bg); }
+}

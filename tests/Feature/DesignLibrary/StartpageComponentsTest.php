@@ -62,3 +62,27 @@ it('renders chips, figure, link buttons and back to top', function () {
         ->toContain('öffnet in neuem Tab')
         ->toContain('href="#top"');
 });
+
+it('renders a feature block with variant, tone and one image source', function () {
+    $html = Blade::render('<x-vdbs.content.feature variant="offset" tone="dark" eyebrow="Kicker" title="Titel" image="/images/placeholder/split-01.jpg" image-alt="">Text<x-slot:actions>Aktion</x-slot:actions></x-vdbs.content.feature>');
+
+    expect($html)
+        ->toContain('vdbs-feature--offset')
+        ->toContain('vdbs-feature--tone-dark')
+        ->toContain('vdbs-on-dark')
+        ->toContain('aria-labelledby="feature-titel-title"')
+        ->toContain('vdbs-feature__eyebrow')
+        ->toContain('vdbs-feature__media');
+});
+
+it('renders the links feature without media and with a stacked actions column', function () {
+    $html = Blade::render('<x-vdbs.content.feature variant="links" tone="surface" title="Haltung" image="/x.jpg">Text<x-slot:actions>A</x-slot:actions></x-vdbs.content.feature>');
+
+    expect($html)->toContain('vdbs-feature--no-media')->toContain('vdbs-feature__actions--stack')->not->toContain('vdbs-figure');
+});
+
+it('falls back to the side variant and no tone for unknown values', function () {
+    $html = Blade::render('<x-vdbs.content.feature variant="x" tone="y" title="T">Text</x-vdbs.content.feature>');
+
+    expect($html)->toContain('vdbs-feature--side')->toContain('vdbs-feature--tone-none');
+});
