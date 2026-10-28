@@ -9,7 +9,7 @@ und `resources/views/components/vdbs/<paket>/`. Eine Komponente = eine Blade-Dat
 | actions | `x-vdbs.actions.*` | button (einziges Button-System), button-group, link-button (Kurzform), back-to-top |
 | forms | `x-vdbs.forms.*` | input, select, textarea |
 | navigation | `x-vdbs.navigation.*` | portal-header, portal-footer, nav-main, breadcrumb |
-| layout | `x-vdbs.layout.*` | section, split, grid (+ Seitenrahmen, Druck) |
+| layout | `x-vdbs.layout.*` | container, section, split, grid, aside-layout (Bild/Fläche/Seitenleiste neben dem Inhalt), Seitenrahmen, Druck |
 | cards | `x-vdbs.cards.*` | card, quick-links, quick-link, teaser, contact-block |
 | data | `x-vdbs.data.*` | table, badge, group-mark, chip-list, chip |
 | feedback | `x-vdbs.feedback.*` | alert, error-page |
@@ -35,7 +35,7 @@ oder `button-contexts.css` erneut ausführen.
 | input | `<x-vdbs.forms.input>` | Text, E-Mail, Telefon, URL, Zahl, Datum/Zeit; Größen s/m/l, Vorsatz/Nachsatz, Zähler |
 | password | `<x-vdbs.forms.password>` | Passwort mit Anzeigen/Verbergen, Regeln |
 | code | `<x-vdbs.forms.code>` | Ein-Mal-Code (2FA), 4–10 Zeichen |
-| textarea, select | `<x-vdbs.forms.textarea>`, `<x-vdbs.forms.select>` | Mehrzeilig, Auswahlliste (Gruppen, Mehrfach) |
+| textarea, select, multi-select | `<x-vdbs.forms.textarea>`, `<x-vdbs.forms.select>`, `<x-vdbs.forms.multi-select>` | Mehrzeilig, Auswahlliste (Gruppen), Mehrfachauswahl mit Chips und Filter |
 | checkbox, checkbox-group, radio-group, switch | `<x-vdbs.forms.checkbox>` usw. | Auswahlfelder, Optionskarten, Schalter |
 | file | `<x-vdbs.forms.file>` | Upload (Feld, Dropzone) |
 | search | `<x-vdbs.forms.search>` | Suchformular mit Knopf |

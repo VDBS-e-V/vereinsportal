@@ -19,11 +19,13 @@
 
 @php
     $layout = in_array($layout, ['list', 'inline', 'cards'], true) ? $layout : 'list';
+    // Kein {…} innerhalb des Attribut-Bags am Komponenten-Tag: der Tag-Compiler bricht sonst
+    $groupClass = 'vdbs-choice-group--'.$layout;
     $current = \App\Support\Forms\FieldState::oldValue($name, $value);
     $hasOld = request()->hasSession() && request()->session()->hasOldInput();
 @endphp
 
-<x-vdbs.forms.fieldset :legend="$legend" :name="$name" :hint="$hint" :error="$error" :required="$required" :optional="$optional" :legend-hidden="$legendHidden" {{ $attributes->class(['vdbs-choice-group', "vdbs-choice-group--{$layout}"]) }}>
+<x-vdbs.forms.fieldset :legend="$legend" :name="$name" :hint="$hint" :error="$error" :required="$required" :optional="$optional" :legend-hidden="$legendHidden" {{ $attributes->class(['vdbs-choice-group', $groupClass]) }}>
     <div class="vdbs-choice-group__options">
         @foreach ($options as $optionValue => $option)
             @php

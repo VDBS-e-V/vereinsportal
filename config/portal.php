@@ -57,4 +57,11 @@ return [
             ],
         ],
     ],
+
+    /*
+     * Bild neben dem Login-Formular (optional). Leer = Login ohne Bild.
+     * Beispiel: ['src' => '/images/login.jpg', 'alt' => '', 'credit' => 'Name der Urheber:in']
+     * Quelle: entweder 'credit' oder ein Eintrag in sources.json des Bildordners (siehe config/images.php).
+     */
+    'login_image' => null,
 ];

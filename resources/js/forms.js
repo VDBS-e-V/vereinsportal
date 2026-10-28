@@ -159,3 +159,139 @@ document.addEventListener('click', (event) => {
 
     (focusable ?? target).focus({ preventScroll: true });
 });
+
+/* Mehrfachauswahl: Auswahl als entfernbare Chips im Feld, Liste klappt auf, Filter, Esc/Klick daneben schließt */
+const multiselects = () => document.querySelectorAll('[data-vdbs-multiselect]');
+
+const renderChips = (root) => {
+    const chips = root.querySelector('[data-vdbs-multiselect-chips]');
+    const placeholder = root.querySelector('[data-vdbs-multiselect-placeholder]');
+
+    if (!chips) {
+        return;
+    }
+
+    const selected = Array.from(root.querySelectorAll('.vdbs-multiselect__panel input[type="checkbox"]:checked'));
+
+    chips.replaceChildren(
+        ...selected.map((input) => {
+            const text = root.querySelector(`label[for="${input.id}"]`)?.textContent.trim() ?? input.value;
+            const item = document.createElement('li');
+            const remove = document.createElement('button');
+
+            item.className = 'vdbs-multiselect__chip';
+            item.append(text);
+
+            remove.type = 'button';
+            remove.className = 'vdbs-multiselect__remove';
+            remove.dataset.vdbsMultiselectRemove = input.id;
+            remove.setAttribute('aria-label', `${text} entfernen`);
+            remove.innerHTML = '<svg class="vdbs-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+
+            item.append(remove);
+
+            return item;
+        }),
+    );
+
+    if (placeholder) {
+        placeholder.hidden = selected.length > 0;
+    }
+};
+
+const setMultiselectOpen = (root, open) => {
+    const panel = root.querySelector('.vdbs-multiselect__panel');
+    const toggle = root.querySelector('[data-vdbs-multiselect-toggle]');
+
+    if (!panel || !toggle) {
+        return;
+    }
+
+    panel.hidden = !open;
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    root.classList.toggle('is-open', open);
+
+    if (open) {
+        root.querySelector('[data-vdbs-multiselect-filter]')?.focus();
+    }
+};
+
+ready(() => {
+    multiselects().forEach((root) => {
+        renderChips(root);
+        setMultiselectOpen(root, false);
+    });
+});
+
+document.addEventListener('click', (event) => {
+    const remove = event.target.closest?.('[data-vdbs-multiselect-remove]');
+
+    if (remove) {
+        const root = remove.closest('[data-vdbs-multiselect]');
+        const input = document.getElementById(remove.dataset.vdbsMultiselectRemove);
+
+        if (input instanceof HTMLInputElement) {
+            input.checked = false;
+            renderChips(root);
+            root.querySelector('[data-vdbs-multiselect-toggle]')?.focus();
+        }
+
+        return;
+    }
+
+    const control = event.target.closest?.('.vdbs-multiselect__control');
+
+    multiselects().forEach((root) => {
+        if (control && root.contains(control)) {
+            setMultiselectOpen(root, root.querySelector('.vdbs-multiselect__panel')?.hidden ?? false);
+        } else if (!root.contains(event.target)) {
+            setMultiselectOpen(root, false);
+        }
+    });
+});
+
+document.addEventListener('change', (event) => {
+    const root = event.target.closest?.('[data-vdbs-multiselect]');
+
+    if (root && event.target.matches('input[type="checkbox"]')) {
+        renderChips(root);
+    }
+});
+
+document.addEventListener('input', (event) => {
+    const filter = event.target.closest?.('[data-vdbs-multiselect-filter]');
+
+    if (!filter) {
+        return;
+    }
+
+    const root = filter.closest('[data-vdbs-multiselect]');
+    const query = filter.value.trim().toLowerCase();
+    let visible = 0;
+
+    root.querySelectorAll('[data-vdbs-multiselect-option]').forEach((option) => {
+        const match = option.textContent.toLowerCase().includes(query);
+
+        option.hidden = !match;
+        visible += match ? 1 : 0;
+    });
+
+    const empty = root.querySelector('[data-vdbs-multiselect-empty]');
+
+    if (empty) {
+        empty.hidden = visible > 0;
+    }
+});
+
+document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') {
+        return;
+    }
+
+    const root = event.target.closest?.('[data-vdbs-multiselect]');
+
+    if (root && !root.querySelector('.vdbs-multiselect__panel')?.hidden) {
+        setMultiselectOpen(root, false);
+        root.querySelector('[data-vdbs-multiselect-toggle]')?.focus();
+    }
+});

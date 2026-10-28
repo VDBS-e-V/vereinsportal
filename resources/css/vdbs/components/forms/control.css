@@ -66,7 +66,10 @@
 .vdbs-select { position: relative; }
 
 .vdbs-control--select { appearance: none; padding-right: calc(var(--space-3) * 2 + 18px); cursor: pointer; }
-.vdbs-control--multiple { padding-right: var(--space-3); }
+/* Mehrfachauswahl (native Liste): ruhigere Optik, Auswahl in Markengrün mit Ink-Schrift */
+.vdbs-control--multiple { padding: var(--space-1); }
+.vdbs-control--multiple option { padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); }
+.vdbs-control--multiple option:checked { background: var(--bg-brand) linear-gradient(var(--bg-brand), var(--bg-brand)); color: var(--text-on-brand); font-weight: var(--font-weight-bold); }
 
 .vdbs-select__arrow {
     position: absolute;

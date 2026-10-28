@@ -68,6 +68,13 @@
     <x-vdbs.forms.select name="sel_disabled" label="Deaktiviert" :options="['a' => 'A']" disabled />
 </x-vdbs.forms.form-grid>
 
+<h2>Mehrfachauswahl mit Chips</h2>
+<x-vdbs.forms.form-grid :columns="2">
+    <x-vdbs.forms.multi-select name="ms_books" label="Bereiche" :value="['teamende', 'schulen']" :options="['vorstand' => 'Vorstand', 'mitglieder' => 'Mitglieder', 'teamende' => 'Teamende', 'schulen' => 'Schulen', 'koordination' => 'Koordination', 'geschaeftsstelle' => 'Geschäftsstelle', 'bildungsreferenten' => 'Bildungsreferenten', 'admins' => 'Admins']" hint="Mehrere Bereiche wählbar." />
+    <x-vdbs.forms.multi-select name="ms_search" label="Mit Filter" :searchable="true" placeholder="Bereiche suchen" :options="['vorstand' => 'Vorstand', 'mitglieder' => 'Mitglieder', 'teamende' => 'Teamende', 'schulen' => 'Schulen', 'koordination' => 'Koordination', 'geschaeftsstelle' => 'Geschäftsstelle', 'bildungsreferenten' => 'Bildungsreferenten', 'admins' => 'Admins']" error="Bitte wählen Sie mindestens einen Bereich." />
+</x-vdbs.forms.form-grid>
+<p>Die gewählten Einträge stehen als Chips im Feld und lassen sich mit dem × entfernen (JavaScript). Die Liste klappt beim Klick auf das Feld auf, Esc oder ein Klick daneben schließt sie. Ohne JavaScript ist die Checkbox-Liste direkt sichtbar. Die native Mehrfachliste (<code>select</code> mit <code>multiple</code>) bleibt für einfache Fälle erhalten.</p>
+
 <h2>Suche</h2>
 <x-vdbs.forms.search name="q_demo" label="Portal durchsuchen" placeholder="Suchbegriff" />
 

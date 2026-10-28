@@ -18,11 +18,13 @@
 
 @php
     $layout = in_array($layout, ['list', 'inline', 'cards'], true) ? $layout : 'list';
+    // Kein {…} innerhalb des Attribut-Bags am Komponenten-Tag: der Tag-Compiler bricht sonst
+    $groupClass = 'vdbs-choice-group--'.$layout;
     $fieldName = str_ends_with($name, '[]') ? $name : $name.'[]';
     $defaults = collect((array) $value)->map(fn ($v) => (string) $v)->all();
 @endphp
 
-<x-vdbs.forms.fieldset :legend="$legend" :name="$fieldName" :hint="$hint" :error="$error" :required="$required" :optional="$optional" :legend-hidden="$legendHidden" {{ $attributes->class(['vdbs-choice-group', "vdbs-choice-group--{$layout}"]) }}>
+<x-vdbs.forms.fieldset :legend="$legend" :name="$fieldName" :hint="$hint" :error="$error" :required="$required" :optional="$optional" :legend-hidden="$legendHidden" {{ $attributes->class(['vdbs-choice-group', $groupClass]) }}>
     <div class="vdbs-choice-group__options">
         @foreach ($options as $optionValue => $option)
             @php

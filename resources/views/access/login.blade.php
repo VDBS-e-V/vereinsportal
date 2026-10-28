@@ -1,13 +1,19 @@
-<x-layouts.app title="Anmelden" width="narrow">
-    <h1>Anmelden</h1>
+@php
+    $image = config('portal.login_image');
+@endphp
 
-    <x-vdbs.forms.form :action="route('login.store')">
-        <x-vdbs.forms.input name="email" label="E-Mail-Adresse" type="email" :required="true" autocomplete="username" autofocus />
-        <x-vdbs.forms.password name="password" label="Passwort" :required="true" />
-        <x-vdbs.forms.checkbox name="remember" label="Angemeldet bleiben" />
+@if ($image)
+    <x-layouts.app title="Anmelden" width="wide">
+        <x-vdbs.layout.aside-layout variant="image" size="half" main-width="narrow">
+            @include('access._login-form')
 
-        <x-slot:actions>
-            <x-vdbs.actions.button type="submit" :full="true" size="l">Anmelden</x-vdbs.actions.button>
-        </x-slot:actions>
-    </x-vdbs.forms.form>
-</x-layouts.app>
+            <x-slot:aside>
+                <x-vdbs.media.image :src="$image['src']" :alt="$image['alt'] ?? ''" :credit="$image['credit'] ?? null" credit-placement="edge" loading="eager" />
+            </x-slot:aside>
+        </x-vdbs.layout.aside-layout>
+    </x-layouts.app>
+@else
+    <x-layouts.app title="Anmelden" width="narrow">
+        @include('access._login-form')
+    </x-layouts.app>
+@endif

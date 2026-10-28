@@ -1,6 +1,6 @@
 /* Formularfeld: Label, Pflicht-/Optional-Kennzeichnung, Hinweis, Meldungen, Zähler */
 
-.vdbs-field { display: grid; gap: var(--space-1); margin-bottom: var(--space-4); }
+.vdbs-field { display: grid; align-content: start; gap: var(--space-1); margin-bottom: var(--space-4); }
 
 .vdbs-field__label { font-weight: var(--font-weight-bold); font-size: var(--font-size-small); }
 

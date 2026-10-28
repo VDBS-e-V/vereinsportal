@@ -249,7 +249,7 @@ it('renders the dropzone variant with a prompt', function () {
 it('renders a search form with role search and a hidden label', function () {
     $html = form('<x-vdbs.forms.search name="q" label="Portal durchsuchen" action="/suche" />');
 
-    expect($html)->toContain('role="search"')->toContain('method="get"')->toContain('action="/suche"')->toContain('type="search"')->toContain('vdbs-sr-only">Portal durchsuchen')->not->toContain('csrf');
+    expect($html)->toContain('role="search"')->toContain('method="get"')->toContain('action="/suche"')->toContain('type="search"')->toContain('<label class="vdbs-sr-only" for="field-q">Portal durchsuchen</label>')->not->toContain('csrf');
 });
 
 /* ---------- Formular, Fehlerübersicht ---------- */
@@ -325,4 +325,65 @@ it('keeps the entered email and shows the error summary after a failed login', f
         ->assertSee('value="erika@example.org"', false)
         ->assertSee('vdbs-error-summary', false)
         ->assertSee('Die Anmeldedaten sind nicht korrekt');
+});
+
+it('renders a multi select with chips for the preselection and a checkbox list', function () {
+    $html = form('<x-vdbs.forms.multi-select name="areas" label="Bereiche" :value="[\'b\']" :searchable="true" :options="[\'a\' => \'Alpha\', \'b\' => \'Beta\', \'c\' => \'Gamma\']" />');
+
+    expect($html)
+        ->toContain('data-vdbs-multiselect')
+        ->toContain('<fieldset')
+        ->toContain('name="areas[]"')
+        ->toContain('<li class="vdbs-multiselect__chip">Beta</li>')
+        ->toContain('data-vdbs-multiselect-filter')
+        ->toContain('aria-controls="field-areas-panel"')
+        ->toContain('vdbs-js-only');
+
+    expect(preg_match('/id="field-areas-b"[^>]*checked/', $html))->toBe(1)
+        ->and(preg_match('/id="field-areas-a"[^>]*checked/', $html))->toBe(0)
+        ->and(substr_count($html, 'vdbs-multiselect__chip'))->toBe(1);
+});
+
+it('shows the placeholder and the error of a multi select', function () {
+    $html = form('<x-vdbs.forms.multi-select name="x" label="X" placeholder="Wählen" error="Bitte wählen" :options="[\'a\' => \'A\']" />');
+
+    expect($html)->toContain('Wählen')->toContain('Bitte wählen')->not->toContain('<li class="vdbs-multiselect__chip">');
+});
+
+it('renders the aside layout with image, panel and sidebar variants', function () {
+    $image = form('<x-vdbs.layout.aside-layout variant="image" size="half" main-width="narrow">Inhalt<x-slot:aside>Bild</x-slot:aside></x-vdbs.layout.aside-layout>');
+
+    expect($image)
+        ->toContain('vdbs-aside-layout--image')
+        ->toContain('vdbs-aside-layout--size-half')
+        ->toContain('vdbs-aside-layout__content--narrow')
+        ->toContain('vdbs-aside-layout--mobile-hidden')
+        ->not->toContain('<aside');
+
+    expect(preg_match('/<div class="vdbs-aside-layout__aside"\s*>/', $image))->toBe(1);
+
+    $sidebar = form('<x-vdbs.layout.aside-layout variant="sidebar" side="start" size="s" :sticky="true" aside-label="Navigation">Inhalt<x-slot:aside>Leiste</x-slot:aside></x-vdbs.layout.aside-layout>');
+
+    expect($sidebar)
+        ->toContain('vdbs-aside-layout--side-start')
+        ->toContain('vdbs-aside-layout--sticky')
+        ->toContain('vdbs-aside-layout--mobile-below');
+
+    expect(preg_match('/<aside class="vdbs-aside-layout__aside"\s+aria-label="Navigation"\s*>/', $sidebar))->toBe(1);
+});
+
+it('falls back for unknown aside layout options and omits the aside without a slot', function () {
+    $html = form('<x-vdbs.layout.aside-layout variant="weird" side="oben" size="xxl" main-width="riesig">Inhalt</x-vdbs.layout.aside-layout>');
+
+    expect($html)->toContain('vdbs-aside-layout--image')->toContain('vdbs-aside-layout--side-end')->toContain('vdbs-aside-layout--size-m')->toContain('vdbs-aside-layout__content--fill')->not->toContain('vdbs-aside-layout__aside');
+});
+
+it('shows the login without an image by default and with the configured image', function () {
+    $this->withoutVite();
+
+    $this->get('/login')->assertOk()->assertDontSee('vdbs-aside-layout', false);
+
+    config(['portal.login_image' => ['src' => '/images/placeholder/hero-02.jpg', 'alt' => '']]);
+
+    $this->get('/login')->assertOk()->assertSee('vdbs-aside-layout--image', false)->assertSee('Bildquelle:');
 });
