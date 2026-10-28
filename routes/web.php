@@ -9,4 +9,4 @@ use Illuminate\Support\Facades\Route;
  * Siehe Konzept: https://claude.ai/artifact/6T9qoinqTT6m6UoQMXptKs
  */
 // Startseite: öffentlich, zeigt Gästen den Zugang und Angemeldeten ihre Bereiche.
-Route::middleware('web')->view('/', 'portal.home')->name('home');
+Route::view('/', 'portal.home')->middleware('web')->name('home');
