@@ -341,7 +341,7 @@ it('renders a multi select with chips for the preselection and a checkbox list',
 
     expect(preg_match('/id="field-areas-b"[^>]*checked/', $html))->toBe(1)
         ->and(preg_match('/id="field-areas-a"[^>]*checked/', $html))->toBe(0)
-        ->and(substr_count($html, 'vdbs-multiselect__chip'))->toBe(1);
+        ->and(substr_count($html, '<li class="vdbs-multiselect__chip">'))->toBe(1);
 });
 
 it('shows the placeholder and the error of a multi select', function () {
