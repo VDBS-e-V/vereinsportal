@@ -1,6 +1,5 @@
 <?php
 
-use App\Support\PortalAreas;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -9,8 +8,5 @@ use Illuminate\Support\Facades\Route;
  *
  * Siehe Konzept: https://claude.ai/artifact/6T9qoinqTT6m6UoQMXptKs
  */
-Route::middleware(['web', 'auth'])->get('/', function () {
-    return view('portal.home', [
-        'areas' => [PortalAreas::Start, PortalAreas::Konto],
-    ]);
-})->name('home');
+// Startseite: öffentlich, zeigt Gästen den Zugang und Angemeldeten ihre Bereiche.
+Route::middleware('web')->view('/', 'portal.home')->name('home');

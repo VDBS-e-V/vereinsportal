@@ -10,8 +10,13 @@ it('shows the login form to guests', function () {
     $this->get('/login')->assertOk()->assertSee('Anmelden');
 });
 
-it('redirects guests from the start page to the login', function () {
-    $this->get('/')->assertRedirect(route('login'));
+it('shows the public start page to guests with a login call to action', function () {
+    $this->get('/')
+        ->assertOk()
+        ->assertSee('Willkommen im Vereinsportal')
+        ->assertSee(route('login'), false)
+        ->assertSee('Anmelden')
+        ->assertDontSee('Abmelden');
 });
 
 it('logs in an active user and records the login time', function () {
