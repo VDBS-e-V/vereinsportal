@@ -4,7 +4,7 @@
 
 <li class="vdbs-event-item">
     <p class="vdbs-event-item__when">
-        <time @if ($datetime) datetime="{{ $datetime }}" @endif>{{ $date }}</time>
+        <time{!! $datetime ? ' datetime="'.e($datetime).'"' : '' !!}>{{ $date }}</time>
         @if ($time) <span class="vdbs-event-item__time">{{ $time }}</span> @endif
     </p>
     <a class="vdbs-event-item__title" href="{{ $href }}">{{ $title }}</a>

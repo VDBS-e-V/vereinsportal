@@ -351,7 +351,6 @@
         --text-success: var(--color-gruen-leuchtend);
         --text-warning: var(--color-warnung-leuchtend);
         --text-on-success-soft: var(--color-gruen-leuchtend);
-    --text-on-success-soft: var(--color-gruen-leuchtend);
         --bg-error-soft: var(--color-fehler-flaeche-dunkel);
         --bg-warning-soft: var(--color-warnung-flaeche-dunkel);
         --border-error: var(--color-fehler-leuchtend);
