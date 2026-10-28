@@ -27,3 +27,21 @@ Thema (hell/dunkel), Fläche (default/dark/brand), Rolle, Form und Zustand (Ruhe
 Text mindestens 4,5:1, Rahmen/Linie mindestens 3:1. Mit `--all` werden auch bestandene Fälle gelistet.
 Deaktivierte Buttons sind nach WCAG ausgenommen. Nach Änderungen an `tokens.css`, `button-variants.css`
 oder `button-contexts.css` erneut ausführen.
+
+## Paket Formulare
+
+| Baustein | Aufruf | Zweck |
+| --- | --- | --- |
+| input | `<x-vdbs.forms.input>` | Text, E-Mail, Telefon, URL, Zahl, Datum/Zeit; Größen s/m/l, Vorsatz/Nachsatz, Zähler |
+| password | `<x-vdbs.forms.password>` | Passwort mit Anzeigen/Verbergen, Regeln |
+| code | `<x-vdbs.forms.code>` | Ein-Mal-Code (2FA), 4–10 Zeichen |
+| textarea, select | `<x-vdbs.forms.textarea>`, `<x-vdbs.forms.select>` | Mehrzeilig, Auswahlliste (Gruppen, Mehrfach) |
+| checkbox, checkbox-group, radio-group, switch | `<x-vdbs.forms.checkbox>` usw. | Auswahlfelder, Optionskarten, Schalter |
+| file | `<x-vdbs.forms.file>` | Upload (Feld, Dropzone) |
+| search | `<x-vdbs.forms.search>` | Suchformular mit Knopf |
+| form, form-grid, form-section, fieldset, error-summary | `<x-vdbs.forms.form>` usw. | Formularaufbau und Fehlerübersicht |
+
+Gemeinsames Verhalten (App\Support\Forms\FieldState): Id `field-<name>`, Fehlermeldung aus dem Validierungs-Bag,
+`old()`-Wert, `aria-describedby` für Hinweis/Fehler/Erfolg, `class` geht an den Feld-Rahmen, alle anderen
+Attribute an das Steuerelement. Pflicht/optional werden als Text gekennzeichnet. JavaScript (resources/js/forms.js)
+ist reine Verbesserung. Kontrastprüfung: `python scripts/form_contrast.py`.

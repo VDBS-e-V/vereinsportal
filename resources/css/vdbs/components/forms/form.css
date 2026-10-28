@@ -1,0 +1,17 @@
+/* Formular: Raster, Abschnitte, Aktionen */
+
+.vdbs-form { max-width: none; }
+
+.vdbs-form__actions { margin-top: var(--space-5); }
+
+.vdbs-form-grid { display: grid; gap: 0 var(--space-5); }
+
+@media (min-width: 640px) {
+    .vdbs-form-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .vdbs-form-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .vdbs-form-grid__full { grid-column: 1 / -1; }
+}
+
+.vdbs-form-section { margin-bottom: var(--space-6); padding-top: var(--space-5); border-top: 1px solid var(--border-default); }
+.vdbs-form-section__title { margin: 0 0 var(--space-1); font-size: var(--font-size-h3); }
+.vdbs-form-section__description { margin: 0 0 var(--space-4); color: var(--text-muted); }

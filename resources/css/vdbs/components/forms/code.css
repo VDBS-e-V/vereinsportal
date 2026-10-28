@@ -1,0 +1,11 @@
+/* Code-Eingabe: ein Feld, Zeichen mit Abstand, Breite nach Länge (--code-length) */
+
+.vdbs-control--code {
+    width: calc(var(--code-length, 6) * 1.9ch + 2.5rem);
+    max-width: 100%;
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: var(--font-size-h3);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.6ch;
+    text-align: center;
+}

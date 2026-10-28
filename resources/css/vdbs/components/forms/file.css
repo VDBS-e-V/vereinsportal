@@ -1,0 +1,44 @@
+/* Datei-Upload: Feld mit Auswahl-Knopf oder gestrichelte Dropzone */
+
+.vdbs-file__input {
+    width: 100%;
+    padding: var(--space-2);
+    border: 1px solid var(--border-input);
+    background: var(--bg-page);
+    color: var(--text-default);
+    font: inherit;
+}
+
+.vdbs-file__input:focus-visible { border-color: var(--text-default); outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+
+.vdbs-file__input::file-selector-button {
+    margin-right: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    border: 2px solid var(--text-default);
+    background: transparent;
+    color: var(--text-default);
+    font: inherit;
+    font-weight: var(--font-weight-bold);
+    cursor: pointer;
+}
+
+.vdbs-file__input:hover::file-selector-button { background: var(--bg-surface); }
+
+.vdbs-file--error .vdbs-file__input { border: 2px solid var(--text-error); }
+
+.vdbs-file__list { margin: var(--space-2) 0 0; padding: 0; list-style: none; font-size: var(--font-size-small); }
+.vdbs-file__list:empty { display: none; }
+.vdbs-file__list li { padding: var(--space-1) 0; border-bottom: 1px solid var(--border-default); }
+
+/* Dropzone */
+.vdbs-file--dropzone {
+    position: relative;
+    padding: var(--space-5);
+    border: 2px dashed var(--border-input);
+    background: var(--bg-surface);
+    text-align: center;
+}
+
+.vdbs-file--dropzone.is-dragover { border-color: var(--bg-brand); background: var(--bg-accent-soft); }
+
+.vdbs-file__prompt { display: flex; align-items: center; justify-content: center; gap: var(--space-2); margin: 0 0 var(--space-3); max-width: none; font-weight: var(--font-weight-bold); }

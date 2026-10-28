@@ -53,6 +53,7 @@
     --text-link: var(--color-gruen-dunkel);
     --text-link-hover: #046a4d;
     --text-error: var(--color-fehler);
+    --text-success: var(--color-gruen-dunkel);
 
     --border-default: var(--color-grau-linie); /* rein dekorativ */
     --border-input: var(--color-grau-rahmen); /* Formularfelder, Diagrammachsen */
@@ -151,9 +152,10 @@
     --text-on-dark: #f1f4f2;
     --text-link: #40cd9a;
     --text-error: #ff8a80;
+    --text-success: #40cd9a;
 
     --border-default: #3d303e;
-    --border-input: #3d303e;
+    --border-input: #8a7d89; /* Abweichung vom Styleguide: mind. 3:1 gegen die dunklen Flächen (WCAG 1.4.11) */
 
     --bg-action: #2dc08e;
     --text-on-action: #0f172a;
@@ -178,9 +180,10 @@
         --text-on-dark: #f1f4f2;
         --text-link: #40cd9a;
         --text-error: #ff8a80;
+        --text-success: #40cd9a;
 
         --border-default: #3d303e;
-        --border-input: #3d303e;
+        --border-input: #8a7d89;
 
         --bg-action: #2dc08e;
         --text-on-action: #0f172a;

@@ -1,2 +1,12 @@
-@import './control.css';
 @import './field.css';
+@import './control.css';
+@import './input-group.css';
+@import './choice.css';
+@import './switch.css';
+@import './choice-group.css';
+@import './password.css';
+@import './code.css';
+@import './file.css';
+@import './search.css';
+@import './error-summary.css';
+@import './form.css';

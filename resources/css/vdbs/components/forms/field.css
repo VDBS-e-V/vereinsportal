@@ -1,19 +1,29 @@
-/* Formularfeld: Label, Hinweis, Meldungen */
+/* Formularfeld: Label, Pflicht-/Optional-Kennzeichnung, Hinweis, Meldungen, Zähler */
 
 .vdbs-field { display: grid; gap: var(--space-1); margin-bottom: var(--space-4); }
 
 .vdbs-field__label { font-weight: var(--font-weight-bold); font-size: var(--font-size-small); }
 
+.vdbs-field__flag { margin-left: var(--space-1); color: var(--text-muted); font-weight: var(--font-weight-regular); }
+
 .vdbs-field__hint { margin: 0; color: var(--text-muted); font-size: var(--font-size-small); }
 
 .vdbs-field__message {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: var(--space-1);
     margin: 0;
     font-size: var(--font-size-small);
     font-weight: var(--font-weight-bold);
 }
 
+.vdbs-field__message .vdbs-icon { margin-top: 0.125rem; }
+
 .vdbs-field__message--error { color: var(--text-error); }
-.vdbs-field__message--success { color: var(--color-gruen-dunkel); }
+.vdbs-field__message--success { color: var(--text-success); }
+
+.vdbs-field__counter { margin: 0; color: var(--text-muted); font-size: var(--font-size-caption); text-align: right; }
+
+/* Elemente, die nur mit JavaScript sinnvoll sind (html.vdbs-js wird im Layout gesetzt) */
+.vdbs-js-only { display: none; }
+.vdbs-js .vdbs-js-only { display: inline-flex; }

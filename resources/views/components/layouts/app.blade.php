@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ? $title.' – ' : '' }}VDBS Vereinsportal</title>
     <script>
-        try { var t = localStorage.getItem('vdbs-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+        document.documentElement.classList.add('vdbs-js'); try { var t = localStorage.getItem('vdbs-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>

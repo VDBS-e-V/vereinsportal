@@ -1,0 +1,59 @@
+/* Checkbox und Radio (Styleguide 5.2): eigene Optik über appearance: none, 24 px großes Ziel */
+
+.vdbs-choice { margin-bottom: var(--space-3); }
+
+.vdbs-choice__row { display: flex; align-items: flex-start; gap: var(--space-3); }
+
+.vdbs-choice__input {
+    flex: 0 0 auto;
+    appearance: none;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin: 0.125rem 0 0;
+    border: 2px solid var(--border-input);
+    background: var(--bg-page);
+    color: var(--color-ink);
+    cursor: pointer;
+    display: inline-grid;
+    place-content: center;
+}
+
+.vdbs-choice--radio .vdbs-choice__input { border-radius: var(--radius-full); }
+
+.vdbs-choice__input:hover:not(:disabled) { border-color: var(--text-default); }
+
+.vdbs-choice__input:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+
+/* Haken (Checkbox) und Punkt (Radio) in Ink auf Markengrün; der Rand in Grün-Dunkel hält den Kontrast zur Fläche (3:1) */
+.vdbs-choice__input::before { content: ""; width: 0.75rem; height: 0.75rem; transform: scale(0); transition: transform var(--transition-fast); }
+
+.vdbs-choice--checkbox .vdbs-choice__input::before {
+    background: currentColor;
+    clip-path: polygon(14% 44%, 0 59%, 40% 100%, 100% 17%, 85% 3%, 40% 70%);
+}
+
+.vdbs-choice--radio .vdbs-choice__input::before { border-radius: var(--radius-full); background: currentColor; width: 0.625rem; height: 0.625rem; }
+
+.vdbs-choice__input:checked { background: var(--bg-brand); border-color: var(--text-success); }
+.vdbs-choice__input:checked::before { transform: scale(1); }
+
+/* gemischter Zustand: Strich */
+.vdbs-choice--checkbox .vdbs-choice__input:indeterminate { background: var(--bg-brand); border-color: var(--text-success); }
+.vdbs-choice--checkbox .vdbs-choice__input:indeterminate::before { transform: scale(1); clip-path: polygon(0 40%, 100% 40%, 100% 60%, 0 60%); }
+
+.vdbs-choice__input:disabled { border-color: var(--border-default); background: var(--bg-surface); color: var(--text-muted); cursor: not-allowed; }
+.vdbs-choice__input:disabled:checked { background: var(--border-default); border-color: var(--border-default); }
+.vdbs-choice__input:disabled + .vdbs-choice__label { color: var(--text-muted); cursor: not-allowed; }
+
+.vdbs-choice--error .vdbs-choice__input,
+.vdbs-choice__input[aria-invalid="true"] { border-color: var(--text-error); }
+
+.vdbs-choice__label { padding-block: 0.125rem; line-height: var(--line-height-body); cursor: pointer; }
+
+.vdbs-choice__hint { margin: var(--space-1) 0 0 calc(1.5rem + var(--space-3)); color: var(--text-muted); font-size: var(--font-size-small); }
+
+.vdbs-choice .vdbs-field__message { margin-top: var(--space-1); }
+
+@media (forced-colors: active) {
+    .vdbs-choice__input:checked::before { background: CanvasText; }
+}
