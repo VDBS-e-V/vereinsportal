@@ -103,3 +103,6 @@
 @media (max-width: 767px) {
     .vdbs-feature--offset .vdbs-feature__text { background: var(--feature-bg); }
 }
+
+/* Lange Beschriftungen in der Aktionsspalte dürfen umbrechen */
+.vdbs-feature__actions--stack .vdbs-btn { height: auto; padding-block: var(--space-2); line-height: 1.3; }
