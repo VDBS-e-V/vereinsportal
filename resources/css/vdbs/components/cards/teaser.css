@@ -1,6 +1,11 @@
-/* Teaser: die ganze Karte ist über den Titel-Link klickbar */
+/* Teaser: die ganze Karte ist über den Titel-Link klickbar.
+ * Die Pfeilfläche sitzt bündig in der rechten unteren Ecke der Karte.
+ */
 
 .vdbs-teaser {
+    --teaser-pad: var(--space-4);
+    --teaser-arrow: 2.5rem;
+
     position: relative;
     display: flex;
     flex-direction: column;
@@ -15,42 +20,54 @@
 .vdbs-teaser__media { margin: 0; overflow: hidden; }
 .vdbs-teaser__image { display: block; width: 100%; }
 
-.vdbs-teaser__body { display: flex; flex: 1; flex-direction: column; padding: var(--space-4); }
+/* Innenabstand oben und seitlich; unten schließt die Fußzeile mit der Pfeilfläche bündig ab */
+.vdbs-teaser__body { display: flex; flex: 1; flex-direction: column; padding: var(--teaser-pad) var(--teaser-pad) 0; }
 
-.vdbs-teaser__title { margin: 0 0 var(--space-2); font-size: var(--font-size-h4); font-weight: var(--font-weight-bold); line-height: var(--line-height-tight); }
+.vdbs-teaser__title { margin: 0 0 var(--space-3); font-size: var(--font-size-h4); font-weight: var(--font-weight-bold); line-height: var(--line-height-tight); }
 
 .vdbs-teaser__link { color: var(--text-default); text-decoration: none; }
 .vdbs-teaser__link::after { content: ""; position: absolute; inset: 0; }
 .vdbs-teaser__link:hover { text-decoration: underline; color: var(--text-default); }
 .vdbs-teaser__link:focus-visible { outline: none; }
 
-.vdbs-teaser__text { margin: 0 0 var(--space-4); color: var(--text-default); font-size: var(--font-size-small); }
+.vdbs-teaser__text { margin: 0 0 var(--space-4); color: var(--text-default); font-size: var(--font-size-small); line-height: var(--line-height-body, 1.5); }
 
-.vdbs-teaser__footer { display: flex; align-items: center; justify-content: space-between; margin: auto 0 0; color: var(--text-muted); font-size: var(--font-size-small); }
+/* Fußzeile: Kategorie links, Pfeilfläche rechts; zieht sich über den Innenabstand bis an den Kartenrand */
+.vdbs-teaser__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--teaser-arrow);
+    margin: auto calc(-1 * var(--teaser-pad)) 0;
+    padding-left: var(--teaser-pad);
+    color: var(--text-muted);
+    font-size: var(--font-size-small);
+}
 
 .vdbs-teaser__arrow {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
+    align-self: flex-end;
+    width: var(--teaser-arrow);
+    height: var(--teaser-arrow);
+    margin-left: auto;
     background: var(--bg-action);
     color: var(--text-on-action);
 }
 
-
 /* ---------- Kategorie und Meta ---------- */
 .vdbs-teaser__category { margin: 0 0 var(--space-1); color: var(--text-muted); font-size: var(--font-size-small); }
-.vdbs-teaser__footer .vdbs-teaser__category { margin: 0; }
-.vdbs-teaser__meta { margin: 0 0 var(--space-2); color: var(--text-muted); font-size: var(--font-size-small); }
+.vdbs-teaser__footer .vdbs-teaser__category { margin: 0; padding-block: var(--space-2); }
+.vdbs-teaser__meta { margin: 0 0 var(--space-3); color: var(--text-muted); font-size: var(--font-size-small); }
 
 /* ---------- Ton white: Karte auf grauem Band ---------- */
 .vdbs-teaser--white { background: var(--bg-page); }
 
-/* ---------- flat, featured, compact: flach, Pfeilfläche rechts unten ---------- */
+/* ---------- flat, featured, compact: flach ---------- */
 .vdbs-teaser--flat,
 .vdbs-teaser--featured,
-.vdbs-teaser--compact { box-shadow: none; }
+.vdbs-teaser--compact { --teaser-pad: var(--space-3); box-shadow: none; }
 
 .vdbs-teaser--flat:hover,
 .vdbs-teaser--featured:hover,
@@ -63,21 +80,17 @@
 .vdbs-teaser--flat .vdbs-teaser__title,
 .vdbs-teaser--featured .vdbs-teaser__title { font-size: var(--font-size-body); font-weight: var(--font-weight-regular); }
 
-.vdbs-teaser--flat .vdbs-teaser__text { color: var(--text-muted); }
-.vdbs-teaser--flat .vdbs-teaser__body { padding: var(--space-3) var(--space-3) var(--space-3); }
-.vdbs-teaser--flat .vdbs-teaser__footer,
-.vdbs-teaser--compact .vdbs-teaser__footer { justify-content: flex-end; margin-top: var(--space-2); }
-.vdbs-teaser--flat .vdbs-teaser__text { margin-bottom: 0; }
+.vdbs-teaser--flat .vdbs-teaser__text { color: var(--text-muted); margin-bottom: var(--space-3); }
+.vdbs-teaser--flat .vdbs-teaser__title { margin-bottom: var(--space-2); }
 
-/* featured: Titel und Pfeil in einer Zeile */
-.vdbs-teaser--featured .vdbs-teaser__body { flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); padding: var(--space-3); }
-.vdbs-teaser--featured .vdbs-teaser__title { flex: 1 1 16rem; margin: 0; }
+/* featured: Titelzeile mit Pfeilfläche rechts, Pfeil bündig in der Ecke */
+.vdbs-teaser--featured .vdbs-teaser__body { flex-direction: row; flex-wrap: wrap; align-items: stretch; padding: 0 0 0 var(--teaser-pad); }
+.vdbs-teaser--featured .vdbs-teaser__title { flex: 1 1 16rem; align-self: center; margin: 0; padding-block: var(--space-3); }
 .vdbs-teaser--featured .vdbs-teaser__category,
 .vdbs-teaser--featured .vdbs-teaser__meta,
-.vdbs-teaser--featured .vdbs-teaser__text { flex: 1 0 100%; margin: 0; }
-.vdbs-teaser--featured .vdbs-teaser__footer { margin: 0; }
+.vdbs-teaser--featured .vdbs-teaser__text { flex: 1 0 100%; margin: var(--space-2) 0 0; padding-right: var(--teaser-pad); }
+.vdbs-teaser--featured .vdbs-teaser__footer { margin: 0; padding: 0; min-height: 0; }
 
 /* compact */
-.vdbs-teaser--compact .vdbs-teaser__body { padding: var(--space-3); }
 .vdbs-teaser--compact .vdbs-teaser__title { font-size: var(--font-size-body); margin-bottom: var(--space-1); }
-.vdbs-teaser--compact .vdbs-teaser__text { margin-bottom: 0; }
+.vdbs-teaser--compact .vdbs-teaser__meta { margin-bottom: var(--space-3); }
