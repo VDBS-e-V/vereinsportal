@@ -59,18 +59,19 @@
 .vdbs-header__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4) var(--space-5); }
 
 
-/* ---------- Mobile Navigation ---------- */
+/* ---------- Mobile und Tablet Navigation ---------- */
 
+/* Knopf: nur das Bars-Symbol (Beschriftung über aria-label) */
 .vdbs-header__menu-toggle {
+    display: inline-flex;
     align-items: center;
-    gap: var(--space-2);
-    min-height: 2.75rem;
-    padding: 0 var(--space-3);
-    border: 2px solid var(--text-default);
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 0;
     background: transparent;
     color: var(--text-default);
-    font: inherit;
-    font-weight: var(--font-weight-bold);
     cursor: pointer;
 }
 
@@ -79,15 +80,13 @@
 .vdbs-header__menu-toggle[aria-expanded="true"] .vdbs-header__menu-icon-open { display: none; }
 .vdbs-header__menu-toggle[aria-expanded="true"] .vdbs-header__menu-icon-close { display: inline-block; }
 
-@media (max-width: 767px) {
-    .vdbs-header__top-inner { flex-wrap: nowrap; }
+/* Bis 1099 px (Handy und Tablet): Bereiche und Aktionen erst nach dem Klick auf die Bars */
+@media (max-width: 1099px) {
+    .vdbs-header__top-inner { flex-wrap: wrap; }
 
-    /* Mit JavaScript: Bereiche und Aktionen erst nach dem Klick auf "Menü" */
     .vdbs-js .vdbs-header:not(.is-menu-open) .vdbs-header__menu-panel { display: none; }
 
     .vdbs-header__menu-panel { flex: 1 0 100%; }
-    .vdbs-header__top-inner { flex-wrap: wrap; }
-    .vdbs-header__top-inner .vdbs-header__logo { flex: 0 1 auto; }
 
     .vdbs-header__links,
     .vdbs-header__links--large { flex-direction: column; gap: 0; }
@@ -103,6 +102,17 @@
     .vdbs-header__main { gap: var(--space-2); }
 }
 
-@media (min-width: 768px) {
+/* Tablet (768–1099 px): Links in zwei Spalten, Aktionen in einer Zeile */
+@media (min-width: 768px) and (max-width: 1099px) {
+    .vdbs-header__links,
+    .vdbs-header__links--large { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-6); }
+
+    .vdbs-header__actions { flex-direction: row; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; }
+    .vdbs-header__actions > nav { flex: 1 1 24rem; }
+    .vdbs-header__actions .vdbs-btn { width: auto; }
+    .vdbs-header__actions form { display: block; }
+}
+
+@media (min-width: 1100px) {
     .vdbs-js .vdbs-header__menu-toggle { display: none; }
 }

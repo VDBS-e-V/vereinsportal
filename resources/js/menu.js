@@ -1,5 +1,5 @@
 /*
- * Mobile Navigation im Kopfbereich: Knopf "Menü" klappt Bereiche, Systeme und Aktionen auf.
+ * Mobile Navigation im Kopfbereich: Bars-Knopf klappt Bereiche, Systeme und Aktionen auf.
  * Esc und ein Klick außerhalb schließen; beim Wechsel auf die Desktop-Breite wird zurückgesetzt.
  */
 
@@ -40,7 +40,7 @@ document.addEventListener('keydown', (event) => {
     });
 });
 
-window.matchMedia('(min-width: 768px)').addEventListener('change', (event) => {
+window.matchMedia('(min-width: 1100px)').addEventListener('change', (event) => {
     if (event.matches) {
         document.querySelectorAll('[data-vdbs-header]').forEach((header) => setMenu(header, false));
     }

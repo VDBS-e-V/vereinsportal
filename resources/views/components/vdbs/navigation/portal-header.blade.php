@@ -6,8 +6,8 @@
 @endphp
 
 {{--
-    Kopfbereich (Paket "navigation"). Ab 768 px zweizeilig mit allen Links; darunter klappen Bereiche, Systeme und
-    Aktionen hinter dem Knopf "Menü" (aria-expanded, Esc und Klick daneben schließen). Ohne JavaScript bleibt
+    Kopfbereich (Paket "navigation"). Ab 1100 px zweizeilig mit allen Links; darunter (Handy und Tablet) klappen Bereiche, Systeme und
+    Aktionen hinter dem Bars-Knopf "Menü" (aria-expanded, Esc und Klick daneben schließen). Ohne JavaScript bleibt
     alles sichtbar und untereinander gestapelt.
 --}}
 <header class="vdbs-header" data-vdbs-header>
@@ -17,10 +17,9 @@
                 <img src="{{ asset('images/brand/vdbs-bildmarke-breit.png') }}" alt="VDBS e. V." height="40">
             </a>
 
-            <button type="button" class="vdbs-header__menu-toggle vdbs-js-only" data-vdbs-menu-toggle aria-expanded="false" aria-controls="portal-menu-areas portal-menu-actions">
+            <button type="button" class="vdbs-header__menu-toggle vdbs-js-only" data-vdbs-menu-toggle aria-expanded="false" aria-controls="portal-menu-areas portal-menu-actions" aria-label="Menü">
                 <x-vdbs.icon class="vdbs-header__menu-icon-open" name="menu" :size="22" />
                 <x-vdbs.icon class="vdbs-header__menu-icon-close" name="x" :size="22" />
-                <span class="vdbs-header__menu-label">Menü</span>
             </button>
 
             <nav id="portal-menu-areas" class="vdbs-header__menu-panel" aria-label="Bereiche und externe Systeme">
