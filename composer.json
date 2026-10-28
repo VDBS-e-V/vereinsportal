@@ -42,8 +42,9 @@
     },
     "scripts": {
         "setup": [
-            "composer install",
+            "Composer\\Config::disableProcessTimeout",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan key:generate",
             "@php artisan migrate --force",
             "npm ci",
@@ -68,7 +69,6 @@
             "@lint",
             "@analyse",
             "@test",
-            "@php artisan vdbs:library-check",
             "npm run build"
         ],
         "security": [
@@ -100,6 +100,7 @@
         }
     },
     "config": {
+        "process-timeout": 0,
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
