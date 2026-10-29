@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Mail;
@@ -133,5 +134,11 @@ class User extends Authenticatable
         return $this->roleAssignments()
             ->where('starts_at', '<=', now())
             ->where(fn ($query) => $query->whereNull('ends_at')->orWhere('ends_at', '>', now()));
+    }
+
+    /** @return HasOne<\App\Modules\Onboarding\Models\TeamOnboarding, $this> Einarbeitung als Teamende (nur mit der Rolle Teamende) */
+    public function teamOnboarding(): HasOne
+    {
+        return $this->hasOne(\App\Modules\Onboarding\Models\TeamOnboarding::class);
     }
 }

@@ -15,6 +15,7 @@ enum MembershipEventType: string
     case Registered = 'registered';
     case DocumentAdded = 'document_added';
     case DocumentRemoved = 'document_removed';
+    case WelcomeSent = 'welcome_sent';
     case Note = 'note';
 
     public function label(): string
@@ -31,6 +32,7 @@ enum MembershipEventType: string
             self::Registered => 'Online-Konto registriert',
             self::DocumentAdded => 'Dokument hochgeladen',
             self::DocumentRemoved => 'Dokument entfernt',
+            self::WelcomeSent => 'Willkommenspaket gesendet',
             self::Note => 'Notiz',
         };
     }

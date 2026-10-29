@@ -51,6 +51,10 @@ enum AuditEvent: string
     case SeminarPricesChanged = 'seminar.prices_changed';
     case SeminarTextsChanged = 'seminar.texts_changed';
 
+    case OnboardingDocumentUploaded = 'onboarding.document_uploaded';
+    case TeamOnboardingStarted = 'onboarding.team_started';
+    case TeamOnboardingCompleted = 'onboarding.team_completed';
+
     case AuditExported = 'audit.exported';
 
     public function label(): string
@@ -94,6 +98,9 @@ enum AuditEvent: string
             self::SeminarQuoteDeleted => 'Kostenvoranschlag gelöscht',
             self::SeminarPricesChanged => 'Preisliste der Seminare geändert',
             self::SeminarTextsChanged => 'Texte der Seminarprodukte geändert',
+            self::OnboardingDocumentUploaded => 'Onboarding-Dokument hochgeladen',
+            self::TeamOnboardingStarted => 'Einarbeitung der Teamenden begonnen',
+            self::TeamOnboardingCompleted => 'Einarbeitung der Teamenden abgeschlossen',
             self::AuditExported => 'Protokoll exportiert',
         };
     }
@@ -109,6 +116,7 @@ enum AuditEvent: string
             self::PersonCreated, self::PersonUpdated, self::PersonDeleted => 'people',
             self::PartnerCreated, self::PartnerUpdated, self::PartnerDeleted, self::PartnersImported => 'partners',
             self::SeminarCreated, self::SeminarUpdated, self::SeminarDeleted, self::SeminarStatusChanged, self::SeminarQuoteCreated, self::SeminarQuoteUpdated, self::SeminarQuoteDeleted, self::SeminarPricesChanged, self::SeminarTextsChanged => 'seminars',
+            self::OnboardingDocumentUploaded, self::TeamOnboardingStarted, self::TeamOnboardingCompleted => 'onboarding',
             self::AuditExported => 'audit',
         };
     }
@@ -125,6 +133,7 @@ enum AuditEvent: string
             'people' => 'Personen',
             'partners' => 'Schulen',
             'seminars' => 'Seminare',
+            'onboarding' => 'Onboarding',
             'audit' => 'Protokoll',
         ];
     }
@@ -135,7 +144,7 @@ enum AuditEvent: string
         return match ($this) {
             self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized => 'error',
             self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
-            self::Login, self::UserEnabled, self::TwoFactorEnabled => 'success',
+            self::Login, self::UserEnabled, self::TwoFactorEnabled, self::TeamOnboardingCompleted => 'success',
             default => 'neutral',
         };
     }

@@ -15,9 +15,10 @@ final class Capabilities
     /** @var array<string, list<Capability>> */
     private const MAP = [
         'administration' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage, Capability::AuditView, Capability::DesignView],
-        'administration_staff' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage, Capability::PartnersView, Capability::PartnersManage, Capability::SeminarsView, Capability::SeminarsManage],
-        'board_member' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage, Capability::AuditView, Capability::DesignView, Capability::MembershipsView, Capability::MembershipsManage, Capability::PartnersView, Capability::PartnersManage, Capability::SeminarsView, Capability::SeminarsManage, Capability::SeminarPricesManage],
-        'coordination' => [Capability::PartnersView, Capability::PartnersManage, Capability::SeminarsView, Capability::SeminarsManage, Capability::SeminarPricesManage],
+        'administration_staff' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage, Capability::PartnersView, Capability::PartnersManage, Capability::SeminarsView, Capability::SeminarsManage, Capability::TeamView, Capability::TeamManage],
+        'board_member' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage, Capability::AuditView, Capability::DesignView, Capability::MembershipsView, Capability::MembershipsManage, Capability::PartnersView, Capability::PartnersManage, Capability::SeminarsView, Capability::SeminarsManage, Capability::SeminarPricesManage, Capability::TeamView, Capability::TeamManage],
+        'coordination' => [Capability::PartnersView, Capability::PartnersManage, Capability::SeminarsView, Capability::SeminarsManage, Capability::SeminarPricesManage, Capability::TeamView, Capability::TeamManage],
+        'team' => [Capability::TeamOnboardingOwn],
     ];
 
     public static function has(User $user, Capability $capability): bool

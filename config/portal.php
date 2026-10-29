@@ -119,6 +119,13 @@ return [
     ],
 
     /*
+     * Onboarding: Willkommenspaket für neue Mitglieder (Willkommensmail mit Satzung und Willkommensbrief) beim Aufnehmen eines Online-Antrags.
+     */
+    'onboarding' => [
+        'welcome_on_admission' => (bool) env('ONBOARDING_WELCOME_ON_ADMISSION', true),
+    ],
+
+    /*
      * Briefkopf und Fußzeile für gedruckte Schreiben (Kostenvoranschlag). Anschrift, Bankverbindung und Kontakt des Vereins.
      */
     'letter' => [

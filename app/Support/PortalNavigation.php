@@ -59,15 +59,23 @@ final class PortalNavigation
                 'roles' => [RoleKey::BoardMember],
                 'pages' => [
                     ['label' => 'Mitgliedschaften', 'route' => 'membership.index', 'match' => 'membership.*', 'can' => 'memberships.view'],
+                    ['label' => 'Willkommenspaket', 'route' => 'onboarding.member', 'match' => 'onboarding.member*', 'can' => 'memberships.view'],
                 ],
             ],
             PortalAreas::Mitglieder->value => ['roles' => [RoleKey::Member], 'pages' => []],
-            PortalAreas::Teamende->value => ['roles' => [RoleKey::Team], 'pages' => []],
+            PortalAreas::Teamende->value => [
+                'roles' => [RoleKey::Team],
+                'routes' => ['onboarding.documents.*'],
+                'pages' => [
+                    ['label' => 'Einarbeitung', 'route' => 'team-self.index', 'match' => 'team-self.*', 'can' => 'team.onboarding'],
+                ],
+            ],
             PortalAreas::Schulen->value => ['roles' => [], 'pages' => []],
             PortalAreas::Koordination->value => [
                 'roles' => [RoleKey::Coordination, RoleKey::AdministrationStaff],
                 'pages' => [
                     ['label' => 'Schulen', 'route' => 'partners.index', 'match' => 'partners.*', 'can' => 'partners.view'],
+                    ['label' => 'Teamende', 'route' => 'team-onboarding.index', 'match' => 'team-onboarding.*', 'can' => 'team.view'],
                     ['label' => 'Seminare', 'route' => 'seminars.index', 'match' => 'seminars.*', 'can' => 'seminars.view'],
                     ['label' => 'Kostenvoranschläge', 'route' => 'seminar-quotes.index', 'match' => 'seminar-quotes.*', 'can' => 'seminars.view'],
                     ['label' => 'Texte', 'route' => 'seminar-texts.index', 'match' => 'seminar-texts.*', 'can' => 'seminars.view'],

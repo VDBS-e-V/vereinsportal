@@ -4,6 +4,7 @@ namespace App\Modules\Membership\Services;
 
 use App\Modules\Access\Models\User;
 use App\Modules\Membership\Enums\MembershipEventType;
+use App\Modules\Membership\Events\MembershipAdmitted;
 use App\Modules\Membership\Enums\MembershipStatus;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\People\Models\Person;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 
 /**
  * Ablauf einer Mitgliedschaft: Antrag, Aufnahme oder Ablehnung, Austritt. Jede Änderung steht im Verlauf der Mitgliedschaft
@@ -134,6 +136,8 @@ final class Memberships
         });
 
         $this->syncRoles($membership);
+
+        Event::dispatch(new MembershipAdmitted($membership, $by));
     }
 
     public function reject(Membership $membership, string $comment, User $by): void

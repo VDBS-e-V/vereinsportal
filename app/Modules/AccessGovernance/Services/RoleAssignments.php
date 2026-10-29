@@ -10,7 +10,9 @@ use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use DomainException;
+use App\Modules\AccessGovernance\Events\RoleGranted;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Event;
 
 /**
  * Manuelle Rollenvergabe. Eine Zuordnung endet durch ein Enddatum, sie wird nie gelöscht (Nachvollziehbarkeit).
@@ -40,6 +42,8 @@ final class RoleAssignments
             'bis' => $endsAt?->format('d.m.Y'),
             'kommentar' => filled($comment) ? $comment : null,
         ]);
+
+        Event::dispatch(new RoleGranted($user, $role, $by));
 
         return $assignment;
     }

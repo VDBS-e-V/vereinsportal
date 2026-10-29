@@ -20,6 +20,9 @@
                     <x-vdbs.actions.button variant="danger" shape="outline" icon="x" data-vdbs-dialog-open="reject">Ablehnen</x-vdbs.actions.button>
                 @endif
                 @if ($running)
+                    @if (filled($membership->contactEmail()))
+                        <x-vdbs.actions.button variant="secondary" icon="mail" data-vdbs-dialog-open="welcome">Willkommenspaket senden</x-vdbs.actions.button>
+                    @endif
                     @if ($ending)
                         <x-vdbs.actions.button variant="secondary" icon="refresh-cw" data-vdbs-dialog-open="withdraw">Austritt zurücknehmen</x-vdbs.actions.button>
                     @endif
@@ -164,6 +167,12 @@
             <x-slot:fields>
                 <x-vdbs.forms.textarea id="reject-comment" name="comment" label="Grund" :required="true" maxlength="500" :rows="3" />
             </x-slot:fields>
+        </x-vdbs.overlays.confirm-dialog>
+    @endif
+
+    @if ($canManage && $running && filled($membership->contactEmail()))
+        <x-vdbs.overlays.confirm-dialog id="welcome" title="Willkommenspaket senden?" :action="route('membership.welcome', $membership)" confirm-label="Senden">
+            <p>Die Willkommensmail mit Satzung und Willkommensbrief geht an <strong>{{ $membership->contactEmail() }}</strong>. Das Senden steht im Verlauf. Die Dokumente pflegen Sie unter <a href="{{ route('onboarding.member') }}">Willkommenspaket</a>.</p>
         </x-vdbs.overlays.confirm-dialog>
     @endif
 

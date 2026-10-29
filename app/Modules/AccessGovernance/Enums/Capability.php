@@ -41,6 +41,15 @@ enum Capability: string
     /** Preisliste der Seminare ändern (neue Fassung anlegen). */
     case SeminarPricesManage = 'seminars.prices';
 
+    /** Einarbeitung der Teamenden ansehen (Bereich Koordination). */
+    case TeamView = 'team.view';
+
+    /** Schritte der Einarbeitung eintragen und die Dokumente der Teamenden hochladen. */
+    case TeamManage = 'team.manage';
+
+    /** Die eigene Einarbeitung als Teamende sehen und Erklärungen bestätigen (Bereich Teamende). */
+    case TeamOnboardingOwn = 'team.onboarding';
+
     /** Design-Bibliothek ansehen (Entwicklungswerkzeug). */
     case DesignView = 'design.view';
 
