@@ -38,7 +38,7 @@ it('shows the account navigation on every account page', function () {
     foreach (['account.profile', 'account.email', 'account.password', 'account.sessions', 'account.security.index'] as $route) {
         $this->get(route($route))
             ->assertOk()
-            ->assertSee('aria-label="Konto"', false)
+            ->assertSee('aria-label="Seiten im Bereich Konto"', false)
             ->assertSee(route('account.password'), false)
             ->assertSee(route('account.sessions'), false);
     }

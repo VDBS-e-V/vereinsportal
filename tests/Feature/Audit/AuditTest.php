@@ -214,7 +214,7 @@ it('lets the administration and the board read the log', function () {
 });
 
 it('shows the log link in the header only to those who may read it', function () {
-    $this->actingAs(auUser(RoleKey::BoardMember))->get(route('home'))->assertSee('Verwaltung');
+    $this->actingAs(auUser(RoleKey::BoardMember))->get(route('home'))->assertSee('Admins');
     $this->actingAs(auUser(RoleKey::Member))->get(route('home'))->assertDontSee(route('admin.audit.index'), false);
 });
 

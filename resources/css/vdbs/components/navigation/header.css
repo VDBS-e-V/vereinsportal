@@ -48,7 +48,8 @@
 }
 
 .vdbs-header__links a:hover { color: var(--text-default); text-decoration: underline; }
-.vdbs-header__links a[aria-current="page"] { text-decoration: underline; text-decoration-color: var(--bg-brand); text-decoration-thickness: 3px; }
+.vdbs-header__links a[aria-current="page"],
+.vdbs-header__links a[aria-current="true"] { text-decoration: underline; text-decoration-color: var(--bg-brand); text-decoration-thickness: 3px; }
 
 .vdbs-header__links--large a { font-size: var(--font-size-h4); }
 .vdbs-header__links--large { gap: var(--space-1) var(--space-6); }

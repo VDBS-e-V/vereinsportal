@@ -16,7 +16,6 @@
         <x-slot:actions>
             <x-vdbs.actions.button variant="secondary" :href="$exportUrl" icon="download">Als CSV exportieren</x-vdbs.actions.button>
         </x-slot:actions>
-        <x-slot:tabs><x-admin.nav current="audit" /></x-slot:tabs>
     </x-vdbs.layout.page-header>
 
     <x-vdbs.data.toolbar label="Protokoll filtern" :count="$count" :active="$active" :reset-href="route('admin.audit.index')" search-placeholder="Akteur oder Betroffene suchen">

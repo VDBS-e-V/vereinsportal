@@ -2,11 +2,17 @@
 
 @php
     $systems = collect(config('portal.systems'))->filter(fn (array $system): bool => filled($system['url']));
-    $areas = [\App\Support\PortalAreas::Start, \App\Support\PortalAreas::Konto];
+    $user = (! $safe && auth()->check()) ? auth()->user() : null;
+    $routeName = request()->route()?->getName();
+    $currentArea = $user ? \App\Support\PortalNavigation::areaForRoute($routeName) : null;
+    $visibleAreas = $user ? \App\Support\PortalNavigation::visibleAreas($user) : [];
+    $areaPages = ($user && $currentArea) ? \App\Support\PortalNavigation::pages($currentArea, $user, $routeName) : [];
+    $headerTitle = $currentArea?->label() ?? ($title ?? 'Start');
 @endphp
 
 {{--
-    Kopfbereich (Paket "navigation"). Ab 1100 px zweizeilig mit allen Links; darunter (Handy und Tablet) klappen Bereiche, Systeme und
+    Kopfbereich (Paket "navigation"). Zeile 1: die Bereiche des Nutzers (App\Support\PortalNavigation) und die Systeme; Zeile 2: Name
+    des aktuellen Bereichs und dessen Seiten. Der Bereich wechselt nur durch Klick in Zeile 1. Ab 1100 px zweizeilig mit allen Links; darunter (Handy und Tablet) klappen Bereiche, Systeme und
     Aktionen hinter dem Bars-Knopf "Menü" (aria-expanded, Esc und Klick daneben schließen). Ohne JavaScript bleibt
     alles sichtbar und untereinander gestapelt.
     safe: true auf Fehlerseiten; liest weder Sitzung noch Datenbank und zeigt die Ansicht für Gäste.
@@ -25,10 +31,16 @@
 
             <nav id="portal-menu-areas" class="vdbs-header__menu-panel" aria-label="Bereiche und externe Systeme">
                 <ul class="vdbs-header__links">
-                    {{-- Platzhalter: die Bereiche verlinken erst, wenn sie gebaut sind und per Rechte sichtbar werden. --}}
-                    @foreach (\App\Support\PortalAreas::withGroupMark() as $topArea)
-                        <li><a href="#">{{ $topArea->label() }}</a></li>
-                    @endforeach
+                    @if ($user)
+                        @foreach ($visibleAreas as $topArea)
+                            <li><a href="{{ \App\Support\PortalNavigation::home($topArea, $user) }}" @if ($topArea === $currentArea) aria-current="true" @endif>{{ $topArea->label() }}</a></li>
+                        @endforeach
+                    @else
+                        {{-- Gäste: Platzhalter, die Bereiche verlinken erst nach der Anmeldung. --}}
+                        @foreach (\App\Support\PortalAreas::withGroupMark() as $topArea)
+                            <li><a href="#">{{ $topArea->label() }}</a></li>
+                        @endforeach
+                    @endif
                     @foreach ($systems as $system)
                         <li><a href="{{ $system['url'] }}">{{ $system['label'] }}</a></li>
                     @endforeach
@@ -40,25 +52,20 @@
     <div class="vdbs-container vdbs-header__main">
         <div>
             <p class="vdbs-header__eyebrow">VDBS Portal</p>
-            <p class="vdbs-header__title">{{ $title ?? 'Start' }}</p>
+            <p class="vdbs-header__title">{{ $headerTitle }}</p>
         </div>
 
         <div class="vdbs-header__actions vdbs-header__menu-panel" id="portal-menu-actions">
-            @if (! $safe && auth()->check())
-                <nav aria-label="Hauptnavigation">
-                    <ul class="vdbs-header__links vdbs-header__links--large">
-                        @foreach ($areas as $area)
-                            <li>
-                                <a href="{{ $area === \App\Support\PortalAreas::Start ? route('home') : route('account.profile') }}" @if (($area === \App\Support\PortalAreas::Start && request()->routeIs('home')) || ($area === \App\Support\PortalAreas::Konto && request()->routeIs('account.*'))) aria-current="page" @endif>
-                                    {{ $area->label() }}
-                                </a>
-                            </li>
-                        @endforeach
-                            @if (auth()->user()->can('users.view') || auth()->user()->can('people.view') || auth()->user()->can('audit.view'))
-                                <li><a href="{{ auth()->user()->can('users.view') ? route('admin.users.index') : (auth()->user()->can('people.view') ? route('admin.people.index') : route('admin.audit.index')) }}" @if (request()->routeIs('admin.*')) aria-current="page" @endif>Verwaltung</a></li>
-                            @endif
-                    </ul>
-                </nav>
+            @if ($user)
+                @if (count($areaPages) > 0)
+                    <nav aria-label="Seiten im Bereich {{ $currentArea->label() }}">
+                        <ul class="vdbs-header__links vdbs-header__links--large">
+                            @foreach ($areaPages as $page)
+                                <li><a href="{{ $page['href'] }}" @if ($page['current']) aria-current="page" @endif>{{ $page['label'] }}</a></li>
+                            @endforeach
+                        </ul>
+                    </nav>
+                @endif
 
                 @php $displayName = auth()->user()->person?->fullName() ?: auth()->user()->email; @endphp
                 <x-vdbs.navigation.dropdown variant="plain" align="end" :label="$displayName">
