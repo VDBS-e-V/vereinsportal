@@ -1,18 +1,28 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Koordination'], ['label' => 'Kostenvoranschläge', 'href' => route('seminar-quotes.index')], ['label' => 'Neu']];
+    $editing = $quote !== null;
+    $heading = $editing ? 'Kostenvoranschlag ändern' : 'Kostenvoranschlag berechnen';
+    $crumbs = $editing
+        ? [['label' => 'Start', 'href' => route('home')], ['label' => 'Koordination'], ['label' => 'Kostenvoranschläge', 'href' => route('seminar-quotes.index')], ['label' => $quote->partner->name, 'href' => route('seminar-quotes.show', $quote)], ['label' => 'Ändern']]
+        : [['label' => 'Start', 'href' => route('home')], ['label' => 'Koordination'], ['label' => 'Kostenvoranschläge', 'href' => route('seminar-quotes.index')], ['label' => 'Neu']];
     $templateDefaults = $defaults['sv_days'];
     $filled = count(array_filter($rows));
 @endphp
 
-<x-layouts.app title="Kostenvoranschlag berechnen" width="wide">
-    <x-vdbs.layout.page-header title="Kostenvoranschlag berechnen" lead="Pro Position ein Produkt mit Stückzahl. „Berechnen“ zeigt die Vorschau, „Speichern“ legt den Kostenvoranschlag fest." :breadcrumb="$crumbs" />
+<x-layouts.app :title="$heading" width="wide">
+    <x-vdbs.layout.page-header :title="$heading" :lead="$editing ? 'Fassung '.$quote->version.' für '.$quote->partner->name.'. Eine Änderung legt eine neue Fassung an, die alten bleiben im Versionsverlauf.' : 'Pro Position ein Produkt mit Stückzahl. „Berechnen“ zeigt die Vorschau, „Speichern“ legt den Kostenvoranschlag fest.'" :breadcrumb="$crumbs" />
+
+    @if ($editing && $fromVersion)
+        <x-vdbs.feedback.alert variant="info">Ausgangspunkt ist die frühere Fassung {{ $fromVersion }}. Beim Speichern entsteht daraus eine neue Fassung.</x-vdbs.feedback.alert>
+    @endif
 
     <x-vdbs.layout.grid :columns="2" align="start">
-        <x-vdbs.forms.form :action="route('seminar-quotes.store')">
-            <x-vdbs.forms.form-section title="Schule">
-                <x-vdbs.forms.select name="partner_id" label="Schule" placeholder="Bitte wählen" :required="true" :options="$partnerOptions" :value="$values['partner_id'] ?? null" />
-                <x-vdbs.forms.select name="seminar_id" label="Zugehöriges Seminar" placeholder="Keins" :optional="true" :options="$seminarOptions" :value="$values['seminar_id'] ?? null" hint="Verknüpft den Kostenvoranschlag mit dem Seminar (nötig für den Status „Bestätigt“)" />
-            </x-vdbs.forms.form-section>
+        <x-vdbs.forms.form :action="$editing ? route('seminar-quotes.update', $quote) : route('seminar-quotes.store')" :method="$editing ? 'put' : 'post'">
+            @if (! $editing)
+                <x-vdbs.forms.form-section title="Schule">
+                    <x-vdbs.forms.select name="partner_id" label="Schule" placeholder="Bitte wählen" :required="true" :options="$partnerOptions" :value="$values['partner_id'] ?? null" />
+                    <x-vdbs.forms.select name="seminar_id" label="Zugehöriges Seminar" placeholder="Keins" :optional="true" :options="$seminarOptions" :value="$values['seminar_id'] ?? null" hint="Verknüpft den Kostenvoranschlag mit dem Seminar (nötig für den Status „Bestätigt“)" />
+                </x-vdbs.forms.form-section>
+            @endif
 
             <x-vdbs.forms.form-section title="Positionen" description="Jede Position ist ein aufklappbarer Bereich. Die Voreinstellungen richten sich nach dem Produkt und lassen sich ändern. Titel und Standardbeschreibung kommen aus den Texten (Seite „Texte“), hier lässt sich nur etwas ergänzen. Jede Position wird einzeln berechnet, auch die Vereinspauschale.">
                 <div data-vdbs-repeater data-vdbs-repeater-next="{{ $nextIndex }}" data-vdbs-position-defaults="{{ json_encode($defaults) }}" data-vdbs-position-units="{{ json_encode($units) }}">
@@ -36,10 +46,16 @@
                 </div>
             </x-vdbs.forms.form-section>
 
+            @if ($editing)
+                <x-vdbs.forms.form-section title="Änderung">
+                    <x-vdbs.forms.textarea name="change_comment" label="Notiz zur Änderung" :optional="true" maxlength="500" :rows="2" :value="$values['change_comment'] ?? null" hint="Steht im Versionsverlauf, z. B. „Eine Sitzung mehr, auf Wunsch der Schule“" />
+                </x-vdbs.forms.form-section>
+            @endif
+
             <x-slot:actions>
                 <x-vdbs.actions.button type="submit" name="action" value="preview" variant="secondary" icon="refresh-cw">Berechnen</x-vdbs.actions.button>
-                <x-vdbs.actions.button type="submit" name="action" value="save" icon="save">Kostenvoranschlag speichern</x-vdbs.actions.button>
-                <x-vdbs.actions.button variant="tertiary" :href="route('seminar-quotes.index')">Abbrechen</x-vdbs.actions.button>
+                <x-vdbs.actions.button type="submit" name="action" value="save" icon="save">{{ $editing ? 'Änderung speichern' : 'Kostenvoranschlag speichern' }}</x-vdbs.actions.button>
+                <x-vdbs.actions.button variant="tertiary" :href="$editing ? route('seminar-quotes.show', $quote) : route('seminar-quotes.index')">Abbrechen</x-vdbs.actions.button>
             </x-slot:actions>
         </x-vdbs.forms.form>
 

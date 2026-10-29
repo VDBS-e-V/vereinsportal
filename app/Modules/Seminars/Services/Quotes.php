@@ -56,7 +56,11 @@ final class Quotes
         return ['positions' => $positions, 'total_cents' => $total, 'price_list' => $priceList];
     }
 
-    /** @param  list<array<string, mixed>>  $rows */
+    /**
+     * Neuen Kostenvoranschlag speichern (Fassung 1).
+     *
+     * @param  list<array<string, mixed>>  $rows
+     */
     public function create(Partner $partner, ?Seminar $seminar, array $rows, User $by): SeminarQuote
     {
         $result = $this->preview($rows);
@@ -66,10 +70,13 @@ final class Quotes
                 'partner_id' => $partner->id,
                 'seminar_id' => $seminar?->id,
                 'price_list_id' => $result['price_list']->id,
+                'version' => 1,
                 'positions' => $result['positions'],
                 'total_cents' => $result['total_cents'],
                 'created_by_user_id' => $by->id,
             ]);
+
+            $this->snapshot($quote, $by, null);
 
             $seminar?->events()->create([
                 'type' => SeminarEventType::QuoteCreated,
@@ -85,6 +92,49 @@ final class Quotes
         AuditLog::record(AuditEvent::SeminarQuoteCreated, $by, $seminar ?? $partner, ['summe' => Money::format($result['total_cents']), 'positionen' => count($result['positions'])]);
 
         return $quote;
+    }
+
+    /**
+     * Kostenvoranschlag ändern: Die Positionen werden mit der aktuellen Preisliste und den aktuellen Texten neu berechnet. Weicht das Ergebnis vom
+     * bisherigen Stand ab, entsteht eine neue Fassung (mit Notiz); sonst bleibt alles, wie es ist.
+     *
+     * @param  list<array<string, mixed>>  $rows
+     * @return bool ob eine neue Fassung entstanden ist
+     */
+    public function update(SeminarQuote $quote, array $rows, User $by, ?string $comment = null): bool
+    {
+        $result = $this->preview($rows);
+
+        // Lose Gleichheit: die Reihenfolge der Schlüssel spielt keine Rolle (MySQL ordnet JSON-Schlüssel neu)
+        if ($result['positions'] == $quote->positions && $result['total_cents'] === $quote->total_cents) {
+            return false;
+        }
+
+        $old = $quote->total_cents;
+
+        DB::transaction(function () use ($quote, $result, $by, $comment): void {
+            $quote->forceFill([
+                'price_list_id' => $result['price_list']->id,
+                'version' => $quote->version + 1,
+                'positions' => $result['positions'],
+                'total_cents' => $result['total_cents'],
+            ])->save();
+
+            $this->snapshot($quote, $by, $comment);
+
+            $quote->seminar?->events()->create([
+                'type' => SeminarEventType::QuoteUpdated,
+                'occurred_at' => now(),
+                'actor_user_id' => $by->id,
+                'actor_label' => AuditLog::label($by),
+                'comment' => filled($comment) ? trim($comment) : null,
+                'data' => ['fassung' => $quote->version, 'summe' => Money::format($result['total_cents'])],
+            ]);
+        });
+
+        AuditLog::record(AuditEvent::SeminarQuoteUpdated, $by, $quote->seminar ?? $quote->partner, ['fassung' => $quote->version, 'summe_alt' => Money::format($old), 'summe_neu' => Money::format($quote->total_cents)]);
+
+        return true;
     }
 
     public function delete(SeminarQuote $quote, User $by): void
@@ -134,6 +184,19 @@ final class Quotes
         AuditLog::record(AuditEvent::SeminarPricesChanged, $by, null, ['bezeichnung' => $label, 'gueltig_ab' => $validFrom]);
 
         return $list;
+    }
+
+    /** Hält den aktuellen Stand als unveränderliche Fassung fest. */
+    private function snapshot(SeminarQuote $quote, User $by, ?string $comment): void
+    {
+        $quote->versions()->create([
+            'version' => $quote->version,
+            'price_list_id' => $quote->price_list_id,
+            'positions' => $quote->positions,
+            'total_cents' => $quote->total_cents,
+            'comment' => filled($comment) ? trim($comment) : null,
+            'created_by_user_id' => $by->id,
+        ]);
     }
 
     /**

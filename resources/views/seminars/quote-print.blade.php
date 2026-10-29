@@ -10,7 +10,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
-    <title>Kostenvoranschlag {{ $quote->partner->name }} – {{ $quote->created_at?->format('d.m.Y') }}</title>
+    <title>Kostenvoranschlag {{ $quote->partner->name }} – {{ $data['at']?->format('d.m.Y') }}</title>
     <style>
         @page { size: A4; margin: 0; }
         * { box-sizing: border-box; }
@@ -59,7 +59,7 @@
 <body>
     <div class="toolbar">
         <button type="button" onclick="window.print()">Drucken oder als PDF speichern</button>
-        <a href="{{ route('seminar-quotes.show', $quote) }}">Zurück</a>
+        <a href="{{ route('seminar-quotes.show', ['quote' => $quote, 'fassung' => $data['current'] ? null : $data['version']]) }}">Zurück</a>
     </div>
 
     <main class="sheet">
@@ -88,7 +88,7 @@
 
         <h1>Kostenvoranschlag</h1>
 
-        <div class="date"><span>Datum:</span><span>{{ $quote->created_at?->format('d.m.Y') }}</span></div>
+        <div class="date"><span>Datum:</span><span>{{ $data['at']?->format('d.m.Y') }}</span></div>
 
         <table>
             <thead>
@@ -105,7 +105,7 @@
                 @endforeach
             </tbody>
             <tfoot>
-                <tr class="total"><td colspan="3" class="label">Endsumme</td><td class="price"><span>{{ $money($quote->total_cents) }}</span></td></tr>
+                <tr class="total"><td colspan="3" class="label">Endsumme</td><td class="price"><span>{{ $money($data['total_cents']) }}</span></td></tr>
             </tfoot>
         </table>
 

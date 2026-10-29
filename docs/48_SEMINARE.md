@@ -51,7 +51,12 @@ Bei vollen Fünfern (30, 35, 45 TN …) ist das Ergebnis gleich.
 Vereinspauschale (65 €) fällt je Position an (abschaltbar je Position). Das Seminar ist nur eine optionale Verknüpfung (nötig für den Status „Bestätigt“);
 „Kostenvoranschlag berechnen“ am Seminar öffnet das Formular mit dem Produkt des Seminars. Jede Position ist ein einklappbarer Bereich (Kopfzeile: Produkt und Stückzahl, z. B. „SV-Tage – 3 Tage“; bei einer einzigen Position und bei Fehlern offen). Weitere Positionen mit „Weitere Position hinzufügen“, beim
 Wechsel des Produkts übernimmt die Zeile dessen Voreinstellungen (`resources/js/quote-form.js`). „Berechnen“ zeigt die Vorschau, „Speichern“ legt den KVA
-**unveränderlich** fest (Positionen mit Eingaben, Posten, Summe, Preisstand; Tabelle `seminar_quotes`, Spalte `positions` als JSON). „Als Vorlage verwenden“ kopiert
+fest (Positionen mit Eingaben, Posten, Summe, Preisstand; Tabelle `seminar_quotes`, Spalte `positions` als JSON).
+**Änderungen und Versionsverlauf:** Ein bestehender KVA lässt sich mit „Ändern“ bearbeiten (Positionen, Notiz zur Änderung; Schule und Seminar bleiben). Die Positionen werden mit der
+*aktuellen* Preisliste und den aktuellen Texten neu berechnet; weicht das Ergebnis ab, entsteht eine neue Fassung, sonst nichts. Alle Fassungen stehen als unveränderliche
+Schnappschüsse in `seminar_quote_versions` (Fassung, Datum, Person, Endsumme, Notiz, Preisstand). Auf der KVA-Seite zeigt der Versionsverlauf alle Fassungen; frühere lassen
+sich ansehen und drucken (`?fassung=N`), und „Daraus neue Fassung machen“ startet eine Änderung von einer früheren Fassung aus. Das Datum im Brief ist das der angezeigten
+Fassung. Ein Löschen entfernt den KVA mit allen Fassungen. „Als Vorlage verwenden“ kopiert
 einen KVA in ein neues Formular, Löschen ist mit Protokolleintrag möglich (nicht beim einzigen KVA eines bestätigten Seminars). Eine Schule mit KVAs lässt sich nicht löschen.
 
 Die Seite „Schreiben drucken“ (`/koordination/kostenvoranschlaege/{id}/druck`) zeigt den KVA als Brief im Format des Vereins (Briefkopf mit Logo, Anschrift der

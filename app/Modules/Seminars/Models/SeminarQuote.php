@@ -6,22 +6,22 @@ use App\Modules\Access\Models\User;
 use App\Modules\Partners\Models\Partner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/** Modul: Seminars. Ein Kostenvoranschlag (unveränderlich) für eine Schule: mehrere Positionen (Produkt mit Stückzahl, Eingaben, Posten, Summe) mit dem Preisstand von damals. */
+/** Modul: Seminars. Ein Kostenvoranschlag für eine Schule: mehrere Positionen (Produkt mit Stückzahl, Eingaben, Posten, Summe) mit dem Preisstand der aktuellen Fassung. Änderungen erzeugen eine neue Fassung; alle Fassungen stehen unveränderlich in seminar_quote_versions. */
 class SeminarQuote extends Model
 {
-    public const UPDATED_AT = null;
-
-    protected $fillable = ['partner_id', 'seminar_id', 'price_list_id', 'positions', 'total_cents', 'created_by_user_id'];
+    protected $fillable = ['partner_id', 'seminar_id', 'price_list_id', 'version', 'positions', 'total_cents', 'created_by_user_id'];
 
     protected function casts(): array
     {
-        return ['positions' => 'array', 'total_cents' => 'integer'];
+        return ['positions' => 'array', 'total_cents' => 'integer', 'version' => 'integer'];
     }
 
-    protected static function booted(): void
+    /** @return HasMany<SeminarQuoteVersion, $this> alle Fassungen, die neueste zuerst */
+    public function versions(): HasMany
     {
-        static::updating(fn () => false);
+        return $this->hasMany(SeminarQuoteVersion::class, 'quote_id')->orderByDesc('version');
     }
 
     /** @return BelongsTo<Partner, $this> */

@@ -10,6 +10,7 @@ enum SeminarEventType: string
     case SessionAdded = 'session_added';
     case SessionRemoved = 'session_removed';
     case QuoteCreated = 'quote_created';
+    case QuoteUpdated = 'quote_updated';
     case Note = 'note';
 
     public function label(): string
@@ -21,6 +22,7 @@ enum SeminarEventType: string
             self::SessionAdded => 'Termin hinzugefügt',
             self::SessionRemoved => 'Termin entfernt',
             self::QuoteCreated => 'Kostenvoranschlag erstellt',
+            self::QuoteUpdated => 'Kostenvoranschlag geändert',
             self::Note => 'Notiz',
         };
     }
@@ -28,7 +30,7 @@ enum SeminarEventType: string
     public function tone(): string
     {
         return match ($this) {
-            self::StatusChanged, self::QuoteCreated => 'success',
+            self::StatusChanged, self::QuoteCreated, self::QuoteUpdated => 'success',
             self::SessionRemoved => 'warning',
             default => 'neutral',
         };

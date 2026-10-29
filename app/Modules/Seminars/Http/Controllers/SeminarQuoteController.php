@@ -77,35 +77,12 @@ class SeminarQuoteController extends Controller
 
     public function store(Request $request): View|RedirectResponse
     {
-        // Leere Zeilen (ohne Produkt) entfallen, die Zeilennummern bleiben erhalten
-        $request->merge(['positions' => collect((array) $request->input('positions', []))->filter(fn ($row): bool => is_array($row) && filled($row['product'] ?? null))->all()]);
-
-        $rules = [
+        $data = $this->validatePositions($request, [
             'partner_id' => ['required', 'integer', Rule::exists('partners', 'id')->where('type', PartnerType::School->value)],
             'seminar_id' => ['nullable', 'integer', Rule::exists('seminars', 'id')],
-            'positions' => ['required', 'array', 'min:1', 'max:'.self::MAX_POSITIONS],
-            'positions.*.product' => ['required', Rule::enum(SeminarType::class)],
-            'positions.*.extra' => ['nullable', 'string', 'max:1000'],
-        ];
-
-        foreach (QuoteCalculator::rules() as $key => $rule) {
-            $rules['positions.*.'.$key] = $rule;
-        }
-
-        $data = $request->validate($rules, [
+        ], [
             'partner_id.required' => 'Bitte wählen Sie die Schule.',
             'partner_id.exists' => 'Bitte wählen Sie eine Schule aus der Liste.',
-            'positions.required' => 'Bitte fügen Sie mindestens eine Position hinzu.',
-            'positions.min' => 'Bitte fügen Sie mindestens eine Position hinzu.',
-            'positions.max' => 'Ein Kostenvoranschlag kann höchstens '.self::MAX_POSITIONS.' Positionen haben.',
-            'positions.*.product.required' => 'Bitte wählen Sie das Produkt.',
-            'positions.*.product.enum' => 'Bitte wählen Sie ein bekanntes Produkt.',
-            'positions.*.extra.max' => 'Die Ergänzung darf höchstens 1000 Zeichen lang sein.',
-            'required' => 'Bitte füllen Sie dieses Feld aus.',
-            'integer' => 'Bitte geben Sie eine ganze Zahl ein.',
-            'numeric' => 'Bitte geben Sie eine Zahl ein.',
-            'min' => 'Der Wert ist zu klein.',
-            'max' => 'Der Wert ist zu groß.',
         ]);
 
         $partner = Partner::query()->findOrFail((int) $data['partner_id']);
@@ -129,11 +106,41 @@ class SeminarQuoteController extends Controller
         return redirect()->route('seminar-quotes.show', $quote)->with('success', 'Der Kostenvoranschlag wurde gespeichert.');
     }
 
-    public function show(SeminarQuote $quote): View
+    /** Bestehenden Kostenvoranschlag ändern (mit ?fassung=N als Ausgangspunkt eine frühere Fassung). */
+    public function edit(Request $request, SeminarQuote $quote): View
     {
-        $quote->load(['partner', 'seminar', 'priceList', 'createdBy.person']);
+        $quote->load(['partner', 'seminar']);
+        $source = $this->versionData($quote, (int) $request->query('fassung', 0) ?: null);
 
-        return view('seminars.quote', ['quote' => $quote, 'canManage' => Gate::allows('seminars.manage')]);
+        $rows = collect($source['positions'])->map(fn (array $position): array => $position['inputs'] + ['product' => $position['product'], 'extra' => $position['extra'] ?? ''])->all();
+
+        return $this->form(['partner_id' => $quote->partner_id, 'seminar_id' => $quote->seminar_id, 'positions' => $rows], null, $quote, $source['version'] !== $quote->version ? $source['version'] : null);
+    }
+
+    public function update(Request $request, SeminarQuote $quote): View|RedirectResponse
+    {
+        $data = $this->validatePositions($request, ['change_comment' => ['nullable', 'string', 'max:500']], ['change_comment.max' => 'Die Notiz darf höchstens 500 Zeichen lang sein.']);
+
+        if ($request->input('action') === 'preview') {
+            $rows = $data['positions'];
+
+            return $this->form(['partner_id' => $quote->partner_id, 'seminar_id' => $quote->seminar_id, 'positions' => $this->withCheckboxes($rows), 'change_comment' => $data['change_comment'] ?? null], $this->quotes->preview($rows), $quote->load(['partner', 'seminar']));
+        }
+
+        $actor = $request->user();
+        abort_unless($actor instanceof User, 403);
+
+        $changed = $this->quotes->update($quote, $data['positions'], $actor, $data['change_comment'] ?? null);
+
+        return redirect()->route('seminar-quotes.show', $quote)->with('success', $changed ? 'Der Kostenvoranschlag wurde geändert (Fassung '.$quote->version.').' : 'Es gab keine Änderungen.');
+    }
+
+    public function show(Request $request, SeminarQuote $quote): View
+    {
+        $quote->load(['partner', 'seminar', 'versions.createdBy.person', 'versions.priceList']);
+        $data = $this->versionData($quote, (int) $request->query('fassung', 0) ?: null);
+
+        return view('seminars.quote', ['quote' => $quote, 'data' => $data, 'canManage' => Gate::allows('seminars.manage')]);
     }
 
     public function destroy(Request $request, SeminarQuote $quote): RedirectResponse
@@ -153,15 +160,17 @@ class SeminarQuoteController extends Controller
     }
 
     /** Der Kostenvoranschlag als Schreiben im Briefformat des Vereins (zum Drucken oder als PDF speichern). */
-    public function print(SeminarQuote $quote): View
+    public function print(Request $request, SeminarQuote $quote): View
     {
-        $quote->load(['partner', 'createdBy.person']);
+        $quote->load('partner');
+        $data = $this->versionData($quote, (int) $request->query('fassung', 0) ?: null);
         $partner = $quote->partner;
         $country = strtoupper((string) $partner->country_code);
 
         return view('seminars.quote-print', [
             'quote' => $quote,
-            'items' => collect($quote->positions)->map(fn (array $position): array => [
+            'data' => $data,
+            'items' => collect($data['positions'])->map(fn (array $position): array => [
                 'title' => $position['title'],
                 'lines' => array_merge(QuoteTexts::lines($position['content']), QuoteTexts::lines($position['extra'] ?? '')),
                 'total_cents' => $position['total_cents'],
@@ -173,16 +182,16 @@ class SeminarQuoteController extends Controller
                 trim(($partner->postal_code ?? '').' '.($partner->city ?? '')),
                 $country === 'DE' || $country === '' ? 'Deutschland' : $country,
             ], fn (string $line): bool => $line !== '')),
-            'author' => $quote->createdBy ? ($quote->createdBy->person?->fullName() ?: $quote->createdBy->email) : null,
+            'author' => $data['author'],
             'letter' => config('portal.letter'),
         ]);
     }
 
     /**
-     * @param  array{partner_id: ?int, seminar_id: ?int, positions: array<int|string, array<string, mixed>>}  $values
+     * @param  array{partner_id: ?int, seminar_id: ?int, positions: array<int|string, array<string, mixed>>, change_comment?: ?string}  $values
      * @param  array<string, mixed>|null  $preview
      */
-    private function form(array $values, ?array $preview): View
+    private function form(array $values, ?array $preview, ?SeminarQuote $quote = null, ?int $fromVersion = null): View
     {
         $defaults = [];
 
@@ -195,6 +204,8 @@ class SeminarQuoteController extends Controller
         $rows = $values['positions'] + [$next => []];
 
         return view('seminars.quote-form', [
+            'quote' => $quote,
+            'fromVersion' => $fromVersion,
             'values' => $values,
             'rows' => $rows,
             'nextIndex' => $next + 1,
@@ -207,6 +218,64 @@ class SeminarQuoteController extends Controller
             'seminarOptions' => Seminar::query()->with('partner')->whereNot('status', SeminarStatus::Cancelled->value)->orderByDesc('id')->limit(300)->get()
                 ->mapWithKeys(fn (Seminar $seminar): array => [$seminar->id => $seminar->title.' – '.$seminar->partner->name])->all(),
         ]);
+    }
+
+    /**
+     * Prüft die Positionen des Formulars (leere Zeilen ohne Produkt entfallen, die Zeilennummern bleiben erhalten).
+     *
+     * @param  array<string, mixed>  $extraRules
+     * @param  array<string, string>  $extraMessages
+     * @return array<string, mixed>
+     */
+    private function validatePositions(Request $request, array $extraRules, array $extraMessages): array
+    {
+        $request->merge(['positions' => collect((array) $request->input('positions', []))->filter(fn ($row): bool => is_array($row) && filled($row['product'] ?? null))->all()]);
+
+        $rules = $extraRules + [
+            'positions' => ['required', 'array', 'min:1', 'max:'.self::MAX_POSITIONS],
+            'positions.*.product' => ['required', Rule::enum(SeminarType::class)],
+            'positions.*.extra' => ['nullable', 'string', 'max:1000'],
+        ];
+
+        foreach (QuoteCalculator::rules() as $key => $rule) {
+            $rules['positions.*.'.$key] = $rule;
+        }
+
+        return $request->validate($rules, $extraMessages + [
+            'positions.required' => 'Bitte fügen Sie mindestens eine Position hinzu.',
+            'positions.min' => 'Bitte fügen Sie mindestens eine Position hinzu.',
+            'positions.max' => 'Ein Kostenvoranschlag kann höchstens '.self::MAX_POSITIONS.' Positionen haben.',
+            'positions.*.product.required' => 'Bitte wählen Sie das Produkt.',
+            'positions.*.product.enum' => 'Bitte wählen Sie ein bekanntes Produkt.',
+            'positions.*.extra.max' => 'Die Ergänzung darf höchstens 1000 Zeichen lang sein.',
+            'required' => 'Bitte füllen Sie dieses Feld aus.',
+            'integer' => 'Bitte geben Sie eine ganze Zahl ein.',
+            'numeric' => 'Bitte geben Sie eine Zahl ein.',
+            'min' => 'Der Wert ist zu klein.',
+            'max' => 'Der Wert ist zu groß.',
+        ]);
+    }
+
+    /**
+     * Stand des Kostenvoranschlags in einer Fassung (ohne Angabe: die aktuelle). Unbekannte Fassungen sind 404.
+     *
+     * @return array{version: int, positions: list<array<string, mixed>>, total_cents: int, price_list: \App\Modules\Seminars\Models\SeminarPriceList, at: \Illuminate\Support\Carbon, author: ?string, comment: ?string, current: bool}
+     */
+    private function versionData(SeminarQuote $quote, ?int $version): array
+    {
+        $version ??= $quote->version;
+        $snapshot = $quote->versions()->with(['createdBy.person', 'priceList'])->where('version', $version)->firstOrFail();
+
+        return [
+            'version' => $snapshot->version,
+            'positions' => $snapshot->positions,
+            'total_cents' => $snapshot->total_cents,
+            'price_list' => $snapshot->priceList,
+            'at' => $snapshot->created_at,
+            'author' => $snapshot->createdBy ? ($snapshot->createdBy->person?->fullName() ?: $snapshot->createdBy->email) : null,
+            'comment' => $snapshot->comment,
+            'current' => $snapshot->version === $quote->version,
+        ];
     }
 
     /**

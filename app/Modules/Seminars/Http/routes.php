@@ -34,6 +34,8 @@ Route::middleware(['web', 'auth'])->group(function (): void {
         Route::middleware('can:seminars.manage')->group(function (): void {
             Route::get('/neu', [SeminarQuoteController::class, 'create'])->name('create');
             Route::post('/', [SeminarQuoteController::class, 'store'])->name('store');
+            Route::get('/{quote}/bearbeiten', [SeminarQuoteController::class, 'edit'])->whereNumber('quote')->name('edit');
+            Route::put('/{quote}', [SeminarQuoteController::class, 'update'])->whereNumber('quote')->name('update');
             Route::delete('/{quote}', [SeminarQuoteController::class, 'destroy'])->whereNumber('quote')->name('destroy');
         });
 
