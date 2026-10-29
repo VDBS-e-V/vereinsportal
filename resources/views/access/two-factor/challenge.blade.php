@@ -22,9 +22,9 @@
         <input type="hidden" name="method" value="{{ $method }}">
 
         @if ($method === 'recovery')
-            <x-vdbs.forms.input name="code" :label="$titles[$method]" hint="Zum Beispiel ABCDE-FGHJK" :required="true" autocomplete="off" autofocus />
+            <x-vdbs.forms.input name="otp" :label="$titles[$method]" hint="Zum Beispiel ABCDE-FGHJK" :required="true" autocomplete="off" autofocus />
         @else
-            <x-vdbs.forms.code name="code" label="Sicherheitscode" autofocus />
+            <x-vdbs.forms.code name="otp" label="Sicherheitscode (Zwei-Faktor-Code)" autofocus />
         @endif
 
         <x-slot:actions>

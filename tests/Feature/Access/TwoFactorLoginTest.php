@@ -44,7 +44,7 @@ it('completes the login with a valid app code', function () {
     [$user, $secret] = tfUserWithTotp();
 
     tfLogin($this);
-    $this->post(route('two-factor.verify'), ['method' => 'totp', 'code' => Totp::code($secret)])
+    $this->post(route('two-factor.verify'), ['method' => 'totp', 'otp' => Totp::code($secret)])
         ->assertRedirect(route('home'));
 
     $this->assertAuthenticatedAs($user);
@@ -56,9 +56,9 @@ it('rejects a wrong code and stays logged out', function () {
     tfUserWithTotp();
 
     tfLogin($this);
-    $this->post(route('two-factor.verify'), ['method' => 'totp', 'code' => '000000'])
+    $this->post(route('two-factor.verify'), ['method' => 'totp', 'otp' => '000000'])
         ->assertRedirect(route('two-factor.challenge', ['method' => 'totp']))
-        ->assertSessionHasErrors('code');
+        ->assertSessionHasErrors('otp');
 
     $this->assertGuest();
 });
@@ -68,11 +68,11 @@ it('accepts an app code only once', function () {
     $code = Totp::code($secret);
 
     tfLogin($this);
-    $this->post(route('two-factor.verify'), ['method' => 'totp', 'code' => $code])->assertRedirect(route('home'));
+    $this->post(route('two-factor.verify'), ['method' => 'totp', 'otp' => $code])->assertRedirect(route('home'));
     $this->post('/logout');
 
     tfLogin($this);
-    $this->post(route('two-factor.verify'), ['method' => 'totp', 'code' => $code])->assertSessionHasErrors('code');
+    $this->post(route('two-factor.verify'), ['method' => 'totp', 'otp' => $code])->assertSessionHasErrors('otp');
 
     $this->assertGuest();
 });
@@ -83,10 +83,10 @@ it('locks the code entry after too many wrong attempts', function () {
     tfLogin($this);
 
     foreach (range(1, 5) as $i) {
-        $this->post(route('two-factor.verify'), ['method' => 'totp', 'code' => '000000']);
+        $this->post(route('two-factor.verify'), ['method' => 'totp', 'otp' => '000000']);
     }
 
-    $this->post(route('two-factor.verify'), ['method' => 'totp', 'code' => Totp::code($secret)])->assertSessionHasErrors('code');
+    $this->post(route('two-factor.verify'), ['method' => 'totp', 'otp' => Totp::code($secret)])->assertSessionHasErrors('otp');
 
     $this->assertGuest();
 });
@@ -96,12 +96,12 @@ it('logs in with a recovery code that works only once', function () {
     $codes = app(RecoveryCodes::class)->generate($user);
 
     tfLogin($this);
-    $this->post(route('two-factor.verify'), ['method' => 'recovery', 'code' => strtolower($codes[0])])->assertRedirect(route('home'));
+    $this->post(route('two-factor.verify'), ['method' => 'recovery', 'otp' => strtolower($codes[0])])->assertRedirect(route('home'));
     $this->assertAuthenticatedAs($user);
     $this->post('/logout');
 
     tfLogin($this);
-    $this->post(route('two-factor.verify'), ['method' => 'recovery', 'code' => $codes[0]])->assertSessionHasErrors('code');
+    $this->post(route('two-factor.verify'), ['method' => 'recovery', 'otp' => $codes[0]])->assertSessionHasErrors('otp');
     $this->assertGuest();
 
     expect(app(RecoveryCodes::class)->remaining($user))->toBe(9);
@@ -119,7 +119,7 @@ it('sends an email code at login when email is the only method and accepts it', 
 
     expect($code)->toMatch('/^\d{6}$/');
 
-    $this->post(route('two-factor.verify'), ['method' => 'email', 'code' => $code])->assertRedirect(route('home'));
+    $this->post(route('two-factor.verify'), ['method' => 'email', 'otp' => $code])->assertRedirect(route('home'));
     $this->assertAuthenticatedAs($user);
 });
 
@@ -180,7 +180,7 @@ it('sends a new email code from the challenge page with a throttle', function ()
 
 it('sends users without a pending login back to the login page', function () {
     $this->get(route('two-factor.challenge'))->assertRedirect(route('login'));
-    $this->post(route('two-factor.verify'), ['method' => 'totp', 'code' => '123456'])->assertRedirect(route('login'));
+    $this->post(route('two-factor.verify'), ['method' => 'totp', 'otp' => '123456'])->assertRedirect(route('login'));
 });
 
 it('lets the pending login expire after ten minutes', function () {

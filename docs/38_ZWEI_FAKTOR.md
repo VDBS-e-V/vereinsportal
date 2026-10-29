@@ -9,6 +9,14 @@
 3. `POST /zwei-faktor` prüft den Code (Authenticator-App, E-Mail oder Wiederherstellungscode), höchstens 5 Fehlversuche je
    Nutzer und IP in 5 Minuten. Erst danach `Auth::login`, neue Sitzungs-ID und `last_login_at`.
 
+## Passwortmanager
+
+Das Code-Feld der Anmeldung ist für Passwortmanager als Zwei-Faktor-Feld erkennbar: `autocomplete="one-time-code"`,
+Feldname und Id `otp` (`field-otp`), `inputmode="numeric"`, ein einzelnes Textfeld mit Länge 6, eigene Seite mit nur diesem
+Feld und der Beschriftung „Sicherheitscode (Zwei-Faktor-Code)“. Damit ein Manager den Code ausfüllt, muss er den
+App-Schlüssel kennen: beim Einrichten den Schlüssel (oder den Link „direkt in der App öffnen“) im Manager als
+Einmalpasswort/TOTP-Feld des Eintrags hinterlegen.
+
 ## Methoden
 
 | Methode | Prüfung |

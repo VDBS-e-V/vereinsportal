@@ -63,22 +63,22 @@ class TwoFactorChallengeController extends Controller
 
         $data = $request->validate([
             'method' => ['required', 'in:totp,email,recovery'],
-            'code' => ['required', 'string', 'max:64'],
+            'otp' => ['required', 'string', 'max:64'],
         ], [
-            'code.required' => 'Bitte geben Sie den Code ein.',
+            'otp.required' => 'Bitte geben Sie den Code ein.',
         ]);
 
         $key = 'two-factor|'.$user->id.'|'.$request->ip();
 
         if (RateLimiter::tooManyAttempts($key, self::MAX_ATTEMPTS)) {
             throw ValidationException::withMessages([
-                'code' => 'Zu viele Versuche. Bitte versuchen Sie es in '.ceil(RateLimiter::availableIn($key) / 60).' Minute(n) erneut.',
+                'otp' => 'Zu viele Versuche. Bitte versuchen Sie es in '.ceil(RateLimiter::availableIn($key) / 60).' Minute(n) erneut.',
             ]);
         }
 
         $valid = match ($data['method']) {
-            'recovery' => $this->twoFactor->verifyRecovery($user, $data['code']),
-            default => $this->twoFactor->verify($user, TwoFactorMethodType::from($data['method']), $data['code']),
+            'recovery' => $this->twoFactor->verifyRecovery($user, $data['otp']),
+            default => $this->twoFactor->verify($user, TwoFactorMethodType::from($data['method']), $data['otp']),
         };
 
         if (! $valid) {
@@ -86,7 +86,7 @@ class TwoFactorChallengeController extends Controller
 
             return redirect()
                 ->route('two-factor.challenge', ['method' => $data['method']])
-                ->withErrors(['code' => $data['method'] === 'recovery'
+                ->withErrors(['otp' => $data['method'] === 'recovery'
                     ? 'Der Wiederherstellungscode ist nicht gültig oder wurde schon verwendet.'
                     : 'Der Code ist nicht gültig oder abgelaufen.']);
         }
