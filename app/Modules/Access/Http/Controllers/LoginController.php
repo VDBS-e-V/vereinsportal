@@ -8,6 +8,8 @@ use App\Modules\Access\Http\Middleware\EnsureSessionVersion;
 use App\Modules\Access\Http\Requests\LoginRequest;
 use App\Modules\Access\Services\EmailChallenges;
 use App\Modules\Access\Services\TwoFactorManager;
+use App\Modules\Audit\Enums\AuditEvent;
+use App\Modules\Audit\Support\AuditLog;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -48,6 +50,7 @@ class LoginController extends Controller
         $request->session()->put(EnsureSessionVersion::KEY, (int) $user->session_version);
 
         $user->forceFill(['last_login_at' => now()])->save();
+        AuditLog::record(AuditEvent::Login, $user, $user, ['zweiter_faktor' => false]);
 
         return redirect()->intended(route('home'));
     }

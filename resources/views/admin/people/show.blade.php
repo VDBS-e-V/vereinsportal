@@ -54,6 +54,10 @@
         </section>
     </x-vdbs.layout.grid>
 
+    @if ($history !== null)
+        <x-admin.history :entries="$history" :href="route('admin.audit.index', ['subject' => 'person:'.$person->id])" />
+    @endif
+
     @if ($canManage && ! $user)
         <x-vdbs.overlays.confirm-dialog id="delete-person" title="Person löschen?" variant="danger" :action="route('admin.people.destroy', $person)" method="delete" confirm-label="Person löschen">
             <p>Die Angaben von <strong>{{ $name }}</strong> werden dauerhaft gelöscht. Das lässt sich nicht rückgängig machen.</p>

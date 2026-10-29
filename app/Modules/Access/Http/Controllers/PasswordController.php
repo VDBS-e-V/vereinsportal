@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Modules\Access\Http\Middleware\EnsureSessionVersion;
 use App\Modules\Access\Models\User;
 use Illuminate\Contracts\View\View;
+use App\Modules\Audit\Enums\AuditEvent;
+use App\Modules\Audit\Support\AuditLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -49,6 +51,7 @@ class PasswordController extends Controller
         // Diese Sitzung bleibt angemeldet, alle anderen enden beim nächsten Aufruf.
         $request->session()->put(EnsureSessionVersion::KEY, (int) $user->session_version);
         $request->session()->regenerate();
+        AuditLog::record(AuditEvent::PasswordChanged, $user, $user);
 
         return redirect()->route('account.password')->with('success', 'Ihr Passwort wurde geändert. Alle anderen Sitzungen wurden abgemeldet.');
     }

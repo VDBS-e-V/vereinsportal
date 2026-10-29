@@ -7,6 +7,8 @@ use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Contracts\View\View;
+use App\Modules\Audit\Enums\AuditEvent;
+use App\Modules\Audit\Support\AuditLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -64,6 +66,8 @@ class PasswordResetController extends Controller
         ];
 
         $apply = function (User $user, string $password): void {
+            $invited = $user->status === UserStatus::PendingVerification;
+
             $user->forceFill([
                 'password' => $password,
                 'remember_token' => Str::random(60),
@@ -76,6 +80,7 @@ class PasswordResetController extends Controller
             ])->save();
 
             event(new PasswordReset($user));
+            AuditLog::record(AuditEvent::PasswordSet, $user, $user, ['einladung' => $invited]);
         };
 
         $status = Password::broker()->reset($credentials + ['status' => UserStatus::Active->value], $apply);

@@ -9,6 +9,8 @@ use App\Modules\Access\Mail\EmailChangeConfirmMail;
 use App\Modules\Access\Mail\EmailChangeNoticeMail;
 use App\Modules\Access\Models\EmailChangeRequest;
 use App\Modules\Access\Models\User;
+use App\Modules\Audit\Enums\AuditEvent;
+use App\Modules\Audit\Support\AuditLog;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -119,6 +121,8 @@ class EmailChangeController extends Controller
             return redirect()->route('account.email')->with('warning', 'Diese E-Mail-Adresse wird inzwischen von einem anderen Konto verwendet.');
         }
 
+        $oldEmail = $user->email;
+
         DB::transaction(function () use ($user, $change): void {
             $user->forceFill([
                 'email' => $change->new_email,
@@ -136,6 +140,7 @@ class EmailChangeController extends Controller
         });
 
         $request->session()->put(EnsureSessionVersion::KEY, (int) $user->session_version);
+        AuditLog::record(AuditEvent::EmailChanged, $user, $user, ['alte_adresse' => $oldEmail, 'neue_adresse' => $change->new_email]);
 
         return redirect()->route('account.email')->with('success', 'Ihre E-Mail-Adresse wurde geändert. Alle anderen Sitzungen wurden abgemeldet.');
     }

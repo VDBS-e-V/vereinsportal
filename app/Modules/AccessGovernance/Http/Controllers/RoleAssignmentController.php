@@ -58,7 +58,7 @@ class RoleAssignmentController extends Controller
         abort_if($key === null || ! Capabilities::canAssign($actor, $key), 403);
 
         try {
-            $this->roles->end($assignment);
+            $this->roles->end($assignment, $actor);
         } catch (DomainException $exception) {
             return redirect()->route('admin.users.show', $user)->with('warning', $exception->getMessage());
         }

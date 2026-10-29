@@ -7,6 +7,8 @@ use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
+use App\Modules\Audit\Enums\AuditEvent;
+use App\Modules\Audit\Support\AuditLog;
 use DomainException;
 use Illuminate\Support\Carbon;
 
@@ -24,7 +26,7 @@ final class RoleAssignments
             throw new DomainException('Der Nutzer hat diese Rolle bereits.');
         }
 
-        return $user->roleAssignments()->create([
+        $assignment = $user->roleAssignments()->create([
             'role_id' => $role->id,
             'source' => RoleAssignmentSource::Manual,
             'starts_at' => now(),
@@ -32,9 +34,17 @@ final class RoleAssignments
             'granted_by_user_id' => $by->id,
             'comment' => filled($comment) ? $comment : null,
         ]);
+
+        AuditLog::record(AuditEvent::RoleAssigned, $by, $user, [
+            'rolle' => $role->name,
+            'bis' => $endsAt?->format('d.m.Y'),
+            'kommentar' => filled($comment) ? $comment : null,
+        ]);
+
+        return $assignment;
     }
 
-    public function end(RoleAssignment $assignment): void
+    public function end(RoleAssignment $assignment, ?User $by = null): void
     {
         $role = $assignment->role;
 
@@ -43,6 +53,8 @@ final class RoleAssignments
         }
 
         $assignment->forceFill(['ends_at' => now()])->save();
+
+        AuditLog::record(AuditEvent::RoleEnded, $by, $assignment->user, ['rolle' => $role?->name]);
     }
 
     /** Anzahl Nutzer mit gültiger Rolle Administration und aktivem Konto, ohne die angegebene Zuordnung. */

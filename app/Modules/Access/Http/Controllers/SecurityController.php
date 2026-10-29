@@ -8,6 +8,8 @@ use App\Modules\Access\Models\User;
 use App\Modules\Access\Services\EmailChallenges;
 use App\Modules\Access\Services\Totp;
 use App\Modules\Access\Services\TwoFactorManager;
+use App\Modules\Audit\Enums\AuditEvent;
+use App\Modules\Audit\Support\AuditLog;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -66,6 +68,8 @@ class SecurityController extends Controller
             return back()->withErrors(['code' => 'Der Code ist nicht gültig. Prüfen Sie die Uhrzeit Ihres Geräts und versuchen Sie es mit dem aktuellen Code erneut.']);
         }
 
+        AuditLog::record(AuditEvent::TwoFactorEnabled, $this->user($request), $this->user($request), ['methode' => 'totp']);
+
         return $this->afterActivation($codes, 'Die Authenticator-App ist eingerichtet.');
     }
 
@@ -107,6 +111,8 @@ class SecurityController extends Controller
             return back()->withErrors(['code' => 'Der Code ist nicht gültig oder abgelaufen.']);
         }
 
+        AuditLog::record(AuditEvent::TwoFactorEnabled, $this->user($request), $this->user($request), ['methode' => 'email']);
+
         return $this->afterActivation($codes, 'Der E-Mail-Code ist eingerichtet.');
     }
 
@@ -121,6 +127,7 @@ class SecurityController extends Controller
         ]);
 
         $this->twoFactor->disable($this->user($request), $method);
+        AuditLog::record(AuditEvent::TwoFactorDisabled, $this->user($request), $this->user($request), ['methode' => $method->value]);
 
         return redirect()->route('account.security.index')->with('success', 'Die Methode wurde entfernt.');
     }
@@ -151,7 +158,10 @@ class SecurityController extends Controller
             return redirect()->route('account.security.index')->with('warning', 'Richten Sie zuerst eine Methode ein.');
         }
 
-        return redirect()->route('account.security.recovery')->with('recovery_codes', $this->twoFactor->regenerateRecoveryCodes($user));
+        $codes = $this->twoFactor->regenerateRecoveryCodes($user);
+        AuditLog::record(AuditEvent::RecoveryCodesRenewed, $user, $user);
+
+        return redirect()->route('account.security.recovery')->with('recovery_codes', $codes);
     }
 
     /** @param  list<string>  $codes */

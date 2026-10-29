@@ -4,6 +4,8 @@ namespace App\Modules\Access\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
+use App\Modules\Audit\Enums\AuditEvent;
+use App\Modules\Audit\Support\AuditLog;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -43,6 +45,12 @@ class ProfileController extends Controller
         $data['country_code'] = strtoupper($data['country_code']);
 
         $person->fill($data)->save();
+
+        $changed = array_values(array_diff(array_keys($person->getChanges()), ['updated_at']));
+
+        if ($changed !== []) {
+            AuditLog::record(AuditEvent::ProfileUpdated, $this->user($request), $person, ['felder' => $changed]);
+        }
 
         return redirect()->route('account.profile')->with('success', 'Ihre Angaben wurden gespeichert.');
     }

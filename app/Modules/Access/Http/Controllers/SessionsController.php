@@ -5,6 +5,8 @@ namespace App\Modules\Access\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Access\Http\Middleware\EnsureSessionVersion;
 use App\Modules\Access\Models\User;
+use App\Modules\Audit\Enums\AuditEvent;
+use App\Modules\Audit\Support\AuditLog;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -64,6 +66,8 @@ class SessionsController extends Controller
                 ->where('id', '!=', $request->session()->getId())
                 ->delete();
         }
+
+        AuditLog::record(AuditEvent::SessionsEnded, $user, $user);
 
         return redirect()->route('account.sessions')->with('success', 'Alle anderen Sitzungen wurden abgemeldet.');
     }

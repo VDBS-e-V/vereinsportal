@@ -128,6 +128,10 @@
         @endif
     </section>
 
+    @if ($history !== null)
+        <x-admin.history :entries="$history" :href="route('admin.audit.index', ['subject' => 'user:'.$user->id])" />
+    @endif
+
     @if ($canManage && $isActive && ! $isSelf)
         <x-vdbs.overlays.confirm-dialog id="disable-user" title="Konto sperren?" variant="danger" :action="route('admin.users.disable', $user)" confirm-label="Konto sperren">
             <p><strong>{{ $name }}</strong> kann sich danach nicht mehr anmelden, und alle bestehenden Sitzungen werden sofort beendet. Sie können das Konto jederzeit entsperren.</p>

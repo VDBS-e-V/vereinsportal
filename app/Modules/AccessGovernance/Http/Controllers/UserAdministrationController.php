@@ -10,6 +10,7 @@ use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Services\UserAdministration;
 use App\Modules\AccessGovernance\Support\Capabilities;
+use App\Modules\Audit\Models\AuditEntry;
 use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -133,6 +134,7 @@ class UserAdministrationController extends Controller
             'canManage' => Gate::allows('users.manage'),
             'canAssign' => Gate::allows('roles.assign'),
             'isSelf' => $user->is($actor),
+            'history' => Gate::allows('audit.view') ? AuditEntry::query()->where('subject_type', 'user')->where('subject_id', $user->id)->orderByDesc('occurred_at')->orderByDesc('id')->limit(8)->get() : null,
         ]);
     }
 
@@ -185,9 +187,9 @@ class UserAdministrationController extends Controller
         return redirect()->route('admin.users.show', $user)->with('success', 'Das Konto wurde angelegt und die Einladung an '.$user->email.' gesendet.');
     }
 
-    public function invite(User $user): RedirectResponse
+    public function invite(Request $request, User $user): RedirectResponse
     {
-        return $this->perform(fn () => $this->administration->invite($user), $user, 'Die Einladung wurde erneut gesendet.');
+        return $this->perform(fn () => $this->administration->invite($user, $this->actor($request)), $user, 'Die Einladung wurde erneut gesendet.');
     }
 
     public function disable(Request $request, User $user): RedirectResponse

@@ -54,8 +54,8 @@
                                 </a>
                             </li>
                         @endforeach
-                            @if (auth()->user()->can('users.view') || auth()->user()->can('people.view'))
-                                <li><a href="{{ auth()->user()->can('users.view') ? route('admin.users.index') : route('admin.people.index') }}" @if (request()->routeIs('admin.*')) aria-current="page" @endif>Verwaltung</a></li>
+                            @if (auth()->user()->can('users.view') || auth()->user()->can('people.view') || auth()->user()->can('audit.view'))
+                                <li><a href="{{ auth()->user()->can('users.view') ? route('admin.users.index') : (auth()->user()->can('people.view') ? route('admin.people.index') : route('admin.audit.index')) }}" @if (request()->routeIs('admin.*')) aria-current="page" @endif>Verwaltung</a></li>
                             @endif
                     </ul>
                 </nav>

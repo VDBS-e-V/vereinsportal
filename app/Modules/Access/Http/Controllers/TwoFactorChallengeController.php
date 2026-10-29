@@ -9,6 +9,8 @@ use App\Modules\Access\Http\Middleware\EnsureSessionVersion;
 use App\Modules\Access\Models\User;
 use App\Modules\Access\Services\EmailChallenges;
 use App\Modules\Access\Services\TwoFactorManager;
+use App\Modules\Audit\Enums\AuditEvent;
+use App\Modules\Audit\Support\AuditLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -84,6 +86,7 @@ class TwoFactorChallengeController extends Controller
 
         if (! $valid) {
             RateLimiter::hit($key, 300);
+            AuditLog::record(AuditEvent::TwoFactorFailed, null, $user, ['methode' => $data['method']]);
 
             return redirect()
                 ->route('two-factor.challenge', ['method' => $data['method']])
@@ -103,6 +106,7 @@ class TwoFactorChallengeController extends Controller
         $request->session()->put(EnsureSessionVersion::KEY, (int) $user->session_version);
 
         $user->forceFill(['last_login_at' => now()])->save();
+        AuditLog::record(AuditEvent::Login, $user, $user, ['zweiter_faktor' => true, 'methode' => $data['method']]);
 
         return redirect()->intended(route('home'));
     }

@@ -5,8 +5,9 @@ namespace App\Modules\People\Services;
 use App\Modules\Access\Models\User;
 use App\Modules\AccessGovernance\Services\UserAdministration;
 use App\Modules\People\Models\Person;
+use App\Modules\Audit\Enums\AuditEvent;
+use App\Modules\Audit\Support\AuditLog;
 use DomainException;
-use Illuminate\Support\Facades\Log;
 
 /** Verwaltungsaktionen an Personen: anlegen, ändern, löschen und ein Konto aus einer Person erstellen. */
 final class PersonAdministration
@@ -21,7 +22,7 @@ final class PersonAdministration
     {
         $person = Person::query()->create($this->normalize($data) + ['email' => mb_strtolower(trim((string) $data['email']))]);
 
-        Log::info('admin.person.created', ['person_id' => $person->id, 'by' => $by->id]);
+        AuditLog::record(AuditEvent::PersonCreated, $by, $person);
 
         return $person;
     }
@@ -38,7 +39,11 @@ final class PersonAdministration
 
         $person->fill($attributes)->save();
 
-        Log::info('admin.person.updated', ['person_id' => $person->id, 'by' => $by->id]);
+        $changed = array_values(array_diff(array_keys($person->getChanges()), ['updated_at']));
+
+        if ($changed !== []) {
+            AuditLog::record(AuditEvent::PersonUpdated, $by, $person, ['felder' => $changed]);
+        }
 
         return $person;
     }
@@ -51,7 +56,7 @@ final class PersonAdministration
 
         $person->delete();
 
-        Log::info('admin.person.deleted', ['person_id' => $person->id, 'by' => $by->id]);
+        AuditLog::record(AuditEvent::PersonDeleted, $by, $person);
     }
 
     public function createAccount(Person $person, User $by): User

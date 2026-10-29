@@ -4,6 +4,8 @@ namespace App\Modules\Access\Http\Requests;
 
 use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Models\User;
+use App\Modules\Audit\Enums\AuditEvent;
+use App\Modules\Audit\Support\AuditLog;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -54,6 +56,14 @@ class LoginRequest extends FormRequest
 
         if (! $user instanceof User || ! $provider->validateCredentials($user, $credentials)) {
             RateLimiter::hit($this->throttleKey());
+
+            // Nur Versuche an bestehenden Konten werden protokolliert (begrenzt durch die Sperre oben); die
+            // eingegebene Adresse unbekannter Konten wird nicht gespeichert.
+            $known = $provider->retrieveByCredentials(['email' => $credentials['email']]);
+
+            if ($known instanceof User) {
+                AuditLog::record(AuditEvent::LoginFailed, null, $known);
+            }
 
             throw ValidationException::withMessages([
                 'email' => 'Die Anmeldedaten sind nicht korrekt oder das Konto ist nicht aktiv.',

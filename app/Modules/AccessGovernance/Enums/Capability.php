@@ -19,4 +19,7 @@ enum Capability: string
 
     /** Personen anlegen, bearbeiten und (ohne Konto) löschen. */
     case PeopleManage = 'people.manage';
+
+    /** Protokoll ansehen und exportieren. */
+    case AuditView = 'audit.view';
 }

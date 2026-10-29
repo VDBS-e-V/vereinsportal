@@ -4,6 +4,7 @@ namespace App\Modules\People\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
+use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\People\Models\Person;
 use App\Modules\People\Services\PersonAdministration;
 use DomainException;
@@ -100,6 +101,7 @@ class PersonAdministrationController extends Controller
             'canManage' => Gate::allows('people.manage'),
             'canManageUsers' => Gate::allows('users.manage'),
             'canViewUsers' => Gate::allows('users.view'),
+            'history' => Gate::allows('audit.view') ? AuditEntry::query()->where('subject_type', 'person')->where('subject_id', $person->id)->orderByDesc('occurred_at')->orderByDesc('id')->limit(8)->get() : null,
         ]);
     }
 
