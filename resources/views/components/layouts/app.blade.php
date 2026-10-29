@@ -18,6 +18,8 @@
 
     <x-vdbs.navigation.portal-header :title="$title" />
 
+    <x-vdbs.feedback.flash />
+
     <main id="inhalt" @class(['vdbs-main', 'vdbs-main--full' => $width === 'full'])>
         @if ($width === 'full')
             {{ $slot }}

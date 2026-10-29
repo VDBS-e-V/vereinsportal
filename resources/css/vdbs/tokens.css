@@ -269,6 +269,8 @@
     --z-link: 3;
     --z-dropdown: 20;
     --z-sticky: 100;
+    --z-toast: 300;
+    --z-tooltip: 400;
 
     /* Seitenbreiten (Container) und Seitenrand */
     --container-narrow: 40rem; /* 640px  – Login, Formulare, Lesetext */

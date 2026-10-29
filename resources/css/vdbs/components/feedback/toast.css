@@ -1,0 +1,63 @@
+/* Toast und Toast-Bereich */
+
+.vdbs-toast-region { display: grid; gap: var(--space-3); width: min(100% - 2 * var(--gutter), var(--container-default)); margin: var(--space-4) auto 0; }
+
+/* Mit JavaScript schwebend unten rechts; ohne JavaScript stehen die Meldungen im Inhalt */
+.vdbs-js .vdbs-toast-region {
+    position: fixed;
+    right: var(--space-5);
+    bottom: var(--space-5);
+    left: var(--space-5);
+    z-index: var(--z-toast);
+    justify-items: end;
+    width: auto;
+    margin: 0;
+    pointer-events: none;
+}
+
+@media (min-width: 640px) {
+    .vdbs-js .vdbs-toast-region { left: auto; width: 26rem; }
+}
+
+.vdbs-toast {
+    --toast-accent: var(--accent-info);
+
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    width: 100%;
+    padding: var(--space-4);
+    border: var(--border-width) solid var(--border-input);
+    border-left: 6px solid var(--toast-accent);
+    background: var(--bg-page);
+    box-shadow: var(--shadow-lg);
+    color: var(--text-default);
+    pointer-events: auto;
+}
+
+.vdbs-toast--success { --toast-accent: var(--accent-success); }
+.vdbs-toast--warning { --toast-accent: var(--accent-warning); }
+.vdbs-toast--error { --toast-accent: var(--border-error); }
+
+.vdbs-toast__icon { margin-top: 0.125rem; }
+.vdbs-toast__body { flex: 1 1 auto; min-width: 0; }
+.vdbs-toast__title { margin: 0 0 var(--space-1); font-weight: var(--font-weight-bold); }
+.vdbs-toast__text > :last-child { margin-bottom: 0; }
+
+.vdbs-toast__close {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: var(--size-touch);
+    height: var(--size-touch);
+    margin: calc(-1 * var(--space-3)) calc(-1 * var(--space-3)) 0 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-default);
+    cursor: pointer;
+}
+
+.vdbs-toast__close:hover { background: var(--bg-surface); }
+
+.vdbs-toast--leaving { opacity: 0; transform: translateY(0.5rem); transition: opacity var(--transition-base), transform var(--transition-base); }

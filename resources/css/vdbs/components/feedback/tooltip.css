@@ -1,0 +1,30 @@
+/* Tooltip: erscheint bei Hover und Fokus, Esc blendet aus (menu/navigation-Skript) */
+
+.vdbs-tooltip { position: relative; display: inline-flex; }
+
+.vdbs-tooltip__text {
+    position: absolute;
+    z-index: var(--z-tooltip);
+    width: max-content;
+    max-width: 16rem;
+    padding: var(--space-1) var(--space-3);
+    background: var(--text-default);
+    color: var(--bg-page);
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-tight);
+    text-align: left;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-fast);
+}
+
+.vdbs-tooltip:hover .vdbs-tooltip__text,
+.vdbs-tooltip:focus-within .vdbs-tooltip__text { visibility: visible; opacity: 1; }
+
+.vdbs-tooltip--dismissed .vdbs-tooltip__text { visibility: hidden; opacity: 0; }
+
+.vdbs-tooltip--top .vdbs-tooltip__text { bottom: calc(100% + var(--space-2)); left: 50%; transform: translateX(-50%); }
+.vdbs-tooltip--bottom .vdbs-tooltip__text { top: calc(100% + var(--space-2)); left: 50%; transform: translateX(-50%); }
+.vdbs-tooltip--start .vdbs-tooltip__text { right: calc(100% + var(--space-2)); top: 50%; transform: translateY(-50%); }
+.vdbs-tooltip--end .vdbs-tooltip__text { left: calc(100% + var(--space-2)); top: 50%; transform: translateY(-50%); }

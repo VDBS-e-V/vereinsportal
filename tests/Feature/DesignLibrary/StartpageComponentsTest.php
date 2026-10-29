@@ -204,3 +204,47 @@ it('shows the user menu with the logout in the header for logged in users', func
         ->assertSee('erika@example.org')
         ->assertSee('Abmelden');
 });
+
+it('renders toasts with the right live region role and timeout defaults', function () {
+    $success = Blade::render('<x-vdbs.feedback.toast variant="success" title="Fertig">Gespeichert</x-vdbs.feedback.toast>');
+    $error = Blade::render('<x-vdbs.feedback.toast variant="error">Fehler</x-vdbs.feedback.toast>');
+
+    expect($success)->toContain('role="status"')->toContain('data-timeout="8"')->toContain('vdbs-toast__title')->toContain('data-vdbs-toast-close');
+    expect($error)->toContain('role="alert"')->not->toContain('data-timeout');
+});
+
+it('shows session flash messages as toasts and nothing without messages', function () {
+    expect(trim(Blade::render('<x-vdbs.feedback.flash />')))->toBe('');
+
+    session()->flash('status', 'Profil gespeichert.');
+    session()->flash('error', 'Das ging schief.');
+    $html = Blade::render('<x-vdbs.feedback.flash />');
+
+    expect($html)->toContain('data-vdbs-toast-region')->toContain('Profil gespeichert.')->toContain('Das ging schief.')->toContain('vdbs-toast--success')->toContain('vdbs-toast--error');
+});
+
+it('renders an empty state with icon, text and actions', function () {
+    $html = Blade::render('<x-vdbs.feedback.empty-state title="Keine Treffer" icon="search" size="s"><p>Text</p><x-slot:actions>Aktion</x-slot:actions></x-vdbs.feedback.empty-state>');
+
+    expect($html)->toContain('vdbs-empty--s')->toContain('<h3 class="vdbs-empty__title">Keine Treffer</h3>')->toContain('vdbs-empty__actions');
+});
+
+it('renders skeletons as decoration or as a labelled status', function () {
+    expect(Blade::render('<x-vdbs.feedback.skeleton :lines="3" />'))->toContain('aria-hidden="true"')->toContain('data-last')->not->toContain('role="status"');
+    expect(Blade::render('<x-vdbs.feedback.skeleton variant="card" label="Lädt …" />'))->toContain('role="status"')->toContain('Lädt …');
+    expect(Blade::render('<x-vdbs.feedback.skeleton variant="x" />'))->toContain('vdbs-skeleton--text');
+});
+
+it('renders determinate and indeterminate progress bars', function () {
+    $determinate = Blade::render('<x-vdbs.feedback.progress label="Upload" :value="64" />');
+    $indeterminate = Blade::render('<x-vdbs.feedback.progress label="Import" />');
+
+    expect($determinate)->toContain('value="64"')->toContain('64 %')->toContain('for="progress-upload"');
+    expect($indeterminate)->not->toContain('value=')->toContain('läuft');
+});
+
+it('renders a tooltip with a role and the chosen placement', function () {
+    $html = Blade::render('<x-vdbs.feedback.tooltip text="Hilfe" placement="bottom"><button>?</button></x-vdbs.feedback.tooltip>');
+
+    expect($html)->toContain('vdbs-tooltip--bottom')->toContain('role="tooltip"')->toContain('data-vdbs-tooltip')->toContain('Hilfe');
+});
