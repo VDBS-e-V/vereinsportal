@@ -36,8 +36,8 @@
             @foreach ($memberships as $row)
                 @php $state = $row->effectiveStatus(); @endphp
                 <tr class="vdbs-table__row--link">
-                    <td><a class="vdbs-table__row-link" href="{{ route('membership.show', $row) }}">{{ $row->person->fullName() }}</a></td>
-                    <td><x-vdbs.data.badge :tone="$state->tone()">{{ $state->label() }}</x-vdbs.data.badge>@if ($row->isEnding()) <x-vdbs.data.badge tone="warning">Austritt</x-vdbs.data.badge>@endif</td>
+                    <td><a class="vdbs-table__row-link" href="{{ route('membership.show', $row) }}">{{ $row->displayName() }}</a>@if ($row->hasNoPerson()) <span class="vdbs-sr-only">(ohne Online-Konto)</span>@endif</td>
+                    <td><x-vdbs.data.badge :tone="$state->tone()">{{ $state->label() }}</x-vdbs.data.badge>@if ($row->hasNoPerson()) <x-vdbs.data.badge>Kein Konto</x-vdbs.data.badge>@endif @if ($row->isEnding()) <x-vdbs.data.badge tone="warning">Austritt</x-vdbs.data.badge>@endif</td>
                     <td>{{ $row->requested_on?->format('d.m.Y') ?? '–' }}</td>
                     <td>{{ $row->starts_on?->format('d.m.Y') ?? '–' }}</td>
                     <td>{{ $row->ends_on?->format('d.m.Y') ?? '–' }}</td>

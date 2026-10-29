@@ -26,6 +26,15 @@ class Membership extends Model
 
     protected $fillable = [
         'person_id',
+        'first_name',
+        'last_name',
+        'birth_date',
+        'email',
+        'source',
+        'registration_token_hash',
+        'registration_sent_at',
+        'registration_expires_at',
+        'linked_at',
         'status',
         'requested_on',
         'starts_on',
@@ -38,6 +47,10 @@ class Membership extends Model
     {
         return [
             'status' => MembershipStatus::class,
+            'birth_date' => 'date',
+            'registration_sent_at' => 'datetime',
+            'registration_expires_at' => 'datetime',
+            'linked_at' => 'datetime',
             'requested_on' => 'date',
             'starts_on' => 'date',
             'ends_on' => 'date',
@@ -49,6 +62,36 @@ class Membership extends Model
     public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class);
+    }
+
+    /** @return HasMany<MembershipDocument, $this> */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(MembershipDocument::class)->orderByDesc('uploaded_at')->orderByDesc('id');
+    }
+
+    /** Name der Person, sonst der an der Mitgliedschaft erfasste Name (Mitgliedschaft ohne digitale Person). */
+    public function displayName(): string
+    {
+        return $this->person?->fullName() ?: trim(($this->first_name ?? '').' '.($this->last_name ?? ''));
+    }
+
+    /** E-Mail-Adresse der Person, sonst die an der Mitgliedschaft hinterlegte. */
+    public function contactEmail(): ?string
+    {
+        return $this->person?->email ?? $this->email;
+    }
+
+    /** Mitgliedschaft ohne digitale Person (manuell erfasst, noch nicht per Link registriert). */
+    public function hasNoPerson(): bool
+    {
+        return $this->person_id === null;
+    }
+
+    /** Ein Registrierungslink ist gesendet und noch gültig. */
+    public function registrationLinkActive(): bool
+    {
+        return $this->registration_token_hash !== null && $this->registration_expires_at !== null && $this->registration_expires_at->isFuture();
     }
 
     /** @return BelongsTo<User, $this> */

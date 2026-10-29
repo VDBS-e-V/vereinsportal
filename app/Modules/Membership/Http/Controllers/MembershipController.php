@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
 use App\Modules\Membership\Enums\MembershipStatus;
 use App\Modules\Membership\Models\Membership;
+use App\Modules\Membership\Models\MembershipDocument;
+use App\Modules\Membership\Services\MembershipDocuments;
+use App\Modules\Membership\Services\MembershipRegistrations;
 use App\Modules\Membership\Services\Memberships;
-use App\Modules\People\Models\Person;
 use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,6 +17,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /** Mitgliedschaften (Bereich Vorstand): Liste, Details mit Verlauf, Antrag, Aufnahme, Ablehnung, Austritt. */
 class MembershipController extends Controller
@@ -31,7 +35,11 @@ class MembershipController extends Controller
         'rejected' => 'Abgelehnt',
     ];
 
-    public function __construct(private readonly Memberships $memberships) {}
+    public function __construct(
+        private readonly Memberships $memberships,
+        private readonly MembershipDocuments $documents,
+        private readonly MembershipRegistrations $registrations,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -41,22 +49,24 @@ class MembershipController extends Controller
         $direction = $request->query('direction') === 'desc' ? 'desc' : 'asc';
 
         $query = Membership::query()
-            ->join('persons', 'persons.id', '=', 'memberships.person_id')
+            ->leftJoin('persons', 'persons.id', '=', 'memberships.person_id')
             ->select('memberships.*')
             ->with('person')
             ->when($search !== '', function (Builder $builder) use ($search): void {
                 $like = '%'.addcslashes($search, '%_\\').'%';
 
-                $builder->where(fn (Builder $inner) => $inner->where('persons.first_name', 'like', $like)->orWhere('persons.last_name', 'like', $like));
+                $builder->where(fn (Builder $inner) => $inner
+                    ->where('persons.first_name', 'like', $like)->orWhere('persons.last_name', 'like', $like)
+                    ->orWhere('memberships.first_name', 'like', $like)->orWhere('memberships.last_name', 'like', $like));
             });
 
         $this->applyStatusFilter($query, $status);
 
         match ($sort) {
-            'requested_on' => $query->orderBy('memberships.requested_on', $direction)->orderBy('persons.last_name'),
-            'starts_on' => $query->orderBy('memberships.starts_on', $direction)->orderBy('persons.last_name'),
+            'requested_on' => $query->orderBy('memberships.requested_on', $direction)->orderByRaw('COALESCE(persons.last_name, memberships.last_name)'),
+            'starts_on' => $query->orderBy('memberships.starts_on', $direction)->orderByRaw('COALESCE(persons.last_name, memberships.last_name)'),
             'ends_on' => $query->orderByRaw('memberships.ends_on IS NULL')->orderBy('memberships.ends_on', $direction),
-            default => $query->orderBy('persons.last_name', $direction)->orderBy('persons.first_name', $direction)->orderBy('memberships.id'),
+            default => $query->orderByRaw('COALESCE(persons.last_name, memberships.last_name) '.$direction)->orderByRaw('COALESCE(persons.first_name, memberships.first_name) '.$direction)->orderBy('memberships.id'),
         };
 
         $paginator = $query->paginate(self::PER_PAGE)->withQueryString();
@@ -97,13 +107,15 @@ class MembershipController extends Controller
 
     public function show(Membership $membership): View
     {
-        $membership->load(['person.user', 'decidedBy.person', 'events.actor']);
+        $membership->load(['person.user', 'decidedBy.person', 'events.actor', 'documents']);
 
         return view('membership.show', [
             'membership' => $membership,
             'person' => $membership->person,
             'status' => $membership->effectiveStatus(),
             'events' => $membership->events,
+            'documents' => $membership->documents,
+            'documentKinds' => MembershipDocument::KINDS,
             'canManage' => Gate::allows('memberships.manage'),
             'canViewPerson' => Gate::allows('people.view'),
         ]);
@@ -111,42 +123,87 @@ class MembershipController extends Controller
 
     public function create(): View
     {
-        $persons = Person::query()
-            ->whereDoesntHave('memberships', fn (Builder $open) => $open->open())
-            ->orderBy('last_name')->orderBy('first_name')
-            ->get()
-            ->mapWithKeys(fn (Person $person): array => [$person->id => $person->last_name.', '.$person->first_name.' ('.$person->birth_date?->format('d.m.Y').')']);
-
-        return view('membership.create', ['personOptions' => $persons->all()]);
+        return view('membership.create', ['documentKinds' => MembershipDocument::KINDS]);
     }
 
+    /** Erfasst einen Antrag oder Altbestand manuell (ohne digitale Person) mit Dokument. */
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'person_id' => ['required', 'integer', 'exists:persons,id'],
+            'first_name' => ['required', 'string', 'max:100'],
+            'last_name' => ['required', 'string', 'max:100'],
+            'birth_date' => ['nullable', 'date', 'before:today', 'after:1900-01-01'],
+            'email' => ['nullable', 'string', 'email', 'max:254'],
             'mode' => ['required', 'in:request,admit'],
             'starts_on' => ['required_if:mode,admit', 'nullable', 'date', 'after_or_equal:1950-01-01', 'before_or_equal:'.now()->addYear()->toDateString()],
+            'kind' => ['required', 'in:'.implode(',', array_keys(MembershipDocument::KINDS))],
+            'document' => $this->documentRules(true),
             'comment' => ['nullable', 'string', 'max:500'],
         ], [
-            'person_id.required' => 'Bitte wählen Sie eine Person.',
-            'person_id.exists' => 'Diese Person gibt es nicht.',
+            'first_name.required' => 'Bitte geben Sie den Vornamen ein.',
+            'last_name.required' => 'Bitte geben Sie den Nachnamen ein.',
+            'birth_date.before' => 'Das Geburtsdatum muss in der Vergangenheit liegen.',
+            'email.email' => 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
             'mode.required' => 'Bitte wählen Sie, wie die Mitgliedschaft angelegt wird.',
             'starts_on.required_if' => 'Bitte geben Sie das Beitrittsdatum an.',
-            'starts_on.after_or_equal' => 'Bitte prüfen Sie das Beitrittsdatum.',
             'starts_on.before_or_equal' => 'Das Beitrittsdatum darf höchstens ein Jahr in der Zukunft liegen.',
+            'document.required' => 'Bitte laden Sie das Dokument hoch.',
+            'document.mimes' => 'Erlaubt sind PDF-, JPEG- und PNG-Dateien.',
+            'document.max' => 'Die Datei darf höchstens 10 MB groß sein.',
         ]);
 
-        $person = Person::query()->findOrFail($data['person_id']);
-
         try {
-            $membership = $data['mode'] === 'admit'
-                ? $this->memberships->admitDirectly($person, Carbon::parse($data['starts_on']), $this->actor($request), $data['comment'] ?? null)
-                : $this->memberships->request($person, $this->actor($request), $data['comment'] ?? null);
+            $membership = $this->memberships->createManual(
+                ['first_name' => $data['first_name'], 'last_name' => $data['last_name'], 'birth_date' => $data['birth_date'] ?? null, 'email' => $data['email'] ?? null],
+                $request->file('document'),
+                $data['kind'],
+                $this->actor($request),
+                $data['mode'] === 'admit' ? Carbon::parse($data['starts_on']) : null,
+                $data['comment'] ?? null,
+            );
         } catch (DomainException $exception) {
-            return back()->withInput()->withErrors(['person_id' => $exception->getMessage()]);
+            return back()->withInput()->withErrors(['last_name' => $exception->getMessage()]);
         }
 
-        return redirect()->route('membership.show', $membership)->with('success', $data['mode'] === 'admit' ? 'Die Person wurde aufgenommen.' : 'Der Antrag wurde erfasst.');
+        return redirect()->route('membership.show', $membership)->with('success', $data['mode'] === 'admit' ? 'Die Mitgliedschaft wurde erfasst.' : 'Der Antrag wurde erfasst.');
+    }
+
+    public function storeDocument(Request $request, Membership $membership): RedirectResponse
+    {
+        $data = $request->validate([
+            'kind' => ['required', 'in:'.implode(',', array_keys(MembershipDocument::KINDS))],
+            'document' => $this->documentRules(true),
+        ], [
+            'document.required' => 'Bitte wählen Sie eine Datei.',
+            'document.mimes' => 'Erlaubt sind PDF-, JPEG- und PNG-Dateien.',
+            'document.max' => 'Die Datei darf höchstens 10 MB groß sein.',
+        ]);
+
+        return $this->perform(fn () => $this->documents->store($membership, $request->file('document'), $data['kind'], $this->actor($request)), $membership, 'Das Dokument wurde gespeichert.');
+    }
+
+    /** Liefert ein Dokument aus dem privaten Speicher als Download. */
+    public function downloadDocument(Membership $membership, MembershipDocument $document): StreamedResponse
+    {
+        abort_unless($document->membership_id === $membership->id && Storage::disk(MembershipDocuments::DISK)->exists($document->path), 404);
+
+        return Storage::disk(MembershipDocuments::DISK)->download($document->path, $document->original_name, [
+            'Content-Type' => $document->mime,
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control' => 'private, no-store',
+        ]);
+    }
+
+    public function destroyDocument(Request $request, Membership $membership, MembershipDocument $document): RedirectResponse
+    {
+        abort_unless($document->membership_id === $membership->id, 404);
+
+        return $this->perform(fn () => $this->documents->delete($document, $this->actor($request)), $membership, 'Das Dokument wurde entfernt.');
+    }
+
+    public function sendRegistrationLink(Request $request, Membership $membership): RedirectResponse
+    {
+        return $this->perform(fn () => $this->registrations->sendLink($membership, $this->actor($request)), $membership, 'Der Registrierungslink wurde an '.$membership->email.' gesendet.');
     }
 
     public function admit(Request $request, Membership $membership): RedirectResponse
@@ -188,6 +245,12 @@ class MembershipController extends Controller
         $data = $request->validate(['note' => ['required', 'string', 'max:500']], ['note.required' => 'Bitte geben Sie die Notiz ein.']);
 
         return $this->perform(fn () => $this->memberships->note($membership, $data['note'], $this->actor($request)), $membership, 'Die Notiz wurde gespeichert.');
+    }
+
+    /** @return list<string> */
+    private function documentRules(bool $required): array
+    {
+        return [$required ? 'required' : 'nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:'.MembershipDocuments::MAX_KILOBYTES];
     }
 
     /** Filtert nach dem wirksamen Status (aktiv gilt nur bis zum Austrittsdatum). */

@@ -3,12 +3,13 @@
 namespace App\Modules\Membership\Services;
 
 use App\Modules\Access\Models\User;
-use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Membership\Enums\MembershipEventType;
 use App\Modules\Membership\Enums\MembershipStatus;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\People\Models\Person;
 use DomainException;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -19,49 +20,100 @@ use Illuminate\Support\Facades\DB;
  */
 final class Memberships
 {
-    public function __construct(private readonly MembershipRoles $roles) {}
+    public function __construct(
+        private readonly MembershipRoles $roles,
+        private readonly MembershipHistory $history,
+        private readonly MembershipDocuments $documents,
+    ) {}
 
-    /** Erfasst einen Antrag. */
-    public function request(Person $person, User $by, ?string $comment = null, ?Carbon $on = null): Membership
+    /**
+     * Erfasst eine Mitgliedschaft manuell, ohne digitale Person: Antrag oder Altbestand als Dokument (Upload), mit Name,
+     * optional Geburtsdatum und E-Mail. Mit $startsOn wird die Person direkt aufgenommen, sonst ist es ein Antrag.
+     *
+     * @param  array{first_name: string, last_name: string, birth_date?: ?string, email?: ?string}  $identity
+     */
+    public function createManual(array $identity, UploadedFile $file, string $kind, User $by, ?Carbon $startsOn = null, ?string $comment = null): Membership
     {
-        $this->assertNoOpenMembership($person);
+        $email = filled($identity['email'] ?? null) ? mb_strtolower(trim((string) $identity['email'])) : null;
+        $birth = filled($identity['birth_date'] ?? null) ? Carbon::parse($identity['birth_date']) : null;
 
-        return DB::transaction(function () use ($person, $by, $comment, $on): Membership {
+        $this->assertNoOpenDuplicate($identity['first_name'], $identity['last_name'], $birth, $email);
+
+        $membership = DB::transaction(function () use ($identity, $email, $birth, $startsOn, $by, $comment): Membership {
             $membership = Membership::query()->create([
-                'person_id' => $person->id,
-                'status' => MembershipStatus::Requested,
-                'requested_on' => ($on ?? now())->toDateString(),
+                'first_name' => trim($identity['first_name']),
+                'last_name' => trim($identity['last_name']),
+                'birth_date' => $birth?->toDateString(),
+                'email' => $email,
+                'source' => 'manual',
+                'status' => $startsOn !== null ? MembershipStatus::Active : MembershipStatus::Requested,
+                'requested_on' => ($startsOn ?? now())->toDateString(),
+                'starts_on' => $startsOn?->toDateString(),
+                'decided_at' => $startsOn !== null ? now() : null,
+                'decided_by_user_id' => $startsOn !== null ? $by->id : null,
             ]);
 
-            $this->record($membership, MembershipEventType::Requested, $by, $comment);
+            $this->history->record(
+                $membership,
+                $startsOn !== null ? MembershipEventType::AdmittedDirectly : MembershipEventType::Requested,
+                $by,
+                $comment,
+                $startsOn !== null ? ['beitritt' => $startsOn->toDateString()] : [],
+            );
+
+            return $membership;
+        });
+
+        $this->documents->store($membership, $file, $kind, $by);
+
+        return $membership;
+    }
+
+    /** Antrag einer Person, die sich online registriert hat (ohne angemeldeten Akteur). */
+    public function requestOnline(Person $person): Membership
+    {
+        return DB::transaction(function () use ($person): Membership {
+            $membership = Membership::query()->create([
+                'person_id' => $person->id,
+                'first_name' => $person->first_name,
+                'last_name' => $person->last_name,
+                'birth_date' => $person->birth_date?->toDateString(),
+                'email' => $person->email,
+                'source' => 'online',
+                'status' => MembershipStatus::Requested,
+                'requested_on' => now()->toDateString(),
+            ]);
+
+            $this->history->record($membership, MembershipEventType::Requested, null, null, [], 'Online-Antrag');
 
             return $membership;
         });
     }
 
-    /** Nimmt eine Person ohne vorherigen Antrag direkt auf (z. B. Altbestand). */
-    public function admitDirectly(Person $person, Carbon $startsOn, User $by, ?string $comment = null): Membership
+    /** Eine beantragte oder laufende Mitgliedschaft mit gleichem Namen und Geburtsdatum oder gleicher E-Mail-Adresse? */
+    public function hasOpenDuplicate(string $first, string $last, ?Carbon $birth, ?string $email): bool
     {
-        $this->assertNoOpenMembership($person);
+        $query = Membership::query()->open()->where(function (Builder $match) use ($first, $last, $birth, $email): void {
+            $any = false;
 
-        $membership = DB::transaction(function () use ($person, $startsOn, $by, $comment): Membership {
-            $membership = Membership::query()->create([
-                'person_id' => $person->id,
-                'status' => MembershipStatus::Active,
-                'requested_on' => $startsOn->toDateString(),
-                'starts_on' => $startsOn->toDateString(),
-                'decided_at' => now(),
-                'decided_by_user_id' => $by->id,
-            ]);
+            if ($birth !== null) {
+                $any = true;
+                $match->where(fn (Builder $name) => $name
+                    ->where(fn (Builder $own) => $own->where('first_name', trim($first))->where('last_name', trim($last))->whereDate('birth_date', $birth->toDateString()))
+                    ->orWhereHas('person', fn (Builder $person) => $person->where('first_name', trim($first))->where('last_name', trim($last))->whereDate('birth_date', $birth->toDateString())));
+            }
 
-            $this->record($membership, MembershipEventType::AdmittedDirectly, $by, $comment, ['beitritt' => $startsOn->toDateString()]);
+            if ($email !== null) {
+                $match->{$any ? 'orWhere' : 'where'}(fn (Builder $mail) => $mail->where('email', $email)->orWhereHas('person', fn (Builder $person) => $person->where('email', $email)));
+                $any = true;
+            }
 
-            return $membership;
+            if (! $any) {
+                $match->whereRaw('1 = 0');
+            }
         });
 
-        $this->roles->syncPerson($person);
-
-        return $membership;
+        return $query->exists();
     }
 
     public function admit(Membership $membership, Carbon $startsOn, User $by, ?string $comment = null): void
@@ -81,7 +133,7 @@ final class Memberships
             $this->record($membership, MembershipEventType::Admitted, $by, $comment, ['beitritt' => $startsOn->toDateString()]);
         });
 
-        $this->roles->syncPerson($membership->person);
+        $this->syncRoles($membership);
     }
 
     public function reject(Membership $membership, string $comment, User $by): void
@@ -127,7 +179,7 @@ final class Memberships
             }
         });
 
-        $this->roles->syncPerson($membership->person);
+        $this->syncRoles($membership);
     }
 
     public function withdrawTermination(Membership $membership, User $by, ?string $comment = null): void
@@ -142,7 +194,7 @@ final class Memberships
             $this->record($membership, MembershipEventType::TerminationWithdrawn, $by, $comment);
         });
 
-        $this->roles->syncPerson($membership->person);
+        $this->syncRoles($membership);
     }
 
     public function note(Membership $membership, string $comment, User $by): void
@@ -177,28 +229,28 @@ final class Memberships
             ->whereIn('status', [MembershipStatus::Active->value, MembershipStatus::Ended->value])
             ->with('person')
             ->get()
-            ->each(fn (Membership $membership) => $this->roles->syncPerson($membership->person));
+            ->each(fn (Membership $membership) => $this->syncRoles($membership));
 
         return $ended;
+    }
+
+    private function syncRoles(Membership $membership): void
+    {
+        if ($membership->person !== null) {
+            $this->roles->syncPerson($membership->person);
+        }
     }
 
     /** @param  array<string, mixed>  $data */
     private function record(Membership $membership, MembershipEventType $type, ?User $by, ?string $comment, array $data = []): void
     {
-        $membership->events()->create([
-            'type' => $type,
-            'occurred_at' => now(),
-            'actor_user_id' => $by?->id,
-            'actor_label' => $by !== null ? AuditLog::label($by) : null,
-            'comment' => filled($comment) ? $comment : null,
-            'data' => $data === [] ? null : $data,
-        ]);
+        $this->history->record($membership, $type, $by, $comment, $data, $by === null ? 'automatisch' : null);
     }
 
-    private function assertNoOpenMembership(Person $person): void
+    private function assertNoOpenDuplicate(string $first, string $last, ?Carbon $birth, ?string $email): void
     {
-        if (Membership::query()->where('person_id', $person->id)->open()->exists()) {
-            throw new DomainException('Diese Person hat bereits eine beantragte oder laufende Mitgliedschaft.');
+        if ($this->hasOpenDuplicate($first, $last, $birth, $email)) {
+            throw new DomainException('Für diese Person gibt es bereits eine beantragte oder laufende Mitgliedschaft (gleicher Name mit Geburtsdatum oder gleiche E-Mail-Adresse).');
         }
     }
 }

@@ -1,5 +1,5 @@
 @php
-    $name = $person->fullName();
+    $name = $membership->displayName();
     $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Vorstand'], ['label' => 'Mitgliedschaften', 'href' => route('membership.index')], ['label' => $name]];
     $requested = $status === \App\Modules\Membership\Enums\MembershipStatus::Requested;
     $running = $status === \App\Modules\Membership\Enums\MembershipStatus::Active;
@@ -47,17 +47,73 @@
             <h2 id="person-heading" style="font-size:var(--font-size-h3)">Person</h2>
             <x-vdbs.data.detail-list layout="inline">
                 <x-vdbs.data.detail-item label="Name">{{ $name }}</x-vdbs.data.detail-item>
-                <x-vdbs.data.detail-item label="Geburtsdatum">{{ $person->birth_date?->format('d.m.Y') }}</x-vdbs.data.detail-item>
-                <x-vdbs.data.detail-item label="Konto">{{ $person->user ? 'vorhanden' : 'noch keins' }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Geburtsdatum">{{ ($person?->birth_date ?? $membership->birth_date)?->format('d.m.Y') }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="E-Mail-Adresse">{{ $membership->contactEmail() }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Herkunft">{{ $membership->source === 'online' ? 'Online-Antrag' : 'Vom Vorstand erfasst' }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Online-Konto">
+                    @if ($person?->user) vorhanden @else noch keins @endif
+                </x-vdbs.data.detail-item>
             </x-vdbs.data.detail-list>
-            @if ($canViewPerson)
+
+            @if ($person && $canViewPerson)
                 <p><x-vdbs.actions.button variant="secondary" :href="route('admin.people.show', $person)" icon="user">Zu den Stammdaten</x-vdbs.actions.button></p>
             @endif
-            @if ($running && ! $person->user)
+
+            @if ($membership->hasNoPerson() && $membership->isOpen())
+                <h3 style="margin-top:var(--space-6);font-size:var(--font-size-h4)">Online-Konto</h3>
+                @if ($membership->registrationLinkActive())
+                    <p>Ein Registrierungslink wurde am {{ $membership->registration_sent_at->format('d.m.Y') }} gesendet und gilt bis {{ $membership->registration_expires_at->format('d.m.Y') }}.</p>
+                @elseif ($membership->registration_sent_at)
+                    <p>Der zuletzt gesendete Registrierungslink ist abgelaufen.</p>
+                @endif
+                @if ($canManage)
+                    @if (filled($membership->email))
+                        <x-vdbs.actions.button variant="secondary" icon="send" data-vdbs-dialog-open="registration-link">{{ $membership->registration_sent_at ? 'Registrierungslink erneut senden' : 'Registrierungslink senden' }}</x-vdbs.actions.button>
+                    @else
+                        <p>Für einen Registrierungslink fehlt die E-Mail-Adresse.</p>
+                    @endif
+                @endif
+            @elseif ($membership->linked_at)
+                <p>Das Konto wurde am {{ $membership->linked_at->format('d.m.Y') }} per Registrierungslink verknüpft.</p>
+            @endif
+            @if ($running && $person && ! $person->user)
                 <p>Die Rolle Vereinsmitglied wird vergeben, sobald die Person ein Konto hat.</p>
             @endif
         </section>
     </x-vdbs.layout.grid>
+
+    <section aria-labelledby="documents-heading" style="margin-top:var(--space-8)">
+        <h2 id="documents-heading" style="font-size:var(--font-size-h3)">Dokumente</h2>
+
+        @if ($documents->isEmpty())
+            <p>Noch keine Dokumente.</p>
+        @else
+            <x-vdbs.data.table caption="Dokumente der Mitgliedschaft" :columns="[['key' => 'name', 'label' => 'Datei'], ['key' => 'kind', 'label' => 'Art'], ['key' => 'date', 'label' => 'Hochgeladen'], ['key' => 'action', 'label' => 'Aktion']]">
+                @foreach ($documents as $document)
+                    <tr>
+                        <td><a href="{{ route('membership.documents.download', [$membership, $document]) }}">{{ $document->original_name }}</a> <span class="vdbs-sr-only">herunterladen</span></td>
+                        <td>{{ $document->kindLabel() }}</td>
+                        <td>{{ $document->uploaded_at->format('d.m.Y') }}</td>
+                        <td>
+                            @if ($canManage)
+                                <x-vdbs.actions.button variant="danger" shape="outline" size="s" data-vdbs-dialog-open="remove-document-{{ $document->id }}">Entfernen</x-vdbs.actions.button>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            </x-vdbs.data.table>
+        @endif
+
+        @if ($canManage)
+            <x-vdbs.forms.form :action="route('membership.documents.store', $membership)" :files="true" :summary="false" style="margin-top:var(--space-6)">
+                <x-vdbs.forms.form-grid :columns="2">
+                    <x-vdbs.forms.select name="kind" label="Art des Dokuments" :required="true" :options="$documentKinds" value="record" />
+                    <x-vdbs.forms.file name="document" label="Weiteres Dokument" accept=".pdf,.jpg,.jpeg,.png" :required="true" hint="PDF, JPEG oder PNG, höchstens 10 MB" />
+                </x-vdbs.forms.form-grid>
+                <x-slot:actions><x-vdbs.actions.button type="submit" variant="secondary" icon="plus">Dokument hochladen</x-vdbs.actions.button></x-slot:actions>
+            </x-vdbs.forms.form>
+        @endif
+    </section>
 
     <section aria-labelledby="history-heading" style="margin-top:var(--space-8)">
         <h2 id="history-heading" style="font-size:var(--font-size-h3)">Verlauf</h2>
@@ -110,5 +166,19 @@
                 </x-slot:fields>
             </x-vdbs.overlays.confirm-dialog>
         @endif
+    @endif
+
+    @if ($canManage && $membership->hasNoPerson() && $membership->isOpen() && filled($membership->email))
+        <x-vdbs.overlays.confirm-dialog id="registration-link" title="Registrierungslink senden?" :action="route('membership.registration-link', $membership)" confirm-label="Link senden">
+            <p>Der Link geht an <strong>{{ $membership->email }}</strong> und ist {{ \App\Modules\Membership\Services\MembershipRegistrations::VALID_DAYS }} Tage gültig. Damit legt {{ $name }} selbst ein Online-Konto an. Ein früher gesendeter Link wird ungültig.</p>
+        </x-vdbs.overlays.confirm-dialog>
+    @endif
+
+    @if ($canManage)
+        @foreach ($documents as $document)
+            <x-vdbs.overlays.confirm-dialog id="remove-document-{{ $document->id }}" title="Dokument entfernen?" variant="danger" :action="route('membership.documents.destroy', [$membership, $document])" method="delete" confirm-label="Dokument entfernen">
+                <p>Die Datei <strong>{{ $document->original_name }}</strong> wird dauerhaft gelöscht. Der Verlauf hält fest, dass sie entfernt wurde.</p>
+            </x-vdbs.overlays.confirm-dialog>
+        @endforeach
     @endif
 </x-layouts.app>

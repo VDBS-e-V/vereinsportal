@@ -11,6 +11,10 @@ enum MembershipEventType: string
     case TerminationSet = 'termination_set';
     case TerminationWithdrawn = 'termination_withdrawn';
     case Ended = 'ended';
+    case RegistrationLinkSent = 'registration_link_sent';
+    case Registered = 'registered';
+    case DocumentAdded = 'document_added';
+    case DocumentRemoved = 'document_removed';
     case Note = 'note';
 
     public function label(): string
@@ -23,6 +27,10 @@ enum MembershipEventType: string
             self::TerminationSet => 'Austritt eingetragen',
             self::TerminationWithdrawn => 'Austritt zurückgenommen',
             self::Ended => 'Mitgliedschaft beendet',
+            self::RegistrationLinkSent => 'Registrierungslink gesendet',
+            self::Registered => 'Online-Konto registriert',
+            self::DocumentAdded => 'Dokument hochgeladen',
+            self::DocumentRemoved => 'Dokument entfernt',
             self::Note => 'Notiz',
         };
     }

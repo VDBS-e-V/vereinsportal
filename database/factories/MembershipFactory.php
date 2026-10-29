@@ -24,6 +24,19 @@ class MembershipFactory extends Factory
         ];
     }
 
+    /** Mitgliedschaft ohne digitale Person (vom Vorstand erfasst). */
+    public function manual(): static
+    {
+        return $this->state(fn (): array => [
+            'person_id' => null,
+            'first_name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
+            'birth_date' => fake()->dateTimeBetween('-70 years', '-18 years')->format('Y-m-d'),
+            'email' => fake()->unique()->safeEmail(),
+            'source' => 'manual',
+        ]);
+    }
+
     public function requested(): static
     {
         return $this->state(['status' => MembershipStatus::Requested, 'requested_on' => now()->toDateString(), 'starts_on' => null]);

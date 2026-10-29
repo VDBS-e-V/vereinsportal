@@ -13,6 +13,7 @@
             @else
                 <x-vdbs.actions.button :href="route('login')" icon="log-in">Anmelden</x-vdbs.actions.button>
                 <x-vdbs.actions.button :href="route('portal.about')" variant="secondary">Über das Portal</x-vdbs.actions.button>
+                <x-vdbs.actions.button :href="route('join.apply')" variant="tertiary">Mitglied werden</x-vdbs.actions.button>
             @endauth
         </x-slot:actions>
     </x-vdbs.media.hero>

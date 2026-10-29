@@ -10,7 +10,7 @@ Stelle: `app/Support/PortalNavigation.php` (`catalog()`).
   Der aktuelle Bereich ist hervorgehoben (`aria-current="true"`). Ein Klick führt zur ersten Seite des Bereichs, die der Nutzer sehen darf.
 - **Zeile 2:** Name des aktuellen Bereichs und dessen Seiten (`aria-current="page"` auf der aktuellen). Rechts das Avatar-Menü.
 - **Start** ist **öffentlich**: Seiten Über das Portal (`/ueber-das-portal`), Zugang zum Portal (`/zugang-zum-portal`), FAQ
-  (`/ueber-das-portal#portal-faq`, Anker, nie „aktuell“) und Kontakt (`/kontakt`). Sie stehen in Zeile 2 für Gäste und Angemeldete,
+  (`/ueber-das-portal#portal-faq`, Anker, nie „aktuell“) und Kontakt (`/kontakt`) und Mitglied werden (`/mitglied-werden`). Sie stehen in Zeile 2 für Gäste und Angemeldete,
   auch auf der Anmeldeseite und auf Fehlerseiten (dort ohne Sitzung). Die Struktur entspricht der bisherigen Hauptnavigation
   (`ul` > `li` > `a`, optional ein verschachteltes Untermenü): Einträge im Katalog können `children` haben, das Untermenü erscheint ab 1100 px
   beim Überfahren oder Fokussieren, auf kleineren Bildschirmen eingerückt unter dem Eintrag. Erreichbar über das Logo. **Konto:** über das Avatar-Menü (Mein Konto, Sicherheit); es ist ein eigener Bereich, dessen Seiten

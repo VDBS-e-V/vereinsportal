@@ -110,54 +110,7 @@ it('filters by name and by the effective status', function () {
     expect($active->effectiveStatus())->toBe(MembershipStatus::Active);
 });
 
-// ---------- Anlegen ----------
-
-it('records a request and refuses a second open membership for the same person', function () {
-    $board = mbBoard();
-    $person = Person::factory()->create();
-
-    $this->actingAs($board)->post(route('membership.store'), ['person_id' => $person->id, 'mode' => 'request', 'comment' => 'Per Brief'])->assertRedirect()->assertSessionHas('success');
-
-    $membership = Membership::query()->firstOrFail();
-    expect($membership->status)->toBe(MembershipStatus::Requested)
-        ->and($membership->requested_on->toDateString())->toBe(today()->toDateString())
-        ->and($membership->events()->first()->type)->toBe(MembershipEventType::Requested)
-        ->and($membership->events()->first()->comment)->toBe('Per Brief');
-
-    $this->post(route('membership.store'), ['person_id' => $person->id, 'mode' => 'request'])->assertSessionHasErrors('person_id');
-    expect(Membership::query()->count())->toBe(1);
-});
-
-it('admits a person directly with a joining date', function () {
-    $board = mbBoard();
-    $person = Person::factory()->create();
-
-    $this->actingAs($board)->post(route('membership.store'), ['person_id' => $person->id, 'mode' => 'admit', 'starts_on' => '2024-03-01'])->assertRedirect();
-
-    $membership = Membership::query()->firstOrFail();
-    expect($membership->status)->toBe(MembershipStatus::Active)
-        ->and($membership->starts_on->toDateString())->toBe('2024-03-01')
-        ->and($membership->decided_by_user_id)->toBe($board->id)
-        ->and($membership->events()->first()->type)->toBe(MembershipEventType::AdmittedDirectly);
-});
-
-it('validates the form for a new membership', function () {
-    $this->actingAs(mbBoard());
-
-    $this->post(route('membership.store'), [])->assertSessionHasErrors(['person_id', 'mode']);
-    $this->post(route('membership.store'), ['person_id' => Person::factory()->create()->id, 'mode' => 'admit'])->assertSessionHasErrors('starts_on');
-    $this->post(route('membership.store'), ['person_id' => 99999, 'mode' => 'request'])->assertSessionHasErrors('person_id');
-    $this->post(route('membership.store'), ['person_id' => Person::factory()->create()->id, 'mode' => 'admit', 'starts_on' => '1900-01-01'])->assertSessionHasErrors('starts_on');
-});
-
-it('offers only persons without an open membership', function () {
-    $free = Person::factory()->create(['last_name' => 'Freiherr']);
-    Membership::factory()->create(['person_id' => Person::factory()->create(['last_name' => 'Belegt'])]);
-    Membership::factory()->ended()->create(['person_id' => Person::factory()->create(['last_name' => 'Ehemalig'])]);
-
-    $this->actingAs(mbBoard())->get(route('membership.create'))->assertOk()->assertSee('Freiherr')->assertSee('Ehemalig')->assertDontSee('Belegt');
-    expect($free->id)->not->toBeNull();
-});
+// Das manuelle Erfassen mit Dokument und die Online-Wege stehen in MembershipManualTest und JoinTest.
 
 // ---------- Aufnahme und Ablehnung ----------
 
@@ -210,9 +163,11 @@ it('lets the person join again after a rejection or an ended membership', functi
     Membership::factory()->rejected()->create(['person_id' => $person->id]);
     Membership::factory()->ended()->create(['person_id' => $person->id]);
 
-    $this->actingAs(mbBoard())->post(route('membership.store'), ['person_id' => $person->id, 'mode' => 'request'])->assertSessionHas('success');
+    expect(app(Memberships::class)->hasOpenDuplicate($person->first_name, $person->last_name, $person->birth_date, null))->toBeFalse();
 
-    expect(Membership::query()->where('person_id', $person->id)->count())->toBe(3);
+    Membership::factory()->requested()->create(['person_id' => $person->id]);
+
+    expect(app(Memberships::class)->hasOpenDuplicate($person->first_name, $person->last_name, $person->birth_date, null))->toBeTrue();
 });
 
 // ---------- Austritt ----------
