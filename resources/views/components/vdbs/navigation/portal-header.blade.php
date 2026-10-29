@@ -1,4 +1,4 @@
-@props(['title' => null])
+@props(['title' => null, 'safe' => false])
 
 @php
     $systems = collect(config('portal.systems'))->filter(fn (array $system): bool => filled($system['url']));
@@ -9,6 +9,7 @@
     Kopfbereich (Paket "navigation"). Ab 1100 px zweizeilig mit allen Links; darunter (Handy und Tablet) klappen Bereiche, Systeme und
     Aktionen hinter dem Bars-Knopf "Menü" (aria-expanded, Esc und Klick daneben schließen). Ohne JavaScript bleibt
     alles sichtbar und untereinander gestapelt.
+    safe: true auf Fehlerseiten; liest weder Sitzung noch Datenbank und zeigt die Ansicht für Gäste.
 --}}
 <header class="vdbs-header" data-vdbs-header>
     <div class="vdbs-header__top">
@@ -43,7 +44,7 @@
         </div>
 
         <div class="vdbs-header__actions vdbs-header__menu-panel" id="portal-menu-actions">
-            @auth
+            @if (! $safe && auth()->check())
                 <nav aria-label="Hauptnavigation">
                     <ul class="vdbs-header__links vdbs-header__links--large">
                         @foreach ($areas as $area)
@@ -81,7 +82,7 @@
                 @unless (request()->routeIs('login'))
                     <x-vdbs.actions.button :href="route('login')" icon="log-in">Login</x-vdbs.actions.button>
                 @endunless
-            @endauth
+            @endif
         </div>
     </div>
 </header>

@@ -1,3 +1,5 @@
+@props(['safe' => false])
+
 <footer class="vdbs-footer">
     <div class="vdbs-container">
         <div class="vdbs-footer__columns">
@@ -14,11 +16,11 @@
                             </li>
                         @endforeach
                         @if ($loop->index === 1)
-                            @auth
+                            @if (! $safe && auth()->check())
                                 <li><a href="{{ route('design-library.index') }}">Design-Bibliothek</a></li>
                             @else
                                 <li><a href="{{ route('login') }}">Anmelden</a></li>
-                            @endauth
+                            @endif
                         @endif
                     </ul>
                 </nav>

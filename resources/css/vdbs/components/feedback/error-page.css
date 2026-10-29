@@ -1,0 +1,39 @@
+/* Fehlerseite: Text links, große Nummer rechts; der Akzent folgt der Schwere */
+
+.vdbs-error-page {
+    --error-accent: var(--accent-info);
+
+    display: grid;
+    align-items: center;
+    gap: var(--space-6);
+    padding-block: var(--space-8);
+}
+
+.vdbs-error-page--warning { --error-accent: var(--accent-warning); }
+.vdbs-error-page--danger { --error-accent: var(--border-error); }
+
+.vdbs-error-page__text { padding-left: var(--space-5); border-left: 6px solid var(--error-accent); }
+.vdbs-error-page__eyebrow { margin: 0 0 var(--space-2); color: var(--text-muted); font-weight: var(--font-weight-bold); }
+.vdbs-error-page__title { margin: 0 0 var(--space-4); font-size: var(--font-size-display); font-weight: var(--font-weight-black); line-height: var(--line-height-heading); }
+.vdbs-error-page__lead { margin: 0 0 var(--space-3); max-width: var(--max-line-length); font-size: var(--font-size-body-lg); }
+.vdbs-error-page__support { margin: 0; max-width: var(--max-line-length); color: var(--text-muted); }
+.vdbs-error-page__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-5); }
+
+.vdbs-error-page__code {
+    margin: 0;
+    color: var(--error-accent);
+    font-size: clamp(6rem, 22vw, 12rem);
+    font-weight: var(--font-weight-black);
+    line-height: 1;
+    opacity: 0.22;
+    user-select: none;
+}
+
+@media (min-width: 768px) {
+    .vdbs-error-page { grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-8); padding-block: var(--space-10); }
+}
+
+@media (max-width: 767px) {
+    .vdbs-error-page__code { order: -1; }
+    .vdbs-error-page__title { font-size: var(--font-size-h1); }
+}
