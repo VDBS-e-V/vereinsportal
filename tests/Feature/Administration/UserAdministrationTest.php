@@ -62,15 +62,16 @@ it('forbids accounts without a suitable role', function () {
     $this->post(route('admin.users.disable', $target))->assertForbidden();
 });
 
-it('lets the board view but not change users', function () {
+it('lets the board manage users and assign roles except administration', function () {
     $board = uaUser(RoleKey::BoardMember);
-    $target = uaUser();
+    $target = uaUser(null, ['status' => UserStatus::Active]);
 
     $this->actingAs($board)->get(route('admin.users.index'))->assertOk();
     $this->get(route('admin.users.show', $target))->assertOk();
-    $this->get(route('admin.users.create'))->assertForbidden();
-    $this->post(route('admin.users.disable', $target))->assertForbidden();
-    $this->post(route('admin.users.roles.store', $target), ['role_id' => Role::query()->where('key', 'member')->value('id')])->assertForbidden();
+    $this->get(route('admin.users.create'))->assertOk();
+    $this->post(route('admin.users.roles.store', $target), ['role_id' => Role::query()->where('key', 'member')->value('id')])->assertRedirect();
+    expect(Capabilities::canAssign($board, RoleKey::Member))->toBeTrue()
+        ->and(Capabilities::canAssign($board, RoleKey::Administration))->toBeFalse();
 });
 
 it('derives capabilities from currently valid roles only', function () {
@@ -84,7 +85,7 @@ it('derives capabilities from currently valid roles only', function () {
 
     uaGrant($user, RoleKey::BoardMember);
     expect(Capabilities::has($user, Capability::UsersView))->toBeTrue()
-        ->and(Capabilities::has($user, Capability::UsersManage))->toBeFalse();
+        ->and(Capabilities::has($user, Capability::UsersManage))->toBeTrue();
 });
 
 it('only lets the administration assign the administration role', function () {
@@ -94,7 +95,7 @@ it('only lets the administration assign the administration role', function () {
     expect(Capabilities::canAssign($staff, RoleKey::Member))->toBeTrue()
         ->and(Capabilities::canAssign($staff, RoleKey::Administration))->toBeFalse()
         ->and(Capabilities::canAssign($admin, RoleKey::Administration))->toBeTrue()
-        ->and(Capabilities::canAssign(uaUser(RoleKey::BoardMember), RoleKey::Member))->toBeFalse();
+        ->and(Capabilities::canAssign(uaUser(RoleKey::BoardMember), RoleKey::Administration))->toBeFalse();
 });
 
 it('shows the administration link in the header only to permitted users', function () {

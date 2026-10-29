@@ -55,15 +55,15 @@ it('sends guests to the login and forbids members', function () {
     $this->get(route('admin.people.create'))->assertForbidden();
 });
 
-it('lets the board view but not change people', function () {
+it('lets the board view and change people', function () {
     $board = paUser(RoleKey::BoardMember);
     $person = Person::factory()->create();
 
     $this->actingAs($board)->get(route('admin.people.index'))->assertOk();
-    $this->get(route('admin.people.show', $person))->assertOk()->assertDontSee(route('admin.people.edit', $person));
-    $this->get(route('admin.people.create'))->assertForbidden();
-    $this->put(route('admin.people.update', $person), paInput())->assertForbidden();
-    $this->delete(route('admin.people.destroy', $person))->assertForbidden();
+    $this->get(route('admin.people.show', $person))->assertOk()->assertSee(route('admin.people.edit', $person));
+    $this->get(route('admin.people.create'))->assertOk();
+    $this->put(route('admin.people.update', $person), paInput(['email' => 'vorstand@example.org']))->assertRedirect();
+    expect($person->fresh()->email)->toBe('vorstand@example.org');
 });
 
 it('lists, searches and filters people', function () {

@@ -8,7 +8,7 @@ Der Umschalter „Nutzer | Personen“ im Seitenkopf (`<x-admin.nav>`) erscheint
 | Berechtigung | Bedeutung | Rollen |
 |---|---|---|
 | `people.view` | Liste und Details ansehen | Administration, Geschäftsstelle, Vorstand |
-| `people.manage` | anlegen, bearbeiten, löschen | Administration, Geschäftsstelle |
+| `people.manage` | anlegen, bearbeiten, löschen | Administration, Geschäftsstelle, Vorstand |
 
 „Konto aus Person anlegen“ braucht zusätzlich `users.manage`. Zuordnung: `AccessGovernance/Support/Capabilities.php`.
 

@@ -16,7 +16,7 @@ final class Capabilities
     private const MAP = [
         'administration' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage],
         'administration_staff' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage],
-        'board_member' => [Capability::UsersView, Capability::PeopleView],
+        'board_member' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage],
     ];
 
     public static function has(User $user, Capability $capability): bool
