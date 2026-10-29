@@ -108,7 +108,7 @@ Die vier Blätter unterscheiden sich nur in den **Standardwerten** (Voreinstellu
 
 | Leistungsart | Tage/Treffen | Teamende | Stunden/Tag | SL | Materialfaktor |
 |---|---|---|---|---|---|
-| SV-Tage | 3 | 3 | 8 (im Excel nicht gepflegt, Honorar dort fest 200 €) | 1 | 1 |
+| SV-Tage | 3 | 3 | 6 (ein SV-Tag dauert mindestens 6 h, daher 200 €) | 1 | 1 |
 | SV-Fahrt | 2 | 6 | 8 | 1 | 1 |
 | SV-Coaching (Kurze Tagestreffen) | 2 | 3 | 6 | 0 | 0,3 |
 | SV-Wahl | 1 | 2 | 2 | 0 | 0,3 |
@@ -117,21 +117,22 @@ Die vier Blätter unterscheiden sich nur in den **Standardwerten** (Voreinstellu
 
 Geklärt (Entscheidung: Rechner „SV-Coaching“ gilt für alle):
 
-1. Honorar nach Staffel der Stunden pro Tag, auch bei SV-Tage (dort stand im Excel fest 200 €). Standardwert Stunden bei SV-Tage: 8 (Annahme, bitte bestätigen), damit bleibt der bisherige Preis von 200 € je Teamende und Tag.
+1. Honorar nach Staffel der Stunden pro Tag, auch bei SV-Tage (dort stand im Excel fest 200 €). Standardwert Stunden bei SV-Tage: 6 (ein SV-Tag dauert mindestens 6 Stunden), das ergibt wie bisher 200 € je Teamende und Tag.
 2. Materialzuschlag nie unter 0.
 3. Der Schalter „ohne Verwaltungspauschale“ wirkt in allen Leistungsarten (bei SV-Wahl war die Vereinspauschale im Excel fest 1).
 4. Die Summe umfasst alle Positionen (bei SV-Fahrt lief sie über F4:F14).
 
+Ebenfalls geklärt:
+
+5. **Blatt „Tabelle1“ (Vertragspauschale):** wird ignoriert. Für Seminare gilt die Vereinspauschale als Posten im Kostenvoranschlag; eine zusätzliche Verwaltungspauschale gibt es nicht.
 Noch offen:
 
-5. **Blatt „Tabelle1“ (Vertragspauschale):** Die Beschriftung sagt 10 %, die Formel in Spalte B rechnet ein Viertel (B4/4), die in Spalte C zehn Prozent vom Gesamtpreis. Welche Regel gilt? Gehört das zum Kostenvoranschlag?
 6. **Start-Blatt:** Nennt zusätzlich „SV-Begleitung“, „Workshopbörse“ und „Wahlunterstützung“ ohne eigenes Blatt. Sind das weitere Leistungsarten oder alte Namen von SV-Coaching/SV-Wahl? Bis dahin gibt es die vier Vorlagen; weitere lassen sich als Vorlage anlegen.
 
 ### 6.4 Ausgabe
 
 Der Kostenvoranschlag erscheint als Seite und als druckbares PDF (Positionen, Summe, Preisstand, Gültigkeit, Hinweis „unverbindlich“). Er wird
-am Seminar gespeichert, bleibt unveränderlich und kann als neue Version überarbeitet werden. Eine Verwaltungspauschale (siehe 6.3) kommt als eigene
-Position, wenn sie so gewollt ist.
+am Seminar gespeichert, bleibt unveränderlich und kann als neue Version überarbeitet werden. Eine Verwaltungspauschale gibt es nicht; die Vereinspauschale ist ein normaler Posten (6.1).
 
 ## 7 Teamende bewerben sich
 
@@ -166,7 +167,7 @@ Position, wenn sie so gewollt ist.
 
 ## 10 Offene Fragen
 
-1. Offene Punkte 5 und 6 aus 6.3 klären (Vertragspauschale, weitere Leistungsarten).
+1. Punkt 6 aus 6.3 klären (weitere Leistungsarten neben den vier Vorlagen).
 2. Heißen die Leistungsarten im Portal wie in der Excel-Tabelle? Weitere Arten (Start-Blatt)?
 3. Sollen Voranschläge Preise rundum netto oder brutto zeigen (Umsatzsteuer)?
 4. Wer bestätigt den Kostenvoranschlag für die Schule, und wie (Mail/Dokument ablegen, später Schulkonto)?
