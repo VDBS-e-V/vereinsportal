@@ -116,6 +116,9 @@ it('forces the setup again after the administration reset the two-factor methods
 
     $this->actingAs($admin)->post(route('admin.users.two-factor.reset', $target))->assertRedirect();
 
+    // Neue Sitzung für die zurückgesetzte Person (die Sitzung des Admins kennt die Sitzungsversion des Admins).
+    $this->flushSession();
+
     $this->actingAs($target->fresh())->get(route('admin.users.index'))->assertRedirect(route('account.security.index'));
 });
 
