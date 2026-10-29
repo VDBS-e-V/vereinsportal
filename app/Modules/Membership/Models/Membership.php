@@ -35,6 +35,7 @@ class Membership extends Model
         'registration_sent_at',
         'registration_expires_at',
         'linked_at',
+        'board_notified_at',
         'status',
         'requested_on',
         'starts_on',
@@ -51,6 +52,7 @@ class Membership extends Model
             'registration_sent_at' => 'datetime',
             'registration_expires_at' => 'datetime',
             'linked_at' => 'datetime',
+            'board_notified_at' => 'datetime',
             'requested_on' => 'date',
             'starts_on' => 'date',
             'ends_on' => 'date',
@@ -68,6 +70,12 @@ class Membership extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(MembershipDocument::class)->orderByDesc('uploaded_at')->orderByDesc('id');
+    }
+
+    /** @return HasMany<MembershipConsent, $this> */
+    public function consents(): HasMany
+    {
+        return $this->hasMany(MembershipConsent::class)->orderBy('id');
     }
 
     /** Name der Person, sonst der an der Mitgliedschaft erfasste Name (Mitgliedschaft ohne digitale Person). */

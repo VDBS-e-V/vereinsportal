@@ -115,6 +115,24 @@
         @endif
     </section>
 
+    <section aria-labelledby="consents-heading" style="margin-top:var(--space-8)">
+        <h2 id="consents-heading" style="font-size:var(--font-size-h3)">Einwilligungen</h2>
+
+        @if ($consents->isEmpty())
+            <p>Keine Einwilligungen im Portal erfasst. Bei vom Vorstand erfassten Mitgliedschaften liegt der Nachweis im Dokument.</p>
+        @else
+            <x-vdbs.data.table caption="Einwilligungsnachweise" :columns="[['key' => 'type', 'label' => 'Zustimmung'], ['key' => 'version', 'label' => 'Fassung'], ['key' => 'date', 'label' => 'Zeitpunkt']]">
+                @foreach ($consents as $consent)
+                    <tr>
+                        <td>{{ $consent->label() }}</td>
+                        <td>{{ $consent->version }}</td>
+                        <td>{{ $consent->accepted_at->format('d.m.Y, H:i') }}</td>
+                    </tr>
+                @endforeach
+            </x-vdbs.data.table>
+        @endif
+    </section>
+
     <section aria-labelledby="history-heading" style="margin-top:var(--space-8)">
         <h2 id="history-heading" style="font-size:var(--font-size-h3)">Verlauf</h2>
 

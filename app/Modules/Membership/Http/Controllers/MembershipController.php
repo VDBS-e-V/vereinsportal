@@ -107,7 +107,7 @@ class MembershipController extends Controller
 
     public function show(Membership $membership): View
     {
-        $membership->load(['person.user', 'decidedBy.person', 'events.actor', 'documents']);
+        $membership->load(['person.user', 'decidedBy.person', 'events.actor', 'documents', 'consents']);
 
         return view('membership.show', [
             'membership' => $membership,
@@ -115,6 +115,7 @@ class MembershipController extends Controller
             'status' => $membership->effectiveStatus(),
             'events' => $membership->events,
             'documents' => $membership->documents,
+            'consents' => $membership->consents,
             'documentKinds' => MembershipDocument::KINDS,
             'canManage' => Gate::allows('memberships.manage'),
             'canViewPerson' => Gate::allows('people.view'),

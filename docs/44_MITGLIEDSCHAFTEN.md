@@ -32,6 +32,16 @@ Verwaltung und **nicht** im allgemeinen Protokoll (`docs/42_PROTOKOLL.md`); jede
   Pflichtangaben zu Satzung und Datenschutz, Passwortregeln des Portals.
 - Im allgemeinen Protokoll steht nur „Konto angelegt (Selbstregistrierung)“, keine Mitgliedschaftsdaten.
 
+## Einwilligungsnachweise und Hinweis an den Vorstand
+
+- Beim **Online-Antrag** werden die Zustimmung zur **Satzung** und zu den **Datenschutzhinweisen** mit Fassung und Zeitpunkt festgehalten
+  (`membership_consents`, nur anlegen). Bei der **Registrierung per Link** wird die Datenschutz-Kenntnisnahme festgehalten. Die aktuelle
+  Fassung steht in `config/portal.php` > `legal` (`PORTAL_STATUTE_VERSION`, `PORTAL_PRIVACY_VERSION`); bei einer neuen Fassung die Kennung ändern.
+  Die Mitgliedschaft zeigt die Nachweise im Abschnitt „Einwilligungen“. Bei vom Vorstand erfassten Mitgliedschaften liegt der Nachweis im Dokument.
+- **Hinweis an den Vorstand:** Sobald die Antragstellerin ihre E-Mail-Adresse bestätigt hat, erhalten alle aktiven Vorstandskonten einmal eine
+  E-Mail mit Link zum Antrag, **ohne personenbezogene Daten**. Unbestätigte Fremdanträge, Dubletten und manuell erfasste Mitgliedschaften lösen
+  nichts aus. Abschaltbar mit `MEMBERSHIP_NOTIFY_BOARD=false`.
+
 ## Ablauf und Status
 
 | Status | Bedeutung | Übergänge |
@@ -68,8 +78,6 @@ Zugangsdaten. Aufbewahrungsfristen für Mitgliedschaften legt der Verein fest (F
 
 ## Noch offen
 
-- **Zustimmungsnachweise** mit Historie (Satzung, Datenschutz zum Zeitpunkt des Antrags): bisher nur als Pflichtkästchen im Formular.
-- Benachrichtigung des Vorstands über neue Online-Anträge.
 - Mitgliedsarten (ordentlich, Förder-, Ehrenmitglied), Beiträge und Probezeit: erst nach Klärung der Regeln.
 - Aufbewahrungs- und Löschfristen für Dokumente und abgelehnte Anträge.
 

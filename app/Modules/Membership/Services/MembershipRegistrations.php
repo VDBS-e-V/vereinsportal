@@ -28,6 +28,7 @@ final class MembershipRegistrations
     public function __construct(
         private readonly MembershipHistory $history,
         private readonly MembershipRoles $roles,
+        private readonly MembershipConsents $consents,
     ) {}
 
     public function sendLink(Membership $membership, User $by): void
@@ -117,6 +118,7 @@ final class MembershipRegistrations
             ])->save();
 
             $this->history->record($membership, MembershipEventType::Registered, null, null, [], 'Selbstregistrierung');
+            $this->consents->record($membership, ['privacy']);
 
             return $user;
         });

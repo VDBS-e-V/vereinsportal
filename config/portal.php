@@ -21,6 +21,20 @@ return [
     ],
 
     /*
+     * Fassungen von Satzung und Datenschutzhinweisen, denen bei Antrag und Registrierung zugestimmt wird (Nachweis in
+     * membership_consents). Bei einer neuen Fassung die Kennung ändern.
+     */
+    'legal' => [
+        'statute_version' => env('PORTAL_STATUTE_VERSION', '2026-01'),
+        'privacy_version' => env('PORTAL_PRIVACY_VERSION', '2026-01'),
+    ],
+
+    /* Mitgliedschaften: Vorstand per E-Mail über neue (bestätigte) Online-Anträge informieren. */
+    'membership' => [
+        'notify_board' => (bool) env('MEMBERSHIP_NOTIFY_BOARD', true),
+    ],
+
+    /*
      * Footer-Spalten. Platzhalter '#', bis die Seiten bzw. Profile feststehen.
      * 'icon' ist optional (Name unter resources/icons).
      */

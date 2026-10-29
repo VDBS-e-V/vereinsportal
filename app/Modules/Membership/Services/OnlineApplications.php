@@ -25,7 +25,11 @@ final class OnlineApplications
 {
     public const VERIFY_HOURS = 48;
 
-    public function __construct(private readonly Memberships $memberships) {}
+    public function __construct(
+        private readonly Memberships $memberships,
+        private readonly MembershipConsents $consents,
+        private readonly BoardNotifications $boardNotifications,
+    ) {}
 
     /**
      * @param  array{first_name: string, last_name: string, birth_date: string, email: string, password: string}  $data
@@ -56,7 +60,8 @@ final class OnlineApplications
                 'status' => UserStatus::PendingVerification,
             ]);
 
-            $this->memberships->requestOnline($person);
+            $membership = $this->memberships->requestOnline($person);
+            $this->consents->record($membership, ['statute', 'privacy']);
 
             return $user;
         });
@@ -75,6 +80,7 @@ final class OnlineApplications
 
         if ($user->status === UserStatus::PendingVerification) {
             $user->forceFill(['status' => UserStatus::Active, 'email_verified_at' => now()])->save();
+            $this->boardNotifications->newApplication($user);
         }
 
         return true;
