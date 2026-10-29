@@ -18,6 +18,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -141,6 +142,10 @@ class PartnerController extends Controller
     public function destroy(Request $request, Partner $partner): RedirectResponse
     {
         abort_unless($partner->type === PartnerType::School, 404);
+
+        if (DB::table('seminars')->where('partner_id', $partner->id)->exists()) {
+            return redirect()->route('partners.show', $partner)->with('warning', 'Zu dieser Schule gibt es Seminare. Setzen Sie den Status stattdessen auf „Pausiert“ oder „Vergangen“.');
+        }
 
         $this->partners->delete($partner, $this->actor($request));
 

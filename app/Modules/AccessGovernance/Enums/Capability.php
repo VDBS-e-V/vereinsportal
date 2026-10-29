@@ -32,6 +32,15 @@ enum Capability: string
     /** Schulen anlegen, ändern, löschen und per CSV importieren. */
     case PartnersManage = 'partners.manage';
 
+    /** Seminare ansehen (Bereich Koordination). */
+    case SeminarsView = 'seminars.view';
+
+    /** Seminare anlegen, ändern, Status wechseln, Termine pflegen und Kostenvoranschläge erstellen. */
+    case SeminarsManage = 'seminars.manage';
+
+    /** Preisliste der Seminare ändern (neue Fassung anlegen). */
+    case SeminarPricesManage = 'seminars.prices';
+
     /** Design-Bibliothek ansehen (Entwicklungswerkzeug). */
     case DesignView = 'design.view';
 

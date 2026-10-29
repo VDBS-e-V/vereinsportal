@@ -41,6 +41,13 @@ enum AuditEvent: string
     case PartnerDeleted = 'partner.deleted';
     case PartnersImported = 'partner.imported';
 
+    case SeminarCreated = 'seminar.created';
+    case SeminarUpdated = 'seminar.updated';
+    case SeminarDeleted = 'seminar.deleted';
+    case SeminarStatusChanged = 'seminar.status_changed';
+    case SeminarQuoteCreated = 'seminar.quote_created';
+    case SeminarPricesChanged = 'seminar.prices_changed';
+
     case AuditExported = 'audit.exported';
 
     public function label(): string
@@ -75,6 +82,12 @@ enum AuditEvent: string
             self::PartnerUpdated => 'Schule geändert',
             self::PartnerDeleted => 'Schule gelöscht',
             self::PartnersImported => 'Schulen importiert',
+            self::SeminarCreated => 'Seminar angelegt',
+            self::SeminarUpdated => 'Seminar geändert',
+            self::SeminarDeleted => 'Seminar gelöscht',
+            self::SeminarStatusChanged => 'Seminarstatus geändert',
+            self::SeminarQuoteCreated => 'Kostenvoranschlag erstellt',
+            self::SeminarPricesChanged => 'Preisliste der Seminare geändert',
             self::AuditExported => 'Protokoll exportiert',
         };
     }
@@ -89,6 +102,7 @@ enum AuditEvent: string
             self::RoleAssigned, self::RoleEnded => 'roles',
             self::PersonCreated, self::PersonUpdated, self::PersonDeleted => 'people',
             self::PartnerCreated, self::PartnerUpdated, self::PartnerDeleted, self::PartnersImported => 'partners',
+            self::SeminarCreated, self::SeminarUpdated, self::SeminarDeleted, self::SeminarStatusChanged, self::SeminarQuoteCreated, self::SeminarPricesChanged => 'seminars',
             self::AuditExported => 'audit',
         };
     }
@@ -104,6 +118,7 @@ enum AuditEvent: string
             'roles' => 'Rollen',
             'people' => 'Personen',
             'partners' => 'Schulen',
+            'seminars' => 'Seminare',
             'audit' => 'Protokoll',
         ];
     }
@@ -112,7 +127,7 @@ enum AuditEvent: string
     public function tone(): string
     {
         return match ($this) {
-            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::AccountAnonymized => 'error',
+            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::AccountAnonymized => 'error',
             self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
             self::Login, self::UserEnabled, self::TwoFactorEnabled => 'success',
             default => 'neutral',

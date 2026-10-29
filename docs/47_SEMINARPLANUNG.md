@@ -1,6 +1,6 @@
 # 47 Seminarplanung (Konzept, Entwurf)
 
-Stand: Entwurf zur Abstimmung. Es ist noch nichts gebaut. Grundlage sind die Antworten des Vorstands/der Koordination und die
+Stand: Entwurf. Stufe 1 und 2 sind für SV-Tage, SV-Coaching und SV-Wahl umgesetzt (siehe `docs/48_SEMINARE.md`); der Rest ist noch nicht gebaut. Grundlage sind die Antworten des Vorstands/der Koordination und die
 Excel-Tabelle „Preisberechnungstabelle VDBS“. Offene Punkte stehen am Ende.
 
 ## 1 Ziel

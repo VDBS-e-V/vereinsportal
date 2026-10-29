@@ -7,6 +7,7 @@ use App\Modules\DesignLibrary\DesignLibraryServiceProvider;
 use App\Modules\Membership\MembershipServiceProvider;
 use App\Modules\Partners\PartnersServiceProvider;
 use App\Modules\People\PeopleServiceProvider;
+use App\Modules\Seminars\SeminarsServiceProvider;
 use App\Modules\Sso\SsoServiceProvider;
 use App\Providers\AppServiceProvider;
 use App\Providers\VoltServiceProvider;
@@ -24,6 +25,7 @@ return [
     AccessGovernanceServiceProvider::class,
     AuditServiceProvider::class,
     PartnersServiceProvider::class,
+    SeminarsServiceProvider::class,
     PeopleServiceProvider::class,
     MembershipServiceProvider::class,
     SsoServiceProvider::class,

@@ -68,6 +68,8 @@ final class PortalNavigation
                 'roles' => [RoleKey::Coordination, RoleKey::AdministrationStaff],
                 'pages' => [
                     ['label' => 'Schulen', 'route' => 'partners.index', 'match' => 'partners.*', 'can' => 'partners.view'],
+                    ['label' => 'Seminare', 'route' => 'seminars.index', 'match' => 'seminars.*', 'can' => 'seminars.view'],
+                    ['label' => 'Preise', 'route' => 'seminar-prices.index', 'match' => 'seminar-prices.*', 'can' => 'seminars.view'],
                 ],
             ],
             PortalAreas::Geschaeftsstelle->value => [
