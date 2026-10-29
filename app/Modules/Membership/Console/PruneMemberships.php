@@ -16,7 +16,7 @@ class PruneMemberships extends Command
         $dry = (bool) $this->option('dry-run');
         $counts = $retention->prune($dry);
 
-        $this->components->info(($dry ? '[Trockenlauf] ' : '')."Unbestätigte Anträge: {$counts['unverified']}, abgelehnte: {$counts['rejected']}, beendete: {$counts['ended']}.");
+        $this->info(($dry ? '[Trockenlauf] ' : '')."Unbestätigte Anträge: {$counts['unverified']}, abgelehnte: {$counts['rejected']}, beendete: {$counts['ended']}.");
 
         return self::SUCCESS;
     }

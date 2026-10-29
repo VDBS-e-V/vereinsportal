@@ -38,7 +38,7 @@ class JoinController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
             'statute' => ['accepted'],
             'privacy' => ['accepted'],
-            'website' => ['nullable', 'max:0'],
+            'website' => ['nullable'],
         ], $this->messages());
 
         // Das versteckte Feld "website" füllen nur Programme aus: neutral antworten, nichts anlegen.

@@ -106,8 +106,8 @@ final class MembershipRegistrations
                 'email' => $email,
                 'password' => $data['password'],
                 'status' => UserStatus::Active,
-                'email_verified_at' => now(),
             ]);
+            $user->forceFill(['email_verified_at' => now()])->save();
 
             $membership->forceFill([
                 'person_id' => $person->id,

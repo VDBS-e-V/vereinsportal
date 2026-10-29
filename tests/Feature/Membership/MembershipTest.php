@@ -358,7 +358,7 @@ it('ends memberships whose last day has passed with the daily sync', function ()
     expect($past->fresh()->status)->toBe(MembershipStatus::Ended)
         ->and($future->fresh()->status)->toBe(MembershipStatus::Active)
         ->and($past->events()->first()->type)->toBe(MembershipEventType::Ended)
-        ->and($past->events()->first()->actor_label)->toBeNull()
+        ->and($past->events()->first()->actor_label)->toBe('automatisch')
         ->and(mbMemberRole($account)->ends_at->isPast())->toBeTrue();
 
     $this->artisan('membership:sync')->assertSuccessful();

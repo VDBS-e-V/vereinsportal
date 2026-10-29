@@ -284,7 +284,7 @@ it('exports the filtered schools as csv with german labels and formula protectio
 
     $response->assertOk()->assertDownload();
     expect(str_starts_with($csv, "\xEF\xBB\xBF"))->toBeTrue()
-        ->and($csv)->toContain('Name;Träger;Interne Kennung;Schulart;Bundesland')
+        ->and($csv)->toContain('Name;Träger;"Interne Kennung";Schulart;Bundesland')
         ->toContain("'=HYPERLINK")
         ->toContain('Gymnasium;Sachsen')
         ->toContain(';400;aktiv')
@@ -294,7 +294,7 @@ it('exports the filtered schools as csv with german labels and formula protectio
 it('offers an import template', function () {
     $response = $this->actingAs(ptUser(RoleKey::Coordination))->get(route('partners.import.template'));
 
-    expect($response->streamedContent())->toContain('Name;Träger;Interne Kennung;Schulart')->toContain('BE/08K06')->toContain('Ansprechperson 2');
+    expect($response->streamedContent())->toContain('Name;Träger;"Interne Kennung";Schulart')->toContain('BE/08K06')->toContain('Ansprechperson 2');
 });
 
 // ---------- Import ----------
@@ -608,7 +608,7 @@ it('shows entered contact rows again after a failed validation', function () {
         ->post(route('partners.store'), ['name' => '', 'status' => 'active', 'contacts' => [5 => ['name' => 'Alte Eingabe', 'role' => 'Sekretariat', 'email' => '', 'phone' => '']], 'primary_contact' => '5'])
         ->assertRedirect(route('partners.create'));
 
-    $this->get(route('partners.create'))->assertSee('Alte Eingabe')->assertSee('Sekretariat')->assertSee('data-vdbs-repeater-next="8"', false);
+    $this->get(route('partners.create'))->assertSee('Alte Eingabe')->assertSee('Sekretariat')->assertSee('data-vdbs-repeater-next="7"', false);
 });
 
 it('replaces, removes and keeps the person link of contact persons on update', function () {
@@ -674,7 +674,7 @@ it('exports and imports several contact persons in column groups, without a fixe
     $this->actingAs(ptUser(RoleKey::Coordination));
 
     $export = $this->get(route('partners.export'))->streamedContent();
-    expect($export)->toContain('Ansprechperson 3;Funktion 3;E-Mail 3;Telefon 3')->toContain('Dritte;Rolle Dritte;dritte@beispiel.example');
+    expect($export)->toContain('"Ansprechperson 3";"Funktion 3";"E-Mail 3";"Telefon 3"')->toContain('Dritte;Rolle Dritte;dritte@beispiel.example');
 
     Partner::query()->delete();
 

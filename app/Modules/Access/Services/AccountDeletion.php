@@ -138,7 +138,7 @@ final class AccountDeletion
 
         $this->sendNotice($oldEmail);
 
-        DB::transaction(function () use ($user, $person, $oldEmail, $ref, $placeholder): void {
+        DB::transaction(function () use ($user, $person, $personId, $oldEmail, $ref, $placeholder): void {
             $user->roleAssignments()
                 ->where(fn ($open) => $open->whereNull('ends_at')->orWhere('ends_at', '>', now()))
                 ->update(['ends_at' => now()]);
