@@ -115,3 +115,92 @@ it('renders an event list with items, time and footer', function () {
         ->toContain('vdbs-event-list__controls')
         ->toContain('Alle Termine');
 });
+
+it('renders link tabs with the current page marked', function () {
+    $html = Blade::render('<x-vdbs.navigation.tab-nav label="Konto" :items="[[\'label\' => \'Profil\', \'href\' => \'/p\', \'current\' => true], [\'label\' => \'Sicherheit\', \'href\' => \'/s\', \'badge\' => \'2\']]" />');
+
+    expect($html)
+        ->toContain('aria-label="Konto"')
+        ->toContain('aria-current="page"')
+        ->toContain('vdbs-tab-nav__badge')
+        ->and(substr_count($html, 'aria-current'))->toBe(1);
+});
+
+it('renders content tabs as sections for the script to enhance', function () {
+    $html = Blade::render('<x-vdbs.navigation.tabs label="Test" active="b"><x-vdbs.navigation.tab id="a" label="Eins">A</x-vdbs.navigation.tab><x-vdbs.navigation.tab id="b" label="Zwei">B</x-vdbs.navigation.tab></x-vdbs.navigation.tabs>');
+
+    expect($html)
+        ->toContain('data-vdbs-tabs')
+        ->toContain('data-active="b"')
+        ->toContain('data-label="Eins"')
+        ->toContain('<h3 class="vdbs-tab__title">Zwei</h3>');
+});
+
+it('renders pagination with gaps, the current page and disabled edges', function () {
+    $html = Blade::render('<x-vdbs.navigation.pagination :current="1" :last="20" href="/l?page=:page" />');
+
+    expect($html)
+        ->toContain('Seite 1 von 20')
+        ->toContain('aria-current="page"')
+        ->toContain('href="/l?page=20"')
+        ->toContain('…')
+        ->toContain('vdbs-pagination__link--disabled')
+        ->not->toContain('href="/l?page=10"');
+});
+
+it('renders no pagination for a single page', function () {
+    expect(trim(Blade::render('<x-vdbs.navigation.pagination :current="1" :last="1" />')))->toBe('');
+});
+
+it('uses a laravel paginator for the pagination', function () {
+    $paginator = new Illuminate\Pagination\LengthAwarePaginator(range(1, 10), 50, 10, 3, ['path' => '/nutzer']);
+    $html = Blade::render('<x-vdbs.navigation.pagination :paginator="$p" />', ['p' => $paginator]);
+
+    expect($html)->toContain('Seite 3 von 5')->toContain('/nutzer?page=2')->toContain('rel="next"');
+});
+
+it('renders the stepper with done, current and open steps', function () {
+    $html = Blade::render('<x-vdbs.navigation.stepper :current="2" :steps="[\'A\', [\'label\' => \'B\', \'hint\' => \'Hinweis\'], \'C\']" />');
+
+    expect($html)
+        ->toContain('Schritt 2 von 3')
+        ->toContain('vdbs-stepper__step--done')
+        ->toContain('vdbs-stepper__step--todo')
+        ->toContain('aria-current="step"')
+        ->toContain('(erledigt)')
+        ->toContain('Hinweis');
+});
+
+it('renders a dropdown on details with links and buttons', function () {
+    $html = Blade::render('<x-vdbs.navigation.dropdown label="Menü" align="end"><x-vdbs.navigation.dropdown-item href="/a" icon="user">Konto</x-vdbs.navigation.dropdown-item><x-vdbs.navigation.dropdown-item type="submit">Abmelden</x-vdbs.navigation.dropdown-item></x-vdbs.navigation.dropdown>');
+
+    expect($html)
+        ->toContain('<details')
+        ->toContain('vdbs-dropdown--end')
+        ->toContain('data-vdbs-dropdown')
+        ->toContain('href="/a"')
+        ->toContain('type="submit"');
+});
+
+it('builds avatar initials and prefers a photo', function () {
+    expect(Blade::render('<x-vdbs.data.avatar name="erika Mustermann" />'))->toContain('>EM<');
+    expect(Blade::render('<x-vdbs.data.avatar name="Max" />'))->toContain('>M<');
+    expect(Blade::render('<x-vdbs.data.avatar name="Max" src="/a.jpg" />'))->toContain('vdbs-avatar__img')->not->toContain('vdbs-avatar__initials');
+});
+
+it('renders the side navigation with sections and a flat list', function () {
+    $html = Blade::render('<x-vdbs.navigation.side-nav label="Konto" :sections="[[\'title\' => \'Konto\', \'items\' => [[\'label\' => \'Profil\', \'href\' => \'/p\', \'current\' => true]]]]" />');
+    $flat = Blade::render('<x-vdbs.navigation.side-nav label="Flach" :sections="[[\'label\' => \'A\', \'href\' => \'/a\']]" />');
+
+    expect($html)->toContain('vdbs-side-nav__title')->toContain('aria-current="page"');
+    expect($flat)->toContain('href="/a"')->not->toContain('vdbs-side-nav__title');
+});
+
+it('shows the user menu with the logout in the header for logged in users', function () {
+    $this->actingAs(App\Modules\Access\Models\User::factory()->create(['email' => 'erika@example.org']))
+        ->get('/')
+        ->assertOk()
+        ->assertSee('vdbs-dropdown', false)
+        ->assertSee('erika@example.org')
+        ->assertSee('Abmelden');
+});

@@ -56,10 +56,19 @@
                     </ul>
                 </nav>
 
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <x-vdbs.actions.button type="submit" variant="secondary" icon="log-out">Abmelden</x-vdbs.actions.button>
-                </form>
+                @php $displayName = auth()->user()->person?->fullName() ?: auth()->user()->email; @endphp
+                <x-vdbs.navigation.dropdown variant="plain" align="end" :label="$displayName">
+                    <x-slot:trigger>
+                        <x-vdbs.data.avatar :name="$displayName" size="s" aria-hidden="true" />
+                        <span class="vdbs-header__user-name">{{ $displayName }}</span>
+                    </x-slot:trigger>
+                    {{-- Platzhalter, bis die Konto-Seiten gebaut sind --}}
+                    <x-vdbs.navigation.dropdown-item href="#" icon="user">Mein Konto</x-vdbs.navigation.dropdown-item>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <x-vdbs.navigation.dropdown-item type="submit" icon="log-out">Abmelden</x-vdbs.navigation.dropdown-item>
+                    </form>
+                </x-vdbs.navigation.dropdown>
             @else
                 <nav aria-label="Portal-Informationen">
                     <ul class="vdbs-header__links vdbs-header__links--large">

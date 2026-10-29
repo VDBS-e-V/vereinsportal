@@ -116,3 +116,7 @@
 @media (min-width: 1100px) {
     .vdbs-js .vdbs-header__menu-toggle { display: none; }
 }
+
+/* Nutzermenü: Name neben dem Avatar, auf dem Handy mit Umbruch statt Abschneiden */
+.vdbs-header__user-name { max-width: 16rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 1099px) { .vdbs-header__user-name { max-width: none; white-space: normal; text-align: left; } }

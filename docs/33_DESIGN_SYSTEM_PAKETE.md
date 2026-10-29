@@ -8,11 +8,11 @@ und `resources/views/components/vdbs/<paket>/`. Eine Komponente = eine Blade-Dat
 | foundation | `x-vdbs.icon` | Icons |
 | actions | `x-vdbs.actions.*` | button (einziges Button-System), button-group, link-button (Kurzform), back-to-top |
 | forms | `x-vdbs.forms.*` | input, select, textarea |
-| navigation | `x-vdbs.navigation.*` | portal-header, portal-footer, nav-main, breadcrumb |
+| navigation | `x-vdbs.navigation.*` | portal-header, portal-footer, nav-main, breadcrumb, tab-nav, tabs/tab, pagination, stepper, dropdown/dropdown-item, side-nav |
 | layout | `x-vdbs.layout.*` | container, section, split, grid, aside-layout (Bild/Fläche/Seitenleiste neben dem Inhalt), Seitenrahmen, Druck |
 | content | `x-vdbs.content.*` | feature (Inhaltsblock: side, overlap, offset, links; Töne none, surface, soft, dark, brand) |
 | cards | `x-vdbs.cards.*` | card, quick-links, quick-link, teaser, contact-block |
-| data | `x-vdbs.data.*` | table, badge, group-mark, chip-list, chip |
+| data | `x-vdbs.data.*` | table, badge, group-mark, chip-list, chip, event-list/event-item, avatar |
 | feedback | `x-vdbs.feedback.*` | alert, error-page |
 | overlays | `x-vdbs.overlays.*` | modal |
 | media | `x-vdbs.media.*` | hero, hero-tile, figure |

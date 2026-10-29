@@ -1,0 +1,29 @@
+/* Seitennavigation */
+
+.vdbs-side-nav { display: grid; gap: var(--space-5); }
+.vdbs-side-nav__title { margin: 0 0 var(--space-2); padding-inline: var(--space-3); color: var(--text-muted); font-size: var(--font-size-small); font-weight: var(--font-weight-bold); letter-spacing: 0.06em; text-transform: uppercase; }
+.vdbs-side-nav__list { display: grid; gap: var(--space-1); margin: 0; padding: 0; list-style: none; }
+
+.vdbs-side-nav__link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--size-touch);
+    padding: var(--space-2) var(--space-3);
+    border-left: 3px solid transparent;
+    color: var(--text-default);
+    text-decoration: none;
+}
+
+.vdbs-side-nav__link:hover { background: var(--bg-surface); border-left-color: var(--border-input); }
+.vdbs-side-nav__link[aria-current="page"] { background: var(--bg-accent-soft); border-left-color: var(--bg-action); font-weight: var(--font-weight-bold); }
+.vdbs-side-nav__label { flex: 1 1 auto; }
+
+.vdbs-side-nav__badge {
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-full);
+    background: var(--bg-action);
+    color: var(--text-on-action);
+    font-size: var(--font-size-caption);
+    line-height: 1.5;
+}
