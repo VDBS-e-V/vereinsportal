@@ -28,6 +28,7 @@
     $verb = strtoupper($method);
     $spoof = in_array($verb, ['PUT', 'PATCH', 'DELETE'], true);
     $phraseLabel ??= $phrase ? 'Tippe „'.$phrase.'“ zur Bestätigung' : null;
+    $ownConfirm = isset($confirm) && ! $confirm->isEmpty();
 @endphp
 
 <dialog id="{{ $id }}" {{ $attributes->class(['vdbs-modal', 'vdbs-modal--confirm', "vdbs-modal--{$variant}"]) }} aria-labelledby="{{ $id }}-title" aria-describedby="{{ $id }}-text" data-vdbs-dialog>
@@ -60,11 +61,11 @@
 
         <div class="vdbs-modal__actions">
             <x-vdbs.actions.button type="button" variant="secondary" autofocus data-vdbs-dialog-close>{{ $cancelLabel }}</x-vdbs.actions.button>
-            @isset($confirm)
+            @if ($ownConfirm)
                 {{ $confirm }}
             @else
                 <x-vdbs.actions.button type="submit" :variant="$variant === 'danger' ? 'danger' : 'primary'" data-vdbs-confirm-submit>{{ $confirmLabel }}</x-vdbs.actions.button>
-            @endisset
+            @endif
         </div>
     </form>
 </dialog>

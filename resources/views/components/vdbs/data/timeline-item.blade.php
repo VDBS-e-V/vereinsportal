@@ -16,7 +16,7 @@
         <p class="vdbs-timeline-item__title">{{ $title }}</p>
         @if ($time || $actor)
             <p class="vdbs-timeline-item__meta">
-                @if ($time) <time @if ($datetime) datetime="{{ $datetime }}" @endif>{{ $time }}</time> @endif
+                @if ($time) <time{!! $datetime ? ' datetime="'.e($datetime).'"' : '' !!}>{{ $time }}</time> @endif
                 @if ($time && $actor) · @endif
                 @if ($actor) {{ $actor }} @endif
             </p>

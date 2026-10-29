@@ -5,10 +5,14 @@
     type  z. B. PDF, DOCX (wird auch für Screenreader vorgelesen), size z. B. "240 KB"
 --}}
 
+@php
+    $fileInfo = collect([$type, $size])->filter()->implode(', ');
+@endphp
+
 <article {{ $attributes->class('vdbs-download') }}>
     <span class="vdbs-download__icon" aria-hidden="true"><x-vdbs.icon :name="$icon" :size="28" /></span>
     <div class="vdbs-download__body">
-        <h3 class="vdbs-download__title"><a class="vdbs-download__link" href="{{ $href }}" download>{{ $title }}<span class="vdbs-sr-only"> (Download@if ($type), {{ $type }}@endif @if ($size), {{ $size }}@endif)</span></a></h3>
+        <h3 class="vdbs-download__title"><a class="vdbs-download__link" href="{{ $href }}" download>{{ $title }}<span class="vdbs-sr-only"> (Download{{ $fileInfo !== '' ? ', '.$fileInfo : '' }})</span></a></h3>
         @if ($text) <p class="vdbs-download__text">{{ $text }}</p> @endif
         @if ($type || $size)
             <p class="vdbs-download__meta" aria-hidden="true">{{ collect([$type, $size])->filter()->implode(' · ') }}</p>
