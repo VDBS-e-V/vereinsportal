@@ -11,6 +11,9 @@ Artisan::command('inspire', function () {
 // Mitgliedschaften mit abgelaufenem Austrittsdatum beenden, Rolle Vereinsmitglied abgleichen.
 Schedule::command('membership:sync')->daily();
 
+// Aufbewahrungsfristen: unbestätigte Online-Anträge, abgelehnte und (falls konfiguriert) beendete Mitgliedschaften löschen.
+Schedule::command('membership:prune')->daily();
+
 /*
  * Der fruehere Cleanup-Job fuer abgelaufene Registrierungsanfragen
  * gehoerte zu app/Modules/Identity (Onboarding) und kommt zurueck,

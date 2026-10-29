@@ -71,14 +71,28 @@ beides steht im Verlauf. Dieser Speicher gehört in **Backup und Restore** (`doc
 Beitrittsdatum bis zum Ende des Austrittstages. Austritt, Rücknahme und Ablehnung ziehen sie nach. Von Hand vergebene Rollen
 bleiben unberührt. Hat die Person noch kein Konto, wird die Rolle beim Anlegen des Kontos nachgezogen (`UserAdministration`).
 
+## Aufbewahrung und Löschung
+
+`php artisan membership:prune` (täglich geplant, `--dry-run` zählt nur; Einstellungen in `config/portal.php` > `membership.retention`):
+
+| Daten | Frist (Standard) | Wirkung |
+|---|---|---|
+| Unbestätigte Online-Anträge (E-Mail nie bestätigt, nie angemeldet) | 7 Tage (`MEMBERSHIP_RETENTION_UNVERIFIED_DAYS`) | Antrag, Konto und Person werden gelöscht |
+| Abgelehnte Anträge | 180 Tage nach der Entscheidung (`MEMBERSHIP_RETENTION_REJECTED_DAYS`) | Mitgliedschaft mit Dokumenten, Einwilligungen und Verlauf wird gelöscht; ein Konto der Person bleibt |
+| Beendete Mitgliedschaften | **aus** (`MEMBERSHIP_RETENTION_ENDED_DAYS` leer) | nach der gesetzten Frist nach dem Austritt gelöscht, mit Dokumenten |
+
+Die Frist für beendete Mitgliedschaften legt der Verein fest (Vereins-, Steuer- und Datenschutzrecht); bis dahin bleibt alles erhalten.
+Eingeladene Konten, vom Vorstand erfasste Anträge und Konten, die sich schon angemeldet haben, löscht der Befehl nie. Der Scheduler-Cron
+(`php artisan schedule:run`) muss laufen. Die Löschung wird nicht im allgemeinen Protokoll vermerkt (keine Mitgliedschaftsdaten dort).
+
 ## Datenschutz
 
 Personen mit Mitgliedschaft können nicht gelöscht werden. Dokumente enthalten personenbezogene Daten und liegen privat. Der Verlauf enthält Akteur, Zeitpunkt, Notiz und Daten, aber keine
-Zugangsdaten. Aufbewahrungsfristen für Mitgliedschaften legt der Verein fest (Frist und Löschkonzept stehen noch aus).
+Zugangsdaten. Aufbewahrungsfristen siehe oben.
 
 ## Noch offen
 
 - Mitgliedsarten (ordentlich, Förder-, Ehrenmitglied), Beiträge und Probezeit: erst nach Klärung der Regeln.
-- Aufbewahrungs- und Löschfristen für Dokumente und abgelehnte Anträge.
+- Festlegen der Frist für beendete Mitgliedschaften durch den Verein.
 
 Tests: `tests/Feature/Membership/MembershipTest.php`. Migration: `php artisan migrate`.

@@ -32,6 +32,17 @@ return [
     /* Mitgliedschaften: Vorstand per E-Mail über neue (bestätigte) Online-Anträge informieren. */
     'membership' => [
         'notify_board' => (bool) env('MEMBERSHIP_NOTIFY_BOARD', true),
+
+        /*
+         * Aufbewahrung in Tagen (`php artisan membership:prune`, täglich geplant). unverified: Online-Anträge, deren
+         * E-Mail-Adresse nie bestätigt wurde; rejected: abgelehnte Anträge nach der Entscheidung; ended: beendete
+         * Mitgliedschaften nach dem Austritt (leer = nie löschen; die Frist legt der Verein fest).
+         */
+        'retention' => [
+            'unverified_days' => (int) env('MEMBERSHIP_RETENTION_UNVERIFIED_DAYS', 7),
+            'rejected_days' => env('MEMBERSHIP_RETENTION_REJECTED_DAYS', 180),
+            'ended_days' => env('MEMBERSHIP_RETENTION_ENDED_DAYS'),
+        ],
     ],
 
     /*
