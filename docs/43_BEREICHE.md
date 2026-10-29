@@ -31,7 +31,7 @@ bestimmt nur die Darstellung, er ersetzt keine Berechtigungsprüfung. Ein Bereic
 
 | Bereich | Rollen (zusätzlich Vorstandsmitglied) | Seiten heute |
 |---|---|---|
-| Vorstand | Vorstandsmitglied | – |
+| Vorstand | Vorstandsmitglied | Mitgliedschaften |
 | Mitglieder | Vereinsmitglied | – |
 | Teamende | Teamende | – |
 | Schulen | – | – |

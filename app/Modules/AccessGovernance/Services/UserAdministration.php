@@ -11,6 +11,7 @@ use App\Modules\AccessGovernance\Mail\InvitationMail;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
+use App\Modules\Membership\Services\MembershipRoles;
 use App\Modules\People\Models\Person;
 use DomainException;
 use Illuminate\Support\Facades\DB;
@@ -26,6 +27,7 @@ final class UserAdministration
     public function __construct(
         private readonly TwoFactorManager $twoFactor,
         private readonly RoleAssignments $roles,
+        private readonly MembershipRoles $membershipRoles,
     ) {}
 
     /**
@@ -85,6 +87,9 @@ final class UserAdministration
             'password' => Str::random(48),
             'status' => UserStatus::PendingVerification,
         ]);
+
+        // Eine vorhandene Mitgliedschaft der Person gibt dem neuen Konto die Rolle Vereinsmitglied.
+        $this->membershipRoles->syncPerson($person);
 
         $this->invite($user);
         AuditLog::record(AuditEvent::UserCreated, $by, $user, ['aus_person' => true]);

@@ -126,7 +126,7 @@ it('shows areas by role and only when the user may see a page in them', function
         ->and(pnAreaLabels(pnUser(RoleKey::Member)))->toBe([])
         ->and(pnAreaLabels(pnUser(RoleKey::AdministrationStaff)))->toBe(['Geschäftsstelle'])
         ->and(pnAreaLabels(pnUser(RoleKey::Administration)))->toBe(['Geschäftsstelle', 'Admins'])
-        ->and(pnAreaLabels(pnUser(RoleKey::BoardMember)))->toBe(['Geschäftsstelle', 'Admins']);
+        ->and(pnAreaLabels(pnUser(RoleKey::BoardMember)))->toBe(['Vorstand', 'Geschäftsstelle', 'Admins']);
 });
 
 it('ignores roles that have ended', function () {

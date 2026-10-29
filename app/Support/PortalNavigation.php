@@ -53,7 +53,12 @@ final class PortalNavigation
                     ['label' => 'Sitzungen', 'route' => 'account.sessions', 'match' => 'account.sessions*'],
                 ],
             ],
-            PortalAreas::Vorstand->value => ['roles' => [RoleKey::BoardMember], 'pages' => []],
+            PortalAreas::Vorstand->value => [
+                'roles' => [RoleKey::BoardMember],
+                'pages' => [
+                    ['label' => 'Mitgliedschaften', 'route' => 'membership.index', 'match' => 'membership.*', 'can' => 'memberships.view'],
+                ],
+            ],
             PortalAreas::Mitglieder->value => ['roles' => [RoleKey::Member], 'pages' => []],
             PortalAreas::Teamende->value => ['roles' => [RoleKey::Team], 'pages' => []],
             PortalAreas::Schulen->value => ['roles' => [], 'pages' => []],

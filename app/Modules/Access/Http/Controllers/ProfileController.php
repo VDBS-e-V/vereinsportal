@@ -20,7 +20,12 @@ class ProfileController extends Controller
     {
         $user = $this->user($request);
 
-        return view('account.profile', ['user' => $user, 'person' => $user->person]);
+        return view('account.profile', [
+            'user' => $user,
+            'person' => $user->person,
+            // Die eigene Mitgliedschaft (neueste zuerst: laufende oder beantragte vor beendeten)
+            'membership' => $user->person?->memberships()->orderByRaw("status IN ('requested','active') DESC")->orderByDesc('id')->first(),
+        ]);
     }
 
     public function update(Request $request): RedirectResponse

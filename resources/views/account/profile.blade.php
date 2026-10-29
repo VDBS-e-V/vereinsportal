@@ -15,6 +15,17 @@
             <x-vdbs.data.detail-item label="E-Mail-Adresse" href="{{ route('account.email') }}">{{ $user->email }}</x-vdbs.data.detail-item>
         </x-vdbs.data.detail-list>
 
+        @if ($membership)
+            @php $state = $membership->effectiveStatus(); @endphp
+            <h2 style="margin-top:var(--space-8)">Mitgliedschaft</h2>
+            <x-vdbs.data.detail-list layout="inline">
+                <x-vdbs.data.detail-item label="Status">{{ $state->label() }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Antrag vom">{{ $membership->requested_on?->format('d.m.Y') }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Mitglied seit">{{ $membership->starts_on?->format('d.m.Y') }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Letzter Tag der Mitgliedschaft">{{ $membership->ends_on?->format('d.m.Y') }}</x-vdbs.data.detail-item>
+            </x-vdbs.data.detail-list>
+        @endif
+
         <h2 style="margin-top:var(--space-8)">Kontakt und Anschrift</h2>
 
         <x-vdbs.forms.form :action="route('account.profile.update')" method="put" :summary="false">

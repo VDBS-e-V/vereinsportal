@@ -20,6 +20,12 @@ enum Capability: string
     /** Personen anlegen, bearbeiten und (ohne Konto) löschen. */
     case PeopleManage = 'people.manage';
 
+    /** Mitgliedschaften ansehen (Bereich Vorstand). */
+    case MembershipsView = 'memberships.view';
+
+    /** Mitgliedschaften anlegen, aufnehmen, ablehnen, Austritt eintragen. */
+    case MembershipsManage = 'memberships.manage';
+
     /** Design-Bibliothek ansehen (Entwicklungswerkzeug). */
     case DesignView = 'design.view';
 

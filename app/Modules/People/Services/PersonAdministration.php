@@ -54,6 +54,10 @@ final class PersonAdministration
             throw new DomainException('Personen mit Benutzerkonto können nicht gelöscht werden. Sperren Sie stattdessen das Konto.');
         }
 
+        if ($person->memberships()->exists()) {
+            throw new DomainException('Personen mit Mitgliedschaft können nicht gelöscht werden.');
+        }
+
         $person->delete();
 
         AuditLog::record(AuditEvent::PersonDeleted, $by, $person);
