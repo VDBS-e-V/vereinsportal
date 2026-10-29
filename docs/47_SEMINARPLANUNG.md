@@ -76,7 +76,7 @@ Preisstand behalten (Preisstand Excel: Oktober 2025).
 | Einfache Anfahrtspauschale | 10 € | innerhalb Tarifbereich ABC |
 | Erweiterte Anfahrtspauschale | 45 € | außerhalb |
 | Orgapauschale | 20 € pro Tag | |
-| Vereinspauschale | 65 € einmalig | entfällt bei „ohne Verwaltungspauschale“ |
+| Vereinspauschale | 65 € einmalig | entfällt bei „ohne Vereinspauschale (im Excel „Ohne Verw. Pausch“)“ |
 | Honorarsatz bis 2,5 h / bis 4,5 h / bis 6 h / ab 6 h | 100 / 135 / 170 / 200 € | je Teamende pro Tag |
 | Zuschlag Seminarleitung kurz (< 4 h) / lang (≥ 4 h) | 30 / 50 € | |
 | Materialpauschale | 32 € | bis 25 TN |
@@ -87,9 +87,9 @@ Preisstand behalten (Preisstand Excel: Oktober 2025).
 ### 6.2 Ein Rechner für alle Leistungsarten
 
 Entscheidung: Es gibt **einen** Rechner, und zwar die Logik des Blatts „SV-Coaching“. Die vier Leistungsarten sind nur Vorlagen mit anderen Standardwerten.
-Das Honorar folgt immer der Staffel nach Stunden pro Tag, der Materialzuschlag wird nie negativ, und der Schalter „ohne Verwaltungspauschale“ wirkt überall.
+Das Honorar folgt immer der Staffel nach Stunden pro Tag, der Materialzuschlag wird nie negativ, und der Schalter „ohne Vereinspauschale“ wirkt überall.
 
-Eingaben: Tage (bei Coaching/Wahl „Treffen“, im Portal einheitlich „Tage/Treffen“), Teamende, Stunden pro Tag, Gruppengröße, Anfahrt innerhalb ABC ja/nein, ohne Verwaltungspauschale ja/nein,
+Eingaben: Tage (bei Coaching/Wahl „Treffen“, im Portal einheitlich „Tage/Treffen“), Teamende, Stunden pro Tag, Gruppengröße, Anfahrt innerhalb ABC ja/nein, ohne Vereinspauschale ja/nein,
 Anzahl Fahrten Material, Anzahl Pinnwände.
 
 Positionen (Gesamt = Summe, mit Menge × Einzelpreis × Tage):
@@ -98,7 +98,7 @@ Positionen (Gesamt = Summe, mit Menge × Einzelpreis × Tage):
 2. Anfahrtspauschale: Teamende × (10 € oder 45 €) × Tage
 3. Seminarleitung: Anzahl SL × Zuschlag (kurz/lang) × Tage
 4. Orgapauschale: 20 € × Tage
-5. Vereinspauschale: 65 € einmalig, außer „ohne Verwaltungspauschale“
+5. Vereinspauschale: 65 € einmalig, außer „ohne Vereinspauschale“
 6. Materialpauschale: Faktor × 32 € × Tage
 7. Materialzuschlag: ((Gruppe − 25) / 5) × 4 € × Tage, nie unter 0
 8. Material An-/Abfahrt: Fahrten × (35 € oder 105 €) × Tage
@@ -119,7 +119,7 @@ Geklärt (Entscheidung: Rechner „SV-Coaching“ gilt für alle):
 
 1. Honorar nach Staffel der Stunden pro Tag, auch bei SV-Tage (dort stand im Excel fest 200 €). Standardwert Stunden bei SV-Tage: 6 (ein SV-Tag dauert mindestens 6 Stunden), das ergibt wie bisher 200 € je Teamende und Tag.
 2. Materialzuschlag nie unter 0.
-3. Der Schalter „ohne Verwaltungspauschale“ wirkt in allen Leistungsarten (bei SV-Wahl war die Vereinspauschale im Excel fest 1).
+3. Der Schalter „ohne Vereinspauschale“ wirkt in allen Leistungsarten (bei SV-Wahl war die Vereinspauschale im Excel fest 1).
 4. Die Summe umfasst alle Positionen (bei SV-Fahrt lief sie über F4:F14).
 
 Ebenfalls geklärt:
