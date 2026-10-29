@@ -62,7 +62,7 @@ final class PartnerData
             'contacts.*.role' => ['nullable', 'string', 'max:100'],
             'contacts.*.email' => ['nullable', 'string', 'email', 'max:254'],
             'contacts.*.phone' => ['nullable', 'string', 'max:50', 'regex:/^[0-9+()\/\-.\s]+$/'],
-            'primary_contact' => ['nullable', 'integer', 'between:0,'.(PartnerContact::MAX_PER_PARTNER - 1)],
+            'primary_contact' => ['nullable', 'integer', 'min:0'],
             'notes' => ['nullable', 'string', 'max:2000'],
         ];
     }
@@ -84,7 +84,7 @@ final class PartnerData
             'country_code.required' => 'Bitte geben Sie das Land als zweistelligen Code an, z. B. DE.',
             'country_code.size' => 'Bitte geben Sie das Land als zweistelligen Code an, z. B. DE.',
             'country_code.alpha' => 'Bitte geben Sie das Land als zweistelligen Code an, z. B. DE.',
-            'contacts.max' => 'Es sind höchstens '.PartnerContact::MAX_PER_PARTNER.' Ansprechpersonen möglich.',
+            'contacts.max' => 'Es sind höchstens '.PartnerContact::MAX_PER_PARTNER.' Ansprechpersonen je Schule möglich.',
             'contacts.*.name.required_with' => 'Bitte geben Sie den Namen der Ansprechperson ein.',
             'contacts.*.email.email' => 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
             'contacts.*.phone.regex' => 'Bitte geben Sie eine gültige Telefonnummer ein.',
@@ -140,10 +140,11 @@ final class PartnerData
         $clean = static fn (mixed $value): ?string => is_string($value) && trim($value) !== '' ? trim($value) : null;
 
         $rows = [];
-        $primaryIndex = isset($data['primary_contact']) && is_numeric($data['primary_contact']) ? (int) $data['primary_contact'] : 0;
         $primaryKey = null;
+        $chosen = isset($data['primary_contact']) && is_numeric($data['primary_contact']) ? (string) (int) $data['primary_contact'] : null;
 
-        foreach (array_values((array) ($data['contacts'] ?? [])) as $index => $row) {
+        // Die Zeilen sind über ihren Formularindex benannt (nach dem Entfernen von Zeilen mit Lücken)
+        foreach ((array) ($data['contacts'] ?? []) as $index => $row) {
             $name = $clean($row['name'] ?? null);
 
             if ($name === null) {
@@ -158,7 +159,7 @@ final class PartnerData
                 'is_primary' => false,
             ];
 
-            if ($index === $primaryIndex) {
+            if ((string) $index === $chosen) {
                 $primaryKey = array_key_last($rows);
             }
         }
@@ -170,14 +171,10 @@ final class PartnerData
         return $rows;
     }
 
-    /** @return list<array{name: ?string, role: ?string, email: ?string, phone: ?string}> immer MAX_PER_PARTNER Zeilen fürs Formular */
+    /** @return list<array{name: ?string, role: ?string, email: ?string, phone: ?string}> die vorhandenen Ansprechpersonen (Hauptansprechperson zuerst) */
     public static function contactRows(Partner $partner): array
     {
         $rows = $partner->contacts->map(fn (PartnerContact $contact): array => ['name' => $contact->name, 'role' => $contact->role, 'email' => $contact->email, 'phone' => $contact->phone])->all();
-
-        while (count($rows) < PartnerContact::MAX_PER_PARTNER) {
-            $rows[] = ['name' => null, 'role' => null, 'email' => null, 'phone' => null];
-        }
 
         return $rows;
     }

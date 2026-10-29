@@ -529,13 +529,57 @@ it('makes the first contact primary when none is chosen or the chosen row is emp
     }
 });
 
-it('allows at most five contact persons', function () {
-    $contacts = array_map(fn (int $i): array => ['name' => "Person {$i}", 'role' => '', 'email' => '', 'phone' => ''], range(1, 6));
+it('allows any number of contact persons up to a technical limit of one hundred', function () {
+    $contacts = fn (int $count): array => array_map(fn (int $i): array => ['name' => "Person {$i}", 'role' => '', 'email' => '', 'phone' => ''], range(1, $count));
 
-    $this->actingAs(ptUser(RoleKey::Coordination))->post(route('partners.store'), ptForm(['contacts' => $contacts]))->assertSessionHasErrors('contacts');
-    $this->post(route('partners.store'), ptForm(['contacts' => array_slice($contacts, 0, 5)]))->assertSessionHasNoErrors();
+    $this->actingAs(ptUser(RoleKey::Coordination))->post(route('partners.store'), ptForm(['contacts' => $contacts(101)]))->assertSessionHasErrors('contacts');
+    $this->post(route('partners.store'), ptForm(['contacts' => $contacts(12), 'primary_contact' => '7']))->assertSessionHasNoErrors();
 
-    expect(Partner::query()->firstOrFail()->contacts()->count())->toBe(5);
+    $partner = Partner::query()->firstOrFail();
+
+    expect($partner->contacts()->count())->toBe(12)->and($partner->contacts->first()->name)->toBe('Person 8');
+});
+
+it('keeps the row indexes of removed rows and picks the primary contact by its index', function () {
+    $this->actingAs(ptUser(RoleKey::Coordination))->post(route('partners.store'), ptForm([
+        'contacts' => [
+            3 => ['name' => 'Dritte Zeile', 'role' => '', 'email' => '', 'phone' => ''],
+            7 => ['name' => 'Siebte Zeile', 'role' => '', 'email' => '', 'phone' => ''],
+        ],
+        'primary_contact' => '7',
+    ]))->assertSessionHasNoErrors();
+
+    $contacts = Partner::query()->firstOrFail()->contacts;
+
+    expect($contacts->pluck('name')->all())->toBe(['Siebte Zeile', 'Dritte Zeile'])->and($contacts->first()->is_primary)->toBeTrue();
+});
+
+it('renders the contact rows with an add button, a template and two spare rows', function () {
+    $partner = Partner::factory()->create(['name' => 'Schule']);
+    $partner->contacts()->create(['name' => 'Erste Person', 'is_primary' => true]);
+    $this->actingAs(ptUser(RoleKey::Coordination));
+
+    $html = $this->get(route('partners.edit', $partner))->assertOk()->getContent();
+
+    expect($html)
+        ->toContain('data-vdbs-repeater')
+        ->toContain('data-vdbs-repeater-add')
+        ->toContain('Weitere Ansprechperson hinzufügen')
+        ->toContain('<template data-vdbs-repeater-template>')
+        ->toContain('contacts[__INDEX__][name]')
+        ->toContain('data-vdbs-repeater-next="3"')
+        ->and(substr_count($html, 'data-vdbs-repeater-row'))->toBe(4)
+        ->and($html)->toContain('Erste Person');
+
+    $this->get(route('partners.create'))->assertSee('data-vdbs-repeater-next="2"', false);
+});
+
+it('shows entered contact rows again after a failed validation', function () {
+    $this->actingAs(ptUser(RoleKey::Coordination))->from(route('partners.create'))
+        ->post(route('partners.store'), ['name' => '', 'status' => 'active', 'country_code' => 'DE', 'contacts' => [5 => ['name' => 'Alte Eingabe', 'role' => 'Sekretariat', 'email' => '', 'phone' => '']], 'primary_contact' => '5'])
+        ->assertRedirect(route('partners.create'));
+
+    $this->get(route('partners.create'))->assertSee('Alte Eingabe')->assertSee('Sekretariat')->assertSee('data-vdbs-repeater-next="8"', false);
 });
 
 it('replaces, removes and keeps the person link of contact persons on update', function () {
@@ -593,7 +637,7 @@ it('shows the primary contact with a count in the list and finds schools by any 
     $this->get(route('partners.index', ['q' => 'Nebenmann']))->assertSee('Kontaktschule')->assertDontSee('Andere Schule');
 });
 
-it('exports and imports several contact persons in column groups', function () {
+it('exports and imports several contact persons in column groups, without a fixed maximum', function () {
     $partner = Partner::factory()->create(['name' => 'Kontaktschule', 'city' => 'Leipzig']);
     foreach (['Erste', 'Zweite', 'Dritte'] as $i => $name) {
         $partner->contacts()->create(['name' => $name, 'role' => 'Rolle '.$name, 'email' => strtolower($name).'@beispiel.example', 'is_primary' => $i === 0]);
@@ -603,6 +647,11 @@ it('exports and imports several contact persons in column groups', function () {
     $export = $this->get(route('partners.export'))->streamedContent();
     expect($export)->toContain('Ansprechperson 3;Funktion 3;E-Mail 3;Telefon 3')->toContain('Dritte;Rolle Dritte;dritte@beispiel.example');
 
+    Partner::query()->delete();
+
+    $many = 'Name;Ort;Ansprechperson 7;Ansprechperson 12'."\n".'Viele Kontakte;Bonn;Person Sieben;Person Zwölf'."\n";
+    $this->post(route('partners.import.store'), ['file' => ptCsv($many)])->assertSessionHas('success');
+    expect(Partner::query()->where('name', 'Viele Kontakte')->firstOrFail()->contacts->pluck('name')->sort()->values()->all())->toBe(['Person Sieben', 'Person Zwölf']);
     Partner::query()->delete();
 
     $csv = "Name;Ort;Ansprechperson;Funktion;E-Mail;Ansprechperson 2;E-Mail 2;Ansprechperson 3;Funktion 3\nNeue Schule;Berlin;Frau Eins;Leitung;eins@beispiel.example;Herr Zwei;zwei@beispiel.example;Dritte Person;Bibliothek\n";

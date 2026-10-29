@@ -36,20 +36,34 @@
             </x-vdbs.forms.form-grid>
         </x-vdbs.forms.form-section>
 
-        <x-vdbs.forms.form-section title="Ansprechpersonen" description="Bis zu {{ \App\Modules\Partners\Models\PartnerContact::MAX_PER_PARTNER }} Personen. Leere Zeilen werden ignoriert; zum Entfernen die Zeile leeren. Die Hauptansprechperson wählen Sie rechts aus.">
-            @php $contactRows = old('contacts', $values['contacts'] ?? []); $primary = (int) old('primary_contact', $values['primary_contact'] ?? 0); @endphp
-            @foreach (range(0, \App\Modules\Partners\Models\PartnerContact::MAX_PER_PARTNER - 1) as $i)
-                <fieldset style="border:0;padding:0;margin:0 0 var(--space-5)">
-                    <legend class="vdbs-sr-only">Ansprechperson {{ $i + 1 }}</legend>
-                    <x-vdbs.forms.form-grid :columns="2">
-                        <x-vdbs.forms.input :id="'contact-'.$i.'-name'" :name="'contacts['.$i.'][name]'" label="Name ({{ $i + 1 }})" :optional="true" :value="$contactRows[$i]['name'] ?? null" />
-                        <x-vdbs.forms.input :id="'contact-'.$i.'-role'" :name="'contacts['.$i.'][role]'" label="Funktion" :optional="true" :value="$contactRows[$i]['role'] ?? null" hint="z. B. Schulleitung, Sekretariat, Bibliothek" />
-                        <x-vdbs.forms.input :id="'contact-'.$i.'-email'" :name="'contacts['.$i.'][email]'" label="E-Mail-Adresse" type="email" :optional="true" :value="$contactRows[$i]['email'] ?? null" />
-                        <x-vdbs.forms.input :id="'contact-'.$i.'-phone'" :name="'contacts['.$i.'][phone]'" label="Telefon" type="tel" :optional="true" :value="$contactRows[$i]['phone'] ?? null" />
-                    </x-vdbs.forms.form-grid>
-                    <label style="display:inline-flex;gap:var(--space-2);align-items:center"><input type="radio" name="primary_contact" value="{{ $i }}" @checked($primary === $i)> Hauptansprechperson</label>
-                </fieldset>
-            @endforeach
+        <x-vdbs.forms.form-section title="Ansprechpersonen" description="Beliebig viele Personen. Wählen Sie eine als Hauptansprechperson. Leere Zeilen werden ignoriert; zum Entfernen die Zeile leeren oder entfernen.">
+            @php
+                $contactRows = array_values((array) old('contacts', $values['contacts'] ?? []));
+                $contactKeys = array_keys((array) old('contacts', $values['contacts'] ?? []));
+                $primary = (string) old('primary_contact', $values['primary_contact'] ?? 0);
+                // Ohne JavaScript immer zwei leere Zeilen mehr, damit man auch dann weitere Personen anlegen kann
+                $rows = [];
+                foreach ($contactRows as $n => $row) { $rows[$contactKeys[$n]] = $row; }
+                $next = $rows === [] ? 0 : (max(array_map('intval', array_keys($rows))) + 1);
+                foreach (range(0, 1) as $extra) { $rows[$next + $extra] = []; }
+                $nextIndex = max(array_map('intval', array_keys($rows))) + 1;
+            @endphp
+
+            <div data-vdbs-repeater data-vdbs-repeater-next="{{ $nextIndex }}">
+                <div data-vdbs-repeater-items>
+                    @foreach ($rows as $i => $row)
+                        <x-partners.contact-row :i="$i" :row="$row" :primary="(string) $i === $primary || ($primary === '' && $loop->first)" />
+                    @endforeach
+                </div>
+
+                <template data-vdbs-repeater-template>
+                    <x-partners.contact-row i="__INDEX__" />
+                </template>
+
+                <button type="button" class="vdbs-btn vdbs-btn--secondary vdbs-btn--shape-outline vdbs-btn--size-m vdbs-js-only" data-vdbs-repeater-add>
+                    <x-vdbs.icon name="plus" :size="18" /> Weitere Ansprechperson hinzufügen
+                </button>
+            </div>
         </x-vdbs.forms.form-section>
 
         <x-vdbs.forms.form-section title="Notizen">

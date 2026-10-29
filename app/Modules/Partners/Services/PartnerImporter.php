@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Validator;
  * CSV-Import von Schulen. Alles oder nichts: Enthält die Datei fehlerhafte Zeilen, wird nichts angelegt und jede Zeile mit
  * Fehler gemeldet. Schulen, die es mit gleichem Namen am selben Ort schon gibt, werden übersprungen (nicht überschrieben).
  * Die interne Kennung (Bundesland-Kürzel + Schulnummer, z. B. BE/08K06) muss eindeutig sein. Ansprechpersonen stehen in Spaltengruppen
- * (Ansprechperson, Funktion, E-Mail, Telefon; weitere mit Zusatz „2“ bis „5“). Erkannt werden Semikolon und Komma als Trennzeichen,
+ * (Ansprechperson, Funktion, E-Mail, Telefon; weitere mit Zusatz „2“, „3“ usw.). Erkannt werden Semikolon und Komma als Trennzeichen,
  * UTF-8 (mit oder ohne BOM) und Windows-1252.
  */
 final class PartnerImporter
@@ -245,7 +245,7 @@ final class PartnerImporter
             return self::HEADERS[$title];
         }
 
-        if (preg_match('/^(.+?)(?:\s+([1-5]))?$/u', $title, $matches) === 1 && isset(self::CONTACT_PARTS[$matches[1]])) {
+        if (preg_match('/^(.+?)(?:\s+([1-9][0-9]{0,2}))?$/u', $title, $matches) === 1 && isset(self::CONTACT_PARTS[$matches[1]]) && (int) ($matches[2] ?? 1) <= PartnerContact::MAX_PER_PARTNER) {
             return 'contact'.($matches[2] ?? '1').'_'.self::CONTACT_PARTS[$matches[1]];
         }
 

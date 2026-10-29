@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /** Modul: Partners. Eine Ansprechperson einer Schule (frei erfasst, optional mit einer bekannten Person verknüpft). */
 class PartnerContact extends Model
 {
-    public const MAX_PER_PARTNER = 5;
+    /** Technische Obergrenze (Schutz vor Missbrauch); fachlich gibt es keine feste Zahl von Ansprechpersonen. */
+    public const MAX_PER_PARTNER = 100;
 
     protected $fillable = ['partner_id', 'person_id', 'name', 'role', 'email', 'phone', 'is_primary'];
 

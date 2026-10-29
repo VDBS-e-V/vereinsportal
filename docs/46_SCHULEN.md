@@ -22,12 +22,12 @@ eindeutig (dieselbe Schulnummer darf in einem anderen Bundesland vorkommen). Die
 | Name (Pflicht), Träger/offizieller Name | Spalten `name`, `legal_name` | Name + Ort sind eindeutig (ohne Groß-/Kleinschreibung) |
 | Bundesland, Schulnummer (→ interne Kennung), Schulart, Schülerzahl | JSON `attributes` | Schularten: `SchoolType`, Bundesländer: `FederalState` |
 | Anschrift, Land | Spalten | Land zweistellig (Standard DE) |
-| **Ansprechpersonen** (bis zu 5: Name, Funktion, E-Mail, Telefon) | Tabelle `partner_contacts` | eine ist die **Hauptansprechperson**; optional mit einer bekannten Person verknüpft (`person_id`, noch ohne Oberfläche, bleibt beim Bearbeiten erhalten) |
+| **Ansprechpersonen** (beliebig viele, technische Obergrenze 100: Name, Funktion, E-Mail, Telefon) | Tabelle `partner_contacts` | eine ist die **Hauptansprechperson**; optional mit einer bekannten Person verknüpft (`person_id`, noch ohne Oberfläche, bleibt beim Bearbeiten erhalten) |
 | Status | `active` / `inactive` | statt Löschen: auf „Inaktiv“ setzen |
 | Notiz | `notes` | bis 2000 Zeichen |
 
 Die bisherigen Einzelfelder (`contact_*`) wurden von der Migration `2026_11_03_000001_create_partner_contacts_table` als Hauptansprechperson
-übernommen und entfernt. Im Formular stehen fünf Zeilen; leere Zeilen werden ignoriert, zum Entfernen die Zeile leeren.
+übernommen und entfernt. Im Formular stehen die vorhandenen Zeilen plus zwei freie; mit **„Weitere Ansprechperson hinzufügen“** (`resources/js/repeater.js`) kommen beliebig viele hinzu, „Zeile entfernen“ löscht eine Zeile. Ohne JavaScript gilt: leere Zeilen werden ignoriert, zum Entfernen die Zeile leeren. Die Hauptansprechperson wird per Auswahlknopf bestimmt.
 
 ## Seiten
 
@@ -41,7 +41,7 @@ Die bisherigen Einzelfelder (`contact_*`) wurden von der Migration `2026_11_03_0
 
 Unter „CSV importieren“ mit Vorlage zum Download. Spalten: Name (Pflicht), Träger, **Interne Kennung** (BE/08K06; füllt Bundesland und Schulnummer), Schulart, Bundesland, Schulnummer, Straße,
 Hausnummer, PLZ, Ort, Ansprechperson, Funktion, E-Mail, Telefon, Schülerzahl, Status, Notiz (Überschriften auch als Synonyme, z. B. `Schule`,
-`Strasse`, `Postleitzahl`). **Weitere Ansprechpersonen** stehen in Spaltengruppen mit Zusatz „2“ bis „5“ (`Ansprechperson 2`, `Funktion 2`, `E-Mail 2`, `Telefon 2`); der Export schreibt so viele Gruppen, wie die Schulen Personen haben (mindestens 2).
+`Strasse`, `Postleitzahl`). **Weitere Ansprechpersonen** stehen in Spaltengruppen mit Zusatz „2“ bis „100“ (`Ansprechperson 2`, `Funktion 2`, `E-Mail 2`, `Telefon 2`); der Export schreibt so viele Gruppen, wie die Schulen Personen haben (mindestens 2).
 
 - **Alles oder nichts:** Enthält die Datei fehlerhafte Zeilen, wird nichts angelegt; jede fehlerhafte Zeile wird mit Nummer genannt (die ersten 50 werden angezeigt).
 - Schulart und Bundesland werden als Bezeichnung oder Schlüssel erkannt („Gymnasium“, „Sachsen“, „SN“); Status `aktiv`/`inaktiv` (leer = aktiv).

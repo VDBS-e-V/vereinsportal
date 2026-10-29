@@ -6,3 +6,4 @@ import './menu';
 import './navigation';
 import './feedback';
 import './overlays';
+import './repeater';
