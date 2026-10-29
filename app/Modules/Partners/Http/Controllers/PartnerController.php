@@ -296,7 +296,7 @@ class PartnerController extends Controller
     {
         return [
             'partner' => $partner,
-            'values' => $partner !== null ? PartnerData::fromPartner($partner) : ['status' => PartnerStatus::Active->value, 'country_code' => 'DE'],
+            'values' => $partner !== null ? PartnerData::fromPartner($partner) : ['status' => PartnerStatus::Active->value],
             'typeOptions' => SchoolType::options(),
             'stateOptions' => FederalState::options(),
             'statusOptions' => collect(PartnerStatus::cases())->mapWithKeys(fn (PartnerStatus $case): array => [$case->value => $case->label()])->all(),

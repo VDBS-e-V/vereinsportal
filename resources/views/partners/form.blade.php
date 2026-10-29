@@ -32,7 +32,6 @@
                 <x-vdbs.forms.input name="house_number" label="Hausnummer" :optional="true" :value="$values['house_number'] ?? null" />
                 <x-vdbs.forms.input name="postal_code" label="Postleitzahl" :optional="true" :value="$values['postal_code'] ?? null" />
                 <x-vdbs.forms.input name="city" label="Ort" :optional="true" :value="$values['city'] ?? null" />
-                <x-vdbs.forms.input name="country_code" label="Land (Code)" :required="true" maxlength="2" :value="$values['country_code'] ?? 'DE'" hint="Zweistelliger Code, z. B. DE, AT oder CH" />
             </x-vdbs.forms.form-grid>
         </x-vdbs.forms.form-section>
 

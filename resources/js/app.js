@@ -7,3 +7,4 @@ import './navigation';
 import './feedback';
 import './overlays';
 import './repeater';
+import './copy';

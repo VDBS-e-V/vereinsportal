@@ -1,0 +1,27 @@
+/* Text zum Kopieren per Klick (Anschrift) und Telefonnummer mit Menü */
+
+.vdbs-js .vdbs-no-js { display: none; }
+
+.vdbs-copy {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-link);
+    font: inherit;
+    text-align: left;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+}
+
+.vdbs-copy:hover { color: var(--text-link-hover); }
+.vdbs-copy.is-copied::after,
+.vdbs-phone-link .vdbs-dropdown__trigger.is-copied::after { content: attr(data-vdbs-copy-message); color: var(--text-muted); font-size: var(--font-size-small); text-decoration: none; }
+
+.vdbs-phone-link .vdbs-dropdown__trigger { min-height: 0; padding: 0; color: var(--text-link); font-weight: var(--font-weight-regular, 400); }
+.vdbs-phone-link .vdbs-dropdown__trigger:hover { background: transparent; color: var(--text-link-hover); }
+.vdbs-phone-link .vdbs-dropdown__menu { z-index: var(--z-dropdown); }

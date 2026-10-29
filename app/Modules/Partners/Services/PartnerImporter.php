@@ -285,8 +285,6 @@ final class PartnerImporter
 
         $row['status'] = PartnerStatus::fromInput($row['status'] ?? '')?->value ?? $row['status'];
 
-        $row['country_code'] = 'DE';
-
         $contacts = [];
 
         foreach (range(1, PartnerContact::MAX_PER_PARTNER) as $group) {

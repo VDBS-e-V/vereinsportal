@@ -56,7 +56,6 @@ final class PartnerData
             'house_number' => ['nullable', 'string', 'max:30'],
             'postal_code' => ['nullable', 'string', 'max:20'],
             'city' => ['nullable', 'string', 'max:120'],
-            'country_code' => ['required', 'string', 'size:2', 'alpha'],
             'email' => ['nullable', 'string', 'email', 'max:254'],
             'phone' => ['nullable', 'string', 'max:50', 'regex:/^[0-9+()\/\-.\s]+$/'],
             'website' => ['nullable', 'string', 'url:http,https', 'max:255'],
@@ -84,9 +83,6 @@ final class PartnerData
             'student_count.max' => 'Bitte prüfen Sie die Schülerzahl.',
             'status.required' => 'Bitte wählen Sie den Status.',
             'status.enum' => 'Bitte wählen Sie einen gültigen Status.',
-            'country_code.required' => 'Bitte geben Sie das Land als zweistelligen Code an, z. B. DE.',
-            'country_code.size' => 'Bitte geben Sie das Land als zweistelligen Code an, z. B. DE.',
-            'country_code.alpha' => 'Bitte geben Sie das Land als zweistelligen Code an, z. B. DE.',
             'email.email' => 'Bitte geben Sie eine gültige E-Mail-Adresse der Schule ein.',
             'phone.regex' => 'Bitte geben Sie eine gültige Telefonnummer der Schule ein.',
             'website.url' => 'Bitte geben Sie die Webseite mit https:// an, z. B. https://www.beispiel.example.',
@@ -114,7 +110,6 @@ final class PartnerData
         }
 
         $columns['email'] = $columns['email'] !== null ? mb_strtolower($columns['email']) : null;
-        $columns['country_code'] = strtoupper((string) ($clean($data['country_code'] ?? null) ?? 'DE'));
         $columns['status'] = (string) ($data['status'] ?? PartnerStatus::Active->value);
 
         $attributes = [];
@@ -203,7 +198,6 @@ final class PartnerData
             'house_number' => $partner->house_number,
             'postal_code' => $partner->postal_code,
             'city' => $partner->city,
-            'country_code' => $partner->country_code,
             'email' => $partner->email,
             'phone' => $partner->phone,
             'website' => $partner->website,

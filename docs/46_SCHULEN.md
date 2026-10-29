@@ -21,9 +21,9 @@ eindeutig (dieselbe Schulnummer darf in einem anderen Bundesland vorkommen). Die
 |---|---|---|
 | Name (Pflicht), Träger/offizieller Name | Spalten `name`, `legal_name` | Name + Ort sind eindeutig (ohne Groß-/Kleinschreibung) |
 | Bundesland, Schulnummer (→ interne Kennung), Schulart, Schülerzahl | JSON `attributes` | Schularten: `SchoolType`, Bundesländer: `FederalState` |
-| Anschrift, Land | Spalten | Land zweistellig (Standard DE) |
+| Anschrift | Spalten | Das Land wird nicht abgefragt (gespeichert ist immer DE). In der Ansicht kopiert ein Klick auf die Anschrift sie in die Zwischenablage |
 | **Ansprechpersonen** (beliebig viele, technische Obergrenze 100: Name, Funktion, E-Mail, Telefon) | Tabelle `partner_contacts` | eine ist die **Hauptansprechperson**; optional mit einer bekannten Person verknüpft (`person_id`, noch ohne Oberfläche, bleibt beim Bearbeiten erhalten) |
-| E-Mail, Telefon, Webseite der Schule | Spalten `email`, `phone`, `website` | Webseite mit `https://` |
+| E-Mail, Telefon, Webseite der Schule | Spalten `email`, `phone`, `website` | Webseite mit `https://`. Telefonnummern (auch der Ansprechpersonen) öffnen in der Ansicht ein Menü: Anrufen (`tel:`) oder Nummer kopieren (`resources/js/copy.js`, Komponenten `vdbs.data.phone-link` / `copy-text`) |
 | Status | `to_approach` Soll angesprochen werden, `planned` In Planung, `discussion` In Vorbesprechung, `active` Aktiv, `paused` Pausiert, `past` Vergangen | statt Löschen: auf „Pausiert“ oder „Vergangen“ setzen; der frühere Status „inaktiv“ wurde zu „Pausiert“ migriert |
 | Notiz | `notes` | bis 2000 Zeichen |
 

@@ -26,10 +26,9 @@
                 <x-vdbs.data.detail-item label="Interne Kennung">{{ $internalId }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Schulnummer">{{ $schoolNumber }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Schülerzahl">{{ $studentCount }}</x-vdbs.data.detail-item>
-                <x-vdbs.data.detail-item label="Anschrift">{{ $address }}</x-vdbs.data.detail-item>
-                <x-vdbs.data.detail-item label="Land">{{ $partner->country_code }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Anschrift">@if ($address !== '')<x-vdbs.data.copy-text :text="$address" />@endif</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="E-Mail">@if ($partner->email)<a href="mailto:{{ $partner->email }}">{{ $partner->email }}</a>@endif</x-vdbs.data.detail-item>
-                <x-vdbs.data.detail-item label="Telefon">{{ $partner->phone }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Telefon">@if ($partner->phone)<x-vdbs.data.phone-link :number="$partner->phone" />@endif</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Webseite">@if ($partner->website)<a href="{{ $partner->website }}" target="_blank" rel="noopener noreferrer">{{ $partner->website }}</a>@endif</x-vdbs.data.detail-item>
             </x-vdbs.data.detail-list>
         </section>
@@ -45,7 +44,7 @@
                             <td>{{ $contact->name }} @if ($contact->is_primary) <x-vdbs.data.badge tone="success">Haupt</x-vdbs.data.badge> @endif</td>
                             <td>{{ $contact->role ?? '–' }}</td>
                             <td>@if ($contact->email)<a href="mailto:{{ $contact->email }}">{{ $contact->email }}</a>@else – @endif</td>
-                            <td>{{ $contact->phone ?? '–' }}</td>
+                            <td>@if ($contact->phone)<x-vdbs.data.phone-link :number="$contact->phone" />@else – @endif</td>
                         </tr>
                     @endforeach
                 </x-vdbs.data.table>

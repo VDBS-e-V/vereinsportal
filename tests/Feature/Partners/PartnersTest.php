@@ -49,7 +49,6 @@ function ptForm(array $overrides = []): array
         'house_number' => '1',
         'postal_code' => '04109',
         'city' => 'Leipzig',
-        'country_code' => 'de',
         'contacts' => [
             ['name' => 'Frau Beispiel', 'role' => 'Schulleitung', 'email' => 'Sekretariat@Beispiel.example', 'phone' => '0341 123456'],
             ['name' => 'Herr Muster', 'role' => 'Bibliothek', 'email' => '', 'phone' => ''],
@@ -154,7 +153,7 @@ it('creates a school with normalized values and the creator', function () {
 });
 
 it('stores empty optional values as null', function () {
-    $this->actingAs(ptUser(RoleKey::Coordination))->post(route('partners.store'), ['name' => 'Minimalschule', 'status' => 'active', 'country_code' => 'DE'])->assertSessionHasNoErrors();
+    $this->actingAs(ptUser(RoleKey::Coordination))->post(route('partners.store'), ['name' => 'Minimalschule', 'status' => 'active'])->assertSessionHasNoErrors();
 
     $partner = Partner::query()->firstOrFail();
 
@@ -164,7 +163,7 @@ it('stores empty optional values as null', function () {
 it('validates the school form', function () {
     $this->actingAs(ptUser(RoleKey::Coordination));
 
-    $this->post(route('partners.store'), [])->assertSessionHasErrors(['name', 'status', 'country_code']);
+    $this->post(route('partners.store'), [])->assertSessionHasErrors(['name', 'status']);
     $this->post(route('partners.store'), ptForm(['school_type' => 'unsinn']))->assertSessionHasErrors('school_type');
     $this->post(route('partners.store'), ptForm(['federal_state' => 'XX']))->assertSessionHasErrors('federal_state');
     $this->post(route('partners.store'), ptForm(['student_count' => '-3']))->assertSessionHasErrors('student_count');
@@ -175,7 +174,6 @@ it('validates the school form', function () {
     $this->post(route('partners.store'), ptForm(['school_number' => 'a b']))->assertSessionHasErrors('school_number');
     $this->post(route('partners.store'), ptForm(['school_number' => 'SN/12345']))->assertSessionHasErrors('school_number');
     $this->post(route('partners.store'), ptForm(['federal_state' => '']))->assertSessionHasErrors('federal_state');
-    $this->post(route('partners.store'), ptForm(['country_code' => 'Deutschland']))->assertSessionHasErrors('country_code');
     $this->post(route('partners.store'), ptForm(['status' => 'weg']))->assertSessionHasErrors('status');
 
     expect(Partner::query()->count())->toBe(0);
@@ -209,15 +207,15 @@ it('edits a school and records only the changed field names in the log', functio
 });
 
 it('does not log an update without changes and lets a school keep its own name', function () {
-    $partner = Partner::factory()->create(['name' => 'Schule', 'city' => 'Leipzig', 'country_code' => 'DE']);
+    $partner = Partner::factory()->create(['name' => 'Schule', 'city' => 'Leipzig']);
     $this->actingAs(ptUser(RoleKey::Coordination));
 
-    $this->put(route('partners.update', $partner), ['name' => 'Schule', 'city' => 'Leipzig', 'status' => 'active', 'country_code' => 'DE', 'school_type' => 'gymnasium', 'federal_state' => 'SN'])->assertSessionHasNoErrors();
+    $this->put(route('partners.update', $partner), ['name' => 'Schule', 'city' => 'Leipzig', 'status' => 'active', 'school_type' => 'gymnasium', 'federal_state' => 'SN'])->assertSessionHasNoErrors();
 
     expect(AuditEntry::query()->where('event', 'partner.updated')->count())->toBe(0);
 
     $other = Partner::factory()->create(['name' => 'Andere', 'city' => 'Leipzig']);
-    $this->put(route('partners.update', $other), ['name' => 'Schule', 'city' => 'Leipzig', 'status' => 'active', 'country_code' => 'DE'])->assertSessionHasErrors('name');
+    $this->put(route('partners.update', $other), ['name' => 'Schule', 'city' => 'Leipzig', 'status' => 'active'])->assertSessionHasErrors('name');
 });
 
 it('deactivates a school through the status', function () {
@@ -444,7 +442,7 @@ it('keeps the internal id unique across schools and lets the same number exist i
     $this->post(route('partners.store'), ptForm(['name' => 'Dritte Schule', 'city' => 'Hamburg', 'federal_state' => 'HH', 'school_number' => '08K06']))->assertSessionHasNoErrors();
 
     $own = Partner::query()->where('name', 'Erste Schule')->firstOrFail();
-    $this->put(route('partners.update', $own), ['name' => 'Erste Schule', 'status' => 'active', 'country_code' => 'DE', 'federal_state' => 'BE', 'school_number' => '08K06', 'city' => $own->city])->assertSessionHasNoErrors();
+    $this->put(route('partners.update', $own), ['name' => 'Erste Schule', 'status' => 'active', 'federal_state' => 'BE', 'school_number' => '08K06', 'city' => $own->city])->assertSessionHasNoErrors();
 });
 
 it('finds schools by internal id, by number and sorts by it', function () {
@@ -607,7 +605,7 @@ it('reads german status names in the import', function () {
 
 it('shows entered contact rows again after a failed validation', function () {
     $this->actingAs(ptUser(RoleKey::Coordination))->from(route('partners.create'))
-        ->post(route('partners.store'), ['name' => '', 'status' => 'active', 'country_code' => 'DE', 'contacts' => [5 => ['name' => 'Alte Eingabe', 'role' => 'Sekretariat', 'email' => '', 'phone' => '']], 'primary_contact' => '5'])
+        ->post(route('partners.store'), ['name' => '', 'status' => 'active', 'contacts' => [5 => ['name' => 'Alte Eingabe', 'role' => 'Sekretariat', 'email' => '', 'phone' => '']], 'primary_contact' => '5'])
         ->assertRedirect(route('partners.create'));
 
     $this->get(route('partners.create'))->assertSee('Alte Eingabe')->assertSee('Sekretariat')->assertSee('data-vdbs-repeater-next="8"', false);
@@ -624,7 +622,7 @@ it('replaces, removes and keeps the person link of contact persons on update', f
     $this->get(route('partners.edit', $partner))->assertOk()->assertSee('Frau Leitung')->assertSee('Alter Kontakt')->assertSee('Hauptansprechperson');
 
     $this->put(route('partners.update', $partner), [
-        'name' => 'Schule', 'city' => 'Leipzig', 'status' => 'active', 'country_code' => 'DE', 'school_type' => 'gymnasium', 'federal_state' => 'SN',
+        'name' => 'Schule', 'city' => 'Leipzig', 'status' => 'active', 'school_type' => 'gymnasium', 'federal_state' => 'SN',
         'contacts' => [
             ['name' => 'Frau Leitung', 'role' => 'Schulleitung', 'email' => 'leitung@beispiel.example', 'phone' => ''],
             ['name' => 'Neuer Kontakt', 'role' => '', 'email' => '', 'phone' => ''],
@@ -639,7 +637,7 @@ it('replaces, removes and keeps the person link of contact persons on update', f
         ->and($contacts->first()->role)->toBe('Schulleitung')
         ->and(AuditEntry::query()->where('event', 'partner.updated')->firstOrFail()->context['felder'])->toBe(['ansprechpersonen']);
 
-    $this->put(route('partners.update', $partner), ['name' => 'Schule', 'city' => 'Leipzig', 'status' => 'active', 'country_code' => 'DE'])->assertSessionHasNoErrors();
+    $this->put(route('partners.update', $partner), ['name' => 'Schule', 'city' => 'Leipzig', 'status' => 'active'])->assertSessionHasNoErrors();
 
     expect($partner->fresh()->contacts()->count())->toBe(0);
 });
@@ -649,7 +647,7 @@ it('does not log an update when the contacts stay the same', function () {
     $partner->contacts()->create(['name' => 'Frau Leitung', 'role' => null, 'email' => null, 'phone' => null, 'is_primary' => true]);
 
     $this->actingAs(ptUser(RoleKey::Coordination))->put(route('partners.update', $partner), [
-        'name' => 'Schule', 'city' => 'Leipzig', 'status' => 'active', 'country_code' => 'DE', 'school_type' => 'gymnasium', 'federal_state' => 'SN',
+        'name' => 'Schule', 'city' => 'Leipzig', 'status' => 'active', 'school_type' => 'gymnasium', 'federal_state' => 'SN',
         'contacts' => [['name' => 'Frau Leitung']], 'primary_contact' => '0',
     ])->assertSessionHasNoErrors();
 
@@ -700,4 +698,28 @@ it('reports a contact without a name in the import', function () {
         ->assertSessionHas('import_error_count', 1);
 
     expect(session('import_errors')[0])->toContain('Zeile 2')->toContain('Namen der Ansprechperson');
+});
+
+it('has no country field for schools and keeps DE as the stored country', function () {
+    $this->actingAs(ptUser(RoleKey::Coordination));
+    $this->get(route('partners.create'))->assertOk()->assertDontSee('Land (Code)');
+    $this->post(route('partners.store'), ptForm())->assertSessionHasNoErrors();
+
+    $partner = Partner::query()->firstOrFail();
+    expect($partner->country_code)->toBe('DE');
+    $this->get(route('partners.show', $partner))->assertDontSee('Land');
+});
+
+it('shows phone numbers with a call and copy menu and the address as a copy button', function () {
+    $partner = Partner::factory()->create(['name' => 'Schule', 'street' => 'Schulstraße', 'house_number' => '1', 'postal_code' => '04109', 'city' => 'Leipzig', 'phone' => '030 123 456']);
+    $partner->contacts()->create(['name' => 'Frau Beispiel', 'phone' => '0341 99', 'is_primary' => true]);
+
+    $html = $this->actingAs(ptUser(RoleKey::Coordination))->get(route('partners.show', $partner))->assertOk()->getContent();
+
+    expect($html)
+        ->toContain('href="tel:030123456"')
+        ->toContain('href="tel:034199"')
+        ->toContain('data-vdbs-copy="030 123 456"')
+        ->toContain('Anrufen')
+        ->toContain('data-vdbs-copy="Schulstraße 1, 04109 Leipzig"');
 });
