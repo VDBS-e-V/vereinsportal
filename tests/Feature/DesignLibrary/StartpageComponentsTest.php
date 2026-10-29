@@ -248,3 +248,61 @@ it('renders a tooltip with a role and the chosen placement', function () {
 
     expect($html)->toContain('vdbs-tooltip--bottom')->toContain('role="tooltip"')->toContain('data-vdbs-tooltip')->toContain('Hilfe');
 });
+
+it('renders the toolbar as a search form with filters, tags and count', function () {
+    $html = Blade::render('<x-vdbs.data.toolbar label="Nutzer filtern" count="3 Nutzer" reset-href="/n" :active="[[\'label\' => \'Rolle: Vorstand\', \'href\' => \'/n?x=1\']]"><span>Filterfeld</span><x-slot:actions>Anlegen</x-slot:actions></x-vdbs.data.toolbar>');
+
+    expect($html)
+        ->toContain('role="search"')
+        ->toContain('method="get"')
+        ->toContain('aria-label="Nutzer filtern"')
+        ->toContain('name="q"')
+        ->toContain('vdbs-toolbar__filters')
+        ->toContain('vdbs-toolbar__actions')
+        ->toContain('3 Nutzer')
+        ->toContain('aria-label="Filter entfernen: Rolle: Vorstand"')
+        ->toContain('Zurücksetzen');
+});
+
+it('shows the reset link and the meta row only with active filters or a count', function () {
+    $html = Blade::render('<x-vdbs.data.toolbar reset-href="/n" />');
+
+    expect($html)->not->toContain('Zurücksetzen')->not->toContain('vdbs-toolbar__meta');
+});
+
+it('renders a detail list with links and a dash for empty values', function () {
+    $html = Blade::render('<x-vdbs.data.detail-list :columns="2" layout="inline"><x-vdbs.data.detail-item label="E-Mail" href="mailto:a@b.de">a@b.de</x-vdbs.data.detail-item><x-vdbs.data.detail-item label="Telefon"></x-vdbs.data.detail-item></x-vdbs.data.detail-list>');
+
+    expect($html)
+        ->toContain('<dl')
+        ->toContain('vdbs-detail-list--2')
+        ->toContain('vdbs-detail-list--inline')
+        ->toContain('href="mailto:a@b.de"')
+        ->toContain('nicht angegeben');
+});
+
+it('renders a stat with the trend as text, tone and optional link', function () {
+    $html = Blade::render('<x-vdbs.data.stat label="Aktive Nutzer" value="128" tone="success" trend="up" trend-label="+12 seit letztem Monat" href="/n" hint="Stand heute" />');
+
+    expect($html)
+        ->toContain('vdbs-stat--success')
+        ->toContain('vdbs-stat--link')
+        ->toContain('<dd class="vdbs-stat__value">128</dd>')
+        ->toContain('gestiegen:')
+        ->toContain('+12 seit letztem Monat')
+        ->toContain('Stand heute')
+        ->toContain('href="/n"');
+    expect(Blade::render('<x-vdbs.data.stat label="X" value="1" tone="x" trend="y" trend-label="z" />'))->toContain('vdbs-stat--neutral')->not->toContain('vdbs-stat__trend');
+});
+
+it('renders a timeline with time, actor, description and tone', function () {
+    $html = Blade::render('<x-vdbs.data.timeline label="Aktivitäten"><x-vdbs.data.timeline-item title="Passwort geändert" time="28.10.2026" datetime="2026-10-28" actor="Erika" tone="success">Details</x-vdbs.data.timeline-item></x-vdbs.data.timeline>');
+
+    expect($html)
+        ->toContain('<ol')
+        ->toContain('aria-label="Aktivitäten"')
+        ->toContain('vdbs-timeline-item--success')
+        ->toContain('<time datetime="2026-10-28">28.10.2026</time>')
+        ->toContain('Erika')
+        ->toContain('Details');
+});

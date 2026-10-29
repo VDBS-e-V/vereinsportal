@@ -1,0 +1,22 @@
+/* Werkzeugleiste: Suche, Filter, aktive Filter */
+
+.vdbs-toolbar { display: grid; gap: var(--space-3); margin-bottom: var(--space-4); }
+.vdbs-toolbar__row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3); }
+.vdbs-toolbar__search { flex: 1 1 16rem; }
+.vdbs-toolbar__group { width: 100%; }
+.vdbs-toolbar__filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3); }
+.vdbs-toolbar__filters .vdbs-field { min-width: 11rem; margin-bottom: 0; }
+.vdbs-toolbar__buttons { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.vdbs-toolbar__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-left: auto; }
+
+.vdbs-toolbar__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
+.vdbs-toolbar__count { margin: 0; color: var(--text-muted); font-size: var(--font-size-small); }
+.vdbs-toolbar__tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+
+@media (max-width: 639px) {
+    .vdbs-toolbar__filters,
+    .vdbs-toolbar__filters .vdbs-field { width: 100%; }
+    .vdbs-toolbar__buttons { width: 100%; }
+    .vdbs-toolbar__buttons .vdbs-btn { flex: 1 1 auto; }
+    .vdbs-toolbar__actions { width: 100%; margin-left: 0; }
+}

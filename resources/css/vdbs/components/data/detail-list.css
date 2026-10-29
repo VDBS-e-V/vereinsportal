@@ -1,0 +1,21 @@
+/* Detailliste und Einträge */
+
+.vdbs-detail-list { display: grid; gap: var(--space-4) var(--space-6); margin: 0; }
+
+@media (min-width: 640px) {
+    .vdbs-detail-list--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .vdbs-detail-list--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.vdbs-detail-item__label { margin: 0 0 var(--space-1); color: var(--text-muted); font-size: var(--font-size-small); font-weight: var(--font-weight-bold); }
+.vdbs-detail-item__value { margin: 0; overflow-wrap: anywhere; }
+
+/* inline: Beschriftung links, Wert rechts, Trennlinien */
+.vdbs-detail-list--inline { gap: 0; }
+.vdbs-detail-list--inline .vdbs-detail-item { display: grid; align-items: baseline; grid-template-columns: minmax(8rem, 1fr) minmax(0, 2fr); gap: var(--space-4); padding-block: var(--space-3); border-top: var(--border-width) solid var(--border-default); }
+.vdbs-detail-list--inline .vdbs-detail-item:last-child { border-bottom: var(--border-width) solid var(--border-default); }
+.vdbs-detail-list--inline .vdbs-detail-item__label { margin: 0; }
+
+@media (max-width: 479px) {
+    .vdbs-detail-list--inline .vdbs-detail-item { grid-template-columns: 1fr; gap: var(--space-1); }
+}

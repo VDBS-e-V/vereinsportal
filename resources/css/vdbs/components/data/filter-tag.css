@@ -1,0 +1,21 @@
+/* Aktiver Filter als Tag mit Entfernen-Link */
+
+.vdbs-filter-tag {
+    display: inline-flex;
+    align-items: center;
+    padding-left: var(--space-3);
+    border: var(--border-width) solid var(--border-input);
+    background: var(--bg-surface);
+    font-size: var(--font-size-small);
+}
+
+.vdbs-filter-tag__remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--size-touch);
+    height: var(--size-touch);
+    color: var(--text-default);
+}
+
+.vdbs-filter-tag__remove:hover { background: var(--bg-accent-soft); }
