@@ -315,7 +315,10 @@ it('offers one filled row and one spare row without a product', function () {
     $html = $this->actingAs(smUser(RoleKey::Coordination))->get(route('seminar-quotes.create', ['schule' => $partner->id]))->assertOk()->getContent();
 
     expect(substr_count($html, 'data-vdbs-position '))->toBe(3)
-        ->and($html)->toContain('data-vdbs-repeater-next="2"');
+        ->and(substr_count($html, '<details class="vdbs-accordion__item"'))->toBe(3)
+        ->and($html)->toContain('data-vdbs-repeater-next="2"')
+        ->toContain('SV-Tage – 3 Tage')
+        ->toContain('Neue Position');
 });
 
 it('previews several positions without saving', function () {

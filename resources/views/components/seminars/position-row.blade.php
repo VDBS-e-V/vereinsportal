@@ -1,12 +1,21 @@
-@props(['i', 'row' => [], 'products' => [], 'defaults' => []])
+@props(['i', 'row' => [], 'products' => [], 'defaults' => [], 'units' => [], 'open' => false])
 
-{{-- Eine Position des Kostenvoranschlags: Produkt mit Stückzahl und den Angaben für den Rechner. $i ist der Index (oder __INDEX__ in der Vorlage). --}}
+{{--
+    Eine Position des Kostenvoranschlags als einklappbarer Bereich: Produkt mit Stückzahl und den Angaben für den Rechner. Die Kopfzeile zeigt
+    Produkt und Stückzahl (mit JavaScript aktuell gehalten). $i ist der Index (oder __INDEX__ in der Vorlage).
+--}}
 @php
     $value = fn (string $key) => $row[$key] ?? ($defaults[$key] ?? null);
+    $product = $row['product'] ?? null;
+    $summary = $product !== null && isset($products[$product]) ? $products[$product].($value('days') ? ' – '.$value('days').' '.($units[$product] ?? '') : '') : 'Neue Position';
 @endphp
 
-<fieldset data-vdbs-repeater-row data-vdbs-position style="border:0;padding:0;margin:0 0 var(--space-6);border-top:1px solid var(--border-default);padding-top:var(--space-4)">
-    <legend class="vdbs-sr-only">Position</legend>
+<details class="vdbs-accordion__item" data-vdbs-repeater-row data-vdbs-position @if ($open) open @endif>
+    <summary class="vdbs-accordion__summary">
+        <span class="vdbs-accordion__title" data-vdbs-position-title>{{ $summary }}</span>
+        <x-vdbs.icon class="vdbs-accordion__icon" name="chevron-down" :size="20" />
+    </summary>
+    <div class="vdbs-accordion__panel" style="max-width:none">
 
     <x-vdbs.forms.form-grid :columns="2">
         <x-vdbs.forms.select :id="'position-'.$i.'-product'" :name="'positions['.$i.'][product]'" label="Produkt" placeholder="Bitte wählen" :options="$products" :value="$row['product'] ?? null" data-vdbs-position-product />
@@ -27,4 +36,5 @@
     <x-vdbs.forms.textarea :id="'position-'.$i.'-content'" :name="'positions['.$i.'][content]'" label="Inhalt im Schreiben" :optional="true" maxlength="1000" :rows="3" :value="$row['content'] ?? null" hint="Eine Zeile je Aufzählungspunkt, leer lassen für den Standardtext" />
 
     <button type="button" class="vdbs-btn vdbs-btn--tertiary vdbs-btn--shape-line vdbs-btn--size-s vdbs-js-only" data-vdbs-repeater-remove>Position entfernen</button>
-</fieldset>
+    </div>
+</details>

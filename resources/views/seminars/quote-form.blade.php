@@ -1,6 +1,7 @@
 @php
     $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Koordination'], ['label' => 'Kostenvoranschläge', 'href' => route('seminar-quotes.index')], ['label' => 'Neu']];
     $templateDefaults = $defaults['sv_days'];
+    $filled = count(array_filter($rows));
 @endphp
 
 <x-layouts.app title="Kostenvoranschlag berechnen" width="wide">
@@ -13,16 +14,20 @@
                 <x-vdbs.forms.select name="seminar_id" label="Zugehöriges Seminar" placeholder="Keins" :optional="true" :options="$seminarOptions" :value="$values['seminar_id'] ?? null" hint="Verknüpft den Kostenvoranschlag mit dem Seminar (nötig für den Status „Bestätigt“)" />
             </x-vdbs.forms.form-section>
 
-            <x-vdbs.forms.form-section title="Positionen" description="Die Voreinstellungen richten sich nach dem Produkt und lassen sich ändern. Jede Position wird einzeln berechnet, auch die Vereinspauschale.">
-                <div data-vdbs-repeater data-vdbs-repeater-next="{{ $nextIndex }}" data-vdbs-position-defaults="{{ json_encode($defaults) }}">
-                    <div data-vdbs-repeater-items>
+            <x-vdbs.forms.form-section title="Positionen" description="Jede Position ist ein aufklappbarer Bereich. Die Voreinstellungen richten sich nach dem Produkt und lassen sich ändern. Jede Position wird einzeln berechnet, auch die Vereinspauschale.">
+                <div data-vdbs-repeater data-vdbs-repeater-next="{{ $nextIndex }}" data-vdbs-position-defaults="{{ json_encode($defaults) }}" data-vdbs-position-units="{{ json_encode($units) }}">
+                    <div class="vdbs-accordion" data-vdbs-repeater-items>
                         @foreach ($rows as $i => $row)
-                            <x-seminars.position-row :i="$i" :row="$row" :products="$products" :defaults="$row === [] ? $templateDefaults : []" />
+                            @php
+                                $hasError = collect($errors->keys())->contains(fn ($key) => str_starts_with($key, 'positions.'.$i.'.'));
+                                $open = $hasError || ($row !== [] && $filled === 1);
+                            @endphp
+                            <x-seminars.position-row :i="$i" :row="$row" :products="$products" :units="$units" :open="$open" :defaults="$row === [] ? $templateDefaults : []" />
                         @endforeach
                     </div>
 
                     <template data-vdbs-repeater-template>
-                        <x-seminars.position-row i="__INDEX__" :products="$products" :defaults="$templateDefaults" />
+                        <x-seminars.position-row i="__INDEX__" :products="$products" :units="$units" :open="true" :defaults="$templateDefaults" />
                     </template>
 
                     <button type="button" class="vdbs-btn vdbs-btn--secondary vdbs-btn--shape-outline vdbs-btn--size-m vdbs-js-only" data-vdbs-repeater-add>

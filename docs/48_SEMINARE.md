@@ -49,7 +49,7 @@ Bei vollen Fünfern (30, 35, 45 TN …) ist das Ergebnis gleich.
 **Kostenvoranschlag (KVA)** (`/koordination/kostenvoranschlaege`): gehört zu einer **Schule** und besteht aus mehreren **Positionen**. Jede Position ist ein
 **Produkt mit Stückzahl** (SV-Tage: Tage, SV-Coaching und SV-Wahl: Treffen, Begleitung GSV-Sitzungen: Sitzungen) und wird einzeln berechnet; die
 Vereinspauschale (65 €) fällt je Position an (abschaltbar je Position). Das Seminar ist nur eine optionale Verknüpfung (nötig für den Status „Bestätigt“);
-„Kostenvoranschlag berechnen“ am Seminar öffnet das Formular mit dem Produkt des Seminars. Weitere Positionen mit „Weitere Position hinzufügen“, beim
+„Kostenvoranschlag berechnen“ am Seminar öffnet das Formular mit dem Produkt des Seminars. Jede Position ist ein einklappbarer Bereich (Kopfzeile: Produkt und Stückzahl, z. B. „SV-Tage – 3 Tage“; bei einer einzigen Position und bei Fehlern offen). Weitere Positionen mit „Weitere Position hinzufügen“, beim
 Wechsel des Produkts übernimmt die Zeile dessen Voreinstellungen (`resources/js/quote-form.js`). „Berechnen“ zeigt die Vorschau, „Speichern“ legt den KVA
 **unveränderlich** fest (Positionen mit Eingaben, Posten, Summe, Preisstand; Tabelle `seminar_quotes`, Spalte `positions` als JSON). „Als Vorlage verwenden“ kopiert
 einen KVA in ein neues Formular, Löschen ist mit Protokolleintrag möglich (nicht beim einzigen KVA eines bestätigten Seminars). Eine Schule mit KVAs lässt sich nicht löschen.
