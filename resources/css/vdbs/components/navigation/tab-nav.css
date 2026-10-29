@@ -1,6 +1,6 @@
 /* Tabs als Links: jeder Tab ist eine Seite */
 
-.vdbs-tab-nav { border-bottom: var(--border-width) solid var(--border-default); overflow-x: auto; }
+.vdbs-tab-nav { box-shadow: inset 0 calc(-1 * var(--border-width)) 0 var(--border-default); overflow-x: auto; overflow-y: hidden; }
 .vdbs-tab-nav__list { display: flex; gap: var(--space-1); margin: 0; padding: 0; list-style: none; }
 
 .vdbs-tab-nav__link {
@@ -10,7 +10,6 @@
     min-height: var(--size-touch);
     padding: var(--space-2) var(--space-4);
     border-bottom: 3px solid transparent;
-    margin-bottom: -1px;
     color: var(--text-default);
     font-weight: var(--font-weight-bold);
     text-decoration: none;
