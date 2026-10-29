@@ -18,7 +18,7 @@
     <x-vdbs.layout.grid :columns="3" style="margin-bottom:var(--space-6)">
         <x-vdbs.data.stat label="Schulen" value="{{ $stats['total'] }}" icon="school" />
         <x-vdbs.data.stat label="Aktiv" value="{{ $stats['active'] }}" icon="check" tone="success" />
-        <x-vdbs.data.stat label="Inaktiv" value="{{ $stats['inactive'] }}" icon="clock" />
+        <x-vdbs.data.stat label="In Anbahnung" value="{{ $stats['pipeline'] }}" icon="clock" />
     </x-vdbs.layout.grid>
 
     <x-vdbs.data.toolbar label="Schulen filtern" :count="$count" :active="$active" :reset-href="route('partners.index')" search-placeholder="Name, Kennung (z. B. BE/08K06), Ort oder Ansprechperson suchen">

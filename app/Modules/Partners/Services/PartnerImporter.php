@@ -37,6 +37,7 @@ final class PartnerImporter
         'hausnummer' => 'house_number',
         'plz' => 'postal_code', 'postleitzahl' => 'postal_code',
         'ort' => 'city',
+        'e-mail der schule' => 'email', 'telefon der schule' => 'phone', 'webseite' => 'website', 'website' => 'website',
         'schülerzahl' => 'student_count', 'schüler:innen' => 'student_count', 'schueler' => 'student_count',
         'status' => 'status',
         'notiz' => 'notes', 'notizen' => 'notes',
@@ -55,7 +56,7 @@ final class PartnerImporter
     /** Kopfzeile mit der angegebenen Zahl von Ansprechpersonen-Gruppen. @return list<string> */
     public static function header(int $contactGroups = 2): array
     {
-        $header = ['Name', 'Träger', 'Interne Kennung', 'Schulart', 'Bundesland', 'Schulnummer', 'Straße', 'Hausnummer', 'PLZ', 'Ort'];
+        $header = ['Name', 'Träger', 'Interne Kennung', 'Schulart', 'Bundesland', 'Schulnummer', 'Straße', 'Hausnummer', 'PLZ', 'Ort', 'E-Mail der Schule', 'Telefon der Schule', 'Webseite'];
 
         foreach (range(1, max(1, min(PartnerContact::MAX_PER_PARTNER, $contactGroups))) as $group) {
             $suffix = $group === 1 ? '' : ' '.$group;
@@ -70,7 +71,7 @@ final class PartnerImporter
     {
         return [
             self::header(2),
-            ['Beispielschule', 'Land Berlin', 'BE/08K06', 'Gymnasium', 'Berlin', '08K06', 'Schulstraße', '1', '10115', 'Berlin',
+            ['Beispielschule', 'Land Berlin', 'BE/08K06', 'Gymnasium', 'Berlin', '08K06', 'Schulstraße', '1', '10115', 'Berlin', 'sekretariat@beispiel.example', '030 654321', 'https://www.beispiel.example',
                 'Frau Beispiel', 'Schulleitung', 'leitung@beispiel.example', '030 123456',
                 'Herr Muster', 'Bibliothek', 'bibliothek@beispiel.example', '',
                 '650', 'aktiv', ''],
@@ -282,12 +283,7 @@ final class PartnerImporter
             $row['school_number'] = $parsed['number'];
         }
 
-        $status = mb_strtolower($row['status'] ?? '');
-        $row['status'] = match (true) {
-            $status === '' || in_array($status, ['aktiv', 'active'], true) => PartnerStatus::Active->value,
-            in_array($status, ['inaktiv', 'inactive'], true) => PartnerStatus::Inactive->value,
-            default => $row['status'],
-        };
+        $row['status'] = PartnerStatus::fromInput($row['status'] ?? '')?->value ?? $row['status'];
 
         $row['country_code'] = 'DE';
 

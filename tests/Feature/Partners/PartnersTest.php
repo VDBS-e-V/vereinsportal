@@ -101,14 +101,14 @@ it('shows the schools page in the area Koordination', function () {
 it('lists schools with stats, search, filters, sorting and a row link', function () {
     $a = Partner::factory()->create(['name' => 'Anne-Frank-Schule', 'city' => 'Leipzig', 'attributes' => ['school_type' => 'gymnasium', 'federal_state' => 'SN']]);
     Partner::factory()->create(['name' => 'Berufsschule Dresden', 'city' => 'Dresden', 'attributes' => ['school_type' => 'berufsschule', 'federal_state' => 'SN']]);
-    Partner::factory()->inactive()->create(['name' => 'Alte Grundschule', 'city' => 'Hamburg', 'attributes' => ['school_type' => 'grundschule', 'federal_state' => 'HH']]);
+    Partner::factory()->past()->create(['name' => 'Alte Grundschule', 'city' => 'Hamburg', 'attributes' => ['school_type' => 'grundschule', 'federal_state' => 'HH']]);
     $this->actingAs(ptUser(RoleKey::Coordination));
 
     $this->get(route('partners.index'))->assertOk()->assertSee('Anne-Frank-Schule')->assertSee('Berufsschule Dresden')->assertSee('Gymnasium')->assertSee('Sachsen')
         ->assertSee('class="vdbs-table__row-link" href="'.route('partners.show', $a).'"', false);
 
     $this->get(route('partners.index', ['q' => 'Dresden']))->assertSee('Berufsschule Dresden')->assertDontSee('Anne-Frank-Schule');
-    $this->get(route('partners.index', ['status' => 'inactive']))->assertSee('Alte Grundschule')->assertDontSee('Anne-Frank-Schule');
+    $this->get(route('partners.index', ['status' => 'past']))->assertSee('Alte Grundschule')->assertDontSee('Anne-Frank-Schule');
     $this->get(route('partners.index', ['school_type' => 'gymnasium']))->assertSee('Anne-Frank-Schule')->assertDontSee('Berufsschule Dresden');
     $this->get(route('partners.index', ['federal_state' => 'HH']))->assertSee('Alte Grundschule')->assertDontSee('Anne-Frank-Schule');
     $this->get(route('partners.index', ['sort' => 'city', 'direction' => 'desc']))->assertSeeInOrder(['Anne-Frank-Schule', 'Alte Grundschule', 'Berufsschule Dresden']);
@@ -223,9 +223,9 @@ it('does not log an update without changes and lets a school keep its own name',
 it('deactivates a school through the status', function () {
     $partner = Partner::factory()->create();
 
-    $this->actingAs(ptUser(RoleKey::Coordination))->put(route('partners.update', $partner), ptForm(['name' => $partner->name, 'city' => $partner->city, 'status' => 'inactive']));
+    $this->actingAs(ptUser(RoleKey::Coordination))->put(route('partners.update', $partner), ptForm(['name' => $partner->name, 'city' => $partner->city, 'status' => 'past']));
 
-    expect($partner->fresh()->status)->toBe(PartnerStatus::Inactive);
+    expect($partner->fresh()->status)->toBe(PartnerStatus::Past);
 });
 
 it('deletes a school and logs it', function () {
@@ -279,7 +279,7 @@ it('shows the history only to those who may read the log and links it from the l
 
 it('exports the filtered schools as csv with german labels and formula protection', function () {
     Partner::factory()->create(['name' => '=HYPERLINK("x")', 'city' => 'Leipzig', 'attributes' => ['school_type' => 'gymnasium', 'federal_state' => 'SN', 'student_count' => 400]]);
-    Partner::factory()->inactive()->create(['name' => 'Andere Schule', 'city' => 'Hamburg']);
+    Partner::factory()->past()->create(['name' => 'Andere Schule', 'city' => 'Hamburg']);
 
     $response = $this->actingAs(ptUser(RoleKey::Coordination))->get(route('partners.export', ['status' => 'active']));
     $csv = $response->streamedContent();
@@ -305,7 +305,7 @@ it('imports schools from a semicolon csv with a byte order mark', function () {
     $coordinator = ptUser(RoleKey::Coordination);
     $csv = "\xEF\xBB\xBF".PT_HEADER
         ."Anne-Frank-Schule;Stadt Leipzig;Gymnasium;Sachsen;S-1;Schulstraße;1;04109;Leipzig;Frau Beispiel;Sek@Beispiel.example;0341 1;650;aktiv;Notiz eins\n"
-        ."Grundschule Süd;;grundschule;SN;;;;;Dresden;;;;120;inaktiv;\n"
+        ."Grundschule Süd;;grundschule;SN;;;;;Dresden;;;;120;vergangen;\n"
         ."\n";
 
     $this->actingAs($coordinator)->post(route('partners.import.store'), ['file' => ptCsv($csv)])->assertRedirect(route('partners.index'))->assertSessionHas('success', '2 Schulen importiert.');
@@ -318,7 +318,7 @@ it('imports schools from a semicolon csv with a byte order mark', function () {
         ->and($anne->contacts->first()->name)->toBe('Frau Beispiel')
         ->and($anne->internalId())->toBe('SN/S-1')
         ->and($anne->created_by_user_id)->toBe($coordinator->id)
-        ->and($south->status)->toBe(PartnerStatus::Inactive)
+        ->and($south->status)->toBe(PartnerStatus::Past)
         ->and($south->getAttribute('attributes'))->toEqual(['school_type' => 'grundschule', 'federal_state' => 'SN', 'student_count' => 120]);
 
     $entry = AuditEntry::query()->where('event', 'partner.imported')->firstOrFail();
@@ -407,13 +407,13 @@ it('validates the uploaded file and forbids the import without permission', func
 });
 
 it('maps school type, federal state and status flexibly', function () {
-    $csv = "Name;Schulart;Bundesland;Status;Ort\nA;Berufsschule / Berufskolleg;nordrhein-westfalen;;X\nB;FOERDERSCHULE;by;active;Y\nC;sonstige;Thüringen;inactive;Z\n";
+    $csv = "Name;Schulart;Bundesland;Status;Ort\nA;Berufsschule / Berufskolleg;nordrhein-westfalen;;X\nB;FOERDERSCHULE;by;active;Y\nC;sonstige;Thüringen;vergangen;Z\n";
 
     $this->actingAs(ptUser(RoleKey::Coordination))->post(route('partners.import.store'), ['file' => ptCsv($csv)])->assertSessionHas('success');
 
     expect(Partner::query()->where('name', 'A')->first()->getAttribute('attributes'))->toEqual(['school_type' => 'berufsschule', 'federal_state' => 'NW'])
         ->and(Partner::query()->where('name', 'B')->first()->getAttribute('attributes'))->toEqual(['school_type' => 'foerderschule', 'federal_state' => 'BY'])
-        ->and(Partner::query()->where('name', 'C')->first()->status)->toBe(PartnerStatus::Inactive);
+        ->and(Partner::query()->where('name', 'C')->first()->status)->toBe(PartnerStatus::Past);
 });
 
 
@@ -554,7 +554,7 @@ it('keeps the row indexes of removed rows and picks the primary contact by its i
     expect($contacts->pluck('name')->all())->toBe(['Siebte Zeile', 'Dritte Zeile'])->and($contacts->first()->is_primary)->toBeTrue();
 });
 
-it('renders the contact rows with an add button, a template and two spare rows', function () {
+it('renders the contact rows with an add button, a template and one spare row', function () {
     $partner = Partner::factory()->create(['name' => 'Schule']);
     $partner->contacts()->create(['name' => 'Erste Person', 'is_primary' => true]);
     $this->actingAs(ptUser(RoleKey::Coordination));
@@ -567,11 +567,42 @@ it('renders the contact rows with an add button, a template and two spare rows',
         ->toContain('Weitere Ansprechperson hinzufügen')
         ->toContain('<template data-vdbs-repeater-template>')
         ->toContain('contacts[__INDEX__][name]')
-        ->toContain('data-vdbs-repeater-next="3"')
-        ->and(substr_count($html, 'data-vdbs-repeater-row'))->toBe(4)
+        ->toContain('data-vdbs-repeater-next="2"')
+        ->and(substr_count($html, 'data-vdbs-repeater-row'))->toBe(3)
         ->and($html)->toContain('Erste Person');
 
-    $this->get(route('partners.create'))->assertSee('data-vdbs-repeater-next="2"', false);
+    // Neue Schule: nur ein Feld für die Ansprechperson (plus die Vorlage)
+    $create = $this->get(route('partners.create'))->assertSee('data-vdbs-repeater-next="1"', false)->getContent();
+    expect(substr_count($create, 'data-vdbs-repeater-row'))->toBe(2);
+});
+
+it('offers the six statuses in the form', function () {
+    $this->actingAs(ptUser(RoleKey::Coordination))->get(route('partners.create'))->assertOk()
+        ->assertSeeInOrder(['Soll angesprochen werden', 'In Planung', 'In Vorbesprechung', 'Aktiv', 'Pausiert', 'Vergangen']);
+});
+
+it('saves the contact details of the school and rejects bad ones', function () {
+    $this->actingAs(ptUser(RoleKey::Coordination));
+    $this->post(route('partners.store'), ptForm(['status' => 'to_approach', 'email' => 'Info@Schule.example', 'phone' => '030 123', 'website' => 'https://www.schule.example']))->assertSessionHasNoErrors();
+
+    $partner = Partner::query()->where('name', 'Gesamtschule Musterstadt')->firstOrFail();
+    expect($partner->email)->toBe('info@schule.example')
+        ->and($partner->phone)->toBe('030 123')
+        ->and($partner->website)->toBe('https://www.schule.example')
+        ->and($partner->status)->toBe(PartnerStatus::ToApproach);
+
+    $this->get(route('partners.show', $partner))->assertSee('info@schule.example')->assertSee('Soll angesprochen werden');
+    $this->put(route('partners.update', $partner), ptForm(['website' => 'keine-url', 'email' => 'kaputt']))->assertSessionHasErrors(['website', 'email']);
+});
+
+it('reads german status names in the import', function () {
+    $csv = "Name;Ort;Status\nA;X;In Planung\nB;Y;Soll angesprochen werden\nC;Z;pausiert\nD;W;inaktiv\n";
+    $this->actingAs(ptUser(RoleKey::Coordination))->post(route('partners.import.store'), ['file' => ptCsv($csv)])->assertSessionHas('success');
+
+    expect(Partner::query()->where('name', 'A')->first()->status)->toBe(PartnerStatus::Planned)
+        ->and(Partner::query()->where('name', 'B')->first()->status)->toBe(PartnerStatus::ToApproach)
+        ->and(Partner::query()->where('name', 'C')->first()->status)->toBe(PartnerStatus::Paused)
+        ->and(Partner::query()->where('name', 'D')->first()->status)->toBe(PartnerStatus::Paused);
 });
 
 it('shows entered contact rows again after a failed validation', function () {

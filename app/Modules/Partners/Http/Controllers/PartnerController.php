@@ -78,7 +78,7 @@ class PartnerController extends Controller
             'stats' => [
                 'total' => (clone $schools)->count(),
                 'active' => (clone $schools)->where('status', PartnerStatus::Active->value)->count(),
-                'inactive' => (clone $schools)->where('status', PartnerStatus::Inactive->value)->count(),
+                'pipeline' => (clone $schools)->whereIn('status', PartnerStatus::pipelineValues())->count(),
             ],
             'exportUrl' => route('partners.export', array_filter($filters, fn ($value): bool => $value !== null) + array_filter(['sort' => $sort, 'direction' => $direction])),
             'canManage' => Gate::allows('partners.manage'),
@@ -181,9 +181,12 @@ class PartnerController extends Controller
                     $partner->house_number,
                     $partner->postal_code,
                     $partner->city,
+                    $partner->email,
+                    $partner->phone,
+                    $partner->website,
                 ], $contactCells, [
                     $attributes['student_count'] ?? '',
-                    $partner->status === PartnerStatus::Active ? 'aktiv' : 'inaktiv',
+                    $partner->status->label(),
                     $partner->notes,
                 ])), ';', '"', '\\');
             }

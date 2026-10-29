@@ -28,6 +28,9 @@
                 <x-vdbs.data.detail-item label="Schülerzahl">{{ $studentCount }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Anschrift">{{ $address }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Land">{{ $partner->country_code }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="E-Mail">@if ($partner->email)<a href="mailto:{{ $partner->email }}">{{ $partner->email }}</a>@endif</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Telefon">{{ $partner->phone }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Webseite">@if ($partner->website)<a href="{{ $partner->website }}" target="_blank" rel="noopener noreferrer">{{ $partner->website }}</a>@endif</x-vdbs.data.detail-item>
             </x-vdbs.data.detail-list>
         </section>
 
@@ -70,7 +73,7 @@
 
     @if ($canManage)
         <x-vdbs.overlays.confirm-dialog id="delete-partner" title="Schule löschen?" variant="danger" :action="route('partners.destroy', $partner)" method="delete" confirm-label="Schule löschen">
-            <p>Die Angaben zu <strong>{{ $partner->name }}</strong> werden dauerhaft gelöscht. Wenn die Schule nur nicht mehr aktiv ist, setzen Sie stattdessen den Status auf „Inaktiv“.</p>
+            <p>Die Angaben zu <strong>{{ $partner->name }}</strong> werden dauerhaft gelöscht. Wenn die Schule nur nicht mehr aktiv ist, setzen Sie stattdessen den Status auf „Pausiert“ oder „Vergangen“.</p>
         </x-vdbs.overlays.confirm-dialog>
     @endif
 </x-layouts.app>

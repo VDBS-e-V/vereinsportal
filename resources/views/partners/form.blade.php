@@ -36,16 +36,24 @@
             </x-vdbs.forms.form-grid>
         </x-vdbs.forms.form-section>
 
-        <x-vdbs.forms.form-section title="Ansprechpersonen" description="Beliebig viele Personen. Wählen Sie eine als Hauptansprechperson. Leere Zeilen werden ignoriert; zum Entfernen die Zeile leeren oder entfernen.">
+        <x-vdbs.forms.form-section title="Kontakt der Schule">
+            <x-vdbs.forms.form-grid :columns="2">
+                <x-vdbs.forms.input name="email" label="E-Mail-Adresse" type="email" :optional="true" :value="$values['email'] ?? null" />
+                <x-vdbs.forms.input name="phone" label="Telefon" type="tel" :optional="true" :value="$values['phone'] ?? null" />
+            </x-vdbs.forms.form-grid>
+            <x-vdbs.forms.input name="website" label="Webseite" type="url" :optional="true" :value="$values['website'] ?? null" hint="Mit https://, z. B. https://www.beispiel.example" />
+        </x-vdbs.forms.form-section>
+
+        <x-vdbs.forms.form-section title="Ansprechpersonen" description="Zunächst eine Person; weitere fügen Sie mit „Weitere Ansprechperson hinzufügen“ hinzu. Wählen Sie eine als Hauptansprechperson. Leere Zeilen werden ignoriert.">
             @php
                 $contactRows = array_values((array) old('contacts', $values['contacts'] ?? []));
                 $contactKeys = array_keys((array) old('contacts', $values['contacts'] ?? []));
                 $primary = (string) old('primary_contact', $values['primary_contact'] ?? 0);
-                // Ohne JavaScript immer zwei leere Zeilen mehr, damit man auch dann weitere Personen anlegen kann
+                // Immer eine leere Zeile am Ende (neue Schule: nur diese eine); weitere kommen über den Knopf
                 $rows = [];
                 foreach ($contactRows as $n => $row) { $rows[$contactKeys[$n]] = $row; }
                 $next = $rows === [] ? 0 : (max(array_map('intval', array_keys($rows))) + 1);
-                foreach (range(0, 1) as $extra) { $rows[$next + $extra] = []; }
+                foreach (range(0, 0) as $extra) { $rows[$next + $extra] = []; }
                 $nextIndex = max(array_map('intval', array_keys($rows))) + 1;
             @endphp
 

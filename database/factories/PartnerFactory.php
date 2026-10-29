@@ -29,8 +29,8 @@ class PartnerFactory extends Factory
         ];
     }
 
-    public function inactive(): static
+    public function past(): static
     {
-        return $this->state(['status' => PartnerStatus::Inactive]);
+        return $this->state(['status' => PartnerStatus::Past]);
     }
 }
