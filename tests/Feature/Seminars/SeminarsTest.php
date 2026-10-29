@@ -662,7 +662,10 @@ it('links the seminar from the log', function () {
     app(SeminarAdministration::class)->update($seminar, ['title' => 'Protokollseminar 2', 'type' => 'sv_days', 'partner_id' => $seminar->partner_id], smUser(RoleKey::Coordination));
 
     $this->actingAs(smUser(RoleKey::BoardMember))->get(route('admin.audit.index', ['subject' => 'seminar:'.$seminar->id]))
-        ->assertOk()->assertSee('Seminar geändert')->assertSee(route('seminars.show', $seminar), false);
+        ->assertOk()->assertSee('Seminar geändert')->assertSee('Protokollseminar 2');
+
+    $entry = AuditEntry::query()->where('event', 'seminar.updated')->firstOrFail();
+    $this->get(route('admin.audit.show', $entry))->assertOk()->assertSee(route('seminars.show', $seminar), false);
 });
 
 // ---------- Schreiben (Druckansicht) ----------
