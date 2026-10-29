@@ -29,6 +29,10 @@ final class QuoteTexts
                 'title' => 'SV-Coaching ('.$days.' Treffen)',
                 'content' => implode("\n", [$team, 'Unterstützung von Planung, Organisation und Absprache']),
             ],
+            SeminarType::GsvSupport => [
+                'title' => 'Begleitung GSV-Sitzungen ('.$days.' Sitzungen)',
+                'content' => implode("\n", ['Unterstützung der Planung und Organisation, sowie Unterstützung vor Ort']),
+            ],
             SeminarType::Election => [
                 'title' => 'SV-Wahl',
                 'content' => implode("\n", [$team, 'Begleitung und Durchführung der Wahl', 'Moderationsmaterial']),

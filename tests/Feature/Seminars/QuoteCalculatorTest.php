@@ -44,6 +44,13 @@ it('calculates SV-Wahl with the defaults like the spreadsheet', function () {
     expect($result['total_cents'])->toBe(31460)->and(qcLine($result, 'material_extra'))->toBeNull();
 });
 
+it('calculates the GSV support with its defaults', function () {
+    $result = (new QuoteCalculator)->calculate(QuoteCalculator::defaults(SeminarType::GsvSupport), qcPrices());
+
+    // 4 Sitzungen: 135 € × 4 + 10 € × 4 + 20 € × 4 + 65 € + 9,60 € × 4 = 763,40 €
+    expect($result['total_cents'])->toBe(76340)->and(SeminarType::GsvSupport->unit())->toBe('Sitzungen')->and(SeminarType::SvDays->unit())->toBe('Tage');
+});
+
 it('uses the honorarium scale by hours per day for every service', function () {
     $calc = new QuoteCalculator;
     $base = QuoteCalculator::defaults(SeminarType::SvDays);

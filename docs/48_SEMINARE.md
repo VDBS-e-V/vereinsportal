@@ -1,7 +1,7 @@
 # 48 Seminare (Schulseminare und Kostenrechner)
 
 Bereich **Koordination**, Seiten **Seminare** (`/koordination/seminare`) und **Preise** (`/koordination/preise`). Umgesetzt sind die Stufen 1 und 2
-aus `docs/47_SEMINARPLANUNG.md` für drei Leistungen: **SV-Tage**, **SV-Coaching** und **SV-Wahl**. SV-Fahrt, Teamende-Bewerbung und das Anmeldesystem
+aus `docs/47_SEMINARPLANUNG.md` für vier Produkte: **SV-Tage**, **SV-Coaching**, **SV-Wahl** und **Begleitung GSV-Sitzungen**. SV-Fahrt, Teamende-Bewerbung und das Anmeldesystem
 für Großveranstaltungen folgen später.
 
 ## Rechte
@@ -46,12 +46,20 @@ SV-Wahl 1 Treffen, 2 Teamende, 2 h, 20 TN, Material 0,3. Ergebnisse mit diesen W
 Abweichung zur Excel-Tabelle: Der Materialzuschlag rechnet „je angefangene 5 TN“ (aufgerundet); Excel rechnet bruchteilig (27 TN = 0,4 × 4 €).
 Bei vollen Fünfern (30, 35, 45 TN …) ist das Ergebnis gleich.
 
-**Kostenvoranschlag:** „Berechnen“ zeigt die Vorschau, „Speichern“ legt eine **unveränderliche** Fassung an (Eingaben, Posten, Summe, Preisstand;
-`seminar_quotes`). Die Seite „Schreiben drucken“ (`/koordination/seminare/{id}/kostenvoranschlag/{fassung}/druck`) zeigt den Kostenvoranschlag als Brief im Format des
-Vereins (Briefkopf mit Logo, Anschrift der Schulleitung, Datum, Tabelle Pos./Posten/Inhalt/Preis, Endsumme, Fußzeile mit Bankverbindung). Über „Drucken oder
-als PDF speichern“ des Browsers entsteht ein A4-PDF. Posten und Inhalt (eine Zeile je Aufzählungspunkt) sind im Formular änderbar; leer = Standardtext je
-Leistung (`Support\QuoteTexts`). Die internen Einzelposten stehen nur in der Ansicht im Portal, nicht im Schreiben. Briefkopf, Absenderzeile und Fußzeile
-stehen in `config/portal.php` unter `letter`, das Logo in `public/images/brand/vdbs-briefkopf.jpg`. Preise sind Nettobeträge ohne Umsatzsteuerhinweis (Annahme, zu klären).
+**Kostenvoranschlag (KVA)** (`/koordination/kostenvoranschlaege`): gehört zu einer **Schule** und besteht aus mehreren **Positionen**. Jede Position ist ein
+**Produkt mit Stückzahl** (SV-Tage: Tage, SV-Coaching und SV-Wahl: Treffen, Begleitung GSV-Sitzungen: Sitzungen) und wird einzeln berechnet; die
+Vereinspauschale (65 €) fällt je Position an (abschaltbar je Position). Das Seminar ist nur eine optionale Verknüpfung (nötig für den Status „Bestätigt“);
+„Kostenvoranschlag berechnen“ am Seminar öffnet das Formular mit dem Produkt des Seminars. Weitere Positionen mit „Weitere Position hinzufügen“, beim
+Wechsel des Produkts übernimmt die Zeile dessen Voreinstellungen (`resources/js/quote-form.js`). „Berechnen“ zeigt die Vorschau, „Speichern“ legt den KVA
+**unveränderlich** fest (Positionen mit Eingaben, Posten, Summe, Preisstand; Tabelle `seminar_quotes`, Spalte `positions` als JSON). „Als Vorlage verwenden“ kopiert
+einen KVA in ein neues Formular, Löschen ist mit Protokolleintrag möglich (nicht beim einzigen KVA eines bestätigten Seminars). Eine Schule mit KVAs lässt sich nicht löschen.
+
+Die Seite „Schreiben drucken“ (`/koordination/kostenvoranschlaege/{id}/druck`) zeigt den KVA als Brief im Format des Vereins (Briefkopf mit Logo, Anschrift der
+Schulleitung, Datum, Tabelle Pos./Posten/Inhalt/Preis mit einer Zeile je Position, Endsumme, Fußzeile mit Bankverbindung). Über „Drucken oder als PDF
+speichern“ des Browsers entsteht ein A4-PDF. Posten und Inhalt (eine Zeile je Aufzählungspunkt) sind je Position änderbar; leer = Standardtext je Produkt
+(`Support\QuoteTexts`). Die internen Einzelposten stehen nur in der Ansicht im Portal, nicht im Schreiben. Briefkopf, Absenderzeile und Fußzeile stehen in
+`config/portal.php` unter `letter`, das Logo in `public/images/brand/vdbs-briefkopf.jpg`. Preise sind Nettobeträge ohne Umsatzsteuerhinweis (Annahme, zu klären).
+Die Voreinstellungen von „Begleitung GSV-Sitzungen“ (4 Sitzungen, 1 Teamende, 3 Stunden) sind eine Annahme und lassen sich je Position ändern.
 
 **Preisliste:** `seminar_price_lists` (Beträge in Cent als JSON). Die Migration legt den „Preisstand Oktober 2025“ an. Änderungen erzeugen eine neue Fassung
 mit Gültigkeitsbeginn; die zurzeit gültige ist die mit dem jüngsten erreichten Beginn. Alte Kostenvoranschläge behalten ihren Preisstand.

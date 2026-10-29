@@ -46,6 +46,7 @@ enum AuditEvent: string
     case SeminarDeleted = 'seminar.deleted';
     case SeminarStatusChanged = 'seminar.status_changed';
     case SeminarQuoteCreated = 'seminar.quote_created';
+    case SeminarQuoteDeleted = 'seminar.quote_deleted';
     case SeminarPricesChanged = 'seminar.prices_changed';
 
     case AuditExported = 'audit.exported';
@@ -87,6 +88,7 @@ enum AuditEvent: string
             self::SeminarDeleted => 'Seminar gelöscht',
             self::SeminarStatusChanged => 'Seminarstatus geändert',
             self::SeminarQuoteCreated => 'Kostenvoranschlag erstellt',
+            self::SeminarQuoteDeleted => 'Kostenvoranschlag gelöscht',
             self::SeminarPricesChanged => 'Preisliste der Seminare geändert',
             self::AuditExported => 'Protokoll exportiert',
         };
@@ -102,7 +104,7 @@ enum AuditEvent: string
             self::RoleAssigned, self::RoleEnded => 'roles',
             self::PersonCreated, self::PersonUpdated, self::PersonDeleted => 'people',
             self::PartnerCreated, self::PartnerUpdated, self::PartnerDeleted, self::PartnersImported => 'partners',
-            self::SeminarCreated, self::SeminarUpdated, self::SeminarDeleted, self::SeminarStatusChanged, self::SeminarQuoteCreated, self::SeminarPricesChanged => 'seminars',
+            self::SeminarCreated, self::SeminarUpdated, self::SeminarDeleted, self::SeminarStatusChanged, self::SeminarQuoteCreated, self::SeminarQuoteDeleted, self::SeminarPricesChanged => 'seminars',
             self::AuditExported => 'audit',
         };
     }
@@ -127,7 +129,7 @@ enum AuditEvent: string
     public function tone(): string
     {
         return match ($this) {
-            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::AccountAnonymized => 'error',
+            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized => 'error',
             self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
             self::Login, self::UserEnabled, self::TwoFactorEnabled => 'success',
             default => 'neutral',

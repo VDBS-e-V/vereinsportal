@@ -8,3 +8,4 @@ import './feedback';
 import './overlays';
 import './repeater';
 import './copy';
+import './quote-form';

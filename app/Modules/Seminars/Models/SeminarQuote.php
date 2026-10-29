@@ -3,24 +3,31 @@
 namespace App\Modules\Seminars\Models;
 
 use App\Modules\Access\Models\User;
+use App\Modules\Partners\Models\Partner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/** Modul: Seminars. Ein Kostenvoranschlag (unveränderlich): Eingaben, Posten und Summe mit dem Preisstand von damals. */
+/** Modul: Seminars. Ein Kostenvoranschlag (unveränderlich) für eine Schule: mehrere Positionen (Produkt mit Stückzahl, Eingaben, Posten, Summe) mit dem Preisstand von damals. */
 class SeminarQuote extends Model
 {
     public const UPDATED_AT = null;
 
-    protected $fillable = ['seminar_id', 'version', 'price_list_id', 'inputs', 'lines', 'total_cents', 'item_title', 'item_content', 'created_by_user_id'];
+    protected $fillable = ['partner_id', 'seminar_id', 'price_list_id', 'positions', 'total_cents', 'created_by_user_id'];
 
     protected function casts(): array
     {
-        return ['inputs' => 'array', 'lines' => 'array', 'total_cents' => 'integer'];
+        return ['positions' => 'array', 'total_cents' => 'integer'];
     }
 
     protected static function booted(): void
     {
         static::updating(fn () => false);
+    }
+
+    /** @return BelongsTo<Partner, $this> */
+    public function partner(): BelongsTo
+    {
+        return $this->belongsTo(Partner::class);
     }
 
     /** @return BelongsTo<Seminar, $this> */

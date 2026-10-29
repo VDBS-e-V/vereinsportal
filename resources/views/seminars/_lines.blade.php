@@ -11,7 +11,7 @@
         </tr>
     @endforeach
     <tr>
-        <td colspan="4"><strong>Gesamtbetrag</strong></td>
+        <td colspan="4"><strong>{{ $totalLabel ?? 'Gesamtbetrag' }}</strong></td>
         <td><strong>{{ $money($total) }}</strong></td>
     </tr>
 </x-vdbs.data.table>

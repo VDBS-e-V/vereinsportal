@@ -10,7 +10,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
-    <title>Kostenvoranschlag {{ $seminar->title }} – {{ $quote->created_at?->format('d.m.Y') }}</title>
+    <title>Kostenvoranschlag {{ $quote->partner->name }} – {{ $quote->created_at?->format('d.m.Y') }}</title>
     <style>
         @page { size: A4; margin: 0; }
         * { box-sizing: border-box; }
@@ -40,6 +40,7 @@
         li { position: relative; padding-left: 5mm; }
         li::before { content: "-"; position: absolute; left: 0; }
         tbody tr:last-child td { border-bottom: 1px solid black; padding-bottom: 3mm; }
+        tbody tr { break-inside: avoid; }
         .total td { padding-top: 2mm; font-weight: bold; }
         .total .label { text-align: right; }
         .total .price { border-bottom: 2px solid black; }
@@ -58,7 +59,7 @@
 <body>
     <div class="toolbar">
         <button type="button" onclick="window.print()">Drucken oder als PDF speichern</button>
-        <a href="{{ route('seminars.quotes.show', [$seminar, $quote]) }}">Zurück</a>
+        <a href="{{ route('seminar-quotes.show', $quote) }}">Zurück</a>
     </div>
 
     <main class="sheet">
@@ -94,12 +95,14 @@
                 <tr><th class="pos">Pos.</th><th class="item">Posten</th><th>Inhalt</th><th class="price">Preis</th></tr>
             </thead>
             <tbody>
-                <tr>
-                    <td class="pos">1</td>
-                    <td>{{ $itemTitle }}</td>
-                    <td><ul>@foreach ($itemLines as $line)<li>{{ $line }}</li>@endforeach</ul></td>
-                    <td class="price">{{ $money($quote->total_cents) }}</td>
-                </tr>
+                @foreach ($items as $item)
+                    <tr>
+                        <td class="pos">{{ $loop->iteration }}</td>
+                        <td>{{ $item['title'] }}</td>
+                        <td><ul>@foreach ($item['lines'] as $line)<li>{{ $line }}</li>@endforeach</ul></td>
+                        <td class="price">{{ $money($item['total_cents']) }}</td>
+                    </tr>
+                @endforeach
             </tbody>
             <tfoot>
                 <tr class="total"><td colspan="3" class="label">Endsumme</td><td class="price"><span>{{ $money($quote->total_cents) }}</span></td></tr>

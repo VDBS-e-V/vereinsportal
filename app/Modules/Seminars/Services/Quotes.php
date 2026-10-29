@@ -5,7 +5,9 @@ namespace App\Modules\Seminars\Services;
 use App\Modules\Access\Models\User;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
+use App\Modules\Partners\Models\Partner;
 use App\Modules\Seminars\Enums\SeminarEventType;
+use App\Modules\Seminars\Enums\SeminarType;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarPriceList;
 use App\Modules\Seminars\Models\SeminarQuote;
@@ -14,59 +16,80 @@ use App\Modules\Seminars\Support\QuoteCalculator;
 use App\Modules\Seminars\Support\QuoteTexts;
 use Illuminate\Support\Facades\DB;
 
-/** Kostenvoranschläge berechnen und speichern (unveränderlich, jede Überarbeitung ist eine neue Fassung) sowie Preislisten pflegen. */
+/**
+ * Kostenvoranschläge: je Schule mehrere Positionen (Produkt mit Stückzahl), jede mit eigener Berechnung (QuoteCalculator, die Vereinspauschale
+ * je Position). Gespeichert wird unveränderlich mit dem Preisstand von damals. Dazu die Preislisten.
+ */
 final class Quotes
 {
     public function __construct(private readonly QuoteCalculator $calculator) {}
 
     /**
-     * @param  array<string, mixed>  $inputs  validierte Eingaben (QuoteCalculator::rules)
-     * @return array{inputs: array<string, mixed>, lines: list<array<string, mixed>>, total_cents: int, price_list: SeminarPriceList}
+     * @param  list<array<string, mixed>>  $rows  Positionen aus dem Formular (product, Eingaben des Rechners, title, content)
+     * @return array{positions: list<array<string, mixed>>, total_cents: int, price_list: SeminarPriceList}
      */
-    public function preview(array $inputs, ?SeminarPriceList $priceList = null): array
+    public function preview(array $rows, ?SeminarPriceList $priceList = null): array
     {
         $priceList ??= SeminarPriceList::current();
-        $inputs = $this->normalize($inputs);
+        $positions = [];
+        $total = 0;
 
-        return ['inputs' => $inputs, 'price_list' => $priceList] + $this->calculator->calculate($inputs, $priceList->prices);
-    }
+        foreach (array_values($rows) as $row) {
+            $type = SeminarType::from((string) $row['product']);
+            $inputs = $this->normalize($row);
+            $result = $this->calculator->calculate($inputs, $priceList->prices);
+            $defaults = QuoteTexts::defaults($type, $inputs);
 
-    /** @param  array<string, mixed>  $inputs */
-    public function create(Seminar $seminar, array $inputs, User $by, ?string $title = null, ?string $content = null): SeminarQuote
-    {
-        $result = $this->preview($inputs);
-        $defaults = QuoteTexts::defaults($seminar->type, $result['inputs']);
-        $title = filled($title) ? trim($title) : $defaults['title'];
-        $content = filled($content) ? trim($content) : $defaults['content'];
-
-        $quote = DB::transaction(function () use ($seminar, $result, $by, $title, $content): SeminarQuote {
-            $version = (int) $seminar->quotes()->max('version') + 1;
-
-            $quote = $seminar->quotes()->create([
-                'version' => $version,
-                'price_list_id' => $result['price_list']->id,
-                'inputs' => $result['inputs'],
+            $positions[] = [
+                'product' => $type->value,
+                'inputs' => $inputs,
                 'lines' => $result['lines'],
                 'total_cents' => $result['total_cents'],
-                'item_title' => $title,
-                'item_content' => $content,
+                'title' => filled($row['title'] ?? null) ? trim((string) $row['title']) : $defaults['title'],
+                'content' => filled($row['content'] ?? null) ? trim((string) $row['content']) : $defaults['content'],
+            ];
+            $total += $result['total_cents'];
+        }
+
+        return ['positions' => $positions, 'total_cents' => $total, 'price_list' => $priceList];
+    }
+
+    /** @param  list<array<string, mixed>>  $rows */
+    public function create(Partner $partner, ?Seminar $seminar, array $rows, User $by): SeminarQuote
+    {
+        $result = $this->preview($rows);
+
+        $quote = DB::transaction(function () use ($partner, $seminar, $result, $by): SeminarQuote {
+            $quote = SeminarQuote::query()->create([
+                'partner_id' => $partner->id,
+                'seminar_id' => $seminar?->id,
+                'price_list_id' => $result['price_list']->id,
+                'positions' => $result['positions'],
+                'total_cents' => $result['total_cents'],
                 'created_by_user_id' => $by->id,
             ]);
 
-            $seminar->events()->create([
+            $seminar?->events()->create([
                 'type' => SeminarEventType::QuoteCreated,
                 'occurred_at' => now(),
                 'actor_user_id' => $by->id,
                 'actor_label' => AuditLog::label($by),
-                'data' => ['fassung' => $version, 'summe' => Money::format($result['total_cents'])],
+                'data' => ['summe' => Money::format($result['total_cents']), 'positionen' => count($result['positions'])],
             ]);
 
             return $quote;
         });
 
-        AuditLog::record(AuditEvent::SeminarQuoteCreated, $by, $seminar, ['fassung' => $quote->version]);
+        AuditLog::record(AuditEvent::SeminarQuoteCreated, $by, $seminar ?? $partner, ['summe' => Money::format($result['total_cents']), 'positionen' => count($result['positions'])]);
 
         return $quote;
+    }
+
+    public function delete(SeminarQuote $quote, User $by): void
+    {
+        AuditLog::record(AuditEvent::SeminarQuoteDeleted, $by, $quote->seminar ?? $quote->partner, ['summe' => Money::format($quote->total_cents)]);
+
+        $quote->delete();
     }
 
     /**

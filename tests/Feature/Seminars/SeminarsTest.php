@@ -48,9 +48,20 @@ function smSession(Seminar $seminar): void
     app(SeminarAdministration::class)->addSession($seminar, ['date' => now()->addMonth()->toDateString(), 'start' => '09:00', 'end' => '15:00'], smUser(RoleKey::Coordination));
 }
 
-function smQuoteInputs(array $overrides = []): array
+function smPosition(array $overrides = []): array
 {
-    return $overrides + ['days' => '3', 'team' => '3', 'hours' => '6', 'leaders' => '1', 'group' => '45', 'material_factor' => '1', 'material_trips' => '0', 'boards' => '0', 'inside_abc' => '1', 'action' => 'save'];
+    return $overrides + ['product' => 'sv_days', 'days' => '3', 'team' => '3', 'hours' => '6', 'leaders' => '1', 'group' => '45', 'material_factor' => '1', 'material_trips' => '0', 'boards' => '0', 'inside_abc' => '1'];
+}
+
+/** Formulardaten eines Kostenvoranschlags für eine Schule oder ein Seminar (dann mit Verknüpfung). */
+function smQuote(Seminar|Partner $on, ?array $positions = null, array $extra = []): array
+{
+    return $extra + [
+        'partner_id' => $on instanceof Seminar ? $on->partner_id : $on->id,
+        'seminar_id' => $on instanceof Seminar ? $on->id : null,
+        'positions' => $positions ?? [smPosition()],
+        'action' => 'save',
+    ];
 }
 
 // ---------- Zugang und Navigation ----------
@@ -228,7 +239,7 @@ it('walks through the status pipeline with history entries', function () {
     $this->post(route('seminars.status', $seminar), ['status' => 'scheduled']);
     expect($seminar->fresh()->status)->toBe(SeminarStatus::Scheduled);
 
-    $this->post(route('seminars.quotes.store', $seminar), smQuoteInputs());
+    $this->post(route('seminar-quotes.store'), smQuote($seminar));
     $this->post(route('seminars.status', $seminar), ['status' => 'confirmed']);
     $this->post(route('seminars.status', $seminar), ['status' => 'done']);
     $this->post(route('seminars.status', $seminar), ['status' => 'completed']);
@@ -284,60 +295,107 @@ it('adds notes to the history', function () {
 
 // ---------- Kostenvoranschlag ----------
 
-it('prefills the quote form from the service and the expected participants', function () {
+it('prefills the quote form from the seminar with its product and expected participants', function () {
     $seminar = Seminar::factory()->create(['type' => 'coaching', 'expected_participants' => 33]);
 
-    $html = $this->actingAs(smUser(RoleKey::Coordination))->get(route('seminars.quotes.create', $seminar))->assertOk()->getContent();
+    $html = $this->actingAs(smUser(RoleKey::Coordination))->get(route('seminar-quotes.create', ['seminar' => $seminar->id]))->assertOk()->getContent();
 
-    expect($html)->toContain('name="days"')->toContain('value="2"')->toContain('value="33"')->toContain('Treffen');
+    expect($html)->toContain('<option value="coaching" selected>')
+        ->toContain('name="positions[0][days]"')
+        ->toContain('value="33"')
+        ->toContain('<option value="'.$seminar->partner_id.'" selected>')
+        ->toContain('Weitere Position hinzufügen')
+        ->toContain('<template data-vdbs-repeater-template>')
+        ->toContain('positions[__INDEX__][product]');
 });
 
-it('previews the calculation without saving', function () {
-    $seminar = Seminar::factory()->create();
+it('offers one filled row and one spare row without a product', function () {
+    $partner = Partner::factory()->create();
 
-    $this->actingAs(smUser(RoleKey::Coordination))->post(route('seminars.quotes.store', $seminar), smQuoteInputs(['action' => 'preview']))
-        ->assertOk()->assertSee('2.309,00 €')->assertSee('Noch nicht gespeichert');
+    $html = $this->actingAs(smUser(RoleKey::Coordination))->get(route('seminar-quotes.create', ['schule' => $partner->id]))->assertOk()->getContent();
+
+    expect(substr_count($html, 'data-vdbs-position '))->toBe(3)
+        ->and($html)->toContain('data-vdbs-repeater-next="2"');
+});
+
+it('previews several positions without saving', function () {
+    $partner = Partner::factory()->create();
+    $positions = [smPosition(), smPosition(['product' => 'coaching', 'days' => '2', 'team' => '3', 'leaders' => '0', 'group' => '30', 'material_factor' => '0.3'])];
+
+    $this->actingAs(smUser(RoleKey::Coordination))->post(route('seminar-quotes.store'), smQuote($partner, $positions, ['action' => 'preview']))
+        ->assertOk()->assertSee('Position 1')->assertSee('Position 2')->assertSee('2.309,00 €')->assertSee('1.392,20 €')->assertSee('3.701,20 €')->assertSee('Noch nicht gespeichert');
 
     expect(SeminarQuote::query()->count())->toBe(0);
 });
 
-it('saves an immutable quote with the price list of that day', function () {
+it('saves an immutable quote with several positions, each with its own club fee', function () {
     $coordinator = smUser(RoleKey::Coordination);
     $seminar = Seminar::factory()->create();
+    $positions = [smPosition(), smPosition(['product' => 'election', 'days' => '1', 'team' => '2', 'hours' => '2', 'leaders' => '0', 'group' => '20', 'material_factor' => '0.3'])];
 
-    $this->actingAs($coordinator)->post(route('seminars.quotes.store', $seminar), smQuoteInputs())->assertSessionHasNoErrors();
+    $this->actingAs($coordinator)->post(route('seminar-quotes.store'), smQuote($seminar, $positions))->assertSessionHasNoErrors();
 
     $quote = SeminarQuote::query()->firstOrFail();
-    expect($quote->version)->toBe(1)
-        ->and($quote->total_cents)->toBe(230900)
+    expect($quote->partner_id)->toBe($seminar->partner_id)
+        ->and($quote->seminar_id)->toBe($seminar->id)
+        ->and($quote->total_cents)->toBe(230900 + 31460)
         ->and($quote->price_list_id)->toBe(SeminarPriceList::current()->id)
-        ->and($quote->inputs['days'])->toBe(3)
-        ->and($quote->lines)->not->toBeEmpty()
+        ->and($quote->positions)->toHaveCount(2)
+        ->and($quote->positions[0]['title'])->toBe('SV-Tage (3)')
+        ->and($quote->positions[1]['title'])->toBe('SV-Wahl')
+        ->and($quote->positions[1]['total_cents'])->toBe(31460)
+        ->and(collect($quote->positions)->every(fn (array $position): bool => collect($position['lines'])->contains('key', 'club_fee')))->toBeTrue()
         ->and($seminar->events()->where('type', 'quote_created')->exists())->toBeTrue()
         ->and(AuditEntry::query()->where('event', 'seminar.quote_created')->exists())->toBeTrue();
 
     $quote->update(['total_cents' => 1]);
-    expect($quote->fresh()->total_cents)->toBe(230900);
+    expect($quote->fresh()->total_cents)->toBe(230900 + 31460);
 
-    $this->get(route('seminars.quotes.show', [$seminar, $quote]))->assertOk()->assertSee('2.309,00 €')->assertSee('Honorar der Teamenden')->assertSee('Unverbindlicher Kostenvoranschlag');
+    $this->get(route('seminar-quotes.show', $quote))->assertOk()->assertSee('Position 1: SV-Tage (3)')->assertSee('Position 2: SV-Wahl')->assertSee('2.623,60 €')->assertSee('Honorar der Teamenden')->assertSee('Unverbindlicher Kostenvoranschlag')->assertSee(route('seminar-quotes.print', $quote), false);
 });
 
-it('numbers new versions and prefills them from the last one', function () {
+it('works without a seminar and ignores rows without a product', function () {
+    $partner = Partner::factory()->create();
+    $positions = [0 => smPosition(), 1 => ['product' => '', 'days' => '3'], 4 => smPosition(['product' => 'gsv_support', 'days' => '4', 'team' => '1', 'hours' => '3', 'leaders' => '0', 'group' => '20', 'material_factor' => '0.3'])];
+
+    $this->actingAs(smUser(RoleKey::Coordination))->post(route('seminar-quotes.store'), smQuote($partner, $positions))->assertSessionHasNoErrors();
+
+    $quote = SeminarQuote::query()->firstOrFail();
+    expect($quote->seminar_id)->toBeNull()->and($quote->positions)->toHaveCount(2)->and($quote->positions[1]['title'])->toBe('Begleitung GSV-Sitzungen (4 Sitzungen)')->and($quote->total_cents)->toBe(230900 + 76340);
+});
+
+it('copies a quote as template for a new one', function () {
+    $coordinator = smUser(RoleKey::Coordination);
+    $partner = Partner::factory()->create();
+    $this->actingAs($coordinator)->post(route('seminar-quotes.store'), smQuote($partner, [smPosition(['title' => 'Eigener Posten', 'content' => 'Eigener Inhalt'])]));
+    $quote = SeminarQuote::query()->firstOrFail();
+
+    $html = $this->get(route('seminar-quotes.create', ['vorlage' => $quote->id]))->assertOk()->getContent();
+
+    expect($html)->toContain('Eigener Posten')->toContain('Eigener Inhalt')->toContain('<option value="'.$partner->id.'" selected>');
+});
+
+it('validates schools, positions and inputs', function () {
     $this->actingAs(smUser(RoleKey::Coordination));
-    $seminar = Seminar::factory()->create();
+    $partner = Partner::factory()->create();
+    $other = Seminar::factory()->create();
 
-    $this->post(route('seminars.quotes.store', $seminar), smQuoteInputs());
-    $this->post(route('seminars.quotes.store', $seminar), smQuoteInputs(['days' => '4']));
+    $this->post(route('seminar-quotes.store'), [])->assertSessionHasErrors(['partner_id', 'positions']);
+    $this->post(route('seminar-quotes.store'), smQuote($partner, []))->assertSessionHasErrors('positions');
+    $this->post(route('seminar-quotes.store'), smQuote($partner, [smPosition(['days' => '0'])]))->assertSessionHasErrors('positions.0.days');
+    $this->post(route('seminar-quotes.store'), smQuote($partner, [smPosition(['hours' => 'viel'])]))->assertSessionHasErrors('positions.0.hours');
+    $this->post(route('seminar-quotes.store'), smQuote($partner, [smPosition(['group' => '99999'])]))->assertSessionHasErrors('positions.0.group');
+    $this->post(route('seminar-quotes.store'), smQuote($partner, [smPosition(['product' => 'weg'])]))->assertSessionHasErrors('positions.0.product');
+    $this->post(route('seminar-quotes.store'), smQuote($partner, null, ['partner_id' => 9999]))->assertSessionHasErrors('partner_id');
+    $this->post(route('seminar-quotes.store'), smQuote($partner, null, ['seminar_id' => $other->id]))->assertSessionHasErrors('seminar_id');
 
-    expect($seminar->quotes()->pluck('version')->all())->toBe([2, 1]);
-
-    $this->get(route('seminars.quotes.create', $seminar))->assertSee('Fassung 3');
+    expect(SeminarQuote::query()->count())->toBe(0);
 });
 
 it('keeps old quotes on their price list after a new version of the prices', function () {
     $coordinator = smUser(RoleKey::Coordination);
-    $seminar = Seminar::factory()->create();
-    $this->actingAs($coordinator)->post(route('seminars.quotes.store', $seminar), smQuoteInputs());
+    $partner = Partner::factory()->create();
+    $this->actingAs($coordinator)->post(route('seminar-quotes.store'), smQuote($partner));
 
     $prices = collect(SeminarPriceList::current()->prices)->mapWithKeys(fn ($cents, $key) => ['price_'.$key => number_format($cents / 100, 2, ',', '')])->all();
     $prices['price_honorarium_full'] = '250,00';
@@ -347,29 +405,58 @@ it('keeps old quotes on their price list after a new version of the prices', fun
     expect(SeminarPriceList::current()->prices['honorarium_full'])->toBe(25000)
         ->and(SeminarQuote::query()->first()->total_cents)->toBe(230900);
 
-    $this->post(route('seminars.quotes.store', $seminar), smQuoteInputs());
-    expect($seminar->quotes()->first()->total_cents)->toBe(230900 + 3 * 5000 * 3);
+    $this->post(route('seminar-quotes.store'), smQuote($partner));
+    expect(SeminarQuote::query()->orderByDesc('id')->first()->total_cents)->toBe(230900 + 3 * 5000 * 3);
 });
 
-it('validates the quote inputs', function () {
+it('lists quotes with school, positions and total and searches by school', function () {
+    $a = Partner::factory()->create(['name' => 'Berliner Schule', 'city' => 'Berlin']);
+    $b = Partner::factory()->create(['name' => 'Leipziger Schule', 'city' => 'Leipzig']);
     $this->actingAs(smUser(RoleKey::Coordination));
-    $seminar = Seminar::factory()->create();
+    $this->post(route('seminar-quotes.store'), smQuote($a));
+    $this->post(route('seminar-quotes.store'), smQuote($b, [smPosition(['product' => 'coaching', 'days' => '6'])]));
 
-    $this->post(route('seminars.quotes.store', $seminar), [])->assertSessionHasErrors(['days', 'team', 'hours', 'group']);
-    $this->post(route('seminars.quotes.store', $seminar), smQuoteInputs(['days' => '0']))->assertSessionHasErrors('days');
-    $this->post(route('seminars.quotes.store', $seminar), smQuoteInputs(['hours' => 'viel']))->assertSessionHasErrors('hours');
-    $this->post(route('seminars.quotes.store', $seminar), smQuoteInputs(['group' => '99999']))->assertSessionHasErrors('group');
-
-    expect(SeminarQuote::query()->count())->toBe(0);
+    $this->get(route('seminar-quotes.index'))->assertOk()->assertSee('Berliner Schule')->assertSee('Leipziger Schule')->assertSee('SV-Coaching (6 Treffen)')->assertSee('2.309,00 €');
+    $this->get(route('seminar-quotes.index', ['q' => 'Leipzig']))->assertSee('Leipziger Schule')->assertDontSee('Berliner Schule');
 });
 
-it('does not show a quote through another seminar', function () {
+it('deletes a quote with a log entry but protects the only quote of a confirmed seminar', function () {
     $this->actingAs(smUser(RoleKey::Coordination));
-    $seminar = Seminar::factory()->create();
-    $other = Seminar::factory()->create();
-    $this->post(route('seminars.quotes.store', $other), smQuoteInputs());
+    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Confirmed]);
+    $this->post(route('seminar-quotes.store'), smQuote($seminar));
+    $quote = SeminarQuote::query()->firstOrFail();
 
-    $this->get(route('seminars.quotes.show', [$seminar, SeminarQuote::query()->firstOrFail()]))->assertNotFound();
+    $this->delete(route('seminar-quotes.destroy', $quote))->assertRedirect(route('seminar-quotes.show', $quote))->assertSessionHas('warning');
+    expect(SeminarQuote::query()->count())->toBe(1);
+
+    $this->post(route('seminar-quotes.store'), smQuote($seminar));
+    $this->delete(route('seminar-quotes.destroy', $quote))->assertRedirect(route('seminar-quotes.index'));
+
+    expect(SeminarQuote::query()->count())->toBe(1)->and(AuditEntry::query()->where('event', 'seminar.quote_deleted')->exists())->toBeTrue();
+});
+
+it('lets staff view quotes and keeps guests and members out', function () {
+    $partner = Partner::factory()->create();
+    $this->actingAs(smUser(RoleKey::Coordination))->post(route('seminar-quotes.store'), smQuote($partner));
+    $quote = SeminarQuote::query()->firstOrFail();
+
+    $this->app['auth']->forgetGuards();
+    $this->get(route('seminar-quotes.index'))->assertRedirect(route('login'));
+    $this->get(route('seminar-quotes.print', $quote))->assertRedirect(route('login'));
+
+    $this->actingAs(smUser(RoleKey::Member))->get(route('seminar-quotes.index'))->assertForbidden();
+    $this->get(route('seminar-quotes.show', $quote))->assertForbidden();
+    $this->get(route('seminar-quotes.print', $quote))->assertForbidden();
+
+    $this->actingAs(smUser(RoleKey::AdministrationStaff))->get(route('seminar-quotes.show', $quote))->assertOk();
+});
+
+it('does not delete a school that has a quote', function () {
+    $partner = Partner::factory()->create(['name' => 'Schule mit KVA']);
+    $this->actingAs(smUser(RoleKey::Coordination))->post(route('seminar-quotes.store'), smQuote($partner));
+
+    $this->delete(route('partners.destroy', $partner))->assertRedirect(route('partners.show', $partner))->assertSessionHas('warning');
+    expect(Partner::query()->whereKey($partner->id)->exists())->toBeTrue();
 });
 
 // ---------- Preisliste ----------
@@ -418,15 +505,15 @@ it('links the seminar from the log', function () {
 
 // ---------- Schreiben (Druckansicht) ----------
 
-it('prints the quote as a letter with address, position, total and footer', function () {
+it('prints the quote as a letter with address, all positions, total and footer', function () {
     $partner = Partner::factory()->create(['name' => 'Walter-Gropius-Schule', 'street' => 'Fritz-Erler-Allee', 'house_number' => '86-96', 'postal_code' => '12351', 'city' => 'Berlin', 'country_code' => 'DE']);
-    $seminar = Seminar::factory()->create(['partner_id' => $partner->id]);
     $coordinator = smUser(RoleKey::Coordination);
+    $positions = [smPosition(), smPosition(['product' => 'gsv_support', 'days' => '4', 'team' => '1', 'hours' => '3', 'leaders' => '0', 'group' => '20', 'material_factor' => '0.3'])];
 
-    $this->actingAs($coordinator)->post(route('seminars.quotes.store', $seminar), smQuoteInputs());
-    $quote = $seminar->quotes()->firstOrFail();
+    $this->actingAs($coordinator)->post(route('seminar-quotes.store'), smQuote($partner, $positions));
+    $quote = SeminarQuote::query()->firstOrFail();
 
-    $html = $this->get(route('seminars.quotes.print', [$seminar, $quote]))->assertOk()->getContent();
+    $html = $this->get(route('seminar-quotes.print', $quote))->assertOk()->getContent();
 
     expect($html)
         ->toContain('Kostenvoranschlag')
@@ -438,51 +525,42 @@ it('prints the quote as a letter with address, position, total and footer', func
         ->toContain('SV-Tage (3)')
         ->toContain('Je 3 Teamer:innen pro Tag')
         ->toContain('Moderationsmaterial')
-        ->toContain('Endsumme')
+        ->toContain('Begleitung GSV-Sitzungen (4 Sitzungen)')
+        ->toContain('Unterstützung der Planung und Organisation, sowie Unterstützung vor Ort')
         ->toContain('2.309,00 €')
+        ->toContain('763,40 €')
+        ->toContain('Endsumme')
+        ->toContain('3.072,40 €')
         ->toContain($quote->created_at->format('d.m.Y'))
         ->toContain('bearbeitet von:')
         ->toContain(e($coordinator->person->fullName()))
         ->toContain('IBAN: DE63 1005 0000 0191 2739 96')
         ->toContain('Vereinsvorstand');
+
+    expect(substr_count($html, '<td class="pos">'))->toBe(2);
 });
 
 it('prints the edited position text and keeps the default when the fields stay empty', function () {
     $this->actingAs(smUser(RoleKey::Coordination));
-    $seminar = Seminar::factory()->create(['type' => 'coaching']);
+    $partner = Partner::factory()->create();
 
-    $this->post(route('seminars.quotes.store', $seminar), smQuoteInputs(['days' => '8', 'team' => '3', 'print_title' => 'Coaching erweiterter Vorstand (8 Treffen)', 'print_content' => "Einmal pro Monat ein Treffen\n\nzur Unterstützung von Planung"]));
-    $this->post(route('seminars.quotes.store', $seminar), smQuoteInputs(['days' => '4']));
+    $this->post(route('seminar-quotes.store'), smQuote($partner, [
+        smPosition(['product' => 'coaching', 'days' => '8', 'team' => '3', 'leaders' => '0', 'title' => 'Coaching erweiterter Vorstand (8 Treffen)', 'content' => "Einmal pro Monat ein Treffen\n\nzur Unterstützung von Planung"]),
+        smPosition(['product' => 'coaching', 'days' => '4', 'leaders' => '0']),
+    ]));
 
-    $custom = $seminar->quotes()->where('version', 1)->first();
-    $default = $seminar->quotes()->where('version', 2)->first();
+    $quote = SeminarQuote::query()->firstOrFail();
+    expect($quote->positions[0]['title'])->toBe('Coaching erweiterter Vorstand (8 Treffen)')->and($quote->positions[1]['title'])->toBe('SV-Coaching (4 Treffen)');
 
-    expect($custom->item_title)->toBe('Coaching erweiterter Vorstand (8 Treffen)');
-    $this->get(route('seminars.quotes.print', [$seminar, $custom]))->assertSee('Coaching erweiterter Vorstand (8 Treffen)')->assertSee('Einmal pro Monat ein Treffen')->assertSee('zur Unterstützung von Planung');
-
-    expect($default->item_title)->toBe('SV-Coaching (4 Treffen)');
-    $this->get(route('seminars.quotes.print', [$seminar, $default]))->assertSee('SV-Coaching (4 Treffen)')->assertSee('Unterstützung von Planung, Organisation und Absprache');
+    $this->get(route('seminar-quotes.print', $quote))
+        ->assertSee('Coaching erweiterter Vorstand (8 Treffen)')->assertSee('Einmal pro Monat ein Treffen')->assertSee('zur Unterstützung von Planung')
+        ->assertSee('SV-Coaching (4 Treffen)')->assertSee('Unterstützung von Planung, Organisation und Absprache');
 });
 
-it('protects the print view like the quote and does not print through another seminar', function () {
+it('links the seminar quotes from the seminar page', function () {
     $seminar = Seminar::factory()->create();
-    $other = Seminar::factory()->create();
-    $this->actingAs(smUser(RoleKey::Coordination))->post(route('seminars.quotes.store', $seminar), smQuoteInputs());
-    $quote = $seminar->quotes()->firstOrFail();
+    $this->actingAs(smUser(RoleKey::Coordination))->post(route('seminar-quotes.store'), smQuote($seminar));
+    $quote = SeminarQuote::query()->firstOrFail();
 
-    $this->get(route('seminars.quotes.print', [$other, $quote]))->assertNotFound();
-
-    $this->app['auth']->forgetGuards();
-    $this->get(route('seminars.quotes.print', [$seminar, $quote]))->assertRedirect(route('login'));
-    $this->actingAs(smUser(RoleKey::Member))->get(route('seminars.quotes.print', [$seminar, $quote]))->assertForbidden();
-});
-
-it('offers the texts of the position in the quote form and links the letter', function () {
-    $seminar = Seminar::factory()->create(['type' => 'election']);
-
-    $html = $this->actingAs(smUser(RoleKey::Coordination))->get(route('seminars.quotes.create', $seminar))->assertOk()->getContent();
-    expect($html)->toContain('name="print_title"')->toContain('SV-Wahl')->toContain('Begleitung und Durchführung der Wahl');
-
-    $this->post(route('seminars.quotes.store', $seminar), smQuoteInputs());
-    $this->get(route('seminars.quotes.show', [$seminar, $seminar->quotes()->firstOrFail()]))->assertSee(route('seminars.quotes.print', [$seminar, $seminar->quotes()->firstOrFail()]), false);
+    $this->get(route('seminars.show', $seminar))->assertSee(route('seminar-quotes.show', $quote), false)->assertSee('SV-Tage (3)')->assertSee(route('seminar-quotes.create', ['seminar' => $seminar->id]), false)->assertSee('2.309,00 €');
 });

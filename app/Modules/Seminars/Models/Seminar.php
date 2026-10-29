@@ -50,7 +50,7 @@ class Seminar extends Model
     /** @return HasMany<SeminarQuote, $this> */
     public function quotes(): HasMany
     {
-        return $this->hasMany(SeminarQuote::class)->orderByDesc('version');
+        return $this->hasMany(SeminarQuote::class)->orderByDesc('id');
     }
 
     /** @return BelongsTo<User, $this> */

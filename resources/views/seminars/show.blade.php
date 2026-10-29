@@ -9,7 +9,7 @@
         return match ($event->type) {
             \App\Modules\Seminars\Enums\SeminarEventType::StatusChanged => (\App\Modules\Seminars\Enums\SeminarStatus::tryFrom($data['von'] ?? '')?->label() ?? '').' → '.(\App\Modules\Seminars\Enums\SeminarStatus::tryFrom($data['nach'] ?? '')?->label() ?? '').($event->comment ? ': '.$event->comment : ''),
             \App\Modules\Seminars\Enums\SeminarEventType::SessionAdded, \App\Modules\Seminars\Enums\SeminarEventType::SessionRemoved => (string) ($data['termin'] ?? ''),
-            \App\Modules\Seminars\Enums\SeminarEventType::QuoteCreated => 'Fassung '.($data['fassung'] ?? '').', Summe '.($data['summe'] ?? ''),
+            \App\Modules\Seminars\Enums\SeminarEventType::QuoteCreated => ($data['positionen'] ?? 1).' Position(en), Endsumme '.($data['summe'] ?? ''),
             \App\Modules\Seminars\Enums\SeminarEventType::Updated => 'Geändert: '.implode(', ', $data['felder'] ?? []),
             default => (string) $event->comment,
         };
@@ -25,7 +25,7 @@
                 @if ($statusChoices !== [])
                     <x-vdbs.actions.button icon="refresh-cw" data-vdbs-dialog-open="change-status">Status ändern</x-vdbs.actions.button>
                 @endif
-                <x-vdbs.actions.button variant="secondary" :href="route('seminars.quotes.create', $seminar)" icon="clipboard-list">Kostenvoranschlag berechnen</x-vdbs.actions.button>
+                <x-vdbs.actions.button variant="secondary" :href="route('seminar-quotes.create', ['seminar' => $seminar->id])" icon="clipboard-list">Kostenvoranschlag berechnen</x-vdbs.actions.button>
                 <x-vdbs.actions.button variant="secondary" :href="route('seminars.edit', $seminar)" icon="pencil">Bearbeiten</x-vdbs.actions.button>
                 @if ($deletable)
                     <x-vdbs.actions.button variant="danger" shape="outline" icon="trash-2" data-vdbs-dialog-open="delete-seminar">Löschen</x-vdbs.actions.button>
@@ -63,11 +63,11 @@
             @if ($seminar->quotes->isEmpty())
                 <p>Noch kein Kostenvoranschlag.</p>
             @else
-                <x-vdbs.data.table caption="Kostenvoranschläge" :columns="[['key' => 'version', 'label' => 'Fassung'], ['key' => 'date', 'label' => 'Erstellt'], ['key' => 'total', 'label' => 'Summe']]">
+                <x-vdbs.data.table caption="Kostenvoranschläge" :columns="[['key' => 'date', 'label' => 'Erstellt'], ['key' => 'positions', 'label' => 'Positionen'], ['key' => 'total', 'label' => 'Endsumme']]">
                     @foreach ($seminar->quotes as $quote)
                         <tr class="vdbs-table__row--link">
-                            <td><a class="vdbs-table__row-link" href="{{ route('seminars.quotes.show', [$seminar, $quote]) }}">Fassung {{ $quote->version }}</a></td>
-                            <td>{{ $quote->created_at?->format('d.m.Y') }}</td>
+                            <td><a class="vdbs-table__row-link" href="{{ route('seminar-quotes.show', $quote) }}">{{ $quote->created_at?->format('d.m.Y') }}</a></td>
+                            <td>{{ collect($quote->positions)->pluck('title')->implode(', ') }}</td>
                             <td>{{ \App\Modules\Seminars\Support\Money::format($quote->total_cents) }}</td>
                         </tr>
                     @endforeach

@@ -28,6 +28,7 @@ final class QuoteCalculator
             SeminarType::SvDays => ['days' => 3, 'team' => 3, 'hours' => 6.0, 'leaders' => 1, 'group' => 45, 'material_factor' => 1.0] + $base,
             SeminarType::Coaching => ['days' => 2, 'team' => 3, 'hours' => 6.0, 'leaders' => 0, 'group' => 30, 'material_factor' => 0.3] + $base,
             SeminarType::Election => ['days' => 1, 'team' => 2, 'hours' => 2.0, 'leaders' => 0, 'group' => 20, 'material_factor' => 0.3] + $base,
+            SeminarType::GsvSupport => ['days' => 4, 'team' => 1, 'hours' => 3.0, 'leaders' => 0, 'group' => 20, 'material_factor' => 0.3] + $base,
         };
     }
 
@@ -35,7 +36,7 @@ final class QuoteCalculator
     public static function inputLabels(SeminarType $type): array
     {
         return [
-            'days' => $type === SeminarType::SvDays ? 'Tage' : 'Treffen',
+            'days' => 'Stückzahl ('.$type->unit().')',
             'team' => 'Teamende',
             'hours' => 'Stunden pro Tag (auch Vor- und Nachbereitung)',
             'leaders' => 'Seminarleitung (Anzahl)',
