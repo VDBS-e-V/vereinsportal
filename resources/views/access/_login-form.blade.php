@@ -9,3 +9,5 @@
         <x-vdbs.actions.button type="submit" :full="true" size="l">Anmelden</x-vdbs.actions.button>
     </x-slot:actions>
 </x-vdbs.forms.form>
+
+<p style="margin-top:var(--space-4)"><a href="{{ route('password.request') }}">Passwort vergessen?</a></p>

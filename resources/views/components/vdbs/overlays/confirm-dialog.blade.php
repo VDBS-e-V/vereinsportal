@@ -17,7 +17,7 @@
 
     variant       default | danger   danger: rote Bestätigung mit Warn-Symbol
     action        Adresse des Formulars (method post | put | patch | delete); ohne action ist die Bestätigung ein Button,
-                  den der Aufrufer im Slot "confirm-button" selbst liefert (z. B. für Livewire)
+                  den der Aufrufer im Slot "submit" selbst liefert (z. B. für Livewire)
     phrase        Text, den man zur Bestätigung eintippen muss (z. B. LÖSCHEN). Ohne JavaScript bleibt die Bestätigung offen:
                   der Server muss die Eingabe (Feld "confirmation") zusätzlich prüfen.
     Standard-Slot: Erklärung der Folgen. Weitere Felder im Slot "fields".
@@ -28,7 +28,7 @@
     $verb = strtoupper($method);
     $spoof = in_array($verb, ['PUT', 'PATCH', 'DELETE'], true);
     $phraseLabel ??= $phrase ? 'Tippe „'.$phrase.'“ zur Bestätigung' : null;
-    $ownConfirm = isset($confirmButton) && trim((string) $confirmButton) !== '';
+    $ownConfirm = isset($submit) && trim((string) $submit) !== '';
 @endphp
 
 <dialog id="{{ $id }}" {{ $attributes->class(['vdbs-modal', 'vdbs-modal--confirm', "vdbs-modal--{$variant}"]) }} aria-labelledby="{{ $id }}-title" aria-describedby="{{ $id }}-text" data-vdbs-dialog>
@@ -62,7 +62,7 @@
         <div class="vdbs-modal__actions">
             <x-vdbs.actions.button type="button" variant="secondary" autofocus data-vdbs-dialog-close>{{ $cancelLabel }}</x-vdbs.actions.button>
             @if ($ownConfirm)
-                {!! (string) $confirmButton !!}
+                {!! (string) $submit !!}
             @else
                 <x-vdbs.actions.button type="submit" :variant="$variant === 'danger' ? 'danger' : 'primary'" data-vdbs-confirm-submit>{{ $confirmLabel }}</x-vdbs.actions.button>
             @endif

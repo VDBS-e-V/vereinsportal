@@ -5,6 +5,7 @@ namespace App\Modules\Access\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Access\Enums\TwoFactorMethodType;
 use App\Modules\Access\Enums\UserStatus;
+use App\Modules\Access\Http\Middleware\EnsureSessionVersion;
 use App\Modules\Access\Models\User;
 use App\Modules\Access\Services\EmailChallenges;
 use App\Modules\Access\Services\TwoFactorManager;
@@ -99,6 +100,7 @@ class TwoFactorChallengeController extends Controller
         $request->session()->regenerate();
 
         Auth::guard('web')->login($user, $remember);
+        $request->session()->put(EnsureSessionVersion::KEY, (int) $user->session_version);
 
         $user->forceFill(['last_login_at' => now()])->save();
 

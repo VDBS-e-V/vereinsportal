@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Access\Http\Middleware\EnsureSessionVersion;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -21,7 +22,8 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Beendet Sitzungen, deren Version nicht mehr zum Konto passt (Passwortwechsel, E-Mail-Wechsel, "alle abmelden")
+        $middleware->web(append: [EnsureSessionVersion::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

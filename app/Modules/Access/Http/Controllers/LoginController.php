@@ -4,6 +4,7 @@ namespace App\Modules\Access\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Access\Enums\TwoFactorMethodType;
+use App\Modules\Access\Http\Middleware\EnsureSessionVersion;
 use App\Modules\Access\Http\Requests\LoginRequest;
 use App\Modules\Access\Services\EmailChallenges;
 use App\Modules\Access\Services\TwoFactorManager;
@@ -44,6 +45,7 @@ class LoginController extends Controller
         }
 
         Auth::guard('web')->login($user, $request->boolean('remember'));
+        $request->session()->put(EnsureSessionVersion::KEY, (int) $user->session_version);
 
         $user->forceFill(['last_login_at' => now()])->save();
 

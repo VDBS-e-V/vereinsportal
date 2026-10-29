@@ -4,6 +4,7 @@ namespace App\Modules\Access\Models;
 
 use App\Modules\Access\Enums\TwoFactorMethodType;
 use App\Modules\Access\Enums\UserStatus;
+use App\Modules\Access\Mail\PasswordResetMail;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\People\Models\Person;
 use Database\Factories\UserFactory;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Mail;
 use Laravel\Passport\HasApiTokens;
 
 /**
@@ -62,6 +64,14 @@ class User extends Authenticatable
             'anonymized_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /** Versendet den Link zum Zurücksetzen des Passworts als eigene deutsche E-Mail (statt der Standard-Benachrichtigung). */
+    public function sendPasswordResetNotification($token): void
+    {
+        $url = route('password.reset', ['token' => $token, 'email' => $this->email]);
+
+        Mail::to($this->email)->send(new PasswordResetMail($url, (int) config('auth.passwords.users.expire', 60)));
     }
 
     public function avatarUrl(): ?string

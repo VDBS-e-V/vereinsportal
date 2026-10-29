@@ -63,8 +63,7 @@
                         <x-vdbs.data.avatar :name="$displayName" size="s" aria-hidden="true" />
                         <span class="vdbs-header__user-name">{{ $displayName }}</span>
                     </x-slot:trigger>
-                    {{-- "Mein Konto" bleibt Platzhalter, bis die Profil-Seite gebaut ist --}}
-                    <x-vdbs.navigation.dropdown-item href="#" icon="user">Mein Konto</x-vdbs.navigation.dropdown-item>
+                    <x-vdbs.navigation.dropdown-item :href="route('account.profile')" icon="user" :current="request()->routeIs('account.profile')">Mein Konto</x-vdbs.navigation.dropdown-item>
                     <x-vdbs.navigation.dropdown-item :href="route('account.security.index')" icon="shield" :current="request()->routeIs('account.security.*')">Sicherheit</x-vdbs.navigation.dropdown-item>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf

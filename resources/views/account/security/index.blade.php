@@ -1,19 +1,11 @@
-@php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Konto'], ['label' => 'Sicherheit']];
-@endphp
-
-<x-layouts.app title="Sicherheit" width="medium">
-    <x-vdbs.layout.page-header title="Sicherheit" lead="Schützen Sie Ihr Konto mit einem zweiten Faktor, zusätzlich zum Passwort." :breadcrumb="$crumbs">
-        <x-slot:meta>
-            @if ($enabled)
-                <x-vdbs.data.badge tone="success">Zwei-Faktor aktiv</x-vdbs.data.badge>
-            @else
-                <x-vdbs.data.badge tone="warning">Nicht eingerichtet</x-vdbs.data.badge>
-            @endif
-        </x-slot:meta>
-    </x-vdbs.layout.page-header>
-
-    <x-vdbs.forms.error-summary />
+<x-account.shell title="Sicherheit" current="security" lead="Schützen Sie Ihr Konto mit einem zweiten Faktor, zusätzlich zum Passwort.">
+    <x-slot:meta>
+        @if ($enabled)
+            <x-vdbs.data.badge tone="success">Zwei-Faktor aktiv</x-vdbs.data.badge>
+        @else
+            <x-vdbs.data.badge tone="warning">Nicht eingerichtet</x-vdbs.data.badge>
+        @endif
+    </x-slot:meta>
 
     @unless ($enabled)
         <x-vdbs.feedback.alert variant="warning" title="Ihr Konto ist noch nicht durch einen zweiten Faktor geschützt">
@@ -80,4 +72,4 @@
             <x-slot:fields><x-vdbs.forms.password id="new-codes-password" name="password" label="Passwort" :required="true" /></x-slot:fields>
         </x-vdbs.overlays.confirm-dialog>
     @endif
-</x-layouts.app>
+</x-account.shell>
