@@ -54,7 +54,7 @@
 .vdbs-header__links--large a { font-size: var(--font-size-h4); }
 .vdbs-header__links--large { gap: var(--space-1) var(--space-6); }
 
-.vdbs-header__eyebrow { margin: 0; color: var(--text-muted); font-size: var(--font-size-small); }
+.vdbs-header__eyebrow { margin: 0; color: var(--text-muted); font-weight: var(--font-weight-medium); font-size: var(--font-size-body); }
 .vdbs-header__title { margin: 0; font-size: var(--font-size-h3); font-weight: var(--font-weight-black); line-height: var(--line-height-heading); }
 
 .vdbs-header__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4) var(--space-5); }
