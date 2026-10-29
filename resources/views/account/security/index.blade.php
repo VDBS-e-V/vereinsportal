@@ -8,9 +8,16 @@
     </x-slot:meta>
 
     @unless ($enabled)
-        <x-vdbs.feedback.alert variant="warning" title="Ihr Konto ist noch nicht durch einen zweiten Faktor geschützt">
+        <x-vdbs.feedback.alert :variant="$required ? 'error' : 'warning'" :title="$required ? 'Zwei-Faktor ist für Ihre Rolle Pflicht' : 'Ihr Konto ist noch nicht durch einen zweiten Faktor geschützt'">
+            @if ($required)
+                Bis Sie eine Methode eingerichtet haben, sind nur diese Sicherheitsseiten erreichbar.
+            @endif
             Richten Sie eine Authenticator-App oder den E-Mail-Code ein. Bei der Anmeldung geben Sie danach zusätzlich einen Sicherheitscode ein.
         </x-vdbs.feedback.alert>
+    @else
+        @if ($required)
+            <x-vdbs.feedback.alert variant="info">Für Ihre Rolle ist die Zwei-Faktor-Anmeldung Pflicht. Die letzte Methode kann deshalb nicht entfernt werden.</x-vdbs.feedback.alert>
+        @endif
     @endunless
 
     <div style="display:grid;gap:var(--space-5)">

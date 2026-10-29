@@ -38,7 +38,7 @@ bestimmt nur die Darstellung, er ersetzt keine Berechtigungsprüfung. Ein Bereic
 | Koordination | Koordination | – |
 | Geschäftsstelle | Geschäftsstelle, Administration | Nutzer, Personen |
 | Bildungsreferenten | Bildungsreferenten | – |
-| Admins | Administration | Protokoll, Design-Bibliothek |
+| Admins | Administration | Protokoll (`audit.view`), Design-Bibliothek (`design.view`; Administration und Vorstand) |
 | Konto | alle Angemeldeten | Profil, E-Mail, Passwort, Sicherheit, Sitzungen |
 | Start | öffentlich | Über das Portal, Zugang zum Portal, FAQ, Kontakt |
 

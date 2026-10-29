@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Access\Http\Middleware\EnforceTwoFactorSetup;
 use App\Modules\Access\Http\Middleware\EnsureSessionVersion;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -24,6 +25,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Beendet Sitzungen, deren Version nicht mehr zum Konto passt (Passwortwechsel, E-Mail-Wechsel, "alle abmelden")
         $middleware->web(append: [EnsureSessionVersion::class]);
+
+        // Zwei-Faktor-Pflicht für Rollen mit Verwaltungsrechten (siehe TwoFactorPolicy); danach die Sitzungsprüfung
+        $middleware->web(append: [EnforceTwoFactorSetup::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

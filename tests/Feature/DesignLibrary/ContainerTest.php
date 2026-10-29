@@ -15,7 +15,7 @@ it('renders every supported container width and falls back to default', function
 
 it('wraps layout content in a container unless the width is full', function () {
     $this->withoutVite();
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(designViewer());
 
     $this->get('/design/seitenlayout')->assertOk()->assertSee('vdbs-container--default', false);
 
@@ -25,7 +25,7 @@ it('wraps layout content in a container unless the width is full', function () {
 
 it('shows the hero examples in the wide container', function () {
     $this->withoutVite();
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(designViewer());
 
     $this->get('/design/hero')->assertOk()->assertSee('vdbs-container--wide', false);
 });

@@ -70,7 +70,7 @@ final class PortalNavigation
                 'roles' => [RoleKey::Administration],
                 'pages' => [
                     ['label' => 'Protokoll', 'route' => 'admin.audit.index', 'match' => 'admin.audit.*', 'can' => 'audit.view'],
-                    ['label' => 'Design-Bibliothek', 'route' => 'design-library.index', 'match' => 'design-library.*'],
+                    ['label' => 'Design-Bibliothek', 'route' => 'design-library.index', 'match' => 'design-library.*', 'can' => 'design.view'],
                 ],
             ],
         ];

@@ -8,6 +8,7 @@ use App\Modules\Access\Models\User;
 use App\Modules\Access\Services\EmailChallenges;
 use App\Modules\Access\Services\Totp;
 use App\Modules\Access\Services\TwoFactorManager;
+use App\Modules\Access\Services\TwoFactorPolicy;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use Illuminate\Contracts\View\View;
@@ -23,6 +24,7 @@ class SecurityController extends Controller
     public function __construct(
         private readonly TwoFactorManager $twoFactor,
         private readonly EmailChallenges $emailChallenges,
+        private readonly TwoFactorPolicy $policy,
     ) {}
 
     public function index(Request $request): View
@@ -35,6 +37,7 @@ class SecurityController extends Controller
             'enabled' => $this->twoFactor->isEnabled($user),
             'remaining' => $this->twoFactor->remainingRecoveryCodes($user),
             'email' => $user->email,
+            'required' => $this->policy->isRequired($user),
         ]);
     }
 
@@ -125,6 +128,12 @@ class SecurityController extends Controller
             'password.required' => 'Bitte geben Sie Ihr Passwort ein.',
             'password.current_password' => 'Das Passwort ist nicht korrekt.',
         ]);
+
+        $others = $this->twoFactor->activeMethods($this->user($request))->filter(fn ($active): bool => $active->type !== $method);
+
+        if ($this->policy->isRequired($this->user($request)) && $others->isEmpty()) {
+            return redirect()->route('account.security.index')->with('warning', 'Für Ihre Rolle ist die Zwei-Faktor-Anmeldung Pflicht. Richten Sie zuerst eine andere Methode ein, bevor Sie diese entfernen.');
+        }
 
         $this->twoFactor->disable($this->user($request), $method);
         AuditLog::record(AuditEvent::TwoFactorDisabled, $this->user($request), $this->user($request), ['methode' => $method->value]);

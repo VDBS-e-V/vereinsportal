@@ -12,6 +12,15 @@ return [
     ],
 
     /*
+     * Zwei-Faktor-Pflicht: Wer eine dieser Rollen hat, muss mindestens eine Methode einrichten (Konto > Sicherheit), bevor
+     * andere Seiten hinter der Anmeldung erreichbar sind. Lokal abschaltbar mit TWO_FACTOR_REQUIRED=false.
+     */
+    'two_factor' => [
+        'required' => (bool) env('TWO_FACTOR_REQUIRED', true),
+        'roles' => ['administration', 'administration_staff', 'board_member'],
+    ],
+
+    /*
      * Footer-Spalten. Platzhalter '#', bis die Seiten bzw. Profile feststehen.
      * 'icon' ist optional (Name unter resources/icons).
      */

@@ -11,7 +11,7 @@ it('redirects guests to the login route', function () {
 });
 
 it('lists every library entry for authenticated users', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(designViewer())
         ->get('/design')
         ->assertOk()
         ->assertSee('Design-Bibliothek')
@@ -19,7 +19,7 @@ it('lists every library entry for authenticated users', function () {
 });
 
 it('renders every registered entry', function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(designViewer());
 
     foreach (Registry::all() as $slug => $entry) {
         $this->get(route('design-library.show', $slug))
@@ -29,7 +29,7 @@ it('renders every registered entry', function () {
 });
 
 it('returns 404 for unknown entries', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(designViewer())
         ->get('/design/gibt-es-nicht')
         ->assertNotFound();
 });

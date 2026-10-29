@@ -199,11 +199,11 @@ it('shows the account pages in row two without highlighting an area', function (
     }
 });
 
-it('shows no page links on the start page and no areas to members', function () {
+it('shows the public start pages and no areas to members', function () {
     $html = $this->actingAs(pnUser(RoleKey::Member))->get(route('home'))->assertOk()->getContent();
     $html = pnHeader($html);
 
-    expect($html)->not->toContain('Seiten im Bereich')
+    expect($html)->toContain('aria-label="Seiten im Bereich Start"')
         ->and($html)->not->toContain('>Geschäftsstelle<')
         ->and($html)->not->toContain('>Admins<');
 });
@@ -279,4 +279,12 @@ it('renders a submenu for entries with children', function () {
     expect($result[0]['current'])->toBeFalse()
         ->and(array_column($result[0]['children'], 'label'))->toBe(['Kind'])
         ->and($result[0]['children'][0]['current'])->toBeTrue();
+});
+
+
+it('restricts the design library to administration and board', function () {
+    $this->actingAs(pnUser(RoleKey::AdministrationStaff))->get(route('design-library.index'))->assertForbidden();
+    $this->actingAs(pnUser(RoleKey::Member))->get(route('design-library.index'))->assertForbidden();
+    $this->actingAs(pnUser(RoleKey::BoardMember))->get(route('design-library.index'))->assertOk();
+    $this->actingAs(pnUser(RoleKey::Administration))->get(route('design-library.index'))->assertOk();
 });

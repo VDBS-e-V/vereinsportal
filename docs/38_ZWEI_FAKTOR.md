@@ -43,8 +43,20 @@ Controller `LoginController`, `TwoFactorChallengeController`, `SecurityControlle
 ## Offen
 
 - **QR-Code** beim Einrichten (braucht eine QR-Bibliothek, z. B. `bacon/bacon-qr-code`); bisher Schlüssel und Link.
-- **Pflicht für alle oder bestimmte Rollen:** bisher freiwillig. Eine Pflicht wäre eine Middleware, die Nutzer ohne Methode
-  auf `/konto/sicherheit` umleitet.
 - **Gerät merken** (30 Tage) fehlt; das Muster in der Bibliothek zeigt die Checkbox bereits.
-- **Protokoll** der Sicherheitsereignisse (Einrichten, Entfernen, Fehlversuche) wartet auf das Audit-Modul.
 - **E-Mail-Vorlage** ist ein einfaches Blade-Template, bis das Vorlagensystem existiert.
+
+## Pflicht für Rollen mit Verwaltungsrechten
+
+Wer zurzeit die Rolle **Administration, Geschäftsstelle oder Vorstand** hat, muss mindestens eine Methode einrichten
+(`App\Modules\Access\Services\TwoFactorPolicy`, Konfiguration `config/portal.php` > `two_factor`). Alle anderen bleiben freiwillig.
+
+- Die Middleware `EnforceTwoFactorSetup` leitet Nutzer mit Pflicht und ohne Methode von jeder Seite hinter der Anmeldung auf
+  **Konto > Sicherheit** um. Erreichbar bleiben die Sicherheitsseiten (`account.security.*`), die Abmeldung und die öffentlichen
+  Seiten. JSON-Anfragen erhalten 403.
+- Die **letzte Methode** kann bei Pflicht nicht entfernt werden. Setzt die Verwaltung die Methoden zurück, muss die Person sie
+  beim nächsten Aufruf neu einrichten.
+- Neue Rolle mit Pflicht: im Schlüssel `two_factor.roles` ergänzen.
+- **Lokal abschalten:** `TWO_FACTOR_REQUIRED=false` in der `.env` (Testkonten ohne App). In den Tests ist die Pflicht über
+  `phpunit.xml` abgeschaltet und wird in `tests/Feature/Access/TwoFactorRequiredTest.php` gezielt eingeschaltet.
+- **Protokoll:** Einrichten, Entfernen, Fehlversuche und Wiederherstellungscodes stehen im Protokoll (`docs/42_PROTOKOLL.md`).

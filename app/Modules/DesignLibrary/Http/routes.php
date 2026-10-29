@@ -3,9 +3,8 @@
 use App\Modules\DesignLibrary\Http\DesignLibraryController;
 use Illuminate\Support\Facades\Route;
 
-// Zugriff: nur angemeldet. Rollen-Einschränkung bewusst noch offen
-// (später über Access-Governance verfeinerbar).
-Route::middleware(['web', 'auth'])
+// Zugriff: Berechtigung design.view (Administration und Vorstand, siehe AccessGovernance\Support\Capabilities).
+Route::middleware(['web', 'auth', 'can:design.view'])
     ->prefix('design')
     ->name('design-library.')
     ->group(function (): void {

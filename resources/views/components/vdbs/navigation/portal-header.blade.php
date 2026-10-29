@@ -9,6 +9,7 @@
     // Ohne Anmeldung (und auf Fehlerseiten) stehen in Zeile 2 die öffentlichen Seiten des Bereichs Start.
     $navArea = $currentArea ?? ($user === null ? \App\Support\PortalAreas::Start : null);
     $areaPages = $navArea ? \App\Support\PortalNavigation::pages($navArea, $user, $routeName) : [];
+    $hasAreaMenu = count($visibleAreas) > 0 || $systems->isNotEmpty();
     $headerTitle = $currentArea?->label() ?? ($title ?? 'Start');
 @endphp
 
@@ -26,28 +27,23 @@
                 <img src="{{ asset('images/brand/vdbs-bildmarke-breit.png') }}" alt="VDBS e. V." height="40">
             </a>
 
-            <button type="button" class="vdbs-header__menu-toggle vdbs-js-only" data-vdbs-menu-toggle aria-expanded="false" aria-controls="portal-menu-areas portal-menu-actions" aria-label="Menü">
+            <button type="button" class="vdbs-header__menu-toggle vdbs-js-only" data-vdbs-menu-toggle aria-expanded="false" aria-controls="{{ $hasAreaMenu ? 'portal-menu-areas ' : '' }}portal-menu-actions" aria-label="Menü">
                 <x-vdbs.icon class="vdbs-header__menu-icon-open" name="menu" :size="22" />
                 <x-vdbs.icon class="vdbs-header__menu-icon-close" name="x" :size="22" />
             </button>
 
-            <nav id="portal-menu-areas" class="vdbs-header__menu-panel" aria-label="Bereiche und externe Systeme">
-                <ul class="vdbs-header__links">
-                    @if ($user)
+            @if ($hasAreaMenu)
+                <nav id="portal-menu-areas" class="vdbs-header__menu-panel" aria-label="Bereiche und externe Systeme">
+                    <ul class="vdbs-header__links">
                         @foreach ($visibleAreas as $topArea)
                             <li><a href="{{ \App\Support\PortalNavigation::home($topArea, $user) }}" @if ($topArea === $currentArea) aria-current="true" @endif>{{ $topArea->label() }}</a></li>
                         @endforeach
-                    @else
-                        {{-- Gäste: Platzhalter, die Bereiche verlinken erst nach der Anmeldung. --}}
-                        @foreach (\App\Support\PortalAreas::withGroupMark() as $topArea)
-                            <li><a href="#">{{ $topArea->label() }}</a></li>
+                        @foreach ($systems as $system)
+                            <li><a href="{{ $system['url'] }}">{{ $system['label'] }}</a></li>
                         @endforeach
-                    @endif
-                    @foreach ($systems as $system)
-                        <li><a href="{{ $system['url'] }}">{{ $system['label'] }}</a></li>
-                    @endforeach
-                </ul>
-            </nav>
+                    </ul>
+                </nav>
+            @endif
         </div>
     </div>
 

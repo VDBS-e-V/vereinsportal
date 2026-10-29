@@ -48,3 +48,9 @@ test.<rollen-key>@vdbs.test
 ```
 
 Unterstriche in Rollen-Keys werden in der E-Mail-Adresse durch Bindestriche ersetzt. Die tatsächliche vollständige Liste ergibt sich immer aus `RoleKey::cases()`; neue Rollen werden dadurch automatisch in den nächsten Lauf aufgenommen.
+
+## Zwei-Faktor-Pflicht lokal
+
+Die Rollen Administration, Geschäftsstelle und Vorstand müssen eine Zwei-Faktor-Methode einrichten (`docs/38_ZWEI_FAKTOR.md`). Für Testkonten
+ohne Authenticator-App in der lokalen `.env` `TWO_FACTOR_REQUIRED=false` setzen (danach `php artisan config:clear`), oder den
+E-Mail-Code als Methode einrichten.

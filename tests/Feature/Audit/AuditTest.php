@@ -60,7 +60,7 @@ it('records actor, subject, context and address with readable labels', function 
         ->and($entry->subject_type)->toBe('user')
         ->and($entry->subject_id)->toBe($target->id)
         ->and($entry->subject_label)->toBe('Tom Team')
-        ->and($entry->context)->toBe(['grund' => 'Test', 'leer' => null, 'liste' => ['a', 'b']])
+        ->and($entry->context)->toEqual(['grund' => 'Test', 'leer' => null, 'liste' => ['a', 'b']])
         ->and($entry->occurred_at)->not->toBeNull();
 });
 
@@ -83,8 +83,8 @@ it('shortens long texts and drops objects from the context', function () {
 });
 
 it('never lets a failing log entry break the action', function () {
-    // Ungültiges UTF-8 lässt das Speichern des JSON-Kontexts scheitern.
-    AuditLog::record(AuditEvent::Login, null, null, ['kaputt' => "\xB1\x31"]);
+    // NAN lässt sich nicht als JSON speichern und lässt das Anlegen des Eintrags scheitern.
+    AuditLog::record(AuditEvent::Login, null, null, ['kaputt' => NAN]);
 
     expect(AuditEntry::query()->count())->toBe(0);
 });

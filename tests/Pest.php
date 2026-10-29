@@ -48,3 +48,21 @@ function something()
 {
     // ..
 }
+
+
+/** Nutzer mit der Rolle Administration (darf u. a. die Design-Bibliothek sehen). */
+function designViewer(): \App\Modules\Access\Models\User
+{
+    app(\Database\Seeders\RoleSeeder::class)->run();
+
+    $user = \App\Modules\Access\Models\User::factory()->create();
+
+    \App\Modules\AccessGovernance\Models\RoleAssignment::query()->create([
+        'user_id' => $user->id,
+        'role_id' => \App\Modules\AccessGovernance\Models\Role::query()->where('key', 'administration')->value('id'),
+        'source' => \App\Modules\AccessGovernance\Enums\RoleAssignmentSource::Manual,
+        'starts_at' => now()->subMinute(),
+    ]);
+
+    return $user;
+}

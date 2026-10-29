@@ -40,7 +40,7 @@ it('offers a global placeholder helper', function () {
 });
 
 it('lists the kinds as json for authenticated users', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(designViewer())
         ->getJson('/design/api/platzhalter')
         ->assertOk()
         ->assertJsonCount(count(PlaceholderImages::KINDS), 'data')

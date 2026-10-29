@@ -17,7 +17,9 @@
                         @endforeach
                         @if ($loop->index === 1)
                             @if (! $safe && auth()->check())
-                                <li><a href="{{ route('design-library.index') }}">Design-Bibliothek</a></li>
+                                @can('design.view')
+                                    <li><a href="{{ route('design-library.index') }}">Design-Bibliothek</a></li>
+                                @endcan
                             @else
                                 <li><a href="{{ route('login') }}">Anmelden</a></li>
                             @endif

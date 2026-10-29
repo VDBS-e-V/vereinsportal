@@ -93,17 +93,24 @@ it('shows the start page to authenticated users', function () {
 it('shows header and footer navigation depending on the login state', function () {
     $this->get('/login')->assertSee('Anmelden')->assertDontSee('Design-Bibliothek');
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(designViewer())
         ->get('/')
         ->assertSee('Design-Bibliothek')
         ->assertSee('Abmelden');
 });
 
-it('shows the area placeholders and a login button to guests on public pages', function () {
+it('shows guests the public pages and a login button but no areas', function () {
     $this->get('/design')->assertRedirect(route('login'));
 
-    $response = $this->get('/login');
-    $response->assertSee('Vorstand')->assertSee('Geschäftsstelle');
+    $this->get('/')->assertOk()->assertSee('Login');
+
+    preg_match('/<header class="vdbs-header".*?<\/header>/s', $this->get('/')->getContent(), $header);
+
+    expect($header[0])
+        ->toContain('aria-label="Seiten im Bereich Start"')
+        ->not->toContain('>Vorstand<')
+        ->not->toContain('>Geschäftsstelle<')
+        ->not->toContain('portal-menu-areas');
 });
 
 it('renders the configured footer columns', function () {
@@ -121,8 +128,19 @@ it('renders the mobile menu toggle with accessible state and controls', function
         ->toContain('data-vdbs-header')
         ->toContain('data-vdbs-menu-toggle')
         ->toContain('aria-expanded="false"')
+        ->toContain('aria-controls="portal-menu-actions"')
+        ->toContain('id="portal-menu-actions"')
+        ->not->toContain('id="portal-menu-areas"')
+        ->toContain('vdbs-js-only');
+});
+
+it('controls the area menu from the toggle as soon as there is one', function () {
+    config(['portal.systems' => [['label' => 'Nextcloud', 'url' => 'https://cloud.example.org']]]);
+
+    $html = $this->get('/login')->getContent();
+
+    expect($html)
         ->toContain('aria-controls="portal-menu-areas portal-menu-actions"')
         ->toContain('id="portal-menu-areas"')
-        ->toContain('id="portal-menu-actions"')
-        ->toContain('vdbs-js-only');
+        ->toContain('https://cloud.example.org');
 });
