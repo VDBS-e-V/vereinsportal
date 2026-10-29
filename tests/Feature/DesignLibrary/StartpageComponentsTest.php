@@ -306,3 +306,82 @@ it('renders a timeline with time, actor, description and tone', function () {
         ->toContain('Erika')
         ->toContain('Details');
 });
+
+it('renders the page header with breadcrumb, meta, actions and tabs', function () {
+    $html = Blade::render('<x-vdbs.layout.page-header title="Erika" eyebrow="Nutzer" lead="Lead" :breadcrumb="[[\'label\' => \'Start\', \'href\' => \'/\'], [\'label\' => \'Erika\']]"><x-slot:meta>Aktiv</x-slot:meta><x-slot:actions>Bearbeiten</x-slot:actions><x-slot:tabs>Tabs</x-slot:tabs></x-vdbs.layout.page-header>');
+
+    expect($html)
+        ->toContain('<h1 class="vdbs-page-header__title" id="page-erika-title">Erika</h1>')
+        ->toContain('aria-labelledby="page-erika-title"')
+        ->toContain('vdbs-breadcrumb')
+        ->toContain('vdbs-page-header__meta')
+        ->toContain('vdbs-page-header__actions')
+        ->toContain('vdbs-page-header__tabs');
+});
+
+it('renders a confirm dialog with form, csrf, method spoofing and safe default focus', function () {
+    $html = Blade::render('<x-vdbs.overlays.confirm-dialog id="del" title="Löschen?" variant="danger" action="/n/1" method="delete" phrase="LÖSCHEN">Folgen</x-vdbs.overlays.confirm-dialog>');
+
+    expect($html)
+        ->toContain('<dialog id="del"')
+        ->toContain('vdbs-modal--danger')
+        ->toContain('aria-describedby="del-text"')
+        ->toContain('action="/n/1"')
+        ->toContain('name="_token"')
+        ->toContain('name="_method" value="DELETE"')
+        ->toContain('data-vdbs-confirm-phrase="LÖSCHEN"')
+        ->toContain('Tippe „LÖSCHEN“ zur Bestätigung')
+        ->toContain('autofocus')
+        ->toContain('vdbs-btn--danger');
+});
+
+it('renders a plain confirm dialog and lets the caller supply the confirm button', function () {
+    $html = Blade::render('<x-vdbs.overlays.confirm-dialog id="x" title="Senden?"><x-slot:confirm><button type="button" id="own">Eigener</button></x-slot:confirm>Text</x-vdbs.overlays.confirm-dialog>');
+
+    expect($html)->toContain('id="own"')->not->toContain('data-vdbs-confirm-submit')->not->toContain('data-vdbs-confirm-phrase');
+});
+
+it('renders a drawer with side, size and a footer', function () {
+    $html = Blade::render('<x-vdbs.overlays.drawer id="f" title="Filter" side="start" size="s">Inhalt<x-slot:actions>Anwenden</x-slot:actions></x-vdbs.overlays.drawer>');
+
+    expect($html)->toContain('vdbs-drawer--start')->toContain('vdbs-drawer--s')->toContain('data-vdbs-dialog')->toContain('vdbs-drawer__actions');
+    expect(Blade::render('<x-vdbs.overlays.drawer id="g" title="G" side="x" size="y">I</x-vdbs.overlays.drawer>'))->toContain('vdbs-drawer--end')->toContain('vdbs-drawer--m');
+});
+
+it('renders accordion items as details and groups exclusive ones by name', function () {
+    $open = Blade::render('<x-vdbs.disclosure.accordion><x-vdbs.disclosure.accordion-item title="Frage" :open="true">Antwort</x-vdbs.disclosure.accordion-item></x-vdbs.disclosure.accordion>');
+    $exclusive = Blade::render('<x-vdbs.disclosure.accordion exclusive="faq"><x-vdbs.disclosure.accordion-item title="A">a</x-vdbs.disclosure.accordion-item><x-vdbs.disclosure.accordion-item title="B">b</x-vdbs.disclosure.accordion-item></x-vdbs.disclosure.accordion>');
+
+    expect($open)->toContain('<details')->toContain(' open')->toContain('<h3 class="vdbs-accordion__title">Frage</h3>')->not->toContain('name=');
+    expect(substr_count($exclusive, 'name="faq"'))->toBe(2);
+});
+
+it('renders prose, a quote with source and a brand tone', function () {
+    expect(Blade::render('<x-vdbs.content.prose size="l"><p>Text</p></x-vdbs.content.prose>'))->toContain('vdbs-prose--l');
+
+    $quote = Blade::render('<x-vdbs.content.quote tone="brand" source="Erika" role="Schule" cite="/q">Aussage</x-vdbs.content.quote>');
+    expect($quote)->toContain('<blockquote')->toContain('cite="/q"')->toContain('vdbs-quote--brand')->toContain('Erika')->toContain('Schule');
+});
+
+it('renders a download card with one link and a readable file description', function () {
+    $html = Blade::render('<x-vdbs.content.download-card title="Satzung" href="/s.pdf" type="PDF" size="240 KB" text="Fassung 2024" />');
+
+    expect($html)
+        ->toContain('href="/s.pdf"')
+        ->toContain('download')
+        ->toContain('Download, PDF, 240 KB')
+        ->toContain('Fassung 2024')
+        ->and(substr_count($html, '<a '))->toBe(1);
+});
+
+it('renders an event card with a machine readable date and one link', function () {
+    $html = Blade::render('<x-vdbs.content.event-card title="Versammlung" href="/t" date="2026-11-14" time="10:00 Uhr" location="Berlin" />');
+
+    expect($html)
+        ->toContain('<time class="vdbs-event-card__date" datetime="2026-11-14">')
+        ->toContain('>14<')
+        ->toContain('Samstag, 14. November 2026')
+        ->toContain('10:00 Uhr')
+        ->toContain('Berlin')
+        ->and(substr_count($html, '<a '))->toBe(1);
+});

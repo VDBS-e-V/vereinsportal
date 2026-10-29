@@ -1,0 +1,21 @@
+/* Zitat */
+
+.vdbs-quote {
+    --quote-bg: var(--bg-surface);
+    --quote-fg: var(--text-default);
+
+    margin: 0;
+    padding: var(--space-6);
+    border-left: 8px solid var(--bg-brand);
+    background: var(--quote-bg);
+    color: var(--quote-fg);
+}
+
+.vdbs-quote--brand { --quote-bg: var(--bg-brand); --quote-fg: var(--text-on-brand); border-left-color: var(--text-on-brand); }
+
+.vdbs-quote__text { margin: 0; font-size: var(--font-size-h3); font-weight: var(--font-weight-bold); line-height: var(--line-height-tight); }
+.vdbs-quote__text::before { content: "„"; }
+.vdbs-quote__text::after { content: "“"; }
+
+.vdbs-quote__source { display: grid; gap: var(--space-1); margin-top: var(--space-4); font-size: var(--font-size-small); }
+.vdbs-quote:not(.vdbs-quote--brand) .vdbs-quote__source span { color: var(--text-muted); }

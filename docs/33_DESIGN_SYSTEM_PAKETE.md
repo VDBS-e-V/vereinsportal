@@ -9,12 +9,13 @@ und `resources/views/components/vdbs/<paket>/`. Eine Komponente = eine Blade-Dat
 | actions | `x-vdbs.actions.*` | button (einziges Button-System), button-group, link-button (Kurzform), back-to-top |
 | forms | `x-vdbs.forms.*` | input, select, textarea |
 | navigation | `x-vdbs.navigation.*` | portal-header, portal-footer, nav-main, breadcrumb, tab-nav, tabs/tab, pagination, stepper, dropdown/dropdown-item, side-nav |
-| layout | `x-vdbs.layout.*` | container, section, split, grid, aside-layout (Bild/Fläche/Seitenleiste neben dem Inhalt), Seitenrahmen, Druck |
-| content | `x-vdbs.content.*` | feature (Inhaltsblock: side, overlap, offset, links; Töne none, surface, soft, dark, brand) |
+| layout | `x-vdbs.layout.*` | container, section, split, grid, page-header, aside-layout (Bild/Fläche/Seitenleiste neben dem Inhalt), Seitenrahmen, Druck |
+| content | `x-vdbs.content.*` | prose, quote, download-card, event-card, feature (Inhaltsblock: side, overlap, offset, links; Töne none, surface, soft, dark, brand) |
 | cards | `x-vdbs.cards.*` | card, quick-links, quick-link, teaser, contact-block |
 | data | `x-vdbs.data.*` | table, badge, group-mark, chip-list, chip, event-list/event-item, avatar, toolbar, filter-tag, detail-list/detail-item, stat, timeline/timeline-item |
 | feedback | `x-vdbs.feedback.*` | alert, error-page, toast, toast-region, flash, empty-state, skeleton, progress, tooltip |
-| overlays | `x-vdbs.overlays.*` | modal |
+| overlays | `x-vdbs.overlays.*` | modal, confirm-dialog, drawer |
+| disclosure | `x-vdbs.disclosure.*` | accordion, accordion-item |
 | media | `x-vdbs.media.*` | hero, hero-tile, figure |
 
 Regeln: eine Komponente pro Datei (CSS möglichst unter ~100 Zeilen), BEM-Klassen `.vdbs-name__teil--variante`,

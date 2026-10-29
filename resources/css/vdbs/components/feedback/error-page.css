@@ -29,6 +29,9 @@
     user-select: none;
 }
 
+/* Zierde: die Nummer kommt aus dem CSS und ist damit weder Text noch Teil der Kontrastprüfung */
+.vdbs-error-page__code::before { content: attr(data-code); }
+
 @media (min-width: 768px) {
     .vdbs-error-page { grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-8); padding-block: var(--space-10); }
 }

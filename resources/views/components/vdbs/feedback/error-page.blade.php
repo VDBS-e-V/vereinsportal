@@ -37,5 +37,5 @@
         </div>
     </div>
 
-    <p class="vdbs-error-page__code" aria-hidden="true">{{ $code }}</p>
+    <p class="vdbs-error-page__code" aria-hidden="true" data-code="{{ $code }}"></p>
 </section>

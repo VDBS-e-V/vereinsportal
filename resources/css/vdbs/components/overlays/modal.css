@@ -4,6 +4,7 @@
 
 .vdbs-modal {
     width: min(36rem, calc(100% - 2rem));
+    margin: auto;
     max-height: calc(100% - 2rem);
     padding: 0;
     border: 1px solid var(--border-input);
@@ -45,3 +46,12 @@
     color: inherit;
     cursor: pointer;
 }
+
+/* Bestätigungsdialog */
+.vdbs-modal__form { display: contents; }
+.vdbs-modal__icon { margin-right: var(--space-2); vertical-align: -0.2em; }
+.vdbs-modal--danger { border-top: 6px solid var(--border-error); }
+.vdbs-modal--danger .vdbs-modal__icon { color: var(--text-error); }
+.vdbs-modal__body > :last-child { margin-bottom: 0; }
+.vdbs-modal__fields,
+.vdbs-modal__phrase { margin-top: var(--space-4); }

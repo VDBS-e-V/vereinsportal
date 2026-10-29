@@ -1,0 +1,41 @@
+/* Termin-Karte */
+
+.vdbs-event-card {
+    position: relative;
+    display: flex;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border: var(--border-width) solid var(--border-default);
+    background: var(--bg-surface);
+}
+
+.vdbs-event-card:hover { background: var(--bg-accent-soft); }
+.vdbs-event-card:focus-within { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-ring-offset); }
+
+.vdbs-event-card__date {
+    display: inline-flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    min-height: 4rem;
+    background: var(--bg-action);
+    color: var(--text-on-action);
+    line-height: 1.1;
+}
+
+.vdbs-event-card__day { font-size: var(--font-size-h2); font-weight: var(--font-weight-black); }
+.vdbs-event-card__month { font-size: var(--font-size-small); font-weight: var(--font-weight-bold); text-transform: uppercase; letter-spacing: 0.04em; }
+
+.vdbs-event-card__body { flex: 1 1 auto; min-width: 0; }
+.vdbs-event-card__title { margin: 0; font-size: var(--font-size-h4); font-weight: var(--font-weight-bold); line-height: var(--line-height-tight); }
+
+.vdbs-event-card__link { color: var(--text-default); text-decoration: none; }
+.vdbs-event-card__link::after { content: ""; position: absolute; inset: 0; }
+.vdbs-event-card:hover .vdbs-event-card__link { text-decoration: underline; }
+.vdbs-event-card__link:focus-visible { outline: none; }
+
+.vdbs-event-card__meta { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin: var(--space-2) 0 0; color: var(--text-muted); font-size: var(--font-size-small); }
+.vdbs-event-card__meta span { display: inline-flex; align-items: center; gap: var(--space-1); }
+.vdbs-event-card__text { margin: var(--space-2) 0 0; font-size: var(--font-size-small); }
