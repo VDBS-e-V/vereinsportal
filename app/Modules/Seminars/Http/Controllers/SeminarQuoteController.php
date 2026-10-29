@@ -60,7 +60,7 @@ class SeminarQuoteController extends Controller
         $partnerId = $seminar?->partner_id ?? $copy?->partner_id ?? ((int) $request->query('schule', 0) ?: null);
 
         if ($copy !== null) {
-            $rows = collect($copy->positions)->map(fn (array $position): array => $position['inputs'] + ['product' => $position['product'], 'title' => $position['title'], 'content' => $position['content']])->all();
+            $rows = collect($copy->positions)->map(fn (array $position): array => $position['inputs'] + ['product' => $position['product'], 'extra' => $position['extra'] ?? ''])->all();
         } else {
             $type = $seminar?->type ?? SeminarType::SvDays;
             $inputs = QuoteCalculator::defaults($type);
@@ -69,8 +69,7 @@ class SeminarQuoteController extends Controller
                 $inputs['group'] = $seminar->expected_participants;
             }
 
-            $texts = QuoteTexts::defaults($type, $inputs);
-            $rows = [$inputs + ['product' => $type->value, 'title' => $texts['title'], 'content' => $texts['content']]];
+            $rows = [$inputs + ['product' => $type->value, 'extra' => '']];
         }
 
         return $this->form(['partner_id' => $partnerId, 'seminar_id' => $seminar?->id, 'positions' => $rows], null);
@@ -86,8 +85,7 @@ class SeminarQuoteController extends Controller
             'seminar_id' => ['nullable', 'integer', Rule::exists('seminars', 'id')],
             'positions' => ['required', 'array', 'min:1', 'max:'.self::MAX_POSITIONS],
             'positions.*.product' => ['required', Rule::enum(SeminarType::class)],
-            'positions.*.title' => ['nullable', 'string', 'max:150'],
-            'positions.*.content' => ['nullable', 'string', 'max:1000'],
+            'positions.*.extra' => ['nullable', 'string', 'max:1000'],
         ];
 
         foreach (QuoteCalculator::rules() as $key => $rule) {
@@ -102,8 +100,7 @@ class SeminarQuoteController extends Controller
             'positions.max' => 'Ein Kostenvoranschlag kann höchstens '.self::MAX_POSITIONS.' Positionen haben.',
             'positions.*.product.required' => 'Bitte wählen Sie das Produkt.',
             'positions.*.product.enum' => 'Bitte wählen Sie ein bekanntes Produkt.',
-            'positions.*.title.max' => 'Der Posten darf höchstens 150 Zeichen lang sein.',
-            'positions.*.content.max' => 'Der Inhalt darf höchstens 1000 Zeichen lang sein.',
+            'positions.*.extra.max' => 'Die Ergänzung darf höchstens 1000 Zeichen lang sein.',
             'required' => 'Bitte füllen Sie dieses Feld aus.',
             'integer' => 'Bitte geben Sie eine ganze Zahl ein.',
             'numeric' => 'Bitte geben Sie eine Zahl ein.',
@@ -166,7 +163,7 @@ class SeminarQuoteController extends Controller
             'quote' => $quote,
             'items' => collect($quote->positions)->map(fn (array $position): array => [
                 'title' => $position['title'],
-                'lines' => QuoteTexts::lines($position['content']),
+                'lines' => array_merge(QuoteTexts::lines($position['content']), QuoteTexts::lines($position['extra'] ?? '')),
                 'total_cents' => $position['total_cents'],
             ])->all(),
             'recipientLines' => array_values(array_filter([
@@ -188,11 +185,9 @@ class SeminarQuoteController extends Controller
     private function form(array $values, ?array $preview): View
     {
         $defaults = [];
-        $texts = [];
 
         foreach (SeminarType::cases() as $type) {
             $defaults[$type->value] = QuoteCalculator::defaults($type);
-            $texts[$type->value] = QuoteTexts::defaults($type, $defaults[$type->value]);
         }
 
         $keys = array_keys($values['positions']);
@@ -206,7 +201,6 @@ class SeminarQuoteController extends Controller
             'preview' => $preview,
             'products' => SeminarType::options(),
             'defaults' => $defaults,
-            'texts' => $texts,
             'units' => collect(SeminarType::cases())->mapWithKeys(fn (SeminarType $type): array => [$type->value => $type->unit()])->all(),
             'partnerOptions' => Partner::query()->where('type', PartnerType::School->value)->orderBy('name')->get()
                 ->mapWithKeys(fn (Partner $partner): array => [$partner->id => $partner->name.($partner->city ? ' ('.$partner->city.')' : '')])->all(),

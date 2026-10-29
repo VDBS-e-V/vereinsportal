@@ -32,8 +32,7 @@
     <x-vdbs.forms.checkbox :id="'position-'.$i.'-inside_abc'" :name="'positions['.$i.'][inside_abc]'" label="Innerhalb des Tarifbereichs ABC (Berlin)" :checked="(bool) $value('inside_abc')" />
     <x-vdbs.forms.checkbox :id="'position-'.$i.'-without_club_fee'" :name="'positions['.$i.'][without_club_fee]'" label="Ohne Vereinspauschale (je Position 65 €)" :checked="(bool) $value('without_club_fee')" />
 
-    <x-vdbs.forms.input :id="'position-'.$i.'-title'" :name="'positions['.$i.'][title]'" label="Posten im Schreiben" :optional="true" maxlength="150" :value="$row['title'] ?? null" hint="Leer lassen für den Standardtext, z. B. „SV-Tage (3)“" />
-    <x-vdbs.forms.textarea :id="'position-'.$i.'-content'" :name="'positions['.$i.'][content]'" label="Inhalt im Schreiben" :optional="true" maxlength="1000" :rows="3" :value="$row['content'] ?? null" hint="Eine Zeile je Aufzählungspunkt, leer lassen für den Standardtext" />
+    <x-vdbs.forms.textarea :id="'position-'.$i.'-extra'" :name="'positions['.$i.'][extra]'" label="Weitere Eigenschaften und Beschreibung" :optional="true" maxlength="1000" :rows="3" :value="$row['extra'] ?? null" hint="Ergänzt die Standardbeschreibung des Produkts im Schreiben (Seite „Texte“). Eine Zeile je Aufzählungspunkt." />
 
     <button type="button" class="vdbs-btn vdbs-btn--tertiary vdbs-btn--shape-line vdbs-btn--size-s vdbs-js-only" data-vdbs-repeater-remove>Position entfernen</button>
     </div>

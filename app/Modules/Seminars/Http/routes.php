@@ -3,11 +3,12 @@
 use App\Modules\Seminars\Http\Controllers\SeminarController;
 use App\Modules\Seminars\Http\Controllers\SeminarPriceController;
 use App\Modules\Seminars\Http\Controllers\SeminarQuoteController;
+use App\Modules\Seminars\Http\Controllers\SeminarTextController;
 use Illuminate\Support\Facades\Route;
 
 /*
  * Seminarplanung im Bereich Koordination: /koordination/seminare (Schulseminare mit Terminen, Verlauf und Kostenvoranschlägen) und
- * /koordination/kostenvoranschlaege (Kostenvoranschläge mit Positionen) und /koordination/preise (Preisliste). Berechtigungen seminars.view, seminars.manage und seminars.prices (Support\Capabilities).
+ * /koordination/kostenvoranschlaege (Kostenvoranschläge mit Positionen) /koordination/texte (Titel und Standardbeschreibung der Produkte) und /koordination/preise (Preisliste). Berechtigungen seminars.view, seminars.manage und seminars.prices (Support\Capabilities).
  */
 Route::middleware(['web', 'auth'])->group(function (): void {
     Route::prefix('koordination/seminare')->name('seminars.')->group(function (): void {
@@ -41,6 +42,11 @@ Route::middleware(['web', 'auth'])->group(function (): void {
             Route::get('/{quote}', [SeminarQuoteController::class, 'show'])->whereNumber('quote')->name('show');
             Route::get('/{quote}/druck', [SeminarQuoteController::class, 'print'])->whereNumber('quote')->name('print');
         });
+    });
+
+    Route::prefix('koordination/texte')->name('seminar-texts.')->group(function (): void {
+        Route::put('/', [SeminarTextController::class, 'update'])->middleware('can:seminars.prices')->name('update');
+        Route::get('/', [SeminarTextController::class, 'index'])->middleware('can:seminars.view')->name('index');
     });
 
     Route::prefix('koordination/preise')->name('seminar-prices.')->group(function (): void {

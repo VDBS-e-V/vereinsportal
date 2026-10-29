@@ -10,10 +10,12 @@ use App\Modules\Partners\Models\Partner;
 use App\Modules\People\Models\Person;
 use App\Modules\Seminars\Enums\SeminarEventType;
 use App\Modules\Seminars\Enums\SeminarStatus;
+use App\Modules\Seminars\Enums\SeminarType;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarPriceList;
 use App\Modules\Seminars\Models\SeminarQuote;
 use App\Modules\Seminars\Services\SeminarAdministration;
+use App\Modules\Seminars\Support\QuoteTexts;
 use Database\Seeders\RoleSeeder;
 
 beforeEach(function () {
@@ -370,12 +372,12 @@ it('works without a seminar and ignores rows without a product', function () {
 it('copies a quote as template for a new one', function () {
     $coordinator = smUser(RoleKey::Coordination);
     $partner = Partner::factory()->create();
-    $this->actingAs($coordinator)->post(route('seminar-quotes.store'), smQuote($partner, [smPosition(['title' => 'Eigener Posten', 'content' => 'Eigener Inhalt'])]));
+    $this->actingAs($coordinator)->post(route('seminar-quotes.store'), smQuote($partner, [smPosition(['extra' => 'Eigene Ergänzung'])]));
     $quote = SeminarQuote::query()->firstOrFail();
 
     $html = $this->get(route('seminar-quotes.create', ['vorlage' => $quote->id]))->assertOk()->getContent();
 
-    expect($html)->toContain('Eigener Posten')->toContain('Eigener Inhalt')->toContain('<option value="'.$partner->id.'" selected>');
+    expect($html)->toContain('Eigene Ergänzung')->toContain('<option value="'.$partner->id.'" selected>');
 });
 
 it('validates schools, positions and inputs', function () {
@@ -543,21 +545,37 @@ it('prints the quote as a letter with address, all positions, total and footer',
     expect(substr_count($html, '<td class="pos">'))->toBe(2);
 });
 
-it('prints the edited position text and keeps the default when the fields stay empty', function () {
+it('prints the global texts with the position values and appends the extra lines', function () {
     $this->actingAs(smUser(RoleKey::Coordination));
     $partner = Partner::factory()->create();
 
     $this->post(route('seminar-quotes.store'), smQuote($partner, [
-        smPosition(['product' => 'coaching', 'days' => '8', 'team' => '3', 'leaders' => '0', 'title' => 'Coaching erweiterter Vorstand (8 Treffen)', 'content' => "Einmal pro Monat ein Treffen\n\nzur Unterstützung von Planung"]),
+        smPosition(['product' => 'coaching', 'days' => '8', 'team' => '3', 'leaders' => '0', 'extra' => "Einmal pro Monat ein Treffen\n\nOnline-Nachbesprechung"]),
         smPosition(['product' => 'coaching', 'days' => '4', 'leaders' => '0']),
     ]));
 
     $quote = SeminarQuote::query()->firstOrFail();
-    expect($quote->positions[0]['title'])->toBe('Coaching erweiterter Vorstand (8 Treffen)')->and($quote->positions[1]['title'])->toBe('SV-Coaching (4 Treffen)');
+    expect($quote->positions[0]['title'])->toBe('SV-Coaching (8 Treffen)')
+        ->and($quote->positions[0]['content'])->toContain('Je 3 Teamer:innen')
+        ->and($quote->positions[0]['extra'])->toBe("Einmal pro Monat ein Treffen\n\nOnline-Nachbesprechung")
+        ->and($quote->positions[1]['title'])->toBe('SV-Coaching (4 Treffen)');
 
     $this->get(route('seminar-quotes.print', $quote))
-        ->assertSee('Coaching erweiterter Vorstand (8 Treffen)')->assertSee('Einmal pro Monat ein Treffen')->assertSee('zur Unterstützung von Planung')
-        ->assertSee('SV-Coaching (4 Treffen)')->assertSee('Unterstützung von Planung, Organisation und Absprache');
+        ->assertSee('SV-Coaching (8 Treffen)')->assertSee('Unterstützung von Planung, Organisation und Absprache')
+        ->assertSee('Einmal pro Monat ein Treffen')->assertSee('Online-Nachbesprechung')->assertSee('SV-Coaching (4 Treffen)');
+});
+
+it('does not let the calculator change title or standard description', function () {
+    $this->actingAs(smUser(RoleKey::Coordination));
+    $partner = Partner::factory()->create();
+
+    $this->post(route('seminar-quotes.store'), smQuote($partner, [smPosition(['title' => 'Selbst gewählter Titel', 'content' => 'Selbst gewählter Inhalt'])]));
+
+    $position = SeminarQuote::query()->firstOrFail()->positions[0];
+    expect($position['title'])->toBe('SV-Tage (3)')->and($position['content'])->not->toContain('Selbst gewählter Inhalt');
+
+    $html = $this->get(route('seminar-quotes.create'))->getContent();
+    expect($html)->not->toContain('[title]')->toContain('[extra]');
 });
 
 it('links the seminar quotes from the seminar page', function () {
@@ -566,4 +584,71 @@ it('links the seminar quotes from the seminar page', function () {
     $quote = SeminarQuote::query()->firstOrFail();
 
     $this->get(route('seminars.show', $seminar))->assertSee(route('seminar-quotes.show', $quote), false)->assertSee('SV-Tage (3)')->assertSee(route('seminar-quotes.create', ['seminar' => $seminar->id]), false)->assertSee('2.309,00 €');
+});
+
+// ---------- Texte der Produkte ----------
+
+function smTexts(array $overrides = []): array
+{
+    return ['texts' => $overrides + [
+        'sv_days' => ['title' => 'SV-Tage ({stueckzahl})', 'content' => "Je {teamende} Teamer:innen pro Tag\nModerationsmaterial\nRaum und ggf. Verpflegung werden durch die Schule gestellt"],
+        'coaching' => ['title' => 'SV-Coaching ({stueckzahl} {einheit})', 'content' => "Je {teamende} Teamer:innen\nUnterstützung von Planung, Organisation und Absprache"],
+        'election' => ['title' => 'SV-Wahl', 'content' => "Je {teamende} Teamer:innen\nBegleitung und Durchführung der Wahl\nModerationsmaterial"],
+        'gsv_support' => ['title' => 'Begleitung GSV-Sitzungen ({stueckzahl} {einheit})', 'content' => 'Unterstützung der Planung und Organisation, sowie Unterstützung vor Ort'],
+    ]];
+}
+
+it('shows the texts to everyone who may see seminars and lets only prices managers change them', function () {
+    $this->get(route('seminar-texts.index'))->assertRedirect(route('login'));
+    $this->actingAs(smUser(RoleKey::Member))->get(route('seminar-texts.index'))->assertForbidden();
+
+    $this->actingAs(smUser(RoleKey::AdministrationStaff))->get(route('seminar-texts.index'))->assertOk()
+        ->assertSee('SV-Tage ({stueckzahl})', false)->assertSee('{teamende}', false)->assertDontSee('Texte speichern');
+    $this->put(route('seminar-texts.update'), smTexts())->assertForbidden();
+
+    $this->actingAs(smUser(RoleKey::Coordination))->get(route('seminar-texts.index'))->assertOk()->assertSee('Texte speichern')->assertSee('name="texts[coaching][title]"', false);
+});
+
+it('saves global texts with placeholders and logs the change', function () {
+    $coordinator = smUser(RoleKey::Coordination);
+    $partner = Partner::factory()->create();
+    $this->actingAs($coordinator)->post(route('seminar-quotes.store'), smQuote($partner));
+    $old = SeminarQuote::query()->firstOrFail();
+
+    $this->put(route('seminar-texts.update'), smTexts(['sv_days' => ['title' => 'Schul-SV-Tage ({stueckzahl} {einheit}, {produkt})', 'content' => "Je {teamende} Teamer:innen für {gruppe} Teilnehmende\n\nBetreuung {stunden} Stunden pro Tag"]]))->assertSessionHasNoErrors();
+
+    expect(QuoteTexts::template(SeminarType::SvDays)['title'])->toBe('Schul-SV-Tage ({stueckzahl} {einheit}, {produkt})')
+        ->and(QuoteTexts::template(SeminarType::SvDays)['content'])->toBe("Je {teamende} Teamer:innen für {gruppe} Teilnehmende\nBetreuung {stunden} Stunden pro Tag");
+
+    $entry = AuditEntry::query()->where('event', 'seminar.texts_changed')->firstOrFail();
+    expect($entry->context['produkte'])->toBe(['sv_days']);
+
+    $this->post(route('seminar-quotes.store'), smQuote($partner));
+    $new = SeminarQuote::query()->orderByDesc('id')->firstOrFail();
+
+    expect($new->positions[0]['title'])->toBe('Schul-SV-Tage (3 Tage, SV-Tage)')
+        ->and($new->positions[0]['content'])->toBe("Je 3 Teamer:innen für 45 Teilnehmende\nBetreuung 6 Stunden pro Tag")
+        ->and($old->fresh()->positions[0]['title'])->toBe('SV-Tage (3)');
+
+    $this->put(route('seminar-texts.update'), smTexts(['sv_days' => ['title' => 'Schul-SV-Tage ({stueckzahl} {einheit}, {produkt})', 'content' => "Je {teamende} Teamer:innen für {gruppe} Teilnehmende\nBetreuung {stunden} Stunden pro Tag"]]));
+    expect(AuditEntry::query()->where('event', 'seminar.texts_changed')->count())->toBe(1);
+});
+
+it('refuses unknown placeholders and empty texts', function () {
+    $this->actingAs(smUser(RoleKey::Coordination));
+
+    $this->put(route('seminar-texts.update'), smTexts(['sv_days' => ['title' => 'SV ({unbekannt})', 'content' => 'Text']]))->assertSessionHasErrors('texts.sv_days.title');
+    $this->put(route('seminar-texts.update'), smTexts(['coaching' => ['title' => 'Coaching', 'content' => 'Je {gast} Personen']]))->assertSessionHasErrors('texts.coaching.content');
+    $this->put(route('seminar-texts.update'), smTexts(['election' => ['title' => '', 'content' => '']]))->assertSessionHasErrors(['texts.election.title', 'texts.election.content']);
+    $this->put(route('seminar-texts.update'), [])->assertSessionHasErrors();
+
+    expect(QuoteTexts::template(SeminarType::SvDays)['title'])->toBe('SV-Tage ({stueckzahl})');
+});
+
+it('fills the placeholders from the position values', function () {
+    $inputs = ['days' => 4, 'team' => 2, 'hours' => 4.5, 'group' => 30, 'leaders' => 1];
+
+    expect(QuoteTexts::render('{produkt}: {stueckzahl} {einheit}, {teamende} Teamende, {stunden} h, {gruppe} TN, {leitung} SL', SeminarType::GsvSupport, $inputs))->toBe('Begleitung GSV-Sitzungen: 4 Sitzungen, 2 Teamende, 4,5 h, 30 TN, 1 SL')
+        ->and(QuoteTexts::render('{stunden} h und {unbekannt}', SeminarType::SvDays, ['hours' => 6.0] + $inputs))->toBe('6 h und {unbekannt}')
+        ->and(QuoteTexts::unknownPlaceholders('{teamende} {foo} {foo} {bar}'))->toBe(['foo', 'bar']);
 });

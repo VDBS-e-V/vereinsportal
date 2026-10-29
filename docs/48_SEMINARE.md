@@ -56,8 +56,10 @@ einen KVA in ein neues Formular, Löschen ist mit Protokolleintrag möglich (nic
 
 Die Seite „Schreiben drucken“ (`/koordination/kostenvoranschlaege/{id}/druck`) zeigt den KVA als Brief im Format des Vereins (Briefkopf mit Logo, Anschrift der
 Schulleitung, Datum, Tabelle Pos./Posten/Inhalt/Preis mit einer Zeile je Position, Endsumme, Fußzeile mit Bankverbindung). Über „Drucken oder als PDF
-speichern“ des Browsers entsteht ein A4-PDF. Posten und Inhalt (eine Zeile je Aufzählungspunkt) sind je Position änderbar; leer = Standardtext je Produkt
-(`Support\QuoteTexts`). Die internen Einzelposten stehen nur in der Ansicht im Portal, nicht im Schreiben. Briefkopf, Absenderzeile und Fußzeile stehen in
+speichern“ des Browsers entsteht ein A4-PDF. Titel und Standardbeschreibung je Produkt sind **globale Werte** mit Platzhaltern (Seite „Texte“, `/koordination/texte`, Tabelle
+`seminar_product_texts`, Klasse `Support\QuoteTexts`; ändern darf mit `seminars.prices`). Im Rechner lässt sich je Position nur eine **Ergänzung** („Weitere
+Eigenschaften und Beschreibung“, eine Zeile je Punkt) hinzufügen. Beim Speichern werden die Texte mit den Werten der Position gefüllt und im KVA festgehalten, spätere
+Änderungen der Texte betreffen alte KVAs nicht. Platzhalter: `{stueckzahl}`, `{einheit}`, `{teamende}`, `{stunden}`, `{gruppe}`, `{leitung}`, `{produkt}`; unbekannte werden abgelehnt. Die internen Einzelposten stehen nur in der Ansicht im Portal, nicht im Schreiben. Briefkopf, Absenderzeile und Fußzeile stehen in
 `config/portal.php` unter `letter`, das Logo in `public/images/brand/vdbs-briefkopf.jpg`. Preise sind Nettobeträge ohne Umsatzsteuerhinweis (Annahme, zu klären).
 Die Voreinstellungen von „Begleitung GSV-Sitzungen“ (4 Sitzungen, 1 Teamende, 3 Stunden) sind eine Annahme und lassen sich je Position ändern.
 

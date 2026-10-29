@@ -1,6 +1,6 @@
 /*
  * Kostenvoranschlag: Wechselt man das Produkt einer Position, übernimmt die Zeile dessen Voreinstellungen (Stückzahl, Teamende, Stunden …).
- * Die Texte für das Schreiben werden geleert, dann gilt der Standardtext des Produkts. Die Kopfzeile des einklappbaren Bereichs zeigt Produkt und
+ * Die Kopfzeile des einklappbaren Bereichs zeigt Produkt und
  * Stückzahl. Ohne JavaScript bleiben die Werte, wie sie sind.
  *   <div data-vdbs-position-defaults="{json: produkt => voreinstellungen}"> … <fieldset data-vdbs-position> … <select data-vdbs-position-product>
  */
@@ -85,10 +85,6 @@ document.addEventListener('change', (event) => {
         } else {
             field.value = String(value);
         }
-    });
-
-    row.querySelectorAll('[name$="[title]"], [name$="[content]"]').forEach((field) => {
-        field.value = '';
     });
 
     updateTitle(row);

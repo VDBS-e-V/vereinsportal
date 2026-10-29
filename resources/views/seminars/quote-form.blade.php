@@ -14,7 +14,7 @@
                 <x-vdbs.forms.select name="seminar_id" label="Zugehöriges Seminar" placeholder="Keins" :optional="true" :options="$seminarOptions" :value="$values['seminar_id'] ?? null" hint="Verknüpft den Kostenvoranschlag mit dem Seminar (nötig für den Status „Bestätigt“)" />
             </x-vdbs.forms.form-section>
 
-            <x-vdbs.forms.form-section title="Positionen" description="Jede Position ist ein aufklappbarer Bereich. Die Voreinstellungen richten sich nach dem Produkt und lassen sich ändern. Jede Position wird einzeln berechnet, auch die Vereinspauschale.">
+            <x-vdbs.forms.form-section title="Positionen" description="Jede Position ist ein aufklappbarer Bereich. Die Voreinstellungen richten sich nach dem Produkt und lassen sich ändern. Titel und Standardbeschreibung kommen aus den Texten (Seite „Texte“), hier lässt sich nur etwas ergänzen. Jede Position wird einzeln berechnet, auch die Vereinspauschale.">
                 <div data-vdbs-repeater data-vdbs-repeater-next="{{ $nextIndex }}" data-vdbs-position-defaults="{{ json_encode($defaults) }}" data-vdbs-position-units="{{ json_encode($units) }}">
                     <div class="vdbs-accordion" data-vdbs-repeater-items>
                         @foreach ($rows as $i => $row)
@@ -50,6 +50,11 @@
             @else
                 @foreach ($preview['positions'] as $n => $position)
                     <h3 style="font-size:var(--font-size-h4)">Position {{ $n + 1 }}: {{ $position['title'] }}</h3>
+                    <ul>
+                        @foreach (array_merge(\App\Modules\Seminars\Support\QuoteTexts::lines($position['content']), \App\Modules\Seminars\Support\QuoteTexts::lines($position['extra'])) as $line)
+                            <li>{{ $line }}</li>
+                        @endforeach
+                    </ul>
                     @include('seminars._lines', ['lines' => $position['lines'], 'total' => $position['total_cents'], 'days' => $position['inputs']['days'], 'totalLabel' => 'Summe der Position'])
                 @endforeach
                 <p><strong>Endsumme: {{ \App\Modules\Seminars\Support\Money::format($preview['total_cents']) }}</strong></p>

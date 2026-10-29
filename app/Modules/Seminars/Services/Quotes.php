@@ -10,6 +10,7 @@ use App\Modules\Seminars\Enums\SeminarEventType;
 use App\Modules\Seminars\Enums\SeminarType;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarPriceList;
+use App\Modules\Seminars\Models\SeminarProductText;
 use App\Modules\Seminars\Models\SeminarQuote;
 use App\Modules\Seminars\Support\Money;
 use App\Modules\Seminars\Support\QuoteCalculator;
@@ -25,7 +26,7 @@ final class Quotes
     public function __construct(private readonly QuoteCalculator $calculator) {}
 
     /**
-     * @param  list<array<string, mixed>>  $rows  Positionen aus dem Formular (product, Eingaben des Rechners, title, content)
+     * @param  list<array<string, mixed>>  $rows  Positionen aus dem Formular (product, Eingaben des Rechners, extra = ergänzende Beschreibung)
      * @return array{positions: list<array<string, mixed>>, total_cents: int, price_list: SeminarPriceList}
      */
     public function preview(array $rows, ?SeminarPriceList $priceList = null): array
@@ -45,8 +46,9 @@ final class Quotes
                 'inputs' => $inputs,
                 'lines' => $result['lines'],
                 'total_cents' => $result['total_cents'],
-                'title' => filled($row['title'] ?? null) ? trim((string) $row['title']) : $defaults['title'],
-                'content' => filled($row['content'] ?? null) ? trim((string) $row['content']) : $defaults['content'],
+                'title' => $defaults['title'],
+                'content' => $defaults['content'],
+                'extra' => trim((string) ($row['extra'] ?? '')),
             ];
             $total += $result['total_cents'];
         }
@@ -90,6 +92,34 @@ final class Quotes
         AuditLog::record(AuditEvent::SeminarQuoteDeleted, $by, $quote->seminar ?? $quote->partner, ['summe' => Money::format($quote->total_cents)]);
 
         $quote->delete();
+    }
+
+    /**
+     * Globale Texte (Titel und Standardbeschreibung) der Produkte speichern.
+     *
+     * @param  array<string, array{title: string, content: string}>  $texts  je Produkt
+     * @return list<string> die Produkte, deren Text sich geändert hat
+     */
+    public function saveTexts(array $texts, User $by): array
+    {
+        $changed = [];
+
+        foreach ($texts as $product => $text) {
+            $current = QuoteTexts::template(SeminarType::from($product));
+
+            if ($current['title'] === $text['title'] && $current['content'] === $text['content']) {
+                continue;
+            }
+
+            SeminarProductText::query()->updateOrCreate(['product' => $product], ['title' => $text['title'], 'content' => $text['content'], 'updated_by_user_id' => $by->id]);
+            $changed[] = $product;
+        }
+
+        if ($changed !== []) {
+            AuditLog::record(AuditEvent::SeminarTextsChanged, $by, null, ['produkte' => $changed]);
+        }
+
+        return $changed;
     }
 
     /**

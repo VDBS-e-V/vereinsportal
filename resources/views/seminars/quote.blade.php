@@ -41,6 +41,11 @@
         <section aria-labelledby="position-{{ $n }}-heading" style="margin-top:var(--space-8)">
             <h2 id="position-{{ $n }}-heading" style="font-size:var(--font-size-h3)">Position {{ $n + 1 }}: {{ $position['title'] }}</h2>
             <p>{{ $position['inputs']['days'] }} {{ $unit }}, {{ $position['inputs']['team'] }} Teamende, {{ rtrim(rtrim(number_format((float) $position['inputs']['hours'], 1, ',', ''), '0'), ',') }} Stunden pro Tag, {{ $position['inputs']['group'] }} Teilnehmende, {{ $position['inputs']['inside_abc'] ? 'innerhalb' : 'außerhalb' }} des Tarifbereichs ABC.</p>
+            <ul>
+                @foreach (array_merge(\App\Modules\Seminars\Support\QuoteTexts::lines($position['content']), \App\Modules\Seminars\Support\QuoteTexts::lines($position['extra'] ?? '')) as $line)
+                    <li>{{ $line }}</li>
+                @endforeach
+            </ul>
             @include('seminars._lines', ['lines' => $position['lines'], 'total' => $position['total_cents'], 'days' => $position['inputs']['days'], 'totalLabel' => 'Summe der Position'])
         </section>
     @endforeach
