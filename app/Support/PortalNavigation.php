@@ -23,7 +23,11 @@ use Illuminate\Support\Str;
 final class PortalNavigation
 {
     /**
-     * @return array<string, array{roles: list<RoleKey>, routes?: list<string>, pages: list<array{label: string, route: string, match: string, can?: string}>}>
+     * Seiten: label, route, match (Routenmuster für "aktuell" und die Bereichszuordnung; null = nie aktuell, z. B. ein Anker auf
+     * einer anderen Seite), can (Berechtigung; ohne can ist die Seite öffentlich oder für alle Angemeldeten), fragment (Anker),
+     * children (Untermenü, gleiche Form).
+     *
+     * @return array<string, array{roles: list<RoleKey>, routes?: list<string>, pages: list<array<string, mixed>>}>
      */
     public static function catalog(): array
     {
@@ -31,7 +35,12 @@ final class PortalNavigation
             PortalAreas::Start->value => [
                 'roles' => [],
                 'routes' => ['home'],
-                'pages' => [],
+                'pages' => [
+                    ['label' => 'Über das Portal', 'route' => 'portal.about', 'match' => 'portal.about'],
+                    ['label' => 'Zugang zum Portal', 'route' => 'portal.access', 'match' => 'portal.access'],
+                    ['label' => 'FAQ', 'route' => 'portal.about', 'fragment' => 'portal-faq', 'match' => null],
+                    ['label' => 'Kontakt', 'route' => 'portal.contact', 'match' => 'portal.contact'],
+                ],
             ],
             PortalAreas::Konto->value => [
                 'roles' => [],
@@ -83,27 +92,37 @@ final class PortalNavigation
     }
 
     /**
-     * Seiten eines Bereichs, die der Nutzer sehen darf.
+     * Seiten eines Bereichs, die der Nutzer sehen darf (ohne Nutzer: nur Seiten ohne Berechtigung, also die öffentlichen).
      *
-     * @return list<array{label: string, href: string, current: bool}>
+     * @return list<array{label: string, href: string, current: bool, children: list<array<string, mixed>>}>
      */
-    public static function pages(PortalAreas $area, User $user, ?string $routeName = null): array
+    public static function pages(PortalAreas $area, ?User $user, ?string $routeName = null): array
     {
-        $pages = [];
+        return self::visiblePages(self::catalog()[$area->value]['pages'], $user, $routeName);
+    }
 
-        foreach (self::catalog()[$area->value]['pages'] as $page) {
-            if (isset($page['can']) && ! $user->can($page['can'])) {
+    /**
+     * @param  list<array<string, mixed>>  $pages
+     * @return list<array{label: string, href: string, current: bool, children: list<array<string, mixed>>}>
+     */
+    private static function visiblePages(array $pages, ?User $user, ?string $routeName): array
+    {
+        $visible = [];
+
+        foreach ($pages as $page) {
+            if (isset($page['can']) && ($user === null || ! $user->can($page['can']))) {
                 continue;
             }
 
-            $pages[] = [
+            $visible[] = [
                 'label' => $page['label'],
-                'href' => route($page['route']),
-                'current' => $routeName !== null && Str::is($page['match'], $routeName),
+                'href' => route($page['route']).(isset($page['fragment']) ? '#'.$page['fragment'] : ''),
+                'current' => $routeName !== null && isset($page['match']) && Str::is($page['match'], $routeName),
+                'children' => self::visiblePages($page['children'] ?? [], $user, $routeName),
             ];
         }
 
-        return $pages;
+        return $visible;
     }
 
     /** Einstieg eines Bereichs: die erste Seite, die der Nutzer sehen darf. */
@@ -130,10 +149,27 @@ final class PortalNavigation
         return null;
     }
 
-    /** @return list<string> alle Routenmuster eines Bereichs */
+    /**
+     * @param  array<string, mixed>  $definition
+     * @return list<string> alle Routenmuster eines Bereichs (auch die der Untermenüs)
+     */
     public static function patterns(array $definition): array
     {
-        return array_merge($definition['routes'] ?? [], array_column($definition['pages'], 'match'));
+        $patterns = $definition['routes'] ?? [];
+
+        $collect = function (array $pages) use (&$patterns, &$collect): void {
+            foreach ($pages as $page) {
+                if (isset($page['match'])) {
+                    $patterns[] = $page['match'];
+                }
+
+                $collect($page['children'] ?? []);
+            }
+        };
+
+        $collect($definition['pages']);
+
+        return $patterns;
     }
 
     /** @param  list<string>  $held */

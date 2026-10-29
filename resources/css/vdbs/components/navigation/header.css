@@ -121,3 +121,34 @@
 /* Nutzermenü: Name neben dem Avatar, auf dem Handy mit Umbruch statt Abschneiden */
 .vdbs-header__user-name { max-width: 16rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 1099px) { .vdbs-header__user-name { max-width: none; white-space: normal; text-align: left; } }
+
+
+/* Seitenleiste des Bereichs (Zeile 2) mit optionalem Untermenü: <li class="vdbs-main-nav__item"> mit <ul class="vdbs-main-nav__submenu"> */
+.vdbs-main-nav__item { position: relative; }
+
+.vdbs-main-nav__submenu { margin: 0; padding: 0; list-style: none; }
+
+@media (min-width: 1100px) {
+    .vdbs-main-nav__submenu {
+        display: none;
+        position: absolute;
+        inset-block-start: 100%;
+        inset-inline-start: 0;
+        z-index: var(--z-dropdown);
+        min-width: 14rem;
+        background: var(--bg-page);
+        border: 1px solid var(--border-default);
+        box-shadow: var(--shadow-md);
+    }
+
+    .vdbs-main-nav__item--has-submenu:hover > .vdbs-main-nav__submenu,
+    .vdbs-main-nav__item--has-submenu:focus-within > .vdbs-main-nav__submenu { display: block; }
+
+    .vdbs-main-nav__submenu a { width: 100%; padding-inline: var(--space-4); font-size: var(--font-size-body); }
+    .vdbs-main-nav__submenu li + li { border-top: 1px solid var(--border-default); }
+}
+
+/* Handy und Tablet: Untermenü eingerückt direkt unter dem Eintrag */
+@media (max-width: 1099px) {
+    .vdbs-main-nav__submenu { padding-inline-start: var(--space-5); }
+}

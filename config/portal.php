@@ -12,17 +12,6 @@ return [
     ],
 
     /*
-     * Öffentliche Navigation im Kopfbereich (nur für Gäste sichtbar).
-     * Platzhalter '#', bis die jeweiligen Seiten existieren.
-     */
-    'public_links' => [
-        ['label' => 'Über das Portal', 'url' => '#'],
-        ['label' => 'Zugang zum Portal', 'url' => '#'],
-        ['label' => 'FAQ', 'url' => '#'],
-        ['label' => 'Kontakt', 'url' => '#'],
-    ],
-
-    /*
      * Footer-Spalten. Platzhalter '#', bis die Seiten bzw. Profile feststehen.
      * 'icon' ist optional (Name unter resources/icons).
      */
@@ -42,7 +31,7 @@ return [
             'heading' => 'Service-Portal',
             'links' => [
                 ['label' => 'Startseite', 'url' => '/'],
-                ['label' => 'Kontakt', 'url' => '#'],
+                ['label' => 'Kontakt', 'url' => '/kontakt'],
                 ['label' => 'Impressum', 'url' => '#'],
                 ['label' => 'Datenschutz', 'url' => '#'],
                 ['label' => 'Barrierefreiheit', 'url' => '#'],

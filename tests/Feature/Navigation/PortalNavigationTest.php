@@ -63,8 +63,11 @@ it('lists every page of the catalog under exactly one area with an existing rout
                 expect($capabilities)->toContain($page['can']);
             }
 
-            expect($seen)->not->toContain($page['route']);
-            $seen[] = $page['route'];
+            // Anker-Einträge (match null) zeigen auf eine Seite, die schon einen eigenen Eintrag hat.
+            if (isset($page['match'])) {
+                expect($seen)->not->toContain($page['route']);
+                $seen[] = $page['route'];
+            }
         }
     }
 });
@@ -209,4 +212,71 @@ it('keeps the pages protected by their capability even when the area is visible'
     $staff = pnUser(RoleKey::AdministrationStaff);
 
     $this->actingAs($staff)->get(route('admin.audit.index'))->assertForbidden();
+});
+
+
+// ---------- Start: öffentlich ----------
+
+it('serves the public start pages to guests', function () {
+    foreach (['portal.about', 'portal.access', 'portal.contact'] as $route) {
+        $this->get(route($route))->assertOk();
+    }
+
+    $this->get(route('portal.about'))->assertSee('id="portal-faq"', false)->assertSee('Häufige Fragen');
+    $this->get(route('portal.access'))->assertSee('Zur Anmeldung');
+    $this->get(route('portal.contact'))->assertSee('Kontaktdaten folgen');
+
+    config(['portal.home.contact.lines' => [['label' => 'Support', 'value' => 'support@example.org', 'href' => 'mailto:support@example.org']]]);
+    $this->get(route('portal.contact'))->assertSee('support@example.org');
+});
+
+it('assigns the public pages to the start area', function () {
+    foreach (['home', 'portal.about', 'portal.access', 'portal.contact'] as $route) {
+        expect(PortalNavigation::areaForRoute($route))->toBe(PortalAreas::Start);
+    }
+});
+
+it('shows the public pages of the start area in row two to guests, also on the login page', function () {
+    foreach ([route('home'), route('login'), route('portal.contact')] as $url) {
+        $html = pnHeader($this->get($url)->assertOk()->getContent());
+
+        expect($html)
+            ->toContain('aria-label="Seiten im Bereich Start"')
+            ->toContain('href="'.route('portal.about').'"')
+            ->toContain('href="'.route('portal.access').'"')
+            ->toContain('href="'.route('portal.about').'#portal-faq"')
+            ->toContain('href="'.route('portal.contact').'"')
+            ->toContain('>FAQ<');
+    }
+});
+
+it('marks only the current public page and never the FAQ anchor', function () {
+    $html = pnHeader($this->get(route('portal.about'))->getContent());
+
+    expect($html)->toMatch('/aria-current="page"\s*>Über das Portal</')
+        ->and(substr_count($html, 'aria-current="page"'))->toBe(1);
+
+    expect(pnHeader($this->get(route('portal.contact'))->getContent()))->toMatch('/aria-current="page"\s*>Kontakt</');
+});
+
+it('shows the public pages to logged in users on the start page', function () {
+    $html = pnHeader($this->actingAs(pnUser(RoleKey::Member))->get(route('home'))->getContent());
+
+    expect($html)->toContain('aria-label="Seiten im Bereich Start"')->toContain('>Zugang zum Portal<');
+});
+
+it('renders a submenu for entries with children', function () {
+    $pages = (new ReflectionClass(PortalNavigation::class))->getMethod('visiblePages');
+    $pages->setAccessible(true);
+
+    $result = $pages->invoke(null, [
+        ['label' => 'Eltern', 'route' => 'portal.about', 'match' => 'portal.about', 'children' => [
+            ['label' => 'Kind', 'route' => 'portal.contact', 'match' => 'portal.contact'],
+            ['label' => 'Gesperrt', 'route' => 'portal.access', 'match' => 'portal.access', 'can' => 'users.view'],
+        ]],
+    ], null, 'portal.contact');
+
+    expect($result[0]['current'])->toBeFalse()
+        ->and(array_column($result[0]['children'], 'label'))->toBe(['Kind'])
+        ->and($result[0]['children'][0]['current'])->toBeTrue();
 });

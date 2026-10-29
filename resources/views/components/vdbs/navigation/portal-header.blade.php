@@ -3,10 +3,12 @@
 @php
     $systems = collect(config('portal.systems'))->filter(fn (array $system): bool => filled($system['url']));
     $user = (! $safe && auth()->check()) ? auth()->user() : null;
-    $routeName = request()->route()?->getName();
-    $currentArea = $user ? \App\Support\PortalNavigation::areaForRoute($routeName) : null;
+    $routeName = $safe ? null : request()->route()?->getName();
     $visibleAreas = $user ? \App\Support\PortalNavigation::visibleAreas($user) : [];
-    $areaPages = ($user && $currentArea) ? \App\Support\PortalNavigation::pages($currentArea, $user, $routeName) : [];
+    $currentArea = \App\Support\PortalNavigation::areaForRoute($routeName);
+    // Ohne Anmeldung (und auf Fehlerseiten) stehen in Zeile 2 die öffentlichen Seiten des Bereichs Start.
+    $navArea = $currentArea ?? ($user === null ? \App\Support\PortalAreas::Start : null);
+    $areaPages = $navArea ? \App\Support\PortalNavigation::pages($navArea, $user, $routeName) : [];
     $headerTitle = $currentArea?->label() ?? ($title ?? 'Start');
 @endphp
 
@@ -56,18 +58,27 @@
         </div>
 
         <div class="vdbs-header__actions vdbs-header__menu-panel" id="portal-menu-actions">
-            @if ($user)
-                @if (count($areaPages) > 0)
-                    <nav aria-label="Seiten im Bereich {{ $currentArea->label() }}">
-                        <ul class="vdbs-header__links vdbs-header__links--large">
-                            @foreach ($areaPages as $page)
-                                <li><a href="{{ $page['href'] }}" @if ($page['current']) aria-current="page" @endif>{{ $page['label'] }}</a></li>
-                            @endforeach
-                        </ul>
-                    </nav>
-                @endif
+            @if (count($areaPages) > 0)
+                <nav class="vdbs-main-nav" aria-label="Seiten im Bereich {{ $navArea->label() }}">
+                    <ul class="vdbs-header__links vdbs-header__links--large">
+                        @foreach ($areaPages as $page)
+                            <li @class(['vdbs-main-nav__item', 'vdbs-main-nav__item--has-submenu' => $page['children'] !== []])>
+                                <a href="{{ $page['href'] }}" @if ($page['current']) aria-current="page" @endif>{{ $page['label'] }}</a>
+                                @if ($page['children'] !== [])
+                                    <ul class="vdbs-main-nav__submenu">
+                                        @foreach ($page['children'] as $child)
+                                            <li><a href="{{ $child['href'] }}" @if ($child['current']) aria-current="page" @endif>{{ $child['label'] }}</a></li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ul>
+                </nav>
+            @endif
 
-                @php $displayName = auth()->user()->person?->fullName() ?: auth()->user()->email; @endphp
+            @if ($user)
+                @php $displayName = $user->person?->fullName() ?: $user->email; @endphp
                 <x-vdbs.navigation.dropdown variant="plain" align="end" :label="$displayName">
                     <x-slot:trigger>
                         <x-vdbs.data.avatar :name="$displayName" size="s" aria-hidden="true" />
@@ -80,18 +91,8 @@
                         <x-vdbs.navigation.dropdown-item type="submit" icon="log-out">Abmelden</x-vdbs.navigation.dropdown-item>
                     </form>
                 </x-vdbs.navigation.dropdown>
-            @else
-                <nav aria-label="Portal-Informationen">
-                    <ul class="vdbs-header__links vdbs-header__links--large">
-                        @foreach (config('portal.public_links') as $link)
-                            <li><a href="{{ $link['url'] }}">{{ $link['label'] }}</a></li>
-                        @endforeach
-                    </ul>
-                </nav>
-
-                @unless (request()->routeIs('login'))
-                    <x-vdbs.actions.button :href="route('login')" icon="log-in">Login</x-vdbs.actions.button>
-                @endunless
+            @elseif ($routeName !== 'login')
+                <x-vdbs.actions.button :href="route('login')" icon="log-in">Login</x-vdbs.actions.button>
             @endif
         </div>
     </div>

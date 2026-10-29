@@ -10,3 +10,10 @@ use Illuminate\Support\Facades\Route;
  */
 // Startseite: öffentlich, zeigt Gästen den Zugang und Angemeldeten ihre Bereiche.
 Route::view('/', 'portal.home')->middleware('web')->name('home');
+
+// Start-Bereich: öffentliche Informationsseiten (Zeile 2 des Kopfbereichs, siehe docs/43_BEREICHE.md).
+Route::middleware('web')->group(function (): void {
+    Route::view('/ueber-das-portal', 'portal.about')->name('portal.about');
+    Route::view('/zugang-zum-portal', 'portal.access')->name('portal.access');
+    Route::view('/kontakt', 'portal.contact')->name('portal.contact');
+});
