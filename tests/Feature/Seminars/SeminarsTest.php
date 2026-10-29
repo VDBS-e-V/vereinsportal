@@ -442,7 +442,7 @@ it('prints the quote as a letter with address, position, total and footer', func
         ->toContain('2.309,00 €')
         ->toContain($quote->created_at->format('d.m.Y'))
         ->toContain('bearbeitet von:')
-        ->toContain($coordinator->person->fullName())
+        ->toContain(e($coordinator->person->fullName()))
         ->toContain('IBAN: DE63 1005 0000 0191 2739 96')
         ->toContain('Vereinsvorstand');
 });
@@ -472,7 +472,7 @@ it('protects the print view like the quote and does not print through another se
 
     $this->get(route('seminars.quotes.print', [$other, $quote]))->assertNotFound();
 
-    auth()->logout();
+    $this->app['auth']->forgetGuards();
     $this->get(route('seminars.quotes.print', [$seminar, $quote]))->assertRedirect(route('login'));
     $this->actingAs(smUser(RoleKey::Member))->get(route('seminars.quotes.print', [$seminar, $quote]))->assertForbidden();
 });
