@@ -4,7 +4,20 @@
 
 .vdbs-form__actions { margin-top: var(--space-5); }
 
+/*
+ * Raster: Jedes Element belegt zwei Zeilen. Felder übernehmen sie per Subgrid (Kopf = Label und Hinweis, Körper = Steuerelement
+ * und Meldungen), damit die Steuerelemente einer Zeile immer auf gleicher Höhe beginnen, auch wenn nur ein Feld einen Hinweis
+ * hat. Der Abstand zwischen den Zeilen kommt vom unteren Rand der Felder.
+ */
 .vdbs-form-grid { display: grid; gap: 0 var(--space-5); }
+.vdbs-form-grid > * { grid-row: span 2; }
+
+@supports (grid-template-rows: subgrid) {
+    .vdbs-form-grid > .vdbs-field { grid-template-rows: subgrid; row-gap: var(--space-1); }
+
+    .vdbs-form-grid > .vdbs-field > .vdbs-field__head,
+    .vdbs-form-grid > .vdbs-field > .vdbs-field__body { display: grid; align-content: start; gap: var(--space-1); }
+}
 
 @media (min-width: 640px) {
     .vdbs-form-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }

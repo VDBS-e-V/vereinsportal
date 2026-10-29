@@ -2,6 +2,10 @@
 
 .vdbs-field { display: grid; align-content: start; gap: var(--space-1); margin-bottom: var(--space-4); }
 
+/* Kopf (Label, Hinweis) und Körper (Steuerelement, Meldungen): ohne Raster unsichtbar, im Raster siehe form.css */
+.vdbs-field__head,
+.vdbs-field__body { display: contents; }
+
 .vdbs-field__label { font-weight: var(--font-weight-bold); font-size: var(--font-size-small); }
 
 .vdbs-field__flag { margin-left: var(--space-1); color: var(--text-muted); font-weight: var(--font-weight-regular); }

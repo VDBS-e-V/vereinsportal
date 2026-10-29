@@ -387,3 +387,9 @@ it('shows the login without an image by default and with the configured image', 
 
     $this->get('/login')->assertOk()->assertSee('vdbs-aside-layout--image', false)->assertSee('Bildquelle:');
 });
+
+it('wraps label with hint and control with messages so grid rows can align', function () {
+    $html = form('<x-vdbs.forms.input name="a" label="A" hint="Hinweis" />');
+
+    expect($html)->toContain('vdbs-field__head')->toContain('vdbs-field__body');
+});
