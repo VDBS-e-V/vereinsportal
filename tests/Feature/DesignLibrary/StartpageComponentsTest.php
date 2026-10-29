@@ -336,7 +336,7 @@ it('renders a confirm dialog with form, csrf, method spoofing and safe default f
 });
 
 it('renders a plain confirm dialog and lets the caller supply the confirm button', function () {
-    $html = Blade::render('<x-vdbs.overlays.confirm-dialog id="x" title="Senden?"><x-slot:confirm><button type="button" id="own">Eigener</button></x-slot:confirm>Text</x-vdbs.overlays.confirm-dialog>');
+    $html = Blade::render('<x-vdbs.overlays.confirm-dialog id="x" title="Senden?"><x-slot:confirm-button><button type="button" id="own">Eigener</button></x-slot:confirm-button>Text</x-vdbs.overlays.confirm-dialog>');
 
     expect($html)->toContain('id="own"')->not->toContain('data-vdbs-confirm-submit')->not->toContain('data-vdbs-confirm-phrase');
 });
