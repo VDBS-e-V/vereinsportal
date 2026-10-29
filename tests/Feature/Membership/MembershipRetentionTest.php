@@ -128,7 +128,7 @@ it('only counts in a dry run', function () {
     $old = rtApplication(30);
     $rejected = Membership::factory()->rejected()->create(['decided_at' => now()->subDays(400)]);
 
-    $this->artisan('membership:prune', ['--dry-run' => true])->expectsOutputToContain('Trockenlauf')->expectsOutputToContain('Unbestätigte Anträge: 1, abgelehnte: 1')->assertSuccessful();
+    $this->artisan('membership:prune', ['--dry-run' => true])->expectsOutputToContain('Trockenlauf')->expectsOutputToContain('abgelehnte: 1, beendete: 0')->assertSuccessful();
 
     expect(Membership::query()->whereKey($old->id)->exists())->toBeTrue()->and(Membership::query()->whereKey($rejected->id)->exists())->toBeTrue();
 });

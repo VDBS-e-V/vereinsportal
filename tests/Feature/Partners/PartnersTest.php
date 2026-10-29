@@ -287,7 +287,7 @@ it('exports the filtered schools as csv with german labels and formula protectio
         ->and($csv)->toContain('Name;Träger;"Interne Kennung";Schulart;Bundesland')
         ->toContain("'=HYPERLINK")
         ->toContain('Gymnasium;Sachsen')
-        ->toContain(';400;aktiv')
+        ->toContain(';400;Aktiv')
         ->not->toContain('Andere Schule');
 });
 
@@ -674,7 +674,7 @@ it('exports and imports several contact persons in column groups, without a fixe
     $this->actingAs(ptUser(RoleKey::Coordination));
 
     $export = $this->get(route('partners.export'))->streamedContent();
-    expect($export)->toContain('"Ansprechperson 3";"Funktion 3";"E-Mail 3";"Telefon 3"')->toContain('Dritte;Rolle Dritte;dritte@beispiel.example');
+    expect($export)->toContain('"Ansprechperson 3";"Funktion 3";"E-Mail 3";"Telefon 3"')->toContain('Dritte;"Rolle Dritte";dritte@beispiel.example');
 
     Partner::query()->delete();
 
