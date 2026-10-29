@@ -128,9 +128,10 @@ it('only counts in a dry run', function () {
     $old = rtApplication(30);
     $rejected = Membership::factory()->rejected()->create(['decided_at' => now()->subDays(400)]);
 
-    $this->artisan('membership:prune', ['--dry-run' => true])->expectsOutputToContain('Trockenlauf')->expectsOutputToContain('abgelehnte: 1, beendete: 0')->assertSuccessful();
+    $this->artisan('membership:prune', ['--dry-run' => true])->expectsOutputToContain('[Trockenlauf]')->assertSuccessful();
 
-    expect(Membership::query()->whereKey($old->id)->exists())->toBeTrue()->and(Membership::query()->whereKey($rejected->id)->exists())->toBeTrue();
+    expect(app(\App\Modules\Membership\Services\MembershipRetention::class)->prune(true))->toBe(['unverified' => 1, 'rejected' => 1, 'ended' => 0])
+        ->and(Membership::query()->whereKey($old->id)->exists())->toBeTrue()->and(Membership::query()->whereKey($rejected->id)->exists())->toBeTrue();
 });
 
 it('switches single periods off with an empty or zero value', function () {
