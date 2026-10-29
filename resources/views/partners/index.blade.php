@@ -21,7 +21,7 @@
         <x-vdbs.data.stat label="Inaktiv" value="{{ $stats['inactive'] }}" icon="clock" />
     </x-vdbs.layout.grid>
 
-    <x-vdbs.data.toolbar label="Schulen filtern" :count="$count" :active="$active" :reset-href="route('partners.index')" search-placeholder="Name, Ort, PLZ oder Ansprechperson suchen">
+    <x-vdbs.data.toolbar label="Schulen filtern" :count="$count" :active="$active" :reset-href="route('partners.index')" search-placeholder="Name, Kennung (z. B. BE/08K06), Ort oder Ansprechperson suchen">
         <x-vdbs.forms.select name="status" label="Status" placeholder="Alle" :options="$statusOptions" :value="$filters['status']" />
         <x-vdbs.forms.select name="school_type" label="Schulart" placeholder="Alle" :options="$typeOptions" :value="$filters['school_type']" />
         <x-vdbs.forms.select name="federal_state" label="Bundesland" placeholder="Alle" :options="$stateOptions" :value="$filters['federal_state']" />
@@ -44,10 +44,11 @@
                 @endphp
                 <tr class="vdbs-table__row--link">
                     <td><a class="vdbs-table__row-link" href="{{ route('partners.show', $row) }}">{{ $row->name }}</a></td>
+                    <td>{{ $row->internalId() ?? '–' }}</td>
                     <td>{{ trim(($row->postal_code ?? '').' '.($row->city ?? '')) ?: '–' }}</td>
                     <td>{{ $type ?? '–' }}</td>
                     <td>{{ $state ?? '–' }}</td>
-                    <td>{{ $row->contact_name ?? '–' }}</td>
+                    <td>@if ($row->contacts->isEmpty()) – @else {{ $row->contacts->first()->name }}@if ($row->contacts->count() > 1) <span class="vdbs-sr-only">und</span> +{{ $row->contacts->count() - 1 }}@endif @endif</td>
                     <td><x-vdbs.data.badge :tone="$row->status->tone()">{{ $row->status->label() }}</x-vdbs.data.badge></td>
                 </tr>
             @endforeach

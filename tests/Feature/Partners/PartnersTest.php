@@ -50,9 +50,12 @@ function ptForm(array $overrides = []): array
         'postal_code' => '04109',
         'city' => 'Leipzig',
         'country_code' => 'de',
-        'contact_name' => 'Frau Beispiel',
-        'contact_email' => 'Sekretariat@Beispiel.example',
-        'contact_phone' => '0341 123456',
+        'contacts' => [
+            ['name' => 'Frau Beispiel', 'role' => 'Schulleitung', 'email' => 'Sekretariat@Beispiel.example', 'phone' => '0341 123456'],
+            ['name' => 'Herr Muster', 'role' => 'Bibliothek', 'email' => '', 'phone' => ''],
+            ['name' => '', 'role' => '', 'email' => '', 'phone' => ''],
+        ],
+        'primary_contact' => '0',
         'notes' => 'Erstkontakt im Mai',
     ];
 }
@@ -141,7 +144,10 @@ it('creates a school with normalized values and the creator', function () {
         ->and($partner->type->value)->toBe('school')
         ->and($partner->status)->toBe(PartnerStatus::Active)
         ->and($partner->country_code)->toBe('DE')
-        ->and($partner->contact_email)->toBe('sekretariat@beispiel.example')
+        ->and($partner->contacts->pluck('name')->all())->toBe(['Frau Beispiel', 'Herr Muster'])
+        ->and($partner->contacts->first()->email)->toBe('sekretariat@beispiel.example')
+        ->and($partner->contacts->first()->is_primary)->toBeTrue()
+        ->and($partner->internalId())->toBe('SN/12345')
         ->and($partner->public_id)->toHaveLength(26)
         ->and($partner->created_by_user_id)->toBe($coordinator->id)
         ->and($partner->getAttribute('attributes'))->toEqual(['school_type' => 'gesamtschule', 'federal_state' => 'SN', 'school_number' => '12345', 'student_count' => 650]);
@@ -152,7 +158,7 @@ it('stores empty optional values as null', function () {
 
     $partner = Partner::query()->firstOrFail();
 
-    expect($partner->city)->toBeNull()->and($partner->contact_email)->toBeNull()->and($partner->getAttribute('attributes'))->toBeNull();
+    expect($partner->city)->toBeNull()->and($partner->contacts()->count())->toBe(0)->and($partner->internalId())->toBeNull()->and($partner->getAttribute('attributes'))->toBeNull();
 });
 
 it('validates the school form', function () {
@@ -163,8 +169,12 @@ it('validates the school form', function () {
     $this->post(route('partners.store'), ptForm(['federal_state' => 'XX']))->assertSessionHasErrors('federal_state');
     $this->post(route('partners.store'), ptForm(['student_count' => '-3']))->assertSessionHasErrors('student_count');
     $this->post(route('partners.store'), ptForm(['student_count' => 'viele']))->assertSessionHasErrors('student_count');
-    $this->post(route('partners.store'), ptForm(['contact_email' => 'kaputt']))->assertSessionHasErrors('contact_email');
-    $this->post(route('partners.store'), ptForm(['contact_phone' => 'abc']))->assertSessionHasErrors('contact_phone');
+    $this->post(route('partners.store'), ptForm(['contacts' => [['name' => 'A', 'email' => 'kaputt']]]))->assertSessionHasErrors('contacts.0.email');
+    $this->post(route('partners.store'), ptForm(['contacts' => [['name' => 'A', 'phone' => 'abc']]]))->assertSessionHasErrors('contacts.0.phone');
+    $this->post(route('partners.store'), ptForm(['contacts' => [['name' => '', 'email' => 'a@example.org']]]))->assertSessionHasErrors('contacts.0.name');
+    $this->post(route('partners.store'), ptForm(['school_number' => 'a b']))->assertSessionHasErrors('school_number');
+    $this->post(route('partners.store'), ptForm(['school_number' => 'SN/12345']))->assertSessionHasErrors('school_number');
+    $this->post(route('partners.store'), ptForm(['federal_state' => '']))->assertSessionHasErrors('federal_state');
     $this->post(route('partners.store'), ptForm(['country_code' => 'Deutschland']))->assertSessionHasErrors('country_code');
     $this->post(route('partners.store'), ptForm(['status' => 'weg']))->assertSessionHasErrors('status');
 
@@ -176,7 +186,7 @@ it('refuses the same school name in the same city but allows it elsewhere', func
     $this->post(route('partners.store'), ptForm())->assertSessionHasNoErrors();
 
     $this->post(route('partners.store'), ptForm(['name' => 'GESAMTSCHULE musterstadt', 'city' => 'leipzig']))->assertSessionHasErrors('name');
-    $this->post(route('partners.store'), ptForm(['city' => 'Dresden']))->assertSessionHasNoErrors();
+    $this->post(route('partners.store'), ptForm(['city' => 'Dresden', 'school_number' => '99999']))->assertSessionHasNoErrors();
 
     expect(Partner::query()->count())->toBe(2);
 });
@@ -193,8 +203,8 @@ it('edits a school and records only the changed field names in the log', functio
     $entry = AuditEntry::query()->where('event', 'partner.updated')->firstOrFail();
 
     expect($entry->subject_type)->toBe('partner')->and($entry->subject_id)->toBe($partner->id)->and($entry->subject_label)->toBe('Schule')
-        ->and($entry->context['felder'])->toContain('notes', 'legal_name')
-        ->and(json_encode($entry->context))->not->toContain('Geheime Notiz')
+        ->and($entry->context['felder'])->toContain('notes', 'legal_name', 'ansprechpersonen')
+        ->and(json_encode($entry->context))->not->toContain('Geheime Notiz')->not->toContain('Frau Beispiel')
         ->and($partner->fresh()->updated_by_user_id)->toBe($coordinator->id);
 });
 
@@ -231,9 +241,12 @@ it('deletes a school and logs it', function () {
 it('shows the details of a school', function () {
     $partner = Partner::factory()->create([
         'name' => 'Gesamtschule Musterstadt', 'legal_name' => 'Stadt Musterstadt', 'street' => 'Schulstraße', 'house_number' => '1', 'postal_code' => '04109', 'city' => 'Leipzig',
-        'contact_name' => 'Frau Beispiel', 'contact_email' => 'sekretariat@beispiel.example', 'contact_phone' => '0341 123456', 'notes' => 'Erstkontakt im Mai',
+        'notes' => 'Erstkontakt im Mai',
         'attributes' => ['school_type' => 'gesamtschule', 'federal_state' => 'SN', 'school_number' => '12345', 'student_count' => 650],
     ]);
+
+    $partner->contacts()->create(['name' => 'Frau Beispiel', 'role' => 'Schulleitung', 'email' => 'sekretariat@beispiel.example', 'phone' => '0341 123456', 'is_primary' => true]);
+    $partner->contacts()->create(['name' => 'Herr Muster', 'role' => 'Bibliothek', 'is_primary' => false]);
 
     $this->actingAs(ptUser(RoleKey::Coordination))->get(route('partners.show', $partner))
         ->assertOk()
@@ -244,6 +257,10 @@ it('shows the details of a school', function () {
         ->assertSee('650')
         ->assertSee('Schulstraße 1, 04109 Leipzig')
         ->assertSee('mailto:sekretariat@beispiel.example', false)
+        ->assertSee('SN/12345')
+        ->assertSee('Frau Beispiel')
+        ->assertSee('Herr Muster')
+        ->assertSee('Haupt')
         ->assertSee('Erstkontakt im Mai');
 });
 
@@ -269,7 +286,7 @@ it('exports the filtered schools as csv with german labels and formula protectio
 
     $response->assertOk()->assertDownload();
     expect(str_starts_with($csv, "\xEF\xBB\xBF"))->toBeTrue()
-        ->and($csv)->toContain('Name;Träger;Schulart;Bundesland')
+        ->and($csv)->toContain('Name;Träger;Interne Kennung;Schulart;Bundesland')
         ->toContain("'=HYPERLINK")
         ->toContain('Gymnasium;Sachsen')
         ->toContain(';400;aktiv')
@@ -279,7 +296,7 @@ it('exports the filtered schools as csv with german labels and formula protectio
 it('offers an import template', function () {
     $response = $this->actingAs(ptUser(RoleKey::Coordination))->get(route('partners.import.template'));
 
-    expect($response->streamedContent())->toContain('Name;Träger;Schulart')->toContain('Beispielschule');
+    expect($response->streamedContent())->toContain('Name;Träger;Interne Kennung;Schulart')->toContain('BE/08K06')->toContain('Ansprechperson 2');
 });
 
 // ---------- Import ----------
@@ -297,7 +314,9 @@ it('imports schools from a semicolon csv with a byte order mark', function () {
     $south = Partner::query()->where('name', 'Grundschule Süd')->firstOrFail();
 
     expect($anne->getAttribute('attributes'))->toEqual(['school_type' => 'gymnasium', 'federal_state' => 'SN', 'school_number' => 'S-1', 'student_count' => 650])
-        ->and($anne->contact_email)->toBe('sek@beispiel.example')
+        ->and($anne->contacts->pluck('email')->all())->toBe(['sek@beispiel.example'])
+        ->and($anne->contacts->first()->name)->toBe('Frau Beispiel')
+        ->and($anne->internalId())->toBe('SN/S-1')
         ->and($anne->created_by_user_id)->toBe($coordinator->id)
         ->and($south->status)->toBe(PartnerStatus::Inactive)
         ->and($south->getAttribute('attributes'))->toEqual(['school_type' => 'grundschule', 'federal_state' => 'SN', 'student_count' => 120]);
@@ -395,4 +414,210 @@ it('maps school type, federal state and status flexibly', function () {
     expect(Partner::query()->where('name', 'A')->first()->getAttribute('attributes'))->toEqual(['school_type' => 'berufsschule', 'federal_state' => 'NW'])
         ->and(Partner::query()->where('name', 'B')->first()->getAttribute('attributes'))->toEqual(['school_type' => 'foerderschule', 'federal_state' => 'BY'])
         ->and(Partner::query()->where('name', 'C')->first()->status)->toBe(PartnerStatus::Inactive);
+});
+
+
+// ---------- Interne Kennung (Bundesland-Kürzel + Schulnummer) ----------
+
+it('builds the internal id from the state code and the school number', function () {
+    $this->actingAs(ptUser(RoleKey::Coordination))->post(route('partners.store'), ptForm(['name' => 'Berliner Schule', 'federal_state' => 'BE', 'school_number' => '08k06']))->assertSessionHasNoErrors();
+
+    $partner = Partner::query()->firstOrFail();
+
+    expect($partner->internalId())->toBe('BE/08K06')->and($partner->getAttribute('attributes')['school_number'])->toBe('08K06');
+
+    $this->get(route('partners.show', $partner))->assertSee('Interne Kennung')->assertSee('BE/08K06');
+    $this->get(route('partners.index'))->assertSee('BE/08K06');
+});
+
+it('has no internal id without a school number', function () {
+    $partner = Partner::factory()->create(['attributes' => ['federal_state' => 'BE']]);
+
+    expect($partner->internalId())->toBeNull();
+});
+
+it('keeps the internal id unique across schools and lets the same number exist in another state', function () {
+    Partner::factory()->create(['name' => 'Erste Schule', 'attributes' => ['federal_state' => 'BE', 'school_number' => '08K06']]);
+    $this->actingAs(ptUser(RoleKey::Coordination));
+
+    $this->post(route('partners.store'), ptForm(['name' => 'Zweite Schule', 'city' => 'Berlin', 'federal_state' => 'BE', 'school_number' => '08k06']))->assertSessionHasErrors('school_number');
+    $this->post(route('partners.store'), ptForm(['name' => 'Dritte Schule', 'city' => 'Hamburg', 'federal_state' => 'HH', 'school_number' => '08K06']))->assertSessionHasNoErrors();
+
+    $own = Partner::query()->where('name', 'Erste Schule')->firstOrFail();
+    $this->put(route('partners.update', $own), ['name' => 'Erste Schule', 'status' => 'active', 'country_code' => 'DE', 'federal_state' => 'BE', 'school_number' => '08K06', 'city' => $own->city])->assertSessionHasNoErrors();
+});
+
+it('finds schools by internal id, by number and sorts by it', function () {
+    Partner::factory()->create(['name' => 'Berlin A', 'attributes' => ['federal_state' => 'BE', 'school_number' => '08K06']]);
+    Partner::factory()->create(['name' => 'Hamburg B', 'attributes' => ['federal_state' => 'HH', 'school_number' => '08K06']]);
+    Partner::factory()->create(['name' => 'Ohne Nummer', 'attributes' => ['federal_state' => 'SN']]);
+    $this->actingAs(ptUser(RoleKey::Coordination));
+
+    $this->get(route('partners.index', ['q' => 'BE/08K06']))->assertSee('Berlin A')->assertDontSee('Hamburg B');
+    $this->get(route('partners.index', ['q' => '08K06']))->assertSee('Berlin A')->assertSee('Hamburg B')->assertDontSee('Ohne Nummer');
+    $this->get(route('partners.index', ['sort' => 'internal_id']))->assertOk()->assertSeeInOrder(['BE/08K06', 'HH/08K06']);
+});
+
+it('exports the internal id and reads it back on import', function () {
+    $coordinator = ptUser(RoleKey::Coordination);
+    $this->actingAs($coordinator);
+
+    $csv = PT_HEADER_ID."Berliner Schule;;BE/08K06;Gymnasium;;;;;;;Berlin\n";
+    $this->post(route('partners.import.store'), ['file' => ptCsv($csv)])->assertSessionHas('success', '1 Schulen importiert.');
+
+    $partner = Partner::query()->firstOrFail();
+    expect($partner->internalId())->toBe('BE/08K06')->and($partner->getAttribute('attributes')['federal_state'])->toBe('BE');
+
+    $export = $this->get(route('partners.export'))->streamedContent();
+    expect($export)->toContain('BE/08K06');
+});
+
+it('rejects invalid, conflicting and duplicate internal ids on import', function () {
+    Partner::factory()->create(['name' => 'Vorhandene Schule', 'city' => 'Berlin', 'attributes' => ['federal_state' => 'BE', 'school_number' => '01A01']]);
+    $this->actingAs(ptUser(RoleKey::Coordination));
+
+    $csv = PT_HEADER_ID
+        ."Kaputt;;BERLIN-08;;;;;;;;Berlin\n"
+        ."Falsch;;XX/123;;;;;;;;Berlin\n"
+        ."Widerspruch;;BE/08K06;;Hamburg;;;;;;Berlin\n"
+        ."Belegt;;BE/01A01;;;;;;;;Berlin\n"
+        ."Erste;;SN/5;;;;;;;;Leipzig\n"
+        ."Zweite;;sn/5;;;;;;;;Dresden\n";
+
+    $this->post(route('partners.import.store'), ['file' => ptCsv($csv)])->assertSessionHas('import_error_count', 5);
+
+    $errors = session('import_errors');
+
+    expect($errors[0])->toContain('Zeile 2')->toContain('ungültig')
+        ->and($errors[1])->toContain('Zeile 3')->toContain('ungültig')
+        ->and($errors[2])->toContain('Zeile 4')->toContain('passt nicht')
+        ->and($errors[3])->toContain('Zeile 5')->toContain('gehört schon zu einer anderen Schule')
+        ->and($errors[4])->toContain('Zeile 7')->toContain('SN/5')->toContain('Zeile 6')
+        ->and(Partner::query()->count())->toBe(1);
+});
+
+const PT_HEADER_ID = "Name;Träger;Interne Kennung;Schulart;Bundesland;Straße;Hausnummer;PLZ;Notiz;Status;Ort\n";
+
+// ---------- Mehrere Ansprechpersonen ----------
+
+it('stores several contact persons and marks the chosen one as primary', function () {
+    $this->actingAs(ptUser(RoleKey::Coordination))->post(route('partners.store'), ptForm([
+        'contacts' => [
+            ['name' => 'Sekretariat', 'role' => 'Sekretariat', 'email' => 'sek@beispiel.example', 'phone' => ''],
+            ['name' => '', 'role' => '', 'email' => '', 'phone' => ''],
+            ['name' => 'Frau Leitung', 'role' => 'Schulleitung', 'email' => 'LEITUNG@beispiel.example', 'phone' => '0341 1'],
+            ['name' => 'Herr Bibliothek', 'role' => 'Bibliothek', 'email' => '', 'phone' => ''],
+        ],
+        'primary_contact' => '2',
+    ]))->assertSessionHasNoErrors();
+
+    $contacts = Partner::query()->firstOrFail()->contacts;
+
+    expect($contacts->pluck('name')->all())->toBe(['Frau Leitung', 'Herr Bibliothek', 'Sekretariat'])
+        ->and($contacts->pluck('is_primary')->all())->toBe([true, false, false])
+        ->and($contacts->first()->email)->toBe('leitung@beispiel.example');
+});
+
+it('makes the first contact primary when none is chosen or the chosen row is empty', function () {
+    $this->actingAs(ptUser(RoleKey::Coordination));
+
+    $this->post(route('partners.store'), ptForm(['name' => 'Schule 1', 'school_number' => '1', 'primary_contact' => '4']))->assertSessionHasNoErrors();
+    $this->post(route('partners.store'), ptForm(['name' => 'Schule 2', 'school_number' => '2', 'primary_contact' => null]))->assertSessionHasNoErrors();
+
+    foreach (Partner::query()->get() as $partner) {
+        expect($partner->contacts->where('is_primary', true)->count())->toBe(1)->and($partner->contacts->first()->name)->toBe('Frau Beispiel');
+    }
+});
+
+it('allows at most five contact persons', function () {
+    $contacts = array_map(fn (int $i): array => ['name' => "Person {$i}", 'role' => '', 'email' => '', 'phone' => ''], range(1, 6));
+
+    $this->actingAs(ptUser(RoleKey::Coordination))->post(route('partners.store'), ptForm(['contacts' => $contacts]))->assertSessionHasErrors('contacts');
+    $this->post(route('partners.store'), ptForm(['contacts' => array_slice($contacts, 0, 5)]))->assertSessionHasNoErrors();
+
+    expect(Partner::query()->firstOrFail()->contacts()->count())->toBe(5);
+});
+
+it('replaces, removes and keeps the person link of contact persons on update', function () {
+    $coordinator = ptUser(RoleKey::Coordination);
+    $partner = Partner::factory()->create(['name' => 'Schule', 'city' => 'Leipzig']);
+    $person = Person::factory()->create();
+    $partner->contacts()->create(['name' => 'Frau Leitung', 'email' => 'leitung@beispiel.example', 'is_primary' => true, 'person_id' => $person->id]);
+    $partner->contacts()->create(['name' => 'Alter Kontakt', 'is_primary' => false]);
+    $this->actingAs($coordinator);
+
+    $this->get(route('partners.edit', $partner))->assertOk()->assertSee('Frau Leitung')->assertSee('Alter Kontakt')->assertSee('Hauptansprechperson');
+
+    $this->put(route('partners.update', $partner), [
+        'name' => 'Schule', 'city' => 'Leipzig', 'status' => 'active', 'country_code' => 'DE', 'school_type' => 'gymnasium', 'federal_state' => 'SN',
+        'contacts' => [
+            ['name' => 'Frau Leitung', 'role' => 'Schulleitung', 'email' => 'leitung@beispiel.example', 'phone' => ''],
+            ['name' => 'Neuer Kontakt', 'role' => '', 'email' => '', 'phone' => ''],
+        ],
+        'primary_contact' => '0',
+    ])->assertSessionHasNoErrors();
+
+    $contacts = $partner->fresh()->contacts;
+
+    expect($contacts->pluck('name')->all())->toBe(['Frau Leitung', 'Neuer Kontakt'])
+        ->and($contacts->first()->person_id)->toBe($person->id)
+        ->and($contacts->first()->role)->toBe('Schulleitung')
+        ->and(AuditEntry::query()->where('event', 'partner.updated')->firstOrFail()->context['felder'])->toBe(['ansprechpersonen']);
+
+    $this->put(route('partners.update', $partner), ['name' => 'Schule', 'city' => 'Leipzig', 'status' => 'active', 'country_code' => 'DE'])->assertSessionHasNoErrors();
+
+    expect($partner->fresh()->contacts()->count())->toBe(0);
+});
+
+it('does not log an update when the contacts stay the same', function () {
+    $partner = Partner::factory()->create(['name' => 'Schule', 'city' => 'Leipzig']);
+    $partner->contacts()->create(['name' => 'Frau Leitung', 'role' => null, 'email' => null, 'phone' => null, 'is_primary' => true]);
+
+    $this->actingAs(ptUser(RoleKey::Coordination))->put(route('partners.update', $partner), [
+        'name' => 'Schule', 'city' => 'Leipzig', 'status' => 'active', 'country_code' => 'DE', 'school_type' => 'gymnasium', 'federal_state' => 'SN',
+        'contacts' => [['name' => 'Frau Leitung']], 'primary_contact' => '0',
+    ])->assertSessionHasNoErrors();
+
+    expect(AuditEntry::query()->where('event', 'partner.updated')->count())->toBe(0);
+});
+
+it('shows the primary contact with a count in the list and finds schools by any contact', function () {
+    $partner = Partner::factory()->create(['name' => 'Kontaktschule']);
+    $partner->contacts()->create(['name' => 'Hauptfrau', 'is_primary' => true]);
+    $partner->contacts()->create(['name' => 'Nebenmann', 'is_primary' => false]);
+    $partner->contacts()->create(['name' => 'Dritte Person', 'is_primary' => false]);
+    Partner::factory()->create(['name' => 'Andere Schule']);
+    $this->actingAs(ptUser(RoleKey::Coordination));
+
+    $this->get(route('partners.index'))->assertSee('Hauptfrau')->assertSee('+2');
+    $this->get(route('partners.index', ['q' => 'Nebenmann']))->assertSee('Kontaktschule')->assertDontSee('Andere Schule');
+});
+
+it('exports and imports several contact persons in column groups', function () {
+    $partner = Partner::factory()->create(['name' => 'Kontaktschule', 'city' => 'Leipzig']);
+    foreach (['Erste', 'Zweite', 'Dritte'] as $i => $name) {
+        $partner->contacts()->create(['name' => $name, 'role' => 'Rolle '.$name, 'email' => strtolower($name).'@beispiel.example', 'is_primary' => $i === 0]);
+    }
+    $this->actingAs(ptUser(RoleKey::Coordination));
+
+    $export = $this->get(route('partners.export'))->streamedContent();
+    expect($export)->toContain('Ansprechperson 3;Funktion 3;E-Mail 3;Telefon 3')->toContain('Dritte;Rolle Dritte;dritte@beispiel.example');
+
+    Partner::query()->delete();
+
+    $csv = "Name;Ort;Ansprechperson;Funktion;E-Mail;Ansprechperson 2;E-Mail 2;Ansprechperson 3;Funktion 3\nNeue Schule;Berlin;Frau Eins;Leitung;eins@beispiel.example;Herr Zwei;zwei@beispiel.example;Dritte Person;Bibliothek\n";
+    $this->post(route('partners.import.store'), ['file' => ptCsv($csv)])->assertSessionHas('success');
+
+    $contacts = Partner::query()->where('name', 'Neue Schule')->firstOrFail()->contacts;
+
+    expect($contacts->pluck('name')->all())->toBe(['Frau Eins', 'Dritte Person', 'Herr Zwei'])
+        ->and($contacts->first()->is_primary)->toBeTrue()
+        ->and($contacts->first()->role)->toBe('Leitung');
+});
+
+it('reports a contact without a name in the import', function () {
+    $this->actingAs(ptUser(RoleKey::Coordination))->post(route('partners.import.store'), ['file' => ptCsv("Name;E-Mail\nSchule;kontakt@beispiel.example\n")])
+        ->assertSessionHas('import_error_count', 1);
+
+    expect(session('import_errors')[0])->toContain('Zeile 2')->toContain('Namen der Ansprechperson');
 });

@@ -5,12 +5,12 @@ namespace App\Modules\Partners\Models;
 use App\Modules\Access\Models\User;
 use App\Modules\Partners\Enums\PartnerStatus;
 use App\Modules\Partners\Enums\PartnerType;
-use App\Modules\People\Models\Person;
 use Database\Factories\PartnerFactory;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Modul: Partners.
@@ -39,10 +39,6 @@ class Partner extends Model
         'postal_code',
         'city',
         'country_code',
-        'contact_person_id',
-        'contact_name',
-        'contact_email',
-        'contact_phone',
         'status',
         'attributes',
         'notes',
@@ -59,10 +55,18 @@ class Partner extends Model
         ];
     }
 
-    /** @return BelongsTo<Person, $this> */
-    public function contactPerson(): BelongsTo
+    /** Interne Kennung: Bundesland-Kürzel und Schulnummer, z. B. BE/08K06 (null, solange eins von beiden fehlt). */
+    public function internalId(): ?string
     {
-        return $this->belongsTo(Person::class, 'contact_person_id');
+        $attributes = $this->getAttribute('attributes') ?? [];
+
+        return \App\Modules\Partners\Support\PartnerData::internalId($attributes['federal_state'] ?? null, $attributes['school_number'] ?? null);
+    }
+
+    /** @return HasMany<PartnerContact, $this> Hauptansprechperson zuerst */
+    public function contacts(): HasMany
+    {
+        return $this->hasMany(PartnerContact::class)->orderByDesc('is_primary')->orderBy('name')->orderBy('id');
     }
 
     /** @return BelongsTo<User, $this> */

@@ -23,6 +23,7 @@
                 <x-vdbs.data.detail-item label="Träger oder offizieller Name">{{ $partner->legal_name }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Schulart">{{ $schoolType }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Bundesland">{{ $federalState }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Interne Kennung">{{ $internalId }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Schulnummer">{{ $schoolNumber }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Schülerzahl">{{ $studentCount }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Anschrift">{{ $address }}</x-vdbs.data.detail-item>
@@ -31,12 +32,21 @@
         </section>
 
         <section aria-labelledby="contact-heading">
-            <h2 id="contact-heading" style="font-size:var(--font-size-h3)">Ansprechperson</h2>
-            <x-vdbs.data.detail-list layout="inline">
-                <x-vdbs.data.detail-item label="Name">{{ $partner->contact_name }}</x-vdbs.data.detail-item>
-                <x-vdbs.data.detail-item label="E-Mail-Adresse" :href="$partner->contact_email ? 'mailto:'.$partner->contact_email : null">{{ $partner->contact_email }}</x-vdbs.data.detail-item>
-                <x-vdbs.data.detail-item label="Telefon">{{ $partner->contact_phone }}</x-vdbs.data.detail-item>
-            </x-vdbs.data.detail-list>
+            <h2 id="contact-heading" style="font-size:var(--font-size-h3)">Ansprechpersonen</h2>
+            @if ($contacts->isEmpty())
+                <p>Keine Ansprechperson erfasst.</p>
+            @else
+                <x-vdbs.data.table caption="Ansprechpersonen" :columns="[['key' => 'name', 'label' => 'Name'], ['key' => 'role', 'label' => 'Funktion'], ['key' => 'email', 'label' => 'E-Mail'], ['key' => 'phone', 'label' => 'Telefon']]">
+                    @foreach ($contacts as $contact)
+                        <tr>
+                            <td>{{ $contact->name }} @if ($contact->is_primary) <x-vdbs.data.badge tone="success">Haupt</x-vdbs.data.badge> @endif</td>
+                            <td>{{ $contact->role ?? '–' }}</td>
+                            <td>@if ($contact->email)<a href="mailto:{{ $contact->email }}">{{ $contact->email }}</a>@else – @endif</td>
+                            <td>{{ $contact->phone ?? '–' }}</td>
+                        </tr>
+                    @endforeach
+                </x-vdbs.data.table>
+            @endif
 
             <h2 style="margin-top:var(--space-6);font-size:var(--font-size-h3)">Notizen</h2>
             @if (filled($partner->notes))

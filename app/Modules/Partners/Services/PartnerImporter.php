@@ -8,6 +8,8 @@ use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Partners\Enums\FederalState;
 use App\Modules\Partners\Enums\PartnerStatus;
 use App\Modules\Partners\Enums\SchoolType;
+use App\Modules\Partners\Models\Partner;
+use App\Modules\Partners\Models\PartnerContact;
 use App\Modules\Partners\Support\PartnerData;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -15,16 +17,19 @@ use Illuminate\Support\Facades\Validator;
 /**
  * CSV-Import von Schulen. Alles oder nichts: Enthält die Datei fehlerhafte Zeilen, wird nichts angelegt und jede Zeile mit
  * Fehler gemeldet. Schulen, die es mit gleichem Namen am selben Ort schon gibt, werden übersprungen (nicht überschrieben).
- * Erkannt werden Semikolon und Komma als Trennzeichen, UTF-8 (mit oder ohne BOM) und Windows-1252.
+ * Die interne Kennung (Bundesland-Kürzel + Schulnummer, z. B. BE/08K06) muss eindeutig sein. Ansprechpersonen stehen in Spaltengruppen
+ * (Ansprechperson, Funktion, E-Mail, Telefon; weitere mit Zusatz „2“ bis „5“). Erkannt werden Semikolon und Komma als Trennzeichen,
+ * UTF-8 (mit oder ohne BOM) und Windows-1252.
  */
 final class PartnerImporter
 {
     public const MAX_ROWS = 1000;
 
-    /** Spaltenüberschrift (klein, ohne Leerzeichen am Rand) => internes Feld */
+    /** Spaltenüberschrift (klein) => internes Feld */
     private const HEADERS = [
         'name' => 'name', 'schule' => 'name', 'name der schule' => 'name',
         'träger' => 'legal_name', 'offizieller name' => 'legal_name',
+        'interne kennung' => 'internal_id', 'kennung' => 'internal_id', 'schulkennung' => 'internal_id',
         'schulart' => 'school_type',
         'bundesland' => 'federal_state',
         'schulnummer' => 'school_number',
@@ -32,22 +37,43 @@ final class PartnerImporter
         'hausnummer' => 'house_number',
         'plz' => 'postal_code', 'postleitzahl' => 'postal_code',
         'ort' => 'city',
-        'ansprechperson' => 'contact_name', 'kontakt' => 'contact_name',
-        'e-mail' => 'contact_email', 'email' => 'contact_email', 'e-mail-adresse' => 'contact_email',
-        'telefon' => 'contact_phone',
         'schülerzahl' => 'student_count', 'schüler:innen' => 'student_count', 'schueler' => 'student_count',
         'status' => 'status',
         'notiz' => 'notes', 'notizen' => 'notes',
     ];
 
+    /** Teile einer Ansprechperson: Überschrift => Feld */
+    private const CONTACT_PARTS = [
+        'ansprechperson' => 'name', 'kontakt' => 'name',
+        'funktion' => 'role',
+        'e-mail' => 'email', 'email' => 'email',
+        'telefon' => 'phone',
+    ];
+
     public function __construct(private readonly PartnerAdministration $partners) {}
+
+    /** Kopfzeile mit der angegebenen Zahl von Ansprechpersonen-Gruppen. @return list<string> */
+    public static function header(int $contactGroups = 2): array
+    {
+        $header = ['Name', 'Träger', 'Interne Kennung', 'Schulart', 'Bundesland', 'Schulnummer', 'Straße', 'Hausnummer', 'PLZ', 'Ort'];
+
+        foreach (range(1, max(1, min(PartnerContact::MAX_PER_PARTNER, $contactGroups))) as $group) {
+            $suffix = $group === 1 ? '' : ' '.$group;
+            array_push($header, 'Ansprechperson'.$suffix, 'Funktion'.$suffix, 'E-Mail'.$suffix, 'Telefon'.$suffix);
+        }
+
+        return array_merge($header, ['Schülerzahl', 'Status', 'Notiz']);
+    }
 
     /** Vorlage für den Download: Kopfzeile und eine Beispielzeile. @return list<list<string>> */
     public static function template(): array
     {
         return [
-            ['Name', 'Träger', 'Schulart', 'Bundesland', 'Schulnummer', 'Straße', 'Hausnummer', 'PLZ', 'Ort', 'Ansprechperson', 'E-Mail', 'Telefon', 'Schülerzahl', 'Status', 'Notiz'],
-            ['Beispielschule', '', 'Gymnasium', 'Sachsen', '12345', 'Schulstraße', '1', '04109', 'Leipzig', 'Frau Beispiel', 'sekretariat@beispiel.example', '0341 123456', '650', 'aktiv', ''],
+            self::header(2),
+            ['Beispielschule', 'Land Berlin', 'BE/08K06', 'Gymnasium', 'Berlin', '08K06', 'Schulstraße', '1', '10115', 'Berlin',
+                'Frau Beispiel', 'Schulleitung', 'leitung@beispiel.example', '030 123456',
+                'Herr Muster', 'Bibliothek', 'bibliothek@beispiel.example', '',
+                '650', 'aktiv', ''],
         ];
     }
 
@@ -64,11 +90,19 @@ final class PartnerImporter
 
         $errors = [];
         $valid = [];
-        $seen = [];
+        $seenNames = [];
+        $seenIds = [];
         $skipped = 0;
 
-        foreach ($rows['rows'] as $line => $row) {
-            $row = $this->normalize($row);
+        foreach ($rows['rows'] as $line => $raw) {
+            $row = $this->normalize($raw);
+
+            if (isset($row['_error'])) {
+                $errors[] = "Zeile {$line}: {$row['_error']}";
+
+                continue;
+            }
+
             $validator = Validator::make($row, PartnerData::rules(), PartnerData::messages());
 
             if ($validator->fails()) {
@@ -77,20 +111,38 @@ final class PartnerImporter
                 continue;
             }
 
-            $key = mb_strtolower(trim($row['name'])).'|'.mb_strtolower(trim((string) ($row['city'] ?? '')));
+            $nameKey = mb_strtolower(trim($row['name'])).'|'.mb_strtolower(trim((string) ($row['city'] ?? '')));
 
-            if (isset($seen[$key])) {
-                $errors[] = "Zeile {$line}: „{$row['name']}“ kommt in der Datei schon in Zeile {$seen[$key]} vor.";
+            if (isset($seenNames[$nameKey])) {
+                $errors[] = "Zeile {$line}: „{$row['name']}“ kommt in der Datei schon in Zeile {$seenNames[$nameKey]} vor.";
 
                 continue;
             }
 
-            $seen[$key] = $line;
+            $seenNames[$nameKey] = $line;
+
+            $internalId = PartnerData::internalId($row['federal_state'] ?? null, $row['school_number'] ?? null);
+
+            if ($internalId !== null && isset($seenIds[$internalId])) {
+                $errors[] = "Zeile {$line}: Die interne Kennung {$internalId} kommt in der Datei schon in Zeile {$seenIds[$internalId]} vor.";
+
+                continue;
+            }
 
             if ($this->partners->exists($row['name'], $row['city'] ?? null)) {
                 $skipped++;
 
                 continue;
+            }
+
+            if ($internalId !== null && $this->partners->internalIdExists($row['federal_state'], $row['school_number'])) {
+                $errors[] = "Zeile {$line}: Die interne Kennung {$internalId} gehört schon zu einer anderen Schule.";
+
+                continue;
+            }
+
+            if ($internalId !== null) {
+                $seenIds[$internalId] = $line;
             }
 
             $valid[] = $row;
@@ -139,8 +191,7 @@ final class PartnerImporter
         $unknown = [];
 
         foreach ($header as $index => $title) {
-            $key = mb_strtolower(trim((string) $title));
-            $field = self::HEADERS[$key] ?? null;
+            $field = $this->fieldFor(mb_strtolower(trim((string) $title)));
 
             if ($field === null) {
                 $unknown[] = trim((string) $title);
@@ -187,6 +238,20 @@ final class PartnerImporter
         return $rows === [] ? ['error' => 'Die Datei enthält keine Schulen.'] : ['rows' => $rows];
     }
 
+    /** Interne Feldbezeichnung einer Überschrift, auch „contact{n}_{teil}“ für Ansprechpersonen („Funktion 2“ usw.). */
+    private function fieldFor(string $title): ?string
+    {
+        if (isset(self::HEADERS[$title])) {
+            return self::HEADERS[$title];
+        }
+
+        if (preg_match('/^(.+?)(?:\s+([1-5]))?$/u', $title, $matches) === 1 && isset(self::CONTACT_PARTS[$matches[1]])) {
+            return 'contact'.($matches[2] ?? '1').'_'.self::CONTACT_PARTS[$matches[1]];
+        }
+
+        return null;
+    }
+
     /**
      * @param  array<string, string>  $row
      * @return array<string, mixed>
@@ -201,6 +266,22 @@ final class PartnerImporter
             $row['federal_state'] = FederalState::fromInput($row['federal_state'])?->value ?? $row['federal_state'];
         }
 
+        if (($row['internal_id'] ?? '') !== '') {
+            $parsed = PartnerData::parseInternalId($row['internal_id']);
+
+            if ($parsed === null) {
+                return $row + ['_error' => "Die interne Kennung „{$row['internal_id']}“ ist ungültig. Erwartet wird Bundesland-Kürzel und Schulnummer, z. B. BE/08K06."];
+            }
+
+            if (($row['federal_state'] ?? '') !== '' && strtoupper($row['federal_state']) !== $parsed['state']
+                || ($row['school_number'] ?? '') !== '' && strtoupper($row['school_number']) !== $parsed['number']) {
+                return $row + ['_error' => 'Die interne Kennung '.$parsed['state'].'/'.$parsed['number'].' passt nicht zu den Spalten Bundesland und Schulnummer.'];
+            }
+
+            $row['federal_state'] = $parsed['state'];
+            $row['school_number'] = $parsed['number'];
+        }
+
         $status = mb_strtolower($row['status'] ?? '');
         $row['status'] = match (true) {
             $status === '' || in_array($status, ['aktiv', 'active'], true) => PartnerStatus::Active->value,
@@ -209,6 +290,25 @@ final class PartnerImporter
         };
 
         $row['country_code'] = 'DE';
+
+        $contacts = [];
+
+        foreach (range(1, PartnerContact::MAX_PER_PARTNER) as $group) {
+            $contact = [];
+
+            foreach (['name', 'role', 'email', 'phone'] as $part) {
+                $contact[$part] = $row["contact{$group}_{$part}"] ?? '';
+                unset($row["contact{$group}_{$part}"]);
+            }
+
+            if (array_filter($contact, fn (string $value): bool => $value !== '') !== []) {
+                $contacts[] = $contact;
+            }
+        }
+
+        $row['contacts'] = $contacts;
+        $row['primary_contact'] = 0;
+        unset($row['internal_id']);
 
         return $row;
     }

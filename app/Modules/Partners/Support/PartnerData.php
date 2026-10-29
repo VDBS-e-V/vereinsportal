@@ -6,16 +6,40 @@ use App\Modules\Partners\Enums\FederalState;
 use App\Modules\Partners\Enums\PartnerStatus;
 use App\Modules\Partners\Enums\SchoolType;
 use App\Modules\Partners\Models\Partner;
+use App\Modules\Partners\Models\PartnerContact;
 use Illuminate\Validation\Rule;
 
 /**
- * Eingabefelder einer Schule als Partner: gemeinsame Regeln und Umwandlung für Formular und CSV-Import.
- * Felder in der Tabelle partners: name, legal_name, Anschrift, Kontakt, status, notes; typische Angaben der Schule
+ * Eingabefelder einer Schule als Partner. Die **interne Kennung** einer Schule ist Bundesland-Kürzel + Schulnummer, z. B. BE/08K06
+ * (Berlin, Schulnummer 08K06). Sie ist eindeutig; die Teile stehen getrennt in attributes (federal_state, school_number).
+ *
+ * Gemeinsame Regeln und Umwandlung für Formular und CSV-Import. Felder in der Tabelle partners: name, legal_name, Anschrift, Kontakt, status, notes; typische Angaben der Schule
  * (Schulart, Bundesland, Schulnummer, Schülerzahl) stehen in der JSON-Spalte attributes.
  */
 final class PartnerData
 {
     public const ATTRIBUTES = ['school_type', 'federal_state', 'school_number', 'student_count'];
+
+    /** Schulnummer: Ziffern, Buchstaben und Bindestriche (z. B. 08K06), ohne Schrägstrich und Leerzeichen. */
+    public const NUMBER_PATTERN = '/^[0-9A-Za-z][0-9A-Za-z\-]*$/';
+
+    /** Interne Kennung aus Bundesland-Kürzel und Schulnummer, z. B. BE/08K06 (null, wenn eins von beiden fehlt). */
+    public static function internalId(?string $state, ?string $number): ?string
+    {
+        return filled($state) && filled($number) ? strtoupper(trim((string) $state)).'/'.strtoupper(trim((string) $number)) : null;
+    }
+
+    /** @return array{state: string, number: string}|null zerlegt BE/08K06 (Bundesland muss bekannt sein) */
+    public static function parseInternalId(string $input): ?array
+    {
+        if (preg_match('#^\s*([A-Za-z]{2})\s*/\s*([0-9A-Za-z][0-9A-Za-z\-]*)\s*$#', $input, $matches) !== 1) {
+            return null;
+        }
+
+        $state = FederalState::tryFrom(strtoupper($matches[1]));
+
+        return $state !== null ? ['state' => $state->value, 'number' => strtoupper($matches[2])] : null;
+    }
 
     /** @return array<string, mixed> */
     public static function rules(): array
@@ -24,8 +48,8 @@ final class PartnerData
             'name' => ['required', 'string', 'max:200'],
             'legal_name' => ['nullable', 'string', 'max:200'],
             'school_type' => ['nullable', Rule::enum(SchoolType::class)],
-            'federal_state' => ['nullable', Rule::enum(FederalState::class)],
-            'school_number' => ['nullable', 'string', 'max:30'],
+            'federal_state' => ['nullable', Rule::enum(FederalState::class), 'required_with:school_number'],
+            'school_number' => ['nullable', 'string', 'max:20', 'regex:'.self::NUMBER_PATTERN],
             'student_count' => ['nullable', 'integer', 'min:0', 'max:20000'],
             'status' => ['required', Rule::enum(PartnerStatus::class)],
             'street' => ['nullable', 'string', 'max:150'],
@@ -33,9 +57,12 @@ final class PartnerData
             'postal_code' => ['nullable', 'string', 'max:20'],
             'city' => ['nullable', 'string', 'max:120'],
             'country_code' => ['required', 'string', 'size:2', 'alpha'],
-            'contact_name' => ['nullable', 'string', 'max:150'],
-            'contact_email' => ['nullable', 'string', 'email', 'max:254'],
-            'contact_phone' => ['nullable', 'string', 'max:50', 'regex:/^[0-9+()\/\-.\s]+$/'],
+            'contacts' => ['nullable', 'array', 'max:'.PartnerContact::MAX_PER_PARTNER],
+            'contacts.*.name' => ['nullable', 'string', 'max:150', 'required_with:contacts.*.role,contacts.*.email,contacts.*.phone'],
+            'contacts.*.role' => ['nullable', 'string', 'max:100'],
+            'contacts.*.email' => ['nullable', 'string', 'email', 'max:254'],
+            'contacts.*.phone' => ['nullable', 'string', 'max:50', 'regex:/^[0-9+()\/\-.\s]+$/'],
+            'primary_contact' => ['nullable', 'integer', 'between:0,'.(PartnerContact::MAX_PER_PARTNER - 1)],
             'notes' => ['nullable', 'string', 'max:2000'],
         ];
     }
@@ -47,6 +74,8 @@ final class PartnerData
             'name.required' => 'Bitte geben Sie den Namen der Schule ein.',
             'school_type.enum' => 'Bitte wählen Sie eine bekannte Schulart.',
             'federal_state.enum' => 'Bitte wählen Sie ein Bundesland aus der Liste.',
+            'federal_state.required_with' => 'Zur Schulnummer gehört das Bundesland (interne Kennung, z. B. BE/08K06).',
+            'school_number.regex' => 'Die Schulnummer darf nur Ziffern, Buchstaben und Bindestriche enthalten, z. B. 08K06.',
             'student_count.integer' => 'Die Schülerzahl muss eine ganze Zahl sein.',
             'student_count.min' => 'Die Schülerzahl darf nicht negativ sein.',
             'student_count.max' => 'Bitte prüfen Sie die Schülerzahl.',
@@ -55,8 +84,10 @@ final class PartnerData
             'country_code.required' => 'Bitte geben Sie das Land als zweistelligen Code an, z. B. DE.',
             'country_code.size' => 'Bitte geben Sie das Land als zweistelligen Code an, z. B. DE.',
             'country_code.alpha' => 'Bitte geben Sie das Land als zweistelligen Code an, z. B. DE.',
-            'contact_email.email' => 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
-            'contact_phone.regex' => 'Bitte geben Sie eine gültige Telefonnummer ein.',
+            'contacts.max' => 'Es sind höchstens '.PartnerContact::MAX_PER_PARTNER.' Ansprechpersonen möglich.',
+            'contacts.*.name.required_with' => 'Bitte geben Sie den Namen der Ansprechperson ein.',
+            'contacts.*.email.email' => 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
+            'contacts.*.phone.regex' => 'Bitte geben Sie eine gültige Telefonnummer ein.',
         ];
     }
 
@@ -72,11 +103,10 @@ final class PartnerData
 
         $columns = [];
 
-        foreach (['name', 'legal_name', 'street', 'house_number', 'postal_code', 'city', 'contact_name', 'contact_email', 'contact_phone', 'notes'] as $field) {
+        foreach (['name', 'legal_name', 'street', 'house_number', 'postal_code', 'city', 'notes'] as $field) {
             $columns[$field] = $clean($data[$field] ?? null);
         }
 
-        $columns['contact_email'] = $columns['contact_email'] !== null ? mb_strtolower((string) $columns['contact_email']) : null;
         $columns['country_code'] = strtoupper((string) ($clean($data['country_code'] ?? null) ?? 'DE'));
         $columns['status'] = (string) ($data['status'] ?? PartnerStatus::Active->value);
 
@@ -90,9 +120,66 @@ final class PartnerData
             }
         }
 
+        if (isset($attributes['school_number'])) {
+            $attributes['school_number'] = strtoupper((string) $attributes['school_number']);
+        }
+
         $columns['attributes'] = $attributes === [] ? null : $attributes;
 
         return $columns;
+    }
+
+    /**
+     * Ansprechpersonen aus den Formulardaten: leere Zeilen entfallen, E-Mail klein; Hauptansprechperson ist die gewählte Zeile, sonst die erste.
+     *
+     * @param  array<string, mixed>  $data
+     * @return list<array{name: string, role: ?string, email: ?string, phone: ?string, is_primary: bool}>
+     */
+    public static function contacts(array $data): array
+    {
+        $clean = static fn (mixed $value): ?string => is_string($value) && trim($value) !== '' ? trim($value) : null;
+
+        $rows = [];
+        $primaryIndex = isset($data['primary_contact']) && is_numeric($data['primary_contact']) ? (int) $data['primary_contact'] : 0;
+        $primaryKey = null;
+
+        foreach (array_values((array) ($data['contacts'] ?? [])) as $index => $row) {
+            $name = $clean($row['name'] ?? null);
+
+            if ($name === null) {
+                continue;
+            }
+
+            $rows[] = [
+                'name' => $name,
+                'role' => $clean($row['role'] ?? null),
+                'email' => ($email = $clean($row['email'] ?? null)) !== null ? mb_strtolower($email) : null,
+                'phone' => $clean($row['phone'] ?? null),
+                'is_primary' => false,
+            ];
+
+            if ($index === $primaryIndex) {
+                $primaryKey = array_key_last($rows);
+            }
+        }
+
+        if ($rows !== []) {
+            $rows[$primaryKey ?? 0]['is_primary'] = true;
+        }
+
+        return $rows;
+    }
+
+    /** @return list<array{name: ?string, role: ?string, email: ?string, phone: ?string}> immer MAX_PER_PARTNER Zeilen fürs Formular */
+    public static function contactRows(Partner $partner): array
+    {
+        $rows = $partner->contacts->map(fn (PartnerContact $contact): array => ['name' => $contact->name, 'role' => $contact->role, 'email' => $contact->email, 'phone' => $contact->phone])->all();
+
+        while (count($rows) < PartnerContact::MAX_PER_PARTNER) {
+            $rows[] = ['name' => null, 'role' => null, 'email' => null, 'phone' => null];
+        }
+
+        return $rows;
     }
 
     /** @return array<string, mixed> Werte fürs Formular */
@@ -113,9 +200,8 @@ final class PartnerData
             'postal_code' => $partner->postal_code,
             'city' => $partner->city,
             'country_code' => $partner->country_code,
-            'contact_name' => $partner->contact_name,
-            'contact_email' => $partner->contact_email,
-            'contact_phone' => $partner->contact_phone,
+            'contacts' => self::contactRows($partner),
+            'primary_contact' => 0,
             'notes' => $partner->notes,
         ];
     }

@@ -26,27 +26,24 @@ it('stores a school partner with typ-specific attributes', function () {
         ]);
 });
 
-it('can reference a known contact person or free-text contact details', function () {
+it('has several contact persons, each free text or linked to a known person', function () {
     $person = Person::factory()->create();
 
-    $withPerson = Partner::query()->create([
+    $partner = Partner::query()->create([
         'public_id' => (string) Illuminate\Support\Str::ulid(),
         'type' => PartnerType::School,
         'name' => 'Schule A',
-        'contact_person_id' => $person->id,
     ]);
 
-    $withFreeText = Partner::query()->create([
-        'public_id' => (string) Illuminate\Support\Str::ulid(),
-        'type' => PartnerType::School,
-        'name' => 'Schule B',
-        'contact_name' => 'Max Mustermann',
-        'contact_email' => 'max@schule-b.example',
-    ]);
+    $partner->contacts()->create(['name' => 'Max Mustermann', 'role' => 'Sekretariat', 'email' => 'max@schule-a.example']);
+    $partner->contacts()->create(['name' => 'Erika Beispiel', 'role' => 'Schulleitung', 'person_id' => $person->id, 'is_primary' => true]);
 
-    expect($withPerson->contactPerson->is($person))->toBeTrue()
-        ->and($withFreeText->contactPerson)->toBeNull()
-        ->and($withFreeText->contact_name)->toBe('Max Mustermann');
+    $contacts = $partner->contacts;
+
+    expect($contacts->pluck('name')->all())->toBe(['Erika Beispiel', 'Max Mustermann'])
+        ->and($contacts->first()->person->is($person))->toBeTrue()
+        ->and($contacts->last()->person)->toBeNull()
+        ->and($contacts->first()->is_primary)->toBeTrue();
 });
 
 it('defaults to active status', function () {

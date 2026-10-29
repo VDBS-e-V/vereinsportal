@@ -18,7 +18,7 @@
             <x-vdbs.forms.input name="name" label="Name der Schule" :required="true" :value="$values['name'] ?? null" />
             <x-vdbs.forms.form-grid :columns="2">
                 <x-vdbs.forms.input name="legal_name" label="Träger oder offizieller Name" :optional="true" :value="$values['legal_name'] ?? null" />
-                <x-vdbs.forms.input name="school_number" label="Schulnummer" :optional="true" :value="$values['school_number'] ?? null" />
+                <x-vdbs.forms.input name="school_number" label="Schulnummer" :optional="true" :value="$values['school_number'] ?? null" hint="z. B. 08K06. Mit dem Bundesland ergibt sich die interne Kennung, z. B. BE/08K06." />
                 <x-vdbs.forms.select name="school_type" label="Schulart" placeholder="Bitte wählen" :optional="true" :options="$typeOptions" :value="$values['school_type'] ?? null" />
                 <x-vdbs.forms.select name="federal_state" label="Bundesland" placeholder="Bitte wählen" :optional="true" :options="$stateOptions" :value="$values['federal_state'] ?? null" />
                 <x-vdbs.forms.input name="student_count" label="Schülerzahl" type="number" min="0" max="20000" :optional="true" :value="$values['student_count'] ?? null" />
@@ -36,12 +36,20 @@
             </x-vdbs.forms.form-grid>
         </x-vdbs.forms.form-section>
 
-        <x-vdbs.forms.form-section title="Ansprechperson">
-            <x-vdbs.forms.form-grid :columns="2">
-                <x-vdbs.forms.input name="contact_name" label="Name" :optional="true" :value="$values['contact_name'] ?? null" />
-                <x-vdbs.forms.input name="contact_email" label="E-Mail-Adresse" type="email" :optional="true" :value="$values['contact_email'] ?? null" />
-                <x-vdbs.forms.input name="contact_phone" label="Telefon" type="tel" :optional="true" :value="$values['contact_phone'] ?? null" />
-            </x-vdbs.forms.form-grid>
+        <x-vdbs.forms.form-section title="Ansprechpersonen" description="Bis zu {{ \App\Modules\Partners\Models\PartnerContact::MAX_PER_PARTNER }} Personen. Leere Zeilen werden ignoriert; zum Entfernen die Zeile leeren. Die Hauptansprechperson wählen Sie rechts aus.">
+            @php $contactRows = old('contacts', $values['contacts'] ?? []); $primary = (int) old('primary_contact', $values['primary_contact'] ?? 0); @endphp
+            @foreach (range(0, \App\Modules\Partners\Models\PartnerContact::MAX_PER_PARTNER - 1) as $i)
+                <fieldset style="border:0;padding:0;margin:0 0 var(--space-5)">
+                    <legend class="vdbs-sr-only">Ansprechperson {{ $i + 1 }}</legend>
+                    <x-vdbs.forms.form-grid :columns="2">
+                        <x-vdbs.forms.input :id="'contact-'.$i.'-name'" :name="'contacts['.$i.'][name]'" label="Name ({{ $i + 1 }})" :optional="true" :value="$contactRows[$i]['name'] ?? null" />
+                        <x-vdbs.forms.input :id="'contact-'.$i.'-role'" :name="'contacts['.$i.'][role]'" label="Funktion" :optional="true" :value="$contactRows[$i]['role'] ?? null" hint="z. B. Schulleitung, Sekretariat, Bibliothek" />
+                        <x-vdbs.forms.input :id="'contact-'.$i.'-email'" :name="'contacts['.$i.'][email]'" label="E-Mail-Adresse" type="email" :optional="true" :value="$contactRows[$i]['email'] ?? null" />
+                        <x-vdbs.forms.input :id="'contact-'.$i.'-phone'" :name="'contacts['.$i.'][phone]'" label="Telefon" type="tel" :optional="true" :value="$contactRows[$i]['phone'] ?? null" />
+                    </x-vdbs.forms.form-grid>
+                    <label style="display:inline-flex;gap:var(--space-2);align-items:center"><input type="radio" name="primary_contact" value="{{ $i }}" @checked($primary === $i)> Hauptansprechperson</label>
+                </fieldset>
+            @endforeach
         </x-vdbs.forms.form-section>
 
         <x-vdbs.forms.form-section title="Notizen">
