@@ -20,3 +20,10 @@
         'mail' => ['label' => 'E-Mail-Code', 'hint' => 'Code per E-Mail'],
     ]" />
 </div>
+
+<h2>Wiederherstellungscodes</h2>
+<p><code>&lt;x-vdbs.data.code-list&gt;</code> zeigt Einmalcodes in Festbreitenschrift, gut lesbar und druckbar.</p>
+<x-vdbs.data.code-list :codes="['ABCDE-FGHJK', '23456-789AB', 'KMNPQ-RSTUV', 'WXYZ2-34567', '89ABC-DEFGH', 'JKMNP-QRSTU']" label="Beispielcodes" />
+
+<h2>Einrichtung mit Schritt-Anzeige</h2>
+<x-vdbs.navigation.stepper label="Einrichtung" :current="1" :steps="['App verbinden und Code bestätigen', 'Wiederherstellungscodes sichern']" />

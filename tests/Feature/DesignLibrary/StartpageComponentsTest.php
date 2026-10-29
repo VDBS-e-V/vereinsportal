@@ -385,3 +385,9 @@ it('renders an event card with a machine readable date and one link', function (
         ->toContain('Berlin')
         ->and(substr_count($html, '<a '))->toBe(1);
 });
+
+it('renders a list of one-time codes', function () {
+    $html = Blade::render('<x-vdbs.data.code-list :codes="[\'ABCDE-FGHJK\', \'23456-789AB\']" label="Meine Codes" />');
+
+    expect($html)->toContain('aria-label="Meine Codes"')->toContain('<code>ABCDE-FGHJK</code>')->and(substr_count($html, 'vdbs-code-list__item'))->toBe(2);
+});

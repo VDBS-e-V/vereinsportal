@@ -12,7 +12,7 @@ und `resources/views/components/vdbs/<paket>/`. Eine Komponente = eine Blade-Dat
 | layout | `x-vdbs.layout.*` | container, section, split, grid, page-header, aside-layout (Bild/Fläche/Seitenleiste neben dem Inhalt), Seitenrahmen, Druck |
 | content | `x-vdbs.content.*` | prose, quote, download-card, event-card, feature (Inhaltsblock: side, overlap, offset, links; Töne none, surface, soft, dark, brand) |
 | cards | `x-vdbs.cards.*` | card, quick-links, quick-link, teaser, contact-block |
-| data | `x-vdbs.data.*` | table, badge, group-mark, chip-list, chip, event-list/event-item, avatar, toolbar, filter-tag, detail-list/detail-item, stat, timeline/timeline-item |
+| data | `x-vdbs.data.*` | table, badge, group-mark, chip-list, chip, event-list/event-item, avatar, toolbar, filter-tag, detail-list/detail-item, stat, timeline/timeline-item, code-list |
 | feedback | `x-vdbs.feedback.*` | alert, error-page, toast, toast-region, flash, empty-state, skeleton, progress, tooltip |
 | overlays | `x-vdbs.overlays.*` | modal, confirm-dialog, drawer |
 | disclosure | `x-vdbs.disclosure.*` | accordion, accordion-item |

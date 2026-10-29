@@ -3,6 +3,7 @@
 namespace App\Modules\Access\Http\Requests;
 
 use App\Modules\Access\Enums\UserStatus;
+use App\Modules\Access\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -32,26 +33,26 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Meldet den Nutzer an; nur aktive Konten dürfen sich anmelden.
-     * Fehlerhafte Versuche sind pro E-Mail und IP begrenzt, die Fehlermeldung
-     * verrät nie, ob ein Konto existiert.
+     * Prüft die Anmeldedaten und gibt das Konto zurück, ohne es anzumelden: ob die Anmeldung sofort erfolgt
+     * oder erst nach dem zweiten Faktor, entscheidet der Controller. Nur aktive Konten dürfen sich anmelden.
+     * Fehlerhafte Versuche sind pro E-Mail und IP begrenzt, die Fehlermeldung verrät nie, ob ein Konto existiert.
      *
      * @throws ValidationException
      */
-    public function authenticate(): void
+    public function validatedUser(): User
     {
         $this->ensureIsNotRateLimited();
 
-        $authenticated = Auth::attempt(
-            [
-                'email' => $this->string('email')->toString(),
-                'password' => $this->string('password')->toString(),
-                'status' => UserStatus::Active->value,
-            ],
-            $this->boolean('remember'),
-        );
+        $credentials = [
+            'email' => $this->string('email')->toString(),
+            'password' => $this->string('password')->toString(),
+            'status' => UserStatus::Active->value,
+        ];
 
-        if (! $authenticated) {
+        $provider = Auth::guard('web')->getProvider();
+        $user = $provider->retrieveByCredentials($credentials);
+
+        if (! $user instanceof User || ! $provider->validateCredentials($user, $credentials)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -60,6 +61,8 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        return $user;
     }
 
     private function ensureIsNotRateLimited(): void
