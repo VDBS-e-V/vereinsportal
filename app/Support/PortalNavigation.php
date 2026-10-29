@@ -52,6 +52,7 @@ final class PortalNavigation
                     ['label' => 'Passwort', 'route' => 'account.password', 'match' => 'account.password*'],
                     ['label' => 'Sicherheit', 'route' => 'account.security.index', 'match' => 'account.security.*'],
                     ['label' => 'Sitzungen', 'route' => 'account.sessions', 'match' => 'account.sessions*'],
+                    ['label' => 'Konto löschen', 'route' => 'account.deletion', 'match' => 'account.deletion*'],
                 ],
             ],
             PortalAreas::Vorstand->value => [

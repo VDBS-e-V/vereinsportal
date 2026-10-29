@@ -14,6 +14,9 @@ enum AuditEvent: string
     case EmailChanged = 'account.email_changed';
     case SessionsEnded = 'account.sessions_ended';
     case ProfileUpdated = 'account.profile_updated';
+    case AccountDeletionRequested = 'account.deletion_requested';
+    case AccountDeletionCancelled = 'account.deletion_cancelled';
+    case AccountAnonymized = 'account.anonymized';
 
     case TwoFactorEnabled = 'two_factor.enabled';
     case TwoFactorDisabled = 'two_factor.disabled';
@@ -46,6 +49,9 @@ enum AuditEvent: string
             self::EmailChanged => 'E-Mail-Adresse geändert',
             self::SessionsEnded => 'Andere Sitzungen beendet',
             self::ProfileUpdated => 'Profil geändert',
+            self::AccountDeletionRequested => 'Kontolöschung beantragt',
+            self::AccountDeletionCancelled => 'Kontolöschung abgebrochen',
+            self::AccountAnonymized => 'Konto gelöscht (anonymisiert)',
             self::TwoFactorEnabled => 'Zwei-Faktor eingerichtet',
             self::TwoFactorDisabled => 'Zwei-Faktor entfernt',
             self::RecoveryCodesRenewed => 'Wiederherstellungscodes erneuert',
@@ -68,7 +74,7 @@ enum AuditEvent: string
     {
         return match ($this) {
             self::Login, self::LoginFailed, self::TwoFactorFailed => 'auth',
-            self::PasswordChanged, self::PasswordSet, self::EmailChanged, self::SessionsEnded, self::ProfileUpdated => 'account',
+            self::PasswordChanged, self::PasswordSet, self::EmailChanged, self::SessionsEnded, self::ProfileUpdated, self::AccountDeletionRequested, self::AccountDeletionCancelled, self::AccountAnonymized => 'account',
             self::TwoFactorEnabled, self::TwoFactorDisabled, self::RecoveryCodesRenewed => 'two_factor',
             self::UserCreated, self::UserInvited, self::UserDisabled, self::UserEnabled, self::UserTwoFactorReset, self::UserPasswordLinkSent => 'users',
             self::RoleAssigned, self::RoleEnded => 'roles',
@@ -95,8 +101,8 @@ enum AuditEvent: string
     public function tone(): string
     {
         return match ($this) {
-            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted => 'error',
-            self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded => 'warning',
+            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::AccountAnonymized => 'error',
+            self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
             self::Login, self::UserEnabled, self::TwoFactorEnabled => 'success',
             default => 'neutral',
         };

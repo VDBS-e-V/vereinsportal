@@ -43,6 +43,7 @@ class User extends Authenticatable
         'session_version',
         'force_password_change_at',
         'last_login_at',
+        'deletion_requested_at',
         'avatar_path',
         'anonymized_at',
         'anonymized_ref',
@@ -62,6 +63,7 @@ class User extends Authenticatable
             'force_password_change_at' => 'datetime',
             'last_login_at' => 'datetime',
             'anonymized_at' => 'datetime',
+            'deletion_requested_at' => 'datetime',
             'password' => 'hashed',
         ];
     }

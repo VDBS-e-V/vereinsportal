@@ -4,6 +4,7 @@
     $pending = $user->status === \App\Modules\Access\Enums\UserStatus::PendingVerification;
     $isActive = $user->status === \App\Modules\Access\Enums\UserStatus::Active;
     $isDisabled = $user->status === \App\Modules\Access\Enums\UserStatus::Disabled;
+    $deletionPending = $user->status === \App\Modules\Access\Enums\UserStatus::PendingDeletion;
     $methodLabels = ['totp' => 'Authenticator-App', 'email' => 'E-Mail-Code'];
 @endphp
 
@@ -26,6 +27,11 @@
                         <x-vdbs.actions.button variant="danger" shape="outline" icon="lock" data-vdbs-dialog-open="disable-user">Sperren</x-vdbs.actions.button>
                     @endunless
                 @endif
+                @if ($deletionPending)
+                    <form method="post" action="{{ route('admin.users.deletion.cancel', $user) }}">@csrf
+                        <x-vdbs.actions.button type="submit" icon="refresh-cw">Löschung abbrechen</x-vdbs.actions.button>
+                    </form>
+                @endif
                 @if ($isDisabled)
                     <form method="post" action="{{ route('admin.users.enable', $user) }}">@csrf
                         <x-vdbs.actions.button type="submit" icon="check">Entsperren</x-vdbs.actions.button>
@@ -44,6 +50,9 @@
                 <x-vdbs.data.detail-item label="Angelegt am">{{ $user->created_at?->format('d.m.Y') }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="E-Mail bestätigt">{{ $user->email_verified_at?->format('d.m.Y') }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Letzte Anmeldung">{{ $user->last_login_at?->format('d.m.Y, H:i') }}</x-vdbs.data.detail-item>
+                @if ($deletionPending)
+                    <x-vdbs.data.detail-item label="Löschung beantragt am">{{ $user->deletion_requested_at?->format('d.m.Y, H:i') }}</x-vdbs.data.detail-item>
+                @endif
             </x-vdbs.data.detail-list>
         </section>
 

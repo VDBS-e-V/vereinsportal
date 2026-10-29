@@ -7,10 +7,10 @@
     $visibleAreas = $user ? \App\Support\PortalNavigation::visibleAreas($user) : [];
     $currentArea = \App\Support\PortalNavigation::areaForRoute($routeName);
     // Ohne Anmeldung (und auf Fehlerseiten) stehen in Zeile 2 die öffentlichen Seiten des Bereichs Start.
-    $navArea = $currentArea ?? ($user === null ? \App\Support\PortalAreas::Start : null);
+    $navArea = $user === null ? \App\Support\PortalAreas::Start : $currentArea;
     $areaPages = $navArea ? \App\Support\PortalNavigation::pages($navArea, $user, $routeName) : [];
     $hasAreaMenu = count($visibleAreas) > 0 || $systems->isNotEmpty();
-    $headerTitle = $currentArea?->label() ?? ($title ?? 'Start');
+    $headerTitle = ($user !== null || $currentArea === \App\Support\PortalAreas::Start ? $currentArea?->label() : null) ?? ($title ?? 'Start');
 @endphp
 
 {{--

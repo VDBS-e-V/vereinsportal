@@ -5,6 +5,7 @@ namespace App\Modules\AccessGovernance\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Models\User;
+use App\Modules\Access\Services\AccountDeletion;
 use App\Modules\Access\Services\TwoFactorManager;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
@@ -28,6 +29,7 @@ class UserAdministrationController extends Controller
     public function __construct(
         private readonly UserAdministration $administration,
         private readonly TwoFactorManager $twoFactor,
+        private readonly AccountDeletion $deletion,
     ) {}
 
     public function index(Request $request): View
@@ -205,6 +207,11 @@ class UserAdministrationController extends Controller
     public function resetTwoFactor(Request $request, User $user): RedirectResponse
     {
         return $this->perform(fn () => $this->administration->resetTwoFactor($user, $this->actor($request)), $user, 'Die Zwei-Faktor-Methoden wurden entfernt. Der Nutzer kann sie neu einrichten.');
+    }
+
+    public function cancelDeletion(Request $request, User $user): RedirectResponse
+    {
+        return $this->perform(fn () => $this->deletion->cancel($user, $this->actor($request)), $user, 'Die beantragte Löschung wurde abgebrochen, das Konto ist wieder aktiv.');
     }
 
     public function passwordLink(Request $request, User $user): RedirectResponse

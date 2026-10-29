@@ -13,6 +13,7 @@ Route::middleware(['web', 'auth'])->prefix('verwaltung/nutzer')->name('admin.use
         Route::get('/neu', [UserAdministrationController::class, 'create'])->name('create');
         Route::post('/', [UserAdministrationController::class, 'store'])->name('store');
 
+        Route::post('/{user}/loeschung-abbrechen', [UserAdministrationController::class, 'cancelDeletion'])->whereNumber('user')->name('deletion.cancel');
         Route::post('/{user}/einladung', [UserAdministrationController::class, 'invite'])->whereNumber('user')->name('invite');
         Route::post('/{user}/sperren', [UserAdministrationController::class, 'disable'])->whereNumber('user')->name('disable');
         Route::post('/{user}/entsperren', [UserAdministrationController::class, 'enable'])->whereNumber('user')->name('enable');

@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Access\Http\Controllers\AccountDeletionController;
 use App\Modules\Access\Http\Controllers\EmailChangeController;
 use App\Modules\Access\Http\Controllers\LoginController;
 use App\Modules\Access\Http\Controllers\PasswordController;
@@ -45,9 +46,16 @@ Route::middleware('web')->group(function (): void {
         Route::post('/email', [EmailChangeController::class, 'store'])->name('account.email.store');
         Route::get('/email/bestaetigen/{publicId}', [EmailChangeController::class, 'confirm'])->middleware('signed')->name('account.email.confirm');
 
+        Route::get('/loeschen', [AccountDeletionController::class, 'show'])->name('account.deletion');
+        Route::post('/loeschen', [AccountDeletionController::class, 'request'])->middleware('throttle:5,10')->name('account.deletion.request');
+
         Route::get('/sitzungen', [SessionsController::class, 'index'])->name('account.sessions');
         Route::delete('/sitzungen', [SessionsController::class, 'destroyOthers'])->name('account.sessions.destroy');
     });
+
+    // Löschung abbrechen: öffentlich über den signierten Link aus der E-Mail (das gesperrte Konto kann sich nicht anmelden)
+    Route::get('/konto/loeschung-abbrechen/{user}', [AccountDeletionController::class, 'cancelShow'])->whereNumber('user')->middleware(['signed', 'throttle:20,10'])->name('account.deletion.cancel');
+    Route::post('/konto/loeschung-abbrechen/{user}', [AccountDeletionController::class, 'cancelStore'])->whereNumber('user')->middleware(['signed', 'throttle:10,10'])->name('account.deletion.cancel.store');
 
     // Konto > Sicherheit
     Route::middleware('auth')->prefix('konto/sicherheit')->name('account.security.')->group(function (): void {

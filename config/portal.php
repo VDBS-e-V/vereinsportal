@@ -29,6 +29,11 @@ return [
         'privacy_version' => env('PORTAL_PRIVACY_VERSION', '2026-01'),
     ],
 
+    /* Konto löschen: Wartefrist in Tagen zwischen Antrag und Anonymisierung (Abbruch ist bis dahin möglich). */
+    'offboarding' => [
+        'grace_days' => (int) env('ACCOUNT_DELETION_GRACE_DAYS', 14),
+    ],
+
     /* Mitgliedschaften: Vorstand per E-Mail über neue (bestätigte) Online-Anträge informieren. */
     'membership' => [
         'notify_board' => (bool) env('MEMBERSHIP_NOTIFY_BOARD', true),

@@ -39,7 +39,7 @@ bestimmt nur die Darstellung, er ersetzt keine Berechtigungsprüfung. Ein Bereic
 | Geschäftsstelle | Geschäftsstelle, Administration | Nutzer, Personen |
 | Bildungsreferenten | Bildungsreferenten | – |
 | Admins | Administration | Protokoll (`audit.view`), Design-Bibliothek (`design.view`; Administration und Vorstand) |
-| Konto | alle Angemeldeten | Profil, E-Mail, Passwort, Sicherheit, Sitzungen |
+| Konto | alle Angemeldeten | Profil, E-Mail, Passwort, Sicherheit, Sitzungen, Konto löschen |
 | Start | öffentlich | Über das Portal, Zugang zum Portal, FAQ, Kontakt |
 
 ## Neue Seite oder neuer Bereich
