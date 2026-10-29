@@ -67,6 +67,30 @@ final class UserAdministration
         return $user;
     }
 
+    /** Legt zu einer vorhandenen Person ein Konto an (Status „eingeladen“) und sendet die Einladung. */
+    public function createForPerson(Person $person, User $by): User
+    {
+        if ($person->user()->exists()) {
+            throw new DomainException('Diese Person hat bereits ein Benutzerkonto.');
+        }
+
+        if (User::query()->where('email', $person->email)->exists()) {
+            throw new DomainException('Die E-Mail-Adresse der Person wird bereits von einem anderen Konto verwendet.');
+        }
+
+        $user = User::query()->create([
+            'person_id' => $person->id,
+            'email' => $person->email,
+            'password' => Str::random(48),
+            'status' => UserStatus::PendingVerification,
+        ]);
+
+        $this->invite($user);
+        Log::info('admin.user.created', ['user_id' => $user->id, 'person_id' => $person->id, 'by' => $by->id]);
+
+        return $user;
+    }
+
     /** Sendet (erneut) die Einladung; nur für eingeladene Konten, der Link gilt sieben Tage. */
     public function invite(User $user): void
     {

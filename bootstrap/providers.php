@@ -3,6 +3,7 @@
 use App\Modules\Access\AccessServiceProvider;
 use App\Modules\AccessGovernance\AccessGovernanceServiceProvider;
 use App\Modules\DesignLibrary\DesignLibraryServiceProvider;
+use App\Modules\People\PeopleServiceProvider;
 use App\Modules\Sso\SsoServiceProvider;
 use App\Providers\AppServiceProvider;
 use App\Providers\VoltServiceProvider;
@@ -18,6 +19,7 @@ return [
     VoltServiceProvider::class,
     AccessServiceProvider::class,
     AccessGovernanceServiceProvider::class,
+    PeopleServiceProvider::class,
     SsoServiceProvider::class,
     DesignLibraryServiceProvider::class,
 ];

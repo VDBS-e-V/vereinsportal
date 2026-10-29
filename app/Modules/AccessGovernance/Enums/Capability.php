@@ -13,4 +13,10 @@ enum Capability: string
 
     /** Rollen vergeben und beenden (die Rolle Administration nur durch Administration). */
     case RolesAssign = 'roles.assign';
+
+    /** Personenliste und Personendetails ansehen. */
+    case PeopleView = 'people.view';
+
+    /** Personen anlegen, bearbeiten und (ohne Konto) löschen. */
+    case PeopleManage = 'people.manage';
 }

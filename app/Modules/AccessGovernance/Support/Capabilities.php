@@ -14,9 +14,9 @@ final class Capabilities
 {
     /** @var array<string, list<Capability>> */
     private const MAP = [
-        'administration' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign],
-        'administration_staff' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign],
-        'board_member' => [Capability::UsersView],
+        'administration' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage],
+        'administration_staff' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage],
+        'board_member' => [Capability::UsersView, Capability::PeopleView],
     ];
 
     public static function has(User $user, Capability $capability): bool

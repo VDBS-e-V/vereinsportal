@@ -11,6 +11,7 @@
                 <x-vdbs.actions.button :href="route('admin.users.create')" icon="plus">Nutzer anlegen</x-vdbs.actions.button>
             </x-slot:actions>
         @endif
+        <x-slot:tabs><x-admin.nav current="users" /></x-slot:tabs>
     </x-vdbs.layout.page-header>
 
     <x-vdbs.layout.grid :columns="4" style="margin-bottom:var(--space-6)">
