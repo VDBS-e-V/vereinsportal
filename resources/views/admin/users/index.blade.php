@@ -36,8 +36,8 @@
     @else
         <x-vdbs.data.table caption="Nutzerkonten" :columns="$columns" :sort="$sort" :direction="$direction">
             @foreach ($users as $row)
-                <tr>
-                    <td><a href="{{ route('admin.users.show', $row) }}">{{ $row->person?->fullName() ?: $row->email }}</a></td>
+                <tr class="vdbs-table__row--link">
+                    <td><a class="vdbs-table__row-link" href="{{ route('admin.users.show', $row) }}">{{ $row->person?->fullName() ?: $row->email }}</a></td>
                     <td>{{ $row->email }}</td>
                     <td><x-vdbs.data.badge :tone="$row->status->tone()">{{ $row->status->label() }}</x-vdbs.data.badge></td>
                     <td>

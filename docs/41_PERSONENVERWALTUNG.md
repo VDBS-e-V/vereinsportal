@@ -14,7 +14,7 @@ Der Umschalter „Nutzer | Personen“ im Seitenkopf (`<x-admin.nav>`) erscheint
 
 ## Seiten
 
-- **Liste:** Kennzahlen, Suche (Name, E-Mail, Ort), Filter Konto (mit/ohne), Sortierung nach Name, E-Mail, Ort, Geburtsdatum, Paginierung.
+- **Liste:** ganze Zeile klickbar, Kennzahlen, Suche (Name, E-Mail, Ort), Filter Konto (mit/ohne), Sortierung nach Name, E-Mail, Ort, Geburtsdatum, Paginierung.
 - **Details:** Stammdaten, Kontostatus mit Sprung zur Nutzerverwaltung, „Konto anlegen und einladen“ (Dialog).
 - **Anlegen/Bearbeiten:** Name, Geburtsdatum, Kontakt, Anschrift; Land als zweistelliger Code.
 

@@ -24,3 +24,20 @@
 
 .vdbs-table__sort { text-decoration: none; }
 .vdbs-table__sort:hover { text-decoration: underline; }
+
+/*
+ * Klickbare Zeilen: Der Link der Zeile (.vdbs-table__row-link, meist im Namen) wird per ::after über die ganze Zeile
+ * gespannt. So führt ein Klick an jeder Stelle zum Datensatz, ohne JavaScript, mit einem einzigen Link für Tastatur und
+ * Screenreader; Strg-/Mittelklick und "Link kopieren" funktionieren wie bei jedem Link.
+ * Weitere Links oder Buttons in der Zeile brauchen position: relative und z-index: 1, damit sie anklickbar bleiben.
+ */
+.vdbs-table__row--link { position: relative; cursor: pointer; }
+
+.vdbs-table__row-link::after { content: ""; position: absolute; inset: 0; }
+
+.vdbs-table__row--link:focus-within { outline: var(--focus-width) solid var(--focus-ring); outline-offset: calc(var(--focus-width) * -1); }
+
+.vdbs-table__row-link:focus-visible { outline: none; }
+
+.vdbs-table__row--link a:not(.vdbs-table__row-link),
+.vdbs-table__row--link button { position: relative; z-index: 1; }

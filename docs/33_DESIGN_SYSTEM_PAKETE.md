@@ -47,3 +47,9 @@ Gemeinsames Verhalten (App\Support\Forms\FieldState): Id `field-<name>`, Fehlerm
 `old()`-Wert, `aria-describedby` für Hinweis/Fehler/Erfolg, `class` geht an den Feld-Rahmen, alle anderen
 Attribute an das Steuerelement. Pflicht/optional werden als Text gekennzeichnet. JavaScript (resources/js/forms.js)
 ist reine Verbesserung. Kontrastprüfung: `python scripts/form_contrast.py`.
+
+## Klickbare Tabellenzeilen
+
+`<tr class="vdbs-table__row--link">` mit `<a class="vdbs-table__row-link">` in einer Zelle: Der Link wird per `::after` über die ganze
+Zeile gespannt, ein Klick an jeder Stelle öffnet den Datensatz (ohne JavaScript, ein Link für Tastatur und Screenreader, Fokus
+umrahmt die Zeile). Weitere Links oder Buttons in der Zeile bleiben anklickbar. Beispiel in der Bibliothek unter „Tabellen“.

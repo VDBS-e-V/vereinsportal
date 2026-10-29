@@ -420,3 +420,12 @@ it('refuses to end an assignment of another user, an administration role by the 
     $this->actingAs($admin)->delete(route('admin.users.roles.destroy', [$admin, $adminAssignment]))->assertSessionHas('warning');
     expect($adminAssignment->fresh()->ends_at)->toBeNull();
 });
+
+it('makes the whole user row a link to the record', function () {
+    $staff = uaUser(RoleKey::AdministrationStaff);
+
+    $this->actingAs($staff)->get(route('admin.users.index'))
+        ->assertOk()
+        ->assertSee('class="vdbs-table__row--link"', false)
+        ->assertSee('class="vdbs-table__row-link" href="'.route('admin.users.show', $staff).'"', false);
+});

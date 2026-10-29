@@ -1,6 +1,7 @@
 @props(['caption', 'columns', 'zebra' => true, 'sort' => null, 'direction' => 'asc'])
 
-{{-- $columns: list of ['key' => string, 'label' => string, 'sortable' => bool, 'href' => ?string]; Zeilen kommen als Slot (<tr>) --}}
+{{-- $columns: list of ['key' => string, 'label' => string, 'sortable' => bool, 'href' => ?string]; Zeilen kommen als Slot (<tr>).
+    Klickbare Zeile: <tr class="vdbs-table__row--link"> mit <a class="vdbs-table__row-link"> in einer Zelle, der Link deckt die ganze Zeile ab. --}}
 <div class="vdbs-table-wrap" tabindex="0" role="region" aria-label="{{ $caption }}">
     <table {{ $attributes->class(['vdbs-table', 'vdbs-table--zebra' => $zebra]) }}>
         <caption class="vdbs-sr-only">{{ $caption }}</caption>

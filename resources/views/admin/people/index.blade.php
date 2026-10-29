@@ -34,8 +34,8 @@
     @else
         <x-vdbs.data.table caption="Personen" :columns="$columns" :sort="$sort" :direction="$direction">
             @foreach ($persons as $row)
-                <tr>
-                    <td><a href="{{ route('admin.people.show', $row) }}">{{ $row->fullName() }}</a></td>
+                <tr class="vdbs-table__row--link">
+                    <td><a class="vdbs-table__row-link" href="{{ route('admin.people.show', $row) }}">{{ $row->fullName() }}</a></td>
                     <td>{{ $row->email }}</td>
                     <td>{{ $row->city ?? '–' }}</td>
                     <td>{{ $row->birth_date?->format('d.m.Y') }}</td>

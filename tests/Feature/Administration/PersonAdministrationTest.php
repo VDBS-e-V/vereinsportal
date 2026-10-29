@@ -158,3 +158,13 @@ it('refuses account creation for a person whose email is taken by another accoun
     $this->actingAs($staff)->post(route('admin.people.account', $person))->assertSessionHas('warning');
     Mail::assertNothingSent();
 });
+
+it('makes the whole person row a link to the record', function () {
+    $staff = paUser(RoleKey::AdministrationStaff);
+    $person = Person::factory()->create();
+
+    $this->actingAs($staff)->get(route('admin.people.index'))
+        ->assertOk()
+        ->assertSee('class="vdbs-table__row--link"', false)
+        ->assertSee('class="vdbs-table__row-link" href="'.route('admin.people.show', $person).'"', false);
+});
