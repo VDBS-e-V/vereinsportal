@@ -12,4 +12,18 @@ enum RoleKey: string
     case EducationCoordination = 'education_coordination';
     case Coordination = 'coordination';
     case Administration = 'administration';
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Guest => 'Gast',
+            self::Member => 'Vereinsmitglied',
+            self::BoardMember => 'Vorstandsmitglied',
+            self::Team => 'Teamende',
+            self::AdministrationStaff => 'Geschäftsstelle',
+            self::EducationCoordination => 'Bildungsreferenten',
+            self::Coordination => 'Koordination',
+            self::Administration => 'Administration',
+        };
+    }
 }

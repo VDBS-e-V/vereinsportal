@@ -120,4 +120,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(RoleAssignment::class);
     }
+
+    /**
+     * Zurzeit gültige Rollenzuordnungen: Beginn erreicht, Ende nicht überschritten.
+     *
+     * @return HasMany<RoleAssignment, $this>
+     */
+    public function activeRoleAssignments(): HasMany
+    {
+        return $this->roleAssignments()
+            ->where('starts_at', '<=', now())
+            ->where(fn ($query) => $query->whereNull('ends_at')->orWhere('ends_at', '>', now()));
+    }
 }

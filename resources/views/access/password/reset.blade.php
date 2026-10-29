@@ -1,6 +1,6 @@
-<x-layouts.app title="Neues Passwort" width="narrow">
-    <h1>Neues Passwort festlegen</h1>
-    <p>Wählen Sie ein neues Passwort für Ihr Konto.</p>
+<x-layouts.app :title="$invitation ? 'Einladung annehmen' : 'Neues Passwort'" width="narrow">
+    <h1>{{ $invitation ? 'Willkommen im Portal' : 'Neues Passwort festlegen' }}</h1>
+    <p>{{ $invitation ? 'Legen Sie Ihr Passwort fest, um Ihr Konto zu aktivieren. Danach melden Sie sich an.' : 'Wählen Sie ein neues Passwort für Ihr Konto.' }}</p>
 
     <x-vdbs.forms.form :action="route('password.update')">
         <input type="hidden" name="token" value="{{ $token }}">

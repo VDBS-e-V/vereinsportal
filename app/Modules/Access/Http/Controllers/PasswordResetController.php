@@ -39,7 +39,7 @@ class PasswordResetController extends Controller
 
     public function reset(Request $request, string $token): View
     {
-        return view('access.password.reset', ['token' => $token, 'email' => (string) $request->query('email', '')]);
+        return view('access.password.reset', ['token' => $token, 'email' => (string) $request->query('email', ''), 'invitation' => $request->boolean('einladung')]);
     }
 
     public function update(Request $request): RedirectResponse
@@ -56,20 +56,37 @@ class PasswordResetController extends Controller
             'password.numbers' => 'Das Passwort braucht mindestens eine Ziffer.',
         ]);
 
-        $status = Password::broker()->reset(
-            ['email' => $data['email'], 'password' => $data['password'], 'password_confirmation' => $request->input('password_confirmation'), 'token' => $data['token'], 'status' => UserStatus::Active->value],
-            function (User $user, string $password): void {
-                $user->forceFill([
-                    'password' => $password,
-                    'remember_token' => Str::random(60),
-                    // beendet alle bestehenden Sitzungen dieses Kontos
-                    'session_version' => $user->session_version + 1,
-                    'force_password_change_at' => null,
-                ])->save();
+        $credentials = [
+            'email' => $data['email'],
+            'password' => $data['password'],
+            'password_confirmation' => $request->input('password_confirmation'),
+            'token' => $data['token'],
+        ];
 
-                event(new PasswordReset($user));
-            },
-        );
+        $apply = function (User $user, string $password): void {
+            $user->forceFill([
+                'password' => $password,
+                'remember_token' => Str::random(60),
+                // beendet alle bestehenden Sitzungen dieses Kontos
+                'session_version' => $user->session_version + 1,
+                'force_password_change_at' => null,
+                // Wer über eine Einladung sein erstes Passwort setzt, hat damit die Adresse bestätigt und ist aktiv.
+                'status' => $user->status === UserStatus::PendingVerification ? UserStatus::Active : $user->status,
+                'email_verified_at' => $user->email_verified_at ?? now(),
+            ])->save();
+
+            event(new PasswordReset($user));
+        };
+
+        $status = Password::broker()->reset($credentials + ['status' => UserStatus::Active->value], $apply);
+
+        if ($status !== Password::PASSWORD_RESET) {
+            // Einladungen sind länger gültig und gehören zu Konten, die noch nicht aktiv sind.
+            $status = Password::broker('invitations')->reset(
+                $credentials + ['status' => [UserStatus::Active->value, UserStatus::PendingVerification->value]],
+                $apply,
+            );
+        }
 
         if ($status !== Password::PASSWORD_RESET) {
             throw ValidationException::withMessages([

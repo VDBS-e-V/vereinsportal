@@ -49,11 +49,14 @@
                     <ul class="vdbs-header__links vdbs-header__links--large">
                         @foreach ($areas as $area)
                             <li>
-                                <a href="{{ $area === \App\Support\PortalAreas::Start ? route('home') : '#' }}" @if ($area === \App\Support\PortalAreas::Start && request()->routeIs('home')) aria-current="page" @endif>
+                                <a href="{{ $area === \App\Support\PortalAreas::Start ? route('home') : route('account.profile') }}" @if (($area === \App\Support\PortalAreas::Start && request()->routeIs('home')) || ($area === \App\Support\PortalAreas::Konto && request()->routeIs('account.*'))) aria-current="page" @endif>
                                     {{ $area->label() }}
                                 </a>
                             </li>
                         @endforeach
+                            @can('users.view')
+                                <li><a href="{{ route('admin.users.index') }}" @if (request()->routeIs('admin.users.*')) aria-current="page" @endif>Verwaltung</a></li>
+                            @endcan
                     </ul>
                 </nav>
 
