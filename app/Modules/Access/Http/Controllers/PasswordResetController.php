@@ -81,9 +81,10 @@ class PasswordResetController extends Controller
         $status = Password::broker()->reset($credentials + ['status' => UserStatus::Active->value], $apply);
 
         if ($status !== Password::PASSWORD_RESET) {
-            // Einladungen sind länger gültig und gehören zu Konten, die noch nicht aktiv sind.
+            // Einladungen sind länger gültig, gelten aber nur für Konten, die noch nicht aktiv sind. Ein normaler
+            // Reset-Link eines aktiven Kontos wird damit nicht verlängert.
             $status = Password::broker('invitations')->reset(
-                $credentials + ['status' => [UserStatus::Active->value, UserStatus::PendingVerification->value]],
+                $credentials + ['status' => UserStatus::PendingVerification->value],
                 $apply,
             );
         }
