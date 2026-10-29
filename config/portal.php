@@ -117,4 +117,31 @@ return [
             ],
         ],
     ],
+
+    /*
+     * Briefkopf und Fußzeile für gedruckte Schreiben (Kostenvoranschlag). Anschrift, Bankverbindung und Kontakt des Vereins.
+     */
+    'letter' => [
+        'logo' => 'images/brand/vdbs-briefkopf.jpg',
+        'sender_line' => 'VDBS, Fritz-Karsen-Schule (K101), Onkel-Bräsig-Straße 76/78, 12359 Berlin',
+        'board' => [
+            'title' => 'Vereinsvorstand',
+            'lines' => ['Onkel-Bräsig-Str. 76/78', '12359 Berlin'],
+            'phone' => 'Tel. 030 60 900 – 168',
+            'office_email' => 'neukoelln@vdb.schule',
+            'website' => 'www.vdb.schule',
+            'contact_email' => 'kontakt@vdb.schule',
+        ],
+        'footer' => [
+            'organization' => 'Verband für Demokratiebildung und Bibliotheken an Schule e.V.',
+            'chair_label' => 'Vorsitzender:',
+            'chair' => 'Jan Ole Schmiedecke',
+            'address_title' => 'Anschrift:',
+            'address_lines' => ['Fritz-Karsen-Schule (VDBS)', 'Onkel-Bräsig-Str. 76/78', '12359 Berlin'],
+            'contact_title' => 'Kontaktdaten:',
+            'contact_lines' => ['kontakt@vdb.schule', 'vorstand@vdb.schule'],
+            'bank_title' => 'VDBS e.V.',
+            'bank_lines' => ['Geldinstitut: Berliner Sparkasse', 'IBAN: DE63 1005 0000 0191 2739 96', 'BIC: BELADEBEXXX'],
+        ],
+    ],
 ];

@@ -11,6 +11,7 @@ use App\Modules\Seminars\Models\SeminarPriceList;
 use App\Modules\Seminars\Models\SeminarQuote;
 use App\Modules\Seminars\Support\Money;
 use App\Modules\Seminars\Support\QuoteCalculator;
+use App\Modules\Seminars\Support\QuoteTexts;
 use Illuminate\Support\Facades\DB;
 
 /** Kostenvoranschläge berechnen und speichern (unveränderlich, jede Überarbeitung ist eine neue Fassung) sowie Preislisten pflegen. */
@@ -31,11 +32,14 @@ final class Quotes
     }
 
     /** @param  array<string, mixed>  $inputs */
-    public function create(Seminar $seminar, array $inputs, User $by): SeminarQuote
+    public function create(Seminar $seminar, array $inputs, User $by, ?string $title = null, ?string $content = null): SeminarQuote
     {
         $result = $this->preview($inputs);
+        $defaults = QuoteTexts::defaults($seminar->type, $result['inputs']);
+        $title = filled($title) ? trim($title) : $defaults['title'];
+        $content = filled($content) ? trim($content) : $defaults['content'];
 
-        $quote = DB::transaction(function () use ($seminar, $result, $by): SeminarQuote {
+        $quote = DB::transaction(function () use ($seminar, $result, $by, $title, $content): SeminarQuote {
             $version = (int) $seminar->quotes()->max('version') + 1;
 
             $quote = $seminar->quotes()->create([
@@ -44,6 +48,8 @@ final class Quotes
                 'inputs' => $result['inputs'],
                 'lines' => $result['lines'],
                 'total_cents' => $result['total_cents'],
+                'item_title' => $title,
+                'item_content' => $content,
                 'created_by_user_id' => $by->id,
             ]);
 

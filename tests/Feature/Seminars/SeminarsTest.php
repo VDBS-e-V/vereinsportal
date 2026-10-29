@@ -415,3 +415,74 @@ it('links the seminar from the log', function () {
     $this->actingAs(smUser(RoleKey::BoardMember))->get(route('admin.audit.index', ['subject' => 'seminar:'.$seminar->id]))
         ->assertOk()->assertSee('Seminar geändert')->assertSee(route('seminars.show', $seminar), false);
 });
+
+// ---------- Schreiben (Druckansicht) ----------
+
+it('prints the quote as a letter with address, position, total and footer', function () {
+    $partner = Partner::factory()->create(['name' => 'Walter-Gropius-Schule', 'street' => 'Fritz-Erler-Allee', 'house_number' => '86-96', 'postal_code' => '12351', 'city' => 'Berlin', 'country_code' => 'DE']);
+    $seminar = Seminar::factory()->create(['partner_id' => $partner->id]);
+    $coordinator = smUser(RoleKey::Coordination);
+
+    $this->actingAs($coordinator)->post(route('seminars.quotes.store', $seminar), smQuoteInputs());
+    $quote = $seminar->quotes()->firstOrFail();
+
+    $html = $this->get(route('seminars.quotes.print', [$seminar, $quote]))->assertOk()->getContent();
+
+    expect($html)
+        ->toContain('Kostenvoranschlag')
+        ->toContain('Schulleitung')
+        ->toContain('Walter-Gropius-Schule')
+        ->toContain('Fritz-Erler-Allee 86-96')
+        ->toContain('12351 Berlin')
+        ->toContain('Deutschland')
+        ->toContain('SV-Tage (3)')
+        ->toContain('Je 3 Teamer:innen pro Tag')
+        ->toContain('Moderationsmaterial')
+        ->toContain('Endsumme')
+        ->toContain('2.309,00 €')
+        ->toContain($quote->created_at->format('d.m.Y'))
+        ->toContain('bearbeitet von:')
+        ->toContain($coordinator->person->fullName())
+        ->toContain('IBAN: DE63 1005 0000 0191 2739 96')
+        ->toContain('Vereinsvorstand');
+});
+
+it('prints the edited position text and keeps the default when the fields stay empty', function () {
+    $this->actingAs(smUser(RoleKey::Coordination));
+    $seminar = Seminar::factory()->create(['type' => 'coaching']);
+
+    $this->post(route('seminars.quotes.store', $seminar), smQuoteInputs(['days' => '8', 'team' => '3', 'print_title' => 'Coaching erweiterter Vorstand (8 Treffen)', 'print_content' => "Einmal pro Monat ein Treffen\n\nzur Unterstützung von Planung"]));
+    $this->post(route('seminars.quotes.store', $seminar), smQuoteInputs(['days' => '4']));
+
+    $custom = $seminar->quotes()->where('version', 1)->first();
+    $default = $seminar->quotes()->where('version', 2)->first();
+
+    expect($custom->item_title)->toBe('Coaching erweiterter Vorstand (8 Treffen)');
+    $this->get(route('seminars.quotes.print', [$seminar, $custom]))->assertSee('Coaching erweiterter Vorstand (8 Treffen)')->assertSee('Einmal pro Monat ein Treffen')->assertSee('zur Unterstützung von Planung');
+
+    expect($default->item_title)->toBe('SV-Coaching (4 Treffen)');
+    $this->get(route('seminars.quotes.print', [$seminar, $default]))->assertSee('SV-Coaching (4 Treffen)')->assertSee('Unterstützung von Planung, Organisation und Absprache');
+});
+
+it('protects the print view like the quote and does not print through another seminar', function () {
+    $seminar = Seminar::factory()->create();
+    $other = Seminar::factory()->create();
+    $this->actingAs(smUser(RoleKey::Coordination))->post(route('seminars.quotes.store', $seminar), smQuoteInputs());
+    $quote = $seminar->quotes()->firstOrFail();
+
+    $this->get(route('seminars.quotes.print', [$other, $quote]))->assertNotFound();
+
+    auth()->logout();
+    $this->get(route('seminars.quotes.print', [$seminar, $quote]))->assertRedirect(route('login'));
+    $this->actingAs(smUser(RoleKey::Member))->get(route('seminars.quotes.print', [$seminar, $quote]))->assertForbidden();
+});
+
+it('offers the texts of the position in the quote form and links the letter', function () {
+    $seminar = Seminar::factory()->create(['type' => 'election']);
+
+    $html = $this->actingAs(smUser(RoleKey::Coordination))->get(route('seminars.quotes.create', $seminar))->assertOk()->getContent();
+    expect($html)->toContain('name="print_title"')->toContain('SV-Wahl')->toContain('Begleitung und Durchführung der Wahl');
+
+    $this->post(route('seminars.quotes.store', $seminar), smQuoteInputs());
+    $this->get(route('seminars.quotes.show', [$seminar, $seminar->quotes()->firstOrFail()]))->assertSee(route('seminars.quotes.print', [$seminar, $seminar->quotes()->firstOrFail()]), false);
+});

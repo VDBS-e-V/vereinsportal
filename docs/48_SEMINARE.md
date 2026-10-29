@@ -47,7 +47,11 @@ Abweichung zur Excel-Tabelle: Der Materialzuschlag rechnet „je angefangene 5 T
 Bei vollen Fünfern (30, 35, 45 TN …) ist das Ergebnis gleich.
 
 **Kostenvoranschlag:** „Berechnen“ zeigt die Vorschau, „Speichern“ legt eine **unveränderliche** Fassung an (Eingaben, Posten, Summe, Preisstand;
-`seminar_quotes`). Die Seite ist druckbar („Drucken“); ein PDF-Export folgt. Preise sind Nettobeträge ohne Umsatzsteuerhinweis (Annahme, zu klären).
+`seminar_quotes`). Die Seite „Schreiben drucken“ (`/koordination/seminare/{id}/kostenvoranschlag/{fassung}/druck`) zeigt den Kostenvoranschlag als Brief im Format des
+Vereins (Briefkopf mit Logo, Anschrift der Schulleitung, Datum, Tabelle Pos./Posten/Inhalt/Preis, Endsumme, Fußzeile mit Bankverbindung). Über „Drucken oder
+als PDF speichern“ des Browsers entsteht ein A4-PDF. Posten und Inhalt (eine Zeile je Aufzählungspunkt) sind im Formular änderbar; leer = Standardtext je
+Leistung (`Support\QuoteTexts`). Die internen Einzelposten stehen nur in der Ansicht im Portal, nicht im Schreiben. Briefkopf, Absenderzeile und Fußzeile
+stehen in `config/portal.php` unter `letter`, das Logo in `public/images/brand/vdbs-briefkopf.jpg`. Preise sind Nettobeträge ohne Umsatzsteuerhinweis (Annahme, zu klären).
 
 **Preisliste:** `seminar_price_lists` (Beträge in Cent als JSON). Die Migration legt den „Preisstand Oktober 2025“ an. Änderungen erzeugen eine neue Fassung
 mit Gültigkeitsbeginn; die zurzeit gültige ist die mit dem jüngsten erreichten Beginn. Alte Kostenvoranschläge behalten ihren Preisstand.

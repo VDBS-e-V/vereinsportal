@@ -7,7 +7,7 @@
 <x-layouts.app :title="'Kostenvoranschlag Fassung '.$quote->version" width="wide">
     <x-vdbs.layout.page-header :title="'Kostenvoranschlag Fassung '.$quote->version" :lead="$seminar->title" :breadcrumb="$crumbs">
         <x-slot:actions>
-            <x-vdbs.actions.button type="button" variant="secondary" icon="printer" onclick="window.print()">Drucken</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="secondary" :href="route('seminars.quotes.print', [$seminar, $quote])" icon="printer">Schreiben drucken</x-vdbs.actions.button>
             <x-vdbs.actions.button variant="tertiary" :href="route('seminars.show', $seminar)">Zum Seminar</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.layout.page-header>

@@ -11,7 +11,7 @@ class SeminarQuote extends Model
 {
     public const UPDATED_AT = null;
 
-    protected $fillable = ['seminar_id', 'version', 'price_list_id', 'inputs', 'lines', 'total_cents', 'created_by_user_id'];
+    protected $fillable = ['seminar_id', 'version', 'price_list_id', 'inputs', 'lines', 'total_cents', 'item_title', 'item_content', 'created_by_user_id'];
 
     protected function casts(): array
     {

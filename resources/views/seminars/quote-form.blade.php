@@ -24,6 +24,11 @@
                 <x-vdbs.forms.checkbox name="without_club_fee" label="Ohne Vereinspauschale" :checked="(bool) ($values['without_club_fee'] ?? false)" />
             </x-vdbs.forms.form-section>
 
+            <x-vdbs.forms.form-section title="Darstellung im Schreiben" description="So steht der Posten im gedruckten Kostenvoranschlag. Eine Zeile je Aufzählungspunkt; leer lassen für den Standardtext.">
+                <x-vdbs.forms.input name="print_title" label="Posten" :optional="true" maxlength="150" :value="$values['print_title'] ?? null" />
+                <x-vdbs.forms.textarea name="print_content" label="Inhalt" :optional="true" maxlength="1000" :rows="4" :value="$values['print_content'] ?? null" />
+            </x-vdbs.forms.form-section>
+
             <x-slot:actions>
                 <x-vdbs.actions.button type="submit" name="action" value="preview" variant="secondary" icon="refresh-cw">Berechnen</x-vdbs.actions.button>
                 <x-vdbs.actions.button type="submit" name="action" value="save" icon="save">Kostenvoranschlag speichern</x-vdbs.actions.button>

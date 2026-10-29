@@ -30,6 +30,7 @@ Route::middleware(['web', 'auth'])->group(function (): void {
             Route::get('/', [SeminarController::class, 'index'])->name('index');
             Route::get('/{seminar}', [SeminarController::class, 'show'])->whereNumber('seminar')->name('show');
             Route::get('/{seminar}/kostenvoranschlag/{quote}', [SeminarQuoteController::class, 'show'])->whereNumber(['seminar', 'quote'])->name('quotes.show');
+            Route::get('/{seminar}/kostenvoranschlag/{quote}/druck', [SeminarQuoteController::class, 'print'])->whereNumber(['seminar', 'quote'])->name('quotes.print');
         });
     });
 
