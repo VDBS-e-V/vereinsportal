@@ -35,7 +35,7 @@ bestimmt nur die Darstellung, er ersetzt keine Berechtigungsprüfung. Ein Bereic
 | Mitglieder | Vereinsmitglied | – |
 | Teamende | Teamende | – |
 | Schulen | – | – |
-| Koordination | Koordination | – |
+| Koordination | Koordination, Geschäftsstelle | Schulen |
 | Geschäftsstelle | Geschäftsstelle, Administration | Nutzer, Personen |
 | Bildungsreferenten | Bildungsreferenten | – |
 | Admins | Administration | Protokoll (`audit.view`), Design-Bibliothek (`design.view`; Administration und Vorstand) |

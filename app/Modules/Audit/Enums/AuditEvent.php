@@ -36,6 +36,11 @@ enum AuditEvent: string
     case PersonUpdated = 'person.updated';
     case PersonDeleted = 'person.deleted';
 
+    case PartnerCreated = 'partner.created';
+    case PartnerUpdated = 'partner.updated';
+    case PartnerDeleted = 'partner.deleted';
+    case PartnersImported = 'partner.imported';
+
     case AuditExported = 'audit.exported';
 
     public function label(): string
@@ -66,6 +71,10 @@ enum AuditEvent: string
             self::PersonCreated => 'Person angelegt',
             self::PersonUpdated => 'Person geändert',
             self::PersonDeleted => 'Person gelöscht',
+            self::PartnerCreated => 'Schule angelegt',
+            self::PartnerUpdated => 'Schule geändert',
+            self::PartnerDeleted => 'Schule gelöscht',
+            self::PartnersImported => 'Schulen importiert',
             self::AuditExported => 'Protokoll exportiert',
         };
     }
@@ -79,6 +88,7 @@ enum AuditEvent: string
             self::UserCreated, self::UserInvited, self::UserDisabled, self::UserEnabled, self::UserTwoFactorReset, self::UserPasswordLinkSent => 'users',
             self::RoleAssigned, self::RoleEnded => 'roles',
             self::PersonCreated, self::PersonUpdated, self::PersonDeleted => 'people',
+            self::PartnerCreated, self::PartnerUpdated, self::PartnerDeleted, self::PartnersImported => 'partners',
             self::AuditExported => 'audit',
         };
     }
@@ -93,6 +103,7 @@ enum AuditEvent: string
             'users' => 'Nutzerverwaltung',
             'roles' => 'Rollen',
             'people' => 'Personen',
+            'partners' => 'Schulen',
             'audit' => 'Protokoll',
         ];
     }
@@ -101,7 +112,7 @@ enum AuditEvent: string
     public function tone(): string
     {
         return match ($this) {
-            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::AccountAnonymized => 'error',
+            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::AccountAnonymized => 'error',
             self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
             self::Login, self::UserEnabled, self::TwoFactorEnabled => 'success',
             default => 'neutral',

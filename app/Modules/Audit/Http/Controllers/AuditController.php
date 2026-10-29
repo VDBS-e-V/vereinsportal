@@ -7,7 +7,9 @@ use App\Modules\Access\Models\User;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\Audit\Support\AuditLog;
+use App\Modules\Partners\Models\Partner;
 use App\Modules\People\Models\Person;
+use App\Support\CsvCell;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -101,9 +103,7 @@ class AuditController extends Controller
     /** Schützt Tabellenprogramme vor Formeln: Zellen, die mit = + - @ beginnen, bekommen ein Hochkomma. */
     public static function safeCell(mixed $value): string
     {
-        $text = (string) $value;
-
-        return $text !== '' && in_array($text[0], ['=', '+', '-', '@', "\t", "\r"], true) ? "'".$text : $text;
+        return CsvCell::safe($value);
     }
 
     /**
@@ -158,7 +158,7 @@ class AuditController extends Controller
     /** @return array{0: string, 1: int}|null */
     private function subject(string $value): ?array
     {
-        if (preg_match('/^(user|person):(\d+)$/', $value, $matches) !== 1) {
+        if (preg_match('/^(user|person|partner):(\d+)$/', $value, $matches) !== 1) {
             return null;
         }
 
@@ -173,11 +173,13 @@ class AuditController extends Controller
             return $value;
         }
 
-        $name = $subject[0] === 'user'
-            ? ($user = User::query()->with('person')->find($subject[1])) instanceof User ? AuditLog::label($user) : null
-            : Person::query()->find($subject[1])?->fullName();
+        $name = match ($subject[0]) {
+            'user' => ($user = User::query()->with('person')->find($subject[1])) instanceof User ? AuditLog::label($user) : null,
+            'partner' => Partner::query()->find($subject[1])?->name,
+            default => Person::query()->find($subject[1])?->fullName(),
+        };
 
-        return $name ?? ($subject[0] === 'user' ? 'Nutzer' : 'Person').' '.$subject[1];
+        return $name ?? ['user' => 'Nutzer', 'partner' => 'Schule', 'person' => 'Person'][$subject[0]].' '.$subject[1];
     }
 
     private function subjectUrl(?string $type, ?int $id): ?string
@@ -189,6 +191,7 @@ class AuditController extends Controller
         return match (true) {
             $type === 'user' && Gate::allows('users.view') && User::query()->whereKey($id)->exists() => route('admin.users.show', $id),
             $type === 'person' && Gate::allows('people.view') && Person::query()->whereKey($id)->exists() => route('admin.people.show', $id),
+            $type === 'partner' && Gate::allows('partners.view') && Partner::query()->whereKey($id)->exists() => route('partners.show', $id),
             default => null,
         };
     }

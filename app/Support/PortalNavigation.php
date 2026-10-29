@@ -64,7 +64,12 @@ final class PortalNavigation
             PortalAreas::Mitglieder->value => ['roles' => [RoleKey::Member], 'pages' => []],
             PortalAreas::Teamende->value => ['roles' => [RoleKey::Team], 'pages' => []],
             PortalAreas::Schulen->value => ['roles' => [], 'pages' => []],
-            PortalAreas::Koordination->value => ['roles' => [RoleKey::Coordination], 'pages' => []],
+            PortalAreas::Koordination->value => [
+                'roles' => [RoleKey::Coordination, RoleKey::AdministrationStaff],
+                'pages' => [
+                    ['label' => 'Schulen', 'route' => 'partners.index', 'match' => 'partners.*', 'can' => 'partners.view'],
+                ],
+            ],
             PortalAreas::Geschaeftsstelle->value => [
                 'roles' => [RoleKey::AdministrationStaff, RoleKey::Administration],
                 'pages' => [

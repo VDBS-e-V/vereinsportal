@@ -6,6 +6,9 @@ use App\Modules\Access\Models\User;
 use App\Modules\Partners\Enums\PartnerStatus;
 use App\Modules\Partners\Enums\PartnerType;
 use App\Modules\People\Models\Person;
+use Database\Factories\PartnerFactory;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -16,8 +19,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * ausschliesslich Schulen). `attributes` traegt typ-spezifische
  * Zusatzfelder, ohne dass dafuer eine eigene Tabelle noetig wird.
  */
+#[UseFactory(PartnerFactory::class)]
 class Partner extends Model
 {
+    /** @use HasFactory<PartnerFactory> */
+    use HasFactory;
+
     protected $attributes = [
         'status' => 'active',
     ];

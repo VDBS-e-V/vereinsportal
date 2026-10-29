@@ -26,6 +26,12 @@ enum Capability: string
     /** Mitgliedschaften anlegen, aufnehmen, ablehnen, Austritt eintragen. */
     case MembershipsManage = 'memberships.manage';
 
+    /** Schulen als Partner ansehen und exportieren (Bereich Koordination). */
+    case PartnersView = 'partners.view';
+
+    /** Schulen anlegen, ändern, löschen und per CSV importieren. */
+    case PartnersManage = 'partners.manage';
+
     /** Design-Bibliothek ansehen (Entwicklungswerkzeug). */
     case DesignView = 'design.view';
 

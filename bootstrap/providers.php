@@ -5,6 +5,7 @@ use App\Modules\AccessGovernance\AccessGovernanceServiceProvider;
 use App\Modules\Audit\AuditServiceProvider;
 use App\Modules\DesignLibrary\DesignLibraryServiceProvider;
 use App\Modules\Membership\MembershipServiceProvider;
+use App\Modules\Partners\PartnersServiceProvider;
 use App\Modules\People\PeopleServiceProvider;
 use App\Modules\Sso\SsoServiceProvider;
 use App\Providers\AppServiceProvider;
@@ -22,6 +23,7 @@ return [
     AccessServiceProvider::class,
     AccessGovernanceServiceProvider::class,
     AuditServiceProvider::class,
+    PartnersServiceProvider::class,
     PeopleServiceProvider::class,
     MembershipServiceProvider::class,
     SsoServiceProvider::class,
