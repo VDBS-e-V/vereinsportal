@@ -25,7 +25,7 @@
 <x-vdbs.layout.section title="Das VDBS Serviceportal" lead="Hier finden Sie alle Bereiche des Portals." align="center">
     <x-vdbs.data.chip-list label="Bereiche">
         @foreach (\App\Support\PortalAreas::withGroupMark() as $area)
-            <x-vdbs.data.chip :label="$area->label()" href="#" :icon="$area->icon()" />
+            <x-vdbs.data.chip :label="$area->label()" href="#" :group="$area->groupMark()" />
         @endforeach
     </x-vdbs.data.chip-list>
 </x-vdbs.layout.section>

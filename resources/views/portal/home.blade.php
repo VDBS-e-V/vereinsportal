@@ -34,7 +34,7 @@
     <x-vdbs.layout.section :title="$home['areas']['title']" :lead="$home['areas']['lead']" align="center">
         <x-vdbs.data.chip-list label="Bereiche des Portals">
             @foreach ($areas as $area)
-                <x-vdbs.data.chip :label="$area->label()" href="#" :icon="$area->icon()" :mark="$area->groupMark()" :mark-numbered="false" />
+                <x-vdbs.data.chip :label="$area->label()" href="#" :group="$area->groupMark()" />
             @endforeach
         </x-vdbs.data.chip-list>
     </x-vdbs.layout.section>

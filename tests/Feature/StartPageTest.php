@@ -17,14 +17,14 @@ it('renders the start page for guests with the structure of the design system', 
         ->and(substr_count($html, '<h1'))->toBe(1);
 });
 
-it('lists all role areas as chips with group marks', function () {
+it('lists all role areas as chips in group colors', function () {
     $html = $this->get('/')->getContent();
 
     foreach (['Vorstand', 'Mitglieder', 'Teamende', 'Schulen', 'Koordination', 'Geschäftsstelle', 'Bildungsreferenten', 'Admins'] as $area) {
         expect($html)->toContain($area);
     }
 
-    expect($html)->toContain('vdbs-chip')->toContain('vdbs-group-mark--1');
+    expect($html)->toContain('vdbs-chip')->toContain('vdbs-chip--group-1')->toContain('vdbs-chip--group-6');
 });
 
 it('shows the logged-in variant with account actions instead of the login', function () {
@@ -49,15 +49,15 @@ it('does not use placeholder images on the real start page', function () {
     $this->get('/')->assertDontSee('/images/placeholder/', false);
 });
 
-it('shows the areas with the group colors and shapes but without the group numbers', function () {
+it('shows the area chips with group color but without icons or marks', function () {
     $html = $this->get('/')->getContent();
 
-    preg_match_all('/<span class="vdbs-group-mark vdbs-group-mark--\d"[^>]*>(.*?)<\/span>/s', $html, $marks);
+    preg_match('/<nav[^>]*aria-label="Bereiche des Portals".*?<\/nav>/s', $html, $list);
 
-    expect($marks[0])->not->toBeEmpty()
-        ->and(implode('', $marks[1]))->toBe('')
-        ->and($html)->not->toContain('aria-label="Gruppe 1')
-        ->and($html)->toContain('vdbs-group-mark--6');
+    expect($list)->not->toBeEmpty()
+        ->and($list[0])->toContain('vdbs-chip--group-1')
+        ->and($list[0])->not->toContain('<svg')
+        ->and($list[0])->not->toContain('vdbs-group-mark');
 });
 
 it('keeps the numbered group marks where the styleguide shows them', function () {
