@@ -19,14 +19,16 @@
 .vdbs-chip__icon { flex: 0 0 auto; }
 .vdbs-chip__link .vdbs-group-mark { width: 1.5rem; height: 1.5rem; font-size: var(--font-size-caption); }
 
-/* Gruppenfarbe als Hintergrund (Text je nach Gruppe hell oder dunkel) */
-.vdbs-chip[class*="vdbs-chip--group-"] .vdbs-chip__link { border-color: var(--chip-group); background: var(--chip-group); color: var(--text-on-group-light); }
-.vdbs-chip[class*="vdbs-chip--group-"] .vdbs-chip__link:hover { background: var(--chip-group); color: var(--text-on-group-light); text-decoration: underline; }
+/* Gruppenfarbe als Schrift- und Rahmenfarbe; die Schrift wird für den Kontrast leicht mit der Textfarbe abgedunkelt */
+.vdbs-chip[class*="vdbs-chip--group-"] .vdbs-chip__link {
+    border: 2px solid var(--chip-group);
+    background: var(--bg-page);
+    color: color-mix(in srgb, var(--chip-group) 55%, var(--text-default));
+}
+.vdbs-chip[class*="vdbs-chip--group-"] .vdbs-chip__link:hover { background: var(--bg-accent-soft); text-decoration: underline; }
 .vdbs-chip--group-1 { --chip-group: var(--group-1); }
 .vdbs-chip--group-2 { --chip-group: var(--group-2); }
 .vdbs-chip--group-3 { --chip-group: var(--group-3); }
-.vdbs-chip--group-3 .vdbs-chip__link, .vdbs-chip--group-3 .vdbs-chip__link:hover { color: var(--text-on-group-dark); }
 .vdbs-chip--group-4 { --chip-group: var(--group-4); }
 .vdbs-chip--group-5 { --chip-group: var(--group-5); }
-.vdbs-chip--group-5 .vdbs-chip__link, .vdbs-chip--group-5 .vdbs-chip__link:hover { color: var(--text-on-group-dark); }
 .vdbs-chip--group-6 { --chip-group: var(--group-6); }
