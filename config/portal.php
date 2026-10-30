@@ -104,8 +104,14 @@ return [
         'title' => 'Willkommen im VDBS Serviceportal',
         'lead' => 'Die zentrale Anlaufstelle für Mitglieder, Teamende und Schulen des VDBS.',
         'areas' => [
-            'title' => 'Die Bereiche des Portals',
-            'lead' => 'Welche Bereiche Sie sehen, richtet sich nach Ihrer Rolle.',
+            'title' => 'Das VDBS Serviceportal',
+            'lead' => 'Das VDBS Serviceportal ist Ihre zentrale Anlaufstelle für alle Informationen und Dienstleistungen rund um den VDBS. Hier finden Sie alle Bereiche des Portals. Welche Bereiche Sie sehen, richtet sich nach Ihrer Rolle.',
+        ],
+        // Bild im Kopf der Startseite (Titel liegt mittig darüber). Die Quelle ist Pflicht; bitte durch das Originalbild samt Urheberangabe ersetzen.
+        'hero_image' => [
+            'src' => 'images/portal/hero-bibliothek.jpg',
+            'alt' => 'Bibliothek mit mehreren Ebenen voller Bücherregale',
+            'credit' => 'Bild aus dem bisherigen VDBS-Portal',
         ],
         // Bild neben dem Block „Zugang zum Portal“ (Startseite, Über das Portal); ohne src erscheint der Block ohne Bild.
         // Die Quelle ist Pflicht (Bildregel der Design-Bibliothek). Bitte Urheberin/Urheber und Lizenz ergänzen, sobald bekannt.
@@ -121,9 +127,15 @@ return [
         ],
         'contact' => [
             'title' => 'Kontakt',
-            'text' => 'Bei Fragen oder Problemen helfen wir gerne weiter.',
+            'text' => 'Sollten Sie Fragen oder Probleme haben, können Sie uns jederzeit kontaktieren. Wir helfen Ihnen gerne weiter. Sie erreichen uns unter den E-Mail-Adressen:',
+            'image' => [
+                'src' => 'images/portal/kontakt.jpg',
+                'alt' => 'Leuchtendes Umschlag-Symbol auf dunklem Grund',
+                'credit' => 'Bild aus dem bisherigen VDBS-Portal',
+            ],
             'lines' => [
-                // ['label' => 'Support', 'value' => 'support@example.org', 'href' => 'mailto:support@example.org'],
+                ['label' => 'Support', 'value' => env('CONTACT_SUPPORT_EMAIL', 'support@portal.vdb.schule'), 'href' => 'mailto:'.env('CONTACT_SUPPORT_EMAIL', 'support@portal.vdb.schule')],
+                ['label' => 'Kontakt', 'value' => env('CONTACT_GENERAL_EMAIL', 'kontakt@vdb.schule'), 'href' => 'mailto:'.env('CONTACT_GENERAL_EMAIL', 'kontakt@vdb.schule')],
             ],
         ],
     ],

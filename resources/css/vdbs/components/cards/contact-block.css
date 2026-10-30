@@ -18,3 +18,6 @@
 @media (min-width: 768px) {
     .vdbs-contact-block { grid-template-columns: 1fr 1fr; gap: var(--space-8); }
 }
+
+.vdbs-contact-block--surface { padding: var(--space-5); background: var(--bg-surface); }
+@media (min-width: 768px) { .vdbs-contact-block--surface { padding: var(--space-6); } }

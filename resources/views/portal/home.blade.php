@@ -5,30 +5,22 @@
 @endphp
 
 <x-layouts.app title="Start" width="full">
-    {{-- Einstieg: Titel, Einleitung und die wichtigste Aktion je nach Anmeldestatus --}}
-    <x-vdbs.media.hero variant="compact" :bleed="true" :title="$home['title']" :lead="$home['lead']">
-        <x-slot:actions>
-            @auth
-                <x-vdbs.actions.button :href="route('account.profile')" icon="user">Mein Konto</x-vdbs.actions.button>
-            @else
-                <x-vdbs.actions.button :href="route('login')" icon="log-in">Anmelden</x-vdbs.actions.button>
-                <x-vdbs.actions.button :href="route('portal.access')" variant="secondary">Zugang beantragen</x-vdbs.actions.button>
-                <x-vdbs.actions.button :href="route('join.apply')" variant="tertiary">Mitglied werden</x-vdbs.actions.button>
-            @endauth
-        </x-slot:actions>
-    </x-vdbs.media.hero>
-
+    {{-- Einstieg: Bild mit mittigem Titel, darunter die Schnellzugriffe als farbige Kacheln --}}
     <x-vdbs.layout.container>
-        <x-vdbs.cards.quick-links label="Schnellzugriff">
-            <x-vdbs.cards.quick-link label="Über das Portal" :href="route('portal.about')" :tone="4" icon="info" />
-            <x-vdbs.cards.quick-link label="Zugang zum Portal" :href="route('portal.access')" :tone="1" icon="log-in" />
-            @auth
-                <x-vdbs.cards.quick-link label="Mein Konto" :href="route('account.profile')" :tone="3" icon="user" />
-            @else
-                <x-vdbs.cards.quick-link label="Anmelden" :href="route('login')" :tone="3" icon="user" />
-            @endauth
-            <x-vdbs.cards.quick-link label="Hilfe" :href="route('portal.about').'#portal-faq'" :tone="6" icon="circle-help" />
-        </x-vdbs.cards.quick-links>
+        <x-vdbs.media.hero variant="image" align="center" :title="$home['title']" :image="asset($home['hero_image']['src'])" :image-alt="$home['hero_image']['alt']" :credit="$home['hero_image']['credit']">
+            <x-slot:footer>
+                <x-vdbs.cards.quick-links label="Schnellzugriff" variant="solid">
+                    <x-vdbs.cards.quick-link label="Über das Portal" :href="route('portal.about')" :tone="3" />
+                    <x-vdbs.cards.quick-link label="Zugang zum Portal" :href="route('portal.access')" :tone="5" />
+                    @auth
+                        <x-vdbs.cards.quick-link label="Mein Konto" :href="route('account.profile')" :tone="1" />
+                    @else
+                        <x-vdbs.cards.quick-link label="Anmelden" :href="route('login')" :tone="1" />
+                    @endauth
+                    <x-vdbs.cards.quick-link label="Hilfe" :href="route('portal.about').'#portal-faq'" :tone="6" />
+                </x-vdbs.cards.quick-links>
+            </x-slot:footer>
+        </x-vdbs.media.hero>
     </x-vdbs.layout.container>
 
     <x-vdbs.layout.section :title="$home['areas']['title']" :lead="$home['areas']['lead']" align="center">
@@ -40,7 +32,7 @@
     </x-vdbs.layout.section>
 
     @if ($articles->isNotEmpty())
-        <x-vdbs.layout.section title="Empfohlene Artikel" lead="Aktuelle Themenartikel" align="center" id="artikel">
+        <x-vdbs.layout.section title="Empfohlene Artikel" lead="Lesen Sie unsere aktuellen Themenartikel." align="center" id="artikel">
             <x-vdbs.layout.grid :columns="3" align="start">
                 @foreach ($articles as $article)
                     <x-vdbs.cards.teaser
@@ -82,9 +74,15 @@
         </x-vdbs.layout.split>
     </x-vdbs.layout.section>
 
+    {{-- Kontakt: graue Fläche, Bild links, Text mit E-Mail-Adressen rechts --}}
     <x-vdbs.layout.section>
         @if ($contactLines !== [])
-            <x-vdbs.cards.contact-block :title="$home['contact']['title']" :text="$home['contact']['text']" :lines="$contactLines">
+            <x-vdbs.cards.contact-block :surface="true" :title="$home['contact']['title']" :text="$home['contact']['text']" :lines="$contactLines">
+                @if (filled($home['contact']['image']['src'] ?? null))
+                    <x-slot:media>
+                        <x-vdbs.media.figure :src="asset($home['contact']['image']['src'])" :alt="$home['contact']['image']['alt']" :credit="$home['contact']['image']['credit']" credit-placement="edge" ratio="3-2" />
+                    </x-slot:media>
+                @endif
                 <x-slot:actions><x-vdbs.actions.link-button :href="route('portal.contact')">Zum Kontaktformular</x-vdbs.actions.link-button></x-slot:actions>
             </x-vdbs.cards.contact-block>
         @else

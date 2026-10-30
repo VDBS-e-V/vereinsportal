@@ -3,19 +3,21 @@
     'text' => null,
     'lines' => [],
     'level' => 2,
+    'surface' => false,
 ])
 
 {{--
     Kontaktblock (Paket "cards"), Vorbild: Ihr Entwurf "Kontakt".
     $lines: Liste von ['label' => 'Support', 'value' => 'support@…', 'href' => 'mailto:support@…'] (href optional)
     Slots: media (Bild), actions (Button)
+    surface: graue Fläche mit Innenabstand um den ganzen Block
 --}}
 
 @php
     $tag = 'h'.max(2, min(4, (int) $level));
 @endphp
 
-<section {{ $attributes->class('vdbs-contact-block') }} aria-labelledby="contact-block-title">
+<section {{ $attributes->class(['vdbs-contact-block', 'vdbs-contact-block--surface' => $surface]) }} aria-labelledby="contact-block-title">
     @isset($media)
         <div class="vdbs-contact-block__media">{{ $media }}</div>
     @endisset

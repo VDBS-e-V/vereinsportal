@@ -29,3 +29,15 @@
 
 .vdbs-quick-link__icon { flex: 0 0 auto; }
 .vdbs-quick-link__label { overflow-wrap: anywhere; }
+
+/* Variante solid: ganze Kachel in der Gruppenfarbe (Schrift hell oder dunkel je nach Gruppe) */
+.vdbs-quick-links--solid .vdbs-quick-link__link {
+    min-height: 5.5rem;
+    border-top: 0;
+    background: var(--tone);
+    color: var(--text-on-group-light);
+    font-size: var(--font-size-body-lg);
+}
+.vdbs-quick-links--solid .vdbs-quick-link--tone-3 .vdbs-quick-link__link,
+.vdbs-quick-links--solid .vdbs-quick-link--tone-5 .vdbs-quick-link__link { color: var(--text-on-group-dark); }
+.vdbs-quick-links--solid .vdbs-quick-link__link:hover { background: color-mix(in srgb, var(--tone) 85%, var(--text-default)); color: inherit; text-decoration: underline; }
