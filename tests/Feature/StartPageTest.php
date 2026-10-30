@@ -48,3 +48,41 @@ it('shows contact lines only when they are configured', function () {
 it('does not use placeholder images on the real start page', function () {
     $this->get('/')->assertDontSee('/images/placeholder/', false);
 });
+
+it('shows the areas with the group colors and shapes but without the group numbers', function () {
+    $html = $this->get('/')->getContent();
+
+    preg_match_all('/<span class="vdbs-group-mark vdbs-group-mark--\d"[^>]*>(.*?)<\/span>/s', $html, $marks);
+
+    expect($marks[0])->not->toBeEmpty()
+        ->and(implode('', $marks[1]))->toBe('')
+        ->and($html)->not->toContain('aria-label="Gruppe 1')
+        ->and($html)->toContain('vdbs-group-mark--6');
+});
+
+it('keeps the numbered group marks where the styleguide shows them', function () {
+    $html = view('components.vdbs.data.group-mark', ['number' => 3])->render();
+
+    expect($html)->toContain('vdbs-group-mark--3')->toContain('>3<')->toContain('Gruppe 3');
+
+    $plain = view('components.vdbs.data.group-mark', ['number' => 3, 'numbered' => false])->render();
+
+    expect($plain)->toContain('vdbs-group-mark--3')->not->toContain('>3<')->not->toContain('Gruppe 3')->toContain('aria-hidden="true"');
+});
+
+it('shows the access block with the image and its source on the start page', function () {
+    $html = $this->get('/')->assertOk()->getContent();
+
+    expect($html)->toContain('images/portal/zugang.jpg')->toContain('alt="Steinerner Torbogen')->toContain('Bild aus dem bisherigen VDBS-Portal')
+        ->toContain('Hilfe kontaktieren')->toContain('Zugang zum Portal')->toContain('vdbs-split__media')
+        ->not->toContain('/images/placeholder/');
+
+    expect(is_file(public_path('images/portal/zugang.jpg')))->toBeTrue();
+
+    config(['portal.home.access_image.src' => null]);
+    $this->get('/')->assertOk()->assertDontSee('vdbs-split__media', false);
+});
+
+it('shows the same image on the page about the portal', function () {
+    $this->get(route('portal.about'))->assertOk()->assertSee('images/portal/zugang.jpg', false);
+});

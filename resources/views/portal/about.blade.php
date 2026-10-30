@@ -76,6 +76,12 @@
                 <x-vdbs.actions.link-button :href="route('portal.access')">Zugang zum Portal</x-vdbs.actions.link-button>
                 <x-vdbs.actions.link-button :href="route('portal.contact')" variant="all">Hilfe kontaktieren</x-vdbs.actions.link-button>
             </x-slot:actions>
+
+            @if (filled(config('portal.home.access_image.src')))
+                <x-slot:media>
+                    <x-vdbs.media.figure :src="asset(config('portal.home.access_image.src'))" :alt="config('portal.home.access_image.alt')" :credit="config('portal.home.access_image.credit')" credit-placement="edge" ratio="3-2" />
+                </x-slot:media>
+            @endif
         </x-vdbs.layout.split>
     </x-vdbs.layout.section>
 </x-layouts.app>

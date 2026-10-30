@@ -34,7 +34,7 @@
     <x-vdbs.layout.section :title="$home['areas']['title']" :lead="$home['areas']['lead']" align="center">
         <x-vdbs.data.chip-list label="Bereiche des Portals">
             @foreach ($areas as $area)
-                <x-vdbs.data.chip :label="$area->label()" href="#" :icon="$area->icon()" :mark="$area->groupMark()" />
+                <x-vdbs.data.chip :label="$area->label()" href="#" :icon="$area->icon()" :mark="$area->groupMark()" :mark-numbered="false" />
             @endforeach
         </x-vdbs.data.chip-list>
     </x-vdbs.layout.section>
@@ -60,7 +60,8 @@
         </x-vdbs.layout.section>
     @endif
 
-    <x-vdbs.layout.section variant="band">
+    {{-- Zugang: Text mit Aktionen links, Bild rechts (Bild und Quelle aus config portal.home.access_image) --}}
+    <x-vdbs.layout.section>
         <x-vdbs.layout.split :title="$home['access']['title']">
             <p>{{ auth()->check() ? $home['access']['member'] : $home['access']['guest'] }}</p>
 
@@ -68,10 +69,16 @@
                 @auth
                     <x-vdbs.actions.link-button :href="route('account.profile')">Mein Konto</x-vdbs.actions.link-button>
                 @else
-                    <x-vdbs.actions.link-button :href="route('login')">Zur Anmeldung</x-vdbs.actions.link-button>
-                    <x-vdbs.actions.link-button :href="route('portal.access')" variant="all">Zugang beantragen</x-vdbs.actions.link-button>
+                    <x-vdbs.actions.link-button :href="route('portal.access')">Zugang zum Portal</x-vdbs.actions.link-button>
                 @endauth
+                <x-vdbs.actions.link-button :href="route('portal.contact')" variant="all">Hilfe kontaktieren</x-vdbs.actions.link-button>
             </x-slot:actions>
+
+            @if (filled($home['access_image']['src'] ?? null))
+                <x-slot:media>
+                    <x-vdbs.media.figure :src="asset($home['access_image']['src'])" :alt="$home['access_image']['alt']" :credit="$home['access_image']['credit']" credit-placement="edge" ratio="3-2" />
+                </x-slot:media>
+            @endif
         </x-vdbs.layout.split>
     </x-vdbs.layout.section>
 

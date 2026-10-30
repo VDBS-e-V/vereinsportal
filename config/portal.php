@@ -107,9 +107,16 @@ return [
             'title' => 'Die Bereiche des Portals',
             'lead' => 'Welche Bereiche Sie sehen, richtet sich nach Ihrer Rolle.',
         ],
+        // Bild neben dem Block „Zugang zum Portal“ (Startseite, Über das Portal); ohne src erscheint der Block ohne Bild.
+        // Die Quelle ist Pflicht (Bildregel der Design-Bibliothek). Bitte Urheberin/Urheber und Lizenz ergänzen, sobald bekannt.
+        'access_image' => [
+            'src' => 'images/portal/zugang.jpg',
+            'alt' => 'Steinerner Torbogen mit Blick in einen sonnenbeschienenen Durchgang',
+            'credit' => 'Bild aus dem bisherigen VDBS-Portal',
+        ],
         'access' => [
             'title' => 'Zugang zum Portal',
-            'guest' => 'Wenn Sie bereits ein Konto haben, können Sie sich hier anmelden. Ein Konto erhalten Mitglieder, Teamende und Schulen vom Verein.',
+            'guest' => 'Hier finden Sie alle Informationen, die Sie benötigen, um auf das VDBS Serviceportal zuzugreifen. Wenn Sie bereits ein Konto haben, können Sie sich hier anmelden. Wenn Sie noch kein Konto haben, können Sie hier den Zugang beantragen.',
             'member' => 'Sie sind angemeldet. Ihr Konto, Ihre Sicherheitseinstellungen und Ihre Bereiche finden Sie hier.',
         ],
         'contact' => [
