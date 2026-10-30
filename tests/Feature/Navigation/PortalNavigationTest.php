@@ -147,10 +147,10 @@ it('lists the pages of an area by capability and marks the current one', functio
     $staff = pnUser(RoleKey::AdministrationStaff);
     $admin = pnUser(RoleKey::Administration);
 
-    expect(array_column(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff), 'label'))->toBe(['Nutzer', 'Personen'])
+    expect(array_column(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff), 'label'))->toBe(['Nutzer', 'Zugangsanträge', 'Artikel', 'Personen'])
         ->and(array_column(PortalNavigation::pages(PortalAreas::Admins, $staff), 'label'))->toBe([])
         ->and(array_column(PortalNavigation::pages(PortalAreas::Admins, $admin), 'label'))->toBe(['Protokoll', 'Design-Bibliothek'])
-        ->and(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff, 'admin.people.show')[1]['current'])->toBeTrue()
+        ->and(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff, 'admin.people.show')[3]['current'])->toBeTrue()
         ->and(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff, 'admin.people.show')[0]['current'])->toBeFalse()
         ->and(PortalNavigation::home(PortalAreas::Geschaeftsstelle, $staff))->toBe(route('admin.users.index'));
 });

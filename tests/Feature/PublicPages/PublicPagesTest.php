@@ -166,11 +166,11 @@ it('shows an article with text, category, date and image source', function () {
 });
 
 it('strips raw html and unsafe links from article texts', function () {
-    $article = ppArticle(['body' => "<script>alert(1)</script>Text <b>fett</b> [böse](javascript:alert(1))"]);
+    $article = ppArticle(['body' => "Text vorab\n\n<script>alert(1)</script>\n\nText <b>fett</b> [böse](javascript:alert(1))"]);
 
     $html = $this->get(route('articles.public.show', $article->slug))->assertOk()->getContent();
 
-    expect($html)->not->toContain('<script>alert(1)</script>')->not->toContain('javascript:alert')->toContain('Text');
+    expect($html)->not->toContain('<script>alert(1)</script>')->not->toContain('javascript:alert')->not->toContain('<b>fett</b>')->toContain('Text vorab');
 });
 
 it('hides drafts and future articles from the public and shows them to editors as preview', function () {

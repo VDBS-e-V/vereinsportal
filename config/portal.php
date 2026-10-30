@@ -27,6 +27,9 @@ return [
     'legal' => [
         'statute_version' => env('PORTAL_STATUTE_VERSION', '2026-01'),
         'privacy_version' => env('PORTAL_PRIVACY_VERSION', '2026-01'),
+        // Links zu den rechtlichen Seiten (Nutzungsbedingungen, Datenschutzerklärung), die im Zugangsantrag verlinkt werden
+        'terms_url' => env('LEGAL_TERMS_URL', '#'),
+        'privacy_url' => env('LEGAL_PRIVACY_URL', '#'),
     ],
 
     /* Konto löschen: Wartefrist in Tagen zwischen Antrag und Anonymisierung (Abbruch ist bis dahin möglich). */
@@ -139,12 +142,6 @@ return [
         'retention_days' => (int) env('ACCESS_REQUESTS_RETENTION_DAYS', 180),
         'open_retention_days' => (int) env('ACCESS_REQUESTS_OPEN_RETENTION_DAYS', 365),
         'terms_version' => '2026-01',
-    ],
-
-    /* Links zu den rechtlichen Seiten (Nutzungsbedingungen, Datenschutzerklärung), die im Antrag verlinkt werden. */
-    'legal' => [
-        'terms_url' => env('LEGAL_TERMS_URL', '#'),
-        'privacy_url' => env('LEGAL_PRIVACY_URL', '#'),
     ],
 
     /*
