@@ -98,7 +98,7 @@ it('uploads the statute and the welcome letter as pdf and keeps older versions',
 it('refuses other files, unknown kinds and uploads by others on the member page', function () {
     $this->actingAs(obUser(RoleKey::BoardMember));
 
-    $this->post(route('onboarding.member.upload'), ['kind' => 'statute', 'document' => UploadedFile::fake()->image('bild.png')])->assertSessionHasErrors('document');
+    $this->post(route('onboarding.member.upload'), ['kind' => 'statute', 'document' => UploadedFile::fake()->create('bild.png', 10, 'image/png')])->assertSessionHasErrors('document');
     $this->post(route('onboarding.member.upload'), ['kind' => 'statute'])->assertSessionHasErrors('document');
     $this->post(route('onboarding.member.upload'), ['kind' => 'commitment', 'document' => obPdf()])->assertSessionHasErrors('kind');
     $this->post(route('onboarding.member.upload'), ['kind' => 'weg', 'document' => obPdf()])->assertSessionHasErrors('kind');
@@ -355,7 +355,7 @@ it('uploads the team documents as pdf and refuses member documents there', funct
     $this->actingAs(obUser(RoleKey::Coordination));
 
     $this->post(route('team-onboarding.documents.upload'), ['kind' => 'statute', 'document' => obPdf()])->assertSessionHasErrors('kind');
-    $this->post(route('team-onboarding.documents.upload'), ['kind' => 'commitment', 'document' => UploadedFile::fake()->image('x.png')])->assertSessionHasErrors('document');
+    $this->post(route('team-onboarding.documents.upload'), ['kind' => 'commitment', 'document' => UploadedFile::fake()->create('x.png', 10, 'image/png')])->assertSessionHasErrors('document');
 
     $this->post(route('team-onboarding.documents.upload'), ['kind' => 'commitment', 'document' => obPdf('erklaerung.pdf')])->assertSessionHasNoErrors();
     $this->post(route('team-onboarding.documents.upload'), ['kind' => 'code_of_conduct', 'document' => obPdf('kodex.pdf')])->assertSessionHasNoErrors();
@@ -368,6 +368,7 @@ it('delivers documents only to those who may read them', function () {
     $old = obUpload(OnboardingDocumentKind::Commitment, obUser(RoleKey::Coordination));
     $current = obUpload(OnboardingDocumentKind::Commitment, obUser(RoleKey::Coordination));
 
+    $this->app['auth']->forgetGuards();
     $this->get(route('onboarding.documents.download', $statute))->assertRedirect(route('login'));
 
     $this->actingAs(obUser(RoleKey::BoardMember))->get(route('onboarding.documents.download', $statute))->assertOk()->assertHeader('content-type', 'application/pdf');

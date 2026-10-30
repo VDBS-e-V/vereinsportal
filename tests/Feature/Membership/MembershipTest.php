@@ -125,7 +125,7 @@ it('admits a requested membership and gives the account the member role from the
     $membership->refresh();
     expect($membership->status)->toBe(MembershipStatus::Active)
         ->and($membership->starts_on->toDateString())->toBe('2025-01-15')
-        ->and($membership->events()->first()->type)->toBe(MembershipEventType::Admitted);
+        ->and($membership->events()->where('type', MembershipEventType::Admitted->value)->exists())->toBeTrue();
 
     $assignment = mbMemberRole($account);
     expect($assignment)->not->toBeNull()
@@ -291,7 +291,8 @@ it('keeps a history with actor and comment, newest first, and accepts notes', fu
     $this->post(route('membership.admit', $membership), ['starts_on' => '2025-02-01', 'comment' => 'Beschluss 12/2025']);
 
     $types = $membership->events()->pluck('type')->map->value->all();
-    expect($types)->toBe(['admitted', 'note']);
+    // Mit dem Aufnehmen geht automatisch das Willkommenspaket raus (steht ebenfalls im Verlauf)
+    expect($types)->toBe(['welcome_sent', 'admitted', 'note']);
 
     $this->get(route('membership.show', $membership))
         ->assertOk()
