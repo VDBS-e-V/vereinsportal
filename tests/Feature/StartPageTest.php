@@ -61,11 +61,11 @@ it('shows the areas with the group colors and shapes but without the group numbe
 });
 
 it('keeps the numbered group marks where the styleguide shows them', function () {
-    $html = view('components.vdbs.data.group-mark', ['number' => 3])->render();
+    $html = \Illuminate\Support\Facades\Blade::render('<x-vdbs.data.group-mark :number="3" />');
 
     expect($html)->toContain('vdbs-group-mark--3')->toContain('>3<')->toContain('Gruppe 3');
 
-    $plain = view('components.vdbs.data.group-mark', ['number' => 3, 'numbered' => false])->render();
+    $plain = \Illuminate\Support\Facades\Blade::render('<x-vdbs.data.group-mark :number="3" :numbered="false" />');
 
     expect($plain)->toContain('vdbs-group-mark--3')->not->toContain('>3<')->not->toContain('Gruppe 3')->toContain('aria-hidden="true"');
 });
