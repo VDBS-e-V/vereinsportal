@@ -13,6 +13,7 @@ Schedule::command('membership:sync')->daily();
 
 // Aufbewahrungsfristen: unbestätigte Online-Anträge, abgelehnte und (falls konfiguriert) beendete Mitgliedschaften löschen.
 Schedule::command('membership:prune')->daily();
+Schedule::command('access-requests:prune')->daily();
 
 // Konten anonymisieren, deren Löschung beantragt wurde und deren Wartefrist abgelaufen ist.
 Schedule::command('account:purge')->daily();

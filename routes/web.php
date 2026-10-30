@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -9,11 +11,11 @@ use Illuminate\Support\Facades\Route;
  * Siehe Konzept: https://claude.ai/artifact/6T9qoinqTT6m6UoQMXptKs
  */
 // Startseite: öffentlich, zeigt Gästen den Zugang und Angemeldeten ihre Bereiche.
-Route::view('/', 'portal.home')->middleware('web')->name('home');
+Route::get('/', [HomeController::class, 'index'])->middleware('web')->name('home');
 
 // Start-Bereich: öffentliche Informationsseiten (Zeile 2 des Kopfbereichs, siehe docs/43_BEREICHE.md).
 Route::middleware('web')->group(function (): void {
     Route::view('/ueber-das-portal', 'portal.about')->name('portal.about');
-    Route::view('/zugang-zum-portal', 'portal.access')->name('portal.access');
-    Route::view('/kontakt', 'portal.contact')->name('portal.contact');
+    Route::get('/kontakt', [ContactController::class, 'show'])->name('portal.contact');
+    Route::post('/kontakt', [ContactController::class, 'send'])->middleware('throttle:5,10')->name('portal.contact.send');
 });

@@ -31,3 +31,5 @@
 /* Elemente, die nur mit JavaScript sinnvoll sind (html.vdbs-js wird im Layout gesetzt) */
 .vdbs-js-only { display: none; }
 .vdbs-js .vdbs-js-only { display: inline-flex; }
+.vdbs-js-block { display: none; }
+.vdbs-js .vdbs-js-block { display: block; }

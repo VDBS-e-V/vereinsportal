@@ -34,12 +34,12 @@ final class PortalNavigation
         return [
             PortalAreas::Start->value => [
                 'roles' => [],
-                'routes' => ['home', 'join.*'],
+                'routes' => ['home', 'join.*', 'articles.public.*'],
                 'pages' => [
                     ['label' => 'Über das Portal', 'route' => 'portal.about', 'match' => 'portal.about'],
-                    ['label' => 'Zugang zum Portal', 'route' => 'portal.access', 'match' => 'portal.access'],
+                    ['label' => 'Zugang zum Portal', 'route' => 'portal.access', 'match' => 'portal.access*'],
                     ['label' => 'FAQ', 'route' => 'portal.about', 'fragment' => 'portal-faq', 'match' => null],
-                    ['label' => 'Kontakt', 'route' => 'portal.contact', 'match' => 'portal.contact'],
+                    ['label' => 'Kontakt', 'route' => 'portal.contact', 'match' => 'portal.contact*'],
                     ['label' => 'Mitglied werden', 'route' => 'join.apply', 'match' => 'join.apply*'],
                 ],
             ],
@@ -86,6 +86,8 @@ final class PortalNavigation
                 'roles' => [RoleKey::AdministrationStaff, RoleKey::Administration],
                 'pages' => [
                     ['label' => 'Nutzer', 'route' => 'admin.users.index', 'match' => 'admin.users.*', 'can' => 'users.view'],
+                    ['label' => 'Zugangsanträge', 'route' => 'access-requests.index', 'match' => 'access-requests.*', 'can' => 'access_requests.view'],
+                    ['label' => 'Artikel', 'route' => 'articles.admin.index', 'match' => 'articles.admin.*', 'can' => 'articles.manage'],
                     ['label' => 'Personen', 'route' => 'admin.people.index', 'match' => 'admin.people.*', 'can' => 'people.view'],
                 ],
             ],

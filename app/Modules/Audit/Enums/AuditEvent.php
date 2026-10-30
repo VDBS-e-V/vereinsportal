@@ -51,6 +51,13 @@ enum AuditEvent: string
     case SeminarPricesChanged = 'seminar.prices_changed';
     case SeminarTextsChanged = 'seminar.texts_changed';
 
+    case ArticleCreated = 'article.created';
+    case ArticleUpdated = 'article.updated';
+    case ArticleDeleted = 'article.deleted';
+
+    case AccessRequestApproved = 'access_request.approved';
+    case AccessRequestRejected = 'access_request.rejected';
+
     case OnboardingDocumentUploaded = 'onboarding.document_uploaded';
     case TeamOnboardingStarted = 'onboarding.team_started';
     case TeamOnboardingCompleted = 'onboarding.team_completed';
@@ -98,6 +105,11 @@ enum AuditEvent: string
             self::SeminarQuoteDeleted => 'Kostenvoranschlag gelöscht',
             self::SeminarPricesChanged => 'Preisliste der Seminare geändert',
             self::SeminarTextsChanged => 'Texte der Seminarprodukte geändert',
+            self::ArticleCreated => 'Artikel angelegt',
+            self::ArticleUpdated => 'Artikel geändert',
+            self::ArticleDeleted => 'Artikel gelöscht',
+            self::AccessRequestApproved => 'Zugangsantrag angenommen',
+            self::AccessRequestRejected => 'Zugangsantrag abgelehnt',
             self::OnboardingDocumentUploaded => 'Onboarding-Dokument hochgeladen',
             self::TeamOnboardingStarted => 'Einarbeitung der Teamenden begonnen',
             self::TeamOnboardingCompleted => 'Einarbeitung der Teamenden abgeschlossen',
@@ -116,6 +128,8 @@ enum AuditEvent: string
             self::PersonCreated, self::PersonUpdated, self::PersonDeleted => 'people',
             self::PartnerCreated, self::PartnerUpdated, self::PartnerDeleted, self::PartnersImported => 'partners',
             self::SeminarCreated, self::SeminarUpdated, self::SeminarDeleted, self::SeminarStatusChanged, self::SeminarQuoteCreated, self::SeminarQuoteUpdated, self::SeminarQuoteDeleted, self::SeminarPricesChanged, self::SeminarTextsChanged => 'seminars',
+            self::ArticleCreated, self::ArticleUpdated, self::ArticleDeleted => 'articles',
+            self::AccessRequestApproved, self::AccessRequestRejected => 'access_requests',
             self::OnboardingDocumentUploaded, self::TeamOnboardingStarted, self::TeamOnboardingCompleted => 'onboarding',
             self::AuditExported => 'audit',
         };
@@ -134,6 +148,8 @@ enum AuditEvent: string
             'partners' => 'Schulen',
             'seminars' => 'Seminare',
             'onboarding' => 'Onboarding',
+            'access_requests' => 'Zugangsanträge',
+            'articles' => 'Artikel',
             'audit' => 'Protokoll',
         ];
     }
@@ -142,7 +158,7 @@ enum AuditEvent: string
     public function tone(): string
     {
         return match ($this) {
-            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized => 'error',
+            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted => 'error',
             self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
             self::Login, self::UserEnabled, self::TwoFactorEnabled, self::TeamOnboardingCompleted => 'success',
             default => 'neutral',

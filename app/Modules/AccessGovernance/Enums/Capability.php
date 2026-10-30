@@ -50,6 +50,15 @@ enum Capability: string
     /** Die eigene Einarbeitung als Teamende sehen und Erklärungen bestätigen (Bereich Teamende). */
     case TeamOnboardingOwn = 'team.onboarding';
 
+    /** Zugangsanträge ansehen (Bereich Geschäftsstelle). */
+    case AccessRequestsView = 'access_requests.view';
+
+    /** Zugangsanträge prüfen, annehmen und ablehnen. */
+    case AccessRequestsManage = 'access_requests.manage';
+
+    /** Artikel für die öffentlichen Seiten schreiben und veröffentlichen. */
+    case ArticlesManage = 'articles.manage';
+
     /** Design-Bibliothek ansehen (Entwicklungswerkzeug). */
     case DesignView = 'design.view';
 

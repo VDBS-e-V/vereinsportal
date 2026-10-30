@@ -13,7 +13,7 @@ it('shows the login form to guests', function () {
 it('shows the public start page to guests with a login call to action', function () {
     $this->get('/')
         ->assertOk()
-        ->assertSee('Willkommen im Vereinsportal')
+        ->assertSee('Willkommen im VDBS Serviceportal')
         ->assertSee(route('login'), false)
         ->assertSee('Anmelden')
         ->assertDontSee('Abmelden');

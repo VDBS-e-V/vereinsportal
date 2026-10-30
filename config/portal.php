@@ -98,7 +98,7 @@ return [
      * Kontaktzeilen erscheinen nur, wenn sie hier eingetragen sind.
      */
     'home' => [
-        'title' => 'Willkommen im Vereinsportal',
+        'title' => 'Willkommen im VDBS Serviceportal',
         'lead' => 'Die zentrale Anlaufstelle für Mitglieder, Teamende und Schulen des VDBS.',
         'areas' => [
             'title' => 'Die Bereiche des Portals',
@@ -116,6 +116,35 @@ return [
                 // ['label' => 'Support', 'value' => 'support@example.org', 'href' => 'mailto:support@example.org'],
             ],
         ],
+    ],
+
+    /*
+     * Kontaktformular (öffentliche Seite „Kontakt“): Empfänger zur Auswahl, jeder mit fester E-Mail-Adresse. Die Nachricht geht nur per E-Mail
+     * an diese Adresse (mit Antwort an die absendende Person); im Portal wird nichts gespeichert.
+     */
+    'contact_form' => [
+        'recipients' => [
+            'general' => ['label' => 'Allgemeine Anfrage', 'email' => env('CONTACT_GENERAL_EMAIL', 'kontakt@vdb.schule')],
+            'board' => ['label' => 'Vorstand', 'email' => env('CONTACT_BOARD_EMAIL', 'vorstand@vdb.schule')],
+            'support' => ['label' => 'Portal-Support', 'email' => env('CONTACT_SUPPORT_EMAIL', 'support@portal.vdb.schule')],
+        ],
+    ],
+
+    /*
+     * Zugangsanträge (öffentliche Seite „Zugang zum Portal“): Aufbewahrung in Tagen (entschiedene Anträge, liegengebliebene offene Anträge),
+     * Hinweis an die Geschäftsstelle bei neuen Anträgen und die Fassung der Nutzungsbedingungen, der zugestimmt wird.
+     */
+    'access_requests' => [
+        'notify_staff' => (bool) env('ACCESS_REQUESTS_NOTIFY_STAFF', true),
+        'retention_days' => (int) env('ACCESS_REQUESTS_RETENTION_DAYS', 180),
+        'open_retention_days' => (int) env('ACCESS_REQUESTS_OPEN_RETENTION_DAYS', 365),
+        'terms_version' => '2026-01',
+    ],
+
+    /* Links zu den rechtlichen Seiten (Nutzungsbedingungen, Datenschutzerklärung), die im Antrag verlinkt werden. */
+    'legal' => [
+        'terms_url' => env('LEGAL_TERMS_URL', '#'),
+        'privacy_url' => env('LEGAL_PRIVACY_URL', '#'),
     ],
 
     /*

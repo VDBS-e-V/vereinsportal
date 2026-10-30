@@ -1,7 +1,9 @@
 <?php
 
 use App\Modules\Access\AccessServiceProvider;
+use App\Modules\AccessRequests\AccessRequestsServiceProvider;
 use App\Modules\AccessGovernance\AccessGovernanceServiceProvider;
+use App\Modules\Articles\ArticlesServiceProvider;
 use App\Modules\Audit\AuditServiceProvider;
 use App\Modules\DesignLibrary\DesignLibraryServiceProvider;
 use App\Modules\Membership\MembershipServiceProvider;
@@ -30,6 +32,8 @@ return [
     PeopleServiceProvider::class,
     MembershipServiceProvider::class,
     OnboardingServiceProvider::class,
+    AccessRequestsServiceProvider::class,
+    ArticlesServiceProvider::class,
     SsoServiceProvider::class,
     DesignLibraryServiceProvider::class,
 ];
