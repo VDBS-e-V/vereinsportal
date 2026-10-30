@@ -25,7 +25,17 @@
     background: var(--bg-page);
     color: color-mix(in srgb, var(--chip-group) 55%, var(--text-default));
 }
-.vdbs-chip[class*="vdbs-chip--group-"] .vdbs-chip__link:hover { background: var(--bg-accent-soft); text-decoration: underline; }
+/* Hover: Hintergrund färbt sich leicht in der Gruppenfarbe, die Schrift wird Ink (im Darkmode hell, da der Hintergrund dunkel bleibt) */
+.vdbs-chip[class*="vdbs-chip--group-"] { --chip-hover-text: var(--text-on-group-light); }
+.vdbs-chip[class*="vdbs-chip--group-"] .vdbs-chip__link:hover {
+    background: color-mix(in srgb, var(--chip-group) 30%, var(--bg-page));
+    color: var(--chip-hover-text);
+    text-decoration: underline;
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .vdbs-chip[class*="vdbs-chip--group-"] { --chip-hover-text: var(--text-default); }
+}
+:root[data-theme="dark"] .vdbs-chip[class*="vdbs-chip--group-"] { --chip-hover-text: var(--text-default); }
 .vdbs-chip--group-1 { --chip-group: var(--group-1); }
 .vdbs-chip--group-2 { --chip-group: var(--group-2); }
 .vdbs-chip--group-3 { --chip-group: var(--group-3); }
