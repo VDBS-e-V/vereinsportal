@@ -7,6 +7,7 @@ use App\Modules\Articles\ArticlesServiceProvider;
 use App\Modules\Audit\AuditServiceProvider;
 use App\Modules\DesignLibrary\DesignLibraryServiceProvider;
 use App\Modules\Membership\MembershipServiceProvider;
+use App\Modules\Events\EventsServiceProvider;
 use App\Modules\Onboarding\OnboardingServiceProvider;
 use App\Modules\Pages\PagesServiceProvider;
 use App\Modules\Partners\PartnersServiceProvider;
@@ -36,6 +37,7 @@ return [
     AccessRequestsServiceProvider::class,
     ArticlesServiceProvider::class,
     PagesServiceProvider::class,
+    EventsServiceProvider::class,
     SsoServiceProvider::class,
     DesignLibraryServiceProvider::class,
 ];

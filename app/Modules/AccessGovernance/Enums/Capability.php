@@ -65,6 +65,12 @@ enum Capability: string
     /** Rechtstext-Seiten (Impressum, Datenschutz, …) bearbeiten. */
     case PagesManage = 'pages.manage';
 
+    /** Großveranstaltungen mit Anmeldungen ansehen (Bereich Koordination). */
+    case EventsView = 'events.view';
+
+    /** Großveranstaltungen anlegen, Anmeldungen importieren, Anwesenheit führen. */
+    case EventsManage = 'events.manage';
+
     /** Design-Bibliothek ansehen (Entwicklungswerkzeug). */
     case DesignView = 'design.view';
 

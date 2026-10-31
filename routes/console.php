@@ -18,6 +18,9 @@ Schedule::command('access-requests:prune')->daily();
 // Teamende mit offener Einarbeitung erinnern (nach 14 Tagen, dann alle 14 Tage, höchstens dreimal).
 Schedule::command('onboarding:remind-team')->daily();
 
+// Unbestätigte Anmeldungen zu Großveranstaltungen und Anmeldungen nach der Aufbewahrungszeit löschen.
+Schedule::command('events:prune')->daily();
+
 // Konten anonymisieren, deren Löschung beantragt wurde und deren Wartefrist abgelaufen ist.
 Schedule::command('account:purge')->daily();
 

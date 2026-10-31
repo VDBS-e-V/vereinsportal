@@ -112,6 +112,9 @@ return [
         'difficulty_bits' => 16,  // Nullbits der Rechenaufgabe; je 1 Bit doppelt so viel Rechenzeit
     ],
 
+    // Großveranstaltungen: Anmeldungen werden nach dieser Zeit seit dem letzten Termin gelöscht (Befehl events:prune, täglich geplant).
+    'events' => ['retention_years' => 3],
+
     'home' => [
         'title' => 'Willkommen im VDBS Serviceportal',
         'lead' => 'Die zentrale Anlaufstelle für Mitglieder, Teamende und Schulen des VDBS.',
