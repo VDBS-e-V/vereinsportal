@@ -126,7 +126,7 @@ it('lets the coordination set the need, confirm and decline with notifications a
     $this->actingAs($coordination)->get(route('seminars.show', $seminar))->assertOk()->assertSee('Bewerbungen auf das Seminar')->assertSee($a->person->fullName());
 
     foreach (AuditEntry::query()->where('event', 'seminar.team_decided')->get() as $entry) {
-        expect(json_encode($entry->context))->not->toContain($a->person->fullName())->not->toContain($a->email);
+        expect(json_encode($entry->context, JSON_UNESCAPED_UNICODE))->not->toContain($a->person->fullName())->not->toContain($a->email);
     }
     expect(AuditEntry::query()->where('event', 'seminar.team_decided')->count())->toBe(2);
 });

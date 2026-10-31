@@ -74,7 +74,7 @@ it('saves an edited text, shows it publicly as safe html and logs only the page 
     $this->get('/datenschutz')->assertOk()->assertSee('<strong>neuer</strong>', false)->assertDontSee('<script>alert', false)->assertDontSee('Platzhalter');
 
     $entry = AuditEntry::query()->where('event', 'page.updated')->latest('id')->first();
-    expect($entry)->not->toBeNull()->and(json_encode($entry->context))->toContain('Datenschutzerklärung')->not->toContain('neuer');
+    expect($entry)->not->toBeNull()->and(json_encode($entry->context, JSON_UNESCAPED_UNICODE))->toContain('Datenschutzerklärung')->not->toContain('neuer');
 });
 
 it('validates the text and rejects unknown pages', function () {
