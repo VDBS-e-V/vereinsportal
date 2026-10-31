@@ -225,6 +225,7 @@ it('serves the public start pages to guests', function () {
 
     $this->get(route('portal.about'))->assertSee('id="portal-faq"', false)->assertSee('Häufig gestellte Fragen');
     $this->get(route('portal.access'))->assertSee('Zur Anmeldung');
+    config(['portal.home.contact.lines' => []]);
     $this->get(route('portal.contact'))->assertSee('Kontaktformular')->assertDontSee('vdbs-contact-block', false);
 
     config(['portal.home.contact.lines' => [['label' => 'Support', 'value' => 'support@example.org', 'href' => 'mailto:support@example.org']]]);

@@ -8,7 +8,7 @@ it('renders the start page for guests with the structure of the design system', 
     $html = $this->get('/')->assertOk()->getContent();
 
     expect($html)
-        ->toContain('vdbs-hero--compact')
+        ->toContain('vdbs-hero--image')
         ->toContain('vdbs-main--full')
         ->toContain('Schnellzugriff')
         ->toContain('Das VDBS Serviceportal')

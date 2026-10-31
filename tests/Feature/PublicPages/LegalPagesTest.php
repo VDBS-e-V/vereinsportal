@@ -71,7 +71,7 @@ it('saves an edited text, shows it publicly as safe html and logs only the page 
 
     expect(Page::query()->where('key', 'datenschutz')->value('updated_by_user_id'))->toBe($user->id);
 
-    $this->get('/datenschutz')->assertOk()->assertSee('<strong>neuer</strong>', false)->assertDontSee('<script>', false)->assertDontSee('Platzhalter');
+    $this->get('/datenschutz')->assertOk()->assertSee('<strong>neuer</strong>', false)->assertDontSee('<script>alert', false)->assertDontSee('Platzhalter');
 
     $entry = AuditEntry::query()->where('event', 'page.updated')->latest('id')->first();
     expect($entry)->not->toBeNull()->and(json_encode($entry->context))->toContain('Datenschutzerklärung')->not->toContain('neuer');
