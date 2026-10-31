@@ -34,6 +34,7 @@
             <h2 id="request-heading" style="font-size:var(--font-size-h3)">Antrag auf Zugang</h2>
 
             <x-vdbs.forms.form :action="route('portal.access.store')" :files="true" :summary="false" data-vdbs-wizard>
+                <x-vdbs.forms.bot-guard />
                 {{-- Schritt 1: Einwilligung --}}
                 <div data-vdbs-step data-vdbs-step-title="Einwilligung">
                     <x-vdbs.navigation.stepper class="vdbs-js-block" :steps="$steps" :current="1" label="Schritte des Antrags" />

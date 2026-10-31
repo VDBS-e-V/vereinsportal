@@ -11,6 +11,7 @@
     </x-vdbs.data.detail-list>
 
     <x-vdbs.forms.form :action="route('join.register.store', $token)" style="margin-top:var(--space-6)">
+        <x-vdbs.forms.bot-guard />
         <x-vdbs.forms.form-section title="Passwort">
             <x-vdbs.forms.password name="password" label="Passwort" :new="true" :required="true" :rules="['Mindestens 12 Zeichen', 'Groß- und Kleinbuchstaben', 'Mindestens eine Ziffer']" />
             <x-vdbs.forms.password name="password_confirmation" label="Passwort wiederholen" :new="true" :required="true" />

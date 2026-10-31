@@ -7,6 +7,7 @@
     <x-vdbs.layout.page-header title="Kontaktformular" :lead="$contact['text']" :breadcrumb="$crumbs" />
 
     <x-vdbs.forms.form :action="route('portal.contact.send')">
+        <x-vdbs.forms.bot-guard />
         <x-vdbs.forms.form-section title="Ihre Nachricht">
             <x-vdbs.forms.form-grid :columns="2">
                 <x-vdbs.forms.input name="first_name" label="Vorname" :required="true" placeholder="Max" autocomplete="given-name" />

@@ -36,11 +36,11 @@ Route::middleware(['web', 'auth'])->prefix('vorstand/mitgliedschaften')->name('m
  */
 Route::middleware('web')->group(function (): void {
     Route::get('/mitglied-werden', [JoinController::class, 'apply'])->name('join.apply');
-    Route::post('/mitglied-werden', [JoinController::class, 'store'])->middleware('throttle:10,60')->name('join.apply.store');
+    Route::post('/mitglied-werden', [JoinController::class, 'store'])->middleware(['bot.guard', 'throttle:10,60'])->name('join.apply.store');
     Route::get('/mitglied-werden/danke', [JoinController::class, 'applied'])->name('join.applied');
     Route::get('/mitglied-werden/bestaetigen/{user}/{hash}', [JoinController::class, 'verify'])->whereNumber('user')->middleware(['signed', 'throttle:20,10'])->name('join.verify');
-    Route::post('/mitglied-werden/bestaetigung-erneut', [JoinController::class, 'resend'])->middleware('throttle:5,10')->name('join.resend');
+    Route::post('/mitglied-werden/bestaetigung-erneut', [JoinController::class, 'resend'])->middleware(['bot.guard', 'throttle:5,10'])->name('join.resend');
 
     Route::get('/registrierung/{token}', [JoinController::class, 'register'])->middleware('throttle:20,10')->name('join.register');
-    Route::post('/registrierung/{token}', [JoinController::class, 'registerStore'])->middleware('throttle:10,10')->name('join.register.store');
+    Route::post('/registrierung/{token}', [JoinController::class, 'registerStore'])->middleware(['bot.guard', 'throttle:10,10'])->name('join.register.store');
 });

@@ -6,6 +6,7 @@
     <x-vdbs.layout.page-header title="Mitglied werden" lead="Beantragen Sie die Mitgliedschaft im VDBS e. V. Wir legen dafür Ihr Konto im Portal an. Über Ihren Antrag entscheidet der Vorstand." :breadcrumb="$crumbs" />
 
     <x-vdbs.forms.form :action="route('join.apply.store')">
+        <x-vdbs.forms.bot-guard />
         <x-vdbs.forms.form-section title="Ihre Angaben">
             <x-vdbs.forms.form-grid :columns="2">
                 <x-vdbs.forms.input name="first_name" label="Vorname" :required="true" autocomplete="given-name" />

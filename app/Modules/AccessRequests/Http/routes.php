@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
  */
 Route::middleware('web')->group(function (): void {
     Route::get('/zugang-zum-portal', [PublicAccessRequestController::class, 'show'])->name('portal.access');
-    Route::post('/zugang-zum-portal', [PublicAccessRequestController::class, 'store'])->middleware('throttle:5,60')->name('portal.access.store');
+    Route::post('/zugang-zum-portal', [PublicAccessRequestController::class, 'store'])->middleware(['bot.guard', 'throttle:5,60'])->name('portal.access.store');
     Route::get('/zugang-zum-portal/danke', [PublicAccessRequestController::class, 'thanks'])->name('portal.access.thanks');
 });
 

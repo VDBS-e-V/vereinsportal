@@ -1,0 +1,13 @@
+/* Schutz vor automatisierten Eingaben: Köderfeld außerhalb des sichtbaren Bereichs, Statuszeile nur bei Wartezeit */
+
+.vdbs-bot-guard__trap {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.vdbs-bot-guard__status:empty { display: none; }
+.vdbs-bot-guard__status,
+.vdbs-bot-guard__notice { margin: 0 0 var(--space-4); font-size: var(--font-size-small); color: var(--text-muted); }

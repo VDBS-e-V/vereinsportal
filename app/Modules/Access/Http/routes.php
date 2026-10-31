@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('web')->group(function (): void {
     Route::middleware('guest')->group(function (): void {
         Route::get('/login', [LoginController::class, 'create'])->name('login');
-        Route::post('/login', [LoginController::class, 'store'])->name('login.store');
+        Route::post('/login', [LoginController::class, 'store'])->middleware('bot.guard')->name('login.store');
 
         // Zweiter Schritt der Anmeldung (nur nach geprüftem Passwort, siehe TwoFactorChallengeController)
         Route::get('/zwei-faktor', [TwoFactorChallengeController::class, 'create'])->name('two-factor.challenge');
@@ -23,9 +23,9 @@ Route::middleware('web')->group(function (): void {
 
         // Passwort vergessen
         Route::get('/passwort-vergessen', [PasswordResetController::class, 'request'])->name('password.request');
-        Route::post('/passwort-vergessen', [PasswordResetController::class, 'sendLink'])->middleware('throttle:6,1')->name('password.email');
+        Route::post('/passwort-vergessen', [PasswordResetController::class, 'sendLink'])->middleware(['bot.guard', 'throttle:6,1'])->name('password.email');
         Route::get('/passwort-zuruecksetzen/{token}', [PasswordResetController::class, 'reset'])->name('password.reset');
-        Route::post('/passwort-zuruecksetzen', [PasswordResetController::class, 'update'])->middleware('throttle:6,1')->name('password.update');
+        Route::post('/passwort-zuruecksetzen', [PasswordResetController::class, 'update'])->middleware(['bot.guard', 'throttle:6,1'])->name('password.update');
     });
 
     Route::post('/logout', [LoginController::class, 'destroy'])
@@ -55,7 +55,7 @@ Route::middleware('web')->group(function (): void {
 
     // Löschung abbrechen: öffentlich über den signierten Link aus der E-Mail (das gesperrte Konto kann sich nicht anmelden)
     Route::get('/konto/loeschung-abbrechen/{user}', [AccountDeletionController::class, 'cancelShow'])->whereNumber('user')->middleware(['signed', 'throttle:20,10'])->name('account.deletion.cancel');
-    Route::post('/konto/loeschung-abbrechen/{user}', [AccountDeletionController::class, 'cancelStore'])->whereNumber('user')->middleware(['signed', 'throttle:10,10'])->name('account.deletion.cancel.store');
+    Route::post('/konto/loeschung-abbrechen/{user}', [AccountDeletionController::class, 'cancelStore'])->whereNumber('user')->middleware(['signed', 'bot.guard', 'throttle:10,10'])->name('account.deletion.cancel.store');
 
     // Konto > Sicherheit
     Route::middleware('auth')->prefix('konto/sicherheit')->name('account.security.')->group(function (): void {

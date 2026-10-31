@@ -3,6 +3,7 @@
     <p>Geben Sie die E-Mail-Adresse Ihres Kontos ein. Wir senden Ihnen einen Link, über den Sie ein neues Passwort festlegen.</p>
 
     <x-vdbs.forms.form :action="route('password.email')">
+        <x-vdbs.forms.bot-guard />
         <x-vdbs.forms.input name="email" label="E-Mail-Adresse" type="email" :required="true" autocomplete="username" autofocus />
 
         <x-slot:actions>

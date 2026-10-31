@@ -100,6 +100,18 @@ return [
      * Texte der Startseite (Platzhaltertexte bis zur redaktionellen Freigabe).
      * Kontaktzeilen erscheinen nur, wenn sie hier eingetragen sind.
      */
+    /*
+     * Schutz öffentlicher Formulare vor automatisierten Eingaben (Skripte, Bots, KI-Agenten), selbst gehostet.
+     * Details: docs/51_FORMULARSCHUTZ.md. Die Tests schalten den Schutz per BOT_GUARD_ENABLED=false ab.
+     */
+    'bot_guard' => [
+        'enabled' => env('BOT_GUARD_ENABLED', true),
+        'min_seconds' => 2,       // schneller abgeschickte Formulare gelten als automatisiert
+        'max_seconds' => 7200,    // älteres Token ist abgelaufen (Seite neu laden)
+        'proof_of_work' => true,  // Rechenaufgabe im Browser
+        'difficulty_bits' => 16,  // Nullbits der Rechenaufgabe; je 1 Bit doppelt so viel Rechenzeit
+    ],
+
     'home' => [
         'title' => 'Willkommen im VDBS Serviceportal',
         'lead' => 'Die zentrale Anlaufstelle für Mitglieder, Teamende und Schulen des VDBS.',

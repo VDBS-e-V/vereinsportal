@@ -3,6 +3,7 @@
     <p>{{ $invitation ? 'Legen Sie Ihr Passwort fest, um Ihr Konto zu aktivieren. Danach melden Sie sich an.' : 'Wählen Sie ein neues Passwort für Ihr Konto.' }}</p>
 
     <x-vdbs.forms.form :action="route('password.update')">
+        <x-vdbs.forms.bot-guard />
         <input type="hidden" name="token" value="{{ $token }}">
         <input type="hidden" name="email" value="{{ $email }}">
 

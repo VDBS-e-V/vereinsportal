@@ -14,6 +14,7 @@
         <p>Prüfen Sie Ihren Spam-Ordner oder lassen Sie sich den Link erneut senden.</p>
 
         <x-vdbs.forms.form :action="route('join.resend')">
+            <x-vdbs.forms.bot-guard />
             <x-vdbs.forms.input name="email" label="E-Mail-Adresse" type="email" :required="true" :value="session('join_email')" autocomplete="email" />
             <x-slot:actions><x-vdbs.actions.button type="submit" variant="secondary" icon="send">Link erneut senden</x-vdbs.actions.button></x-slot:actions>
         </x-vdbs.forms.form>

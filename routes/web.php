@@ -17,5 +17,5 @@ Route::get('/', [HomeController::class, 'index'])->middleware('web')->name('home
 Route::middleware('web')->group(function (): void {
     Route::view('/ueber-das-portal', 'portal.about')->name('portal.about');
     Route::get('/kontakt', [ContactController::class, 'show'])->name('portal.contact');
-    Route::post('/kontakt', [ContactController::class, 'send'])->middleware('throttle:5,10')->name('portal.contact.send');
+    Route::post('/kontakt', [ContactController::class, 'send'])->middleware(['bot.guard', 'throttle:5,10'])->name('portal.contact.send');
 });
