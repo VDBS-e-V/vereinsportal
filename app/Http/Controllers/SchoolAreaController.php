@@ -11,11 +11,16 @@ use App\Modules\Seminars\Http\Controllers\SeminarQuoteController;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarQuote;
 use App\Modules\Seminars\Services\SchoolRequests;
+use App\Modules\Events\Enums\EventStatus;
+use App\Modules\Events\Models\Event;
+use App\Modules\Events\Models\EventRegistration;
+use App\Modules\Events\Services\EventRegistrations;
 use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Bereich Schulen: Konten mit der Rolle Schule sehen nur Seminare und Kostenvoranschläge der eigenen Schule, können ein Seminar anfragen,
@@ -103,6 +108,80 @@ class SchoolAreaController extends Controller
         $this->requests->feedback($seminar, $account, $data['note']);
 
         return redirect()->route('school.home')->with('success', 'Ihre Rückmeldung wurde an die Koordination geschickt.');
+    }
+
+    /** Veranstaltungen, zu denen die Schule Anmeldelisten hochladen kann (öffentlich sichtbare Veranstaltungen). */
+    public function events(Request $request): View
+    {
+        $account = $this->account($request);
+
+        return view('school.events', [
+            'account' => $account,
+            'events' => Event::query()->where('status', '!=', EventStatus::Draft->value)->with('sessions')
+                ->withCount(['registrations as own_count' => fn ($query) => $query->where('partner_id', $account->partner_id)])->get()
+                ->sortBy(fn (Event $event): string => (string) $event->sessions->first()?->starts_at)->values(),
+        ]);
+    }
+
+    public function event(Request $request, Event $event): View
+    {
+        $account = $this->account($request);
+        abort_unless($event->status->isPublic(), 404);
+
+        return view('school.event', [
+            'account' => $account,
+            'event' => $event->load('sessions'),
+            'open' => $event->status === EventStatus::Open && ! $event->deadlinePassed(),
+            'registrations' => $event->registrations()->where('partner_id', $account->partner_id)->get(),
+            'maxRows' => EventRegistrations::MAX_ROWS,
+        ]);
+    }
+
+    public function eventTemplate(Request $request, Event $event): StreamedResponse
+    {
+        $this->account($request);
+
+        return response()->streamDownload(function (): void {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+
+            foreach (EventRegistrations::template(false) as $row) {
+                fputcsv($out, $row, ';', '"', '\\');
+            }
+
+            fclose($out);
+        }, 'anmeldungen-vorlage.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    public function eventImport(Request $request, Event $event): RedirectResponse
+    {
+        $account = $this->account($request);
+        abort_unless($event->status->isPublic(), 404);
+
+        if ($event->status !== EventStatus::Open || $event->deadlinePassed()) {
+            return redirect()->route('school.events.show', $event)->withErrors(['school' => 'Für diese Veranstaltung nimmt das Portal keine Listen mehr an.']);
+        }
+
+        $request->validate(['file' => ['required', 'file', 'mimes:csv,txt', 'max:2048']], ['file.required' => 'Bitte wählen Sie eine CSV-Datei.', 'file.mimes' => 'Erlaubt sind CSV-Dateien.', 'file.max' => 'Die Datei darf höchstens 2 MB groß sein.']);
+
+        $result = app(EventRegistrations::class)->import($event, (string) file_get_contents((string) $request->file('file')?->getRealPath()), $account->user, $request->boolean('send_mails'), $account->partner);
+
+        if ($result['errors'] !== []) {
+            return redirect()->route('school.events.show', $event)->with('import_errors', array_slice($result['errors'], 0, 50))->with('import_error_count', count($result['errors']));
+        }
+
+        return redirect()->route('school.events.show', $event)->with('success', $result['created'].' Schülerinnen und Schüler sind angemeldet'.($request->boolean('send_mails') ? ', die Anmeldebestätigungen sind unterwegs.' : '.'));
+    }
+
+    public function eventRegistrationDestroy(Request $request, Event $event, EventRegistration $registration): RedirectResponse
+    {
+        $account = $this->account($request);
+
+        abort_unless($registration->event_id === $event->id && $registration->partner_id === $account->partner_id, 404);
+
+        app(EventRegistrations::class)->remove($registration, $account->user);
+
+        return redirect()->route('school.events.show', $event)->with('success', 'Die Anmeldung wurde entfernt.');
     }
 
     private function account(Request $request): PartnerUser

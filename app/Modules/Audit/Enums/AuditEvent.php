@@ -61,6 +61,7 @@ enum AuditEvent: string
     case EventDeleted = 'event.deleted';
     case EventRegistrationsImported = 'event.registrations_imported';
     case EventRegistrationRemoved = 'event.registration_removed';
+    case EventMessageSent = 'event.message_sent';
 
     case AccessRequestApproved = 'access_request.approved';
     case AccessRequestRejected = 'access_request.rejected';
@@ -122,6 +123,7 @@ enum AuditEvent: string
             self::EventDeleted => 'Veranstaltung gelöscht',
             self::EventRegistrationsImported => 'Anmeldungen importiert',
             self::EventRegistrationRemoved => 'Anmeldung entfernt',
+            self::EventMessageSent => 'Mitteilung an Angemeldete gesendet',
             self::AccessRequestApproved => 'Zugangsantrag angenommen',
             self::AccessRequestRejected => 'Zugangsantrag abgelehnt',
             self::OnboardingDocumentUploaded => 'Onboarding-Dokument hochgeladen',
@@ -144,7 +146,7 @@ enum AuditEvent: string
             self::SeminarCreated, self::SeminarUpdated, self::SeminarDeleted, self::SeminarStatusChanged, self::SeminarQuoteCreated, self::SeminarQuoteUpdated, self::SeminarQuoteDeleted, self::SeminarPricesChanged, self::SeminarTextsChanged, self::SeminarTeamDecided => 'seminars',
             self::ArticleCreated, self::ArticleUpdated, self::ArticleDeleted => 'articles',
             self::PageUpdated => 'pages',
-            self::EventCreated, self::EventUpdated, self::EventDeleted, self::EventRegistrationsImported, self::EventRegistrationRemoved => 'events',
+            self::EventCreated, self::EventUpdated, self::EventDeleted, self::EventRegistrationsImported, self::EventRegistrationRemoved, self::EventMessageSent => 'events',
             self::AccessRequestApproved, self::AccessRequestRejected => 'access_requests',
             self::OnboardingDocumentUploaded, self::TeamOnboardingStarted, self::TeamOnboardingCompleted => 'onboarding',
             self::AuditExported => 'audit',

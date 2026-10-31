@@ -34,3 +34,14 @@ Modul `app/Modules/Events`.
 - **Abmeldung durch die SuS:** Jede Anmeldebestätigung, Wartelisten- und Erinnerungsmail enthält einen signierten Abmelde-Link. Er öffnet eine Seite mit Bestätigung (der Abruf allein löscht nichts); danach sind die Angaben gelöscht und der Platz ist frei.
 - **Erinnerung:** `php artisan events:remind` (täglich geplant, `--dry-run` zählt nur) erinnert bestätigte Angemeldete einmalig, wenn der erste anstehende Termin innerhalb von 36 Stunden liegt (Ticketcode, Termine, Abmelde-Link).
 - Die CSV-Liste enthält die Spalte „Warteliste“.
+
+## Mitteilungen an Angemeldete
+
+Die Koordination (`events.manage`) schickt über „Mitteilung senden“ an der Veranstaltung eine E-Mail an alle bestätigten Angemeldeten, an die Wartenden oder an beide Gruppen (z. B. bei einer Raumänderung). Die Seite zeigt vorab, wie viele Adressen es je Gruppe sind.
+- **Je E-Mail-Adresse nur eine Nachricht**, auch wenn eine Lehrkraft die ganze Klasse mit ihrer Adresse angemeldet hat. Nicht bestätigte Anmeldungen bekommen nichts.
+- Der Text ist **reiner Text** (wird nie als HTML ausgegeben); „Hallo,“ und ein Link zur Veranstaltungsseite ergänzt das Portal.
+- Gespeichert werden Betreff, Text, Gruppe und Zahl der Adressen (Tabelle `event_messages`), **keine Empfängerliste**. Das allgemeine Protokoll nennt nur Veranstaltung und Zahl (`event.message_sent`). Die gesendeten Mitteilungen stehen auf der Veranstaltungsseite.
+
+## Anmeldelisten durch Schulen
+
+Schulkonten (`docs/56_SCHULEN_KONTEN.md`) laden unter **Schulen → Veranstaltungen** selbst Listen hoch: CSV mit **Name, Klasse, Geburtsdatum, E-Mail** (ohne Spalte „Schule“, die Schule ergänzt das Portal und überschreibt eine eventuell vorhandene Spalte). Alles oder nichts, Fehler je Zeile, Plätze und Anmeldeschluss gelten wie sonst; angenommen wird nur bei „Anmeldung offen“. Die Anmeldungen gelten sofort als bestätigt, optional gehen die Bestätigungen mit Ticketcode an die angegebenen Adressen. Die Schule sieht und entfernt **nur ihre eigenen Anmeldungen** (Spalte `partner_id`). Mit dem Hochladen bestätigt die Schule, dass die Zustimmung zur Anmeldung vorliegt; der Hinweis steht auf der Seite.

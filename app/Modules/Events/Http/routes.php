@@ -31,6 +31,8 @@ Route::middleware(['web', 'auth'])->prefix('koordination/veranstaltungen')->name
         Route::get('/{event}/import', [EventAdminController::class, 'importForm'])->whereNumber('event')->name('import');
         Route::get('/{event}/import/vorlage', [EventAdminController::class, 'importTemplate'])->whereNumber('event')->name('import.template');
         Route::post('/{event}/import', [EventAdminController::class, 'import'])->whereNumber('event')->middleware('throttle:10,10')->name('import.store');
+        Route::get('/{event}/mitteilung', [EventAdminController::class, 'messageForm'])->whereNumber('event')->name('messages.create');
+        Route::post('/{event}/mitteilung', [EventAdminController::class, 'sendMessage'])->whereNumber('event')->middleware('throttle:10,10')->name('messages.store');
         Route::delete('/{event}/anmeldungen/{registration}', [EventAdminController::class, 'destroyRegistration'])->whereNumber(['event', 'registration'])->name('registrations.destroy');
         Route::post('/{event}/anwesenheit/{session}', [EventAdminController::class, 'mark'])->whereNumber(['event', 'session'])->name('attendance.mark');
         Route::post('/{event}/anwesenheit/{session}/ticket', [EventAdminController::class, 'markTicket'])->whereNumber(['event', 'session'])->name('attendance.ticket');

@@ -13,7 +13,7 @@ class EventRegistration extends Model
 
     public const SOURCE_UPLOAD = 'upload';
 
-    protected $fillable = ['event_id', 'name', 'school', 'class_name', 'birth_date', 'email', 'ticket_code', 'source', 'waitlisted', 'verified_at', 'reminded_at', 'uploaded_by_user_id'];
+    protected $fillable = ['event_id', 'partner_id', 'name', 'school', 'class_name', 'birth_date', 'email', 'ticket_code', 'source', 'waitlisted', 'verified_at', 'reminded_at', 'uploaded_by_user_id'];
 
     protected function casts(): array
     {

@@ -13,6 +13,7 @@ use App\Modules\Events\Models\Event;
 use App\Modules\Events\Models\EventAttendance;
 use App\Modules\Events\Models\EventRegistration;
 use App\Modules\Events\Models\EventSession;
+use App\Modules\Partners\Models\Partner;
 use Carbon\Carbon;
 use DomainException;
 use Illuminate\Support\Facades\DB;
@@ -147,9 +148,10 @@ final class EventRegistrations
      *
      * @return array{created: int, errors: list<string>}
      */
-    public function import(Event $event, string $contents, User $by, bool $sendMails): array
+    public function import(Event $event, string $contents, User $by, bool $sendMails, ?Partner $partner = null): array
     {
-        $parsed = $this->parse($contents);
+        // Für eine Schule ist die Spalte „Schule“ nicht nötig: Alle Zeilen gehören zu dieser Schule.
+        $parsed = $this->parse($contents, $partner === null);
 
         if (isset($parsed['error'])) {
             return ['created' => 0, 'errors' => [$parsed['error']]];
@@ -160,7 +162,8 @@ final class EventRegistrations
         $seen = [];
 
         foreach ($parsed['rows'] as $line => $raw) {
-            $row = $this->normalize($raw);
+            $row = $this->normalize($partner !== null ? $raw + ['school' => $partner->name] : $raw);
+            $row['school'] = $partner?->name ?? ($row['school'] ?? null);
             $validator = Validator::make($row, self::rules(), self::messages());
 
             if ($validator->fails()) {
@@ -200,8 +203,9 @@ final class EventRegistrations
             return ['created' => 0, 'errors' => $errors];
         }
 
-        $created = DB::transaction(function () use ($event, $valid, $by): array {
+        $created = DB::transaction(function () use ($event, $valid, $by, $partner): array {
             return array_map(fn (array $row): EventRegistration => $event->registrations()->create([
+                'partner_id' => $partner?->id,
                 'name' => trim($row['name']),
                 'school' => trim($row['school']),
                 'class_name' => trim($row['class_name']),
@@ -399,7 +403,7 @@ final class EventRegistrations
     }
 
     /** @return array{rows?: array<int, array<string, ?string>>, error?: string} */
-    private function parse(string $contents): array
+    private function parse(string $contents, bool $schoolRequired = true): array
     {
         $contents = preg_replace('/^\xEF\xBB\xBF/', '', $contents) ?? $contents;
 
@@ -432,12 +436,12 @@ final class EventRegistrations
             }
         }
 
-        $missing = array_diff(['name', 'school', 'class_name', 'birth_date', 'email'], $columns);
+        $missing = array_diff($schoolRequired ? ['name', 'school', 'class_name', 'birth_date', 'email'] : ['name', 'class_name', 'birth_date', 'email'], $columns);
 
         if ($missing !== []) {
             fclose($handle);
 
-            return ['error' => 'In der Kopfzeile fehlen Spalten. Erwartet werden: Name, Schule, Klasse, Geburtsdatum, E-Mail.'];
+            return ['error' => 'In der Kopfzeile fehlen Spalten. Erwartet werden: '.($schoolRequired ? 'Name, Schule, Klasse, Geburtsdatum, E-Mail.' : 'Name, Klasse, Geburtsdatum, E-Mail.')];
         }
 
         $rows = [];
@@ -492,9 +496,11 @@ final class EventRegistrations
         return $row;
     }
 
-    /** Vorlage für den Download. @return list<list<string>> */
-    public static function template(): array
+    /** Vorlage für den Download (für Schulen ohne die Spalte „Schule“). @return list<list<string>> */
+    public static function template(bool $withSchool = true): array
     {
-        return [['Name', 'Schule', 'Klasse', 'Geburtsdatum', 'E-Mail'], ['Max Mustermann', 'Beispielschule', '9a', '14.03.2010', 'max@beispiel.example']];
+        return $withSchool
+            ? [['Name', 'Schule', 'Klasse', 'Geburtsdatum', 'E-Mail'], ['Max Mustermann', 'Beispielschule', '9a', '14.03.2010', 'max@beispiel.example']]
+            : [['Name', 'Klasse', 'Geburtsdatum', 'E-Mail'], ['Max Mustermann', '9a', '14.03.2010', 'max@beispiel.example']];
     }
 }

@@ -10,6 +10,7 @@
             <x-vdbs.actions.button variant="secondary" :href="route('events.admin.export', $event)" icon="download">Liste als CSV</x-vdbs.actions.button>
             @if ($canManage)
                 <x-vdbs.actions.button variant="secondary" :href="route('events.admin.import', $event)" icon="upload">Liste importieren</x-vdbs.actions.button>
+                <x-vdbs.actions.button variant="secondary" :href="route('events.admin.messages.create', $event)" icon="mail">Mitteilung senden</x-vdbs.actions.button>
                 <x-vdbs.actions.button variant="secondary" :href="route('events.admin.edit', $event)" icon="pencil">Bearbeiten</x-vdbs.actions.button>
             @endif
         </x-slot:actions>
@@ -94,6 +95,22 @@
             <div style="margin-top:var(--space-4)"><x-vdbs.navigation.pagination :paginator="$registrations" /></div>
         @endif
     </section>
+
+    @if ($event->messages->isNotEmpty())
+        <section aria-labelledby="messages-heading" style="margin-top:var(--space-8)">
+            <h2 id="messages-heading" style="font-size:var(--font-size-h3)">Gesendete Mitteilungen</h2>
+            <x-vdbs.data.table caption="Gesendete Mitteilungen" :columns="[['key' => 'subject', 'label' => 'Betreff'], ['key' => 'audience', 'label' => 'An'], ['key' => 'count', 'label' => 'Adressen'], ['key' => 'date', 'label' => 'Gesendet']]">
+                @foreach ($event->messages as $message)
+                    <tr>
+                        <td>{{ $message->subject }}</td>
+                        <td>{{ \App\Modules\Events\Models\EventMessage::AUDIENCES[$message->audience] ?? $message->audience }}</td>
+                        <td>{{ $message->recipients_count }}</td>
+                        <td>{{ $message->created_at->format('d.m.Y, H:i') }}</td>
+                    </tr>
+                @endforeach
+            </x-vdbs.data.table>
+        </section>
+    @endif
 
     @if ($canManage && ! $event->registrations()->exists())
         <section style="margin-top:var(--space-8)">

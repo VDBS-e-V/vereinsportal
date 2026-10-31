@@ -27,6 +27,12 @@ class Event extends Model
         return $this->hasMany(EventSession::class)->orderBy('starts_at')->orderBy('id');
     }
 
+    /** @return HasMany<EventMessage, $this> */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(EventMessage::class)->orderByDesc('id');
+    }
+
     /** @return HasMany<EventRegistration, $this> */
     public function registrations(): HasMany
     {

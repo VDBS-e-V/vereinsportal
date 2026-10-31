@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
 use App\Modules\Events\Enums\EventStatus;
 use App\Modules\Events\Models\Event;
+use App\Modules\Events\Models\EventMessage;
+use App\Modules\Events\Services\EventMessages;
 use App\Modules\Events\Models\EventRegistration;
 use App\Modules\Events\Models\EventSession;
 use App\Modules\Events\Services\EventAdministration;
@@ -46,7 +48,7 @@ class EventAdminController extends Controller
             ->paginate(50)->withQueryString();
 
         return view('events.admin-show', [
-            'event' => $event->load('sessions'),
+            'event' => $event->load(['sessions', 'messages']),
             'registrations' => $registrations,
             'search' => $search,
             'confirmed' => $event->confirmedCount(),
@@ -142,6 +144,33 @@ class EventAdminController extends Controller
         }
 
         return redirect()->route('events.admin.show', $event)->with('success', "{$result['created']} Anmeldungen importiert".($request->boolean('send_mails') ? ', die Anmeldebestätigungen sind unterwegs.' : '.'));
+    }
+
+    public function messageForm(Event $event): View
+    {
+        return view('events.admin-message', ['event' => $event, 'audiences' => EventMessage::AUDIENCES, 'counts' => collect(array_keys(EventMessage::AUDIENCES))->mapWithKeys(fn (string $audience): array => [$audience => app(EventMessages::class)->recipientCount($event, $audience)])->all()]);
+    }
+
+    public function sendMessage(Request $request, Event $event): RedirectResponse
+    {
+        $data = $request->validate([
+            'subject' => ['required', 'string', 'max:150'],
+            'body' => ['required', 'string', 'max:5000'],
+            'audience' => ['required', Rule::in(array_keys(EventMessage::AUDIENCES))],
+        ], [
+            'subject.required' => 'Bitte geben Sie einen Betreff ein.',
+            'body.required' => 'Bitte schreiben Sie die Mitteilung.',
+            'body.max' => 'Die Mitteilung darf höchstens 5.000 Zeichen lang sein.',
+            'audience.required' => 'Bitte wählen Sie, wer die Mitteilung bekommt.',
+        ]);
+
+        try {
+            $message = app(EventMessages::class)->send($event, $data['subject'], $data['body'], $data['audience'], $this->actor($request));
+        } catch (DomainException $exception) {
+            return redirect()->route('events.admin.messages.create', $event)->withInput()->withErrors(['audience' => $exception->getMessage()]);
+        }
+
+        return redirect()->route('events.admin.show', $event)->with('success', 'Die Mitteilung wurde an '.$message->recipients_count.' E-Mail-Adressen gesendet.');
     }
 
     public function destroyRegistration(Request $request, Event $event, EventRegistration $registration): RedirectResponse

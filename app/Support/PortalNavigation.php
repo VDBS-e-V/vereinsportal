@@ -85,6 +85,7 @@ final class PortalNavigation
                 'pages' => [
                     ['label' => 'Übersicht', 'route' => 'school.home', 'match' => 'school.home', 'can' => 'school.area'],
                     ['label' => 'Seminar anfragen', 'route' => 'school.requests.create', 'match' => 'school.requests.*', 'can' => 'school.area'],
+                    ['label' => 'Veranstaltungen', 'route' => 'school.events.index', 'match' => 'school.events.*', 'can' => 'school.area'],
                 ],
             ],
             PortalAreas::Koordination->value => [

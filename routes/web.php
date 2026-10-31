@@ -35,6 +35,11 @@ Route::middleware(['web', 'auth', 'can:school.area'])->prefix('schulen')->name('
     Route::get('/', [SchoolAreaController::class, 'home'])->name('home');
     Route::get('/anfrage', [SchoolAreaController::class, 'create'])->name('requests.create');
     Route::post('/anfrage', [SchoolAreaController::class, 'store'])->middleware('throttle:10,10')->name('requests.store');
+    Route::get('/veranstaltungen', [SchoolAreaController::class, 'events'])->name('events.index');
+    Route::get('/veranstaltungen/{event}', [SchoolAreaController::class, 'event'])->whereNumber('event')->name('events.show');
+    Route::get('/veranstaltungen/{event}/vorlage', [SchoolAreaController::class, 'eventTemplate'])->whereNumber('event')->name('events.template');
+    Route::post('/veranstaltungen/{event}/liste', [SchoolAreaController::class, 'eventImport'])->whereNumber('event')->middleware('throttle:10,10')->name('events.import');
+    Route::delete('/veranstaltungen/{event}/anmeldungen/{registration}', [SchoolAreaController::class, 'eventRegistrationDestroy'])->whereNumber(['event', 'registration'])->name('events.registrations.destroy');
     Route::get('/kostenvoranschlaege/{quote}/druck', [SchoolAreaController::class, 'quote'])->whereNumber('quote')->name('quotes.print');
     Route::post('/seminare/{seminar}/bestaetigen', [SchoolAreaController::class, 'confirm'])->whereNumber('seminar')->middleware('throttle:10,10')->name('seminars.confirm');
     Route::post('/seminare/{seminar}/rueckmeldung', [SchoolAreaController::class, 'feedback'])->whereNumber('seminar')->middleware('throttle:10,10')->name('seminars.feedback');

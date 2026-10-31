@@ -16,6 +16,7 @@ Abgelehnt wird, wenn die Ansprechperson keine gültige Adresse hat, schon ein Ko
 | Seite | Inhalt |
 |---|---|
 | Übersicht | die Seminare der eigenen Schule (ohne abgesagte) mit Stand, Terminen und Kostenvoranschlag (Druckansicht der aktuellen Fassung); **Termin und Kostenvoranschlag bestätigen** (nur im Status „Terminiert“ mit Kostenvoranschlag, einmal je Seminar); **Rückmeldung** an die Koordination |
+| Veranstaltungen | Anmeldelisten für Großveranstaltungen hochladen und die eigenen Anmeldungen sehen und entfernen (`docs/53_GROSSVERANSTALTUNGEN.md`) |
 | Seminar anfragen | Leistung, Wunschzeitraum, Teilnehmende, Klassenstufe, Hinweise; legt ein Seminar im Status „Anfrage“ an |
 
 Die **Koordination** bekommt bei Anfrage, Bestätigung und Rückmeldung eine E-Mail ohne den Inhalt der Nachricht (der steht im Verlauf des Seminars: „Schule hat bestätigt“, „Rückmeldung der Schule“). Die Bestätigung der Schule ersetzt nicht die der Koordination: Das Seminar auf „Bestätigt“ setzt weiterhin die Koordination.
