@@ -1,6 +1,4 @@
 @php
-    use App\Modules\Seminars\Enums\ApplicationStatus;
-
     $needed = (int) $seminar->team_needed;
     $summary = $review['summary'];
     $rows = collect($review['rows']);
@@ -83,10 +81,10 @@
                     <td>
                         @if ($canManage)
                             <div class="vdbs-btn-group">
-                                @if ($application->status !== ApplicationStatus::Confirmed)
+                                @if ($application->status !== \App\Modules\Seminars\Enums\ApplicationStatus::Confirmed)
                                     <form method="post" action="{{ route('seminars.team.decide', [$seminar, $application, 'bestaetigen']) }}">@csrf<x-vdbs.actions.button type="submit" size="s" icon="check">Ins Team</x-vdbs.actions.button></form>
                                 @endif
-                                @if ($application->status !== ApplicationStatus::Declined)
+                                @if ($application->status !== \App\Modules\Seminars\Enums\ApplicationStatus::Declined)
                                     <form method="post" action="{{ route('seminars.team.decide', [$seminar, $application, 'ablehnen']) }}">@csrf<x-vdbs.actions.button type="submit" size="s" variant="secondary" shape="outline">Nicht berücksichtigen</x-vdbs.actions.button></form>
                                 @endif
                             </div>
