@@ -41,16 +41,36 @@
             @if ($contacts->isEmpty())
                 <p>Keine Ansprechperson erfasst.</p>
             @else
-                <x-vdbs.data.table caption="Ansprechpersonen" :columns="[['key' => 'name', 'label' => 'Name'], ['key' => 'role', 'label' => 'Funktion'], ['key' => 'email', 'label' => 'E-Mail'], ['key' => 'phone', 'label' => 'Telefon']]">
+                <x-vdbs.data.table caption="Ansprechpersonen" :columns="[['key' => 'name', 'label' => 'Name'], ['key' => 'role', 'label' => 'Funktion'], ['key' => 'email', 'label' => 'E-Mail'], ['key' => 'phone', 'label' => 'Telefon'], ['key' => 'account', 'label' => 'Konto']]">
                     @foreach ($contacts as $contact)
+                        @php($account = $partner->accounts->firstWhere('contact_id', $contact->id))
                         <tr>
                             <td>{{ $contact->name }} @if ($contact->is_primary) <x-vdbs.data.badge tone="success">Haupt</x-vdbs.data.badge> @endif</td>
                             <td>{{ $contact->role ?? '–' }}</td>
                             <td>@if ($contact->email)<a href="mailto:{{ $contact->email }}">{{ $contact->email }}</a>@else – @endif</td>
                             <td>@if ($contact->phone)<x-vdbs.data.phone-link :number="$contact->phone" />@else – @endif</td>
+                            <td>
+                                @if ($account)
+                                    <x-vdbs.data.badge :tone="$account->user->status === \App\Modules\Access\Enums\UserStatus::Active ? 'success' : 'warning'">{{ $account->user->status === \App\Modules\Access\Enums\UserStatus::Active ? 'Konto aktiv' : 'Eingeladen' }}</x-vdbs.data.badge>
+                                @elseif ($canManage && $contact->email)
+                                    <form method="post" action="{{ route('partners.contacts.account', [$partner, $contact]) }}">@csrf<x-vdbs.actions.button type="submit" size="s" variant="secondary" shape="outline" icon="user-plus">Konto einladen</x-vdbs.actions.button></form>
+                                @else –
+                                @endif
+                            </td>
                         </tr>
                     @endforeach
                 </x-vdbs.data.table>
+            @endif
+
+            @if ($partner->accounts->isNotEmpty() && $canManage)
+                <p style="color:var(--text-muted);font-size:var(--font-size-small)">
+                    Konten dieser Schule:
+                    @foreach ($partner->accounts as $account)
+                        {{ $account->name }} ({{ $account->user->email }})@if ($account->user->status === \App\Modules\Access\Enums\UserStatus::PendingVerification)
+                            <form method="post" action="{{ route('partners.accounts.resend', [$partner, $account]) }}" style="display:inline">@csrf<x-vdbs.actions.button type="submit" size="s" variant="tertiary">Einladung erneut senden</x-vdbs.actions.button></form>
+                        @endif{{ ! $loop->last ? ';' : '' }}
+                    @endforeach
+                </p>
             @endif
 
             <h2 style="margin-top:var(--space-6);font-size:var(--font-size-h3)">Notizen</h2>

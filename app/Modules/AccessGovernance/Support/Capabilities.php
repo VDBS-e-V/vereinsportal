@@ -20,6 +20,7 @@ final class Capabilities
         'coordination' => [Capability::PartnersView, Capability::PartnersManage, Capability::SeminarsView, Capability::SeminarsManage, Capability::SeminarPricesManage, Capability::TeamView, Capability::TeamManage, Capability::EventsView, Capability::EventsManage],
         'team' => [Capability::TeamOnboardingOwn, Capability::SeminarsApply],
         'member' => [Capability::MemberArea],
+        'school' => [Capability::SchoolArea],
         'education_coordination' => [Capability::EducationView, Capability::SeminarsView, Capability::EventsView],
     ];
 

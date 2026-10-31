@@ -3,6 +3,7 @@
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PortalAreaController;
+use App\Http\Controllers\SchoolAreaController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,4 +28,14 @@ Route::middleware(['web', 'auth'])->group(function (): void {
     Route::get('/mitglieder/dokumente/{document}', [PortalAreaController::class, 'memberDocument'])->whereNumber('document')->middleware('can:member.area')->name('member.documents.download');
     Route::get('/vorstand', [PortalAreaController::class, 'board'])->middleware('can:memberships.view')->name('board.overview');
     Route::get('/bildung', [PortalAreaController::class, 'education'])->middleware('can:education.view')->name('education.overview');
+});
+
+// Bereich Schulen (Konten mit der Rolle Schule, nur die eigene Schule)
+Route::middleware(['web', 'auth', 'can:school.area'])->prefix('schulen')->name('school.')->group(function (): void {
+    Route::get('/', [SchoolAreaController::class, 'home'])->name('home');
+    Route::get('/anfrage', [SchoolAreaController::class, 'create'])->name('requests.create');
+    Route::post('/anfrage', [SchoolAreaController::class, 'store'])->middleware('throttle:10,10')->name('requests.store');
+    Route::get('/kostenvoranschlaege/{quote}/druck', [SchoolAreaController::class, 'quote'])->whereNumber('quote')->name('quotes.print');
+    Route::post('/seminare/{seminar}/bestaetigen', [SchoolAreaController::class, 'confirm'])->whereNumber('seminar')->middleware('throttle:10,10')->name('seminars.confirm');
+    Route::post('/seminare/{seminar}/rueckmeldung', [SchoolAreaController::class, 'feedback'])->whereNumber('seminar')->middleware('throttle:10,10')->name('seminars.feedback');
 });

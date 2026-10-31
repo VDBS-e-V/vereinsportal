@@ -17,6 +17,8 @@ enum SeminarEventType: string
     case TeamWithdrawn = 'team_withdrawn';
     case TeamConfirmed = 'team_confirmed';
     case TeamDeclined = 'team_declined';
+    case SchoolConfirmed = 'school_confirmed';
+    case SchoolNote = 'school_note';
 
     public function label(): string
     {
@@ -34,13 +36,15 @@ enum SeminarEventType: string
             self::TeamWithdrawn => 'Interesse zurückgezogen',
             self::TeamConfirmed => 'In das Team aufgenommen',
             self::TeamDeclined => 'Nicht berücksichtigt',
+            self::SchoolConfirmed => 'Schule hat bestätigt',
+            self::SchoolNote => 'Rückmeldung der Schule',
         };
     }
 
     public function tone(): string
     {
         return match ($this) {
-            self::StatusChanged, self::QuoteCreated, self::QuoteUpdated, self::TeamConfirmed => 'success',
+            self::StatusChanged, self::QuoteCreated, self::QuoteUpdated, self::TeamConfirmed, self::SchoolConfirmed => 'success',
             self::SessionRemoved, self::TeamWithdrawn, self::TeamDeclined => 'warning',
             default => 'neutral',
         };

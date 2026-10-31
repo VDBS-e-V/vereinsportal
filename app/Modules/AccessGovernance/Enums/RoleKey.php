@@ -12,6 +12,7 @@ enum RoleKey: string
     case EducationCoordination = 'education_coordination';
     case Coordination = 'coordination';
     case Administration = 'administration';
+    case School = 'school';
 
     public function label(): string
     {
@@ -24,6 +25,7 @@ enum RoleKey: string
             self::EducationCoordination => 'Bildungsreferenten',
             self::Coordination => 'Koordination',
             self::Administration => 'Administration',
+            self::School => 'Schule',
         };
     }
 }

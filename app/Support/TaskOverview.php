@@ -56,6 +56,14 @@ final class TaskOverview
             $add('Bevorstehende Seminare, bei denen Sie im Team sind', $upcoming, route('seminar-applications.index'), 'success');
         }
 
+        // Schulen
+        if ($can('school.area')) {
+            $partnerId = \App\Modules\Partners\Models\PartnerUser::query()->where('user_id', $user->id)->value('partner_id');
+            $waiting = $partnerId === null ? 0 : Seminar::query()->where('partner_id', $partnerId)->where('status', SeminarStatus::Scheduled->value)->whereHas('quotes')
+                ->whereDoesntHave('events', fn ($query) => $query->where('type', \App\Modules\Seminars\Enums\SeminarEventType::SchoolConfirmed->value))->count();
+            $add('Seminare warten auf Ihre Bestätigung von Termin und Kostenvoranschlag', $waiting, route('school.home'));
+        }
+
         // Koordination
         if ($can('seminars.manage')) {
             $waiting = Seminar::query()->where('status', SeminarStatus::Scheduled->value)->where('team_needed', '>', 0)->whereNotNull('application_deadline')->whereDate('application_deadline', '<', now()->toDateString())

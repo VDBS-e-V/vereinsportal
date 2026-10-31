@@ -77,6 +77,9 @@ enum Capability: string
     /** Bereich Bildungsreferenten: Überblick über Seminare und Veranstaltungen (nur lesen). */
     case EducationView = 'education.view';
 
+    /** Bereich Schulen: Seminare der eigenen Schule, Kostenvoranschläge, Anfragen und Bestätigungen. */
+    case SchoolArea = 'school.area';
+
     /** Design-Bibliothek ansehen (Entwicklungswerkzeug). */
     case DesignView = 'design.view';
 

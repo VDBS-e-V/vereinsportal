@@ -79,7 +79,14 @@ final class PortalNavigation
                     ['label' => 'Einarbeitung', 'route' => 'team-self.index', 'match' => 'team-self.*', 'can' => 'team.onboarding'],
                 ],
             ],
-            PortalAreas::Schulen->value => ['roles' => [], 'pages' => []],
+            PortalAreas::Schulen->value => [
+                'roles' => [RoleKey::School],
+                'routes' => ['school.quotes.*', 'school.seminars.*'],
+                'pages' => [
+                    ['label' => 'Übersicht', 'route' => 'school.home', 'match' => 'school.home', 'can' => 'school.area'],
+                    ['label' => 'Seminar anfragen', 'route' => 'school.requests.create', 'match' => 'school.requests.*', 'can' => 'school.area'],
+                ],
+            ],
             PortalAreas::Koordination->value => [
                 'roles' => [RoleKey::Coordination, RoleKey::AdministrationStaff, RoleKey::EducationCoordination],
                 'pages' => [
