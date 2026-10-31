@@ -25,4 +25,12 @@ Modul `app/Modules/Events`.
 - **Aufbewahrung:** Anmeldungen werden **drei Jahre nach dem letzten Termin** gelöscht (`portal.events.retention_years`), unbestätigte nach 48 Stunden. Befehl `php artisan events:prune` (täglich geplant, `--dry-run` zählt nur).
 - Das allgemeine Protokoll nennt nur Veranstaltungstitel, Feldnamen und Anzahlen (`event.created/updated/deleted/registrations_imported/registration_removed`), nie Namen, Schulen, Geburtsdaten oder Adressen.
 - Veranstaltungen mit Anmeldungen lassen sich nicht löschen (stattdessen schließen).
-- Noch nicht gebaut: Warteliste, Erinnerungsmail vor dem Termin, Abmeldung durch SuS.
+- Noch nicht gebaut: Platztausch zwischen Veranstaltungen, Serienmails an alle Angemeldeten.
+
+## Warteliste, Abmeldung und Erinnerung
+
+- **Warteliste:** Ist eine Veranstaltung ausgebucht und die Warteliste eingeschaltet (Einstellung an der Veranstaltung, Standard an), melden sich weitere SuS trotzdem an. Sie bestätigen ihre E-Mail-Adresse wie alle anderen, bekommen aber keinen Ticketcode, sondern die Nachricht „Du stehst auf der Warteliste“. Wartende zählen nicht als belegte Plätze, nehmen nicht an der Anwesenheitsliste teil und bekommen keine Teilnahmebestätigung. Ist die Warteliste aus, bleibt es bei der Meldung „ausgebucht“.
+- **Nachrücken:** Wird ein Platz frei (Abmeldung, Entfernen durch die Koordination, mehr Plätze, Bestätigung nach Freigabe), rücken Wartende in der Reihenfolge ihrer Bestätigung automatisch nach und erhalten die Anmeldebestätigung mit Ticketcode („Ein Platz ist frei geworden“).
+- **Abmeldung durch die SuS:** Jede Anmeldebestätigung, Wartelisten- und Erinnerungsmail enthält einen signierten Abmelde-Link. Er öffnet eine Seite mit Bestätigung (der Abruf allein löscht nichts); danach sind die Angaben gelöscht und der Platz ist frei.
+- **Erinnerung:** `php artisan events:remind` (täglich geplant, `--dry-run` zählt nur) erinnert bestätigte Angemeldete einmalig, wenn der erste anstehende Termin innerhalb von 36 Stunden liegt (Ticketcode, Termine, Abmelde-Link).
+- Die CSV-Liste enthält die Spalte „Warteliste“.

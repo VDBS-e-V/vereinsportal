@@ -75,6 +75,7 @@ class SeminarController extends Controller
             'canManage' => Gate::allows('seminars.manage'),
             'teamOpen' => $team->isOpen($seminar),
             'review' => $team->review($seminar),
+            'suggestion' => Gate::allows('seminars.manage') && $seminar->status === SeminarStatus::Scheduled && $seminar->deadlinePassed() ? $team->suggest($seminar) : null,
             'competenceLabels' => (array) config('portal.team.competences', []),
         ]);
     }

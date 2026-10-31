@@ -324,3 +324,50 @@ it('reminds Teamende with an open onboarding after the period, at most as often 
 
     expect(TeamOnboarding::query()->count())->toBe(1);
 });
+
+it('suggests a team by competences, leadership and experience, skips overlaps and ignores age and gender', function () {
+    $day = now()->addMonth()->toDateString();
+    $seminar = taSeminar(['team_needed' => 2, 'application_deadline' => now()->subDay()->toDateString(), 'team_competences' => ['moderation', 'elections']], $day);
+    $coordination = taUser(RoleKey::Coordination);
+
+    [$a, $b, $c, $d] = [taUser(RoleKey::Team), taUser(RoleKey::Team), taUser(RoleKey::Team), taUser(RoleKey::Team)];
+    $a->person->forceFill(['birth_date' => now()->subYears(60)->toDateString()])->save();
+    TeamProfile::query()->create(['user_id' => $a->id, 'competences' => ['moderation'], 'lead_experience' => true, 'gender' => 'male']);
+    TeamProfile::query()->create(['user_id' => $b->id, 'competences' => ['elections'], 'gender' => 'female']);
+    TeamProfile::query()->create(['user_id' => $d->id, 'competences' => ['moderation', 'elections'], 'lead_experience' => true]);
+
+    $done = taSeminar(['title' => 'Früher', 'status' => SeminarStatus::Done]);
+    SeminarApplication::query()->create(['seminar_id' => $done->id, 'user_id' => $b->id, 'status' => ApplicationStatus::Confirmed]);
+
+    $clash = taSeminar(['title' => 'Gleicher Tag', 'status' => SeminarStatus::Confirmed], $day);
+    SeminarApplication::query()->create(['seminar_id' => $clash->id, 'user_id' => $d->id, 'status' => ApplicationStatus::Confirmed]);
+
+    foreach ([$a, $b, $c, $d] as $user) {
+        SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $user->id, 'status' => ApplicationStatus::Applied]);
+    }
+
+    $suggestion = app(\App\Modules\Seminars\Services\TeamApplications::class)->suggest($seminar->fresh());
+    expect(collect($suggestion['picks'])->pluck('application.user_id')->all())->toBe([$a->id, $b->id])->and($suggestion['slots'])->toBe(2)->and($suggestion['conflicts'])->toBe(1);
+    expect($suggestion['picks'][0]['reasons'])->toContain('deckt gesuchte Kompetenz ab: Moderation und Gesprächsführung');
+
+    $this->actingAs($coordination)->get(route('seminars.show', $seminar))->assertOk()->assertSee('Teamvorschlag für 2 offene')->assertSee('Vorschlag übernehmen');
+
+    $this->actingAs(taUser(RoleKey::Team))->post(route('seminars.team.suggestion', $seminar))->assertForbidden();
+
+    $this->actingAs($coordination)->post(route('seminars.team.suggestion', $seminar))->assertSessionHasNoErrors();
+
+    expect(SeminarApplication::query()->where('seminar_id', $seminar->id)->where('status', ApplicationStatus::Confirmed->value)->pluck('user_id')->sort()->values()->all())->toBe(collect([$a->id, $b->id])->sort()->values()->all());
+    Mail::assertSent(SeminarTeamMail::class, fn (SeminarTeamMail $mail): bool => $mail->kind === 'confirmed' && $mail->hasTo($a->email));
+    Mail::assertNotSent(SeminarTeamMail::class, fn (SeminarTeamMail $mail): bool => $mail->hasTo($c->email) || $mail->hasTo($d->email));
+});
+
+it('does not show or apply a team suggestion before the deadline', function () {
+    $seminar = taSeminar();
+    $team = taUser(RoleKey::Team);
+    SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $team->id, 'status' => ApplicationStatus::Applied]);
+    $coordination = taUser(RoleKey::Coordination);
+
+    $this->actingAs($coordination)->get(route('seminars.show', $seminar))->assertDontSee('Teamvorschlag für');
+    $this->actingAs($coordination)->post(route('seminars.team.suggestion', $seminar))->assertSessionHasErrors('team');
+    expect(SeminarApplication::query()->first()->status)->toBe(ApplicationStatus::Applied);
+});

@@ -7,6 +7,8 @@ use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Events\Mail\EventConfirmMail;
 use App\Modules\Events\Mail\EventRegisteredMail;
+use App\Modules\Events\Mail\EventReminderMail;
+use App\Modules\Events\Mail\EventWaitlistedMail;
 use App\Modules\Events\Models\Event;
 use App\Modules\Events\Models\EventAttendance;
 use App\Modules\Events\Models\EventRegistration;
@@ -82,7 +84,11 @@ final class EventRegistrations
         $existing = $event->registrations()->where('email', $email)->whereRaw('lower(name) = ?', [mb_strtolower(trim((string) $data['name']))])->first();
 
         if ($existing instanceof EventRegistration) {
-            $existing->isConfirmed() ? $this->sendRegistered($existing) : $this->sendConfirmLink($existing);
+            if (! $existing->isConfirmed()) {
+                $this->sendConfirmLink($existing);
+            } else {
+                $existing->waitlisted ? $this->sendWaitlisted($existing) : $this->sendRegistered($existing);
+            }
 
             return;
         }
@@ -92,6 +98,7 @@ final class EventRegistrations
         }
 
         $registration = $event->registrations()->create([
+            'waitlisted' => $event->isFull(),
             'name' => trim((string) $data['name']),
             'school' => trim((string) $data['school']),
             'class_name' => trim((string) $data['class_name']),
@@ -113,12 +120,24 @@ final class EventRegistrations
 
         $event = $registration->event;
 
-        if ($registration->created_at->lt(now()->subHours(Event::PENDING_HOURS)) || ($event->capacity !== null && $event->confirmedCount() >= $event->capacity)) {
+        if ($registration->created_at->lt(now()->subHours(Event::PENDING_HOURS))) {
             return false;
         }
 
-        $registration->forceFill(['verified_at' => now()])->save();
-        $this->sendRegistered($registration);
+        // Der Platz kann zwischen Anmeldung und Bestätigung vergeben worden sein: dann Warteliste, falls erlaubt.
+        if (! $registration->waitlisted && $event->capacity !== null && $event->confirmedCount() >= $event->capacity) {
+            if (! $event->waitlist_enabled) {
+                return false;
+            }
+
+            $registration->waitlisted = true;
+        }
+
+        $registration->forceFill(['verified_at' => now(), 'waitlisted' => $registration->waitlisted])->save();
+        $registration->waitlisted ? $this->sendWaitlisted($registration) : $this->sendRegistered($registration);
+
+        // War doch noch ein Platz frei (z. B. nach einer Absage), rückt die Person direkt nach.
+        $this->promoteWaitlist($event);
 
         return true;
     }
@@ -210,7 +229,62 @@ final class EventRegistrations
     {
         AuditLog::record(AuditEvent::EventRegistrationRemoved, $by, null, ['veranstaltung' => $registration->event->title]);
 
+        $event = $registration->event;
         $registration->delete();
+
+        $this->promoteWaitlist($event);
+    }
+
+    /** Abmeldung durch die angemeldete Person selbst: Die Daten werden gelöscht, ein Platz wird frei. */
+    public function cancel(EventRegistration $registration): void
+    {
+        $event = $registration->event;
+        $registration->delete();
+
+        $this->promoteWaitlist($event);
+    }
+
+    /** Lässt Wartende in der Reihenfolge ihrer Bestätigung nachrücken, solange Plätze frei sind, und benachrichtigt sie. @return int Zahl der Nachgerückten */
+    public function promoteWaitlist(Event $event): int
+    {
+        $promoted = 0;
+
+        while ($event->capacity === null || $event->takenSpots() < $event->capacity) {
+            $next = $event->registrations()->where('waitlisted', true)->whereNotNull('verified_at')->reorder()->orderBy('verified_at')->orderBy('id')->first();
+
+            if (! $next instanceof EventRegistration) {
+                break;
+            }
+
+            $next->forceFill(['waitlisted' => false])->save();
+            $this->sendRegistered($next, true);
+            $promoted++;
+        }
+
+        return $promoted;
+    }
+
+    /** Erinnert bestätigte Angemeldete einmalig vor dem ersten anstehenden Termin (innerhalb der nächsten 36 Stunden). Gibt die Zahl der Erinnerungen zurück. */
+    public function remind(bool $dry = false): int
+    {
+        $count = 0;
+        $until = now()->addHours(36);
+
+        Event::query()->whereIn('status', ['open', 'closed'])->whereHas('sessions', fn ($query) => $query->where('starts_at', '>', now())->where('starts_at', '<=', $until))->with('sessions')->get()
+            ->each(function (Event $event) use ($dry, &$count): void {
+                foreach ($event->registrations()->whereNotNull('verified_at')->where('waitlisted', false)->whereNull('reminded_at')->get() as $registration) {
+                    $count++;
+
+                    if ($dry) {
+                        continue;
+                    }
+
+                    $this->mail($registration->email, new EventReminderMail($event, $registration, $this->cancelUrl($registration)));
+                    $registration->forceFill(['reminded_at' => now()])->save();
+                }
+            });
+
+        return $count;
     }
 
     /** Setzt oder entfernt die Anwesenheit. */
@@ -226,7 +300,7 @@ final class EventRegistrations
     /** Anwesenheit per Ticketcode eintragen. */
     public function markByTicket(Event $event, EventSession $session, string $code, User $by): ?EventRegistration
     {
-        $registration = $event->registrations()->whereNotNull('verified_at')->where('ticket_code', $this->normalizeTicket($code))->first();
+        $registration = $event->registrations()->whereNotNull('verified_at')->where('waitlisted', false)->where('ticket_code', $this->normalizeTicket($code))->first();
 
         if ($registration instanceof EventRegistration) {
             $this->mark($session, $registration, true, $by);
@@ -239,7 +313,7 @@ final class EventRegistrations
     public function forCertificate(string $code, string $email): ?EventRegistration
     {
         $registration = EventRegistration::query()
-            ->whereNotNull('verified_at')->where('ticket_code', $this->normalizeTicket($code))->where('email', mb_strtolower(trim($email)))
+            ->whereNotNull('verified_at')->where('waitlisted', false)->where('ticket_code', $this->normalizeTicket($code))->where('email', mb_strtolower(trim($email)))
             ->with(['event', 'attendances.session'])->first();
 
         return $registration instanceof EventRegistration && $registration->attendances->isNotEmpty() ? $registration : null;
@@ -299,9 +373,20 @@ final class EventRegistrations
         $this->mail($registration->email, new EventConfirmMail($registration->event, $registration->name, $url));
     }
 
-    private function sendRegistered(EventRegistration $registration): void
+    private function sendRegistered(EventRegistration $registration, bool $promoted = false): void
     {
-        $this->mail($registration->email, new EventRegisteredMail($registration->event->loadMissing('sessions'), $registration, $this->certificateUrl()));
+        $this->mail($registration->email, new EventRegisteredMail($registration->event->loadMissing('sessions'), $registration, $this->certificateUrl(), $this->cancelUrl($registration), $promoted));
+    }
+
+    private function sendWaitlisted(EventRegistration $registration): void
+    {
+        $this->mail($registration->email, new EventWaitlistedMail($registration->event, $registration, $this->cancelUrl($registration)));
+    }
+
+    /** Link zum Abmelden. Er trägt eine Signatur und ist nicht befristet, damit er auch kurz vor der Veranstaltung noch funktioniert. */
+    private function cancelUrl(EventRegistration $registration): string
+    {
+        return URL::signedRoute('events.public.cancel', ['registration' => $registration->id]);
     }
 
     private function mail(string $to, object $mailable): void

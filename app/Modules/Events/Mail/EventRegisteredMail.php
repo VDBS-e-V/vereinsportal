@@ -11,11 +11,11 @@ use Illuminate\Mail\Mailables\Envelope;
 /** Automatische Anmeldebestätigung mit Ticketcode, Terminen und Hinweis auf die Teilnahmebestätigung. */
 final class EventRegisteredMail extends Mailable
 {
-    public function __construct(public readonly Event $event, public readonly EventRegistration $registration, public readonly string $certificateUrl) {}
+    public function __construct(public readonly Event $event, public readonly EventRegistration $registration, public readonly string $certificateUrl, public readonly string $cancelUrl = '', public readonly bool $promoted = false) {}
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Ihre Anmeldung: '.$this->event->title);
+        return new Envelope(subject: ($this->promoted ? 'Ein Platz ist frei geworden: ' : 'Deine Anmeldung: ').$this->event->title);
     }
 
     public function content(): Content

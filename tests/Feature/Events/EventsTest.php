@@ -336,3 +336,119 @@ it('shows the events pages in the navigation', function () {
     $this->actingAs(evUser(RoleKey::Coordination))->get(route('events.admin.index'))->assertOk()->assertSee('Veranstaltungen');
     $this->get(route('events.public.index'))->assertOk();
 });
+
+it('puts registrations on the waitlist when the event is full and the waitlist is enabled', function () {
+    $event = evEvent(['capacity' => 1, 'waitlist_enabled' => true]);
+    $service = app(EventRegistrations::class);
+
+    $this->post(route('events.public.register', $event->slug), evForm())->assertSessionHas('success');
+    $this->post(route('events.public.register', $event->slug), evForm(['name' => 'Ben Muster', 'email' => 'ben@example.org']))->assertSessionHas('success')->assertSessionHasNoErrors();
+
+    $mia = EventRegistration::query()->where('name', 'Mia Beispiel')->firstOrFail();
+    $ben = EventRegistration::query()->where('name', 'Ben Muster')->firstOrFail();
+    expect($mia->waitlisted)->toBeFalse()->and($ben->waitlisted)->toBeTrue();
+
+    $service->confirm($mia);
+    $service->confirm($ben);
+
+    Mail::assertSent(EventRegisteredMail::class, fn (EventRegisteredMail $mail): bool => $mail->hasTo('mia@example.org') && ! $mail->promoted);
+    Mail::assertSent(\App\Modules\Events\Mail\EventWaitlistedMail::class, fn ($mail): bool => $mail->hasTo('ben@example.org'));
+    Mail::assertNotSent(EventRegisteredMail::class, fn (EventRegisteredMail $mail): bool => $mail->hasTo('ben@example.org'));
+
+    expect($event->fresh()->confirmedCount())->toBe(1)->and($event->fresh()->waitlistCount())->toBe(1)->and($event->fresh()->takenSpots())->toBe(1);
+
+    $this->get(route('events.public.show', $event->slug))->assertSee('Warteliste');
+});
+
+it('lets people cancel with the signed link and moves the first waiting person up', function () {
+    $event = evEvent(['capacity' => 1, 'waitlist_enabled' => true]);
+    $service = app(EventRegistrations::class);
+
+    $this->post(route('events.public.register', $event->slug), evForm());
+    $this->post(route('events.public.register', $event->slug), evForm(['name' => 'Ben Muster', 'email' => 'ben@example.org']));
+    $this->post(route('events.public.register', $event->slug), evForm(['name' => 'Cleo Dritte', 'email' => 'cleo@example.org']));
+
+    foreach (['Mia Beispiel', 'Ben Muster', 'Cleo Dritte'] as $name) {
+        $service->confirm(EventRegistration::query()->where('name', $name)->firstOrFail());
+    }
+
+    $mia = EventRegistration::query()->where('name', 'Mia Beispiel')->firstOrFail();
+    $cancelUrl = null;
+    Mail::assertSent(EventRegisteredMail::class, function (EventRegisteredMail $mail) use (&$cancelUrl): bool {
+        $cancelUrl = $mail->cancelUrl;
+
+        return true;
+    });
+
+    $this->get(route('events.public.cancel', $mia))->assertForbidden();
+    $this->get($cancelUrl)->assertOk()->assertSee('abmelden');
+    expect(EventRegistration::query()->count())->toBe(3);
+
+    $this->post(\Illuminate\Support\Facades\URL::signedRoute('events.public.cancel.store', ['registration' => $mia->id]))->assertOk()->assertSee('abgemeldet');
+
+    expect(EventRegistration::query()->where('name', 'Mia Beispiel')->exists())->toBeFalse()
+        ->and(EventRegistration::query()->where('name', 'Ben Muster')->value('waitlisted'))->toBeFalse()
+        ->and(EventRegistration::query()->where('name', 'Cleo Dritte')->value('waitlisted'))->toBeTrue();
+
+    Mail::assertSent(EventRegisteredMail::class, fn (EventRegisteredMail $mail): bool => $mail->hasTo('ben@example.org') && $mail->promoted);
+    Mail::assertNotSent(EventRegisteredMail::class, fn (EventRegisteredMail $mail): bool => $mail->hasTo('cleo@example.org'));
+});
+
+it('moves waiting people up when the coordination removes a registration or adds places', function () {
+    $event = evEvent(['capacity' => 1, 'waitlist_enabled' => true]);
+    $coordination = evUser(RoleKey::Coordination);
+    $service = app(EventRegistrations::class);
+
+    $this->post(route('events.public.register', $event->slug), evForm());
+    $this->post(route('events.public.register', $event->slug), evForm(['name' => 'Ben Muster', 'email' => 'ben@example.org']));
+    $this->post(route('events.public.register', $event->slug), evForm(['name' => 'Cleo Dritte', 'email' => 'cleo@example.org']));
+
+    foreach (['Mia Beispiel', 'Ben Muster', 'Cleo Dritte'] as $name) {
+        $service->confirm(EventRegistration::query()->where('name', $name)->firstOrFail());
+    }
+
+    $this->actingAs($coordination)->delete(route('events.admin.registrations.destroy', [$event, EventRegistration::query()->where('name', 'Mia Beispiel')->firstOrFail()]));
+    expect(EventRegistration::query()->where('name', 'Ben Muster')->value('waitlisted'))->toBeFalse();
+
+    $this->actingAs($coordination)->put(route('events.admin.update', $event), ['title' => 'Demokratietag Nord', 'status' => 'open', 'capacity' => '2', 'waitlist_enabled' => '1'])->assertSessionHasNoErrors();
+    expect(EventRegistration::query()->where('name', 'Cleo Dritte')->value('waitlisted'))->toBeFalse();
+});
+
+it('keeps people on the waitlist out of the attendance list and the certificate', function () {
+    $event = evEvent(['capacity' => 1, 'waitlist_enabled' => true]);
+    $service = app(EventRegistrations::class);
+    $this->post(route('events.public.register', $event->slug), evForm());
+    $this->post(route('events.public.register', $event->slug), evForm(['name' => 'Ben Muster', 'email' => 'ben@example.org']));
+    $service->confirm(EventRegistration::query()->where('name', 'Mia Beispiel')->firstOrFail());
+    $service->confirm(EventRegistration::query()->where('name', 'Ben Muster')->firstOrFail());
+
+    $this->actingAs(evUser(RoleKey::Coordination))->get(route('events.admin.attendance', [$event, $event->sessions()->firstOrFail()]))->assertSee('Mia Beispiel')->assertDontSee('Ben Muster');
+    expect($service->markByTicket($event, $event->sessions()->firstOrFail(), EventRegistration::query()->where('name', 'Ben Muster')->value('ticket_code'), evUser(RoleKey::Coordination)))->toBeNull();
+});
+
+it('refuses new registrations when full without a waitlist and when the waitlist is switched off', function () {
+    $event = evEvent(['capacity' => 1, 'waitlist_enabled' => false]);
+    $this->post(route('events.public.register', $event->slug), evForm());
+    $this->post(route('events.public.register', $event->slug), evForm(['name' => 'Ben Muster', 'email' => 'ben@example.org']))->assertSessionHasErrors('registration');
+});
+
+it('reminds confirmed registrations once before the first session', function () {
+    $soon = evEvent(['title' => 'Morgen'], false);
+    $when = now()->addHours(20);
+    app(EventAdministration::class)->addSession($soon, ['date' => $when->toDateString(), 'start' => $when->format('H:i'), 'end' => $when->copy()->addHours(3)->format('H:i')]);
+    $later = evEvent(['title' => 'Später']);
+
+    foreach ([$soon, $later] as $event) {
+        $event->registrations()->create(['name' => 'Mia Beispiel', 'school' => 'S', 'class_name' => '9', 'birth_date' => '2010-01-01', 'email' => 'mia'.$event->id.'@example.org', 'ticket_code' => 'ABCD'.$event->id.'2345', 'verified_at' => now()]);
+    }
+    $soon->registrations()->create(['name' => 'Wartend', 'school' => 'S', 'class_name' => '9', 'birth_date' => '2010-01-01', 'email' => 'wartend@example.org', 'ticket_code' => 'WXYZ2345', 'verified_at' => now(), 'waitlisted' => true]);
+
+    $this->artisan('events:remind', ['--dry-run' => true])->expectsOutputToContain('Erinnerungen: 1')->assertSuccessful();
+    Mail::assertNothingSent();
+
+    $this->artisan('events:remind')->expectsOutputToContain('Erinnerungen: 1')->assertSuccessful();
+    Mail::assertSent(\App\Modules\Events\Mail\EventReminderMail::class, 1);
+    Mail::assertSent(\App\Modules\Events\Mail\EventReminderMail::class, fn ($mail): bool => $mail->hasTo('mia'.$soon->id.'@example.org') && str_contains($mail->cancelUrl, 'abmelden'));
+
+    $this->artisan('events:remind')->expectsOutputToContain('Erinnerungen: 0')->assertSuccessful();
+});

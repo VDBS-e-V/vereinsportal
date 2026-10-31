@@ -17,6 +17,8 @@
             <x-vdbs.forms.input name="registration_deadline" label="Anmeldeschluss" type="datetime-local" :optional="true" :value="$values['registration_deadline'] ?? null" />
         </x-vdbs.forms.form-grid>
 
+        <x-vdbs.forms.checkbox name="waitlist_enabled" label="Warteliste, wenn die Veranstaltung ausgebucht ist (Wartende rücken bei Absagen automatisch nach)" :checked="(bool) ($event?->waitlist_enabled ?? true)" />
+
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="save">Speichern</x-vdbs.actions.button>
             <x-vdbs.actions.button variant="tertiary" :href="$editing ? route('events.admin.show', $event) : route('events.admin.index')">Abbrechen</x-vdbs.actions.button>

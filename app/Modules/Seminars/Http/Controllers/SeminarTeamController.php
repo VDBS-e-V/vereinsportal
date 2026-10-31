@@ -41,6 +41,17 @@ class SeminarTeamController extends Controller
         return redirect()->route('seminars.show', $seminar)->with('success', 'Bedarf, Stichtag und gesuchte Kompetenzen wurden gespeichert.');
     }
 
+    public function suggestion(Request $request, Seminar $seminar): RedirectResponse
+    {
+        try {
+            $count = $this->team->applySuggestion($seminar, $this->actor($request));
+        } catch (DomainException $exception) {
+            return redirect()->route('seminars.show', $seminar)->withErrors(['team' => $exception->getMessage()]);
+        }
+
+        return redirect()->route('seminars.show', $seminar)->with('success', $count === 0 ? 'Es gab keinen Vorschlag zu übernehmen.' : $count.' Person(en) sind jetzt im Team und werden benachrichtigt.');
+    }
+
     public function note(Request $request, Seminar $seminar, SeminarApplication $application): RedirectResponse
     {
         abort_unless($application->seminar_id === $seminar->id, 404);

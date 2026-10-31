@@ -94,6 +94,19 @@
             @endforeach
         </x-vdbs.data.table>
 
+        @if ($canManage && $suggestion && $suggestion['picks'] !== [])
+            <aside aria-labelledby="team-suggestion-heading" style="margin-top:var(--space-5);padding:var(--space-4);background:var(--bg-surface)">
+                <h3 id="team-suggestion-heading" style="margin-top:0;font-size:var(--font-size-h4)">Teamvorschlag für {{ $suggestion['slots'] }} offene(n) Platz/Plätze</h3>
+                <ol>
+                    @foreach ($suggestion['picks'] as $pick)
+                        <li><strong>{{ $pick['name'] }}</strong>: {{ implode('; ', $pick['reasons']) }}</li>
+                    @endforeach
+                </ol>
+                <p style="color:var(--text-muted);font-size:var(--font-size-small)">Der Vorschlag wählt nach gesuchten Kompetenzen, Seminarleitung und Erfahrung. Alter und Geschlecht fließen bewusst nicht ein. Personen mit Terminüberschneidung{{ $suggestion['conflicts'] > 0 ? ' ('.$suggestion['conflicts'].')' : '' }} werden nicht vorgeschlagen. Sie entscheiden und können die Auswahl oben auch einzeln ändern.</p>
+                <form method="post" action="{{ route('seminars.team.suggestion', $seminar) }}">@csrf<x-vdbs.actions.button type="submit" icon="check">Vorschlag übernehmen und benachrichtigen</x-vdbs.actions.button></form>
+            </aside>
+        @endif
+
         <aside aria-labelledby="team-summary-heading" style="margin-top:var(--space-5);padding:var(--space-4);background:var(--bg-surface)">
             <h3 id="team-summary-heading" style="margin-top:0;font-size:var(--font-size-h4)">Zusammensetzung des Teams</h3>
             @if ($summary['size'] === 0)

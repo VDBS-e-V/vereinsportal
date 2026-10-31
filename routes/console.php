@@ -21,6 +21,9 @@ Schedule::command('seminars:team-deadlines')->daily();
 // Teamende mit offener Einarbeitung erinnern (nach 14 Tagen, dann alle 14 Tage, höchstens dreimal).
 Schedule::command('onboarding:remind-team')->daily();
 
+// Angemeldete einen Tag vor der Großveranstaltung erinnern.
+Schedule::command('events:remind')->daily();
+
 // Unbestätigte Anmeldungen zu Großveranstaltungen und Anmeldungen nach der Aufbewahrungszeit löschen.
 Schedule::command('events:prune')->daily();
 

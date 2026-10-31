@@ -32,6 +32,9 @@ final class EventAdministration
 
         $changed = array_values(array_diff(array_keys($event->getChanges()), ['updated_at', 'updated_by_user_id']));
 
+        // Mehr Plätze oder bestätigte Absagen: Wartende rücken nach.
+        app(EventRegistrations::class)->promoteWaitlist($event);
+
         if ($changed !== []) {
             AuditLog::record(AuditEvent::EventUpdated, $by, null, ['titel' => $event->title, 'felder' => $changed]);
         }
@@ -73,6 +76,7 @@ final class EventAdministration
             'location' => $clean($data['location'] ?? null),
             'status' => EventStatus::from((string) $data['status']),
             'capacity' => ($data['capacity'] ?? null) !== null && $data['capacity'] !== '' ? (int) $data['capacity'] : null,
+            'waitlist_enabled' => (bool) ($data['waitlist_enabled'] ?? false),
             'registration_deadline' => filled($data['registration_deadline'] ?? null) ? Carbon::parse($data['registration_deadline']) : null,
         ];
     }

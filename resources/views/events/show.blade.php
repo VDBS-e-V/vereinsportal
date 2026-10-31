@@ -22,13 +22,14 @@
             @forelse ($event->sessions as $session){{ $session->period() }}@if ($session->location), {{ $session->location }}@endif<br>@empty wird noch bekannt gegeben @endforelse
         </x-vdbs.data.detail-item>
         @if ($event->registration_deadline)<x-vdbs.data.detail-item label="Anmeldeschluss">{{ $event->registration_deadline->format('d.m.Y, H:i') }} Uhr</x-vdbs.data.detail-item>@endif
-        @if ($left !== null)<x-vdbs.data.detail-item label="Freie Plätze">{{ $left }}</x-vdbs.data.detail-item>@endif
+        @if ($left !== null)<x-vdbs.data.detail-item label="Freie Plätze">{{ $left > 0 ? $left : 'keine (Warteliste möglich)' }}</x-vdbs.data.detail-item>@endif
     </x-vdbs.data.detail-list>
 
     <section aria-labelledby="register-heading" style="margin-top:var(--space-8)">
         <h2 id="register-heading" style="font-size:var(--font-size-h3)">Anmeldung</h2>
 
         @if ($event->acceptsRegistrations())
+            @if ($event->willWaitlist())<x-vdbs.feedback.alert variant="info">Die Veranstaltung ist ausgebucht. Du kannst dich trotzdem anmelden und kommst auf die <strong>Warteliste</strong>. Wird ein Platz frei, rückst du automatisch nach und bekommst deinen Ticketcode per E-Mail.</x-vdbs.feedback.alert>@endif
             <p>Nach dem Absenden bekommst du eine E-Mail mit einem Bestätigungslink. Erst mit der Bestätigung ist deine Anmeldung gültig. Danach schicken wir dir eine Anmeldebestätigung mit deinem Ticketcode. Für die Erlaubnis zur Teilnahme bist du selbst verantwortlich.</p>
 
             <x-vdbs.forms.form :action="route('events.public.register', $event->slug)">

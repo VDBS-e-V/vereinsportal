@@ -202,6 +202,88 @@ final class TeamApplications
         ]];
     }
 
+    /**
+     * Teamvorschlag für die offenen Plätze, Schritt für Schritt: Gewählt wird jeweils, wer am meisten zum Team beiträgt, nämlich noch nicht abgedeckte gesuchte Kompetenzen,
+     * Seminarleitung (solange das Team noch keine hat) und Erfahrung aus durchgeführten Seminaren. Wer sich zeitlich mit einem bestätigten Seminar überschneidet, wird nicht vorgeschlagen.
+     * Alter und Geschlecht fließen bewusst nicht ein; die Koordination entscheidet und kann die Auswahl jederzeit ändern.
+     *
+     * @return array{picks: list<array{application: SeminarApplication, name: string, reasons: list<string>}>, slots: int, conflicts: int}
+     */
+    public function suggest(Seminar $seminar): array
+    {
+        $rows = collect($this->review($seminar)['rows']);
+        $team = $rows->filter(fn (array $row): bool => $row['application']->status === ApplicationStatus::Confirmed);
+        $slots = max(0, (int) $seminar->team_needed - $team->count());
+        $pool = $rows->filter(fn (array $row): bool => $row['application']->status === ApplicationStatus::Applied);
+        $candidates = $pool->filter(fn (array $row): bool => $row['conflicts'] === [])->values();
+        $labels = (array) config('portal.team.competences', []);
+        $wanted = (array) ($seminar->team_competences ?? []);
+        $covered = $team->flatMap(fn (array $row): array => $row['competences'])->unique()->all();
+        $hasLead = $team->contains(fn (array $row): bool => $row['lead'] || $row['lead_experience']);
+        $picks = [];
+
+        while (count($picks) < $slots && $candidates->isNotEmpty()) {
+            $best = null;
+            $bestScore = -1.0;
+            $bestReasons = [];
+
+            foreach ($candidates as $row) {
+                $score = 0.0;
+                $reasons = [];
+                $matching = array_values(array_intersect($row['competences'], $wanted));
+                $new = array_values(array_diff($matching, $covered));
+
+                if ($new !== []) {
+                    $score += 3 * count($new);
+                    $reasons[] = 'deckt gesuchte Kompetenz ab: '.implode(', ', array_map(fn (string $key): string => $labels[$key] ?? $key, $new));
+                } elseif ($matching !== []) {
+                    $score += 1;
+                    $reasons[] = 'bringt gesuchte Kompetenz mit';
+                }
+
+                if (! $hasLead && ($row['lead'] || $row['lead_experience'])) {
+                    $score += 4;
+                    $reasons[] = $row['lead_experience'] ? 'kann die Seminarleitung übernehmen (Erfahrung)' : 'würde die Seminarleitung übernehmen';
+                }
+
+                if ($row['seminars_done'] > 0) {
+                    $score += min($row['seminars_done'], 5) * 0.5;
+                    $reasons[] = $row['seminars_done'].' Seminar(e) Erfahrung im Portal';
+                }
+
+                if ($score > $bestScore) {
+                    $best = $row;
+                    $bestScore = $score;
+                    $bestReasons = $reasons;
+                }
+            }
+
+            $picks[] = ['application' => $best['application'], 'name' => $best['name'], 'reasons' => $bestReasons === [] ? ['früheste Interessenbekundung'] : $bestReasons];
+            $covered = array_values(array_unique(array_merge($covered, $best['competences'])));
+            $hasLead = $hasLead || $best['lead'] || $best['lead_experience'];
+            $candidates = $candidates->reject(fn (array $row): bool => $row['application']->id === $best['application']->id)->values();
+        }
+
+        return ['picks' => $picks, 'slots' => $slots, 'conflicts' => $pool->count() - $pool->filter(fn (array $row): bool => $row['conflicts'] === [])->count()];
+    }
+
+    /**
+     * Übernimmt den aktuellen Teamvorschlag (berechnet ihn neu). Gibt die Zahl der Aufgenommenen zurück.
+     *
+     * @throws DomainException wenn der Stichtag noch nicht erreicht ist
+     */
+    public function applySuggestion(Seminar $seminar, User $by): int
+    {
+        $count = 0;
+
+        foreach ($this->suggest($seminar)['picks'] as $pick) {
+            $this->decide($pick['application'], ApplicationStatus::Confirmed, $by);
+            $count++;
+        }
+
+        return $count;
+    }
+
     /** Seminare, deren Stichtag vorbei ist und für die die Koordination noch nicht informiert wurde, werden gemeldet. Gibt die Zahl der gemeldeten Seminare zurück. */
     public function notifyDeadlines(): int
     {

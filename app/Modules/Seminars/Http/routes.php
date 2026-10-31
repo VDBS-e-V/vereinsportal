@@ -25,6 +25,7 @@ Route::middleware(['web', 'auth'])->group(function (): void {
             Route::post('/{seminar}/notiz', [SeminarController::class, 'note'])->whereNumber('seminar')->name('note');
             Route::post('/{seminar}/termine', [SeminarController::class, 'storeSession'])->whereNumber('seminar')->name('sessions.store');
             Route::put('/{seminar}/bedarf', [SeminarTeamController::class, 'need'])->whereNumber('seminar')->name('team.need');
+            Route::post('/{seminar}/team/vorschlag', [SeminarTeamController::class, 'suggestion'])->whereNumber('seminar')->name('team.suggestion');
             Route::put('/{seminar}/bewerbungen/{application}/notiz', [SeminarTeamController::class, 'note'])->whereNumber(['seminar', 'application'])->name('team.note');
             Route::post('/{seminar}/bewerbungen/{application}/{decision}', [SeminarTeamController::class, 'decide'])->whereNumber(['seminar', 'application'])->where('decision', 'bestaetigen|ablehnen')->name('team.decide');
             Route::delete('/{seminar}/termine/{session}', [SeminarController::class, 'destroySession'])->whereNumber(['seminar', 'session'])->name('sessions.destroy');

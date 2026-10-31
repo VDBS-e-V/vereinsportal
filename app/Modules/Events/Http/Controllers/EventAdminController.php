@@ -50,6 +50,7 @@ class EventAdminController extends Controller
             'registrations' => $registrations,
             'search' => $search,
             'confirmed' => $event->confirmedCount(),
+            'waitlist' => $event->waitlistCount(),
             'total' => $event->registrations()->count(),
             'canManage' => Gate::allows('events.manage'),
         ]);
@@ -159,12 +160,12 @@ class EventAdminController extends Controller
         return response()->streamDownload(function () use ($event, $sessions): void {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, array_merge(['Name', 'Schule', 'Klasse', 'Geburtsdatum', 'E-Mail', 'Ticketcode', 'Bestätigt', 'Quelle'], $sessions->map(fn (EventSession $session): string => 'Anwesend '.$session->starts_at->format('d.m.Y'))->all()), ';', '"', '\\');
+            fputcsv($out, array_merge(['Name', 'Schule', 'Klasse', 'Geburtsdatum', 'E-Mail', 'Ticketcode', 'Bestätigt', 'Warteliste', 'Quelle'], $sessions->map(fn (EventSession $session): string => 'Anwesend '.$session->starts_at->format('d.m.Y'))->all()), ';', '"', '\\');
 
             foreach ($event->registrations()->with('attendances')->get() as $registration) {
                 fputcsv($out, array_map([CsvCell::class, 'safe'], array_merge([
                     $registration->name, $registration->school, $registration->class_name, $registration->birth_date->format('d.m.Y'), $registration->email, $registration->ticket(),
-                    $registration->isConfirmed() ? 'ja' : 'nein', $registration->source === EventRegistration::SOURCE_UPLOAD ? 'Liste' : 'Selbstanmeldung',
+                    $registration->isConfirmed() ? 'ja' : 'nein', $registration->waitlisted ? 'ja' : 'nein', $registration->source === EventRegistration::SOURCE_UPLOAD ? 'Liste' : 'Selbstanmeldung',
                 ], $sessions->map(fn (EventSession $session): string => $registration->attendances->contains('session_id', $session->id) ? 'ja' : '')->all())), ';', '"', '\\');
             }
 
@@ -183,7 +184,7 @@ class EventAdminController extends Controller
             'event' => $event,
             'session' => $session,
             'search' => $search,
-            'registrations' => $event->registrations()->whereNotNull('verified_at')
+            'registrations' => $event->registrations()->whereNotNull('verified_at')->where('waitlisted', false)
                 ->when($search !== '', fn ($query) => $query->where(fn ($inner) => $inner->where('name', 'like', $like)->orWhere('school', 'like', $like)->orWhere('class_name', 'like', $like)))
                 ->get(),
             'present' => $session->attendances()->pluck('registration_id')->flip(),
@@ -197,7 +198,7 @@ class EventAdminController extends Controller
         abort_unless($session->event_id === $event->id, 404);
 
         $data = $request->validate(['registration' => ['required', 'integer'], 'present' => ['required', 'boolean'], 'q' => ['nullable', 'string', 'max:100']]);
-        $registration = $event->registrations()->whereNotNull('verified_at')->findOrFail($data['registration']);
+        $registration = $event->registrations()->whereNotNull('verified_at')->where('waitlisted', false)->findOrFail($data['registration']);
 
         $this->registrations->mark($session, $registration, (bool) $data['present'], $this->actor($request));
 
@@ -230,6 +231,7 @@ class EventAdminController extends Controller
             'location' => ['nullable', 'string', 'max:200'],
             'status' => ['required', Rule::in(array_keys(EventStatus::options()))],
             'capacity' => ['nullable', 'integer', 'min:1', 'max:5000'],
+            'waitlist_enabled' => ['nullable', 'boolean'],
             'registration_deadline' => ['nullable', 'date'],
         ], [
             'title.required' => 'Bitte geben Sie einen Titel ein.',

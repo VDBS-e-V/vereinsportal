@@ -17,7 +17,7 @@
 
     <x-vdbs.forms.error-summary />
 
-    <p>{{ $confirmed }} bestätigte Anmeldungen{{ $total > $confirmed ? ', '.($total - $confirmed).' noch nicht bestätigt' : '' }}{{ $event->capacity ? ' von '.$event->capacity.' Plätzen' : '' }}.</p>
+    <p>{{ $confirmed }} bestätigte Anmeldungen{{ $event->capacity ? ' von '.$event->capacity.' Plätzen' : '' }}{{ $waitlist > 0 ? ', '.$waitlist.' auf der Warteliste' : '' }}{{ $total > $confirmed + $waitlist ? ', '.($total - $confirmed - $waitlist).' noch nicht bestätigt' : '' }}.</p>
 
     <section aria-labelledby="sessions-heading" style="margin-top:var(--space-6)">
         <h2 id="sessions-heading" style="font-size:var(--font-size-h3)">Termine und Anwesenheit</h2>
@@ -75,8 +75,8 @@
                         <td>{{ $row->school }}</td>
                         <td>{{ $row->class_name }}</td>
                         <td><code>{{ $row->ticket() }}</code></td>
-                        <td>@if ($row->isConfirmed())<x-vdbs.data.badge tone="success">Bestätigt</x-vdbs.data.badge>@else<x-vdbs.data.badge tone="warning">Offen</x-vdbs.data.badge>@endif @if ($row->source === 'upload')<x-vdbs.data.badge>Liste</x-vdbs.data.badge>@endif</td>
-                        <td>{{ $row->attendances_count }} von {{ $event->sessions->count() }}</td>
+                        <td>@if ($row->isConfirmed() && $row->waitlisted)<x-vdbs.data.badge tone="info">Warteliste</x-vdbs.data.badge>@elseif ($row->isConfirmed())<x-vdbs.data.badge tone="success">Bestätigt</x-vdbs.data.badge>@else<x-vdbs.data.badge tone="warning">Offen</x-vdbs.data.badge>@endif @if ($row->source === 'upload')<x-vdbs.data.badge>Liste</x-vdbs.data.badge>@endif</td>
+                        <td>{{ $row->waitlisted ? '–' : $row->attendances_count.' von '.$event->sessions->count() }}</td>
                         <td>
                             <div class="vdbs-btn-group">
                                 @if ($row->attendances_count > 0)

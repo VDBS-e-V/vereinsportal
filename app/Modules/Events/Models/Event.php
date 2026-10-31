@@ -14,11 +14,11 @@ class Event extends Model
 
     protected $attributes = ['status' => 'draft'];
 
-    protected $fillable = ['slug', 'title', 'description', 'location', 'status', 'capacity', 'registration_deadline', 'created_by_user_id', 'updated_by_user_id'];
+    protected $fillable = ['slug', 'title', 'description', 'location', 'status', 'capacity', 'waitlist_enabled', 'registration_deadline', 'created_by_user_id', 'updated_by_user_id'];
 
     protected function casts(): array
     {
-        return ['status' => EventStatus::class, 'registration_deadline' => 'datetime', 'capacity' => 'integer'];
+        return ['status' => EventStatus::class, 'registration_deadline' => 'datetime', 'capacity' => 'integer', 'waitlist_enabled' => 'boolean'];
     }
 
     /** @return HasMany<EventSession, $this> */
@@ -35,13 +35,19 @@ class Event extends Model
 
     public function confirmedCount(): int
     {
-        return $this->registrations()->whereNotNull('verified_at')->count();
+        return $this->registrations()->whereNotNull('verified_at')->where('waitlisted', false)->count();
+    }
+
+    /** Bestätigte Anmeldungen auf der Warteliste. */
+    public function waitlistCount(): int
+    {
+        return $this->registrations()->whereNotNull('verified_at')->where('waitlisted', true)->count();
     }
 
     /** Belegte Plätze: Bestätigte und noch nicht verfallene unbestätigte Anmeldungen. */
     public function takenSpots(): int
     {
-        return $this->registrations()->where(fn ($query) => $query->whereNotNull('verified_at')->orWhere('created_at', '>', now()->subHours(self::PENDING_HOURS)))->count();
+        return $this->registrations()->where('waitlisted', false)->where(fn ($query) => $query->whereNotNull('verified_at')->orWhere('created_at', '>', now()->subHours(self::PENDING_HOURS)))->count();
     }
 
     public function isFull(): bool
@@ -59,9 +65,15 @@ class Event extends Model
         return $this->registration_deadline !== null && $this->registration_deadline->isPast();
     }
 
-    /** Anmeldung möglich: offen, Frist nicht abgelaufen, Platz frei. */
+    /** Anmeldung möglich: offen, Frist nicht abgelaufen und entweder ein Platz frei oder die Warteliste erlaubt. */
     public function acceptsRegistrations(): bool
     {
-        return $this->status === EventStatus::Open && ! $this->deadlinePassed() && ! $this->isFull();
+        return $this->status === EventStatus::Open && ! $this->deadlinePassed() && ($this->waitlist_enabled || ! $this->isFull());
+    }
+
+    /** Neue Anmeldungen kommen auf die Warteliste. */
+    public function willWaitlist(): bool
+    {
+        return $this->waitlist_enabled && $this->isFull();
     }
 }

@@ -12,6 +12,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 
 /** Öffentliche Seiten der Großveranstaltungen (Bereich Start): Liste, Anmeldung, Bestätigung der E-Mail-Adresse und Teilnahmebestätigung. Entwürfe sieht nur, wer Veranstaltungen ansehen darf. */
 class PublicEventController extends Controller
@@ -50,6 +51,20 @@ class PublicEventController extends Controller
         $confirmed = $this->registrations->confirm($registration);
 
         return view('events.confirmed', ['registration' => $confirmed ? $registration->fresh('event') : null]);
+    }
+
+    public function cancelForm(Request $request, EventRegistration $registration): View
+    {
+        // Das Formular schickt an dieselbe signierte Adresse (POST), damit ein Link-Vorschau-Abruf nichts löscht.
+        return view('events.cancel', ['registration' => $registration->load('event'), 'action' => URL::signedRoute('events.public.cancel.store', ['registration' => $registration->id])]);
+    }
+
+    public function cancel(EventRegistration $registration): View
+    {
+        $title = $registration->event->title;
+        $this->registrations->cancel($registration);
+
+        return view('events.cancelled', ['title' => $title]);
     }
 
     public function certificateForm(): View

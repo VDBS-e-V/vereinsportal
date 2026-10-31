@@ -13,11 +13,11 @@ class EventRegistration extends Model
 
     public const SOURCE_UPLOAD = 'upload';
 
-    protected $fillable = ['event_id', 'name', 'school', 'class_name', 'birth_date', 'email', 'ticket_code', 'source', 'verified_at', 'uploaded_by_user_id'];
+    protected $fillable = ['event_id', 'name', 'school', 'class_name', 'birth_date', 'email', 'ticket_code', 'source', 'waitlisted', 'verified_at', 'reminded_at', 'uploaded_by_user_id'];
 
     protected function casts(): array
     {
-        return ['birth_date' => 'date', 'verified_at' => 'datetime'];
+        return ['birth_date' => 'date', 'verified_at' => 'datetime', 'reminded_at' => 'datetime', 'waitlisted' => 'boolean'];
     }
 
     /** @return BelongsTo<Event, $this> */
@@ -35,6 +35,11 @@ class EventRegistration extends Model
     public function isConfirmed(): bool
     {
         return $this->verified_at !== null;
+    }
+
+    public function isWaitlisted(): bool
+    {
+        return $this->waitlisted;
     }
 
     /** Ticketcode zur Anzeige, z. B. „K7QM-4XWD“. */

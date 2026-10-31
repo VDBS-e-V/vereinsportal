@@ -13,6 +13,8 @@ Route::middleware('web')->prefix('veranstaltungen')->name('events.public.')->gro
     Route::get('/teilnahmebestaetigung', [PublicEventController::class, 'certificateForm'])->name('certificate');
     Route::post('/teilnahmebestaetigung', [PublicEventController::class, 'certificate'])->middleware(['bot.guard', 'throttle:10,10'])->name('certificate.show');
     Route::get('/anmeldung/{registration}/bestaetigen', [PublicEventController::class, 'confirm'])->whereNumber('registration')->middleware(['signed', 'throttle:20,10'])->name('confirm');
+    Route::get('/anmeldung/{registration}/abmelden', [PublicEventController::class, 'cancelForm'])->whereNumber('registration')->middleware(['signed', 'throttle:20,10'])->name('cancel');
+    Route::post('/anmeldung/{registration}/abmelden', [PublicEventController::class, 'cancel'])->whereNumber('registration')->middleware(['signed', 'throttle:10,10'])->name('cancel.store');
     Route::get('/{slug}', [PublicEventController::class, 'show'])->where('slug', '[a-z0-9\-]+')->name('show');
     Route::post('/{slug}/anmeldung', [PublicEventController::class, 'register'])->where('slug', '[a-z0-9\-]+')->middleware(['bot.guard', 'throttle:10,10'])->name('register');
 });

@@ -1,0 +1,17 @@
+/* Aufgabenliste auf der Startseite */
+
+.vdbs-task-list { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+
+.vdbs-task-list__link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: var(--size-touch);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border-input);
+    background: var(--bg-page);
+    color: var(--text-default);
+    text-decoration: none;
+}
+
+.vdbs-task-list__link:hover { background: var(--bg-accent-soft); color: var(--text-default); text-decoration: underline; }
