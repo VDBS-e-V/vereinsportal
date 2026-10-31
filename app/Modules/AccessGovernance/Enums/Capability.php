@@ -71,6 +71,12 @@ enum Capability: string
     /** Großveranstaltungen anlegen, Anmeldungen importieren, Anwesenheit führen. */
     case EventsManage = 'events.manage';
 
+    /** Mitgliederbereich: eigene Mitgliedschaft, Satzung und Willkommensbrief. */
+    case MemberArea = 'member.area';
+
+    /** Bereich Bildungsreferenten: Überblick über Seminare und Veranstaltungen (nur lesen). */
+    case EducationView = 'education.view';
+
     /** Design-Bibliothek ansehen (Entwicklungswerkzeug). */
     case DesignView = 'design.view';
 

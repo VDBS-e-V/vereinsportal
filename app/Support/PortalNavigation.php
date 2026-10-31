@@ -59,11 +59,17 @@ final class PortalNavigation
             PortalAreas::Vorstand->value => [
                 'roles' => [RoleKey::BoardMember],
                 'pages' => [
+                    ['label' => 'Übersicht', 'route' => 'board.overview', 'match' => 'board.*', 'can' => 'memberships.view'],
                     ['label' => 'Mitgliedschaften', 'route' => 'membership.index', 'match' => 'membership.*', 'can' => 'memberships.view'],
                     ['label' => 'Willkommenspaket', 'route' => 'onboarding.member', 'match' => 'onboarding.member*', 'can' => 'memberships.view'],
                 ],
             ],
-            PortalAreas::Mitglieder->value => ['roles' => [RoleKey::Member], 'pages' => []],
+            PortalAreas::Mitglieder->value => [
+                'roles' => [RoleKey::Member],
+                'pages' => [
+                    ['label' => 'Übersicht', 'route' => 'member.home', 'match' => 'member.*', 'can' => 'member.area'],
+                ],
+            ],
             PortalAreas::Teamende->value => [
                 'roles' => [RoleKey::Team],
                 'routes' => ['onboarding.documents.*'],
@@ -75,7 +81,7 @@ final class PortalNavigation
             ],
             PortalAreas::Schulen->value => ['roles' => [], 'pages' => []],
             PortalAreas::Koordination->value => [
-                'roles' => [RoleKey::Coordination, RoleKey::AdministrationStaff],
+                'roles' => [RoleKey::Coordination, RoleKey::AdministrationStaff, RoleKey::EducationCoordination],
                 'pages' => [
                     ['label' => 'Schulen', 'route' => 'partners.index', 'match' => 'partners.*', 'can' => 'partners.view'],
                     ['label' => 'Teamende', 'route' => 'team-onboarding.index', 'match' => 'team-onboarding.*', 'can' => 'team.view'],
@@ -96,7 +102,12 @@ final class PortalNavigation
                     ['label' => 'Personen', 'route' => 'admin.people.index', 'match' => 'admin.people.*', 'can' => 'people.view'],
                 ],
             ],
-            PortalAreas::Bildungsreferenten->value => ['roles' => [RoleKey::EducationCoordination], 'pages' => []],
+            PortalAreas::Bildungsreferenten->value => [
+                'roles' => [RoleKey::EducationCoordination],
+                'pages' => [
+                    ['label' => 'Übersicht', 'route' => 'education.overview', 'match' => 'education.*', 'can' => 'education.view'],
+                ],
+            ],
             PortalAreas::Admins->value => [
                 'roles' => [RoleKey::Administration],
                 'pages' => [

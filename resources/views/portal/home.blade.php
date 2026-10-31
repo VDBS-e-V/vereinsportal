@@ -2,6 +2,9 @@
     $home = config('portal.home');
     $contactLines = $home['contact']['lines'] ?? [];
     $areas = \App\Support\PortalAreas::withGroupMark();
+    // Angemeldete gelangen über die Chips zur ersten Seite ihres Bereichs; Gäste sehen die Chips nur als Überblick
+    $visibleAreas = auth()->check() ? \App\Support\PortalNavigation::visibleAreas(auth()->user()) : [];
+    $areaLink = fn (\App\Support\PortalAreas $area): string => in_array($area, $visibleAreas, true) ? (\App\Support\PortalNavigation::pages($area, auth()->user())[0]['href'] ?? '#') : '#';
 @endphp
 
 <x-layouts.app title="Start" width="full">
@@ -45,7 +48,7 @@
     <x-vdbs.layout.section :title="$home['areas']['title']" :lead="$home['areas']['lead']" align="center">
         <x-vdbs.data.chip-list label="Bereiche des Portals">
             @foreach ($areas as $area)
-                <x-vdbs.data.chip :label="$area->label()" href="#" :group="$area->groupMark()" />
+                <x-vdbs.data.chip :label="$area->label()" :href="$areaLink($area)" :group="$area->groupMark()" />
             @endforeach
         </x-vdbs.data.chip-list>
     </x-vdbs.layout.section>

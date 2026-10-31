@@ -123,7 +123,7 @@ it('knows no area for pages outside the portal areas', function () {
 
 it('shows areas by role and only when the user may see a page in them', function () {
     expect(pnAreaLabels(pnUser()))->toBe([])
-        ->and(pnAreaLabels(pnUser(RoleKey::Member)))->toBe([])
+        ->and(pnAreaLabels(pnUser(RoleKey::Member)))->toBe(['Mitglieder'])
         ->and(pnAreaLabels(pnUser(RoleKey::AdministrationStaff)))->toBe(['Koordination', 'Geschäftsstelle'])
         ->and(pnAreaLabels(pnUser(RoleKey::Administration)))->toBe(['Geschäftsstelle', 'Admins'])
         ->and(pnAreaLabels(pnUser(RoleKey::Coordination)))->toBe(['Koordination'])

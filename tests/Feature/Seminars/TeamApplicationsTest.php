@@ -336,7 +336,7 @@ it('suggests a team by competences, leadership and experience, skips overlaps an
     TeamProfile::query()->create(['user_id' => $b->id, 'competences' => ['elections'], 'gender' => 'female']);
     TeamProfile::query()->create(['user_id' => $d->id, 'competences' => ['moderation', 'elections'], 'lead_experience' => true]);
 
-    $done = taSeminar(['title' => 'Früher', 'status' => SeminarStatus::Done]);
+    $done = taSeminar(['title' => 'Früher', 'status' => SeminarStatus::Done], now()->subMonths(2)->toDateString());
     SeminarApplication::query()->create(['seminar_id' => $done->id, 'user_id' => $b->id, 'status' => ApplicationStatus::Confirmed]);
 
     $clash = taSeminar(['title' => 'Gleicher Tag', 'status' => SeminarStatus::Confirmed], $day);

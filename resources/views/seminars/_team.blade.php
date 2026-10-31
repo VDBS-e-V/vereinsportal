@@ -52,7 +52,7 @@
                         @if ($row['lead'])<br><x-vdbs.data.badge tone="info">möchte leiten</x-vdbs.data.badge>@endif
                         @if ($row['conflicts'])<br><x-vdbs.data.badge tone="warning">Überschneidung: {{ implode(', ', $row['conflicts']) }}</x-vdbs.data.badge>@endif
                     </td>
-                    <td>{{ $row['age'] !== null ? $row['age'].' Jahre' : 'Alter unbekannt' }}@if ($canManage)<br>{{ $row['gender']?->label() ?? 'keine Angabe' }}@endif</td>
+                    <td>@if ($canManage){{ $row['age'] !== null ? $row['age'].' Jahre' : 'Alter unbekannt' }}<br>{{ $row['gender']?->label() ?? 'keine Angabe' }}@endif</td>
                     <td>
                         @forelse ($row['competences'] as $competence)
                             <x-vdbs.data.badge :tone="in_array($competence, $summary['wanted'], true) ? 'success' : 'neutral'">{{ $label($competence) }}</x-vdbs.data.badge>
@@ -115,7 +115,7 @@
                 <x-vdbs.data.detail-list layout="inline">
                     <x-vdbs.data.detail-item label="Größe">{{ $summary['size'] }} von {{ $needed }}</x-vdbs.data.detail-item>
                     @if ($canManage)<x-vdbs.data.detail-item label="Geschlechter">@foreach ($summary['genders'] as $gender => $count){{ $count }} {{ $gender }}{{ ! $loop->last ? ', ' : '' }}@endforeach</x-vdbs.data.detail-item>@endif
-                    <x-vdbs.data.detail-item label="Durchschnittsalter">{{ $summary['average_age'] !== null ? $summary['average_age'].' Jahre' : 'unbekannt' }}</x-vdbs.data.detail-item>
+                    @if ($canManage)<x-vdbs.data.detail-item label="Durchschnittsalter">{{ $summary['average_age'] !== null ? $summary['average_age'].' Jahre' : 'unbekannt' }}</x-vdbs.data.detail-item>@endif
                     <x-vdbs.data.detail-item label="Seminarleitung">{{ $summary['leaders'] }} mit Interesse oder Erfahrung</x-vdbs.data.detail-item>
                     @if ($summary['wanted'])
                         <x-vdbs.data.detail-item label="Gesuchte Kompetenzen">
