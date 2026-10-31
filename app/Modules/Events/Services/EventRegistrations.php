@@ -391,7 +391,11 @@ final class EventRegistrations
         $date = (string) ($row['birth_date'] ?? '');
 
         foreach (['d.m.Y', 'Y-m-d', 'd.m.y'] as $format) {
-            $parsed = Carbon::createFromFormat($format, $date);
+            try {
+                $parsed = Carbon::createFromFormat($format, $date);
+            } catch (Throwable) {
+                continue;
+            }
 
             if ($parsed !== false && $parsed->format($format) === $date) {
                 $row['birth_date'] = $parsed->toDateString();

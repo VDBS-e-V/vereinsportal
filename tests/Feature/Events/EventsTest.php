@@ -264,7 +264,6 @@ it('gives the certificate only with ticket, matching email and a recorded attend
     $session = $event->sessions()->firstOrFail();
     $this->actingAs(evUser(RoleKey::Coordination))->post(route('events.admin.import.store', $event), ['file' => evCsv(['Mia Beispiel;Schule A;9b;14.05.2010;mia@example.org'])]);
     $mia = $event->registrations()->firstOrFail();
-    auth()->logout();
     $this->app['auth']->forgetGuards();
 
     // noch keine Anwesenheit
