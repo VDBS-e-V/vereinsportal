@@ -34,7 +34,7 @@ final class PortalNavigation
         return [
             PortalAreas::Start->value => [
                 'roles' => [],
-                'routes' => ['home', 'join.*', 'articles.public.*'],
+                'routes' => ['home', 'join.*', 'articles.public.*', 'pages.show'],
                 'pages' => [
                     ['label' => 'Über das Portal', 'route' => 'portal.about', 'match' => 'portal.about'],
                     ['label' => 'Zugang zum Portal', 'route' => 'portal.access', 'match' => 'portal.access*'],
@@ -88,6 +88,7 @@ final class PortalNavigation
                     ['label' => 'Nutzer', 'route' => 'admin.users.index', 'match' => 'admin.users.*', 'can' => 'users.view'],
                     ['label' => 'Zugangsanträge', 'route' => 'access-requests.index', 'match' => 'access-requests.*', 'can' => 'access_requests.view'],
                     ['label' => 'Artikel', 'route' => 'articles.admin.index', 'match' => 'articles.admin.*', 'can' => 'articles.manage'],
+                    ['label' => 'Seiten', 'route' => 'pages.admin.index', 'match' => 'pages.admin.*', 'can' => 'pages.manage'],
                     ['label' => 'Personen', 'route' => 'admin.people.index', 'match' => 'admin.people.*', 'can' => 'people.view'],
                 ],
             ],

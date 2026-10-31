@@ -28,8 +28,8 @@ return [
         'statute_version' => env('PORTAL_STATUTE_VERSION', '2026-01'),
         'privacy_version' => env('PORTAL_PRIVACY_VERSION', '2026-01'),
         // Links zu den rechtlichen Seiten (Nutzungsbedingungen, Datenschutzerklärung), die im Zugangsantrag verlinkt werden
-        'terms_url' => env('LEGAL_TERMS_URL', '#'),
-        'privacy_url' => env('LEGAL_PRIVACY_URL', '#'),
+        'terms_url' => env('LEGAL_TERMS_URL', '/nutzungsbedingungen'),
+        'privacy_url' => env('LEGAL_PRIVACY_URL', '/datenschutz'),
     ],
 
     /* Konto löschen: Wartefrist in Tagen zwischen Antrag und Anonymisierung (Abbruch ist bis dahin möglich). */
@@ -74,9 +74,9 @@ return [
             'links' => [
                 ['label' => 'Startseite', 'url' => '/'],
                 ['label' => 'Kontakt', 'url' => '/kontakt'],
-                ['label' => 'Impressum', 'url' => '#'],
-                ['label' => 'Datenschutz', 'url' => '#'],
-                ['label' => 'Barrierefreiheit', 'url' => '#'],
+                ['label' => 'Impressum', 'url' => '/impressum'],
+                ['label' => 'Datenschutz', 'url' => '/datenschutz'],
+                ['label' => 'Barrierefreiheit', 'url' => '/barrierefreiheit'],
                 ['label' => 'Beratung', 'url' => '#'],
             ],
         ],

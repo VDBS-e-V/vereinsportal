@@ -54,6 +54,7 @@ enum AuditEvent: string
     case ArticleCreated = 'article.created';
     case ArticleUpdated = 'article.updated';
     case ArticleDeleted = 'article.deleted';
+    case PageUpdated = 'page.updated';
 
     case AccessRequestApproved = 'access_request.approved';
     case AccessRequestRejected = 'access_request.rejected';
@@ -108,6 +109,7 @@ enum AuditEvent: string
             self::ArticleCreated => 'Artikel angelegt',
             self::ArticleUpdated => 'Artikel geändert',
             self::ArticleDeleted => 'Artikel gelöscht',
+            self::PageUpdated => 'Seite geändert',
             self::AccessRequestApproved => 'Zugangsantrag angenommen',
             self::AccessRequestRejected => 'Zugangsantrag abgelehnt',
             self::OnboardingDocumentUploaded => 'Onboarding-Dokument hochgeladen',
@@ -129,6 +131,7 @@ enum AuditEvent: string
             self::PartnerCreated, self::PartnerUpdated, self::PartnerDeleted, self::PartnersImported => 'partners',
             self::SeminarCreated, self::SeminarUpdated, self::SeminarDeleted, self::SeminarStatusChanged, self::SeminarQuoteCreated, self::SeminarQuoteUpdated, self::SeminarQuoteDeleted, self::SeminarPricesChanged, self::SeminarTextsChanged => 'seminars',
             self::ArticleCreated, self::ArticleUpdated, self::ArticleDeleted => 'articles',
+            self::PageUpdated => 'pages',
             self::AccessRequestApproved, self::AccessRequestRejected => 'access_requests',
             self::OnboardingDocumentUploaded, self::TeamOnboardingStarted, self::TeamOnboardingCompleted => 'onboarding',
             self::AuditExported => 'audit',
@@ -150,6 +153,7 @@ enum AuditEvent: string
             'onboarding' => 'Onboarding',
             'access_requests' => 'Zugangsanträge',
             'articles' => 'Artikel',
+            'pages' => 'Seiten',
             'audit' => 'Protokoll',
         ];
     }

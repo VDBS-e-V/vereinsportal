@@ -59,6 +59,9 @@ enum Capability: string
     /** Artikel für die öffentlichen Seiten schreiben und veröffentlichen. */
     case ArticlesManage = 'articles.manage';
 
+    /** Rechtstext-Seiten (Impressum, Datenschutz, …) bearbeiten. */
+    case PagesManage = 'pages.manage';
+
     /** Design-Bibliothek ansehen (Entwicklungswerkzeug). */
     case DesignView = 'design.view';
 
