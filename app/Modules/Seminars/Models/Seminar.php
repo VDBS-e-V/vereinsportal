@@ -22,11 +22,17 @@ class Seminar extends Model
 
     protected $attributes = ['status' => 'request'];
 
-    protected $fillable = ['title', 'type', 'partner_id', 'status', 'grade_level', 'expected_participants', 'team_needed', 'notes', 'created_by_user_id', 'updated_by_user_id'];
+    protected $fillable = ['title', 'type', 'partner_id', 'status', 'grade_level', 'expected_participants', 'team_needed', 'application_deadline', 'team_competences', 'deadline_notified_at', 'notes', 'created_by_user_id', 'updated_by_user_id'];
 
     protected function casts(): array
     {
-        return ['type' => SeminarType::class, 'status' => SeminarStatus::class];
+        return ['type' => SeminarType::class, 'status' => SeminarStatus::class, 'application_deadline' => 'date', 'team_competences' => 'array', 'deadline_notified_at' => 'datetime'];
+    }
+
+    /** Der Stichtag für Interessenbekundungen ist vorbei (der Stichtag selbst zählt noch mit). */
+    public function deadlinePassed(): bool
+    {
+        return $this->application_deadline !== null && $this->application_deadline->copy()->endOfDay()->isPast();
     }
 
     /** @return BelongsTo<Partner, $this> */

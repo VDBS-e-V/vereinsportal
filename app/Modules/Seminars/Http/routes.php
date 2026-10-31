@@ -5,6 +5,7 @@ use App\Modules\Seminars\Http\Controllers\SeminarPriceController;
 use App\Modules\Seminars\Http\Controllers\SeminarQuoteController;
 use App\Modules\Seminars\Http\Controllers\SeminarTeamController;
 use App\Modules\Seminars\Http\Controllers\SeminarTextController;
+use App\Modules\Seminars\Http\Controllers\TeamProfileController;
 use App\Modules\Seminars\Http\Controllers\TeamSeminarController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,7 @@ Route::middleware(['web', 'auth'])->group(function (): void {
             Route::post('/{seminar}/notiz', [SeminarController::class, 'note'])->whereNumber('seminar')->name('note');
             Route::post('/{seminar}/termine', [SeminarController::class, 'storeSession'])->whereNumber('seminar')->name('sessions.store');
             Route::put('/{seminar}/bedarf', [SeminarTeamController::class, 'need'])->whereNumber('seminar')->name('team.need');
+            Route::put('/{seminar}/bewerbungen/{application}/notiz', [SeminarTeamController::class, 'note'])->whereNumber(['seminar', 'application'])->name('team.note');
             Route::post('/{seminar}/bewerbungen/{application}/{decision}', [SeminarTeamController::class, 'decide'])->whereNumber(['seminar', 'application'])->where('decision', 'bestaetigen|ablehnen')->name('team.decide');
             Route::delete('/{seminar}/termine/{session}', [SeminarController::class, 'destroySession'])->whereNumber(['seminar', 'session'])->name('sessions.destroy');
         });
@@ -62,6 +64,11 @@ Route::middleware(['web', 'auth'])->group(function (): void {
         });
 
         Route::get('/', [SeminarPriceController::class, 'index'])->middleware('can:seminars.view')->name('index');
+    });
+
+    Route::prefix('teamende/profil')->name('team-profile.')->middleware('can:seminars.apply')->group(function (): void {
+        Route::get('/', [TeamProfileController::class, 'edit'])->name('edit');
+        Route::put('/', [TeamProfileController::class, 'update'])->name('update');
     });
 
     Route::prefix('teamende/seminare')->name('seminar-applications.')->middleware('can:seminars.apply')->group(function (): void {

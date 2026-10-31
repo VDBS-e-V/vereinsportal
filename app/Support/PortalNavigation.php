@@ -69,6 +69,7 @@ final class PortalNavigation
                 'routes' => ['onboarding.documents.*'],
                 'pages' => [
                     ['label' => 'Seminare', 'route' => 'seminar-applications.index', 'match' => 'seminar-applications.*', 'can' => 'seminars.apply'],
+                    ['label' => 'Profil', 'route' => 'team-profile.edit', 'match' => 'team-profile.*', 'can' => 'seminars.apply'],
                     ['label' => 'Einarbeitung', 'route' => 'team-self.index', 'match' => 'team-self.*', 'can' => 'team.onboarding'],
                 ],
             ],

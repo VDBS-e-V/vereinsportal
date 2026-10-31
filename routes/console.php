@@ -15,6 +15,9 @@ Schedule::command('membership:sync')->daily();
 Schedule::command('membership:prune')->daily();
 Schedule::command('access-requests:prune')->daily();
 
+// Koordination informieren, wenn der Stichtag für Interessenbekundungen auf ein Seminar vorbei ist.
+Schedule::command('seminars:team-deadlines')->daily();
+
 // Teamende mit offener Einarbeitung erinnern (nach 14 Tagen, dann alle 14 Tage, höchstens dreimal).
 Schedule::command('onboarding:remind-team')->daily();
 

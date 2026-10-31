@@ -8,23 +8,29 @@ use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Seminars\Enums\ApplicationStatus;
 use App\Modules\Seminars\Enums\SeminarEventType;
 use App\Modules\Seminars\Enums\SeminarStatus;
+use App\Modules\AccessGovernance\Enums\RoleKey;
+use App\Modules\AccessGovernance\Models\RoleAssignment;
+use App\Modules\Seminars\Mail\SeminarDeadlineMail;
 use App\Modules\Seminars\Mail\SeminarTeamMail;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
+use App\Modules\Seminars\Models\TeamProfile;
+use Carbon\Carbon;
 use DomainException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
 
 /**
- * Teamende bewerben sich auf terminierte Seminare mit Bedarf, die Koordination bestätigt oder lehnt ab, bis der Bedarf gedeckt ist.
- * Jede Bewerbung und Entscheidung steht im Verlauf des Seminars; das allgemeine Protokoll nennt nur Seminar und Entscheidung, keine Namen.
+ * Teamende bekunden Interesse an terminierten Seminaren mit Bedarf, und zwar bis zu einem Stichtag. Danach sichtet die Koordination die Interessenbekundungen
+ * und stellt das Team nach Kriterien zusammen (Kompetenzen, Erfahrung, Alter, Geschlecht, Seminarleitung), bis der Bedarf gedeckt ist.
+ * Jede Interessenbekundung und Entscheidung steht im Verlauf des Seminars; das allgemeine Protokoll nennt nur Seminar und Entscheidung, keine Namen.
  */
 final class TeamApplications
 {
     public function isOpen(Seminar $seminar): bool
     {
-        return $seminar->status === SeminarStatus::Scheduled && (int) $seminar->team_needed > 0;
+        return $seminar->status === SeminarStatus::Scheduled && (int) $seminar->team_needed > 0 && ! $seminar->deadlinePassed();
     }
 
     public function confirmedCount(Seminar $seminar): int
@@ -32,33 +38,33 @@ final class TeamApplications
         return $seminar->applications()->where('status', ApplicationStatus::Confirmed->value)->count();
     }
 
-    /** Offene Seminare, bei denen der Bedarf noch nicht gedeckt ist (mit Schule, Terminen und Kostenvoranschlag). @return Collection<int, Seminar> */
+    /** Seminare, für die noch Interesse bekundet werden kann: terminiert, mit Bedarf und vor dem Stichtag (mit Schule, Terminen und Kostenvoranschlag). @return Collection<int, Seminar> */
     public function open(): Collection
     {
         return Seminar::query()
             ->where('status', SeminarStatus::Scheduled->value)->where('team_needed', '>', 0)
             ->with(['partner', 'sessions', 'quotes'])->withCount(['applications as confirmed_count' => fn ($query) => $query->where('status', ApplicationStatus::Confirmed->value)])
             ->get()
-            ->filter(fn (Seminar $seminar): bool => $seminar->confirmed_count < $seminar->team_needed)
+            ->reject(fn (Seminar $seminar): bool => $seminar->deadlinePassed())
             ->sortBy(fn (Seminar $seminar): string => (string) $seminar->sessions->first()?->starts_at)
             ->values();
     }
 
     /** @throws DomainException */
-    public function apply(Seminar $seminar, User $user, ?string $note): SeminarApplication
+    public function apply(Seminar $seminar, User $user, ?string $note, bool $wantsLead = false): SeminarApplication
     {
-        if (! $this->isOpen($seminar) || $this->confirmedCount($seminar) >= (int) $seminar->team_needed) {
-            throw new DomainException('Für dieses Seminar sind keine Bewerbungen mehr möglich.');
+        if (! $this->isOpen($seminar)) {
+            throw new DomainException($seminar->deadlinePassed() ? 'Der Stichtag ist vorbei. Interesse lässt sich nicht mehr bekunden.' : 'Für dieses Seminar lässt sich kein Interesse bekunden.');
         }
 
         $existing = $seminar->applications()->where('user_id', $user->id)->first();
 
         if ($existing instanceof SeminarApplication && $existing->status !== ApplicationStatus::Withdrawn) {
-            throw new DomainException($existing->status === ApplicationStatus::Declined ? 'Ihre Bewerbung wurde bereits entschieden.' : 'Sie haben sich schon beworben.');
+            throw new DomainException($existing->status === ApplicationStatus::Declined ? 'Ihre Interessenbekundung wurde bereits entschieden.' : 'Sie haben schon Interesse bekundet.');
         }
 
         $application = $existing ?? new SeminarApplication(['seminar_id' => $seminar->id, 'user_id' => $user->id]);
-        $application->fill(['status' => ApplicationStatus::Applied, 'note' => filled($note) ? trim((string) $note) : null, 'decided_by_user_id' => null, 'decided_at' => null])->save();
+        $application->fill(['status' => ApplicationStatus::Applied, 'note' => filled($note) ? trim((string) $note) : null, 'wants_lead' => $wantsLead, 'decided_by_user_id' => null, 'decided_at' => null])->save();
 
         $this->record($seminar, SeminarEventType::TeamApplied, $user, $this->name($user));
 
@@ -69,7 +75,7 @@ final class TeamApplications
     public function withdraw(SeminarApplication $application, User $user): void
     {
         if ($application->status !== ApplicationStatus::Applied) {
-            throw new DomainException($application->status === ApplicationStatus::Confirmed ? 'Sie sind bereits bestätigt. Bitte melden Sie sich bei der Koordination, wenn Sie nicht teilnehmen können.' : 'Diese Bewerbung lässt sich nicht zurückziehen.');
+            throw new DomainException($application->status === ApplicationStatus::Confirmed ? 'Sie sind bereits im Team. Bitte melden Sie sich bei der Koordination, wenn Sie nicht teilnehmen können.' : 'Diese Interessenbekundung lässt sich nicht zurückziehen.');
         }
 
         $application->forceFill(['status' => ApplicationStatus::Withdrawn])->save();
@@ -87,11 +93,15 @@ final class TeamApplications
         }
 
         if ($application->status === ApplicationStatus::Withdrawn) {
-            throw new DomainException('Die Bewerbung wurde zurückgezogen.');
+            throw new DomainException('Die Interessenbekundung wurde zurückgezogen.');
         }
 
         if ($application->status === $target) {
             return;
+        }
+
+        if ($seminar->application_deadline !== null && ! $seminar->deadlinePassed()) {
+            throw new DomainException('Der Stichtag ('.$seminar->application_deadline->format('d.m.Y').') ist noch nicht erreicht. Die Koordination sichtet die Interessenbekundungen danach.');
         }
 
         if ($target === ApplicationStatus::Confirmed && $this->confirmedCount($seminar) >= (int) $seminar->team_needed) {
@@ -107,18 +117,122 @@ final class TeamApplications
         $this->send($user, $target === ApplicationStatus::Confirmed ? 'confirmed' : 'declined', $seminar);
     }
 
-    /** Bedarf setzen (0 oder leer = keine Bewerbungen). */
-    public function setNeed(Seminar $seminar, ?int $needed, User $by): void
+    /**
+     * Bedarf, Stichtag und gesuchte Kompetenzen setzen (Bedarf 0 oder leer = kein Interesse mehr möglich).
+     *
+     * @param  list<string>  $competences  Schlüssel aus portal.team.competences
+     */
+    public function setNeed(Seminar $seminar, ?int $needed, ?Carbon $deadline, array $competences, User $by): void
     {
         $needed = $needed !== null && $needed > 0 ? $needed : null;
+        $known = array_keys((array) config('portal.team.competences', []));
+        $competences = array_values(array_intersect($known, $competences));
 
-        if ($needed === $seminar->team_needed) {
+        $seminar->fill(['team_needed' => $needed, 'application_deadline' => $deadline?->startOfDay(), 'team_competences' => $competences === [] ? null : $competences, 'updated_by_user_id' => $by->id]);
+
+        // Ein neuer Stichtag in der Zukunft öffnet die Erinnerung an die Koordination erneut.
+        if ($seminar->isDirty('application_deadline')) {
+            $seminar->deadline_notified_at = null;
+        }
+
+        if (! $seminar->isDirty(['team_needed', 'application_deadline', 'team_competences'])) {
             return;
         }
 
-        $seminar->forceFill(['team_needed' => $needed, 'updated_by_user_id' => $by->id])->save();
+        $seminar->save();
 
-        $this->record($seminar, SeminarEventType::TeamNeedChanged, $by, $needed === null ? 'kein Bedarf' : $needed.' Teamende');
+        $this->record($seminar, SeminarEventType::TeamNeedChanged, $by, $needed === null ? 'kein Bedarf' : $needed.' Teamende, Stichtag '.($deadline?->format('d.m.Y') ?? 'offen'));
+    }
+
+    /** Interne Notiz der Koordination zu einer Interessenbekundung (nur für die Koordination sichtbar). */
+    public function note(SeminarApplication $application, ?string $note): void
+    {
+        $application->forceFill(['internal_note' => filled($note) ? trim((string) $note) : null])->save();
+    }
+
+    /**
+     * Daten zum Sichten der Interessenbekundungen: je Person Alter, Angaben aus dem Profil und Erfahrung im Portal (Seminare, in denen sie schon im Team waren und die durchgeführt sind),
+     * dazu eine Übersicht über das bisher zusammengestellte Team (Geschlechter, Durchschnittsalter, Kompetenzen, Seminarleitung).
+     *
+     * @return array{rows: list<array<string, mixed>>, summary: array<string, mixed>}
+     */
+    public function review(Seminar $seminar): array
+    {
+        $applications = $seminar->applications->reject(fn (SeminarApplication $application): bool => $application->status === ApplicationStatus::Withdrawn)->values();
+        $userIds = $applications->pluck('user_id')->all();
+
+        $profiles = TeamProfile::query()->whereIn('user_id', $userIds)->get()->keyBy('user_id');
+        $experience = SeminarApplication::query()->whereIn('user_id', $userIds)->where('status', ApplicationStatus::Confirmed->value)
+            ->whereHas('seminar', fn ($query) => $query->whereIn('status', [SeminarStatus::Done->value, SeminarStatus::Completed->value]))
+            ->selectRaw('user_id, count(*) as aggregate')->groupBy('user_id')->pluck('aggregate', 'user_id');
+
+        $rows = $applications->map(function (SeminarApplication $application) use ($profiles, $experience, $seminar): array {
+            $user = $application->user;
+            $profile = $profiles->get($user->id);
+            $birth = $user->person?->birth_date;
+
+            return [
+                'application' => $application,
+                'name' => $user->person?->fullName() ?: $user->email,
+                'age' => $birth?->age,
+                'gender' => $profile?->gender,
+                'competences' => (array) ($profile?->competences ?? []),
+                'experience_note' => $profile?->experience,
+                'seminars_done' => (int) ($experience[$user->id] ?? 0),
+                'lead' => $application->wants_lead,
+                'lead_experience' => (bool) $profile?->lead_experience,
+                'conflicts' => $this->conflicts($user, $seminar)->pluck('title')->all(),
+            ];
+        })->all();
+
+        $team = collect($rows)->filter(fn (array $row): bool => $row['application']->status === ApplicationStatus::Confirmed);
+        $wanted = (array) ($seminar->team_competences ?? []);
+        $covered = $team->flatMap(fn (array $row): array => $row['competences'])->unique()->all();
+        $ages = $team->pluck('age')->filter(fn ($age): bool => $age !== null);
+
+        return ['rows' => $rows, 'summary' => [
+            'size' => $team->count(),
+            'needed' => (int) $seminar->team_needed,
+            'genders' => $team->groupBy(fn (array $row): string => $row['gender']?->label() ?? 'keine Angabe')->map->count()->all(),
+            'average_age' => $ages->isEmpty() ? null : (int) round($ages->avg()),
+            'wanted' => $wanted,
+            'covered' => array_values(array_intersect($wanted, $covered)),
+            'missing' => array_values(array_diff($wanted, $covered)),
+            'leaders' => $team->filter(fn (array $row): bool => $row['lead'] || $row['lead_experience'])->count(),
+        ]];
+    }
+
+    /** Seminare, deren Stichtag vorbei ist und für die die Koordination noch nicht informiert wurde, werden gemeldet. Gibt die Zahl der gemeldeten Seminare zurück. */
+    public function notifyDeadlines(): int
+    {
+        $count = 0;
+
+        $seminars = Seminar::query()->where('status', SeminarStatus::Scheduled->value)->where('team_needed', '>', 0)->whereNotNull('application_deadline')->whereNull('deadline_notified_at')
+            ->withCount(['applications as interested_count' => fn ($query) => $query->where('status', ApplicationStatus::Applied->value)])->get()
+            ->filter(fn (Seminar $seminar): bool => $seminar->deadlinePassed());
+
+        if ($seminars->isEmpty()) {
+            return 0;
+        }
+
+        $recipients = User::query()->whereIn('id', RoleAssignment::query()
+            ->where('starts_at', '<=', now())->where(fn ($query) => $query->whereNull('ends_at')->orWhere('ends_at', '>', now()))
+            ->whereHas('role', fn ($query) => $query->where('key', RoleKey::Coordination->value))->select('user_id'))->get();
+
+        foreach ($seminars as $seminar) {
+            foreach ($recipients as $recipient) {
+                try {
+                    Mail::to($recipient->email)->send(new SeminarDeadlineMail($seminar, (int) $seminar->interested_count, route('seminars.show', $seminar)));
+                } catch (Throwable $exception) {
+                    report($exception);
+                }
+            }
+
+            $seminar->forceFill(['deadline_notified_at' => now()])->save();
+            $count++;
+        }
+
+        return $count;
     }
 
     /** Bestätigte Seminare der Person, die sich zeitlich mit diesem überschneiden. @return Collection<int, Seminar> */

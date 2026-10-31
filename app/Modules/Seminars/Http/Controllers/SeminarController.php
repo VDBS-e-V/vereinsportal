@@ -74,8 +74,8 @@ class SeminarController extends Controller
             'nextStatuses' => $seminar->status->next(),
             'canManage' => Gate::allows('seminars.manage'),
             'teamOpen' => $team->isOpen($seminar),
-            'teamConfirmed' => $seminar->applications->where('status', \App\Modules\Seminars\Enums\ApplicationStatus::Confirmed)->count(),
-            'conflicts' => $seminar->applications->mapWithKeys(fn ($application): array => [$application->id => $team->conflicts($application->user, $seminar)->pluck('title')->all()]),
+            'review' => $team->review($seminar),
+            'competenceLabels' => (array) config('portal.team.competences', []),
         ]);
     }
 

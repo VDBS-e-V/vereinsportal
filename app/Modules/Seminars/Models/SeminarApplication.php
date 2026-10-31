@@ -10,11 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /** Modul: Seminars. Bewerbung eines Teamenden-Kontos auf ein Seminar. */
 class SeminarApplication extends Model
 {
-    protected $fillable = ['seminar_id', 'user_id', 'status', 'note', 'decided_by_user_id', 'decided_at'];
+    protected $fillable = ['seminar_id', 'user_id', 'status', 'note', 'wants_lead', 'internal_note', 'decided_by_user_id', 'decided_at'];
 
     protected function casts(): array
     {
-        return ['status' => ApplicationStatus::class, 'decided_at' => 'datetime'];
+        return ['status' => ApplicationStatus::class, 'decided_at' => 'datetime', 'wants_lead' => 'boolean'];
     }
 
     /** @return BelongsTo<Seminar, $this> */

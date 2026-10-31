@@ -112,6 +112,21 @@ return [
         'difficulty_bits' => 16,  // Nullbits der Rechenaufgabe; je 1 Bit doppelt so viel Rechenzeit
     ],
 
+    // Kompetenzen, die Teamende in ihrem Profil angeben und die Koordination für ein Seminar als gesucht markiert (Schlüssel => Bezeichnung).
+    'team' => [
+        'competences' => [
+            'sv_work' => 'SV-Arbeit und Schülervertretung',
+            'elections' => 'Wahlen und Wahlorganisation',
+            'moderation' => 'Moderation und Gesprächsführung',
+            'conflict' => 'Konfliktklärung und Mediation',
+            'democracy' => 'Demokratiebildung',
+            'media' => 'Medien und digitale Beteiligung',
+            'school_law' => 'Schulrecht und Gremien',
+            'project' => 'Projektmanagement',
+            'diversity' => 'Vielfalt und Antidiskriminierung',
+        ],
+    ],
+
     // Großveranstaltungen: Anmeldungen werden nach dieser Zeit seit dem letzten Termin gelöscht (Befehl events:prune, täglich geplant).
     'events' => ['retention_years' => 3],
 

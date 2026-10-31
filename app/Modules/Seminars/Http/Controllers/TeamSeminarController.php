@@ -7,6 +7,7 @@ use App\Modules\Access\Models\User;
 use App\Modules\Seminars\Enums\ApplicationStatus;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
+use App\Modules\Seminars\Models\TeamProfile;
 use App\Modules\Seminars\Services\TeamApplications;
 use DomainException;
 use Illuminate\Contracts\View\View;
@@ -42,21 +43,22 @@ class TeamSeminarController extends Controller
         return view('seminars.team-index', [
             'open' => $open,
             'mine' => $mine->reject(fn (SeminarApplication $application): bool => $application->status === ApplicationStatus::Withdrawn)->values(),
+            'profileEmpty' => (TeamProfile::query()->where('user_id', $user->id)->first()?->isEmpty() ?? true),
             'hasConfirmed' => $mine->contains(fn (SeminarApplication $application): bool => $application->status === ApplicationStatus::Confirmed),
         ]);
     }
 
     public function apply(Request $request, Seminar $seminar): RedirectResponse
     {
-        $data = $request->validate(['note' => ['nullable', 'string', 'max:300']], ['note.max' => 'Die Nachricht darf höchstens 300 Zeichen lang sein.']);
+        $data = $request->validate(['note' => ['nullable', 'string', 'max:300'], 'wants_lead' => ['nullable', 'boolean']], ['note.max' => 'Die Nachricht darf höchstens 300 Zeichen lang sein.']);
 
         try {
-            $this->team->apply($seminar, $this->actor($request), $data['note'] ?? null);
+            $this->team->apply($seminar, $this->actor($request), $data['note'] ?? null, $request->boolean('wants_lead'));
         } catch (DomainException $exception) {
             return redirect()->route('seminar-applications.index')->withErrors(['apply' => $exception->getMessage()]);
         }
 
-        return redirect()->route('seminar-applications.index')->with('success', 'Ihre Bewerbung ist eingegangen. Die Koordination meldet sich.');
+        return redirect()->route('seminar-applications.index')->with('success', 'Ihr Interesse ist eingetragen. Nach dem Stichtag sichtet die Koordination die Rückmeldungen und stellt das Team zusammen.');
     }
 
     public function withdraw(Request $request, Seminar $seminar): RedirectResponse
@@ -69,7 +71,7 @@ class TeamSeminarController extends Controller
             return redirect()->route('seminar-applications.index')->withErrors(['apply' => $exception->getMessage()]);
         }
 
-        return redirect()->route('seminar-applications.index')->with('success', 'Ihre Bewerbung wurde zurückgezogen.');
+        return redirect()->route('seminar-applications.index')->with('success', 'Ihr Interesse wurde zurückgezogen.');
     }
 
     public function calendar(Request $request): Response

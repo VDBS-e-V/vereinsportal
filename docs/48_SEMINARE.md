@@ -71,17 +71,22 @@ Die Voreinstellungen von „Begleitung GSV-Sitzungen“ (4 Sitzungen, 1 Teamende
 **Preisliste:** `seminar_price_lists` (Beträge in Cent als JSON). Die Migration legt den „Preisstand Oktober 2025“ an. Änderungen erzeugen eine neue Fassung
 mit Gültigkeitsbeginn; die zurzeit gültige ist die mit dem jüngsten erreichten Beginn. Alte Kostenvoranschläge behalten ihren Preisstand.
 
-## Teamende bewerben sich (Stufe 3)
+## Teamende bekunden Interesse und die Koordination stellt das Team zusammen (Stufe 3)
 
-Bereich **Teamende**, Seite **Seminare** (`/teamende/seminare`, Berechtigung `seminars.apply` für die Rolle Teamende). Umsetzung von Abschnitt 7 aus `docs/47_SEMINARPLANUNG.md`.
+Bereich **Teamende**, Seiten **Seminare** (`/teamende/seminare`) und **Profil** (`/teamende/profil`, Berechtigung `seminars.apply` für die Rolle Teamende). Umsetzung von Abschnitt 7 aus `docs/47_SEMINARPLANUNG.md` nach folgendem Ablauf:
 
-- **Freigabe:** Die Koordination trägt am Seminar den **Bedarf an Teamenden** ein (Abschnitt „Teamende“ auf der Seminarseite, `seminars.manage`). Ein Seminar ist offen, wenn es **Terminiert** ist, ein Bedarf besteht und der Bedarf noch nicht durch Bestätigte gedeckt ist.
-- **Teamende** sehen Titel, Leistung, Ort (nur die Stadt), Termine, offene Plätze und einen Honorar-Überblick (Satz je Einsatztag aus dem neuesten Kostenvoranschlag, ohne Pauschalen). Sie bewerben sich mit optionaler Nachricht (300 Zeichen), ziehen die Bewerbung zurück (nur solange sie nicht entschieden ist) und können sich danach erneut bewerben. Abgelehnte Bewerbungen lassen sich nicht wiederholen. Schulname und Adresse sehen erst Bestätigte.
-- **Überschneidungen:** Teamende sehen eine Warnung, wenn ein Termin mit einem eigenen bestätigten Seminar kollidiert; die Koordination sieht sie an der Bewerbung.
-- **Koordination** bestätigt oder lehnt ab. Bestätigen geht nur, solange der Bedarf nicht gedeckt ist. Die Person bekommt eine E-Mail (bestätigt: mit Schule und Terminen; abgelehnt: nur Titel). Wird ein Seminar **abgesagt**, erfahren es alle Beworbenen und Bestätigten per E-Mail. Ist der Bedarf gedeckt, weist die Seite darauf hin, das Seminar jetzt auf „Bestätigt“ zu setzen.
-- **Kalender:** Bestätigte Teamende laden ihre Termine als Kalenderdatei (`/teamende/seminare/kalender.ics`, iCalendar) herunter.
-- **Verlauf und Protokoll:** Bewerbung, Rückzug, Bestätigung und Ablehnung stehen mit Namen im Verlauf des Seminars (nur für die Koordination sichtbar). Das allgemeine Protokoll bekommt `seminar.team_decided` nur mit Seminar und Entscheidung, ohne Namen.
-- Tabellen: `seminar_applications` (Seminar, Konto, Stand, Nachricht, Entscheidung), Spalte `seminars.team_needed`.
+1. **Freigabe:** Die Koordination trägt am Seminar (Abschnitt „Team“) **Bedarf**, **Stichtag** und die **gesuchten Kompetenzen** ein. Der Stichtag ist Pflicht, sobald es einen Bedarf gibt. Das Seminar muss „Terminiert“ sein.
+2. **Interesse bekunden:** Teamende sehen Seminare mit offenem Stichtag (Titel, Leistung, Stadt, Termine, Stichtag, gesuchte Kompetenzen, Honorar-Überblick aus dem Kostenvoranschlag) und bekunden **Interesse** (optional mit Nachricht und dem Hinweis, dass sie auch die Seminarleitung übernehmen würden). Bis zum Stichtag (einschließlich) lässt sich das Interesse zurückziehen und erneut bekunden. Danach geht nichts mehr, und das Seminar verschwindet aus der Liste der offenen Seminare.
+3. **Stichtag vorbei:** Die Koordination bekommt **einmal je Stichtag** eine E-Mail (`php artisan seminars:team-deadlines`, täglich geplant; ohne Namen). Ein neuer Stichtag löst die Meldung erneut aus. Vor dem Stichtag lässt sich nicht entscheiden; wer früher sichten will, setzt den Stichtag auf heute oder früher.
+4. **Sichten und Team zusammenstellen:** Die Tabelle „Interessenbekundungen“ zeigt je Person **Alter** (aus dem Geburtsdatum der Stammdaten), **Geschlecht** (freiwillige Selbstangabe), **Kompetenzen** (gesuchte hervorgehoben), **Erfahrung** (Zahl der durchgeführten Seminare, in denen die Person schon im Team war, Erfahrung in der Seminarleitung, Freitext), Nachricht, **Überschneidungen** mit ihren bestätigten Seminaren, eine **interne Notiz** und die Aktionen „Ins Team“ bzw. „Nicht berücksichtigen“. Darunter fasst „Zusammensetzung des Teams“ zusammen: Größe, Geschlechter, Durchschnittsalter, Zahl mit Interesse oder Erfahrung in der Seminarleitung und welche gesuchten Kompetenzen abgedeckt sind oder fehlen. Alter und Geschlecht sehen nur Personen mit `seminars.manage`.
+5. **Entscheidung:** „Ins Team“ geht nur, solange der Bedarf nicht gedeckt ist. Die Person bekommt eine E-Mail (im Team: mit Schule und Terminen; nicht berücksichtigt: nur Titel und ein Hinweis auf die Kriterien). Ist das Team vollständig, weist die Seite darauf hin, das Seminar auf „Bestätigt“ zu setzen. Wird ein Seminar **abgesagt**, erfahren es alle mit Interesse und alle im Team per E-Mail.
+6. **Kalender:** Teamende laden ihre Termine als Kalenderdatei (`/teamende/seminare/kalender.ics`) herunter.
+
+**Profil der Teamenden:** Kompetenzen (Katalog in `config/portal.php` unter `team.competences`), Erfahrungen, Erfahrung in der Seminarleitung und die **freiwillige** Angabe zum Geschlecht (weiblich, männlich, divers oder keine Angabe). Sichtbar nur für die Person selbst und die Koordination, nur für die Teamzusammenstellung. Der Seminarbereich weist Teamende auf ein leeres Profil hin.
+
+**Verlauf und Protokoll:** Interesse, Rückzug, Aufnahme und Nicht-Berücksichtigung stehen mit Namen im Verlauf des Seminars (nur für die Koordination sichtbar). Das allgemeine Protokoll bekommt `seminar.team_decided` nur mit Seminar und Entscheidung, ohne Namen; Profil- und Notizinhalte stehen nie darin.
+
+Tabellen: `seminar_applications` (Seminar, Konto, Stand, Nachricht, Leitung, interne Notiz, Entscheidung), `team_profiles`, Spalten `seminars.team_needed/application_deadline/team_competences/deadline_notified_at`.
 
 ## Erinnerungen zur Einarbeitung
 

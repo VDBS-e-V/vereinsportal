@@ -7,7 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 
-/** Nachricht an Teamende zu einer Bewerbung: bestätigt (mit Schule und Terminen), abgelehnt oder Seminar abgesagt (nur Titel). */
+/** Nachricht an Teamende nach der Teamzusammenstellung: im Team (mit Schule und Terminen), nicht berücksichtigt oder Seminar abgesagt (nur Titel). */
 final class SeminarTeamMail extends Mailable
 {
     public function __construct(public readonly string $kind, public readonly Seminar $seminar, public readonly string $url) {}
@@ -15,9 +15,9 @@ final class SeminarTeamMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(subject: match ($this->kind) {
-            'confirmed' => 'Ihre Bewerbung wurde bestätigt: '.$this->seminar->title,
+            'confirmed' => 'Sie sind im Team: '.$this->seminar->title,
             'cancelled' => 'Seminar abgesagt: '.$this->seminar->title,
-            default => 'Ihre Bewerbung auf '.$this->seminar->title,
+            default => 'Ihr Interesse an '.$this->seminar->title,
         });
     }
 

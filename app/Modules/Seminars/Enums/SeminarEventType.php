@@ -30,10 +30,10 @@ enum SeminarEventType: string
             self::QuoteUpdated => 'Kostenvoranschlag geändert',
             self::Note => 'Notiz',
             self::TeamNeedChanged => 'Bedarf an Teamenden geändert',
-            self::TeamApplied => 'Bewerbung eingegangen',
-            self::TeamWithdrawn => 'Bewerbung zurückgezogen',
-            self::TeamConfirmed => 'Teamende:r bestätigt',
-            self::TeamDeclined => 'Bewerbung abgelehnt',
+            self::TeamApplied => 'Interesse bekundet',
+            self::TeamWithdrawn => 'Interesse zurückgezogen',
+            self::TeamConfirmed => 'In das Team aufgenommen',
+            self::TeamDeclined => 'Nicht berücksichtigt',
         };
     }
 

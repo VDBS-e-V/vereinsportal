@@ -13,9 +13,9 @@ enum ApplicationStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Applied => 'Beworben',
-            self::Confirmed => 'Bestätigt',
-            self::Declined => 'Abgelehnt',
+            self::Applied => 'Interesse bekundet',
+            self::Confirmed => 'Im Team',
+            self::Declined => 'Nicht berücksichtigt',
             self::Withdrawn => 'Zurückgezogen',
         };
     }
