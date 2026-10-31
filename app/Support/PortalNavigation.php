@@ -67,6 +67,7 @@ final class PortalNavigation
                 'roles' => [RoleKey::Team],
                 'routes' => ['onboarding.documents.*'],
                 'pages' => [
+                    ['label' => 'Seminare', 'route' => 'seminar-applications.index', 'match' => 'seminar-applications.*', 'can' => 'seminars.apply'],
                     ['label' => 'Einarbeitung', 'route' => 'team-self.index', 'match' => 'team-self.*', 'can' => 'team.onboarding'],
                 ],
             ],

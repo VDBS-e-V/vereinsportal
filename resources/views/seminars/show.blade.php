@@ -112,6 +112,8 @@
         @endif
     </section>
 
+    @include('seminars._team')
+
     <section aria-labelledby="history-heading" style="margin-top:var(--space-8)">
         <h2 id="history-heading" style="font-size:var(--font-size-h3)">Verlauf</h2>
 

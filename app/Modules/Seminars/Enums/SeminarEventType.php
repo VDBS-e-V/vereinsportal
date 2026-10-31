@@ -12,6 +12,11 @@ enum SeminarEventType: string
     case QuoteCreated = 'quote_created';
     case QuoteUpdated = 'quote_updated';
     case Note = 'note';
+    case TeamNeedChanged = 'team_need_changed';
+    case TeamApplied = 'team_applied';
+    case TeamWithdrawn = 'team_withdrawn';
+    case TeamConfirmed = 'team_confirmed';
+    case TeamDeclined = 'team_declined';
 
     public function label(): string
     {
@@ -24,14 +29,19 @@ enum SeminarEventType: string
             self::QuoteCreated => 'Kostenvoranschlag erstellt',
             self::QuoteUpdated => 'Kostenvoranschlag geändert',
             self::Note => 'Notiz',
+            self::TeamNeedChanged => 'Bedarf an Teamenden geändert',
+            self::TeamApplied => 'Bewerbung eingegangen',
+            self::TeamWithdrawn => 'Bewerbung zurückgezogen',
+            self::TeamConfirmed => 'Teamende:r bestätigt',
+            self::TeamDeclined => 'Bewerbung abgelehnt',
         };
     }
 
     public function tone(): string
     {
         return match ($this) {
-            self::StatusChanged, self::QuoteCreated, self::QuoteUpdated => 'success',
-            self::SessionRemoved => 'warning',
+            self::StatusChanged, self::QuoteCreated, self::QuoteUpdated, self::TeamConfirmed => 'success',
+            self::SessionRemoved, self::TeamWithdrawn, self::TeamDeclined => 'warning',
             default => 'neutral',
         };
     }

@@ -5,6 +5,7 @@ namespace App\Modules\Onboarding;
 use App\Modules\Access\Events\AccountAnonymizing;
 use App\Modules\AccessGovernance\Events\RoleGranted;
 use App\Modules\Membership\Events\MembershipAdmitted;
+use App\Modules\Onboarding\Console\RemindTeamOnboarding;
 use App\Modules\Onboarding\Listeners\RemoveOnboardingOnAccountDeletion;
 use App\Modules\Onboarding\Listeners\SendWelcomeOnAdmission;
 use App\Modules\Onboarding\Listeners\StartTeamOnboarding;
@@ -20,6 +21,10 @@ class OnboardingServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([RemindTeamOnboarding::class]);
+        }
 
         Event::listen(MembershipAdmitted::class, SendWelcomeOnAdmission::class);
         Event::listen(RoleGranted::class, StartTeamOnboarding::class);

@@ -50,6 +50,9 @@ enum Capability: string
     /** Die eigene Einarbeitung als Teamende sehen und Erklärungen bestätigen (Bereich Teamende). */
     case TeamOnboardingOwn = 'team.onboarding';
 
+    /** Offene Seminare sehen, sich bewerben und den eigenen Kalender abrufen (Teamende). */
+    case SeminarsApply = 'seminars.apply';
+
     /** Zugangsanträge ansehen (Bereich Geschäftsstelle). */
     case AccessRequestsView = 'access_requests.view';
 

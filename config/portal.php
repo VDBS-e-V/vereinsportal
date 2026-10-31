@@ -180,6 +180,8 @@ return [
      */
     'onboarding' => [
         'welcome_on_admission' => (bool) env('ONBOARDING_WELCOME_ON_ADMISSION', true),
+        // Erinnerung an Teamende mit offener Einarbeitung (Befehl onboarding:remind-team, täglich geplant)
+        'reminder' => ['after_days' => 14, 'repeat_days' => 14, 'max' => 3],
     ],
 
     /*

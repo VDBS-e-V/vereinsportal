@@ -3,7 +3,9 @@
 use App\Modules\Seminars\Http\Controllers\SeminarController;
 use App\Modules\Seminars\Http\Controllers\SeminarPriceController;
 use App\Modules\Seminars\Http\Controllers\SeminarQuoteController;
+use App\Modules\Seminars\Http\Controllers\SeminarTeamController;
 use App\Modules\Seminars\Http\Controllers\SeminarTextController;
+use App\Modules\Seminars\Http\Controllers\TeamSeminarController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,6 +23,8 @@ Route::middleware(['web', 'auth'])->group(function (): void {
             Route::post('/{seminar}/status', [SeminarController::class, 'status'])->whereNumber('seminar')->name('status');
             Route::post('/{seminar}/notiz', [SeminarController::class, 'note'])->whereNumber('seminar')->name('note');
             Route::post('/{seminar}/termine', [SeminarController::class, 'storeSession'])->whereNumber('seminar')->name('sessions.store');
+            Route::put('/{seminar}/bedarf', [SeminarTeamController::class, 'need'])->whereNumber('seminar')->name('team.need');
+            Route::post('/{seminar}/bewerbungen/{application}/{decision}', [SeminarTeamController::class, 'decide'])->whereNumber(['seminar', 'application'])->where('decision', 'bestaetigen|ablehnen')->name('team.decide');
             Route::delete('/{seminar}/termine/{session}', [SeminarController::class, 'destroySession'])->whereNumber(['seminar', 'session'])->name('sessions.destroy');
         });
 
@@ -58,5 +62,12 @@ Route::middleware(['web', 'auth'])->group(function (): void {
         });
 
         Route::get('/', [SeminarPriceController::class, 'index'])->middleware('can:seminars.view')->name('index');
+    });
+
+    Route::prefix('teamende/seminare')->name('seminar-applications.')->middleware('can:seminars.apply')->group(function (): void {
+        Route::get('/', [TeamSeminarController::class, 'index'])->name('index');
+        Route::get('/kalender.ics', [TeamSeminarController::class, 'calendar'])->name('calendar');
+        Route::post('/{seminar}/bewerbung', [TeamSeminarController::class, 'apply'])->whereNumber('seminar')->middleware('throttle:20,10')->name('apply');
+        Route::delete('/{seminar}/bewerbung', [TeamSeminarController::class, 'withdraw'])->whereNumber('seminar')->name('withdraw');
     });
 });

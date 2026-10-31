@@ -61,12 +61,16 @@ class SeminarController extends Controller
                 'planned' => Seminar::query()->whereIn('status', [SeminarStatus::Scheduled->value, SeminarStatus::Confirmed->value])->count(),
             ],
             'canManage' => Gate::allows('seminars.manage'),
+            'teamOpen' => $team->isOpen($seminar),
+            'teamConfirmed' => $seminar->applications->where('status', \App\Modules\Seminars\Enums\ApplicationStatus::Confirmed)->count(),
+            'conflicts' => $seminar->applications->mapWithKeys(fn ($application): array => [$application->id => $team->conflicts($application->user, $seminar)->pluck('title')->all()]),
         ]);
     }
 
     public function show(Seminar $seminar): View
     {
-        $seminar->load(['partner', 'sessions', 'events.actor', 'quotes', 'createdBy.person', 'updatedBy.person']);
+        $seminar->load(['partner', 'sessions', 'events.actor', 'quotes', 'createdBy.person', 'updatedBy.person', 'applications.user.person']);
+        $team = app(\App\Modules\Seminars\Services\TeamApplications::class);
 
         return view('seminars.show', [
             'seminar' => $seminar,

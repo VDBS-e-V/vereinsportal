@@ -50,6 +50,7 @@ enum AuditEvent: string
     case SeminarQuoteDeleted = 'seminar.quote_deleted';
     case SeminarPricesChanged = 'seminar.prices_changed';
     case SeminarTextsChanged = 'seminar.texts_changed';
+    case SeminarTeamDecided = 'seminar.team_decided';
 
     case ArticleCreated = 'article.created';
     case ArticleUpdated = 'article.updated';
@@ -106,6 +107,7 @@ enum AuditEvent: string
             self::SeminarQuoteDeleted => 'Kostenvoranschlag gelöscht',
             self::SeminarPricesChanged => 'Preisliste der Seminare geändert',
             self::SeminarTextsChanged => 'Texte der Seminarprodukte geändert',
+            self::SeminarTeamDecided => 'Bewerbung auf Seminar entschieden',
             self::ArticleCreated => 'Artikel angelegt',
             self::ArticleUpdated => 'Artikel geändert',
             self::ArticleDeleted => 'Artikel gelöscht',
@@ -129,7 +131,7 @@ enum AuditEvent: string
             self::RoleAssigned, self::RoleEnded => 'roles',
             self::PersonCreated, self::PersonUpdated, self::PersonDeleted => 'people',
             self::PartnerCreated, self::PartnerUpdated, self::PartnerDeleted, self::PartnersImported => 'partners',
-            self::SeminarCreated, self::SeminarUpdated, self::SeminarDeleted, self::SeminarStatusChanged, self::SeminarQuoteCreated, self::SeminarQuoteUpdated, self::SeminarQuoteDeleted, self::SeminarPricesChanged, self::SeminarTextsChanged => 'seminars',
+            self::SeminarCreated, self::SeminarUpdated, self::SeminarDeleted, self::SeminarStatusChanged, self::SeminarQuoteCreated, self::SeminarQuoteUpdated, self::SeminarQuoteDeleted, self::SeminarPricesChanged, self::SeminarTextsChanged, self::SeminarTeamDecided => 'seminars',
             self::ArticleCreated, self::ArticleUpdated, self::ArticleDeleted => 'articles',
             self::PageUpdated => 'pages',
             self::AccessRequestApproved, self::AccessRequestRejected => 'access_requests',

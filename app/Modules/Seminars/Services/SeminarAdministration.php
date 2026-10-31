@@ -80,6 +80,10 @@ final class SeminarAdministration
 
         $this->record($seminar, SeminarEventType::StatusChanged, $by, $comment, ['von' => $from->value, 'nach' => $target->value]);
         AuditLog::record(AuditEvent::SeminarStatusChanged, $by, $seminar, ['von' => $from->label(), 'nach' => $target->label()]);
+
+        if ($target === SeminarStatus::Cancelled) {
+            app(TeamApplications::class)->notifyCancelled($seminar);
+        }
     }
 
     /** @param  array{date: string, start: string, end: string, location?: ?string, notes?: ?string}  $data */

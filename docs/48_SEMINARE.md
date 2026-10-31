@@ -1,7 +1,7 @@
 # 48 Seminare (Schulseminare und Kostenrechner)
 
 Bereich **Koordination**, Seiten **Seminare** (`/koordination/seminare`) und **Preise** (`/koordination/preise`). Umgesetzt sind die Stufen 1 und 2
-aus `docs/47_SEMINARPLANUNG.md` für vier Produkte: **SV-Tage**, **SV-Coaching**, **SV-Wahl** und **Begleitung GSV-Sitzungen**. SV-Fahrt, Teamende-Bewerbung und das Anmeldesystem
+aus `docs/47_SEMINARPLANUNG.md` für vier Produkte: **SV-Tage**, **SV-Coaching**, **SV-Wahl** und **Begleitung GSV-Sitzungen**. SV-Fahrt, das Anmeldesystem
 für Großveranstaltungen folgen später.
 
 ## Rechte
@@ -70,3 +70,20 @@ Die Voreinstellungen von „Begleitung GSV-Sitzungen“ (4 Sitzungen, 1 Teamende
 
 **Preisliste:** `seminar_price_lists` (Beträge in Cent als JSON). Die Migration legt den „Preisstand Oktober 2025“ an. Änderungen erzeugen eine neue Fassung
 mit Gültigkeitsbeginn; die zurzeit gültige ist die mit dem jüngsten erreichten Beginn. Alte Kostenvoranschläge behalten ihren Preisstand.
+
+## Teamende bewerben sich (Stufe 3)
+
+Bereich **Teamende**, Seite **Seminare** (`/teamende/seminare`, Berechtigung `seminars.apply` für die Rolle Teamende). Umsetzung von Abschnitt 7 aus `docs/47_SEMINARPLANUNG.md`.
+
+- **Freigabe:** Die Koordination trägt am Seminar den **Bedarf an Teamenden** ein (Abschnitt „Teamende“ auf der Seminarseite, `seminars.manage`). Ein Seminar ist offen, wenn es **Terminiert** ist, ein Bedarf besteht und der Bedarf noch nicht durch Bestätigte gedeckt ist.
+- **Teamende** sehen Titel, Leistung, Ort (nur die Stadt), Termine, offene Plätze und einen Honorar-Überblick (Satz je Einsatztag aus dem neuesten Kostenvoranschlag, ohne Pauschalen). Sie bewerben sich mit optionaler Nachricht (300 Zeichen), ziehen die Bewerbung zurück (nur solange sie nicht entschieden ist) und können sich danach erneut bewerben. Abgelehnte Bewerbungen lassen sich nicht wiederholen. Schulname und Adresse sehen erst Bestätigte.
+- **Überschneidungen:** Teamende sehen eine Warnung, wenn ein Termin mit einem eigenen bestätigten Seminar kollidiert; die Koordination sieht sie an der Bewerbung.
+- **Koordination** bestätigt oder lehnt ab. Bestätigen geht nur, solange der Bedarf nicht gedeckt ist. Die Person bekommt eine E-Mail (bestätigt: mit Schule und Terminen; abgelehnt: nur Titel). Wird ein Seminar **abgesagt**, erfahren es alle Beworbenen und Bestätigten per E-Mail. Ist der Bedarf gedeckt, weist die Seite darauf hin, das Seminar jetzt auf „Bestätigt“ zu setzen.
+- **Kalender:** Bestätigte Teamende laden ihre Termine als Kalenderdatei (`/teamende/seminare/kalender.ics`, iCalendar) herunter.
+- **Verlauf und Protokoll:** Bewerbung, Rückzug, Bestätigung und Ablehnung stehen mit Namen im Verlauf des Seminars (nur für die Koordination sichtbar). Das allgemeine Protokoll bekommt `seminar.team_decided` nur mit Seminar und Entscheidung, ohne Namen.
+- Tabellen: `seminar_applications` (Seminar, Konto, Stand, Nachricht, Entscheidung), Spalte `seminars.team_needed`.
+
+## Erinnerungen zur Einarbeitung
+
+`php artisan onboarding:remind-team` (täglich geplant) schickt Teamende mit offener Einarbeitung eine E-Mail, **14 Tage nach Beginn**, dann alle **14 Tage**, **höchstens dreimal**
+(`portal.onboarding.reminder`). Die Mail nennt nur die Zahl der offenen Schritte, nie welche. `--dry-run` zählt nur. Abgeschlossene Einarbeitungen und Konten ohne Teamende-Rolle bekommen nichts.

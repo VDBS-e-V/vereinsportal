@@ -22,7 +22,7 @@ class Seminar extends Model
 
     protected $attributes = ['status' => 'request'];
 
-    protected $fillable = ['title', 'type', 'partner_id', 'status', 'grade_level', 'expected_participants', 'notes', 'created_by_user_id', 'updated_by_user_id'];
+    protected $fillable = ['title', 'type', 'partner_id', 'status', 'grade_level', 'expected_participants', 'team_needed', 'notes', 'created_by_user_id', 'updated_by_user_id'];
 
     protected function casts(): array
     {
@@ -45,6 +45,12 @@ class Seminar extends Model
     public function events(): HasMany
     {
         return $this->hasMany(SeminarEvent::class)->orderByDesc('occurred_at')->orderByDesc('id');
+    }
+
+    /** @return HasMany<SeminarApplication, $this> */
+    public function applications(): HasMany
+    {
+        return $this->hasMany(SeminarApplication::class)->orderBy('created_at')->orderBy('id');
     }
 
     /** @return HasMany<SeminarQuote, $this> */
