@@ -54,6 +54,10 @@ it('shows the hero image with centered title and solid quick links below', funct
     expect(is_file(public_path('images/portal/hero-bibliothek.jpg')) && is_file(public_path('images/portal/kontakt.jpg')))->toBeTrue();
 });
 
+it('offers print, theme switch and back to top under "Diese Seite" in the footer', function () {
+    $this->get('/')->assertSee('Diese Seite')->assertSee('Drucken')->assertSee('Darstellung wechseln')->assertSee('<a href="#top">Zum Seitenanfang</a>', false);
+});
+
 it('does not use placeholder images on the real start page', function () {
     $this->get('/')->assertDontSee('/images/placeholder/', false);
 });

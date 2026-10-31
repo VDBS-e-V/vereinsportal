@@ -16,7 +16,9 @@
 .vdbs-contact-block__actions { display: flex; flex-wrap: wrap; gap: var(--space-4); }
 
 @media (min-width: 768px) {
-    .vdbs-contact-block { grid-template-columns: 1fr 1fr; gap: var(--space-8); }
+    .vdbs-contact-block { gap: var(--space-8); }
+    /* Größenverhältnis wie bei der FU: Text etwa ein Drittel, Bild zwei Drittel (Bild links: 2fr 1fr) */
+    .vdbs-contact-block:has(.vdbs-contact-block__media) { grid-template-columns: 2fr 1fr; }
 }
 
 .vdbs-contact-block--surface { padding: var(--space-5); background: var(--bg-surface); }
