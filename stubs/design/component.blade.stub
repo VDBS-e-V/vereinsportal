@@ -1,0 +1,16 @@
+@props(['variant' => 'default'__PROPS__])
+
+{{--
+    __TITLE__ (Paket "__PACKAGE_TITLE__"): hier beschreiben, wofür die Komponente da ist.
+    variant  default (weitere Varianten in $variants eintragen und in __NAME__.css gestalten)
+    Slot: Standard (Inhalt)
+--}}
+
+@php
+    $variants = ['default'];
+    $variant = in_array($variant, $variants, true) ? $variant : 'default';
+@endphp
+
+<div {{ $attributes->class(['vdbs-__NAME__', "vdbs-__NAME__--{$variant}"]) }}>
+    {{ $slot }}
+</div>

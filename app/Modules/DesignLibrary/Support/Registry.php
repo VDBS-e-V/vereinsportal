@@ -34,7 +34,41 @@ final class Registry
         return self::all()->groupBy(fn (array $entry): string => $entry['category']->value);
     }
 
+    /**
+     * Komponenten aus den Paket-Manifesten (app/Modules/DesignLibrary/Packages/<paket>.php, angelegt von design:package und design:component).
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function packageDefinitions(?string $directory = null): array
+    {
+        $definitions = [];
+
+        foreach (glob(($directory ?? __DIR__.'/../Packages').'/*.php') ?: [] as $file) {
+            $manifest = require $file;
+            $package = basename($file, '.php');
+
+            foreach ($manifest['components'] ?? [] as $component) {
+                $definitions[] = [
+                    'slug' => $package.'-'.$component['name'],
+                    'title' => $component['title'],
+                    'description' => $component['description'],
+                    'category' => LibraryCategory::Components,
+                    'status' => LifecycleStatus::tryFrom((string) ($component['status'] ?? '')) ?? LifecycleStatus::Experimental,
+                    'styleguide' => 'Paket '.$manifest['title'],
+                    'width' => $component['width'] ?? 'default',
+                ];
+            }
+        }
+
+        return $definitions;
+    }
+
     private static function definitions(): array
+    {
+        return array_merge(self::coreDefinitions(), self::packageDefinitions());
+    }
+
+    private static function coreDefinitions(): array
     {
         return [
             ['slug' => 'farben', 'title' => 'Farben & semantische Tokens', 'description' => 'Markenfarben, Gruppenfarben und die semantischen Tokens, die im Code verwendet werden.', 'category' => LibraryCategory::Tokens, 'status' => LifecycleStatus::Stable, 'styleguide' => 'Kap. 2'],

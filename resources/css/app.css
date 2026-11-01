@@ -14,6 +14,7 @@
 @import './vdbs/components/media/index.css';
 @import './vdbs/components/disclosure/index.css';
 @import './vdbs/components/content/index.css';
+/* design-packages:imports (hier ergänzt `php artisan design:package` neue Pakete; Zeile nicht entfernen) */
 
 /*
  * Dateien unter ./vdbs/components/_legacy/ (editorial, events, contacts,

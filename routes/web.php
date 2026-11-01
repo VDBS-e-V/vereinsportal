@@ -19,6 +19,7 @@ Route::get('/', [HomeController::class, 'index'])->middleware('web')->name('home
 // Start-Bereich: öffentliche Informationsseiten (Zeile 2 des Kopfbereichs, siehe docs/43_BEREICHE.md).
 Route::middleware('web')->group(function (): void {
     Route::view('/ueber-das-portal', 'portal.about')->name('portal.about');
+    Route::view('/design-pakete', 'portal.design-packages')->name('portal.design-packages');
     Route::get('/kontakt', [ContactController::class, 'show'])->name('portal.contact');
     Route::post('/kontakt', [ContactController::class, 'send'])->middleware(['bot.guard', 'throttle:5,10'])->name('portal.contact.send');
 });

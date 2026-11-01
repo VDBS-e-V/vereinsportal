@@ -1,0 +1,10 @@
+
+it('renders __PACKAGE__ __NAME__ with its class, the slot and the default variant', function () {
+    $html = Blade::render('<x-vdbs.__PACKAGE__.__NAME__>Inhalt</x-vdbs.__PACKAGE__.__NAME__>');
+
+    expect($html)->toContain('vdbs-__NAME__')->toContain('vdbs-__NAME__--default')->toContain('Inhalt');
+});
+
+it('falls back to the default variant for unknown values of __PACKAGE__ __NAME__', function () {
+    expect(Blade::render('<x-vdbs.__PACKAGE__.__NAME__ variant="gibt-es-nicht">x</x-vdbs.__PACKAGE__.__NAME__>'))->toContain('vdbs-__NAME__--default');
+});
