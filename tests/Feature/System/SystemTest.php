@@ -133,7 +133,7 @@ it('labels the system event in the audit log', function () {
 it('gives a board member the system pages only after the console grants the administration role', function () {
     $board = sysUser(RoleKey::BoardMember);
 
-    $this->actingAs($board)->get(route('admins.home'))->assertOk()->assertSee('Protokoll')->assertDontSee('Aufgaben');
+    $this->actingAs($board)->get(route('admins.home'))->assertOk()->assertSee('Protokoll')->assertDontSee('/admins/system');
     $this->get(route('system.index'))->assertForbidden();
 
     $this->artisan('role:grant-administration', ['email' => $board->email])->assertSuccessful();
@@ -142,7 +142,7 @@ it('gives a board member the system pages only after the console grants the admi
 
     expect($board->activeRoleAssignments()->whereHas('role', fn ($q) => $q->where('key', RoleKey::Administration->value))->count())->toBe(1);
 
-    $this->actingAs($board->fresh())->get(route('admins.home'))->assertOk()->assertSee('Aufgaben');
+    $this->actingAs($board->fresh())->get(route('admins.home'))->assertOk()->assertSee('/admins/system', false);
     $this->get(route('system.index'))->assertOk();
 });
 

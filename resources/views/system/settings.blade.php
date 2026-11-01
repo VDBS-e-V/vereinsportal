@@ -24,7 +24,10 @@
 
     <section aria-labelledby="testmail-title" style="margin-top:var(--space-8)">
         <h2 id="testmail-title" style="font-size:var(--font-size-h3)">Testmail senden</h2>
-        <p>Prüft den E-Mail-Versand mit den oben genannten Einstellungen.@if (in_array($mailer, ['log', 'array'], true)) <strong>Der Treiber „{{ $mailer }}“ stellt nichts zu:</strong> Die Mail erscheint nur im Fehlerprotokoll.@endif</p>
+        <p>Prüft den E-Mail-Versand mit den oben genannten Einstellungen.</p>
+        @if (in_array($mailer, ['log', 'array'], true))
+            <x-vdbs.feedback.alert variant="warning">Der Treiber „{{ $mailer }}“ stellt nichts zu: Die Mail erscheint nur im Fehlerprotokoll.</x-vdbs.feedback.alert>
+        @endif
 
         <x-vdbs.forms.form :action="route('system.settings.test-mail')" method="post" :summary="false">
             <x-vdbs.forms.input name="to" type="email" label="Empfänger" :required="true" maxlength="190" :value="$ownEmail" autocomplete="email" />

@@ -15,7 +15,10 @@
             <x-vdbs.forms.select name="stufe" label="Stufe" placeholder="Alle" :options="$levelOptions" :value="$filters['level']" />
         </x-vdbs.data.toolbar>
 
-        <p style="color:var(--text-muted)">Datei {{ $file }}, {{ number_format($size / 1024, 0, ',', '.') }} KB@if ($truncated), angezeigt wird nur das Ende (die letzten 2 MB)@endif.</p>
+        @php
+            $fileInfo = 'Datei '.$file.', '.number_format($size / 1024, 0, ',', '.').' KB'.($truncated ? ', angezeigt wird nur das Ende (die letzten 2 MB)' : '').'.';
+        @endphp
+        <p style="color:var(--text-muted)">{{ $fileInfo }}</p>
 
         @if ($entries->isEmpty())
             <x-vdbs.feedback.empty-state title="Keine passenden Einträge" icon="clipboard-list"><p>Zu Ihrer Auswahl gibt es keine Einträge.</p></x-vdbs.feedback.empty-state>
