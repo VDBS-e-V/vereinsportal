@@ -12,7 +12,16 @@ Menü im Bereich Konto: **Profil ▾** (Mein Profil, Profil bearbeiten, Sichtbar
 - Dienste: `Profiles` (Speichern, Sichtbarkeit, `shownTo` als einzige Stelle der Sichtbarkeitsprüfung), `ProfilePhotos` (Upload wird mittig quadratisch zugeschnitten, auf 512 Pixel verkleinert und als JPEG neu geschrieben; Metadaten fallen weg; Ablage privat).
 - Profilbild: Der Header-Avatar zeigt immer das eigene Foto. Andere sehen es nur nach der gewählten Sichtbarkeit; die Auslieferung (`profile.photo`) prüft sie bei jedem Abruf (404 sonst). Das Foto hat keinen eigenen Alternativtext; als Avatar gilt der Anzeigename.
 - Protokoll: `account.profile_edited`, `account.profile_visibility_changed`, `account.profile_photo_changed` ohne Inhalte. „Profil geändert“ heißt jetzt „Stammdaten geändert“.
-- Konto löschen entfernt Profil und Foto.
+- Konto löschen entfernt Profil, Foto und Benachrichtigungs-Einstellungen.
+
+### Mitgliedschaft und Portalkonto sind getrennt
+
+Das **Portalkonto** (Konto: Profil, Stammdaten, Anmeldung, Rollen & Bereiche, Einstellungen, Daten & Löschung) und die **Mitgliedschaft im Verein** (Bereich Mitglieder: Übersicht, Mitgliedschaft mit Status, Beitritt, Austritt) sind getrennt. Im Konto steht nur eine Textzeile zum Status (mit Link, wenn der Bereich Mitglieder offensteht). Die Verwaltung der Mitgliedschaften bleibt im Bereich Vorstand.
+
+### Einstellungen
+
+- **Benachrichtigungen** (`account.notifications`): Schalter je optionaler Mail; angezeigt werden nur Einträge, die zu den Berechtigungen des Kontos passen. Ohne Eintrag gilt „an“. Pflichtmails (Zwei-Faktor, Passwort, E-Mail-Änderung, Löschung, Einladungen) sind nicht abschaltbar. Der Katalog steht in `NotificationPreferences::catalog()`; wer eine optionale Mail an Konten schickt, ruft `allows()` oder `filter()` auf. Eingebunden: Entscheidungen zu Seminaren, Erinnerungen an die Einarbeitung, Stichtag abgelaufen, Nachrichten von Schulen, neue Mitgliedsanträge, neue Zugangsanträge, Erinnerung an Anmeldefristen (Schulen).
+- **Darstellung** (`account.appearance`): Hell, Dunkel oder wie das Gerät (nur in diesem Browser, `localStorage`).
 
 ## 1. Ziel und Begriffe
 

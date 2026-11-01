@@ -57,7 +57,7 @@ it('ignores keys that do not belong to the account and unknown keys', function (
     $user = nsUser(RoleKey::Coordination);
     $this->actingAs($user)->put(route('account.notifications.update'), ['notifications' => ['new_applications', 'erfunden']]);
 
-    expect(\Illuminate\Support\Facades\DB::table('notification_preferences')->where('user_id', $user->id)->pluck('key')->sort()->values()->all())->toBe(['school_requests', 'seminar_deadline'])
+    expect(\Illuminate\Support\Facades\DB::table('notification_preferences')->where('user_id', $user->id)->pluck('key')->all())->toContain('school_requests')->toContain('seminar_deadline')->not->toContain('new_applications')->not->toContain('erfunden')
         ->and(app(NotificationPreferences::class)->allows($user, 'erfunden'))->toBeTrue();
 });
 
