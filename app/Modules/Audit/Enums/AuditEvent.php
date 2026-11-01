@@ -76,6 +76,8 @@ enum AuditEvent: string
 
     case AuditExported = 'audit.exported';
 
+    case SystemTaskRun = 'system.task_run';
+
     public function label(): string
     {
         return match ($this) {
@@ -138,6 +140,7 @@ enum AuditEvent: string
             self::TeamOnboardingStarted => 'Einarbeitung der Teamenden begonnen',
             self::TeamOnboardingCompleted => 'Einarbeitung der Teamenden abgeschlossen',
             self::AuditExported => 'Protokoll exportiert',
+            self::SystemTaskRun => 'Systemaufgabe ausgeführt',
         };
     }
 
@@ -158,6 +161,7 @@ enum AuditEvent: string
             self::AccessRequestApproved, self::AccessRequestRejected => 'access_requests',
             self::OnboardingDocumentUploaded, self::TeamOnboardingStarted, self::TeamOnboardingCompleted => 'onboarding',
             self::AuditExported => 'audit',
+            self::SystemTaskRun => 'system',
         };
     }
 
@@ -179,6 +183,7 @@ enum AuditEvent: string
             'pages' => 'Seiten',
             'events' => 'Veranstaltungen',
             'audit' => 'Protokoll',
+            'system' => 'System',
         ];
     }
 
@@ -187,7 +192,7 @@ enum AuditEvent: string
     {
         return match ($this) {
             self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::EventDeleted => 'error',
-            self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
+            self::SystemTaskRun, self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
             self::Login, self::UserEnabled, self::TwoFactorEnabled, self::TeamOnboardingCompleted => 'success',
             default => 'neutral',
         };

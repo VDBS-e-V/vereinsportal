@@ -8,6 +8,9 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+// Herzschlag des Planers: Die Systemsteuerung zeigt daran, ob der Cron-Eintrag läuft.
+Schedule::call(fn () => \Illuminate\Support\Facades\Cache::forever(\App\Modules\System\Services\SystemChecks::HEARTBEAT_KEY, time()))->name('system-heartbeat')->everyMinute();
+
 // Mitgliedschaften mit abgelaufenem Austrittsdatum beenden, Rolle Vereinsmitglied abgleichen.
 Schedule::command('membership:sync')->daily();
 

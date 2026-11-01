@@ -86,6 +86,9 @@ enum Capability: string
     /** Design-Bibliothek ansehen (Entwicklungswerkzeug). */
     case DesignView = 'design.view';
 
+    /** Systemsteuerung: Zustand ansehen und Aufgaben ausführen (nur Administration). */
+    case SystemManage = 'system.manage';
+
     /** Protokoll ansehen und exportieren. */
     case AuditView = 'audit.view';
 }

@@ -158,6 +158,8 @@ final class PortalNavigation
                 'pages' => [
                     ['label' => 'Übersicht', 'route' => 'admins.home', 'match' => 'admins.home'],
                     ['description' => 'Das Protokoll sicherheitsrelevanter Vorgänge.', 'label' => 'Protokoll', 'route' => 'admin.audit.index', 'match' => 'admin.audit.*', 'can' => 'audit.view'],
+                    ['description' => 'Zustand des Portals: Prüfungen, Versionen, Planer.', 'label' => 'System', 'route' => 'system.index', 'match' => 'system.index', 'can' => 'system.manage'],
+                    ['description' => 'Aufgaben ausführen: Cache leeren, Migrationen, geplante Aufgaben.', 'label' => 'Aufgaben', 'route' => 'system.tasks', 'match' => 'system.tasks*', 'can' => 'system.manage'],
                     ['description' => 'Komponenten und Muster des Designsystems.', 'label' => 'Design-Bibliothek', 'route' => 'design-library.index', 'match' => 'design-library.*', 'can' => 'design.view'],
                 ],
             ],
