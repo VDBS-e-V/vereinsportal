@@ -17,6 +17,7 @@
     <a class="vdbs-skip-link" href="#inhalt">Zum Inhalt springen</a>
 
     <x-vdbs.navigation.portal-header :title="$title" />
+    @stack('vdbs-breadcrumb')
 
     <x-vdbs.feedback.flash />
 

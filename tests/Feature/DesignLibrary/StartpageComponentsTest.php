@@ -308,9 +308,10 @@ it('renders a timeline with time, actor, description and tone', function () {
 });
 
 it('renders the page header with breadcrumb, meta, actions and tabs', function () {
-    $html = Blade::render('<x-vdbs.layout.page-header title="Erika" eyebrow="Nutzer" lead="Lead" :breadcrumb="[[\'label\' => \'Start\', \'href\' => \'/\'], [\'label\' => \'Erika\']]"><x-slot:meta>Aktiv</x-slot:meta><x-slot:actions>Bearbeiten</x-slot:actions><x-slot:tabs>Tabs</x-slot:tabs></x-vdbs.layout.page-header>');
+    $html = Blade::render('<x-vdbs.layout.page-header title="Erika" eyebrow="Nutzer" lead="Lead" :breadcrumb="[[\'label\' => \'Start\', \'href\' => \'/\'], [\'label\' => \'Erika\']]"><x-slot:meta>Aktiv</x-slot:meta><x-slot:actions>Bearbeiten</x-slot:actions><x-slot:tabs>Tabs</x-slot:tabs></x-vdbs.layout.page-header>@stack(\'vdbs-breadcrumb\')');
 
     expect($html)
+        ->toContain('vdbs-breadcrumb-bar')
         ->toContain('<h1 class="vdbs-page-header__title" id="page-erika-title">Erika</h1>')
         ->toContain('aria-labelledby="page-erika-title"')
         ->toContain('vdbs-breadcrumb')

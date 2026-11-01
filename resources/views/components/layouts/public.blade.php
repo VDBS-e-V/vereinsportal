@@ -359,6 +359,7 @@
         :login-url="auth()->check() ? null : route('my.login')"
         :account="$account"
     />
+    @stack('vdbs-breadcrumb')
 
     @if ($showSettingsNavigation)
         <div class="account-local-navigation">
