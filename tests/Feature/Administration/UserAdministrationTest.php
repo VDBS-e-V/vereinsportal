@@ -99,8 +99,8 @@ it('only lets the administration assign the administration role', function () {
 });
 
 it('shows the administration link in the header only to permitted users', function () {
-    $this->actingAs(uaUser(RoleKey::AdministrationStaff))->get(route('home'))->assertSee(route('admin.users.index'), false);
-    $this->actingAs(uaUser(RoleKey::Member))->get(route('home'))->assertDontSee(route('admin.users.index'), false);
+    $this->actingAs(uaUser(RoleKey::AdministrationStaff))->get(route('home'))->assertSee(route('office.home'), false);
+    $this->actingAs(uaUser(RoleKey::Member))->get(route('home'))->assertDontSee(route('office.home'), false);
 });
 
 // ---------- Liste ----------

@@ -1,5 +1,5 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Koordination'], ['label' => 'Kostenvoranschläge', 'href' => route('seminar-quotes.index')], ['label' => $quote->partner->name.', '.$quote->created_at?->format('d.m.Y')]];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Geschäftsstelle'], ['label' => 'Kostenvoranschläge', 'href' => route('seminar-quotes.index')], ['label' => $quote->partner->name.', '.$quote->created_at?->format('d.m.Y')]];
     $money = fn ($cents) => \App\Modules\Seminars\Support\Money::format($cents);
     $author = fn ($user) => $user ? ($user->person?->fullName() ?: $user->email) : null;
     $fassung = $data['current'] ? null : $data['version'];

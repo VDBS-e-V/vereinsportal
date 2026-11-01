@@ -1,5 +1,5 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Koordination'], ['label' => 'Kostenvoranschläge']];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Geschäftsstelle'], ['label' => 'Kostenvoranschläge']];
     $total = $quotes->total();
     $count = $total === 1 ? '1 Kostenvoranschlag' : $total.' Kostenvoranschläge';
     $money = fn ($cents) => \App\Modules\Seminars\Support\Money::format($cents);

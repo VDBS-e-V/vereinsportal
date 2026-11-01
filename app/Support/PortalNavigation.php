@@ -37,12 +37,13 @@ final class PortalNavigation
                 'roles' => [],
                 'routes' => ['home', 'join.*', 'articles.public.*', 'pages.show'],
                 'pages' => [
-                    ['label' => 'Über das Portal', 'route' => 'portal.about', 'match' => 'portal.about'],
-                    ['label' => 'Zugang zum Portal', 'route' => 'portal.access', 'match' => 'portal.access*'],
-                    ['label' => 'FAQ', 'route' => 'portal.about', 'fragment' => 'portal-faq', 'match' => null],
+                    ['label' => 'Über das Portal', 'route' => 'portal.about', 'match' => 'portal.about', 'children' => [
+                        ['label' => 'Zugang zum Portal', 'route' => 'portal.access', 'match' => 'portal.access*'],
+                        ['label' => 'FAQ', 'route' => 'portal.about', 'fragment' => 'portal-faq', 'match' => null],
+                    ]],
                     ['label' => 'Veranstaltungen', 'route' => 'events.public.index', 'match' => 'events.public.*'],
-                    ['label' => 'Kontakt', 'route' => 'portal.contact', 'match' => 'portal.contact*'],
                     ['label' => 'Mitglied werden', 'route' => 'join.apply', 'match' => 'join.apply*'],
+                    ['label' => 'Kontakt', 'route' => 'portal.contact', 'match' => 'portal.contact*'],
                 ],
             ],
             PortalAreas::Konto->value => [
@@ -63,9 +64,10 @@ final class PortalNavigation
                 'roles' => [RoleKey::BoardMember],
                 'pages' => [
                     ['label' => 'Übersicht', 'route' => 'board.overview', 'match' => 'board.overview', 'can' => 'memberships.view'],
+                    ['label' => 'Mitgliedschaften', 'route' => 'membership.index', 'match' => 'membership.*', 'can' => 'memberships.view', 'children' => [
+                        ['label' => 'Willkommenspaket', 'route' => 'onboarding.member', 'match' => 'onboarding.member*', 'can' => 'memberships.view'],
+                    ]],
                     ['label' => 'Berichte', 'route' => 'board.reports', 'match' => 'board.reports*', 'can' => 'reports.view'],
-                    ['label' => 'Mitgliedschaften', 'route' => 'membership.index', 'match' => 'membership.*', 'can' => 'memberships.view'],
-                    ['label' => 'Willkommenspaket', 'route' => 'onboarding.member', 'match' => 'onboarding.member*', 'can' => 'memberships.view'],
                 ],
             ],
             PortalAreas::Mitglieder->value => [
@@ -80,7 +82,7 @@ final class PortalNavigation
                 'roles' => [RoleKey::Team],
                 'routes' => ['onboarding.documents.*'],
                 'pages' => [
-                    ['label' => 'Übersicht', 'route' => 'team.home', 'match' => 'team.home'],
+                    ['label' => 'Übersicht', 'route' => 'team.home', 'match' => 'team.home', 'can' => 'seminars.apply'],
                     ['description' => 'Seminare mit Stichtag, Ihr Interesse und Ihr Team.', 'label' => 'Seminare', 'route' => 'seminar-applications.index', 'match' => 'seminar-applications.*', 'can' => 'seminars.apply'],
                     ['description' => 'Ihre Angaben für die Teamzusammenstellung.', 'label' => 'Profil', 'route' => 'team-profile.edit', 'match' => 'team-profile.*', 'can' => 'seminars.apply'],
                     ['description' => 'Ihre Schritte der Einarbeitung.', 'label' => 'Einarbeitung', 'route' => 'team-self.index', 'match' => 'team-self.*', 'can' => 'team.onboarding'],
@@ -105,9 +107,6 @@ final class PortalNavigation
                     ['description' => 'Teamende und ihre Einarbeitung.', 'label' => 'Teamende', 'route' => 'team-onboarding.index', 'match' => 'team-onboarding.*', 'can' => 'team.view'],
                     ['description' => 'Seminare planen, Bewerbungen sichten, Teams zusammenstellen.', 'label' => 'Seminare', 'route' => 'seminars.index', 'match' => 'seminars.*', 'can' => 'seminars.view'],
                     ['description' => 'Veranstaltungen, Anmeldungen und Nachrichten.', 'label' => 'Veranstaltungen', 'route' => 'events.admin.index', 'match' => 'events.admin.*', 'can' => 'events.view'],
-                    ['description' => 'Kostenvoranschläge für Seminare.', 'label' => 'Kostenvoranschläge', 'route' => 'seminar-quotes.index', 'match' => 'seminar-quotes.*', 'can' => 'seminars.view'],
-                    ['description' => 'Textbausteine für Seminare.', 'label' => 'Texte', 'route' => 'seminar-texts.index', 'match' => 'seminar-texts.*', 'can' => 'seminars.view'],
-                    ['description' => 'Preislisten für Kostenvoranschläge.', 'label' => 'Preise', 'route' => 'seminar-prices.index', 'match' => 'seminar-prices.*', 'can' => 'seminars.view'],
                 ],
             ],
             PortalAreas::Geschaeftsstelle->value => [
@@ -115,11 +114,20 @@ final class PortalNavigation
                 'roles' => [RoleKey::AdministrationStaff, RoleKey::Administration],
                 'pages' => [
                     ['label' => 'Übersicht', 'route' => 'office.home', 'match' => 'office.home'],
-                    ['description' => 'Konten, Rollen und Sicherheit.', 'label' => 'Nutzer', 'route' => 'admin.users.index', 'match' => 'admin.users.*', 'can' => 'users.view'],
-                    ['description' => 'Anträge auf Zugang zum Portal.', 'label' => 'Zugangsanträge', 'route' => 'access-requests.index', 'match' => 'access-requests.*', 'can' => 'access_requests.view'],
-                    ['description' => 'Artikel für Startseite und Artikelliste.', 'label' => 'Artikel', 'route' => 'articles.admin.index', 'match' => 'articles.admin.*', 'can' => 'articles.manage'],
-                    ['description' => 'Rechtstexte und andere Seiten.', 'label' => 'Seiten', 'route' => 'pages.admin.index', 'match' => 'pages.admin.*', 'can' => 'pages.manage'],
-                    ['description' => 'Personen und ihre Kontaktdaten.', 'label' => 'Personen', 'route' => 'admin.people.index', 'match' => 'admin.people.*', 'can' => 'people.view'],
+                    ['label' => 'Personen & Zugang', 'group' => true, 'route' => 'admin.users.index', 'children' => [
+                        ['description' => 'Konten, Rollen und Sicherheit.', 'label' => 'Nutzer', 'route' => 'admin.users.index', 'match' => 'admin.users.*', 'can' => 'users.view'],
+                        ['description' => 'Anträge auf Zugang zum Portal.', 'label' => 'Zugangsanträge', 'route' => 'access-requests.index', 'match' => 'access-requests.*', 'can' => 'access_requests.view'],
+                        ['description' => 'Personen und ihre Kontaktdaten.', 'label' => 'Personen', 'route' => 'admin.people.index', 'match' => 'admin.people.*', 'can' => 'people.view'],
+                    ]],
+                    ['label' => 'Inhalte', 'group' => true, 'route' => 'articles.admin.index', 'children' => [
+                        ['description' => 'Artikel für Startseite und Artikelliste.', 'label' => 'Artikel', 'route' => 'articles.admin.index', 'match' => 'articles.admin.*', 'can' => 'articles.manage'],
+                        ['description' => 'Rechtstexte und andere Seiten.', 'label' => 'Seiten', 'route' => 'pages.admin.index', 'match' => 'pages.admin.*', 'can' => 'pages.manage'],
+                    ]],
+                    ['label' => 'Preise & Angebote', 'group' => true, 'route' => 'seminar-quotes.index', 'children' => [
+                        ['description' => 'Kostenvoranschläge für Seminare.', 'label' => 'Kostenvoranschläge', 'route' => 'seminar-quotes.index', 'match' => 'seminar-quotes.*', 'can' => 'seminars.view'],
+                        ['description' => 'Preislisten für Kostenvoranschläge.', 'label' => 'Preise', 'route' => 'seminar-prices.index', 'match' => 'seminar-prices.*', 'can' => 'seminars.view'],
+                        ['description' => 'Textbausteine für Kostenvoranschläge.', 'label' => 'Texte', 'route' => 'seminar-texts.index', 'match' => 'seminar-texts.*', 'can' => 'seminars.view'],
+                    ]],
                 ],
             ],
             PortalAreas::Bildungsreferenten->value => [
@@ -175,16 +183,28 @@ final class PortalNavigation
         $visible = [];
 
         foreach ($pages as $page) {
-            if (isset($page['can']) && ($user === null || ! $user->can($page['can']))) {
+            $children = self::visiblePages($page['children'] ?? [], $user, $routeName);
+            $group = (bool) ($page['group'] ?? false);
+
+            // Eine Gruppe ist nur ein Sammelpunkt im Menü: sie erscheint, wenn der Nutzer mindestens eine Seite darin sehen darf, und führt zur ersten davon.
+            if ($group) {
+                if ($children === []) {
+                    continue;
+                }
+            } elseif (isset($page['can']) && ($user === null || ! $user->can($page['can']))) {
                 continue;
             }
+
+            $current = ! $group && $routeName !== null && isset($page['match']) && Str::is($page['match'], $routeName);
 
             $visible[] = [
                 'label' => $page['label'],
                 'description' => $page['description'] ?? null,
-                'href' => route($page['route']).(isset($page['fragment']) ? '#'.$page['fragment'] : ''),
-                'current' => $routeName !== null && isset($page['match']) && Str::is($page['match'], $routeName),
-                'children' => self::visiblePages($page['children'] ?? [], $user, $routeName),
+                'href' => $group ? $children[0]['href'] : route($page['route']).(isset($page['fragment']) ? '#'.$page['fragment'] : ''),
+                'current' => $current,
+                'active' => $current || array_filter($children, fn (array $child): bool => $child['active']) !== [],
+                'group' => $group,
+                'children' => $children,
             ];
         }
 

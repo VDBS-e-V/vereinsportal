@@ -37,7 +37,7 @@ Route::middleware(['web', 'auth'])->group(function (): void {
         });
     });
 
-    Route::prefix('koordination/kostenvoranschlaege')->name('seminar-quotes.')->group(function (): void {
+    Route::prefix('geschaeftsstelle/kostenvoranschlaege')->name('seminar-quotes.')->group(function (): void {
         Route::middleware('can:seminars.manage')->group(function (): void {
             Route::get('/neu', [SeminarQuoteController::class, 'create'])->name('create');
             Route::post('/', [SeminarQuoteController::class, 'store'])->name('store');
@@ -53,12 +53,12 @@ Route::middleware(['web', 'auth'])->group(function (): void {
         });
     });
 
-    Route::prefix('koordination/texte')->name('seminar-texts.')->group(function (): void {
+    Route::prefix('geschaeftsstelle/texte')->name('seminar-texts.')->group(function (): void {
         Route::put('/', [SeminarTextController::class, 'update'])->middleware('can:seminars.prices')->name('update');
         Route::get('/', [SeminarTextController::class, 'index'])->middleware('can:seminars.view')->name('index');
     });
 
-    Route::prefix('koordination/preise')->name('seminar-prices.')->group(function (): void {
+    Route::prefix('geschaeftsstelle/preise')->name('seminar-prices.')->group(function (): void {
         Route::middleware('can:seminars.prices')->group(function (): void {
             Route::get('/neu', [SeminarPriceController::class, 'create'])->name('create');
             Route::post('/', [SeminarPriceController::class, 'store'])->name('store');

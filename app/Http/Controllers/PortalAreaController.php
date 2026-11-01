@@ -82,11 +82,15 @@ class PortalAreaController extends Controller
         $area = PortalAreas::from($area);
         $user = $request->user();
 
-        abort_unless(PortalNavigation::canEnter($area, $user), 403);
+        abort_unless(in_array($area, PortalNavigation::visibleAreas($user), true), 403);
 
         $routeName = $request->route()->getName();
         $pages = array_values(array_filter(PortalNavigation::pages($area, $user, $routeName), fn (array $page): bool => ! $page['current']));
-        $hrefs = array_column($pages, 'href');
+        $hrefs = [];
+
+        foreach ($pages as $page) {
+            $hrefs = [...$hrefs, $page['href'], ...array_column($page['children'], 'href')];
+        }
 
         return view('portal.area', [
             'area' => $area,

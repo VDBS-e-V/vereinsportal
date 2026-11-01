@@ -2,8 +2,8 @@
     $editing = $quote !== null;
     $heading = $editing ? 'Kostenvoranschlag ändern' : 'Kostenvoranschlag berechnen';
     $crumbs = $editing
-        ? [['label' => 'Start', 'href' => route('home')], ['label' => 'Koordination'], ['label' => 'Kostenvoranschläge', 'href' => route('seminar-quotes.index')], ['label' => $quote->partner->name, 'href' => route('seminar-quotes.show', $quote)], ['label' => 'Ändern']]
-        : [['label' => 'Start', 'href' => route('home')], ['label' => 'Koordination'], ['label' => 'Kostenvoranschläge', 'href' => route('seminar-quotes.index')], ['label' => 'Neu']];
+        ? [['label' => 'Start', 'href' => route('home')], ['label' => 'Geschäftsstelle'], ['label' => 'Kostenvoranschläge', 'href' => route('seminar-quotes.index')], ['label' => $quote->partner->name, 'href' => route('seminar-quotes.show', $quote)], ['label' => 'Ändern']]
+        : [['label' => 'Start', 'href' => route('home')], ['label' => 'Geschäftsstelle'], ['label' => 'Kostenvoranschläge', 'href' => route('seminar-quotes.index')], ['label' => 'Neu']];
     $templateDefaults = $defaults['sv_days'];
     $filled = count(array_filter($rows));
 @endphp

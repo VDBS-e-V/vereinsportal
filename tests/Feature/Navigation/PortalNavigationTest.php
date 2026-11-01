@@ -147,11 +147,11 @@ it('lists the pages of an area by capability and marks the current one', functio
     $staff = pnUser(RoleKey::AdministrationStaff);
     $admin = pnUser(RoleKey::Administration);
 
-    expect(array_column(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff), 'label'))->toBe(['Übersicht', 'Nutzer', 'Zugangsanträge', 'Artikel', 'Seiten', 'Personen'])
+    expect(array_column(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff), 'label'))->toBe(['Übersicht', 'Personen & Zugang', 'Inhalte', 'Preise & Angebote'])
         ->and(array_column(PortalNavigation::pages(PortalAreas::Admins, $staff), 'label'))->toBe(['Übersicht'])
         ->and(array_column(PortalNavigation::pages(PortalAreas::Admins, $admin), 'label'))->toBe(['Übersicht', 'Protokoll', 'Design-Bibliothek'])
-        ->and(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff, 'admin.people.show')[5]['current'])->toBeTrue()
-        ->and(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff, 'admin.people.show')[0]['current'])->toBeFalse()
+        ->and(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff, 'admin.people.show')[1]['children'][2]['current'])->toBeTrue()
+        ->and(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff, 'admin.people.show')[1]['active'])->toBeTrue()
         ->and(PortalNavigation::home(PortalAreas::Geschaeftsstelle, $staff))->toBe(route('office.home'));
 });
 

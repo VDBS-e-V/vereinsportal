@@ -1,5 +1,5 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Koordination'], ['label' => 'Preise', 'href' => route('seminar-prices.index')], ['label' => 'Neue Fassung']];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Geschäftsstelle'], ['label' => 'Preise', 'href' => route('seminar-prices.index')], ['label' => 'Neue Fassung']];
 @endphp
 
 <x-layouts.app title="Neue Preisliste" width="medium">

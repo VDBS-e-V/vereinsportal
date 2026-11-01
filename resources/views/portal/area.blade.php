@@ -31,8 +31,18 @@
             <ul class="vdbs-area-pages">
                 @foreach ($pages as $page)
                     <li>
-                        <a href="{{ $page['href'] }}"><strong>{{ $page['label'] }}</strong></a>
+                        @if ($page['group'])<strong>{{ $page['label'] }}</strong>@else<a href="{{ $page['href'] }}"><strong>{{ $page['label'] }}</strong></a>@endif
                         @if ($page['description'])<br><span style="color:var(--text-muted)">{{ $page['description'] }}</span>@endif
+                        @if ($page['children'] !== [])
+                            <ul class="vdbs-area-pages__children">
+                                @foreach ($page['children'] as $child)
+                                    <li>
+                                        <a href="{{ $child['href'] }}">{{ $child['label'] }}</a>
+                                        @if ($child['description'])<span style="color:var(--text-muted)"> – {{ $child['description'] }}</span>@endif
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @endif
                     </li>
                 @endforeach
             </ul>
