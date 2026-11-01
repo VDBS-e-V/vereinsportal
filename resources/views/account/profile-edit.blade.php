@@ -17,6 +17,14 @@
             @endif
         </x-vdbs.forms.form-section>
 
+        <x-vdbs.forms.form-section title="Angaben als Autor:in">
+            <p style="margin:0">Wenn die Geschäftsstelle einen von Ihnen angelegten Artikel mit Autorenangabe veröffentlicht, nimmt das Portal diese Angaben. Sie gelten unabhängig von der Sichtbarkeit Ihres Profils und erscheinen nur dort, wo ein Artikel Sie als Autor:in nennt. Im Artikel selbst können sie einzeln überschrieben werden.</p>
+            <x-vdbs.forms.input name="author_name" label="Name als Autor:in" :optional="true" maxlength="120" :value="old('author_name', $profile->author_name)" :hint="'Ohne Eingabe verwenden wir: '.$defaultName" />
+            <x-vdbs.forms.textarea name="author_text" label="Text „Über die Autor:in“" :optional="true" :rows="6" :rich="true" :value="old('author_text', $authorText)" hint="Kurze Vorstellung unter dem Artikel" />
+            <x-vdbs.forms.checkbox name="author_use_photo" label="Mein Profilfoto im Kasten „Über die Autor:in“ zeigen" :checked="(bool) old('author_use_photo', $profile->author_use_photo)" />
+            <x-vdbs.forms.input name="author_photo_credit" label="Bildquelle des Fotos" :optional="true" maxlength="200" :value="old('author_photo_credit', $profile->author_photo_credit)" hint="Ohne Eingabe steht dort „Privat“" />
+        </x-vdbs.forms.form-section>
+
         <x-slot:actions>
             <x-vdbs.actions.button type="submit">Speichern</x-vdbs.actions.button>
             <x-vdbs.actions.button variant="secondary" :href="route('account.profile')">Abbrechen</x-vdbs.actions.button>

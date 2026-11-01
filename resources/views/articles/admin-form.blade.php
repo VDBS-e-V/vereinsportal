@@ -40,14 +40,14 @@
 
         <x-vdbs.forms.form-section title="Autor:in">
             <x-vdbs.forms.checkbox name="show_author" label="Autor:in oben beim Artikel nennen" :checked="(bool) ($values['show_author'] ?? false)" />
-            <x-vdbs.forms.input name="author_name" label="Name der Autorin oder des Autors" :optional="true" maxlength="120" :value="$values['author_name'] ?? null" hint="Ohne Angabe nimmt das Portal den Namen der Person, die den Artikel angelegt hat" />
+            <x-vdbs.forms.input name="author_name" label="Name der Autorin oder des Autors" :optional="true" maxlength="120" :value="$values['author_name'] ?? null" hint="Leer lassen: Das Portal nimmt die Angaben aus dem Profil des Kontos, das den Artikel angelegt hat (Konto › Profil bearbeiten)" />
             <x-vdbs.forms.checkbox name="author_box" label="Kasten „Über die Autor:in“ unter dem Artikel zeigen" :checked="(bool) ($values['author_box'] ?? false)" />
-            <x-vdbs.forms.textarea name="author_text" label="Text über die Autorin oder den Autor" :optional="true" maxlength="5000" :rows="5" :rich="true" :value="$values['author_text'] ?? null" />
+            <x-vdbs.forms.textarea name="author_text" label="Text über die Autorin oder den Autor" :optional="true" maxlength="5000" :rows="5" :rich="true" :value="$values['author_text'] ?? null" hint="Leer lassen: Text aus dem Profil des Kontos" />
             @if ($editing && filled($article->author_image_path))
                 <p>Aktuelles Foto: <a href="{{ route('articles.public.author-image', $article->slug) }}">ansehen</a></p>
                 <x-vdbs.forms.checkbox name="remove_author_image" label="Foto entfernen" />
             @endif
-            <x-vdbs.forms.file name="author_image" :label="$editing && filled($article->author_image_path) ? 'Neues Foto' : 'Foto'" accept=".jpg,.jpeg,.png,.webp" :optional="true" hint="Ohne Foto erscheint der Kasten nur mit Text" />
+            <x-vdbs.forms.file name="author_image" :label="$editing && filled($article->author_image_path) ? 'Neues Foto' : 'Foto'" accept=".jpg,.jpeg,.png,.webp" :optional="true" hint="Leer lassen: Profilfoto, wenn das Konto es für Artikel freigegeben hat; sonst nur Text" />
             <x-vdbs.forms.input name="author_image_credit" label="Bildquelle des Fotos" :optional="true" maxlength="200" :value="$values['author_image_credit'] ?? null" hint="Pflicht mit Foto" />
         </x-vdbs.forms.form-section>
 

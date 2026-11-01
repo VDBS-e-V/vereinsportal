@@ -50,13 +50,14 @@ class AccountProfileController extends Controller
             'profile' => $profile,
             'defaultName' => $this->profiles->defaultName($user),
             'bio' => RichText::forEditor($profile->bio),
+            'authorText' => RichText::forEditor($profile->author_text),
         ]);
     }
 
     public function update(Request $request): RedirectResponse
     {
         $user = $this->user($request);
-        $request->merge(['bio' => RichText::normalize($request->input('bio'))]);
+        $request->merge(['bio' => RichText::normalize($request->input('bio')), 'author_text' => RichText::normalize($request->input('author_text'))]);
 
         $data = $request->validate([
             'display_name' => ['nullable', 'string', 'max:80'],
@@ -66,6 +67,10 @@ class AccountProfileController extends Controller
                     $fail('Die Kurzvorstellung darf höchstens '.Profiles::BIO_LIMIT.' Zeichen lang sein.');
                 }
             }],
+            'author_name' => ['nullable', 'string', 'max:120'],
+            'author_text' => ['nullable', 'string', 'max:5000'],
+            'author_use_photo' => ['nullable', 'boolean'],
+            'author_photo_credit' => ['nullable', 'string', 'max:200'],
             'photo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'remove_photo' => ['nullable', 'boolean'],
         ], [

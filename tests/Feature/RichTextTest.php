@@ -97,7 +97,7 @@ it('shows legacy markdown in the editor as html', function () {
 it('saves articles from the editor sanitized and shows them formatted', function () {
     $staff = rtUser(RoleKey::AdministrationStaff);
 
-    $this->actingAs($staff)->post(route('articles.admin.store'), ['title' => 'Mit Editor', 'body' => '<p onclick="x">Hallo <strong>Welt</strong><script>alert(1)</script></p><ul><li>Punkt</li></ul>', 'status' => 'published', 'published_at' => now()->subHour()->format('Y-m-d\TH:i')])->assertSessionHasNoErrors();
+    $this->actingAs($staff)->post(route('articles.admin.store'), ['title' => 'Mit Editor', 'category' => 'Themenartikel', 'body' => '<p onclick="x">Hallo <strong>Welt</strong><script>alert(1)</script></p><ul><li>Punkt</li></ul>', 'status' => 'published', 'published_at' => now()->subHour()->format('Y-m-d\TH:i')])->assertSessionHasNoErrors();
 
     $article = Article::query()->where('title', 'Mit Editor')->firstOrFail();
     expect($article->body)->toBe('<p>Hallo <strong>Welt</strong></p><ul><li>Punkt</li></ul>');

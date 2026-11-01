@@ -175,3 +175,23 @@ it('shows subtitle, dates on top, tags, optional author, boxes and buttons and f
     $this->get(route('articles.public.index', ['kategorie' => 'Presse']))->assertOk()->assertSee('Titel')->assertDontSee('Andere Kategorie');
     $this->get(route('articles.public.index', ['schlagwort' => 'Berlin']))->assertOk()->assertSee('Titel')->assertDontSee('Andere Kategorie');
 });
+
+it('takes author name, text and photo release from the profile of the creating account unless the article overrides them', function () {
+    $person = Person::factory()->create(['first_name' => 'Berta', 'last_name' => 'Beispiel']);
+    $user = User::factory()->create(['person_id' => $person->id, 'avatar_path' => 'profile-photos/x.jpg']);
+    $user->profile()->create(['author_name' => 'B. Beispiel', 'author_text' => '<p>Aus dem Profil</p>', 'author_use_photo' => true, 'author_photo_credit' => 'Eigenes Foto']);
+    $article = Article::query()->create(['slug' => 'profil-autor', 'title' => 'T', 'body' => 'x', 'category' => 'Presse', 'status' => 'published', 'published_at' => now()->subDay(), 'created_by_user_id' => $user->id, 'show_author' => true, 'author_box' => true]);
+
+    expect($article->authorName())->toBe('B. Beispiel')
+        ->and($article->authorTextHtml())->toContain('Aus dem Profil')
+        ->and($article->authorImagePath())->toBe('profile-photos/x.jpg')
+        ->and($article->authorImageCredit())->toBe('Eigenes Foto');
+
+    $article->update(['author_name' => 'Gastautor', 'author_text' => '<p>Eigener Text</p>']);
+
+    expect($article->fresh()->authorName())->toBe('Gastautor')->and($article->fresh()->authorTextHtml())->toContain('Eigener Text');
+
+    $user->profile->update(['author_use_photo' => false]);
+
+    expect($article->fresh()->authorImagePath())->toBeNull();
+});

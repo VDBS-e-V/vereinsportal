@@ -47,10 +47,12 @@ class PublicArticleController extends Controller
     {
         $article = Article::query()->where('slug', $slug)->firstOrFail();
 
-        abort_unless(($article->isVisible() || Gate::allows('articles.manage')) && filled($article->author_image_path), 404);
-        abort_unless(Storage::disk(ArticleAdministration::DISK)->exists($article->author_image_path), 404);
+        $path = $article->authorImagePath();
 
-        return Storage::disk(ArticleAdministration::DISK)->response($article->author_image_path, null, ['Cache-Control' => 'public, max-age=3600']);
+        abort_unless(($article->isVisible() || Gate::allows('articles.manage')) && filled($path), 404);
+        abort_unless(Storage::disk(ArticleAdministration::DISK)->exists($path), 404);
+
+        return Storage::disk(ArticleAdministration::DISK)->response($path, null, ['Cache-Control' => 'public, max-age=3600']);
     }
 
     public function image(string $slug): StreamedResponse

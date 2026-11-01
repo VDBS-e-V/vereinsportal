@@ -14,11 +14,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class UserProfile extends Model
 {
-    protected $fillable = ['user_id', 'display_name', 'headline', 'bio', 'visibility', 'consent_at'];
+    protected $fillable = ['user_id', 'display_name', 'headline', 'bio', 'author_name', 'author_text', 'author_use_photo', 'author_photo_credit', 'visibility', 'consent_at'];
 
     protected function casts(): array
     {
-        return ['visibility' => 'array', 'consent_at' => 'datetime'];
+        return ['visibility' => 'array', 'consent_at' => 'datetime', 'author_use_photo' => 'boolean'];
     }
 
     /** @return BelongsTo<User, $this> */

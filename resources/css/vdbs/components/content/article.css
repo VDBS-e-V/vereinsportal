@@ -1,8 +1,8 @@
-/* Artikelseite: Der Kopf liegt als Fläche über die volle Breite, sein Inhalt auf Containerbreite.
+/* Artikelseite: Titelbereich auf weißem Grund; nur hinter dem Bild liegt eine graue Fläche über die volle Breite, ihr Inhalt auf Containerbreite.
    Der Text steht in einer Lesespalte (--container-medium), Kästen, Schlagwörter und Aktionen in derselben Spalte. */
 
-.vdbs-article__band { background: var(--bg-surface); }
-.vdbs-article__head { padding-block: var(--space-8); }
+.vdbs-article__band { margin-top: var(--space-6); padding-block: var(--space-6); background: var(--bg-surface); }
+.vdbs-article__head { padding-block: var(--space-8) 0; }
 .vdbs-article__head > .vdbs-alert { margin-bottom: var(--space-5); }
 .vdbs-article__head-text { max-width: var(--container-medium); }
 
@@ -11,7 +11,7 @@
 .vdbs-article__subtitle { margin: var(--space-3) 0 0; font-size: var(--font-size-h3); font-weight: var(--font-weight-bold); line-height: var(--line-height-heading); }
 .vdbs-article__dates { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); margin: var(--space-4) 0 0; color: var(--text-muted); font-size: var(--font-size-small); }
 .vdbs-article__lead { margin: var(--space-4) 0 0; color: var(--text-muted); font-size: var(--font-size-body-lg); line-height: var(--line-height-body); }
-.vdbs-article__image { margin: var(--space-6) 0 0; }
+.vdbs-article__image { margin: 0; }
 
 .vdbs-article__main { padding-block: var(--space-8); }
 .vdbs-article__column { max-width: var(--container-medium); }
@@ -30,7 +30,7 @@
 .vdbs-article__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-8); }
 
 @media (max-width: 639px) {
-    .vdbs-article__head { padding-block: var(--space-5); }
+    .vdbs-article__head { padding-block: var(--space-5) 0; }
     .vdbs-article__author-image { flex-basis: 100%; max-width: none; }
     .vdbs-article__actions .vdbs-btn { flex: 1 1 auto; }
 }

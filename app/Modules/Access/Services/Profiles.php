@@ -62,6 +62,10 @@ final class Profiles
             'display_name' => $this->text($data['display_name'] ?? null),
             'headline' => $this->text($data['headline'] ?? null),
             'bio' => RichText::clean($data['bio'] ?? null),
+            'author_name' => $this->text($data['author_name'] ?? null),
+            'author_text' => RichText::clean($data['author_text'] ?? null),
+            'author_use_photo' => (bool) ($data['author_use_photo'] ?? false),
+            'author_photo_credit' => $this->text($data['author_photo_credit'] ?? null),
         ])->save();
 
         return $profile;

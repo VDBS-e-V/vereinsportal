@@ -7,8 +7,10 @@
     $tags = $article->tagList();
     $authorHtml = $article->authorTextHtml();
     $moreInfoHtml = $article->moreInfoHtml();
-    $showAuthorBox = $article->author_box && ($authorHtml !== '' || filled($article->author_image_path));
-    $authorImageUrl = filled($article->author_image_path) ? route('articles.public.author-image', $article->slug) : null;
+    $authorImagePath = $article->authorImagePath();
+    $authorImageCredit = $article->authorImageCredit();
+    $showAuthorBox = $article->author_box && ($authorHtml !== '' || $authorImagePath !== null);
+    $authorImageUrl = $authorImagePath !== null ? route('articles.public.author-image', $article->slug) : null;
     $categoryUrl = route('articles.public.index', ['kategorie' => $article->category]);
 @endphp
 
@@ -18,7 +20,7 @@
     @endpush
 
     <article class="vdbs-article">
-        <header class="vdbs-article__band" aria-labelledby="article-title">
+        <header aria-labelledby="article-title">
             <x-vdbs.layout.container class="vdbs-article__head">
                 @if ($preview)
                     <x-vdbs.feedback.alert variant="warning">Vorschau: Dieser Artikel ist noch nicht öffentlich sichtbar.</x-vdbs.feedback.alert>
@@ -44,10 +46,15 @@
                     @if (filled($article->teaser)) <p class="vdbs-article__lead">{{ $article->teaser }}</p> @endif
                 </div>
 
-                @if ($hasImage)
-                    <x-vdbs.media.image :src="route('articles.public.image', $article->slug)" :alt="$article->image_alt ?? ''" :credit="$article->image_credit" credit-prefix="Quelle" class="vdbs-article__image" />
-                @endif
             </x-vdbs.layout.container>
+
+            @if ($hasImage)
+                <div class="vdbs-article__band">
+                    <x-vdbs.layout.container>
+                        <x-vdbs.media.image :src="route('articles.public.image', $article->slug)" :alt="$article->image_alt ?? ''" :credit="$article->image_credit" credit-prefix="Quelle" class="vdbs-article__image" />
+                    </x-vdbs.layout.container>
+                </div>
+            @endif
         </header>
 
         <x-vdbs.layout.container class="vdbs-article__main">
@@ -57,7 +64,7 @@
                 @if ($showAuthorBox)
                     <aside class="vdbs-article__box vdbs-article__author" aria-labelledby="article-author-title">
                         @if ($authorImageUrl)
-                            <x-vdbs.media.image :src="$authorImageUrl" :alt="$author ?? ''" :credit="$article->author_image_credit" credit-prefix="Bildquelle" class="vdbs-article__author-image" />
+                            <x-vdbs.media.image :src="$authorImageUrl" :alt="$author ?? ''" :credit="$authorImageCredit" credit-prefix="Bildquelle" class="vdbs-article__author-image" />
                         @endif
                         <div class="vdbs-article__author-text">
                             <h2 class="vdbs-article__box-title" id="article-author-title">Über die Autor:in</h2>

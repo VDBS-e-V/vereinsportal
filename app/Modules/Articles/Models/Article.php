@@ -60,12 +60,39 @@ class Article extends Model
         return \App\Support\Html\RichText::render($this->body);
     }
 
-    /** Name der Autorin oder des Autors: freie Angabe, sonst die Person des anlegenden Kontos. */
+    /** Autorenprofil des anlegenden Kontos (Angaben unter Konto › Profil), falls vorhanden. */
+    private function authorProfile(): ?\App\Modules\Access\Models\UserProfile
+    {
+        return $this->createdBy?->profile;
+    }
+
+    /** Name der Autorin oder des Autors: Angabe am Artikel, sonst Profil des Kontos, sonst die Person. */
     public function authorName(): ?string
     {
-        $name = filled($this->author_name) ? $this->author_name : $this->createdBy?->person?->fullName();
+        $name = filled($this->author_name) ? $this->author_name : ($this->authorProfile()?->author_name ?: $this->createdBy?->person?->fullName());
 
         return filled($name) ? (string) $name : null;
+    }
+
+    /** Pfad des Autorenfotos: eigenes Foto am Artikel, sonst das Profilfoto, wenn das Profil es dafür freigibt. */
+    public function authorImagePath(): ?string
+    {
+        if (filled($this->author_image_path)) {
+            return $this->author_image_path;
+        }
+
+        $profile = $this->authorProfile();
+
+        return $profile?->author_use_photo && filled($this->createdBy?->avatar_path) ? $this->createdBy->avatar_path : null;
+    }
+
+    public function authorImageCredit(): ?string
+    {
+        if (filled($this->author_image_path)) {
+            return filled($this->author_image_credit) ? $this->author_image_credit : null;
+        }
+
+        return $this->authorImagePath() !== null ? ($this->authorProfile()?->author_photo_credit ?: 'Privat') : null;
     }
 
     /** @return list<string> */
@@ -76,7 +103,7 @@ class Article extends Model
 
     public function authorTextHtml(): string
     {
-        return \App\Support\Html\RichText::render($this->author_text);
+        return \App\Support\Html\RichText::render(filled($this->author_text) ? $this->author_text : $this->authorProfile()?->author_text);
     }
 
     public function moreInfoHtml(): string
