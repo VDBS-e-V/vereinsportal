@@ -53,6 +53,7 @@ class EventAdminController extends Controller
             'search' => $search,
             'confirmed' => $event->confirmedCount(),
             'waitlist' => $event->waitlistCount(),
+            'bySchool' => $event->registrations()->reorder()->whereNotNull('verified_at')->selectRaw('school, count(*) as total, sum(case when waitlisted then 1 else 0 end) as waiting')->groupBy('school')->orderByDesc('total')->orderBy('school')->get(),
             'total' => $event->registrations()->count(),
             'canManage' => Gate::allows('events.manage'),
         ]);

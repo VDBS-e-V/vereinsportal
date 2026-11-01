@@ -235,6 +235,21 @@ class PartnerController extends Controller
         return redirect()->route('partners.show', $partner)->with('success', 'Die Einladung wurde erneut gesendet.');
     }
 
+    public function toggleAccount(Request $request, Partner $partner, PartnerUser $account): RedirectResponse
+    {
+        abort_unless($account->partner_id === $partner->id, 404);
+
+        try {
+            $account->user->status === \App\Modules\Access\Enums\UserStatus::Disabled
+                ? app(SchoolAccounts::class)->enable($account, $this->actor($request))
+                : app(SchoolAccounts::class)->disable($account, $this->actor($request));
+        } catch (DomainException $exception) {
+            return redirect()->route('partners.show', $partner)->withErrors(['account' => $exception->getMessage()]);
+        }
+
+        return redirect()->route('partners.show', $partner)->with('success', $account->user->fresh()->status === \App\Modules\Access\Enums\UserStatus::Disabled ? 'Das Konto wurde gesperrt.' : 'Das Konto wurde entsperrt.');
+    }
+
     public function importForm(): View
     {
         return view('partners.import');

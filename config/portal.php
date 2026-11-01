@@ -128,7 +128,7 @@ return [
     ],
 
     // Großveranstaltungen: Anmeldungen werden nach dieser Zeit seit dem letzten Termin gelöscht (Befehl events:prune, täglich geplant).
-    'events' => ['retention_years' => 3],
+    'events' => ['retention_years' => 3, 'school_reminder_days' => 3],
 
     'home' => [
         'title' => 'Willkommen im VDBS Serviceportal',

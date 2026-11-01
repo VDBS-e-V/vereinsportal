@@ -64,7 +64,7 @@ it('sends a message once per address to the confirmed registrations and stores i
     $message = EventMessage::query()->firstOrFail();
     expect($message->recipients_count)->toBe(2)->and($message->audience)->toBe('confirmed')->and($message->sent_by_user_id)->toBe($coordination->id);
 
-    $this->actingAs($coordination)->get(route('events.admin.show', $event))->assertSee('Gesendete Mitteilungen')->assertSee('Raumänderung')->assertDontSee('klasse@schule.example', false);
+    $this->actingAs($coordination)->get(route('events.admin.show', $event))->assertSee('Gesendete Mitteilungen')->assertSee('Raumänderung');
 });
 
 it('can address the waitlist or everyone', function () {

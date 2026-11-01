@@ -30,3 +30,8 @@ Schulkonten sehen keine anderen Schulen, keine Teamenden, keine Preise und keine
 ## Einführung
 
 Die Migration `2026_11_17_000001_create_partner_users_table` legt die Rolle „Schule“ selbst an; ein erneutes Seeden ist nicht nötig.
+
+## Sperren und Erinnerung
+
+- **Konto sperren oder entsperren:** Auf der Seite der Schule gibt es bei jedem Konto „Sperren“ bzw. „Entsperren“ (z. B. wenn eine Lehrkraft die Schule verlässt). Das Sperren beendet alle Sitzungen sofort. Nicht angemeldete (eingeladene) Konten lassen sich nicht sperren, dort gibt es nur „Einladung erneut senden“.
+- **Erinnerung vor dem Anmeldeschluss:** `php artisan events:remind-schools` (täglich geplant, `--dry-run` zählt nur) schickt aktiven Schulkonten **einmal** eine Mail, wenn der Anmeldeschluss einer offenen Veranstaltung innerhalb von `portal.events.school_reminder_days` (Standard 3) Tagen liegt. Die Mail nennt, wie viele Schülerinnen und Schüler der Schule bisher angemeldet sind. Veranstaltungen ohne Anmeldeschluss lösen keine Erinnerung aus.

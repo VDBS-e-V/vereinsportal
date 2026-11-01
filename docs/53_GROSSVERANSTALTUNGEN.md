@@ -45,3 +45,7 @@ Die Koordination (`events.manage`) schickt über „Mitteilung senden“ an der 
 ## Anmeldelisten durch Schulen
 
 Schulkonten (`docs/56_SCHULEN_KONTEN.md`) laden unter **Schulen → Veranstaltungen** selbst Listen hoch: CSV mit **Name, Klasse, Geburtsdatum, E-Mail** (ohne Spalte „Schule“, die Schule ergänzt das Portal und überschreibt eine eventuell vorhandene Spalte). Alles oder nichts, Fehler je Zeile, Plätze und Anmeldeschluss gelten wie sonst; angenommen wird nur bei „Anmeldung offen“. Die Anmeldungen gelten sofort als bestätigt, optional gehen die Bestätigungen mit Ticketcode an die angegebenen Adressen. Die Schule sieht und entfernt **nur ihre eigenen Anmeldungen** (Spalte `partner_id`). Mit dem Hochladen bestätigt die Schule, dass die Zustimmung zur Anmeldung vorliegt; der Hinweis steht auf der Seite.
+
+## Anmeldungen nach Schule
+
+Die Veranstaltungsseite der Koordination zeigt oberhalb der Liste „Anmeldungen nach Schule“ (bestätigt und davon auf der Warteliste), absteigend nach Zahl.

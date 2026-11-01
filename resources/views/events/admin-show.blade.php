@@ -58,6 +58,17 @@
         @endif
     </section>
 
+    @if ($bySchool->count() > 1 || ($bySchool->count() === 1 && $total > 0))
+        <section aria-labelledby="schools-heading" style="margin-top:var(--space-8)">
+            <h2 id="schools-heading" style="font-size:var(--font-size-h3)">Anmeldungen nach Schule</h2>
+            <x-vdbs.data.table caption="Anmeldungen nach Schule" :columns="[['key' => 'school', 'label' => 'Schule'], ['key' => 'total', 'label' => 'Bestätigt'], ['key' => 'waiting', 'label' => 'Davon Warteliste']]">
+                @foreach ($bySchool as $row)
+                    <tr><td>{{ $row->school }}</td><td>{{ $row->total - $row->waiting }}</td><td>{{ $row->waiting }}</td></tr>
+                @endforeach
+            </x-vdbs.data.table>
+        </section>
+    @endif
+
     <section aria-labelledby="regs-heading" style="margin-top:var(--space-8)">
         <h2 id="regs-heading" style="font-size:var(--font-size-h3)">Anmeldungen</h2>
 

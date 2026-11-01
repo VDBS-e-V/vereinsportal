@@ -59,7 +59,8 @@ final class PortalNavigation
             PortalAreas::Vorstand->value => [
                 'roles' => [RoleKey::BoardMember],
                 'pages' => [
-                    ['label' => 'Übersicht', 'route' => 'board.overview', 'match' => 'board.*', 'can' => 'memberships.view'],
+                    ['label' => 'Übersicht', 'route' => 'board.overview', 'match' => 'board.overview', 'can' => 'memberships.view'],
+                    ['label' => 'Berichte', 'route' => 'board.reports', 'match' => 'board.reports*', 'can' => 'reports.view'],
                     ['label' => 'Mitgliedschaften', 'route' => 'membership.index', 'match' => 'membership.*', 'can' => 'memberships.view'],
                     ['label' => 'Willkommenspaket', 'route' => 'onboarding.member', 'match' => 'onboarding.member*', 'can' => 'memberships.view'],
                 ],

@@ -17,6 +17,7 @@ Route::middleware(['web', 'auth'])->prefix('koordination/schulen')->name('partne
         Route::post('/import', [PartnerController::class, 'import'])->middleware('throttle:10,10')->name('import.store');
 
         Route::post('/{partner}/kontakte/{contact}/konto', [PartnerController::class, 'inviteAccount'])->whereNumber(['partner', 'contact'])->middleware('throttle:20,10')->name('contacts.account');
+        Route::post('/{partner}/konten/{account}/sperren', [PartnerController::class, 'toggleAccount'])->whereNumber(['partner', 'account'])->middleware('throttle:20,10')->name('accounts.toggle');
         Route::post('/{partner}/konten/{account}/einladung', [PartnerController::class, 'resendAccountInvitation'])->whereNumber(['partner', 'account'])->middleware('throttle:20,10')->name('accounts.resend');
 
         Route::get('/{partner}/bearbeiten', [PartnerController::class, 'edit'])->whereNumber('partner')->name('edit');

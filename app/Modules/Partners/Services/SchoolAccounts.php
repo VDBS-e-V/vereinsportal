@@ -66,6 +66,18 @@ final class SchoolAccounts
         $this->users->invite($account->user, $by);
     }
 
+    /** Sperrt das Konto (z. B. wenn die Lehrkraft die Schule verlässt). Die Sitzungen enden sofort. @throws DomainException */
+    public function disable(PartnerUser $account, User $by): void
+    {
+        $this->users->disable($account->user, $by);
+    }
+
+    /** @throws DomainException */
+    public function enable(PartnerUser $account, User $by): void
+    {
+        $this->users->enable($account->user, $by);
+    }
+
     /** Das Schulkonto eines Nutzers, falls er eines hat. */
     public function forUser(User $user): ?PartnerUser
     {

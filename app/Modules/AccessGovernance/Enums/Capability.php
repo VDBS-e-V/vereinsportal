@@ -80,6 +80,9 @@ enum Capability: string
     /** Bereich Schulen: Seminare der eigenen Schule, Kostenvoranschläge, Anfragen und Bestätigungen. */
     case SchoolArea = 'school.area';
 
+    /** Jahresberichte mit Kennzahlen ansehen und exportieren (Vorstand). */
+    case ReportsView = 'reports.view';
+
     /** Design-Bibliothek ansehen (Entwicklungswerkzeug). */
     case DesignView = 'design.view';
 

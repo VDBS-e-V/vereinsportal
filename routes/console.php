@@ -24,6 +24,9 @@ Schedule::command('onboarding:remind-team')->daily();
 // Angemeldete einen Tag vor der Großveranstaltung erinnern.
 Schedule::command('events:remind')->daily();
 
+// Schulkonten kurz vor dem Anmeldeschluss einer Großveranstaltung erinnern.
+Schedule::command('events:remind-schools')->daily();
+
 // Unbestätigte Anmeldungen zu Großveranstaltungen und Anmeldungen nach der Aufbewahrungszeit löschen.
 Schedule::command('events:prune')->daily();
 

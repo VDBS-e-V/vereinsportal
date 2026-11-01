@@ -135,7 +135,7 @@ it('shows the school area only to school accounts, with the school pages in the 
     $this->actingAs($account->user)->get(route('school.home'))->assertOk()->assertSee($account->partner->name)->assertSee('Noch keine Seminare');
 
     expect(PortalNavigation::visibleAreas($account->user))->toBe([PortalAreas::Schulen])
-        ->and(array_column(PortalNavigation::pages(PortalAreas::Schulen, $account->user), 'label'))->toBe(['Übersicht', 'Seminar anfragen']);
+        ->and(array_column(PortalNavigation::pages(PortalAreas::Schulen, $account->user), 'label'))->toBe(['Übersicht', 'Seminar anfragen', 'Veranstaltungen']);
 
     $this->actingAs($account->user)->get(route('seminars.index'))->assertForbidden();
     $this->actingAs($account->user)->get(route('partners.index'))->assertForbidden();

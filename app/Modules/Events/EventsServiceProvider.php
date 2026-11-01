@@ -4,6 +4,7 @@ namespace App\Modules\Events;
 
 use App\Modules\Events\Console\PruneEvents;
 use App\Modules\Events\Console\RemindEvents;
+use App\Modules\Events\Console\RemindSchools;
 use Illuminate\Support\ServiceProvider;
 
 class EventsServiceProvider extends ServiceProvider
@@ -13,7 +14,7 @@ class EventsServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
 
         if ($this->app->runningInConsole()) {
-            $this->commands([PruneEvents::class, RemindEvents::class]);
+            $this->commands([PruneEvents::class, RemindEvents::class, RemindSchools::class]);
         }
     }
 }

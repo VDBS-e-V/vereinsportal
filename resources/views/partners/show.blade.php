@@ -68,7 +68,11 @@
                     @foreach ($partner->accounts as $account)
                         {{ $account->name }} ({{ $account->user->email }})@if ($account->user->status === \App\Modules\Access\Enums\UserStatus::PendingVerification)
                             <form method="post" action="{{ route('partners.accounts.resend', [$partner, $account]) }}" style="display:inline">@csrf<x-vdbs.actions.button type="submit" size="s" variant="tertiary">Einladung erneut senden</x-vdbs.actions.button></form>
-                        @endif{{ ! $loop->last ? ';' : '' }}
+                        @endif
+                        @if ($account->user->status !== \App\Modules\Access\Enums\UserStatus::PendingVerification)
+                            <x-vdbs.data.badge :tone="$account->user->status === \App\Modules\Access\Enums\UserStatus::Disabled ? 'error' : 'success'">{{ $account->user->status === \App\Modules\Access\Enums\UserStatus::Disabled ? 'gesperrt' : 'aktiv' }}</x-vdbs.data.badge>
+                        @endif
+                        @if ($account->user->status !== \App\Modules\Access\Enums\UserStatus::PendingVerification)<form method="post" action="{{ route('partners.accounts.toggle', [$partner, $account]) }}" style="display:inline">@csrf<x-vdbs.actions.button type="submit" size="s" variant="tertiary">{{ $account->user->status === \App\Modules\Access\Enums\UserStatus::Disabled ? 'Entsperren' : 'Sperren' }}</x-vdbs.actions.button></form>@endif{{ ! $loop->last ? ';' : '' }}
                     @endforeach
                 </p>
             @endif

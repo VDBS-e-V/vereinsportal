@@ -3,6 +3,7 @@
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PortalAreaController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SchoolAreaController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,8 @@ Route::middleware(['web', 'auth'])->group(function (): void {
     Route::get('/mitglieder', [PortalAreaController::class, 'member'])->middleware('can:member.area')->name('member.home');
     Route::get('/mitglieder/dokumente/{document}', [PortalAreaController::class, 'memberDocument'])->whereNumber('document')->middleware('can:member.area')->name('member.documents.download');
     Route::get('/vorstand', [PortalAreaController::class, 'board'])->middleware('can:memberships.view')->name('board.overview');
+    Route::get('/vorstand/berichte', [ReportController::class, 'index'])->middleware('can:reports.view')->name('board.reports');
+    Route::get('/vorstand/berichte/export', [ReportController::class, 'export'])->middleware('can:reports.view')->name('board.reports.export');
     Route::get('/bildung', [PortalAreaController::class, 'education'])->middleware('can:education.view')->name('education.overview');
 });
 
