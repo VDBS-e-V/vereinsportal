@@ -9,7 +9,7 @@
 
     <x-vdbs.data.toolbar label="Artikel suchen und filtern" :count="$count" :active="$active" :reset-href="route('articles.public.index')" search-placeholder="Titel, Untertitel oder Schlagwort suchen">
         <x-vdbs.forms.select name="kategorie" label="Kategorie" placeholder="Alle" :options="$categoryOptions" :value="$filters['category']" />
-        <x-vdbs.forms.select name="schlagwort" label="Schlagwort" placeholder="Alle" :options="$tagOptions" :value="$filters['tag']" />
+        <x-vdbs.forms.multi-select name="schlagwort" label="Schlagwörter" :searchable="true" placeholder="Schlagwörter suchen" search-label="Schlagwörter filtern" :options="$tagOptions" :value="$filters['tags']" />
         <x-vdbs.forms.select name="jahr" label="Jahr" placeholder="Alle" :options="$yearOptions" :value="$filters['year']" />
         <x-vdbs.forms.select name="sortierung" label="Sortierung" :options="['neueste' => 'Neueste zuerst', 'aelteste' => 'Älteste zuerst']" :value="$filters['sort']" />
     </x-vdbs.data.toolbar>

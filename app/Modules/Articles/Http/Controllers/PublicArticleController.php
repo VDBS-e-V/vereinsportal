@@ -20,13 +20,13 @@ class PublicArticleController extends Controller
     {
         $search = trim((string) $request->query('q', ''));
         $category = trim((string) $request->query('kategorie', ''));
-        $tag = trim((string) $request->query('schlagwort', ''));
+        $tags = Article::tagsFromQuery($request->query('schlagwort'));
         $year = (int) $request->query('jahr', 0);
         $oldest = $request->query('sortierung') === 'aelteste';
 
         $query = Article::query()->visible()->search($search)
             ->when($category !== '', fn ($q) => $q->where('category', $category))
-            ->when($tag !== '', fn ($q) => $q->whereJsonContains('tags', $tag))
+            ->withAnyTag($tags)
             ->when($year > 0, fn ($q) => $q->whereYear('published_at', $year))
             ->orderBy('published_at', $oldest ? 'asc' : 'desc')->orderBy('id', $oldest ? 'asc' : 'desc');
 
@@ -35,14 +35,13 @@ class PublicArticleController extends Controller
         $active = collect([
             $search !== '' ? ['label' => 'Suche: '.$search, 'href' => $request->fullUrlWithoutQuery(['q', 'page'])] : null,
             $category !== '' ? ['label' => 'Kategorie: '.$category, 'href' => $request->fullUrlWithoutQuery(['kategorie', 'page'])] : null,
-            $tag !== '' ? ['label' => 'Schlagwort: '.$tag, 'href' => $request->fullUrlWithoutQuery(['schlagwort', 'page'])] : null,
             $year > 0 ? ['label' => 'Jahr: '.$year, 'href' => $request->fullUrlWithoutQuery(['jahr', 'page'])] : null,
-        ])->filter()->values()->all();
+        ])->filter()->merge(collect($tags)->map(fn (string $t) => ['label' => 'Schlagwort: '.$t, 'href' => $request->fullUrlWithQuery(['schlagwort' => array_values(array_diff($tags, [$t])) ?: null, 'page' => null])]))->values()->all();
 
         return view('articles.index', [
             'articles' => $paginator,
             'active' => $active,
-            'filters' => ['category' => $category !== '' ? $category : null, 'tag' => $tag !== '' ? $tag : null, 'year' => $year > 0 ? (string) $year : null, 'sort' => $oldest ? 'aelteste' : 'neueste'],
+            'filters' => ['category' => $category !== '' ? $category : null, 'tags' => $tags, 'year' => $year > 0 ? (string) $year : null, 'sort' => $oldest ? 'aelteste' : 'neueste'],
             'categoryOptions' => array_combine($c = Article::categoriesInUse(), $c),
             'tagOptions' => array_combine($t = Article::tagsInUse(), $t),
             'yearOptions' => array_combine($y = array_map('strval', Article::yearsInUse()), $y),

@@ -15,7 +15,7 @@
     <x-vdbs.data.toolbar label="Artikel filtern" :count="$count" :active="$active" :reset-href="route('articles.admin.index')" search-placeholder="Titel, Untertitel oder Schlagwort suchen">
         <x-vdbs.forms.select name="status" label="Status" placeholder="Alle" :options="$statusOptions" :value="$filters['status']" />
         <x-vdbs.forms.select name="kategorie" label="Kategorie" placeholder="Alle" :options="$categoryOptions" :value="$filters['category']" />
-        <x-vdbs.forms.select name="schlagwort" label="Schlagwort" placeholder="Alle" :options="$tagOptions" :value="$filters['tag']" />
+        <x-vdbs.forms.multi-select name="schlagwort" label="Schlagwörter" :searchable="true" placeholder="Schlagwörter suchen" search-label="Schlagwörter filtern" :options="$tagOptions" :value="$filters['tags']" />
         <x-vdbs.forms.select name="empfohlen" label="Startseite" placeholder="Alle" :options="['1' => 'Nur empfohlene']" :value="$filters['featured']" />
     </x-vdbs.data.toolbar>
 

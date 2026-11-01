@@ -232,3 +232,15 @@ it('leads to the article, the list or a new form after saving changes', function
     $this->put(route('articles.admin.update', $article), aaForm(['title' => 'Bearbeiten', 'after' => 'list']))->assertRedirect(route('articles.admin.index'));
     $this->put(route('articles.admin.update', $article), aaForm(['title' => 'Bearbeiten', 'after' => 'new']))->assertRedirect(route('articles.admin.create'));
 });
+
+it('filters by several tags chosen in a searchable multi select', function () {
+    $staff = aaUser(RoleKey::AdministrationStaff);
+    Article::query()->create(['slug' => 'm1', 'title' => 'Mit Demokratie', 'body' => 'x', 'category' => 'Presse', 'tags' => ['Demokratie'], 'status' => 'published', 'published_at' => now()->subDay()]);
+    Article::query()->create(['slug' => 'm2', 'title' => 'Mit Finanzen', 'body' => 'x', 'category' => 'Presse', 'tags' => ['Finanzen', 'Berlin'], 'status' => 'published', 'published_at' => now()->subDay()]);
+    Article::query()->create(['slug' => 'm3', 'title' => 'Ohne Schlagwort', 'body' => 'x', 'category' => 'Presse', 'status' => 'published', 'published_at' => now()->subDay()]);
+
+    $this->get(route('articles.public.index'))->assertOk()->assertSee('data-vdbs-multiselect', false)->assertSee('name="schlagwort[]"', false);
+    $this->get(route('articles.public.index', ['schlagwort' => ['Demokratie', 'Finanzen']]))->assertSee('Mit Demokratie')->assertSee('Mit Finanzen')->assertDontSee('Ohne Schlagwort');
+    $this->get(route('articles.public.index', ['schlagwort' => 'Berlin']))->assertSee('Mit Finanzen')->assertDontSee('Mit Demokratie');
+    $this->actingAs($staff)->get(route('articles.admin.index', ['schlagwort' => ['Demokratie', 'Berlin']]))->assertSee('Mit Demokratie')->assertSee('Mit Finanzen')->assertDontSee('Ohne Schlagwort');
+});

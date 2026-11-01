@@ -57,6 +57,26 @@ class Article extends Model
         return $query->where(fn (Builder $q) => $q->where('title', 'like', $like)->orWhere('subtitle', 'like', $like)->orWhere('teaser', 'like', $like)->orWhere('tags', 'like', $like));
     }
 
+    /** Artikel mit mindestens einem der Schlagwörter. @param list<string> $tags */
+    public function scopeWithAnyTag(Builder $query, array $tags): Builder
+    {
+        if ($tags === []) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $q) use ($tags): void {
+            foreach ($tags as $tag) {
+                $q->orWhereJsonContains('tags', $tag);
+            }
+        });
+    }
+
+    /** Schlagwörter aus der Adresse (?schlagwort=a oder ?schlagwort[]=a&schlagwort[]=b), bereinigt. @return list<string> */
+    public static function tagsFromQuery(mixed $value): array
+    {
+        return array_values(array_unique(array_filter(array_map(fn ($t) => is_string($t) ? trim($t) : '', (array) $value), fn (string $t) => $t !== '')));
+    }
+
     /** Kategorien, die vorkommen (nur sichtbare Artikel oder alle). @return list<string> */
     public static function categoriesInUse(bool $visibleOnly = true): array
     {
