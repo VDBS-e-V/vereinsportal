@@ -5,6 +5,6 @@
     <form method="post" action="{{ $action }}">
         @csrf
         <x-vdbs.actions.button type="submit" variant="danger" icon="trash-2">Ja, abmelden</x-vdbs.actions.button>
-        <x-vdbs.actions.button variant="tertiary" :href="route('events.public.index')">Nein, ich bleibe angemeldet</x-vdbs.actions.button>
+        <x-vdbs.actions.button variant="text" :href="route('events.public.index')">Nein, ich bleibe angemeldet</x-vdbs.actions.button>
     </form>
 </x-layouts.app>

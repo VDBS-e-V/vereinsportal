@@ -23,7 +23,7 @@
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="send">Konto anlegen und einladen</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="route('admin.users.index')">Abbrechen</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="route('admin.users.index')">Abbrechen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>

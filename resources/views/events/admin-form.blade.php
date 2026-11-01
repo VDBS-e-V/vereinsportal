@@ -21,7 +21,7 @@
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="save">Speichern</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="$editing ? route('events.admin.show', $event) : route('events.admin.index')">Abbrechen</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="$editing ? route('events.admin.show', $event) : route('events.admin.index')">Abbrechen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>

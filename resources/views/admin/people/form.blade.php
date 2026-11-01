@@ -50,7 +50,7 @@
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="save">{{ $editing ? 'Speichern' : 'Person anlegen' }}</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="$editing ? route('admin.people.show', $person) : route('admin.people.index')">Abbrechen</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="$editing ? route('admin.people.show', $person) : route('admin.people.index')">Abbrechen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>

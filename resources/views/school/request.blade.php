@@ -16,7 +16,7 @@
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="send">Anfrage senden</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="route('school.home')">Abbrechen</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="route('school.home')">Abbrechen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>

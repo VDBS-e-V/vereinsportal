@@ -32,7 +32,7 @@
         <x-vdbs.forms.checkbox name="send_mails" label="Anmeldebestätigungen mit Ticketcode per E-Mail an die angegebenen Adressen senden" :checked="true" />
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="upload">Importieren</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="route('events.admin.show', $event)">Abbrechen</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="route('events.admin.show', $event)">Abbrechen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>

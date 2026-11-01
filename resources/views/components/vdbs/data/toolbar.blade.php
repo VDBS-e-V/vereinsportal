@@ -44,7 +44,7 @@
         <div class="vdbs-toolbar__buttons">
             <x-vdbs.actions.button type="submit" variant="secondary" icon="filter">{{ $submit }}</x-vdbs.actions.button>
             @if ($resetHref && count($active) > 0)
-                <x-vdbs.actions.button :href="$resetHref" variant="tertiary">Zurücksetzen</x-vdbs.actions.button>
+                <x-vdbs.actions.button :href="$resetHref" variant="text">Zurücksetzen</x-vdbs.actions.button>
             @endif
         </div>
 

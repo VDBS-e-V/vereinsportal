@@ -7,7 +7,7 @@
         <x-vdbs.forms.checkbox name="trust_2fa" label="Diesem Gerät 30 Tage vertrauen" />
         <x-slot:actions>
             <x-vdbs.actions.button type="submit">Bestätigen</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" href="#">Anderen Weg wählen</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" href="#">Anderen Weg wählen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 

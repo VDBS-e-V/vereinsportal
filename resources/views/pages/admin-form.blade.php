@@ -19,7 +19,7 @@
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="save">Speichern</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="route('pages.admin.index')">Zurück zur Liste</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="route('pages.admin.index')">Zurück zur Liste</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>

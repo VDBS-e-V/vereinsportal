@@ -12,7 +12,7 @@
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="send">Mitteilung senden</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="route('events.admin.show', $event)">Abbrechen</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="route('events.admin.show', $event)">Abbrechen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>

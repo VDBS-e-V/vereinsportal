@@ -28,7 +28,7 @@ return [
             'description' => 'Das Button-System: ein Baustein für Buttons und Links im Button-Stil.',
             'status' => 'beta',
             'adopted' => true,
-            'redesign' => 'open',
+            'redesign' => 'in-progress',
             'blade' => 'resources/views/components/vdbs/actions/button.blade.php',
             'css' => [
                 'button-contexts.css',

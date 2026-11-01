@@ -1,5 +1,6 @@
 @props([
     'variant' => 'primary',
+    'tone' => 'green',
     'shape' => null,
     'size' => 'm',
     'on' => 'default',
@@ -18,8 +19,14 @@
 {{--
     Das Button-System (Paket "actions"): ein Baustein für Buttons und Links im Button-Stil.
 
-    variant  primary | secondary | tertiary | danger | quiet      Wichtigkeit der Aktion
-    shape    solid | outline | link | arrow | line                  Form (Standard je Variante)
+    variant  primary | secondary | tertiary | text | danger        Wichtigkeit der Aktion (quiet = alter Name von text)
+             primary    dunkle Fläche, weiße Schrift
+             secondary  helle Fläche, Ink-Schrift
+             tertiary   weiße Fläche, Schrift und Rahmen in Farbe
+             text       nur Schrift in Farbe (Fläche und Unterstrich erst bei Hover)
+             danger     Gefahr (rot)
+    tone     green | lila                                           Tonfarbe von primary, secondary, tertiary und text (Standard green = Aktion)
+    shape    solid | outline | text | link | arrow | line           Form (Standard je Variante)
     size     s | m | l | xl
     on       default | dark | brand                                 Fläche, auf der der Button steht
              default = die normale Seitenfläche (folgt dem Theme, im Dark Mode also dunkel)
@@ -34,14 +41,17 @@
     pressed  true | false für Umschalter (aria-pressed)
     disabled deaktiviert (bei Links: aria-disabled, ohne href)
 
-    Standard-Form: primary=solid, secondary=outline, tertiary=link, danger=solid, quiet=link.
+    Standard-Form: primary=solid, secondary=solid (helle Fläche), tertiary=outline, text=text, danger=solid.
+    Mit und ohne Icon, mit und ohne Text: Slot leer + label = reiner Icon-Button (44 × 44 px, aria-label und title).
 --}}
 
 @php
-    $variant = in_array($variant, ['primary', 'secondary', 'tertiary', 'danger', 'quiet'], true) ? $variant : 'primary';
+    $variant = $variant === 'quiet' ? 'text' : $variant;
+    $variant = in_array($variant, ['primary', 'secondary', 'tertiary', 'text', 'danger'], true) ? $variant : 'primary';
+    $tone = $tone === 'lila' ? 'lila' : 'green';
 
-    $defaultShape = ['primary' => 'solid', 'secondary' => 'outline', 'tertiary' => 'link', 'danger' => 'solid', 'quiet' => 'link'][$variant];
-    $shape = in_array($shape, ['solid', 'outline', 'link', 'arrow', 'line'], true) ? $shape : $defaultShape;
+    $defaultShape = ['primary' => 'solid', 'secondary' => 'solid', 'tertiary' => 'outline', 'text' => 'text', 'danger' => 'solid'][$variant];
+    $shape = in_array($shape, ['solid', 'outline', 'text', 'link', 'arrow', 'line'], true) ? $shape : $defaultShape;
 
     $size = in_array($size, ['s', 'm', 'l', 'xl'], true) ? $size : 'm';
     $on = in_array($on, ['default', 'dark', 'brand'], true) ? $on : 'default';
@@ -79,6 +89,7 @@
     {{ $attributes->class([
         'vdbs-btn',
         "vdbs-btn--{$variant}",
+        'vdbs-btn--tone-lila' => $tone === 'lila',
         "vdbs-btn--shape-{$shape}",
         "vdbs-btn--size-{$size}",
         "vdbs-btn--on-{$on}" => $on !== 'default',

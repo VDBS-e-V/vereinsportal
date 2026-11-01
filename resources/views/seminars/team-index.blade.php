@@ -86,7 +86,7 @@
                         </td>
                         <td>
                             @if ($application->status === \App\Modules\Seminars\Enums\ApplicationStatus::Applied)
-                                <form method="post" action="{{ route('seminar-applications.withdraw', $seminar) }}">@csrf @method('delete')<x-vdbs.actions.button type="submit" size="s" variant="secondary" shape="outline">Interesse zurückziehen</x-vdbs.actions.button></form>
+                                <form method="post" action="{{ route('seminar-applications.withdraw', $seminar) }}">@csrf @method('delete')<x-vdbs.actions.button type="submit" size="s" variant="tertiary">Interesse zurückziehen</x-vdbs.actions.button></form>
                             @endif
                         </td>
                     </tr>

@@ -17,7 +17,7 @@
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="save">Speichern</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="route('seminar-applications.index')">Zu den Seminaren</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="route('seminar-applications.index')">Zu den Seminaren</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>

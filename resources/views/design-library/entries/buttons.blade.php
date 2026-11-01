@@ -1,20 +1,93 @@
 @php
-    $roles = ['primary' => 'Primär', 'secondary' => 'Sekundär', 'tertiary' => 'Tertiär', 'danger' => 'Gefahr', 'quiet' => 'Leise'];
-    $shapes = ['solid', 'outline', 'link', 'arrow', 'line'];
+    $roles = ['primary' => 'Primär', 'secondary' => 'Sekundär', 'tertiary' => 'Tertiär', 'text' => 'Text', 'danger' => 'Gefahr'];
+    $tones = ['green' => 'Grün', 'lila' => 'Lila'];
+    $shapes = ['solid', 'outline', 'text', 'link', 'arrow', 'line'];
+    $states = ['Normal' => [], 'Deaktiviert' => ['disabled' => true], 'Lädt' => ['loading' => true]];
 @endphp
 
-<p>Paket <strong>Aktionen</strong> · <code>&lt;x-vdbs.actions.button&gt;</code> ist der einzige Button-Baustein. Rolle, Form, Größe und Fläche sind unabhängig kombinierbar. Mit <code>href</code> entsteht ein Link, sonst ein Button.</p>
+<p>Paket <strong>Aktionen</strong> · <code>&lt;x-vdbs.actions.button&gt;</code> ist der einzige Button-Baustein. Rolle (<code>variant</code>), Tonfarbe (<code>tone</code>), Größe und Fläche sind unabhängig kombinierbar. Mit <code>href</code> entsteht ein Link, sonst ein Button.</p>
 
-<h2>Rollen × Formen</h2>
+<h2>Die Rollen in Grün und Lila</h2>
+<ul>
+    <li><strong>Primär</strong> (<code>primary</code>): dunkle Fläche, weiße Schrift. Pro Bereich höchstens eine.</li>
+    <li><strong>Sekundär</strong> (<code>secondary</code>): helle Fläche, Ink-Schrift.</li>
+    <li><strong>Tertiär</strong> (<code>tertiary</code>): weiße Fläche, Schrift und Rahmen in Farbe.</li>
+    <li><strong>Text</strong> (<code>text</code>): nur Schrift in Farbe; Fläche und Unterstrich erst bei Hover.</li>
+    <li><strong>Gefahr</strong> (<code>danger</code>): für unwiderrufliche Aktionen, immer mit Text.</li>
+</ul>
+<div class="vdbs-table-wrap">
+    <table class="vdbs-table">
+        <caption class="vdbs-sr-only">Rollen in den Tonfarben</caption>
+        <thead><tr><th scope="col">Rolle</th>@foreach ($tones as $tone => $toneName)<th scope="col">{{ $toneName }} (<code>tone="{{ $tone }}"</code>)</th>@endforeach</tr></thead>
+        <tbody>
+            @foreach ($roles as $variant => $name)
+                <tr>
+                    <th scope="row">{{ $name }}<br><code>{{ $variant }}</code></th>
+                    @foreach ($tones as $tone => $toneName)
+                        <td>
+                            @if ($variant === 'danger')
+                                @if ($tone === 'green') <x-vdbs.actions.button variant="danger" icon="trash-2">Löschen</x-vdbs.actions.button> @else <span style="color:var(--text-muted)">ohne Tonfarbe</span> @endif
+                            @else
+                                <x-vdbs.actions.button :variant="$variant" :tone="$tone">Aktion</x-vdbs.actions.button>
+                            @endif
+                        </td>
+                    @endforeach
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+
+<h2>Zustände je Rolle und Tonfarbe</h2>
+<div class="vdbs-table-wrap">
+    <table class="vdbs-table">
+        <caption class="vdbs-sr-only">Zustände</caption>
+        <thead><tr><th scope="col">Rolle</th>@foreach ($states as $stateName => $props)<th scope="col">{{ $stateName }}</th>@endforeach<th scope="col">Gedrückt (Umschalter)</th></tr></thead>
+        <tbody>
+            @foreach ($tones as $tone => $toneName)
+                @foreach (['primary', 'secondary', 'tertiary', 'text'] as $variant)
+                    <tr>
+                        <th scope="row">{{ $toneName }} · {{ $roles[$variant] }}</th>
+                        <td><x-vdbs.actions.button :variant="$variant" :tone="$tone">Aktion</x-vdbs.actions.button></td>
+                        <td><x-vdbs.actions.button :variant="$variant" :tone="$tone" :disabled="true">Aktion</x-vdbs.actions.button></td>
+                        <td><x-vdbs.actions.button :variant="$variant" :tone="$tone" :loading="true">Sendet</x-vdbs.actions.button></td>
+                        <td><x-vdbs.actions.button :variant="$variant" :tone="$tone" :pressed="true" icon="eye">Aktiv</x-vdbs.actions.button></td>
+                    </tr>
+                @endforeach
+            @endforeach
+        </tbody>
+    </table>
+</div>
+<p>Hover und Aktiv (gedrückte Maustaste): Maus. Fokus: Tab-Taste. Auf dunklen Flächen wird der Fokusring weiß.</p>
+
+<h2>Icons mit und ohne Text</h2>
+<div class="vdbs-table-wrap">
+    <table class="vdbs-table">
+        <caption class="vdbs-sr-only">Icon-Formen je Rolle und Tonfarbe</caption>
+        <thead><tr><th scope="col">Rolle</th><th scope="col">Nur Text</th><th scope="col">Icon links</th><th scope="col">Icon rechts</th><th scope="col">Nur Icon</th></tr></thead>
+        <tbody>
+            @foreach ($tones as $tone => $toneName)
+                @foreach (['primary', 'secondary', 'tertiary', 'text'] as $variant)
+                    <tr>
+                        <th scope="row">{{ $toneName }} · {{ $roles[$variant] }}</th>
+                        <td><x-vdbs.actions.button :variant="$variant" :tone="$tone">Speichern</x-vdbs.actions.button></td>
+                        <td><x-vdbs.actions.button :variant="$variant" :tone="$tone" icon="plus">Neu</x-vdbs.actions.button></td>
+                        <td><x-vdbs.actions.button :variant="$variant" :tone="$tone" icon="arrow-right" icon-position="end">Weiter</x-vdbs.actions.button></td>
+                        <td><x-vdbs.actions.button :variant="$variant" :tone="$tone" icon="pencil" label="Bearbeiten" /></td>
+                    </tr>
+                @endforeach
+            @endforeach
+        </tbody>
+    </table>
+</div>
+<p>Es ist immer ein Icon vor oder nach dem Text möglich. Reine Icon-Buttons sind 44 × 44 px und brauchen <code>label</code> (wird <code>aria-label</code> und <code>title</code>). Gefahr-Buttons tragen Icon <em>und</em> Text, außer in Tabellenzeilen mit Label.</p>
+
+<h2>Formen (<code>shape</code>)</h2>
+<p>Jede Rolle hat eine Standardform: primary und secondary = solid, tertiary = outline, text = text, danger = solid. Weitere Formen sind für besondere Fälle da.</p>
 <div class="vdbs-table-wrap">
     <table class="vdbs-table">
         <caption class="vdbs-sr-only">Rollen und Formen</caption>
-        <thead>
-            <tr>
-                <th scope="col">Rolle</th>
-                @foreach ($shapes as $shape) <th scope="col"><code>{{ $shape }}</code></th> @endforeach
-            </tr>
-        </thead>
+        <thead><tr><th scope="col">Rolle</th>@foreach ($shapes as $shape)<th scope="col"><code>{{ $shape }}</code></th>@endforeach</tr></thead>
         <tbody>
             @foreach ($roles as $variant => $name)
                 <tr>
@@ -27,7 +100,6 @@
         </tbody>
     </table>
 </div>
-<p>Standardform je Rolle: primary = solid, secondary = outline, tertiary = link, danger = solid, quiet = link. Pro Bereich höchstens eine primäre Aktion.</p>
 
 <h2>Größen</h2>
 <div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:center;margin-bottom:var(--space-4)">
@@ -56,49 +128,9 @@
 @endforeach
 <p>Alternativ gilt eine Fläche für alle Buttons darin: Container mit <code>.vdbs-on-dark</code> oder <code>.vdbs-on-brand</code> (so lösen die Heros es).</p>
 
-<h2>Icons</h2>
-<x-vdbs.actions.button-group>
-    <x-vdbs.actions.button icon="plus">Icon links</x-vdbs.actions.button>
-    <x-vdbs.actions.button icon="arrow-right" icon-position="end" variant="secondary">Icon rechts</x-vdbs.actions.button>
-    <x-vdbs.actions.button icon="trash-2" variant="danger" label="Löschen" />
-    <x-vdbs.actions.button icon="pencil" variant="secondary" label="Bearbeiten" size="s" />
-    <x-vdbs.actions.button href="https://example.org" :external="true" variant="tertiary">Externer Link</x-vdbs.actions.button>
-</x-vdbs.actions.button-group>
-<h3>Icons in jeder Form</h3>
-<div class="vdbs-table-wrap">
-    <table class="vdbs-table">
-        <caption class="vdbs-sr-only">Icons je Form</caption>
-        <thead><tr><th scope="col">Form</th><th scope="col">Icon links</th><th scope="col">Icon rechts</th><th scope="col">Nur Icon</th></tr></thead>
-        <tbody>
-            @foreach ($shapes as $shape)
-                <tr>
-                    <th scope="row"><code>{{ $shape }}</code></th>
-                    <td><x-vdbs.actions.button :shape="$shape" icon="plus">Neu</x-vdbs.actions.button></td>
-                    <td><x-vdbs.actions.button :shape="$shape" icon="download" icon-position="end">Laden</x-vdbs.actions.button></td>
-                    <td>@if ($shape === 'link') <span style="color:var(--text-muted)">nicht sinnvoll</span> @else <x-vdbs.actions.button :shape="$shape" icon="pencil" label="Bearbeiten" /> @endif</td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
-<p>Es ist immer ein Icon vor oder nach dem Text möglich. Die Pfeil-Form hat zusätzlich immer den Pfeil am Ende; die Linien-Form zeigt ohne eigenes Icon einen Chevron am Anfang.</p>
-
-<p>Reine Icon-Buttons brauchen <code>label</code> (wird <code>aria-label</code> und <code>title</code>). Gefahr-Buttons tragen immer Icon <em>und</em> Text, außer in Tabellenzeilen mit Label.</p>
-
-<h2>Zustände</h2>
-<x-vdbs.actions.button-group>
-    <x-vdbs.actions.button>Normal</x-vdbs.actions.button>
-    <x-vdbs.actions.button :disabled="true">Deaktiviert</x-vdbs.actions.button>
-    <x-vdbs.actions.button :loading="true">Lädt</x-vdbs.actions.button>
-    <x-vdbs.actions.button variant="secondary" :pressed="true" icon="eye">Gedrückt</x-vdbs.actions.button>
-    <x-vdbs.actions.button variant="secondary" :pressed="false" icon="eye">Nicht gedrückt</x-vdbs.actions.button>
-    <x-vdbs.actions.button href="#" :disabled="true" variant="secondary">Link deaktiviert</x-vdbs.actions.button>
-</x-vdbs.actions.button-group>
-<p>Fokus: Tab-Taste drücken. Hover und Aktiv: Maus. Auf dunklen Flächen wird der Fokusring weiß.</p>
-
 <h2>Gruppe und volle Breite</h2>
 <x-vdbs.actions.button-group label="Formular-Aktionen" align="end">
-    <x-vdbs.actions.button variant="tertiary">Abbrechen</x-vdbs.actions.button>
+    <x-vdbs.actions.button variant="text">Abbrechen</x-vdbs.actions.button>
     <x-vdbs.actions.button variant="secondary">Entwurf speichern</x-vdbs.actions.button>
     <x-vdbs.actions.button>Speichern</x-vdbs.actions.button>
 </x-vdbs.actions.button-group>
@@ -110,8 +142,9 @@
     ['key' => 'v', 'label' => 'Werte'],
     ['key' => 'd', 'label' => 'Bedeutung'],
 ]">
-    <tr><th scope="row"><code>variant</code></th><td>primary, secondary, tertiary, danger, quiet</td><td>Wichtigkeit der Aktion</td></tr>
-    <tr><th scope="row"><code>shape</code></th><td>solid, outline, link, arrow, line</td><td>Form; Standard je Rolle</td></tr>
+    <tr><th scope="row"><code>variant</code></th><td>primary, secondary, tertiary, text, danger</td><td>Wichtigkeit der Aktion (<code>quiet</code> ist der alte Name von <code>text</code>)</td></tr>
+    <tr><th scope="row"><code>tone</code></th><td>green (Standard), lila</td><td>Tonfarbe von primary, secondary, tertiary und text</td></tr>
+    <tr><th scope="row"><code>shape</code></th><td>solid, outline, text, link, arrow, line</td><td>Form; Standard je Rolle</td></tr>
     <tr><th scope="row"><code>size</code></th><td>s, m (Standard), l, xl</td><td>36, 44, 52, 60 px Höhe</td></tr>
     <tr><th scope="row"><code>on</code></th><td>default (Standard), dark, brand</td><td>Fläche hinter dem Button; default = normale Seitenfläche, folgt dem Theme</td></tr>
     <tr><th scope="row"><code>href</code></th><td>URL</td><td>Link statt Button</td></tr>

@@ -17,11 +17,73 @@ it('renders a primary solid medium button by default', function () {
 });
 
 it('uses the default shape of each role and accepts explicit shapes', function () {
-    expect(button('variant="secondary"'))->toContain('vdbs-btn--shape-outline')
-        ->and(button('variant="tertiary"'))->toContain('vdbs-btn--shape-link')
+    expect(button('variant="primary"'))->toContain('vdbs-btn--shape-solid')
+        ->and(button('variant="secondary"'))->toContain('vdbs-btn--shape-solid')
+        ->and(button('variant="tertiary"'))->toContain('vdbs-btn--shape-outline')
+        ->and(button('variant="text"'))->toContain('vdbs-btn--text')->toContain('vdbs-btn--shape-text')
         ->and(button('variant="danger"'))->toContain('vdbs-btn--shape-solid')
-        ->and(button('variant="quiet"'))->toContain('vdbs-btn--shape-link')
         ->and(button('shape="line"'))->toContain('vdbs-btn--shape-line');
+});
+
+it('keeps quiet as the old name of the text role', function () {
+    expect(button('variant="quiet"'))->toContain('vdbs-btn--text')->toContain('vdbs-btn--shape-text')->not->toContain('vdbs-btn--quiet');
+});
+
+it('offers the tones green and lila with green as default', function () {
+    expect(button())->not->toContain('vdbs-btn--tone-lila')
+        ->and(button('tone="green"'))->not->toContain('vdbs-btn--tone-lila')
+        ->and(button('tone="lila"'))->toContain('vdbs-btn--tone-lila')
+        ->and(button('tone="pink"'))->not->toContain('vdbs-btn--tone-lila');
+
+    foreach (['primary', 'secondary', 'tertiary', 'text'] as $variant) {
+        expect(button('variant="'.$variant.'" tone="lila"'))->toContain('vdbs-btn--'.$variant)->toContain('vdbs-btn--tone-lila');
+    }
+});
+
+it('works with and without icon and text in every role and tone', function () {
+    foreach (['primary', 'secondary', 'tertiary', 'text', 'danger'] as $variant) {
+        foreach (['green', 'lila'] as $tone) {
+            $base = 'variant="'.$variant.'" tone="'.$tone.'"';
+
+            $textOnly = button($base);
+            $iconStart = button($base.' icon="plus"');
+            $iconEnd = button($base.' icon="arrow-right" icon-position="end"');
+            $iconOnly = Blade::render('<x-vdbs.actions.button '.$base.' icon="pencil" label="Bearbeiten" />');
+
+            expect($textOnly)->toContain('vdbs-btn__label')->not->toContain('<svg')
+                ->and($iconStart)->toContain('vdbs-btn__label')->toContain('<svg')
+                ->and(strpos($iconStart, '<svg'))->toBeLessThan(strpos($iconStart, 'vdbs-btn__label'))
+                ->and($iconEnd)->toContain('<svg')
+                ->and(strpos($iconEnd, '<svg'))->toBeGreaterThan(strpos($iconEnd, 'vdbs-btn__label'))
+                ->and($iconOnly)->toContain('vdbs-btn--icon-only')->toContain('aria-label="Bearbeiten"')->toContain('title="Bearbeiten"')->toContain('<svg')->not->toContain('vdbs-btn__label');
+        }
+    }
+});
+
+it('keeps the states in every role and tone', function () {
+    foreach (['primary', 'secondary', 'tertiary', 'text'] as $variant) {
+        foreach (['green', 'lila'] as $tone) {
+            $base = 'variant="'.$variant.'" tone="'.$tone.'"';
+
+            expect(button($base.' :disabled="true"'))->toContain('vdbs-btn--disabled')->toContain('disabled')
+                ->and(button($base.' :loading="true"'))->toContain('vdbs-btn--loading')->toContain('aria-busy="true"')
+                ->and(button($base.' :pressed="true"'))->toContain('aria-pressed="true"');
+        }
+    }
+});
+
+it('defines the button tone colors for both themes in the tokens', function () {
+    $tokens = file_get_contents(resource_path('css/vdbs/tokens.css'));
+
+    foreach (['green', 'lila'] as $tone) {
+        foreach (['solid', 'solid-hover', 'solid-press', 'soft', 'soft-hover', 'soft-press', 'text', 'text-hover'] as $role) {
+            expect(substr_count($tokens, "--btn-{$tone}-{$role}:"))->toBe(3, "--btn-{$tone}-{$role} (hell und zweimal dunkel)");
+        }
+    }
+
+    foreach (['on-solid', 'on-soft', 'disabled-bg', 'disabled-fg'] as $name) {
+        expect(substr_count($tokens, "--btn-{$name}:"))->toBe(3);
+    }
 });
 
 it('falls back for unknown values', function () {
@@ -79,7 +141,7 @@ it('adds the arrow cell for the arrow shape and keeps an optional leading icon',
 });
 
 it('allows an icon before or after the text in every shape', function () {
-    foreach (['solid', 'outline', 'link', 'arrow', 'line'] as $shape) {
+    foreach (['solid', 'outline', 'text', 'link', 'arrow', 'line'] as $shape) {
         expect(button('shape="'.$shape.'" icon="plus"'))->toContain('<svg')
             ->and(button('shape="'.$shape.'" icon="download" icon-position="end"'))->toContain('<svg');
     }

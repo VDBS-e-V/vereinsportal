@@ -19,5 +19,5 @@
         </x-vdbs.data.timeline>
     @endif
 
-    <p><x-vdbs.actions.button variant="tertiary" :href="$href" icon="arrow-right">Im Protokoll öffnen</x-vdbs.actions.button></p>
+    <p><x-vdbs.actions.button variant="text" :href="$href" icon="arrow-right">Im Protokoll öffnen</x-vdbs.actions.button></p>
 </section>

@@ -92,7 +92,7 @@
                         <td>
                             <div class="vdbs-btn-group">
                                 @if ($row->attendances_count > 0)
-                                    <x-vdbs.actions.button size="s" variant="secondary" shape="outline" :href="route('events.admin.registrations.certificate', [$event, $row])">Bestätigung</x-vdbs.actions.button>
+                                    <x-vdbs.actions.button size="s" variant="tertiary" :href="route('events.admin.registrations.certificate', [$event, $row])">Bestätigung</x-vdbs.actions.button>
                                 @endif
                                 @if ($canManage)
                                     <form method="post" action="{{ route('events.admin.registrations.destroy', [$event, $row]) }}">@csrf @method('delete')<x-vdbs.actions.button type="submit" size="s" variant="danger" shape="outline">Entfernen</x-vdbs.actions.button></form>

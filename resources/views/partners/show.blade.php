@@ -53,7 +53,7 @@
                                 @if ($account)
                                     <x-vdbs.data.badge :tone="$account->user->status === \App\Modules\Access\Enums\UserStatus::Active ? 'success' : 'warning'">{{ $account->user->status === \App\Modules\Access\Enums\UserStatus::Active ? 'Konto aktiv' : 'Eingeladen' }}</x-vdbs.data.badge>
                                 @elseif ($canManage && $contact->email)
-                                    <form method="post" action="{{ route('partners.contacts.account', [$partner, $contact]) }}">@csrf<x-vdbs.actions.button type="submit" size="s" variant="secondary" shape="outline" icon="user-plus">Konto einladen</x-vdbs.actions.button></form>
+                                    <form method="post" action="{{ route('partners.contacts.account', [$partner, $contact]) }}">@csrf<x-vdbs.actions.button type="submit" size="s" variant="tertiary" icon="user-plus">Konto einladen</x-vdbs.actions.button></form>
                                 @else –
                                 @endif
                             </td>
@@ -67,12 +67,12 @@
                     Konten dieser Schule:
                     @foreach ($partner->accounts as $account)
                         {{ $account->name }} ({{ $account->user->email }})@if ($account->user->status === \App\Modules\Access\Enums\UserStatus::PendingVerification)
-                            <form method="post" action="{{ route('partners.accounts.resend', [$partner, $account]) }}" style="display:inline">@csrf<x-vdbs.actions.button type="submit" size="s" variant="tertiary">Einladung erneut senden</x-vdbs.actions.button></form>
+                            <form method="post" action="{{ route('partners.accounts.resend', [$partner, $account]) }}" style="display:inline">@csrf<x-vdbs.actions.button type="submit" size="s" variant="text">Einladung erneut senden</x-vdbs.actions.button></form>
                         @endif
                         @if ($account->user->status !== \App\Modules\Access\Enums\UserStatus::PendingVerification)
                             <x-vdbs.data.badge :tone="$account->user->status === \App\Modules\Access\Enums\UserStatus::Disabled ? 'error' : 'success'">{{ $account->user->status === \App\Modules\Access\Enums\UserStatus::Disabled ? 'gesperrt' : 'aktiv' }}</x-vdbs.data.badge>
                         @endif
-                        @if ($account->user->status !== \App\Modules\Access\Enums\UserStatus::PendingVerification)<form method="post" action="{{ route('partners.accounts.toggle', [$partner, $account]) }}" style="display:inline">@csrf<x-vdbs.actions.button type="submit" size="s" variant="tertiary">{{ $account->user->status === \App\Modules\Access\Enums\UserStatus::Disabled ? 'Entsperren' : 'Sperren' }}</x-vdbs.actions.button></form>@endif{{ ! $loop->last ? ';' : '' }}
+                        @if ($account->user->status !== \App\Modules\Access\Enums\UserStatus::PendingVerification)<form method="post" action="{{ route('partners.accounts.toggle', [$partner, $account]) }}" style="display:inline">@csrf<x-vdbs.actions.button type="submit" size="s" variant="text">{{ $account->user->status === \App\Modules\Access\Enums\UserStatus::Disabled ? 'Entsperren' : 'Sperren' }}</x-vdbs.actions.button></form>@endif{{ ! $loop->last ? ';' : '' }}
                     @endforeach
                 </p>
             @endif

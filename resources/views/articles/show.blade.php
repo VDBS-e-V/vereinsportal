@@ -17,5 +17,5 @@
 
     <x-vdbs.content.prose>{!! $article->html() !!}</x-vdbs.content.prose>
 
-    <p style="margin-top:var(--space-8)"><x-vdbs.actions.button variant="tertiary" :href="route('articles.public.index')">Alle Artikel anzeigen</x-vdbs.actions.button></p>
+    <p style="margin-top:var(--space-8)"><x-vdbs.actions.button variant="text" :href="route('articles.public.index')">Alle Artikel anzeigen</x-vdbs.actions.button></p>
 </x-layouts.app>

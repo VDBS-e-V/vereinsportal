@@ -13,13 +13,13 @@
         <x-vdbs.forms.code name="code" label="Code aus der E-Mail" autofocus />
         <x-slot:actions>
             <x-vdbs.actions.button type="submit">Bestätigen und aktivieren</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="route('account.security.index')">Abbrechen</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="route('account.security.index')">Abbrechen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 
     <form method="post" action="{{ route('account.security.email.resend') }}" style="margin-top:var(--space-4)">
         @csrf
-        <x-vdbs.actions.button type="submit" variant="quiet" icon="send">Code erneut senden</x-vdbs.actions.button>
+        <x-vdbs.actions.button type="submit" variant="text" icon="send">Code erneut senden</x-vdbs.actions.button>
         @if ($resendIn > 0)
             <p style="margin:var(--space-1) 0 0;color:var(--text-muted);font-size:var(--font-size-small)">Ein neuer Code ist in {{ $resendIn }} Sekunden möglich.</p>
         @endif

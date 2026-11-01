@@ -50,6 +50,25 @@
     --color-gruen-hell: #dcf8ea; /* ruhige Hinweisflächen */
     --color-gruen-leuchtend: #40cd9a; /* Grün auf dunklen Flächen (Dark Mode) */
     --color-gruen-pastell: #a8e6cf; /* Vereinsname auf dunklen Flächen */
+    --color-gruen-gedrueckt: #035340; /* Button primär gedrückt */
+    --color-gruen-hell-hover: #c3ecd6; /* Button sekundär Hover */
+    --color-gruen-hover-leuchtend: #6fdcb5; /* Button primär Hover im Dark Mode */
+    --color-gruen-tief-1: #0f3a2c; /* Button sekundär im Dark Mode */
+    --color-gruen-tief-2: #14503c;
+    --color-gruen-tief-3: #1a6650;
+    --color-lila-hover: #451d47; /* Button primär Hover */
+    --color-lila-gedrueckt: #341534;
+    --color-lila-hell: #efe6f0; /* Button sekundär */
+    --color-lila-hell-hover: #e0cfe2;
+    --color-lila-hell-gedrueckt: #d0b6d3;
+    --color-lila-leuchtend: #d7b4da; /* Lila auf dunklen Flächen (Dark Mode) */
+    --color-lila-leuchtend-hover: #e6cde8;
+    --color-lila-leuchtend-gedrueckt: #f0e0f1;
+    --color-lila-leuchtend-text-hover: #ecd9ee;
+    --color-lila-tief-2: #4a2a4b;
+    --color-lila-tief-3: #5c395d;
+    --color-grau-deaktiviert: #e8ecea; /* deaktivierte Buttons */
+    --color-grau-deaktiviert-text: #5b6863;
 
     /* Graustufen (hell) */
     --color-grau-hell: #f5f7f6;
@@ -133,6 +152,28 @@
     --border-input: var(--color-grau-rahmen); /* Formularfelder, Diagrammachsen */
     --focus-ring: var(--color-ink);
     --focus-ring-offset: 2px;
+
+    /* Buttons: Tonfarben Grün (Aktion) und Lila (Marke); Rollen siehe components/actions/button-variants.css */
+    --btn-green-solid: var(--color-gruen-dunkel);
+    --btn-green-solid-hover: var(--color-gruen-dunkler);
+    --btn-green-solid-press: var(--color-gruen-gedrueckt);
+    --btn-green-soft: var(--color-gruen-hell);
+    --btn-green-soft-hover: var(--color-gruen-hell-hover);
+    --btn-green-soft-press: var(--color-gruen-pastell);
+    --btn-green-text: var(--color-gruen-dunkel);
+    --btn-green-text-hover: var(--color-gruen-dunkler);
+    --btn-lila-solid: var(--color-lila);
+    --btn-lila-solid-hover: var(--color-lila-hover);
+    --btn-lila-solid-press: var(--color-lila-gedrueckt);
+    --btn-lila-soft: var(--color-lila-hell);
+    --btn-lila-soft-hover: var(--color-lila-hell-hover);
+    --btn-lila-soft-press: var(--color-lila-hell-gedrueckt);
+    --btn-lila-text: var(--color-lila);
+    --btn-lila-text-hover: var(--color-lila-hover);
+    --btn-on-solid: var(--color-weiss);
+    --btn-on-soft: var(--color-ink);
+    --btn-disabled-bg: var(--color-grau-deaktiviert);
+    --btn-disabled-fg: var(--color-grau-deaktiviert-text);
 
     /* Status: Schrift, Fläche und Rand; Hinweise und Badges bauen darauf auf */
     --text-error: var(--color-fehler);
@@ -316,6 +357,27 @@
     --border-input: var(--color-mauve-500); /* Abweichung vom Styleguide: mind. 3:1 gegen die dunklen Flächen (WCAG 1.4.11) */
     --focus-ring: var(--color-weiss);
 
+    --btn-green-solid: var(--color-gruen-leuchtend);
+    --btn-green-solid-hover: var(--color-gruen-hover-leuchtend);
+    --btn-green-solid-press: var(--color-gruen-pastell);
+    --btn-green-soft: var(--color-gruen-tief-1);
+    --btn-green-soft-hover: var(--color-gruen-tief-2);
+    --btn-green-soft-press: var(--color-gruen-tief-3);
+    --btn-green-text: var(--color-gruen-leuchtend);
+    --btn-green-text-hover: var(--color-gruen-pastell);
+    --btn-lila-solid: var(--color-lila-leuchtend);
+    --btn-lila-solid-hover: var(--color-lila-leuchtend-hover);
+    --btn-lila-solid-press: var(--color-lila-leuchtend-gedrueckt);
+    --btn-lila-soft: var(--color-aubergine-800);
+    --btn-lila-soft-hover: var(--color-lila-tief-2);
+    --btn-lila-soft-press: var(--color-lila-tief-3);
+    --btn-lila-text: var(--color-lila-leuchtend);
+    --btn-lila-text-hover: var(--color-lila-leuchtend-text-hover);
+    --btn-on-solid: var(--color-aubergine-950);
+    --btn-on-soft: var(--color-nebel);
+    --btn-disabled-bg: var(--color-aubergine-800);
+    --btn-disabled-fg: var(--color-mauve-400);
+
     --text-error: var(--color-fehler-leuchtend);
     --text-success: var(--color-gruen-leuchtend);
     --text-warning: var(--color-warnung-leuchtend);
@@ -348,6 +410,26 @@
         --border-default: var(--color-aubergine-700);
         --border-input: var(--color-mauve-500);
         --focus-ring: var(--color-weiss);
+        --btn-green-solid: var(--color-gruen-leuchtend);
+        --btn-green-solid-hover: var(--color-gruen-hover-leuchtend);
+        --btn-green-solid-press: var(--color-gruen-pastell);
+        --btn-green-soft: var(--color-gruen-tief-1);
+        --btn-green-soft-hover: var(--color-gruen-tief-2);
+        --btn-green-soft-press: var(--color-gruen-tief-3);
+        --btn-green-text: var(--color-gruen-leuchtend);
+        --btn-green-text-hover: var(--color-gruen-pastell);
+        --btn-lila-solid: var(--color-lila-leuchtend);
+        --btn-lila-solid-hover: var(--color-lila-leuchtend-hover);
+        --btn-lila-solid-press: var(--color-lila-leuchtend-gedrueckt);
+        --btn-lila-soft: var(--color-aubergine-800);
+        --btn-lila-soft-hover: var(--color-lila-tief-2);
+        --btn-lila-soft-press: var(--color-lila-tief-3);
+        --btn-lila-text: var(--color-lila-leuchtend);
+        --btn-lila-text-hover: var(--color-lila-leuchtend-text-hover);
+        --btn-on-solid: var(--color-aubergine-950);
+        --btn-on-soft: var(--color-nebel);
+        --btn-disabled-bg: var(--color-aubergine-800);
+        --btn-disabled-fg: var(--color-mauve-400);
 
         --text-error: var(--color-fehler-leuchtend);
         --text-success: var(--color-gruen-leuchtend);

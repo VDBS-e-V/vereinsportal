@@ -79,7 +79,7 @@
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="save">{{ $editing ? 'Speichern' : 'Schule anlegen' }}</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="$editing ? route('partners.show', $partner) : route('partners.index')">Abbrechen</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="$editing ? route('partners.show', $partner) : route('partners.index')">Abbrechen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>

@@ -4,19 +4,20 @@
 
 /* Deaktiviert (Styleguide 5.1): graue Fläche und gedämpfter Text; Rahmen-/Linkformen ohne Fläche */
 .vdbs-btn.vdbs-btn--disabled {
-    background: var(--bg-surface);
-    border-color: var(--border-default);
-    color: var(--text-muted);
+    background: var(--btn-disabled-bg);
+    border-color: var(--btn-disabled-bg);
+    color: var(--btn-disabled-fg);
     cursor: not-allowed;
     pointer-events: none;
     text-decoration: none;
 }
 
-.vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-outline,
 .vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-line,
-.vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-link { background: transparent; }
+.vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-link,
+.vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-text { background: transparent; }
 
-.vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-link { border-color: transparent; }
+.vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-link,
+.vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-text { border-color: transparent; }
 .vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-line { border-bottom-color: var(--border-default); }
 .vdbs-btn.vdbs-btn--disabled .vdbs-btn__arrow { border-left-color: var(--border-default); }
 
@@ -40,6 +41,26 @@
 .vdbs-on-brand .vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-outline,
 .vdbs-on-brand .vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-line,
 .vdbs-on-brand .vdbs-btn.vdbs-btn--disabled.vdbs-btn--shape-link { background: transparent; }
+
+/* Gedrückt (Maus oder Touch): dunklere Fläche der Rolle. Gefüllte Formen und Text nutzen --btn-press-*, Rahmenformen die Fläche des Hovers */
+.vdbs-btn--shape-solid:active:not(.vdbs-btn--disabled):not(.vdbs-btn--loading),
+.vdbs-btn--shape-arrow:active:not(.vdbs-btn--disabled):not(.vdbs-btn--loading) {
+    background: var(--btn-press-bg, var(--btn-hover-bg));
+    border-color: var(--btn-press-bg, var(--btn-hover-bg));
+    color: var(--btn-press-fg, var(--btn-hover-fg));
+}
+
+.vdbs-btn--shape-text:active:not(.vdbs-btn--disabled):not(.vdbs-btn--loading) {
+    background: var(--btn-press-bg, var(--btn-hover-bg));
+    color: var(--btn-press-fg, var(--btn-hover-fg));
+}
+
+.vdbs-btn--shape-outline:active:not(.vdbs-btn--disabled):not(.vdbs-btn--loading),
+.vdbs-btn--shape-link:active:not(.vdbs-btn--disabled):not(.vdbs-btn--loading),
+.vdbs-btn--shape-line:active:not(.vdbs-btn--disabled):not(.vdbs-btn--loading) {
+    background: var(--btn-press-bg, var(--btn-fill));
+    color: var(--btn-press-fg, var(--btn-fill-fg));
+}
 
 /* Laden: Farben bleiben, Bedienung ist gesperrt */
 .vdbs-btn--loading { cursor: progress; pointer-events: none; }

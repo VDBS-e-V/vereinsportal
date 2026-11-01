@@ -55,7 +55,7 @@
             <x-slot:actions>
                 <x-vdbs.actions.button type="submit" name="action" value="preview" variant="secondary" icon="refresh-cw">Berechnen</x-vdbs.actions.button>
                 <x-vdbs.actions.button type="submit" name="action" value="save" icon="save">{{ $editing ? 'Änderung speichern' : 'Kostenvoranschlag speichern' }}</x-vdbs.actions.button>
-                <x-vdbs.actions.button variant="tertiary" :href="$editing ? route('seminar-quotes.show', $quote) : route('seminar-quotes.index')">Abbrechen</x-vdbs.actions.button>
+                <x-vdbs.actions.button variant="text" :href="$editing ? route('seminar-quotes.show', $quote) : route('seminar-quotes.index')">Abbrechen</x-vdbs.actions.button>
             </x-slot:actions>
         </x-vdbs.forms.form>
 

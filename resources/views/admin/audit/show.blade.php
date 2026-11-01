@@ -27,5 +27,5 @@
         @endforeach
     </x-vdbs.data.detail-list>
 
-    <p style="margin-top:var(--space-6)"><x-vdbs.actions.button variant="tertiary" :href="route('admin.audit.index')" icon="arrow-left">Zurück zum Protokoll</x-vdbs.actions.button></p>
+    <p style="margin-top:var(--space-6)"><x-vdbs.actions.button variant="text" :href="route('admin.audit.index')" icon="arrow-left">Zurück zum Protokoll</x-vdbs.actions.button></p>
 </x-layouts.app>

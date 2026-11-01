@@ -11,5 +11,5 @@
         </x-slot:actions>
     </x-vdbs.forms.form>
 
-    <p style="margin-top:var(--space-5)"><x-vdbs.actions.button variant="quiet" :href="route('login')" icon="arrow-left">Zurück zur Anmeldung</x-vdbs.actions.button></p>
+    <p style="margin-top:var(--space-5)"><x-vdbs.actions.button variant="text" :href="route('login')" icon="arrow-left">Zurück zur Anmeldung</x-vdbs.actions.button></p>
 </x-layouts.app>

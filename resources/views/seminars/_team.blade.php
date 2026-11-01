@@ -71,7 +71,7 @@
                                 @csrf @method('put')
                                 <label class="vdbs-sr-only" for="note-{{ $application->id }}">Interne Notiz zu {{ $row['name'] }}</label>
                                 <input class="vdbs-control vdbs-control--size-s" id="note-{{ $application->id }}" name="internal_note" maxlength="300" placeholder="Interne Notiz" value="{{ $application->internal_note }}">
-                                <x-vdbs.actions.button type="submit" size="s" variant="tertiary">Notiz speichern</x-vdbs.actions.button>
+                                <x-vdbs.actions.button type="submit" size="s" variant="text">Notiz speichern</x-vdbs.actions.button>
                             </form>
                         @elseif ($application->internal_note)
                             <br><small>Notiz: {{ $application->internal_note }}</small>
@@ -85,7 +85,7 @@
                                     <form method="post" action="{{ route('seminars.team.decide', [$seminar, $application, 'bestaetigen']) }}">@csrf<x-vdbs.actions.button type="submit" size="s" icon="check">Ins Team</x-vdbs.actions.button></form>
                                 @endif
                                 @if ($application->status !== \App\Modules\Seminars\Enums\ApplicationStatus::Declined)
-                                    <form method="post" action="{{ route('seminars.team.decide', [$seminar, $application, 'ablehnen']) }}">@csrf<x-vdbs.actions.button type="submit" size="s" variant="secondary" shape="outline">Nicht berücksichtigen</x-vdbs.actions.button></form>
+                                    <form method="post" action="{{ route('seminars.team.decide', [$seminar, $application, 'ablehnen']) }}">@csrf<x-vdbs.actions.button type="submit" size="s" variant="tertiary">Nicht berücksichtigen</x-vdbs.actions.button></form>
                                 @endif
                             </div>
                         @endif

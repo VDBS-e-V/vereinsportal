@@ -11,15 +11,15 @@
 <x-vdbs.content.feature variant="side" tone="surface" :reverse="true" media-size="m" title="Studium" image="{{ placeholder('split', 2) }}" image-alt="">
     <p><strong>Willkommen zum neuen Semester!</strong> Zum Start begrüßen wir alle neuen und zurückkehrenden Mitglieder.</p>
     <x-slot:actions>
-        <x-vdbs.actions.button variant="secondary" shape="outline" icon="chevron-right">Angebot entdecken</x-vdbs.actions.button>
-        <x-vdbs.actions.button variant="secondary" shape="outline" icon="chevron-right">Fortbildung</x-vdbs.actions.button>
+        <x-vdbs.actions.button variant="tertiary" icon="chevron-right">Angebot entdecken</x-vdbs.actions.button>
+        <x-vdbs.actions.button variant="tertiary" icon="chevron-right">Fortbildung</x-vdbs.actions.button>
     </x-slot:actions>
 </x-vdbs.content.feature>
 
 <h2>overlap · Fläche überlappt das Bild</h2>
 <x-vdbs.content.feature variant="overlap" tone="soft" title="Was kann man im Portal tun?" image="{{ placeholder('split', 3) }}" image-alt="">
     <p>Das Portal ist genau das, was du dir wünschst: Informationen finden, Dokumente teilen und Kolleginnen und Kollegen erreichen.</p>
-    <x-slot:actions><x-vdbs.actions.button variant="secondary" shape="outline">Mehr lesen</x-vdbs.actions.button></x-slot:actions>
+    <x-slot:actions><x-vdbs.actions.button variant="tertiary">Mehr lesen</x-vdbs.actions.button></x-slot:actions>
 </x-vdbs.content.feature>
 
 <h2>offset · dunkle Fläche, Bild ragt heraus</h2>
@@ -33,8 +33,8 @@
     <p>Der Verein steht seit seiner Gründung für Wahrheit, Gerechtigkeit und Freiheit.</p>
     <x-slot:actions>
         <x-vdbs.actions.button icon="chevron-right">Die politische Arbeit</x-vdbs.actions.button>
-        <x-vdbs.actions.button variant="secondary" shape="outline" icon="chevron-right">Maßnahmen gegen Diskriminierung</x-vdbs.actions.button>
-        <x-vdbs.actions.button variant="secondary" shape="outline" icon="chevron-right">Infos zur geplanten Neuordnung</x-vdbs.actions.button>
+        <x-vdbs.actions.button variant="tertiary" icon="chevron-right">Maßnahmen gegen Diskriminierung</x-vdbs.actions.button>
+        <x-vdbs.actions.button variant="tertiary" icon="chevron-right">Infos zur geplanten Neuordnung</x-vdbs.actions.button>
     </x-slot:actions>
 </x-vdbs.content.feature>
 

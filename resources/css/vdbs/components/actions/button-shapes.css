@@ -24,8 +24,25 @@
 
 .vdbs-btn--shape-outline:hover {
     background: var(--btn-fill);
-    border-color: var(--btn-fill);
+    border-color: var(--btn-fill-edge, var(--btn-fill));
     color: var(--btn-fill-fg);
+}
+
+/* text: nur Schrift in Farbe; beim Überfahren erscheinen Hover-Fläche und Unterstrich */
+.vdbs-btn--shape-text {
+    --btn-pad-x: var(--space-3);
+
+    background: transparent;
+    border-color: transparent;
+    color: var(--btn-fg);
+}
+
+.vdbs-btn--shape-text:hover {
+    background: var(--btn-hover-bg);
+    color: var(--btn-hover-fg);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
 }
 
 /* link: wie ein Textlink; beim Überfahren erscheint die Hover-Fläche (Padding wird durch negativen Rand ausgeglichen) */

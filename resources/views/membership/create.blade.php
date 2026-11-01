@@ -27,7 +27,7 @@
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="save">Erfassen</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="route('membership.index')">Abbrechen</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="route('membership.index')">Abbrechen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>

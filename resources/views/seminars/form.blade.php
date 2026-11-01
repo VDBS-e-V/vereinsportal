@@ -30,7 +30,7 @@
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="save">{{ $editing ? 'Speichern' : 'Seminar anlegen' }}</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="$editing ? route('seminars.show', $seminar) : route('seminars.index')">Abbrechen</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="$editing ? route('seminars.show', $seminar) : route('seminars.index')">Abbrechen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>

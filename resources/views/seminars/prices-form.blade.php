@@ -23,7 +23,7 @@
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="save">Neue Fassung speichern</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="route('seminar-prices.index')">Abbrechen</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="route('seminar-prices.index')">Abbrechen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>

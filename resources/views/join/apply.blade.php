@@ -33,7 +33,7 @@
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="send">Mitgliedschaft beantragen</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="route('home')">Abbrechen</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="route('home')">Abbrechen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>
