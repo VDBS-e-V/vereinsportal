@@ -11,7 +11,7 @@ Stand: Entwurf für die gemeinsame Umgestaltung des Pakets Aktionen. Bild: `docs
 Hinweis: Mehrere Werte (44 px, 8 px Abstand, Beschriftungslänge) stammen aus Designsystemen und Artikeln, nicht aus Normen. Die Werte aus WCAG sind verbindlich.
 
 ## Erfolgskriterien (Merkmale eines guten Button-Systems)
-1. **Eindeutige Hierarchie:** vier Rollen (Primär, Sekundär, Tertiär, Gefahr); pro Ansicht höchstens eine Primär-Aktion; Gefahr abgesetzt, nie vorausgewählt.
+1. **Eindeutige Hierarchie:** fünf Rollen (Primär, Sekundär, Tertiär mit Rand, Text, Gefahr); pro Ansicht höchstens eine Primär-Aktion; Gefahr abgesetzt, nie vorausgewählt.
 2. **Kontrast Schrift ≥ 4,5 : 1** (WCAG 1.4.3) in jedem Zustand außer „Deaktiviert“ (dort ausgenommen, wir halten trotzdem 4,5 : 1).
 3. **Kontrast von Fläche oder Rand ≥ 3 : 1** gegen die Umgebung (WCAG 1.4.11), im hellen und im dunklen Modus.
 4. **Zielgröße:** Standard 44 px hoch, Icon-Button 44 × 44 px, kompakt 36 px (nur in dichten Tabellen); nie unter 24 px (WCAG 2.5.8); Abstand zwischen Buttons ≥ 8 px.
@@ -23,7 +23,9 @@ Hinweis: Mehrere Werte (44 px, 8 px Abstand, Beschriftungslänge) stammen aus De
 10. **Deaktiviert erklärt sich:** Wo möglich bleibt der Button aktiv und zeigt beim Klick den Grund (Michigan); sonst `aria-disabled` mit Hinweis.
 11. **Richtige Semantik:** Aktionen sind `button`, Navigation ist `a` im Button-Stil.
 12. **Eine Grammatik:** Rolle × Größe × Form × Fläche; eckige Ecken; 4-px-Raster; nur semantische Tokens; Dunkelmodus und farbige Flächen inklusive.
-13. **Responsiv:** auf dem Handy volle Breite und gestapelt, Primär zuerst.
+13. **Icons mit und ohne Text:** jede Rolle funktioniert in vier Formen: nur Text, Icon + Text, Text + Icon, nur Icon. Alle sind 44 px hoch; Icon-Buttons 44 × 44 px mit `aria-label` und Tooltip; Icons sind dekorativ (`aria-hidden`), wenn Text daneben steht.
+14. **Text-Button:** niedrigste Betonung ohne Rand und Fläche. Er bleibt als Bedienelement erkennbar: Schrift in Aktionsgrün (5,0 : 1), 2 px unterstrichen (nicht nur Farbe, WCAG 1.4.1), Hover mit heller Fläche (5,9 : 1) und dickerer Linie, Fokusring wie alle. Gleiche Zielgröße (44 px) wie die anderen Rollen.
+15. **Responsiv:** auf dem Handy volle Breite und gestapelt, Primär zuerst.
 
 ## Systemvorschlag (Bild)
-Farben (aus `tokens.css`): Primär `--bg-action` (#057f5b, Weiß 5,0 : 1), Hover #046a4d (6,6), Gedrückt #035340 (9,1); Sekundär Ink-Rand auf Weiß (17,9); Tertiär Aktionsgrün als Rand und Schrift (5,0); Gefahr #b42318 (6,6). Dunkelmodus: helles Grün #40cd9a mit dunkler Schrift (9,3), Rand mauve (4,8). Neu gegenüber den Tokens sind nur die Zustände „Gedrückt“ und die graue Fläche für „Deaktiviert“; sie müssten als Tokens angelegt werden.
+Farben (aus `tokens.css`): Primär `--bg-action` (#057f5b, Weiß 5,0 : 1), Hover #046a4d (6,6), Gedrückt #035340 (9,1); Sekundär Ink-Rand auf Weiß (17,9); Tertiär Aktionsgrün als Rand und Schrift (5,0); Gefahr #b42318 (6,6). Dunkelmodus: helles Grün #40cd9a mit dunkler Schrift (9,3), Rand mauve (4,8). Text-Button: Schrift #057f5b auf Weiß 5,0 : 1, Hover #046a4d auf #dcf8ea 5,9 : 1, gedrückt #035340 auf #c3ecd6. Neu gegenüber den Tokens sind nur die Zustände „Gedrückt“ die hellgrünen Flächen des Text-Buttons und die graue Fläche für „Deaktiviert“; sie müssten als Tokens angelegt werden.
