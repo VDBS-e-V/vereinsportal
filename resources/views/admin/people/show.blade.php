@@ -15,7 +15,7 @@
             <x-slot:actions>
                 <x-vdbs.actions.button variant="secondary" :href="route('admin.people.edit', $person)" icon="pencil">Bearbeiten</x-vdbs.actions.button>
                 @unless ($user)
-                    <x-vdbs.actions.button variant="danger" shape="outline" icon="trash-2" data-vdbs-dialog-open="delete-person">Löschen</x-vdbs.actions.button>
+                    <x-vdbs.actions.button variant="danger" icon="trash-2" data-vdbs-dialog-open="delete-person">Löschen</x-vdbs.actions.button>
                 @endunless
             </x-slot:actions>
         @endif

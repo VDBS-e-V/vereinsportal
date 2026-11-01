@@ -40,9 +40,7 @@
                         <x-seminars.position-row i="__INDEX__" :products="$products" :units="$units" :open="true" :defaults="$templateDefaults" />
                     </template>
 
-                    <button type="button" class="vdbs-btn vdbs-btn--secondary vdbs-btn--shape-outline vdbs-btn--size-m vdbs-js-only" data-vdbs-repeater-add>
-                        <x-vdbs.icon name="plus" :size="18" /> Weitere Position hinzufügen
-                    </button>
+                    <x-vdbs.actions.button type="button" variant="secondary" size="m" class="vdbs-js-only" data-vdbs-repeater-add icon="plus">Weitere Position hinzufügen</x-vdbs.actions.button>
                 </div>
             </x-vdbs.forms.form-section>
 

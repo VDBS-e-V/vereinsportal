@@ -39,7 +39,7 @@
                                 <input type="hidden" name="registration" value="{{ $row->id }}">
                                 <input type="hidden" name="present" value="{{ $isPresent ? 0 : 1 }}">
                                 <input type="hidden" name="q" value="{{ $search }}">
-                                <x-vdbs.actions.button type="submit" size="s" :variant="$isPresent ? 'primary' : 'secondary'" :shape="$isPresent ? 'solid' : 'outline'" :icon="$isPresent ? 'check' : null">{{ $isPresent ? 'Anwesend' : 'Als anwesend eintragen' }}</x-vdbs.actions.button>
+                                <x-vdbs.actions.button type="submit" size="s" :variant="$isPresent ? 'primary' : 'secondary'" :icon="$isPresent ? 'check' : null">{{ $isPresent ? 'Anwesend' : 'Als anwesend eintragen' }}</x-vdbs.actions.button>
                             </form>
                         @else
                             {{ $isPresent ? 'Ja' : '–' }}

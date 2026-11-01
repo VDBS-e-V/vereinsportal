@@ -12,21 +12,21 @@ it('renders a primary solid medium button by default', function () {
         ->toContain('<button')
         ->toContain('type="button"')
         ->toContain('vdbs-btn--primary')
-        ->toContain('vdbs-btn--shape-solid')
+        ->toContain('vdbs-btn--form-solid')
         ->toContain('vdbs-btn--size-m');
 });
 
-it('uses the default shape of each role and accepts explicit shapes', function () {
-    expect(button('variant="primary"'))->toContain('vdbs-btn--shape-solid')
-        ->and(button('variant="secondary"'))->toContain('vdbs-btn--shape-solid')
-        ->and(button('variant="tertiary"'))->toContain('vdbs-btn--shape-outline')
-        ->and(button('variant="text"'))->toContain('vdbs-btn--text')->toContain('vdbs-btn--shape-text')
-        ->and(button('variant="danger"'))->toContain('vdbs-btn--shape-solid')
-        ->and(button('shape="line"'))->toContain('vdbs-btn--shape-line');
-});
+it('gives each role its own form and knows no other forms', function () {
+    expect(button('variant="primary"'))->toContain('vdbs-btn--form-solid')
+        ->and(button('variant="secondary"'))->toContain('vdbs-btn--form-solid')
+        ->and(button('variant="tertiary"'))->toContain('vdbs-btn--form-outline')
+        ->and(button('variant="text"'))->toContain('vdbs-btn--text')->toContain('vdbs-btn--form-text')
+        ->and(button('variant="danger"'))->toContain('vdbs-btn--form-solid');
 
-it('keeps quiet as the old name of the text role', function () {
-    expect(button('variant="quiet"'))->toContain('vdbs-btn--text')->toContain('vdbs-btn--shape-text')->not->toContain('vdbs-btn--quiet');
+    // Die früheren Formen (arrow, line, link, outline) und der alte Name quiet sind entfernt.
+    expect(button('shape="line"'))->not->toContain('vdbs-btn--shape')->not->toContain('vdbs-btn--form-line')
+        ->and(button('variant="quiet"'))->toContain('vdbs-btn--primary')->not->toContain('vdbs-btn--quiet')
+        ->and(button('shape="arrow"'))->not->toContain('vdbs-btn__arrow');
 });
 
 it('offers the tones green and lila with green as default', function () {
@@ -96,8 +96,8 @@ it('falls back for unknown values', function () {
     expect(button('on="light"'))->not->toContain('vdbs-btn--on-');
 });
 
-it('supports the xl size and the dark and brand surfaces', function () {
-    expect(button('size="xl" on="dark"'))->toContain('vdbs-btn--size-xl')->toContain('vdbs-btn--on-dark')
+it('supports the large size and the night, dark and brand surfaces', function () {
+    expect(button('size="l" on="dark"'))->toContain('vdbs-btn--size-l')->toContain('vdbs-btn--on-dark')
         ->and(button('on="brand"'))->toContain('vdbs-btn--on-brand')
         ->and(button('on="night" tone="lila"'))->toContain('vdbs-btn--on-night')->toContain('vdbs-btn--tone-lila');
 });
@@ -135,23 +135,6 @@ it('labels icon-only buttons and exposes the pressed state', function () {
         ->and(button(':pressed="false"'))->toContain('aria-pressed="false"');
 });
 
-it('adds the arrow cell for the arrow shape and keeps an optional leading icon', function () {
-    expect(button('shape="arrow"'))->toContain('vdbs-btn__arrow')
-        ->and(button('shape="arrow" icon="plus"'))->toContain('vdbs-btn__arrow')->toContain('<svg')
-        ->and(substr_count(button('shape="arrow" icon="plus"'), '<svg'))->toBe(2);
-});
-
-it('allows an icon before or after the text in every shape', function () {
-    foreach (['solid', 'outline', 'text', 'link', 'arrow', 'line'] as $shape) {
-        expect(button('shape="'.$shape.'" icon="plus"'))->toContain('<svg')
-            ->and(button('shape="'.$shape.'" icon="download" icon-position="end"'))->toContain('<svg');
-    }
-});
-
-it('shows a chevron in the line shape by default', function () {
-    expect(button('shape="line"'))->toContain('vdbs-btn__icon--chevron');
-});
-
 it('ships the lucide icons the design system uses', function () {
     foreach (['arrow-right', 'chevron-right', 'external-link', 'eye', 'trash-2', 'plus', 'download', 'pencil'] as $icon) {
         expect(Blade::render('<x-vdbs.icon name="'.$icon.'" />'))->toContain('<path');
@@ -162,15 +145,6 @@ it('groups buttons with an accessible label', function () {
     $html = Blade::render('<x-vdbs.actions.button-group label="Aktionen" align="end">x</x-vdbs.actions.button-group>');
 
     expect($html)->toContain('role="group"')->toContain('aria-label="Aktionen"')->toContain('vdbs-btn-group--end');
-});
-
-it('maps the link button variants to the button system', function () {
-    expect(Blade::render('<x-vdbs.actions.link-button href="/a">A</x-vdbs.actions.link-button>'))
-        ->toContain('vdbs-btn--primary')->toContain('vdbs-btn--shape-arrow')
-        ->and(Blade::render('<x-vdbs.actions.link-button href="/a" variant="line">A</x-vdbs.actions.link-button>'))
-        ->toContain('vdbs-btn--secondary')->toContain('vdbs-btn--shape-line')
-        ->and(Blade::render('<x-vdbs.actions.link-button href="/a" variant="all">A</x-vdbs.actions.link-button>'))
-        ->toContain('vdbs-btn--tertiary')->toContain('vdbs-btn--shape-link');
 });
 
 it('marks only disabled buttons as disabled, loading buttons keep their colors', function () {

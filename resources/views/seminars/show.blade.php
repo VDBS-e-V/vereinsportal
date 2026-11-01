@@ -28,7 +28,7 @@
                 <x-vdbs.actions.button variant="secondary" :href="route('seminar-quotes.create', ['seminar' => $seminar->id])" icon="clipboard-list">Kostenvoranschlag berechnen</x-vdbs.actions.button>
                 <x-vdbs.actions.button variant="secondary" :href="route('seminars.edit', $seminar)" icon="pencil">Bearbeiten</x-vdbs.actions.button>
                 @if ($deletable)
-                    <x-vdbs.actions.button variant="danger" shape="outline" icon="trash-2" data-vdbs-dialog-open="delete-seminar">Löschen</x-vdbs.actions.button>
+                    <x-vdbs.actions.button variant="danger" icon="trash-2" data-vdbs-dialog-open="delete-seminar">Löschen</x-vdbs.actions.button>
                 @endif
             </x-slot:actions>
         @endif
@@ -90,7 +90,7 @@
                         <td>{{ $session->notes ?? '–' }}</td>
                         <td>
                             @if ($canManage)
-                                <x-vdbs.actions.button variant="danger" shape="outline" size="s" data-vdbs-dialog-open="remove-session-{{ $session->id }}">Entfernen</x-vdbs.actions.button>
+                                <x-vdbs.actions.button variant="danger" size="s" data-vdbs-dialog-open="remove-session-{{ $session->id }}">Entfernen</x-vdbs.actions.button>
                             @endif
                         </td>
                     </tr>

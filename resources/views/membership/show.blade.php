@@ -17,7 +17,7 @@
             <x-slot:actions>
                 @if ($requested)
                     <x-vdbs.actions.button icon="check" data-vdbs-dialog-open="admit">Aufnehmen</x-vdbs.actions.button>
-                    <x-vdbs.actions.button variant="danger" shape="outline" icon="x" data-vdbs-dialog-open="reject">Ablehnen</x-vdbs.actions.button>
+                    <x-vdbs.actions.button variant="danger" icon="x" data-vdbs-dialog-open="reject">Ablehnen</x-vdbs.actions.button>
                 @endif
                 @if ($running)
                     @if (filled($membership->contactEmail()))
@@ -26,7 +26,7 @@
                     @if ($ending)
                         <x-vdbs.actions.button variant="secondary" icon="refresh-cw" data-vdbs-dialog-open="withdraw">Austritt zurücknehmen</x-vdbs.actions.button>
                     @endif
-                    <x-vdbs.actions.button variant="danger" shape="outline" icon="log-out" data-vdbs-dialog-open="terminate">{{ $ending ? 'Austrittsdatum ändern' : 'Austritt eintragen' }}</x-vdbs.actions.button>
+                    <x-vdbs.actions.button variant="danger" icon="log-out" data-vdbs-dialog-open="terminate">{{ $ending ? 'Austrittsdatum ändern' : 'Austritt eintragen' }}</x-vdbs.actions.button>
                 @endif
             </x-slot:actions>
         @endif
@@ -100,7 +100,7 @@
                         <td>{{ $document->uploaded_at->format('d.m.Y') }}</td>
                         <td>
                             @if ($canManage)
-                                <x-vdbs.actions.button variant="danger" shape="outline" size="s" data-vdbs-dialog-open="remove-document-{{ $document->id }}">Entfernen</x-vdbs.actions.button>
+                                <x-vdbs.actions.button variant="danger" size="s" data-vdbs-dialog-open="remove-document-{{ $document->id }}">Entfernen</x-vdbs.actions.button>
                             @endif
                         </td>
                     </tr>

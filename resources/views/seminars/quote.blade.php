@@ -15,7 +15,7 @@
             @if ($canManage)
                 <x-vdbs.actions.button :href="route('seminar-quotes.edit', ['quote' => $quote, 'fassung' => $fassung])" icon="pencil">{{ $data['current'] ? 'Ändern' : 'Daraus neue Fassung machen' }}</x-vdbs.actions.button>
                 <x-vdbs.actions.button variant="secondary" :href="route('seminar-quotes.create', ['vorlage' => $quote->id])" icon="copy">Als Vorlage für einen neuen verwenden</x-vdbs.actions.button>
-                <x-vdbs.actions.button variant="danger" shape="outline" icon="trash-2" data-vdbs-dialog-open="delete-quote">Löschen</x-vdbs.actions.button>
+                <x-vdbs.actions.button variant="danger" icon="trash-2" data-vdbs-dialog-open="delete-quote">Löschen</x-vdbs.actions.button>
             @endif
         </x-slot:actions>
     </x-vdbs.layout.page-header>

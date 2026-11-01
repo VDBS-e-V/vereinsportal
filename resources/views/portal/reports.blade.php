@@ -12,7 +12,7 @@
     <nav aria-label="Jahr wählen" style="margin-bottom:var(--space-5)">
         <ul style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin:0;padding:0;list-style:none">
             @foreach ($years as $option)
-                <li><x-vdbs.actions.button size="s" :variant="$option === $year ? 'primary' : 'secondary'" :shape="$option === $year ? 'solid' : 'outline'" :href="route('board.reports', ['jahr' => $option])">{{ $option }}</x-vdbs.actions.button></li>
+                <li><x-vdbs.actions.button size="s" :variant="$option === $year ? 'primary' : 'secondary'" :href="route('board.reports', ['jahr' => $option])">{{ $option }}</x-vdbs.actions.button></li>
             @endforeach
         </ul>
     </nav>

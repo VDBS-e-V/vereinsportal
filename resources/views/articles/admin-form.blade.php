@@ -9,7 +9,7 @@
         @if ($editing)
             <x-slot:actions>
                 <x-vdbs.actions.button variant="secondary" :href="route('articles.public.show', $article->slug)" icon="eye">Ansehen</x-vdbs.actions.button>
-                <x-vdbs.actions.button variant="danger" shape="outline" icon="trash-2" data-vdbs-dialog-open="delete-article">Löschen</x-vdbs.actions.button>
+                <x-vdbs.actions.button variant="danger" icon="trash-2" data-vdbs-dialog-open="delete-article">Löschen</x-vdbs.actions.button>
             </x-slot:actions>
         @endif
     </x-vdbs.layout.page-header>

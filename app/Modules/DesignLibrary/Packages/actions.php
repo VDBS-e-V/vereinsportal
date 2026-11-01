@@ -70,22 +70,5 @@ return [
                 'buttons',
             ],
         ],
-        [
-            'name' => 'link-button',
-            'title' => 'Link Button',
-            'description' => 'Kurzform des Button-Systems für Links',
-            'status' => 'beta',
-            'adopted' => true,
-            'redesign' => 'open',
-            'blade' => 'resources/views/components/vdbs/actions/link-button.blade.php',
-            'css' => [],
-            'entries' => [
-                'startseite',
-                'link-button',
-                'abschnitt-split-raster',
-                'kontaktblock',
-                'hero',
-            ],
-        ],
     ],
 ];

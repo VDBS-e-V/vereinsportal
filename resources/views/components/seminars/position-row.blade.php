@@ -34,6 +34,6 @@
 
     <x-vdbs.forms.textarea :id="'position-'.$i.'-extra'" :name="'positions['.$i.'][extra]'" label="Weitere Eigenschaften und Beschreibung" :optional="true" maxlength="1000" :rows="3" :value="$row['extra'] ?? null" hint="Ergänzt die Standardbeschreibung des Produkts im Schreiben (Seite „Texte“). Eine Zeile je Aufzählungspunkt." />
 
-    <button type="button" class="vdbs-btn vdbs-btn--tertiary vdbs-btn--shape-line vdbs-btn--size-s vdbs-js-only" data-vdbs-repeater-remove>Position entfernen</button>
+    <x-vdbs.actions.button type="button" variant="text" size="s" class="vdbs-js-only" data-vdbs-repeater-remove>Position entfernen</x-vdbs.actions.button>
     </div>
 </details>

@@ -26,7 +26,7 @@
             <p>@if ($hasTotp) <x-vdbs.data.badge tone="success">Eingerichtet</x-vdbs.data.badge> @else <x-vdbs.data.badge>Nicht eingerichtet</x-vdbs.data.badge> @endif</p>
             <x-slot:actions>
                 @if ($hasTotp)
-                    <x-vdbs.actions.button variant="danger" shape="outline" icon="trash-2" data-vdbs-dialog-open="remove-totp">Entfernen</x-vdbs.actions.button>
+                    <x-vdbs.actions.button variant="danger" icon="trash-2" data-vdbs-dialog-open="remove-totp">Entfernen</x-vdbs.actions.button>
                 @else
                     <x-vdbs.actions.button :href="route('account.security.totp')" icon="shield">App einrichten</x-vdbs.actions.button>
                 @endif
@@ -38,7 +38,7 @@
             <p>@if ($hasEmail) <x-vdbs.data.badge tone="success">Eingerichtet</x-vdbs.data.badge> @else <x-vdbs.data.badge>Nicht eingerichtet</x-vdbs.data.badge> @endif</p>
             <x-slot:actions>
                 @if ($hasEmail)
-                    <x-vdbs.actions.button variant="danger" shape="outline" icon="trash-2" data-vdbs-dialog-open="remove-email">Entfernen</x-vdbs.actions.button>
+                    <x-vdbs.actions.button variant="danger" icon="trash-2" data-vdbs-dialog-open="remove-email">Entfernen</x-vdbs.actions.button>
                 @else
                     <x-vdbs.actions.button :href="route('account.security.email')" icon="mail">E-Mail-Code einrichten</x-vdbs.actions.button>
                 @endif

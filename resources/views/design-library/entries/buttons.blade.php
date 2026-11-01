@@ -4,7 +4,7 @@
     $states = ['Normal' => [], 'Deaktiviert' => ['disabled' => true], 'Lädt' => ['loading' => true]];
 @endphp
 
-<p>Paket <strong>Aktionen</strong> · <code>&lt;x-vdbs.actions.button&gt;</code> ist der einzige Button-Baustein. Rolle (<code>variant</code>), Tonfarbe (<code>tone</code>), Größe und Fläche sind unabhängig kombinierbar. Mit <code>href</code> entsteht ein Link, sonst ein Button.</p>
+<p>Paket <strong>Aktionen</strong> · <code>&lt;x-vdbs.actions.button&gt;</code> ist der einzige Button-Baustein. Rolle (<code>variant</code>), Tonfarbe (<code>tone</code>), Größe und Fläche sind unabhängig kombinierbar. Jede Rolle bringt ihre Form mit; weitere Formen gibt es nicht. Mit <code>href</code> entsteht ein Link, sonst ein Button.</p>
 
 <h2>Die Rollen in Grün und Lila</h2>
 <ul>
@@ -81,53 +81,10 @@
 </div>
 <p>Es ist immer ein Icon vor oder nach dem Text möglich. Reine Icon-Buttons sind 44 × 44 px und brauchen <code>label</code> (wird <code>aria-label</code> und <code>title</code>). Gefahr-Buttons tragen Icon <em>und</em> Text, außer in Tabellenzeilen mit Label.</p>
 
-<h2>Sonderformen</h2>
-<p>Die vier Rollen haben ihre Form eingebaut (Primär und Sekundär gefüllt, Tertiär mit Rahmen, Text ohne Rahmen). <code>shape</code> brauchen Sie nur für diese Sonderfälle:</p>
-<div class="vdbs-table-wrap">
-    <table class="vdbs-table">
-        <caption class="vdbs-sr-only">Sonderformen</caption>
-        <thead><tr><th scope="col">Sonderform</th><th scope="col">Grün</th><th scope="col">Lila</th><th scope="col">Einsatz</th></tr></thead>
-        <tbody>
-            <tr>
-                <th scope="row">Pfeil, primär<br><code>shape="arrow"</code></th>
-                <td><x-vdbs.actions.button shape="arrow">Weiter</x-vdbs.actions.button></td>
-                <td><x-vdbs.actions.button shape="arrow" tone="lila">Weiter</x-vdbs.actions.button></td>
-                <td>Große Aufrufe auf Startseiten (Kurzform <code>link-button</code>)</td>
-            </tr>
-            <tr>
-                <th scope="row">Pfeil, sekundär<br><code>variant="secondary" shape="arrow"</code></th>
-                <td><x-vdbs.actions.button variant="secondary" shape="arrow">Weiter</x-vdbs.actions.button></td>
-                <td><x-vdbs.actions.button variant="secondary" shape="arrow" tone="lila">Weiter</x-vdbs.actions.button></td>
-                <td>Zweiter Aufruf neben dem primären</td>
-            </tr>
-            <tr>
-                <th scope="row">Gefahr, zurückhaltend<br><code>variant="danger" shape="outline"</code></th>
-                <td colspan="2"><x-vdbs.actions.button variant="danger" shape="outline" icon="trash-2">Löschen</x-vdbs.actions.button></td>
-                <td>Gefahr-Aktion neben einem Primär-Button, immer mit Text</td>
-            </tr>
-            <tr>
-                <th scope="row">Link-Button<br><code>link-button variant="all"</code></th>
-                <td colspan="2"><x-vdbs.actions.link-button href="#" variant="all">Alle anzeigen</x-vdbs.actions.link-button></td>
-                <td>„Alle anzeigen“ am Ende einer Liste</td>
-            </tr>
-            <tr>
-                <th scope="row">Linie<br><code>link-button variant="line"</code></th>
-                <td colspan="2"><x-vdbs.actions.link-button href="#" variant="line">Mehr erfahren</x-vdbs.actions.link-button></td>
-                <td>Teaser mit Linie unten</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-
 <h2>Größen</h2>
 <div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:center;margin-bottom:var(--space-4)">
-    @foreach (['s', 'm', 'l', 'xl'] as $size)
+    @foreach (['s', 'm', 'l'] as $size)
         <x-vdbs.actions.button :size="$size">Größe {{ $size }}</x-vdbs.actions.button>
-    @endforeach
-</div>
-<div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:center">
-    @foreach (['s', 'm', 'l', 'xl'] as $size)
-        <x-vdbs.actions.button :size="$size" shape="arrow">Weiter</x-vdbs.actions.button>
     @endforeach
 </div>
 
@@ -139,7 +96,6 @@
             @foreach ($roles as $variant => $name)
                 <x-vdbs.actions.button :variant="$variant" :on="$on">{{ $name }}</x-vdbs.actions.button>
             @endforeach
-            <x-vdbs.actions.button shape="arrow" :on="$on">Pfeil</x-vdbs.actions.button>
         </x-vdbs.actions.button-group>
         @if (in_array($on, ['default', 'night'], true))
             <x-vdbs.actions.button-group style="margin-top:var(--space-3)">
@@ -150,7 +106,7 @@
         @endif
     </div>
 @endforeach
-<p><code>night</code> ist die Fläche des Dunkelmodus (Graphit) mit den Tönen des Dunkelmodus, auch im hellen Theme. <code>dark</code> bleibt für Lila- und Bildflächen der Heros (weiße Umrisse). Alternativ gilt eine Fläche für alle Buttons darin: Container mit <code>.vdbs-on-night</code>, <code>.vdbs-on-dark</code> oder <code>.vdbs-on-brand</code>.</p>
+<p><code>night</code> ist die Fläche des Dunkelmodus (Graphit) mit den Tönen des Dunkelmodus, auch im hellen Theme. <code>dark</code> und <code>brand</code> sind für Lila-, Bild- und Markenflächen der Heros da. Alternativ gilt eine Fläche für alle Buttons darin: Container mit <code>.vdbs-on-night</code>, <code>.vdbs-on-dark</code> oder <code>.vdbs-on-brand</code>.</p>
 
 <h2>Gruppe und volle Breite</h2>
 <x-vdbs.actions.button-group label="Formular-Aktionen" align="end">
@@ -168,8 +124,7 @@
 ]">
     <tr><th scope="row"><code>variant</code></th><td>primary, secondary, tertiary, text, danger</td><td>Wichtigkeit der Aktion (<code>quiet</code> ist der alte Name von <code>text</code>)</td></tr>
     <tr><th scope="row"><code>tone</code></th><td>green (Standard), lila</td><td>Tonfarbe von primary, secondary, tertiary und text</td></tr>
-    <tr><th scope="row"><code>shape</code></th><td>arrow, line, link, outline, text</td><td>Nur für Sonderformen (siehe oben); jede Rolle bringt ihre Form mit</td></tr>
-    <tr><th scope="row"><code>size</code></th><td>s, m (Standard), l, xl</td><td>36, 44, 52, 60 px Höhe</td></tr>
+        <tr><th scope="row"><code>size</code></th><td>s, m (Standard), l</td><td>36, 44, 52 px Höhe</td></tr>
     <tr><th scope="row"><code>on</code></th><td>default (Standard), night, dark, brand</td><td>Fläche hinter dem Button; default = normale Seitenfläche, folgt dem Theme</td></tr>
     <tr><th scope="row"><code>href</code></th><td>URL</td><td>Link statt Button</td></tr>
     <tr><th scope="row"><code>icon</code>, <code>icon-position</code></th><td>Lucide-Name; start, end</td><td>Icon mit Text</td></tr>

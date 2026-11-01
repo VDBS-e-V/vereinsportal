@@ -8,8 +8,6 @@
 .vdbs-btn--on-dark,
 .vdbs-on-dark .vdbs-btn {
     --btn-line: var(--on-dark-fg);
-    --btn-line-fg: var(--on-dark-fg);
-    --btn-edge: var(--on-dark-line);
     --btn-press-bg: var(--btn-hover-bg);
     --btn-press-fg: var(--btn-hover-fg);
     --btn-fill-edge: var(--btn-fill);
@@ -39,10 +37,8 @@
 }
 
 .vdbs-btn--on-dark.vdbs-btn--tertiary,
-.vdbs-btn--on-dark.vdbs-btn--quiet,
 .vdbs-btn--on-dark.vdbs-btn--text,
 .vdbs-on-dark .vdbs-btn--tertiary,
-.vdbs-on-dark .vdbs-btn--quiet,
 .vdbs-on-dark .vdbs-btn--text {
     --btn-bg: transparent;
     --btn-fg: var(--on-dark-fg);
@@ -52,9 +48,7 @@
     --btn-fill-fg: var(--on-dark-fg);
 }
 
-.vdbs-btn--on-dark.vdbs-btn--quiet,
 .vdbs-btn--on-dark.vdbs-btn--text,
-.vdbs-on-dark .vdbs-btn--quiet,
 .vdbs-on-dark .vdbs-btn--text {
     --btn-fill: var(--on-dark-fill-soft);
     --btn-fill-fg: var(--on-dark-fg);
@@ -76,8 +70,6 @@
 .vdbs-btn--on-brand,
 .vdbs-on-brand .vdbs-btn {
     --btn-line: var(--on-brand-fg);
-    --btn-line-fg: var(--on-brand-fg);
-    --btn-edge: var(--on-brand-line);
     --btn-press-bg: var(--btn-hover-bg);
     --btn-press-fg: var(--btn-hover-fg);
     --btn-fill-edge: var(--btn-fill);
@@ -105,10 +97,8 @@
 }
 
 .vdbs-btn--on-brand.vdbs-btn--tertiary,
-.vdbs-btn--on-brand.vdbs-btn--quiet,
 .vdbs-btn--on-brand.vdbs-btn--text,
 .vdbs-on-brand .vdbs-btn--tertiary,
-.vdbs-on-brand .vdbs-btn--quiet,
 .vdbs-on-brand .vdbs-btn--text {
     --btn-bg: transparent;
     --btn-fg: var(--on-brand-fg);

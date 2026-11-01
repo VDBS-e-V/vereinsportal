@@ -67,9 +67,7 @@
                     <x-partners.contact-row i="__INDEX__" />
                 </template>
 
-                <button type="button" class="vdbs-btn vdbs-btn--secondary vdbs-btn--shape-outline vdbs-btn--size-m vdbs-js-only" data-vdbs-repeater-add>
-                    <x-vdbs.icon name="plus" :size="18" /> Weitere Ansprechperson hinzufügen
-                </button>
+                <x-vdbs.actions.button type="button" variant="secondary" size="m" class="vdbs-js-only" data-vdbs-repeater-add icon="plus">Weitere Ansprechperson hinzufügen</x-vdbs.actions.button>
             </div>
         </x-vdbs.forms.form-section>
 

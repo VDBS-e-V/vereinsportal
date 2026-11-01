@@ -41,7 +41,7 @@
                     <x-vdbs.forms.form-section title="0. Einwilligung">
                         <x-vdbs.forms.checkbox name="consent" :required="true" label="Ich stimme zu, dass meine Daten zum Zweck der Bearbeitung gespeichert und verarbeitet werden." data-vdbs-review-label="Einwilligung" />
                     </x-vdbs.forms.form-section>
-                    <div class="vdbs-btn-group"><button type="button" class="vdbs-btn vdbs-btn--primary vdbs-btn--shape-solid vdbs-btn--size-m vdbs-js-only" data-vdbs-step-next>Weiter</button></div>
+                    <div class="vdbs-btn-group"><x-vdbs.actions.button type="button" variant="primary" size="m" class="vdbs-js-only" data-vdbs-step-next>Weiter</x-vdbs.actions.button></div>
                 </div>
 
                 {{-- Schritt 2: Verbindung zum Verein und Nachweise --}}
@@ -54,8 +54,8 @@
                         <x-vdbs.forms.file name="proofs[]" id="field-proofs" label="Nachweise" :optional="true" :multiple="true" accept=".pdf,.jpg,.jpeg,.png" hint="PDF oder Bilder, höchstens 5 Dateien mit je 5 MB. Die Nachweise werden nach der Entscheidung gelöscht." />
                     </x-vdbs.forms.form-section>
                     <div class="vdbs-btn-group">
-                        <button type="button" class="vdbs-btn vdbs-btn--secondary vdbs-btn--shape-outline vdbs-btn--size-m vdbs-js-only" data-vdbs-step-prev>Zurück</button>
-                        <button type="button" class="vdbs-btn vdbs-btn--primary vdbs-btn--shape-solid vdbs-btn--size-m vdbs-js-only" data-vdbs-step-next>Weiter</button>
+                        <x-vdbs.actions.button type="button" variant="secondary" size="m" class="vdbs-js-only" data-vdbs-step-prev>Zurück</x-vdbs.actions.button>
+                        <x-vdbs.actions.button type="button" variant="primary" size="m" class="vdbs-js-only" data-vdbs-step-next>Weiter</x-vdbs.actions.button>
                     </div>
                 </div>
 
@@ -72,8 +72,8 @@
                         </x-vdbs.forms.form-grid>
                     </x-vdbs.forms.form-section>
                     <div class="vdbs-btn-group">
-                        <button type="button" class="vdbs-btn vdbs-btn--secondary vdbs-btn--shape-outline vdbs-btn--size-m vdbs-js-only" data-vdbs-step-prev>Zurück</button>
-                        <button type="button" class="vdbs-btn vdbs-btn--primary vdbs-btn--shape-solid vdbs-btn--size-m vdbs-js-only" data-vdbs-step-next>Daten prüfen</button>
+                        <x-vdbs.actions.button type="button" variant="secondary" size="m" class="vdbs-js-only" data-vdbs-step-prev>Zurück</x-vdbs.actions.button>
+                        <x-vdbs.actions.button type="button" variant="primary" size="m" class="vdbs-js-only" data-vdbs-step-next>Daten prüfen</x-vdbs.actions.button>
                     </div>
                 </div>
 
@@ -96,7 +96,7 @@
                     </div>
 
                     <div class="vdbs-btn-group">
-                        <button type="button" class="vdbs-btn vdbs-btn--secondary vdbs-btn--shape-outline vdbs-btn--size-m vdbs-js-only" data-vdbs-step-prev>Zurück</button>
+                        <x-vdbs.actions.button type="button" variant="secondary" size="m" class="vdbs-js-only" data-vdbs-step-prev>Zurück</x-vdbs.actions.button>
                         <x-vdbs.actions.button type="submit" icon="send">Antrag absenden</x-vdbs.actions.button>
                     </div>
                 </div>

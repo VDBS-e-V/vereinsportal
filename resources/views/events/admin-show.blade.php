@@ -35,7 +35,7 @@
                             <div class="vdbs-btn-group">
                                 <x-vdbs.actions.button size="s" :href="route('events.admin.attendance', [$event, $session])" icon="list-checks">Anwesenheit</x-vdbs.actions.button>
                                 @if ($canManage)
-                                    <form method="post" action="{{ route('events.admin.sessions.destroy', [$event, $session]) }}">@csrf @method('delete')<x-vdbs.actions.button type="submit" size="s" variant="danger" shape="outline">Entfernen</x-vdbs.actions.button></form>
+                                    <form method="post" action="{{ route('events.admin.sessions.destroy', [$event, $session]) }}">@csrf @method('delete')<x-vdbs.actions.button type="submit" size="s" variant="danger">Entfernen</x-vdbs.actions.button></form>
                                 @endif
                             </div>
                         </td>
@@ -95,7 +95,7 @@
                                     <x-vdbs.actions.button size="s" variant="tertiary" :href="route('events.admin.registrations.certificate', [$event, $row])">Bestätigung</x-vdbs.actions.button>
                                 @endif
                                 @if ($canManage)
-                                    <form method="post" action="{{ route('events.admin.registrations.destroy', [$event, $row]) }}">@csrf @method('delete')<x-vdbs.actions.button type="submit" size="s" variant="danger" shape="outline">Entfernen</x-vdbs.actions.button></form>
+                                    <form method="post" action="{{ route('events.admin.registrations.destroy', [$event, $row]) }}">@csrf @method('delete')<x-vdbs.actions.button type="submit" size="s" variant="danger">Entfernen</x-vdbs.actions.button></form>
                                 @endif
                             </div>
                         </td>
@@ -125,7 +125,7 @@
 
     @if ($canManage && ! $event->registrations()->exists())
         <section style="margin-top:var(--space-8)">
-            <form method="post" action="{{ route('events.admin.destroy', $event) }}">@csrf @method('delete')<x-vdbs.actions.button type="submit" variant="danger" shape="outline" icon="trash-2">Veranstaltung löschen</x-vdbs.actions.button></form>
+            <form method="post" action="{{ route('events.admin.destroy', $event) }}">@csrf @method('delete')<x-vdbs.actions.button type="submit" variant="danger" icon="trash-2">Veranstaltung löschen</x-vdbs.actions.button></form>
         </section>
     @endif
 </x-layouts.app>

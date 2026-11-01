@@ -69,7 +69,7 @@
             </x-vdbs.layout.grid>
 
             <x-slot:actions>
-                <x-vdbs.actions.link-button :href="route('articles.public.index')" variant="all">Alle Artikel anzeigen</x-vdbs.actions.link-button>
+                <x-vdbs.actions.button :href="route('articles.public.index')" variant="text" icon="arrow-right" icon-position="end">Alle Artikel anzeigen</x-vdbs.actions.button>
             </x-slot:actions>
         </x-vdbs.layout.section>
     @endif
@@ -81,11 +81,11 @@
 
             <x-slot:actions>
                 @auth
-                    <x-vdbs.actions.link-button :href="route('account.home')">Mein Konto</x-vdbs.actions.link-button>
+                    <x-vdbs.actions.button :href="route('account.home')" variant="primary" icon="arrow-right" icon-position="end">Mein Konto</x-vdbs.actions.button>
                 @else
-                    <x-vdbs.actions.link-button :href="route('portal.access')">Zugang zum Portal</x-vdbs.actions.link-button>
+                    <x-vdbs.actions.button :href="route('portal.access')" variant="primary" icon="arrow-right" icon-position="end">Zugang zum Portal</x-vdbs.actions.button>
                 @endauth
-                <x-vdbs.actions.link-button :href="route('portal.contact')" variant="all">Hilfe kontaktieren</x-vdbs.actions.link-button>
+                <x-vdbs.actions.button :href="route('portal.contact')" variant="text" icon="arrow-right" icon-position="end">Hilfe kontaktieren</x-vdbs.actions.button>
             </x-slot:actions>
 
             @if (filled($home['access_image']['src'] ?? null))
@@ -105,14 +105,14 @@
                         <x-vdbs.media.figure :src="asset($home['contact']['image']['src'])" :alt="$home['contact']['image']['alt']" :credit="$home['contact']['image']['credit']" credit-placement="edge" ratio="3-2" />
                     </x-slot:media>
                 @endif
-                <x-slot:actions><x-vdbs.actions.link-button :href="route('portal.contact')">Zum Kontaktformular</x-vdbs.actions.link-button></x-slot:actions>
+                <x-slot:actions><x-vdbs.actions.button :href="route('portal.contact')" variant="primary" icon="arrow-right" icon-position="end">Zum Kontaktformular</x-vdbs.actions.button></x-slot:actions>
             </x-vdbs.cards.contact-block>
         @else
             <x-vdbs.layout.split :title="$home['contact']['title']">
                 <p>{{ $home['contact']['text'] }}</p>
 
                 <x-slot:actions>
-                    <x-vdbs.actions.link-button :href="route('portal.contact')">Zum Kontaktformular</x-vdbs.actions.link-button>
+                    <x-vdbs.actions.button :href="route('portal.contact')" variant="primary" icon="arrow-right" icon-position="end">Zum Kontaktformular</x-vdbs.actions.button>
                 </x-slot:actions>
             </x-vdbs.layout.split>
         @endif

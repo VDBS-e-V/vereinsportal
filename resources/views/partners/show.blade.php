@@ -13,7 +13,7 @@
                 @can('seminars.manage')
                     <x-vdbs.actions.button variant="secondary" :href="route('seminars.create', ['schule' => $partner->id])" icon="calendar">Seminar anlegen</x-vdbs.actions.button>
                 @endcan
-                <x-vdbs.actions.button variant="danger" shape="outline" icon="trash-2" data-vdbs-dialog-open="delete-partner">Löschen</x-vdbs.actions.button>
+                <x-vdbs.actions.button variant="danger" icon="trash-2" data-vdbs-dialog-open="delete-partner">Löschen</x-vdbs.actions.button>
             </x-slot:actions>
         @endif
     </x-vdbs.layout.page-header>

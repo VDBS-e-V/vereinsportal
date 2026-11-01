@@ -36,12 +36,12 @@
 
 <h2>Variante „overlay“</h2>
 <x-vdbs.media.hero variant="overlay" title="Wir gestalten Bildung mit" lead="Der VDBS e. V. verbindet Schulen, Bibliotheken und Teamende." :image="placeholder('hero', 3)" image-alt="">
-    <x-slot:actions><x-vdbs.actions.link-button href="#">Mehr erfahren</x-vdbs.actions.link-button></x-slot:actions>
+    <x-slot:actions><x-vdbs.actions.button href="#" variant="primary" icon="arrow-right" icon-position="end">Mehr erfahren</x-vdbs.actions.button></x-slot:actions>
 </x-vdbs.media.hero>
 
 <h2>Variante „split“</h2>
 <x-vdbs.media.hero variant="split" size="s" eyebrow="Teamende" title="Für Teamende" lead="Alles Wichtige zu Einsätzen, Materialien und Abrechnung." :image="placeholder('split', 2)" image-alt="">
-    <x-slot:actions><x-vdbs.actions.link-button href="#">Zum Bereich</x-vdbs.actions.link-button></x-slot:actions>
+    <x-slot:actions><x-vdbs.actions.button href="#" variant="primary" icon="arrow-right" icon-position="end">Zum Bereich</x-vdbs.actions.button></x-slot:actions>
 </x-vdbs.media.hero>
 
 <h2>Variante „compact“ (Seitenkopf ohne Bild)</h2>
@@ -62,19 +62,19 @@
     :image="placeholder('split', 3)"
     image-alt=""
 >
-    <x-slot:actions><x-vdbs.actions.link-button href="#">Weitere Informationen</x-vdbs.actions.link-button></x-slot:actions>
+    <x-slot:actions><x-vdbs.actions.button href="#" variant="primary" icon="arrow-right" icon-position="end">Weitere Informationen</x-vdbs.actions.button></x-slot:actions>
     <x-slot:footer>
         <x-vdbs.cards.card title="Wohin nach der Grundschule?">
             In der Regel steht im sechsten Schuljahr die Wahl der weiterführenden Schule an.
-            <x-slot:actions><x-vdbs.actions.link-button href="#" variant="line">Weitere Informationen</x-vdbs.actions.link-button></x-slot:actions>
+            <x-slot:actions><x-vdbs.actions.button href="#" variant="secondary" icon="arrow-right" icon-position="end">Weitere Informationen</x-vdbs.actions.button></x-slot:actions>
         </x-vdbs.cards.card>
         <x-vdbs.cards.card title="Karriere">
             Wir suchen für unsere Schulen dringend Lehrkräfte und Studierende.
-            <x-slot:actions><x-vdbs.actions.link-button href="#" variant="line">Weitere Informationen</x-vdbs.actions.link-button></x-slot:actions>
+            <x-slot:actions><x-vdbs.actions.button href="#" variant="secondary" icon="arrow-right" icon-position="end">Weitere Informationen</x-vdbs.actions.button></x-slot:actions>
         </x-vdbs.cards.card>
         <x-vdbs.cards.card title="Newsletter">
             Wöchentlich informieren wir zu aktuellen Ereignissen und Veranstaltungen.
-            <x-slot:actions><x-vdbs.actions.link-button href="#" variant="line">Weitere Informationen</x-vdbs.actions.link-button></x-slot:actions>
+            <x-slot:actions><x-vdbs.actions.button href="#" variant="secondary" icon="arrow-right" icon-position="end">Weitere Informationen</x-vdbs.actions.button></x-slot:actions>
         </x-vdbs.cards.card>
     </x-slot:footer>
 </x-vdbs.media.hero>
