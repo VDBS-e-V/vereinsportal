@@ -207,6 +207,16 @@ class MembershipController extends Controller
         return $this->perform(fn () => $this->registrations->sendLink($membership, $this->actor($request)), $membership, 'Der Registrierungslink wurde an '.$membership->email.' gesendet.');
     }
 
+    public function linkAccount(Request $request, Membership $membership): RedirectResponse
+    {
+        $data = $request->validate(['account_email' => ['required', 'email', 'max:255']], [
+            'account_email.required' => 'Bitte geben Sie die E-Mail-Adresse des Kontos an.',
+            'account_email.email' => 'Bitte geben Sie eine gültige E-Mail-Adresse an.',
+        ]);
+
+        return $this->perform(fn () => $this->registrations->linkAccount($membership, $data['account_email'], $this->actor($request)), $membership, 'Das Konto wurde mit der Mitgliedschaft verknüpft.');
+    }
+
     public function admit(Request $request, Membership $membership): RedirectResponse
     {
         $data = $request->validate([

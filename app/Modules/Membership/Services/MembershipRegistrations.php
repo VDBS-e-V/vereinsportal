@@ -58,6 +58,50 @@ final class MembershipRegistrations
         $this->history->record($membership, MembershipEventType::RegistrationLinkSent, $by, null, ['gueltig_bis' => $membership->registration_expires_at->format('d.m.Y')]);
     }
 
+    /**
+     * Ein Konto, das schon vor der Mitgliedschaft bestand, mit der Mitgliedschaft verknüpfen: Die Mitgliedschaft übernimmt die Person des Kontos
+     * (Name und Anschrift bleiben dort gepflegt). Bei laufender Mitgliedschaft gilt die Rolle Vereinsmitglied sofort. Der Verlauf nennt nur den Vorgang, nicht die Adresse.
+     */
+    public function linkAccount(Membership $membership, string $email, User $by): void
+    {
+        if (! $membership->hasNoPerson()) {
+            throw new DomainException('Diese Mitgliedschaft ist schon mit einer Person und einem Konto verknüpft.');
+        }
+
+        if (! $membership->isOpen()) {
+            throw new DomainException('Beendete oder abgelehnte Mitgliedschaften lassen sich nicht mit einem Konto verknüpfen.');
+        }
+
+        $user = User::query()->where('email', mb_strtolower(trim($email)))->with('person')->first();
+        $person = $user?->person;
+
+        if (! $user instanceof User || ! $person instanceof Person) {
+            throw new DomainException('Zu dieser E-Mail-Adresse gibt es kein Konto mit einer Person.');
+        }
+
+        if (Membership::query()->open()->where('person_id', $person->id)->exists()) {
+            throw new DomainException('Für diese Person besteht schon eine Mitgliedschaft.');
+        }
+
+        if ($membership->birth_date !== null && $person->birth_date !== null && ! $membership->birth_date->isSameDay($person->birth_date)) {
+            throw new DomainException('Das Geburtsdatum des Kontos passt nicht zur Mitgliedschaft. Bitte prüfen Sie, ob es das richtige Konto ist.');
+        }
+
+        DB::transaction(function () use ($membership, $person, $by): void {
+            $membership->forceFill([
+                'person_id' => $person->id,
+                'birth_date' => $membership->birth_date ?? $person->birth_date,
+                'linked_at' => now(),
+                'registration_token_hash' => null,
+                'registration_expires_at' => null,
+            ])->save();
+
+            $this->history->record($membership, MembershipEventType::AccountLinked, $by);
+        });
+
+        $this->roles->syncPerson($person);
+    }
+
     /** Die Mitgliedschaft zu einem Link, solange er gültig ist und noch keine Person verknüpft wurde. */
     public function find(string $token): ?Membership
     {

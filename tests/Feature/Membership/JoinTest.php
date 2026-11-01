@@ -435,3 +435,47 @@ it('asks for the birth date when the paper record has none', function () {
     $this->post($url, $data + ['birth_date' => '1975-06-07'])->assertRedirect(route('login'));
     expect($membership->fresh()->birth_date->toDateString())->toBe('1975-06-07');
 });
+
+it('links an existing account to a membership without a person and gives the member role', function () {
+    $membership = Membership::factory()->manual()->create(['first_name' => 'Max', 'last_name' => 'Mustermann', 'birth_date' => '1970-02-03', 'starts_on' => '2020-01-01']);
+    $person = Person::factory()->create(['birth_date' => '1970-02-03']);
+    $user = User::factory()->create(['person_id' => $person->id, 'email' => 'konto@example.org']);
+
+    $this->actingAs(jnBoard())->post(route('membership.link-account', $membership), ['account_email' => ' Konto@Example.org '])->assertSessionHas('success');
+
+    $membership->refresh();
+
+    expect($membership->person_id)->toBe($person->id)
+        ->and($membership->linked_at)->not->toBeNull()
+        ->and($membership->events()->first()->type->value)->toBe('account_linked')
+        ->and(jnRoleKeys($user))->toBe(['member']);
+});
+
+it('refuses to link accounts that do not exist, belong to another member or have another birth date', function () {
+    $this->actingAs(jnBoard());
+
+    $membership = Membership::factory()->manual()->create(['birth_date' => '1970-02-03']);
+    $this->post(route('membership.link-account', $membership), ['account_email' => 'gibt-es-nicht@example.org'])->assertSessionHas('warning');
+
+    $other = Person::factory()->create(['birth_date' => '1980-01-01']);
+    User::factory()->create(['person_id' => $other->id, 'email' => 'anders@example.org']);
+    $this->post(route('membership.link-account', $membership), ['account_email' => 'anders@example.org'])->assertSessionHas('warning');
+
+    $taken = Person::factory()->create(['birth_date' => '1970-02-03']);
+    User::factory()->create(['person_id' => $taken->id, 'email' => 'vergeben@example.org']);
+    Membership::factory()->create(['person_id' => $taken->id]);
+    $this->post(route('membership.link-account', $membership), ['account_email' => 'vergeben@example.org'])->assertSessionHas('warning');
+
+    expect($membership->refresh()->person_id)->toBeNull();
+});
+
+it('lets only the board link accounts and not memberships that already have a person', function () {
+    $membership = Membership::factory()->manual()->create();
+    $person = Person::factory()->create();
+    $staff = User::factory()->create(['person_id' => $person->id, 'email' => $person->email]);
+    RoleAssignment::query()->create(['user_id' => $staff->id, 'role_id' => Role::query()->where('key', 'administration_staff')->value('id'), 'source' => RoleAssignmentSource::Manual, 'starts_at' => now()->subMinute()]);
+
+    $this->actingAs($staff)->post(route('membership.link-account', $membership), ['account_email' => $person->email])->assertForbidden();
+
+    $this->actingAs(jnBoard())->post(route('membership.link-account', Membership::factory()->create()), ['account_email' => $person->email])->assertSessionHas('warning');
+});
