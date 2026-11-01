@@ -146,7 +146,7 @@ class AccountProfileController extends Controller
         $visibility = $this->profiles->forUser($user)->visibilityOf('photo');
 
         return Storage::disk(ProfilePhotos::DISK)->response($user->avatar_path, null, [
-            'Content-Type' => 'image/jpeg',
+            'Content-Type' => ['png' => 'image/png', 'webp' => 'image/webp'][pathinfo($user->avatar_path, PATHINFO_EXTENSION)] ?? 'image/jpeg',
             'Cache-Control' => ($visibility === ProfileVisibility::Public ? 'public' : 'private').', max-age=3600',
         ]);
     }

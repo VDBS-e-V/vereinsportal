@@ -68,11 +68,11 @@
                     <ul class="vdbs-header__links vdbs-header__links--large">
                         @foreach ($areaPages as $page)
                             <li @class(['vdbs-main-nav__item', 'vdbs-main-nav__item--has-submenu' => $page['children'] !== [], 'is-active' => $page['active']])>
-                                <a href="{{ $page['href'] }}" @if ($page['current']) aria-current="page" @endif @if ($page['children'] !== []) aria-haspopup="true" @endif>{{ $page['label'] }}@if ($page['children'] !== [])<x-vdbs.icon class="vdbs-main-nav__chevron" name="chevron-down" :size="16" />@endif</a>
+                                <a href="{{ $page['href'] }}" @if ($page['children'] !== []) aria-haspopup="true" @endif @if ($page['current']) aria-current="page" @endif>{{ $page['label'] }}@if ($page['children'] !== [])<x-vdbs.icon class="vdbs-main-nav__chevron" name="chevron-down" :size="16" />@endif</a>
                                 @if ($page['children'] !== [])
                                     <ul class="vdbs-main-nav__submenu" aria-label="{{ $page['label'] }}">
                                         @unless ($page['group'])
-                                            <li class="vdbs-main-nav__overview"><a href="{{ $page['href'] }}" @if ($page['current']) aria-current="page" @endif>Zur Übersichtsseite {{ $page['label'] }}</a></li>
+                                            <li class="vdbs-main-nav__overview"><a href="{{ $page['href'] }}">Zur Übersichtsseite {{ $page['label'] }}</a></li>
                                         @endunless
                                         @foreach ($page['children'] as $child)
                                             <li><a href="{{ $child['href'] }}" @if ($child['current']) aria-current="page" @endif>{{ $child['label'] }}</a></li>

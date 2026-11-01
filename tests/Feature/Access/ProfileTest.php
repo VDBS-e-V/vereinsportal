@@ -128,14 +128,14 @@ it('stores the photo as a square jpeg, replaces the old one and removes it on re
     expect($user->fresh()->avatar_path)->toBeNull()->and(Storage::disk('local')->exists($new))->toBeFalse();
 
     expect(AuditEntry::query()->where('event', 'account.profile_photo_changed')->count())->toBe(3);
-});
+})->skip(fn () => ! function_exists('imagecreatetruecolor'), 'Die PHP-Erweiterung GD fehlt (in php.ini extension=gd aktivieren).');
 
 it('refuses photos that are too small or no images', function () {
     $this->actingAs(pfUser());
 
     $this->put(route('account.profile.update'), ['photo' => UploadedFile::fake()->image('klein.jpg', 100, 100)])->assertSessionHasErrors('photo');
     $this->put(route('account.profile.update'), ['photo' => UploadedFile::fake()->create('datei.pdf', 10, 'application/pdf')])->assertSessionHasErrors('photo');
-});
+})->skip(fn () => ! function_exists('imagecreatetruecolor'), 'Die PHP-Erweiterung GD fehlt (in php.ini extension=gd aktivieren).');
 
 it('delivers the photo only within the chosen visibility', function () {
     $user = pfUser();
@@ -156,7 +156,7 @@ it('delivers the photo only within the chosen visibility', function () {
 
     $this->actingAs($user)->put(route('account.profile.visibility.update'), pfLevels());
     $this->actingAs($user)->get($url)->assertOk();
-});
+})->skip(fn () => ! function_exists('imagecreatetruecolor'), 'Die PHP-Erweiterung GD fehlt (in php.ini extension=gd aktivieren).');
 
 it('shows the own photo in the header avatar', function () {
     $user = pfUser();
@@ -166,7 +166,7 @@ it('shows the own photo in the header avatar', function () {
     preg_match('/<header class="vdbs-header".*?<\/header>/s', $html, $header);
 
     expect($header[0])->toContain('vdbs-avatar__img')->toContain('/profil/foto/'.$user->id);
-});
+})->skip(fn () => ! function_exists('imagecreatetruecolor'), 'Die PHP-Erweiterung GD fehlt (in php.ini extension=gd aktivieren).');
 
 it('offers school accounts no profile', function () {
     $school = pfUser(RoleKey::School);

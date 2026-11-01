@@ -12,6 +12,9 @@ use Illuminate\Support\Str;
  * Das Profilfoto (users.avatar_path). Der Upload wird neu gerechnet: mittig quadratisch zugeschnitten, auf höchstens 512 Pixel verkleinert und als JPEG
  * gespeichert. Dabei fallen Metadaten (Ort, Kamera) und eingebettete Inhalte weg. Die Datei liegt privat und wird nur über die Route profile.photo
  * ausgeliefert, die die Sichtbarkeit prüft.
+ *
+ * Fehlt auf dem Server die PHP-Erweiterung GD, wird die geprüfte Originaldatei unverändert gespeichert (ohne Zuschnitt; Metadaten bleiben erhalten).
+ * Der Zuschnitt auf ein Quadrat übernimmt dann die Darstellung (object-fit: cover).
  */
 final class ProfilePhotos
 {
@@ -23,10 +26,6 @@ final class ProfilePhotos
 
     public function store(User $user, UploadedFile $file): void
     {
-        if (! function_exists('imagecreatetruecolor')) {
-            throw new DomainException('Auf diesem Server ist die Bildverarbeitung nicht verfügbar.');
-        }
-
         $info = @getimagesize($file->getRealPath());
 
         if ($info === false || ! in_array($info[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP], true)) {
@@ -41,6 +40,17 @@ final class ProfilePhotos
 
         if ($width * $height > 40_000_000) {
             throw new DomainException('Das Bild ist zu groß. Bitte verkleinern Sie es vorab.');
+        }
+
+        if (! function_exists('imagecreatetruecolor')) {
+            $extension = [IMAGETYPE_JPEG => 'jpg', IMAGETYPE_PNG => 'png', IMAGETYPE_WEBP => 'webp'][$info[2]];
+            $path = 'profile-photos/'.Str::ulid().'.'.$extension;
+            Storage::disk(self::DISK)->putFileAs('profile-photos', $file, basename($path));
+
+            $this->remove($user);
+            $user->forceFill(['avatar_path' => $path])->save();
+
+            return;
         }
 
         $source = match ($info[2]) {

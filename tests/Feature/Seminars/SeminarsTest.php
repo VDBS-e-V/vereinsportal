@@ -90,7 +90,7 @@ it('lets coordination, staff and board work with seminars', function () {
 
 it('shows the seminar pages in the area Koordination', function () {
     $this->actingAs(smUser(RoleKey::Coordination))->get(route('seminars.index'))
-        ->assertOk()->assertSee('Seminare')->assertSee('Preise')->assertSee('Seminar anlegen');
+        ->assertOk()->assertSee('Seminare')->assertSee('Preisliste')->assertSee('Seminar anlegen');
 });
 
 // ---------- Anlegen und Bearbeiten ----------
