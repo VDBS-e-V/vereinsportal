@@ -73,6 +73,12 @@ final class RichText
             return self::sanitize($value);
         }
 
+        return self::markdown($value);
+    }
+
+    /** Älterer Text (Markdown oder einfacher Text) als HTML, ohne rohes HTML. */
+    private static function markdown(string $value): string
+    {
         return trim(Str::markdown($value, ['html_input' => 'strip', 'allow_unsafe_links' => false, 'renderer' => ['soft_break' => "<br />\n"]]));
     }
 
@@ -85,7 +91,7 @@ final class RichText
     /** Reiner Text ohne Tags, Leerraum zusammengezogen (für Anreißer, Längen, Suche). */
     public static function toPlain(string $value, ?int $limit = null): string
     {
-        $html = self::looksLikeHtml($value) || preg_match('/<[a-z][^>]*>/i', $value) ? $value : self::render($value);
+        $html = self::looksLikeHtml($value) || preg_match('/<[a-z][^>]*>/i', $value) ? $value : self::markdown($value);
         $plain = html_entity_decode(strip_tags(str_replace(['</p>', '<br>', '<br />', '<br/>', '</li>', '</h2>', '</h3>', '</h4>'], ' ', $html)), ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $plain = trim((string) preg_replace('/[\s\x{00A0}]+/u', ' ', $plain));
 
