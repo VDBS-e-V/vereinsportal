@@ -22,21 +22,31 @@ class ArticleAdminController extends Controller
     {
         $search = trim((string) $request->query('q', ''));
         $status = in_array($request->query('status'), [Article::STATUS_DRAFT, Article::STATUS_PUBLISHED], true) ? (string) $request->query('status') : null;
+        $category = trim((string) $request->query('kategorie', '')) ?: null;
+        $tag = trim((string) $request->query('schlagwort', '')) ?: null;
+        $featured = $request->query('empfohlen') === '1' ? '1' : null;
 
-        $paginator = Article::query()
-            ->when($search !== '', fn ($builder) => $builder->where('title', 'like', '%'.addcslashes($search, '%_\\').'%'))
+        $paginator = Article::query()->with('createdBy.person')->search($search)
             ->when($status !== null, fn ($builder) => $builder->where('status', $status))
+            ->when($category !== null, fn ($builder) => $builder->where('category', $category))
+            ->when($tag !== null, fn ($builder) => $builder->whereJsonContains('tags', $tag))
+            ->when($featured !== null, fn ($builder) => $builder->where('featured', true))
             ->orderByDesc('updated_at')->orderByDesc('id')
             ->paginate(self::PER_PAGE)->withQueryString();
 
         return view('articles.admin-index', [
             'articles' => $paginator,
-            'filters' => ['q' => $search !== '' ? $search : null, 'status' => $status],
+            'filters' => ['q' => $search !== '' ? $search : null, 'status' => $status, 'category' => $category, 'tag' => $tag, 'featured' => $featured],
             'active' => collect([
                 $search !== '' ? ['label' => 'Suche: '.$search, 'href' => $request->fullUrlWithoutQuery(['q', 'page'])] : null,
                 $status !== null ? ['label' => 'Status: '.($status === Article::STATUS_PUBLISHED ? 'Veröffentlicht' : 'Entwurf'), 'href' => $request->fullUrlWithoutQuery(['status', 'page'])] : null,
+                $category !== null ? ['label' => 'Kategorie: '.$category, 'href' => $request->fullUrlWithoutQuery(['kategorie', 'page'])] : null,
+                $tag !== null ? ['label' => 'Schlagwort: '.$tag, 'href' => $request->fullUrlWithoutQuery(['schlagwort', 'page'])] : null,
+                $featured !== null ? ['label' => 'Nur empfohlene', 'href' => $request->fullUrlWithoutQuery(['empfohlen', 'page'])] : null,
             ])->filter()->values()->all(),
             'statusOptions' => [Article::STATUS_DRAFT => 'Entwurf', Article::STATUS_PUBLISHED => 'Veröffentlicht'],
+            'categoryOptions' => array_combine($c = Article::categoriesInUse(false), $c),
+            'tagOptions' => array_combine($t = Article::tagsInUse(false), $t),
         ]);
     }
 
@@ -49,13 +59,7 @@ class ArticleAdminController extends Controller
     {
         $article = $this->articles->create($this->validated($request), $request->file('image'), $this->actor($request), $request->file('author_image'));
 
-        $target = match ($request->input('after')) {
-            'list' => route('articles.admin.index'),
-            'new' => route('articles.admin.create'),
-            default => route('articles.public.show', $article->slug),
-        };
-
-        return redirect($target)->with('success', 'Der Artikel wurde gespeichert.');
+        return redirect($this->after($request, $article))->with('success', 'Der Artikel wurde gespeichert.');
     }
 
     public function edit(Article $article): View
@@ -67,7 +71,7 @@ class ArticleAdminController extends Controller
     {
         $this->articles->update($article, $this->validated($request, $article), $request->file('image'), $request->boolean('remove_image'), $this->actor($request), $request->file('author_image'), $request->boolean('remove_author_image'));
 
-        return redirect()->route('articles.admin.edit', $article)->with('success', 'Die Änderungen wurden gespeichert.');
+        return redirect($this->after($request, $article))->with('success', 'Die Änderungen wurden gespeichert.');
     }
 
     public function destroy(Request $request, Article $article): RedirectResponse
@@ -75,6 +79,16 @@ class ArticleAdminController extends Controller
         $this->articles->delete($article, $this->actor($request));
 
         return redirect()->route('articles.admin.index')->with('success', 'Der Artikel wurde gelöscht.');
+    }
+
+    /** Ziel nach dem Speichern: Artikel (Standard), Liste oder neues Formular. */
+    private function after(Request $request, Article $article): string
+    {
+        return match ($request->input('after')) {
+            'list' => route('articles.admin.index'),
+            'new' => route('articles.admin.create'),
+            default => route('articles.public.show', $article->slug),
+        };
     }
 
     /** @return array<string, mixed> */

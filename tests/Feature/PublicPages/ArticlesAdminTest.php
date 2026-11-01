@@ -204,3 +204,31 @@ it('offers three ways to create an article and leads to the article, the list or
     $this->post(route('articles.admin.store'), aaForm(['title' => 'Zwei', 'after' => 'list']))->assertRedirect(route('articles.admin.index'));
     $this->post(route('articles.admin.store'), aaForm(['title' => 'Drei', 'after' => 'new']))->assertRedirect(route('articles.admin.create'));
 });
+
+it('searches and filters the public and the admin list by category, tag and year', function () {
+    $staff = aaUser(RoleKey::AdministrationStaff);
+    Article::query()->create(['slug' => 'a1', 'title' => 'Alpha Exkursion', 'subtitle' => 'Nach Berlin', 'body' => 'x', 'category' => 'Presse', 'tags' => ['Demokratie'], 'status' => 'published', 'published_at' => now()->subYear(), 'featured' => true]);
+    Article::query()->create(['slug' => 'b1', 'title' => 'Beta Bericht', 'body' => 'x', 'category' => 'Verein', 'tags' => ['Finanzen'], 'status' => 'published', 'published_at' => now()->subDay()]);
+    Article::query()->create(['slug' => 'c1', 'title' => 'Gamma Entwurf', 'body' => 'x', 'category' => 'Verein', 'status' => 'draft']);
+
+    $this->get(route('articles.public.index', ['q' => 'Berlin']))->assertOk()->assertSee('Alpha Exkursion')->assertDontSee('Beta Bericht');
+    $this->get(route('articles.public.index', ['q' => 'Finanzen']))->assertSee('Beta Bericht')->assertDontSee('Alpha Exkursion');
+    $this->get(route('articles.public.index', ['kategorie' => 'Verein']))->assertSee('Beta Bericht')->assertDontSee('Gamma Entwurf')->assertDontSee('Alpha Exkursion');
+    $this->get(route('articles.public.index', ['jahr' => now()->subYear()->format('Y')]))->assertSee('Alpha Exkursion')->assertDontSee('Beta Bericht');
+    $this->get(route('articles.public.index', ['q' => 'gibtesnicht']))->assertSee('Keine passenden Artikel');
+
+    $this->actingAs($staff)->get(route('articles.admin.index', ['status' => 'draft']))->assertSee('Gamma Entwurf')->assertDontSee('Beta Bericht');
+    $this->get(route('articles.admin.index', ['schlagwort' => 'Demokratie']))->assertSee('Alpha Exkursion')->assertDontSee('Beta Bericht');
+    $this->get(route('articles.admin.index', ['empfohlen' => '1']))->assertSee('Alpha Exkursion')->assertDontSee('Gamma Entwurf');
+    $this->get(route('articles.admin.index', ['q' => 'Berlin']))->assertSee('Alpha Exkursion');
+});
+
+it('leads to the article, the list or a new form after saving changes', function () {
+    $staff = aaUser(RoleKey::AdministrationStaff);
+    $this->actingAs($staff)->post(route('articles.admin.store'), aaForm(['title' => 'Bearbeiten']));
+    $article = Article::query()->where('title', 'Bearbeiten')->firstOrFail();
+
+    $this->put(route('articles.admin.update', $article), aaForm(['title' => 'Bearbeiten']))->assertRedirect(route('articles.public.show', $article->slug));
+    $this->put(route('articles.admin.update', $article), aaForm(['title' => 'Bearbeiten', 'after' => 'list']))->assertRedirect(route('articles.admin.index'));
+    $this->put(route('articles.admin.update', $article), aaForm(['title' => 'Bearbeiten', 'after' => 'new']))->assertRedirect(route('articles.admin.create'));
+});

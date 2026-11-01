@@ -64,14 +64,9 @@
         </x-vdbs.forms.form-section>
 
         <x-slot:actions>
-            @if ($editing)
-                <x-vdbs.actions.button type="submit" icon="save">Speichern</x-vdbs.actions.button>
-                <x-vdbs.actions.button variant="text" :href="route('articles.admin.index')">Zurück zur Liste</x-vdbs.actions.button>
-            @else
-                <x-vdbs.actions.button type="submit" name="after" value="article" icon="save">Erstellen</x-vdbs.actions.button>
-                <x-vdbs.actions.button type="submit" name="after" value="list" variant="secondary">Erstellen und zur Liste</x-vdbs.actions.button>
-                <x-vdbs.actions.button type="submit" name="after" value="new" variant="secondary">Erstellen und weiteren erstellen</x-vdbs.actions.button>
-            @endif
+            <x-vdbs.actions.button type="submit" name="after" value="article" icon="save">{{ $editing ? 'Speichern' : 'Erstellen' }}</x-vdbs.actions.button>
+            <x-vdbs.actions.button type="submit" name="after" value="list" variant="secondary">{{ $editing ? 'Speichern und zur Liste' : 'Erstellen und zur Liste' }}</x-vdbs.actions.button>
+            <x-vdbs.actions.button type="submit" name="after" value="new" variant="secondary">{{ $editing ? 'Speichern und weiteren erstellen' : 'Erstellen und weiteren erstellen' }}</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 

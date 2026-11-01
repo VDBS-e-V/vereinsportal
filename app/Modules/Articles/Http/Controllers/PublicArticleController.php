@@ -18,20 +18,35 @@ class PublicArticleController extends Controller
 
     public function index(Request $request): View
     {
+        $search = trim((string) $request->query('q', ''));
         $category = trim((string) $request->query('kategorie', ''));
-        $query = Article::query()->visible()->orderByDesc('published_at')->orderByDesc('id');
-
-        if ($category !== '') {
-            $query->where('category', $category);
-        }
-
         $tag = trim((string) $request->query('schlagwort', ''));
+        $year = (int) $request->query('jahr', 0);
+        $oldest = $request->query('sortierung') === 'aelteste';
 
-        if ($tag !== '') {
-            $query->whereJsonContains('tags', $tag);
-        }
+        $query = Article::query()->visible()->search($search)
+            ->when($category !== '', fn ($q) => $q->where('category', $category))
+            ->when($tag !== '', fn ($q) => $q->whereJsonContains('tags', $tag))
+            ->when($year > 0, fn ($q) => $q->whereYear('published_at', $year))
+            ->orderBy('published_at', $oldest ? 'asc' : 'desc')->orderBy('id', $oldest ? 'asc' : 'desc');
 
-        return view('articles.index', ['articles' => $query->paginate(self::PER_PAGE)->withQueryString(), 'category' => $category !== '' ? $category : null, 'tag' => $tag !== '' ? $tag : null]);
+        $paginator = $query->paginate(self::PER_PAGE)->withQueryString();
+
+        $active = collect([
+            $search !== '' ? ['label' => 'Suche: '.$search, 'href' => $request->fullUrlWithoutQuery(['q', 'page'])] : null,
+            $category !== '' ? ['label' => 'Kategorie: '.$category, 'href' => $request->fullUrlWithoutQuery(['kategorie', 'page'])] : null,
+            $tag !== '' ? ['label' => 'Schlagwort: '.$tag, 'href' => $request->fullUrlWithoutQuery(['schlagwort', 'page'])] : null,
+            $year > 0 ? ['label' => 'Jahr: '.$year, 'href' => $request->fullUrlWithoutQuery(['jahr', 'page'])] : null,
+        ])->filter()->values()->all();
+
+        return view('articles.index', [
+            'articles' => $paginator,
+            'active' => $active,
+            'filters' => ['category' => $category !== '' ? $category : null, 'tag' => $tag !== '' ? $tag : null, 'year' => $year > 0 ? (string) $year : null, 'sort' => $oldest ? 'aelteste' : 'neueste'],
+            'categoryOptions' => array_combine($c = Article::categoriesInUse(), $c),
+            'tagOptions' => array_combine($t = Article::tagsInUse(), $t),
+            'yearOptions' => array_combine($y = array_map('strval', Article::yearsInUse()), $y),
+        ]);
     }
 
     public function show(string $slug): View

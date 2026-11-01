@@ -43,6 +43,44 @@ class Article extends Model
         return $query->where('status', self::STATUS_PUBLISHED)->where('published_at', '<=', now());
     }
 
+    /** Suche in Titel, Untertitel, Anreißer und Schlagwörtern. */
+    public function scopeSearch(Builder $query, ?string $term): Builder
+    {
+        $term = trim((string) $term);
+
+        if ($term === '') {
+            return $query;
+        }
+
+        $like = '%'.addcslashes($term, '%_\\').'%';
+
+        return $query->where(fn (Builder $q) => $q->where('title', 'like', $like)->orWhere('subtitle', 'like', $like)->orWhere('teaser', 'like', $like)->orWhere('tags', 'like', $like));
+    }
+
+    /** Kategorien, die vorkommen (nur sichtbare Artikel oder alle). @return list<string> */
+    public static function categoriesInUse(bool $visibleOnly = true): array
+    {
+        $query = $visibleOnly ? self::query()->visible() : self::query();
+
+        return $query->whereNotNull('category')->distinct()->orderBy('category')->pluck('category')->all();
+    }
+
+    /** Schlagwörter, die vorkommen, alphabetisch. @return list<string> */
+    public static function tagsInUse(bool $visibleOnly = true): array
+    {
+        $query = $visibleOnly ? self::query()->visible() : self::query();
+
+        return $query->whereNotNull('tags')->pluck('tags')->flatten()->filter(fn ($t) => is_string($t) && $t !== '')->unique()->sort(SORT_NATURAL | SORT_FLAG_CASE)->values()->all();
+    }
+
+    /** Jahre der Veröffentlichung, neueste zuerst. @return list<int> */
+    public static function yearsInUse(bool $visibleOnly = true): array
+    {
+        $query = $visibleOnly ? self::query()->visible() : self::query()->whereNotNull('published_at');
+
+        return $query->pluck('published_at')->map(fn ($d) => (int) $d->format('Y'))->unique()->sortDesc()->values()->all();
+    }
+
     public function isVisible(): bool
     {
         return $this->status === self::STATUS_PUBLISHED && $this->published_at !== null && $this->published_at->lte(now());
