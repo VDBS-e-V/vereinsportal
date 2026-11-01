@@ -27,5 +27,16 @@ Hinweis: Mehrere Werte (44 px, 8 px Abstand, Beschriftungslänge) stammen aus De
 14. **Text-Button:** niedrigste Betonung ohne Rand und Fläche. Er bleibt als Bedienelement erkennbar: Schrift in Aktionsgrün (5,0 : 1), 2 px unterstrichen (nicht nur Farbe, WCAG 1.4.1), Hover mit heller Fläche (5,9 : 1) und dickerer Linie, Fokusring wie alle. Gleiche Zielgröße (44 px) wie die anderen Rollen.
 15. **Responsiv:** auf dem Handy volle Breite und gestapelt, Primär zuerst.
 
-## Systemvorschlag (Bild)
-Farben (aus `tokens.css`): Primär `--bg-action` (#057f5b, Weiß 5,0 : 1), Hover #046a4d (6,6), Gedrückt #035340 (9,1); Sekundär **Lila** #58275a (zweite Markenfarbe) als Rand und Schrift auf Weiß (11,3), Hover #efe6f0, gedrückt #e0cfe2; Tertiär Aktionsgrün als Rand und Schrift (5,0); Gefahr #b42318 (6,6). Dunkelmodus: helles Grün #40cd9a mit dunkler Schrift (9,3), Sekundär mit hellem Rand `--color-mauve-400` (7,0) und Schrift Nebel, weil Lila auf dunklem Grund zu wenig Kontrast hätte; Hover-Fläche `--color-aubergine-800`. Text-Button: Schrift #057f5b auf Weiß 5,0 : 1, Hover #046a4d auf #dcf8ea 5,9 : 1, gedrückt #035340 auf #c3ecd6. Gefahr als Text: Rot #b42318 auf Weiß 6,6 : 1, Hover #8f1a10 auf #fde8e6. Neu gegenüber den Tokens sind nur die Zustände „Gedrückt“ die hellgrünen Flächen des Text-Buttons und die graue Fläche für „Deaktiviert“; sie müssten als Tokens angelegt werden.
+## Systemvorschlag (Bild, Stand: Definitionen des Auftraggebers)
+Vier Rollen, jede in zwei Farben (Grün = Aktion `#057f5b`, Lila = Marke `#58275a`):
+
+| Rolle | Definition | Grün | Lila |
+|---|---|---|---|
+| Primär | dunkle Fläche, weiße Schrift | `#057f5b` (Hover `#046a4d`, gedrückt `#035340`) | `#58275a` (Hover `#451d47`, gedrückt `#341534`) |
+| Sekundär | helle Fläche, Ink-Schrift | `#dcf8ea` (Hover `#c3ecd6`, gedrückt `#a8e6cf`) | `#efe6f0` (Hover `#e0cfe2`, gedrückt `#d0b6d3`) |
+| Tertiär | weiß, Schrift und Rand in Farbe | Schrift/Rand `#057f5b`, Hover-Fläche `#dcf8ea` | Schrift/Rand `#58275a`, Hover-Fläche `#efe6f0` |
+| Text | nur Schrift in Farbe | `#057f5b`, Hover mit Fläche und Unterstrich | `#58275a`, ebenso |
+
+Dunkelmodus: hellere Töne derselben Farbe (Grün `#40cd9a`, Lila `#d7b4da`) mit dunkler Schrift auf Primär; Sekundär mit dunkler Tönung und Nebel-Schrift; weißer Fokusring. Alle Schrift-Kontraste ≥ 4,5 : 1 (gerechnet), Rand und Primär-Fläche ≥ 3 : 1.
+
+Offen: Gefahr (rot) und Gefahr-Text sind in dieser Fassung nicht enthalten. Hinweis: Die Sekundär-Fläche hebt sich nur schwach von Weiß ab (≈ 1,1 : 1); der Button wird über Beschriftung und Größe erkannt. Der Text-Button hat im Ruhezustand keinen Unterstrich (Definition „nur Text in Farbe“); erst bei Hover.
