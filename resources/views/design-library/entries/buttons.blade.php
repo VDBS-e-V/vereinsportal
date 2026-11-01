@@ -1,5 +1,5 @@
 @php
-    $roles = ['primary' => 'Primär', 'secondary' => 'Sekundär', 'tertiary' => 'Tertiär', 'text' => 'Text', 'danger' => 'Gefahr'];
+    $roles = ['primary' => 'Primär', 'secondary' => 'Sekundär', 'tertiary' => 'Tertiär', 'text' => 'Text', 'danger' => 'Gefahr', 'danger-text' => 'Gefahr (Text)'];
     $tones = ['green' => 'Grün', 'lila' => 'Lila'];
     $states = ['Normal' => [], 'Deaktiviert' => ['disabled' => true], 'Lädt' => ['loading' => true]];
 @endphp
@@ -12,7 +12,8 @@
     <li><strong>Sekundär</strong> (<code>secondary</code>): helle Fläche, Ink-Schrift.</li>
     <li><strong>Tertiär</strong> (<code>tertiary</code>): weiße Fläche, Schrift und Rahmen in Farbe.</li>
     <li><strong>Text</strong> (<code>text</code>): nur Schrift in Farbe; Fläche und Unterstrich erst bei Hover.</li>
-    <li><strong>Gefahr</strong> (<code>danger</code>): für unwiderrufliche Aktionen, immer mit Text.</li>
+    <li><strong>Gefahr</strong> (<code>danger</code>): für unwiderrufliche Aktionen, gefüllt, immer mit Text.</li>
+    <li><strong>Gefahr (Text)</strong> (<code>danger-text</code>): zurückhaltendes Entfernen ohne Fläche, z. B. in Tabellenzeilen.</li>
 </ul>
 <div class="vdbs-table-wrap">
     <table class="vdbs-table">
@@ -24,8 +25,8 @@
                     <th scope="row">{{ $name }}<br><code>{{ $variant }}</code></th>
                     @foreach ($tones as $tone => $toneName)
                         <td>
-                            @if ($variant === 'danger')
-                                @if ($tone === 'green') <x-vdbs.actions.button variant="danger" icon="trash-2">Löschen</x-vdbs.actions.button> @else <span style="color:var(--text-muted)">ohne Tonfarbe</span> @endif
+                            @if (in_array($variant, ['danger', 'danger-text'], true))
+                                @if ($tone === 'green') <x-vdbs.actions.button :variant="$variant" icon="trash-2">{{ $variant === 'danger' ? 'Löschen' : 'Entfernen' }}</x-vdbs.actions.button> @else <span style="color:var(--text-muted)">ohne Tonfarbe</span> @endif
                             @else
                                 <x-vdbs.actions.button :variant="$variant" :tone="$tone">Aktion</x-vdbs.actions.button>
                             @endif
@@ -122,7 +123,7 @@
     ['key' => 'v', 'label' => 'Werte'],
     ['key' => 'd', 'label' => 'Bedeutung'],
 ]">
-    <tr><th scope="row"><code>variant</code></th><td>primary, secondary, tertiary, text, danger</td><td>Wichtigkeit der Aktion</td></tr>
+    <tr><th scope="row"><code>variant</code></th><td>primary, secondary, tertiary, text, danger, danger-text</td><td>Wichtigkeit der Aktion</td></tr>
     <tr><th scope="row"><code>tone</code></th><td>green (Standard), lila</td><td>Tonfarbe von primary, secondary, tertiary und text</td></tr>
         <tr><th scope="row"><code>size</code></th><td>s, m (Standard), l</td><td>36, 44, 52 px Höhe</td></tr>
     <tr><th scope="row"><code>on</code></th><td>default (Standard), night, dark, brand</td><td>Fläche hinter dem Button; default = normale Seitenfläche, folgt dem Theme</td></tr>

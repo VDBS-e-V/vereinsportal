@@ -93,3 +93,16 @@
     --btn-press-bg: var(--bg-danger-hover);
     --btn-press-fg: var(--text-on-danger);
 }
+
+/* Gefahr als Text: rote Schrift ohne Fläche, beim Überfahren helle Fehlerfläche und Unterstrich */
+.vdbs-btn--danger-text {
+    --btn-bg: transparent;
+    --btn-fg: var(--text-error);
+    --btn-line: var(--text-error);
+    --btn-hover-bg: var(--bg-error-soft);
+    --btn-hover-fg: var(--text-error);
+    --btn-press-bg: var(--bg-error-soft);
+    --btn-press-fg: var(--text-error);
+    --btn-fill: var(--bg-error-soft);
+    --btn-fill-fg: var(--text-error);
+}

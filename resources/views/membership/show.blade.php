@@ -100,7 +100,7 @@
                         <td>{{ $document->uploaded_at->format('d.m.Y') }}</td>
                         <td>
                             @if ($canManage)
-                                <x-vdbs.actions.button variant="danger" size="s" data-vdbs-dialog-open="remove-document-{{ $document->id }}">Entfernen</x-vdbs.actions.button>
+                                <x-vdbs.actions.button variant="danger-text" size="s" data-vdbs-dialog-open="remove-document-{{ $document->id }}">Entfernen</x-vdbs.actions.button>
                             @endif
                         </td>
                     </tr>

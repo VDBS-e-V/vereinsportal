@@ -18,12 +18,13 @@
 {{--
     Das Button-System (Paket "actions"): ein Baustein für Buttons und Links im Button-Stil.
 
-    variant  primary | secondary | tertiary | text | danger        Wichtigkeit der Aktion
+    variant  primary | secondary | tertiary | text | danger | danger-text   Wichtigkeit der Aktion
              primary    dunkle Fläche, weiße Schrift
              secondary  helle Fläche, Ink-Schrift
              tertiary   weiße Fläche, Schrift und Rahmen in Farbe
              text       nur Schrift in Farbe (Fläche und Unterstrich erst bei Hover)
-             danger     Gefahr (rot, gefüllt)
+             danger     Gefahr (rot, gefüllt): Hauptaktion eines Löschens, immer mit Text
+             danger-text  Gefahr als Text (rot, ohne Fläche): zurückhaltendes Entfernen, z. B. in Tabellenzeilen
     tone     green | lila                                           Tonfarbe von primary, secondary, tertiary und text (Standard green = Aktion)
     size     s | m | l                                              36, 44, 52 px Höhe
     on       default | night | dark | brand                         Fläche, auf der der Button steht
@@ -38,14 +39,14 @@
     pressed  true | false für Umschalter (aria-pressed)
     disabled deaktiviert (bei Links: aria-disabled, ohne href)
 
-    Jede Rolle bringt ihre Form mit (primary, secondary und danger gefüllt, tertiary mit Rahmen, text ohne Rahmen). Weitere Formen gibt es nicht.
+    Jede Rolle bringt ihre Form mit (primary, secondary und danger gefüllt, tertiary mit Rahmen, text und danger-text ohne Rahmen). Weitere Formen gibt es nicht.
 --}}
 
 @php
-    $variant = in_array($variant, ['primary', 'secondary', 'tertiary', 'text', 'danger'], true) ? $variant : 'primary';
+    $variant = in_array($variant, ['primary', 'secondary', 'tertiary', 'text', 'danger', 'danger-text'], true) ? $variant : 'primary';
     $tone = $tone === 'lila' ? 'lila' : 'green';
 
-    $form = ['primary' => 'solid', 'secondary' => 'solid', 'tertiary' => 'outline', 'text' => 'text', 'danger' => 'solid'][$variant];
+    $form = ['primary' => 'solid', 'secondary' => 'solid', 'tertiary' => 'outline', 'text' => 'text', 'danger' => 'solid', 'danger-text' => 'text'][$variant];
 
     $size = in_array($size, ['s', 'm', 'l'], true) ? $size : 'm';
     $on = in_array($on, ['default', 'night', 'dark', 'brand'], true) ? $on : 'default';

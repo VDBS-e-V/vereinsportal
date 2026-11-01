@@ -247,6 +247,8 @@
     --night-lila-soft-press: var(--color-lila-nacht-tint-gedrueckt);
     --night-lila-text: var(--color-lila-nacht-text);
     --night-lila-text-hover: var(--color-lila-nacht-text-hover);
+    --night-danger-text: var(--color-fehler-leuchtend);
+    --night-danger-soft: var(--color-fehler-flaeche-dunkel);
     --night-on-solid: var(--color-weiss);
     --night-on-soft: var(--color-nebel);
     --night-disabled-bg: var(--color-graphit-750);

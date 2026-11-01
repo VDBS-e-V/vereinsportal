@@ -136,3 +136,40 @@
     --btn-disabled-fg: var(--night-disabled-fg);
     --focus-ring: var(--color-weiss);
 }
+
+.vdbs-btn--on-night.vdbs-btn--danger-text,
+.vdbs-on-night .vdbs-btn--danger-text {
+    --btn-fg: var(--night-danger-text);
+    --btn-line: var(--night-danger-text);
+    --btn-hover-bg: var(--night-danger-soft);
+    --btn-hover-fg: var(--night-danger-text);
+    --btn-press-bg: var(--night-danger-soft);
+    --btn-press-fg: var(--night-danger-text);
+    --btn-fill: var(--night-danger-soft);
+    --btn-fill-fg: var(--night-danger-text);
+}
+
+/* Gefahr als Text auf dunklen Flächen (Lila, Ink, Bild) und auf dem Markengrün */
+.vdbs-btn--on-dark.vdbs-btn--danger-text,
+.vdbs-on-dark .vdbs-btn--danger-text {
+    --btn-fg: var(--on-dark-danger);
+    --btn-line: var(--on-dark-danger);
+    --btn-hover-bg: var(--on-dark-hover);
+    --btn-hover-fg: var(--on-dark-danger);
+    --btn-press-bg: var(--on-dark-fill-soft);
+    --btn-press-fg: var(--on-dark-danger);
+    --btn-fill: var(--on-dark-fill-soft);
+    --btn-fill-fg: var(--on-dark-danger);
+}
+
+.vdbs-btn--on-brand.vdbs-btn--danger-text,
+.vdbs-on-brand .vdbs-btn--danger-text {
+    --btn-fg: var(--on-brand-fg);
+    --btn-line: var(--on-brand-fg);
+    --btn-hover-bg: var(--on-brand-hover);
+    --btn-hover-fg: var(--on-brand-fg);
+    --btn-press-bg: var(--on-brand-fill-soft);
+    --btn-press-fg: var(--on-brand-fg);
+    --btn-fill: var(--on-brand-fill-soft);
+    --btn-fill-fg: var(--on-brand-fg);
+}

@@ -90,7 +90,7 @@
                         <td>{{ $session->notes ?? '–' }}</td>
                         <td>
                             @if ($canManage)
-                                <x-vdbs.actions.button variant="danger" size="s" data-vdbs-dialog-open="remove-session-{{ $session->id }}">Entfernen</x-vdbs.actions.button>
+                                <x-vdbs.actions.button variant="danger-text" size="s" data-vdbs-dialog-open="remove-session-{{ $session->id }}">Entfernen</x-vdbs.actions.button>
                             @endif
                         </td>
                     </tr>

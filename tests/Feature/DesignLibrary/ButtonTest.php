@@ -21,7 +21,8 @@ it('gives each role its own form and knows no other forms', function () {
         ->and(button('variant="secondary"'))->toContain('vdbs-btn--form-solid')
         ->and(button('variant="tertiary"'))->toContain('vdbs-btn--form-outline')
         ->and(button('variant="text"'))->toContain('vdbs-btn--text')->toContain('vdbs-btn--form-text')
-        ->and(button('variant="danger"'))->toContain('vdbs-btn--form-solid');
+        ->and(button('variant="danger"'))->toContain('vdbs-btn--form-solid')
+        ->and(button('variant="danger-text"'))->toContain('vdbs-btn--danger-text')->toContain('vdbs-btn--form-text');
 
     // Die früheren Formen (arrow, line, link, outline) und der alte Name quiet sind entfernt.
     expect(button('shape="line"'))->not->toContain('vdbs-btn--shape')->not->toContain('vdbs-btn--form-line')

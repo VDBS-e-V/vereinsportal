@@ -57,7 +57,7 @@
                         <td>{{ $row->class_name }}</td>
                         <td><code>{{ $row->waitlisted ? '–' : $row->ticket() }}</code></td>
                         <td>@if ($row->waitlisted)<x-vdbs.data.badge tone="warning">Warteliste</x-vdbs.data.badge>@elseif ($row->isConfirmed())<x-vdbs.data.badge tone="success">Angemeldet</x-vdbs.data.badge>@else<x-vdbs.data.badge>Offen</x-vdbs.data.badge>@endif</td>
-                        <td><form method="post" action="{{ route('school.events.registrations.destroy', [$event, $row]) }}">@csrf @method('delete')<x-vdbs.actions.button type="submit" size="s" variant="danger">Abmelden</x-vdbs.actions.button></form></td>
+                        <td><form method="post" action="{{ route('school.events.registrations.destroy', [$event, $row]) }}">@csrf @method('delete')<x-vdbs.actions.button type="submit" size="s" variant="danger-text">Abmelden</x-vdbs.actions.button></form></td>
                     </tr>
                 @endforeach
             </x-vdbs.data.table>
