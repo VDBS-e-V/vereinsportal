@@ -1,6 +1,6 @@
 # Textfelder: Recherche, Erfolgskriterien, Plan
 
-Bild: `docs/design/textfelder-system.png` (Quelltext `textfelder-system.html`). Stand: Entwurf, noch nicht im Code. Paket `forms`, Komponenten `input`, `textarea`, `select`, `password`, `search`, `code`, `field` (gemeinsame Grundlage `control.css`, `field.css`, `input-group.css`).
+Bild: `docs/design/textfelder-system.png` (Quelltext `textfelder-system.html`). Stand: Entwurf abgenommen und im Code umgesetzt (Entscheidungen unten). Paket `forms`, Komponenten `input`, `textarea`, `select`, `password`, `search`, `code`, `field` (gemeinsame Grundlage `control.css`, `field.css`, `input-group.css`).
 
 ## Quellen
 - Nielsen Norman Group: [Placeholders in Form Fields Are Harmful](https://www.nngroup.com/articles/form-design-placeholders/) (Platzhalter sind kein Label; ohne sichtbares Label lässt sich beim Prüfen und nach Fehlern nicht erkennen, was ein Feld meint). Die oft zitierte Zahl „+33 % Fehler“ konnte ich nicht belegen und verwende sie nicht.
@@ -42,3 +42,14 @@ Bild: `docs/design/textfelder-system.png` (Quelltext `textfelder-system.html`). 
 4. **Nur lesen:** gestrichelter Rand mit Schloss (Entwurf) oder graue Fläche ohne Schloss?
 5. **Feldfläche** im hellen Modus: Weiß (Entwurf) oder leicht grau?
 6. **Erfolgszustand** beibehalten (nur bei echter Prüfung, z. B. E-Mail bestätigt) oder streichen?
+
+
+## Entschieden und umgesetzt
+1. Label immer oben, keine schwebenden Labels.
+2. Pflichtfelder mit **rotem Sternchen** (`*`, `aria-hidden`; für Screenreader der Text „(Pflichtfeld)“). Optionale Felder bleiben unmarkiert; die Eigenschaft `optional` bleibt, zeigt aber nichts mehr. Das Formular erklärt das Sternchen einmal („* Pflichtfeld“, `FieldState::markRequired()`).
+3. Fehler **beim Verlassen des Feldes und beim Absenden** (`resources/js/validation.js`, `data-vdbs-validate`, abschaltbar mit `:validate="false"`). Ausnahmen: Absende-Knöpfe mit `formaction`, `formnovalidate` oder `data-vdbs-no-validate`. Der Server prüft weiter; ein Feld mit Serverfehler bekommt keine zweite Meldung. Der Assistent (`wizard.js`) nutzt dieselben Meldungen.
+4. **Nur lesen:** gestrichelter Rand, graue Fläche und Schloss (nur beim `input`); **deaktiviert** ist grau ohne Strichelung.
+5. Feldfläche **Weiß** (Dunkel Graphit-900): Token `--field-bg`.
+6. **Erfolgszustand** bleibt.
+
+Weitere Änderungen: Tokens `--field-bg`, `--field-disabled-bg`, `--field-disabled-fg` (hell und beide Dark-Blöcke), Eigenschaft `width` (4, 5, 10, 20, 30 Zeichen) am `input`, Pflicht-Kennzeichnung auch bei Checkbox und Fieldset (`forms/flag`). Bewusst nicht umgesetzt: automatische `autocomplete`-Vorgaben je Feldname, weil sie in Formularen, die Daten anderer Personen bearbeiten (Verwaltung), fremde Browserdaten einsetzen würden; `autocomplete` bleibt eine ausdrückliche Angabe in den Formularen mit eigenen Daten.

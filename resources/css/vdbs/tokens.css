@@ -161,6 +161,11 @@
     --focus-ring: var(--color-ink);
     --focus-ring-offset: 2px;
 
+    /* Eingabefelder: Fläche, deaktiviert; Rand und Fokus siehe --border-input und --focus-ring */
+    --field-bg: var(--color-weiss);
+    --field-disabled-bg: var(--color-grau-deaktiviert);
+    --field-disabled-fg: var(--color-grau-deaktiviert-text);
+
     /* Buttons: Tonfarben Grün (Aktion) und Lila (Marke); Rollen siehe components/actions/button-variants.css */
     --btn-green-solid: var(--color-gruen-dunkel);
     --btn-green-solid-hover: var(--color-gruen-aktion-hover);
@@ -395,6 +400,10 @@
     --border-input: var(--color-graphit-500); /* Abweichung vom Styleguide: mind. 3:1 gegen die dunklen Flächen (WCAG 1.4.11) */
     --focus-ring: var(--color-weiss);
 
+    --field-bg: var(--color-graphit-900);
+    --field-disabled-bg: var(--color-graphit-750);
+    --field-disabled-fg: var(--color-graphit-400);
+
     --btn-green-solid: var(--color-gruen-nacht);
     --btn-green-solid-hover: var(--color-gruen-nacht-hover);
     --btn-green-solid-press: var(--color-gruen-nacht-gedrueckt);
@@ -448,6 +457,9 @@
         --border-default: var(--color-graphit-700);
         --border-input: var(--color-graphit-500);
         --focus-ring: var(--color-weiss);
+        --field-bg: var(--color-graphit-900);
+        --field-disabled-bg: var(--color-graphit-750);
+        --field-disabled-fg: var(--color-graphit-400);
         --btn-green-solid: var(--color-gruen-nacht);
         --btn-green-solid-hover: var(--color-gruen-nacht-hover);
         --btn-green-solid-press: var(--color-gruen-nacht-gedrueckt);

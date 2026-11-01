@@ -22,8 +22,7 @@
 <fieldset {{ $attributes->class(['vdbs-fieldset', 'vdbs-fieldset--error' => $state->hasError()]) }} id="{{ $state->id }}" tabindex="-1" @if ($describedBy) aria-describedby="{{ $describedBy }}" @endif>
     <legend @class(['vdbs-fieldset__legend', 'vdbs-sr-only' => $legendHidden])>
         {{ $legend }}
-        @if ($state->required) <span class="vdbs-field__flag">(Pflichtfeld)</span>
-        @elseif ($state->optional) <span class="vdbs-field__flag">(optional)</span> @endif
+            <x-vdbs.forms.flag :state="$state" />
     </legend>
 
     @if ($state->hint)

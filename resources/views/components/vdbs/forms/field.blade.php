@@ -3,7 +3,7 @@
 {{--
     Feld-Rahmen (Paket "forms", intern): Label mit Pflicht-/Optional-Kennzeichnung, Hinweis, Steuerelement (Slot)
     und Fehler-/Erfolgsmeldung. $state ist ein App\Support\Forms\FieldState.
-    Pflicht wird als Text gekennzeichnet, nicht nur mit Stern (Styleguide 5.2).
+    Pflicht wird mit einem roten Sternchen gekennzeichnet (für Screenreader zusätzlich als Text); optionale Felder bleiben unmarkiert.
 
     Aufbau: head (Label und Hinweis) und body (Steuerelement und Meldungen). Im Raster <x-vdbs.forms.form-grid> teilen sich
     die Felder einer Zeile die Zeilen von head und body (Subgrid): Die Steuerelemente beginnen immer auf gleicher Höhe, auch
@@ -14,8 +14,7 @@
     <div class="vdbs-field__head">
         <label @class(['vdbs-field__label', 'vdbs-sr-only' => $labelHidden]) for="{{ $state->id }}">
             {{ $label }}
-            @if ($state->required) <span class="vdbs-field__flag">(Pflichtfeld)</span>
-            @elseif ($state->optional) <span class="vdbs-field__flag">(optional)</span> @endif
+            <x-vdbs.forms.flag :state="$state" />
         </label>
 
         @if ($state->hint)

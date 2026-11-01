@@ -2,6 +2,7 @@ import './bootstrap';
 import './portal-dialog';
 import './theme';
 import './forms';
+import './validation';
 import './menu';
 import './navigation';
 import './feedback';

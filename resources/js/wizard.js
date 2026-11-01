@@ -55,6 +55,11 @@ document.querySelectorAll('[data-vdbs-wizard]').forEach((form) => {
     const valid = (step) => {
         const fields = [...step.querySelectorAll('input, select, textarea')].filter((field) => !field.disabled && field.type !== 'hidden');
 
+        // Gleiche Meldungen wie beim Verlassen und Absenden (validation.js); ohne sie die Browser-Blase
+        if (window.vdbsValidateFields) {
+            return window.vdbsValidateFields(fields.filter((field) => !['checkbox', 'radio'].includes(field.type))) && fields.every((field) => !['checkbox', 'radio'].includes(field.type) || field.checkValidity() || (field.reportValidity(), false));
+        }
+
         for (const field of fields) {
             if (!field.checkValidity()) {
                 field.reportValidity();

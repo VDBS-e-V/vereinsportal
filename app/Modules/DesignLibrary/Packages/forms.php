@@ -180,7 +180,7 @@ return [
             'description' => 'Eingabefeld.',
             'status' => 'beta',
             'adopted' => true,
-            'redesign' => 'open',
+            'redesign' => 'in-progress',
             'blade' => 'resources/views/components/vdbs/forms/input.blade.php',
             'css' => [
                 'input-group.css',
