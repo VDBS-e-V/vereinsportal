@@ -92,3 +92,8 @@ Bild: `docs/design/buttons-system-dunkel-neutral.png`. Entscheidung: Der Dunkelm
 | Grün | `#1f8362` | `#1d7a5b` | `#1a7054` | `#2aa87e` (Hover `#30bf90`) | `#173329` / `#1d4536` / `#245a47` |
 
 Gerechnet: weiße Schrift auf Primär 4,7–5,9 : 1; Primär-Fläche zur Seite ≥ 3,1 : 1, zur Karte 3,6 : 1, zur erhöhten Fläche 3,1 : 1 (Standardzustand); Tertiär- und Text-Schrift auf allen drei Flächen ≥ 4,9 : 1; Deaktiviert 5,0 : 1; weißer Fokusring 18,5 : 1.
+
+## Stand der Umstellung auf allen Seiten
+- Entfernt: die Formen `arrow`, `line`, `link` und `outline` (Eigenschaft `shape`), der Name `quiet`, die Größe `xl`, die Komponente `link-button` samt Beispielseite und Manifest-Eintrag, die rohen `vdbs-btn`-Klassen in den Seiten.
+- Umgestellt: alle Aufrufe (Link-Buttons → Button mit Pfeil-Icon am Ende; Gefahr mit Rahmen → Gefahr gefüllt; Wiederholungs-Buttons und Assistent auf die Komponente).
+- Zur Zustimmung offen (Sonderdesigns): Gefahr (rot) als eigene Rolle, die Flächen `dark` und `brand` für Heros, die tote Alt-Ansicht (`resources/views/administration`, `identity`, `layouts/administration`) mit alten `btn`-Klassen.

@@ -122,7 +122,7 @@
     ['key' => 'v', 'label' => 'Werte'],
     ['key' => 'd', 'label' => 'Bedeutung'],
 ]">
-    <tr><th scope="row"><code>variant</code></th><td>primary, secondary, tertiary, text, danger</td><td>Wichtigkeit der Aktion (<code>quiet</code> ist der alte Name von <code>text</code>)</td></tr>
+    <tr><th scope="row"><code>variant</code></th><td>primary, secondary, tertiary, text, danger</td><td>Wichtigkeit der Aktion</td></tr>
     <tr><th scope="row"><code>tone</code></th><td>green (Standard), lila</td><td>Tonfarbe von primary, secondary, tertiary und text</td></tr>
         <tr><th scope="row"><code>size</code></th><td>s, m (Standard), l</td><td>36, 44, 52 px Höhe</td></tr>
     <tr><th scope="row"><code>on</code></th><td>default (Standard), night, dark, brand</td><td>Fläche hinter dem Button; default = normale Seitenfläche, folgt dem Theme</td></tr>
