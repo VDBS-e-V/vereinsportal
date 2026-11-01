@@ -47,3 +47,32 @@ Offen: Gefahr (rot) und Gefahr-Text sind in dieser Fassung nicht enthalten. Hinw
 - CSS: `button-variants.css` (Tonfarben und Rollen), `button-shapes.css` (Form `text`), `button-states.css` (Gedrückt, Deaktiviert).
 - Migration der Seiten: `variant="tertiary"` (Textlink-Stil) → `text`; `variant="secondary" shape="outline"` → `tertiary`; `quiet` → `text`. Alle übrigen Sekundär-Buttons sind jetzt helle Flächen. Auf dunklen und Markenflächen (`on="dark|brand"`) gilt die bisherige Zuordnung weiter.
 - Beispielseite: `/design/buttons` (Rollen × Tonfarben, Zustände, Icon-Formen, Formen, Flächen).
+
+## Dunkelmodus: Quellen, Erfolgskriterien, Entwurf
+Entwurf: `docs/design/buttons-system-dunkel.png` (Quelltext `buttons-system-dunkel.html`). Noch nicht im Code.
+
+### Quellen
+- [Material Design: Dark theme](https://m2.material.io/design/color/dark-theme): dunkelgraue Flächen statt Schwarz, Akzente entsättigen, 4,5 : 1 auf allen Erhebungsstufen, Erhebung durch hellere Flächen.
+- [Apple HIG: Dark Mode](https://developer.apple.com/design/human-interface-guidelines/dark-mode.md): Basis- und erhöhte Hintergründe, Farben passen sich an und sind keine reine Umkehrung, erhöhten Zustand testen.
+- [Accessibility Checker: Dark Mode](https://www.accessibilitychecker.org/blog/dark-mode-accessibility/), [DubBot](https://dubbot.com/dubblog/2023/dark-mode-a11y.html), [Uxcel](https://uxcel.com/blog/12-principles-of-dark-mode-design-627): 3 : 1 für Bedienelemente und 4,5 : 1 für Schrift (WCAG 1.4.3, 1.4.11); hohe Sättigung heißt nicht hoher Kontrast.
+- Nielsen Norman Group (nur über Zusammenfassungen gefunden, Originale prüfen): Dunkelmodus ist vor allem eine Präferenz, kein Gewinn für alle Nutzer; deshalb Wahlmöglichkeit.
+
+### Erfolgskriterien
+1. Gleiche Logik wie hell: Primär = gesättigte Fläche + weiße Schrift (nicht invertieren, nicht pastell).
+2. Gedämpfte Akzente: mittlere Helligkeit, keine Neon- oder Pastelltöne.
+3. Schrift ≥ 4,5 : 1 in allen Zuständen.
+4. Primär-Fläche gegen die Seite ≥ 3 : 1 (alle Zustände).
+5. Lesbar auf Seite, Karte und erhöhter Fläche (Schrift ≥ 4,5 : 1).
+6. Dunkelgrau statt Schwarz; Tiefe durch hellere Flächen.
+7. Hover und Gedrückt sichtbar (dunkler, Weiß-Kontrast steigt), weißer Fokusring ≥ 3 : 1.
+8. Deaktiviert lesbar (≥ 4,5 : 1) und erkennbar gedämpft.
+9. Wenig Akzent: eine Primär-Aktion pro Ansicht.
+10. Hell/Dunkel bleibt Nutzerwahl.
+
+### Entwurf (Werte)
+| | Fläche | Hover | Gedrückt | Schrift/Rand (Tertiär, Text) | Sekundär (Fläche/Hover/Gedrückt) |
+|---|---|---|---|---|---|
+| Lila | `#a455af` | `#9b4ea5` | `#8e4797` | `#c777d2` (Hover `#d394db`) | `#381d39` / `#4a2a4b` / `#5c395d` |
+| Grün | `#1f8362` | `#1d7a5b` | `#1a7054` | `#2aa87e` (Hover `#30bf90`) | `#0f3a2c` / `#14503c` / `#1a6650` |
+
+Schrift: Primär weiß (4,7–6,0 : 1), Sekundär Nebel `#f1f4f2`. Flächen: Seite `#180f18`, Karte `#261926`, erhöht `#381d39`. Primär-Fläche zur Seite 3,1–4,0 : 1; auf der erhöhten Fläche (`#381d39`) bleibt der Flächenkontrast unter 3 : 1, die Schrift (≥ 4,5 : 1) und der Fokusring tragen dort die Erkennbarkeit.
