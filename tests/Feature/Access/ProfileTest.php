@@ -37,7 +37,7 @@ function pfLevels(array $overrides = []): array
 it('shows the account pages for profile and account', function () {
     $this->actingAs(pfUser());
 
-    foreach (['account.home', 'account.profile', 'account.profile.edit', 'account.profile.visibility', 'account.data', 'account.roles'] as $route) {
+    foreach (['account.home', 'account.profile', 'account.profile.edit', 'account.profile.visibility', 'account.data', 'account.roles', 'account.notifications', 'account.appearance'] as $route) {
         $this->get(route($route))->assertOk();
     }
 });
@@ -47,7 +47,7 @@ it('shows the menu groups Profil and Anmeldung with their entries in the area Ko
     preg_match('/<header class="vdbs-header".*?<\/header>/s', $html, $header);
 
     expect($header[0])->toContain('>Profil<')->toContain('>Mein Profil<')->toContain('>Profil bearbeiten<')->toContain('>Sichtbarkeit<')
-        ->toContain('>Stammdaten<')->toContain('>Anmeldung<')->toContain('>Zwei-Faktor<')->toContain('>Mitgliedschaft<')->toContain('>Daten &amp; Löschung<')
+        ->toContain('>Stammdaten<')->toContain('>Anmeldung<')->toContain('>Zwei-Faktor<')->toContain('>Rollen &amp; Bereiche<')->toContain('>Einstellungen<')->toContain('>Benachrichtigungen<')->toContain('>Darstellung<')->toContain('>Daten &amp; Löschung<')->not->toContain('>Mitgliedschaft<')
         ->not->toContain('>Übersicht<');
 });
 

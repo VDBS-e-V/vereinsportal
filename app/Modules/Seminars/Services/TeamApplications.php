@@ -300,6 +300,7 @@ final class TeamApplications
         $recipients = User::query()->whereIn('id', RoleAssignment::query()
             ->where('starts_at', '<=', now())->where(fn ($query) => $query->whereNull('ends_at')->orWhere('ends_at', '>', now()))
             ->whereHas('role', fn ($query) => $query->where('key', RoleKey::Coordination->value))->select('user_id'))->get();
+        $recipients = app(\App\Modules\Access\Services\NotificationPreferences::class)->filter($recipients, 'seminar_deadline');
 
         foreach ($seminars as $seminar) {
             foreach ($recipients as $recipient) {
@@ -385,6 +386,10 @@ final class TeamApplications
 
     private function send(User $user, string $kind, Seminar $seminar): void
     {
+        if (! app(\App\Modules\Access\Services\NotificationPreferences::class)->allows($user, 'seminar_team')) {
+            return;
+        }
+
         try {
             Mail::to($user->email)->send(new SeminarTeamMail($kind, $seminar->loadMissing(['partner', 'sessions']), route('seminar-applications.index')));
         } catch (Throwable $exception) {

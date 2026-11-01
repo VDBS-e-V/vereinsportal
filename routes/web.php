@@ -26,6 +26,7 @@ Route::middleware('web')->group(function (): void {
 // Übersichten der Bereiche Mitglieder, Vorstand und Bildungsreferenten
 Route::middleware(['web', 'auth'])->group(function (): void {
     Route::get('/mitglieder', [PortalAreaController::class, 'member'])->middleware('can:member.area')->name('member.home');
+    Route::get('/mitglieder/mitgliedschaft', [PortalAreaController::class, 'membership'])->middleware('can:member.area')->name('member.membership');
     Route::get('/mitglieder/dokumente/{document}', [PortalAreaController::class, 'memberDocument'])->whereNumber('document')->middleware('can:member.area')->name('member.documents.download');
     Route::get('/vorstand', [PortalAreaController::class, 'board'])->middleware('can:memberships.view')->name('board.overview');
     Route::get('/vorstand/berichte', [ReportController::class, 'index'])->middleware('can:reports.view')->name('board.reports');

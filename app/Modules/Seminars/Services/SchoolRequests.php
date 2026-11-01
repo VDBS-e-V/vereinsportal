@@ -90,7 +90,7 @@ final class SchoolRequests
     {
         $seminar->loadMissing('partner');
 
-        foreach (CoordinationRecipients::users() as $recipient) {
+        foreach (app(\App\Modules\Access\Services\NotificationPreferences::class)->filter(CoordinationRecipients::users(), 'school_requests') as $recipient) {
             try {
                 Mail::to($recipient->email)->send(new SchoolMessageMail($kind, $seminar, route('seminars.show', $seminar)));
             } catch (Throwable $exception) {

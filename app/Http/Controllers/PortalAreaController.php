@@ -46,6 +46,16 @@ class PortalAreaController extends Controller
         ]);
     }
 
+    /** Mitglieder › Mitgliedschaft: Status, Beitritt und Austritt der eigenen Mitgliedschaft. */
+    public function membership(Request $request): View
+    {
+        $user = $request->user();
+
+        return view('portal.member-membership', [
+            'membership' => $user?->person?->memberships()->orderByRaw("status IN ('requested','active') DESC")->orderByDesc('id')->first(),
+        ]);
+    }
+
     /** Satzung und Willkommensbrief: nur die jeweils aktuelle Fassung, nur für Mitglieder. */
     public function memberDocument(OnboardingDocument $document): StreamedResponse
     {

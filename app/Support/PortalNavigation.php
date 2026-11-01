@@ -64,7 +64,11 @@ final class PortalNavigation
                         ['description' => 'Authentifizierungs-App, E-Mail-Code und Wiederherstellungscodes.', 'label' => 'Zwei-Faktor', 'route' => 'account.security.index', 'match' => 'account.security.*'],
                         ['description' => 'Wo Ihr Konto angemeldet ist.', 'label' => 'Sitzungen', 'route' => 'account.sessions', 'match' => 'account.sessions*'],
                     ]],
-                    ['description' => 'Mitgliedschaft, Rollen und Bereiche.', 'label' => 'Mitgliedschaft', 'route' => 'account.roles', 'match' => 'account.roles'],
+                    ['description' => 'Ihre Rollen und die Bereiche, die Ihnen offenstehen.', 'label' => 'Rollen & Bereiche', 'route' => 'account.roles', 'match' => 'account.roles'],
+                    ['label' => 'Einstellungen', 'group' => true, 'route' => 'account.notifications', 'children' => [
+                        ['description' => 'Welche E-Mails Sie vom Portal bekommen.', 'label' => 'Benachrichtigungen', 'route' => 'account.notifications', 'match' => 'account.notifications*'],
+                        ['description' => 'Hell, dunkel oder wie das Gerät.', 'label' => 'Darstellung', 'route' => 'account.appearance', 'match' => 'account.appearance'],
+                    ]],
                     ['description' => 'Konto löschen.', 'label' => 'Daten & Löschung', 'route' => 'account.deletion', 'match' => 'account.deletion*'],
                 ],
             ],
@@ -82,8 +86,10 @@ final class PortalNavigation
             PortalAreas::Mitglieder->value => [
                 'home' => 'member.home',
                 'roles' => [RoleKey::Member],
+                'routes' => ['member.documents.*'],
                 'pages' => [
-                    ['label' => 'Übersicht', 'route' => 'member.home', 'match' => 'member.*', 'can' => 'member.area'],
+                    ['label' => 'Übersicht', 'route' => 'member.home', 'match' => 'member.home', 'can' => 'member.area'],
+                    ['description' => 'Status, Beitritt und Austritt Ihrer Mitgliedschaft.', 'label' => 'Mitgliedschaft', 'route' => 'member.membership', 'match' => 'member.membership', 'can' => 'member.area'],
                 ],
             ],
             PortalAreas::Teamende->value => [

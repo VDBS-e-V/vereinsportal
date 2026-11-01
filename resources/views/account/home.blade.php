@@ -26,7 +26,13 @@
                 </ul>
             @endif
 
-            <p><a href="{{ route('account.data') }}">Stammdaten</a> · <a href="{{ route('account.security.index') }}">Zwei-Faktor</a> · <a href="{{ route('account.roles') }}">Mitgliedschaft</a></p>
+            <p><a href="{{ route('account.data') }}">Stammdaten</a> · <a href="{{ route('account.security.index') }}">Zwei-Faktor</a> · <a href="{{ route('account.notifications') }}">Benachrichtigungen</a></p>
+
+            @if ($membership)
+                <p style="color:var(--text-muted)">Mitgliedschaft im Verein: {{ $membership->effectiveStatus()->label() }}.
+                    @can('member.area')<a href="{{ route('member.membership') }}">Zum Bereich Mitglieder</a>@endcan
+                </p>
+            @endif
         </section>
     </x-vdbs.layout.grid>
 </x-account.shell>

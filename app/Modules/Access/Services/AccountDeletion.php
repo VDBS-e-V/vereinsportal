@@ -158,6 +158,7 @@ final class AccountDeletion
             }
 
             $user->profile()->delete();
+            DB::table('notification_preferences')->where('user_id', $user->id)->delete();
 
             Event::dispatch(new AccountAnonymizing($user, $person));
 

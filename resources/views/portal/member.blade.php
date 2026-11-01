@@ -10,16 +10,12 @@
         <h2 id="membership-heading" style="font-size:var(--font-size-h3)">Ihre Mitgliedschaft</h2>
 
         @if ($membership)
-            <x-vdbs.data.detail-list layout="inline">
-                <x-vdbs.data.detail-item label="Status">{{ $state->label() }}</x-vdbs.data.detail-item>
-                @if ($membership->starts_on)<x-vdbs.data.detail-item label="Mitglied seit">{{ $membership->starts_on->format('d.m.Y') }}</x-vdbs.data.detail-item>@endif
-                @if ($membership->ends_on)<x-vdbs.data.detail-item label="Letzter Tag der Mitgliedschaft">{{ $membership->ends_on->format('d.m.Y') }}</x-vdbs.data.detail-item>@endif
-            </x-vdbs.data.detail-list>
+            <p>Status: <strong>{{ $state->label() }}</strong>@if ($membership->starts_on), Mitglied seit {{ $membership->starts_on->format('d.m.Y') }}@endif. <a href="{{ route('member.membership') }}">Alle Angaben zur Mitgliedschaft</a></p>
         @else
             <p>Zu Ihrem Konto ist keine Mitgliedschaft hinterlegt.</p>
         @endif
 
-        <p>Ihre Kontaktdaten ändern Sie in Ihrem <a href="{{ route('account.data') }}">Stammdaten</a>.</p>
+        <p>Ihre Kontaktdaten ändern Sie unter <a href="{{ route('account.data') }}">Konto › Stammdaten</a>.</p>
     </section>
 
     <section aria-labelledby="documents-heading" style="margin-top:var(--space-8)">

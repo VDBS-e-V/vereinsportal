@@ -38,10 +38,13 @@ final class BoardNotifications
 
         $url = route('membership.show', $membership);
 
-        User::query()
+        $board = User::query()
             ->where('status', UserStatus::Active->value)
             ->whereHas('activeRoleAssignments', fn ($assignments) => $assignments->whereHas('role', fn ($role) => $role->where('key', RoleKey::BoardMember->value)))
-            ->get()
-            ->each(fn (User $board) => Mail::to($board->email)->send(new NewApplicationMail($url)));
+            ->get();
+
+        foreach (app(\App\Modules\Access\Services\NotificationPreferences::class)->filter($board, 'new_applications') as $member) {
+            Mail::to($member->email)->send(new NewApplicationMail($url));
+        }
     }
 }

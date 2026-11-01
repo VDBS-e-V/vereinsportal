@@ -37,6 +37,10 @@ class RemindTeamOnboarding extends Command
                     return;
                 }
 
+                if (! app(\App\Modules\Access\Services\NotificationPreferences::class)->allows($user, 'onboarding_reminders')) {
+                    return;
+                }
+
                 [$done, $all] = $onboarding->progress();
                 $sent++;
 

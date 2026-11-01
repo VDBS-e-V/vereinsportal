@@ -341,9 +341,9 @@ it('shows members their own membership in the account', function () {
     $account = mbUser(null, $person);
     Membership::factory()->create(['person_id' => $person->id, 'starts_on' => '2023-05-01']);
 
-    $this->actingAs($account)->get(route('account.roles'))->assertOk()->assertSee('Mitgliedschaft')->assertSee('01.05.2023')->assertSee('Aktiv');
+    $this->actingAs($account)->get(route('account.home'))->assertOk()->assertSee('Mitgliedschaft im Verein')->assertSee('Aktiv');
 
-    $this->actingAs(mbUser())->get(route('account.roles'))->assertOk()->assertDontSee('Mitglied seit');
+    $this->actingAs(mbUser())->get(route('account.home'))->assertOk()->assertDontSee('Mitgliedschaft im Verein');
 });
 
 // ---------- Tagesabgleich ----------

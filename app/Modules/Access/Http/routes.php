@@ -3,6 +3,7 @@
 use App\Modules\Access\Http\Controllers\AccountDeletionController;
 use App\Modules\Access\Http\Controllers\AccountPagesController;
 use App\Modules\Access\Http\Controllers\AccountProfileController;
+use App\Modules\Access\Http\Controllers\AccountSettingsController;
 use App\Modules\Access\Http\Controllers\EmailChangeController;
 use App\Modules\Access\Http\Controllers\LoginController;
 use App\Modules\Access\Http\Controllers\PasswordController;
@@ -47,6 +48,11 @@ Route::middleware('web')->group(function (): void {
         Route::put('/profil', [AccountProfileController::class, 'update'])->name('account.profile.update');
         Route::get('/profil/sichtbarkeit', [AccountProfileController::class, 'visibility'])->name('account.profile.visibility');
         Route::put('/profil/sichtbarkeit', [AccountProfileController::class, 'updateVisibility'])->name('account.profile.visibility.update');
+
+        // Einstellungen
+        Route::get('/benachrichtigungen', [AccountSettingsController::class, 'notifications'])->name('account.notifications');
+        Route::put('/benachrichtigungen', [AccountSettingsController::class, 'updateNotifications'])->name('account.notifications.update');
+        Route::get('/darstellung', [AccountSettingsController::class, 'appearance'])->name('account.appearance');
 
         // Stammdaten (nichtöffentlich)
         Route::get('/stammdaten', [ProfileController::class, 'show'])->name('account.data');

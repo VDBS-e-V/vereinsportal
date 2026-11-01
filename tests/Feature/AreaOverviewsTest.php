@@ -51,7 +51,7 @@ it('shows members their area with membership, documents, events and the contact 
     $this->get(route('member.home'))->assertRedirect(route('login'));
 
     $this->actingAs($member)->get(route('member.home'))->assertOk()
-        ->assertSee('Mitglied seit')->assertSee('01.03.2024')->assertSee('Satzung (PDF')->assertSee('Willkommensbrief: wird vom Vorstand noch bereitgestellt')
+        ->assertSee('Mitglied seit 01.03.2024')->assertSee('Satzung (PDF')->assertSee('Willkommensbrief: wird vom Vorstand noch bereitgestellt')
         ->assertSee('Demokratietag')->assertDontSee('Interner Entwurf')->assertSee('Vorstand kontaktieren');
 
     $this->actingAs(aoUser(RoleKey::Team))->get(route('member.home'))->assertForbidden();

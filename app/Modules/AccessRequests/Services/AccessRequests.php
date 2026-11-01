@@ -225,10 +225,13 @@ final class AccessRequests
 
         $url = route('access-requests.show', $request);
 
-        User::query()
+        $staff = User::query()
             ->where('status', UserStatus::Active->value)
             ->whereHas('activeRoleAssignments', fn ($assignments) => $assignments->whereHas('role', fn ($role) => $role->where('key', RoleKey::AdministrationStaff->value)))
-            ->get()
-            ->each(fn (User $staff) => Mail::to($staff->email)->send(new NewAccessRequestMail($url)));
+            ->get();
+
+        foreach (app(\App\Modules\Access\Services\NotificationPreferences::class)->filter($staff, 'new_access_requests') as $recipient) {
+            Mail::to($recipient->email)->send(new NewAccessRequestMail($url));
+        }
     }
 }

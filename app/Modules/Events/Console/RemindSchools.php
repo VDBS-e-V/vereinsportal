@@ -31,6 +31,10 @@ class RemindSchools extends Command
                     ->whereNotIn('id', DB::table('school_event_reminders')->where('event_id', $event->id)->select('partner_user_id'))->with('user')->get();
 
                 foreach ($accounts as $account) {
+                    if (! app(\App\Modules\Access\Services\NotificationPreferences::class)->allows($account->user, 'school_event_reminders')) {
+                        continue;
+                    }
+
                     $count++;
 
                     if ($dry) {
