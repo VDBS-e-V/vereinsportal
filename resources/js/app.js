@@ -11,3 +11,4 @@ import './copy';
 import './quote-form';
 import './wizard';
 import './bot-guard';
+import './richtext';

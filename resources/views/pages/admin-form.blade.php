@@ -15,7 +15,7 @@
     @endif
 
     <x-vdbs.forms.form :action="route('pages.admin.update', $key->value)" method="put">
-        <x-vdbs.forms.textarea name="body" label="Text" :required="true" maxlength="60000" :rows="22" :value="$page->body" hint="Einfaches Markdown: Leerzeile = neuer Absatz, ## Überschrift, **fett**, *kursiv*, - Liste, [Text](https://…). Zeilenumbruch: zwei Leerzeichen am Zeilenende." />
+        <x-vdbs.forms.textarea name="body" label="Text" :required="true" maxlength="60000" :rows="22" :rich="true" :value="$page->body" />
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="save">Speichern</x-vdbs.actions.button>

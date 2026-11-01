@@ -21,7 +21,7 @@
                 <x-vdbs.forms.input name="category" label="Kategorie" :optional="true" maxlength="60" :value="$values['category'] ?? null" hint="Steht auf der Karte, z. B. Themenartikel" />
             </x-vdbs.forms.form-grid>
             <x-vdbs.forms.textarea name="teaser" label="Anreißer" :optional="true" maxlength="300" :counter="true" :rows="2" :value="$values['teaser'] ?? null" hint="Kurzer Text für die Karte; ohne Angabe nimmt das Portal den Anfang des Artikels" />
-            <x-vdbs.forms.textarea name="body" label="Text" :required="true" maxlength="20000" :rows="14" :value="$values['body'] ?? null" hint="Einfaches Markdown: Leerzeile = neuer Absatz, ## Überschrift, **fett**, *kursiv*, - Liste, [Text](https://…)" />
+            <x-vdbs.forms.textarea name="body" label="Text" :required="true" maxlength="60000" :rows="14" :rich="true" :value="$values['body'] ?? null" />
         </x-vdbs.forms.form-section>
 
         <x-vdbs.forms.form-section title="Bild">

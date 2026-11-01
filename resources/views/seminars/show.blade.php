@@ -50,7 +50,7 @@
 
             @if (filled($seminar->notes))
                 <h3 style="margin-top:var(--space-6);font-size:var(--font-size-h4)">Notiz</h3>
-                <p style="white-space:pre-line">{{ $seminar->notes }}</p>
+                <x-vdbs.content.prose>{!! rich_text($seminar->notes) !!}</x-vdbs.content.prose>
             @endif
 
             <p style="color:var(--text-muted);font-size:var(--font-size-small)">

@@ -154,14 +154,16 @@ class EventAdminController extends Controller
 
     public function sendMessage(Request $request, Event $event): RedirectResponse
     {
+        $request->merge(['body' => \App\Support\Html\RichText::normalize($request->input('body'))]);
+
         $data = $request->validate([
             'subject' => ['required', 'string', 'max:150'],
-            'body' => ['required', 'string', 'max:5000'],
+            'body' => ['required', 'string', 'max:20000'],
             'audience' => ['required', Rule::in(array_keys(EventMessage::AUDIENCES))],
         ], [
             'subject.required' => 'Bitte geben Sie einen Betreff ein.',
             'body.required' => 'Bitte schreiben Sie die Mitteilung.',
-            'body.max' => 'Die Mitteilung darf höchstens 5.000 Zeichen lang sein.',
+            'body.max' => 'Die Mitteilung ist zu lang.',
             'audience.required' => 'Bitte wählen Sie, wer die Mitteilung bekommt.',
         ]);
 
@@ -255,9 +257,11 @@ class EventAdminController extends Controller
     /** @return array<string, mixed> */
     private function validated(Request $request): array
     {
+        $request->merge(['description' => \App\Support\Html\RichText::clean($request->input('description'))]);
+
         return $request->validate([
             'title' => ['required', 'string', 'max:200'],
-            'description' => ['nullable', 'string', 'max:5000'],
+            'description' => ['nullable', 'string', 'max:20000'],
             'location' => ['nullable', 'string', 'max:200'],
             'status' => ['required', Rule::in(array_keys(EventStatus::options()))],
             'capacity' => ['nullable', 'integer', 'min:1', 'max:5000'],

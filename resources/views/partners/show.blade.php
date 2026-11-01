@@ -79,7 +79,7 @@
 
             <h2 style="margin-top:var(--space-6);font-size:var(--font-size-h3)">Notizen</h2>
             @if (filled($partner->notes))
-                <p style="white-space:pre-line">{{ $partner->notes }}</p>
+                <x-vdbs.content.prose>{!! rich_text($partner->notes) !!}</x-vdbs.content.prose>
             @else
                 <p>Keine Notizen.</p>
             @endif

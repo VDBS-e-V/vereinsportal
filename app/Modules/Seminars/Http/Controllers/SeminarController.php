@@ -179,13 +179,15 @@ class SeminarController extends Controller
     /** @return array<string, mixed> */
     private function validated(Request $request): array
     {
+        $request->merge(['notes' => \App\Support\Html\RichText::clean($request->input('notes'))]);
+
         return $request->validate([
             'title' => ['required', 'string', 'max:200'],
             'type' => ['required', Rule::enum(SeminarType::class)],
             'partner_id' => ['required', 'integer', Rule::exists('partners', 'id')->where('type', PartnerType::School->value)],
             'grade_level' => ['nullable', 'string', 'max:100'],
             'expected_participants' => ['nullable', 'integer', 'min:1', 'max:2000'],
-            'notes' => ['nullable', 'string', 'max:2000'],
+            'notes' => ['nullable', 'string', 'max:10000'],
         ], [
             'title.required' => 'Bitte geben Sie einen Titel ein.',
             'type.required' => 'Bitte wählen Sie die Leistung.',

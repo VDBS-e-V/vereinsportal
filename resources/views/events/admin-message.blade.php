@@ -8,7 +8,7 @@
     <x-vdbs.forms.form :action="route('events.admin.messages.store', $event)">
         <x-vdbs.forms.radio-group name="audience" legend="Empfänger" :required="true" :options="collect($audiences)->map(fn ($label, $key) => $label.' ('.$counts[$key].' Adressen)')->all()" :value="old('audience', 'confirmed')" hint="Pro E-Mail-Adresse geht nur eine Nachricht raus, auch wenn eine Lehrkraft die ganze Klasse angemeldet hat." />
         <x-vdbs.forms.input name="subject" label="Betreff" :required="true" maxlength="150" />
-        <x-vdbs.forms.textarea name="body" label="Text" :required="true" maxlength="5000" :counter="true" :rows="10" hint="Nur Text, die Anrede „Hallo,“ und ein Link zur Veranstaltung werden automatisch ergänzt." />
+        <x-vdbs.forms.textarea name="body" label="Text" :required="true" :rows="10" :rich="true" hint="Die Anrede „Hallo,“ und ein Link zur Veranstaltung werden automatisch ergänzt." />
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="send">Mitteilung senden</x-vdbs.actions.button>

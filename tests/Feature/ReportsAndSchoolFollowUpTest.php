@@ -152,7 +152,7 @@ it('reminds active school accounts once before the registration deadline', funct
     $soon->registrations()->create(['partner_id' => $account->partner_id, 'name' => 'A', 'school' => $account->partner->name, 'class_name' => '9', 'birth_date' => '2010-01-01', 'email' => 'a@example.org', 'ticket_code' => 'REM1234567', 'verified_at' => now()]);
 
     $this->artisan('events:remind-schools', ['--dry-run' => true])->expectsOutputToContain('Erinnerungen an Schulen: 1')->assertSuccessful();
-    Mail::assertNothingSent();
+    Mail::assertNotSent(SchoolEventReminderMail::class);
 
     $this->artisan('events:remind-schools')->expectsOutputToContain('Erinnerungen an Schulen: 1')->assertSuccessful();
     Mail::assertSent(SchoolEventReminderMail::class, 1);

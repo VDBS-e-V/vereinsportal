@@ -25,7 +25,7 @@
         </x-vdbs.forms.form-section>
 
         <x-vdbs.forms.form-section title="Notizen">
-            <x-vdbs.forms.textarea name="notes" label="Notiz" :optional="true" maxlength="2000" :counter="true" :rows="4" :value="$values['notes'] ?? null" />
+            <x-vdbs.forms.textarea name="notes" label="Notiz" :optional="true" :rows="6" :rich="true" :value="$values['notes'] ?? null" />
         </x-vdbs.forms.form-section>
 
         <x-slot:actions>

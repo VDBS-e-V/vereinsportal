@@ -29,6 +29,7 @@ class PageAdminController extends Controller
     public function update(Request $request, string $page): RedirectResponse
     {
         $key = PageKey::from($page);
+        $request->merge(['body' => \App\Support\Html\RichText::normalize($request->input('body'))]);
         $data = $request->validate(['body' => ['required', 'string', 'max:60000']], [
             'body.required' => 'Bitte geben Sie den Text ein.',
             'body.max' => 'Der Text darf höchstens 60.000 Zeichen lang sein.',

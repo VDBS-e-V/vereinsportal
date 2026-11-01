@@ -17,7 +17,7 @@
         <x-vdbs.layout.grid :columns="3" align="start">
             @foreach ($events as $event)
                 @php($first = $event->sessions->first())
-                <x-vdbs.cards.teaser :title="$event->title" :href="route('events.public.show', $event->slug)" :text="\Illuminate\Support\Str::limit(strip_tags((string) $event->description), 160)" :meta="$first ? $first->starts_at->format('d.m.Y').($event->location ? ', '.$event->location : '') : $event->location" :category="$event->status->label()" />
+                <x-vdbs.cards.teaser :title="$event->title" :href="route('events.public.show', $event->slug)" :text="\App\Support\Html\RichText::toPlain((string) $event->description, 160)" :meta="$first ? $first->starts_at->format('d.m.Y').($event->location ? ', '.$event->location : '') : $event->location" :category="$event->status->label()" />
             @endforeach
         </x-vdbs.layout.grid>
     @endif

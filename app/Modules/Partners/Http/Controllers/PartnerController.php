@@ -200,7 +200,7 @@ class PartnerController extends Controller
                 ], $contactCells, [
                     $attributes['student_count'] ?? '',
                     $partner->status->label(),
-                    $partner->notes,
+                    \App\Support\Html\RichText::toPlain((string) $partner->notes),
                 ])), ';', '"', '\\');
             }
 
@@ -333,6 +333,7 @@ class PartnerController extends Controller
     /** @return array<string, mixed> */
     private function validated(Request $request, ?Partner $partner): array
     {
+        $request->merge(['notes' => \App\Support\Html\RichText::clean($request->input('notes'))]);
         $data = $request->validate(PartnerData::rules(), PartnerData::messages());
 
         if ($this->partners->exists($data['name'], $data['city'] ?? null, $partner?->id)) {

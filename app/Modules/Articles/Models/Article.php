@@ -36,13 +36,13 @@ class Article extends Model
     /** Text als Anreißer: eigener Anreißer, sonst der Anfang des Textes. */
     public function excerpt(int $limit = 180): string
     {
-        return filled($this->teaser) ? (string) $this->teaser : Str::limit(trim(strip_tags(Str::markdown($this->body, ['html_input' => 'strip']))), $limit);
+        return filled($this->teaser) ? (string) $this->teaser : \App\Support\Html\RichText::toPlain((string) $this->body, $limit);
     }
 
     /** Text als sicheres HTML (einfaches Markdown, kein eigenes HTML, keine unsicheren Links). */
     public function html(): string
     {
-        return Str::markdown($this->body, ['html_input' => 'strip', 'allow_unsafe_links' => false]);
+        return \App\Support\Html\RichText::render($this->body);
     }
 
     /** @return BelongsTo<User, $this> */

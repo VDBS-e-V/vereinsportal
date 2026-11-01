@@ -13,7 +13,7 @@
     @endif
 
     @if (filled($event->description))
-        <p style="white-space:pre-line">{{ $event->description }}</p>
+        <x-vdbs.content.prose>{!! rich_text($event->description) !!}</x-vdbs.content.prose>
     @endif
 
     <x-vdbs.data.detail-list layout="inline">

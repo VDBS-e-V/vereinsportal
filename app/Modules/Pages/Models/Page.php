@@ -32,7 +32,7 @@ class Page extends Model
     /** Text als sicheres HTML (einfaches Markdown, kein eigenes HTML, keine unsicheren Links). */
     public function html(): string
     {
-        return Str::markdown((string) $this->body, ['html_input' => 'strip', 'allow_unsafe_links' => false]);
+        return \App\Support\Html\RichText::render($this->body);
     }
 
     /** @return BelongsTo<User, $this> */

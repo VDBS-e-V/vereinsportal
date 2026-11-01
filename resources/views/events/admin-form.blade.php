@@ -9,7 +9,7 @@
 
     <x-vdbs.forms.form :action="$editing ? route('events.admin.update', $event) : route('events.admin.store')" :method="$editing ? 'put' : 'post'">
         <x-vdbs.forms.input name="title" label="Titel" :required="true" maxlength="200" :value="$values['title'] ?? null" />
-        <x-vdbs.forms.textarea name="description" label="Beschreibung" :optional="true" maxlength="5000" :rows="6" :value="$values['description'] ?? null" hint="Wird öffentlich auf der Anmeldeseite angezeigt" />
+        <x-vdbs.forms.textarea name="description" label="Beschreibung" :optional="true" :rows="8" :rich="true" :value="$values['description'] ?? null" hint="Wird öffentlich auf der Anmeldeseite angezeigt" />
         <x-vdbs.forms.form-grid :columns="2">
             <x-vdbs.forms.input name="location" label="Ort" :optional="true" maxlength="200" :value="$values['location'] ?? null" />
             <x-vdbs.forms.input name="capacity" label="Plätze" type="number" min="1" max="5000" :optional="true" :value="$values['capacity'] ?? null" hint="Leer = unbegrenzt" />

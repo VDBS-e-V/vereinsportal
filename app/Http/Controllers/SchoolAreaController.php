@@ -52,13 +52,14 @@ class SchoolAreaController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $account = $this->account($request);
+        $request->merge(['notes' => \App\Support\Html\RichText::clean($request->input('notes'))]);
 
         $data = $request->validate([
             'type' => ['required', Rule::in(array_keys(SeminarType::options()))],
             'wished_period' => ['nullable', 'string', 'max:200'],
             'expected_participants' => ['nullable', 'integer', 'min:1', 'max:2000'],
             'grade_level' => ['nullable', 'string', 'max:100'],
-            'notes' => ['nullable', 'string', 'max:2000'],
+            'notes' => ['nullable', 'string', 'max:10000'],
         ], [
             'type.required' => 'Bitte wählen Sie, was Sie anfragen möchten.',
             'type.in' => 'Bitte wählen Sie eine der Leistungen.',

@@ -74,12 +74,14 @@ class ArticleAdminController extends Controller
     /** @return array<string, mixed> */
     private function validated(Request $request, ?Article $article = null): array
     {
+        $request->merge(['body' => \App\Support\Html\RichText::normalize($request->input('body'))]);
+
         $hasImage = $request->hasFile('image') || ($article !== null && filled($article->image_path) && ! $request->boolean('remove_image'));
 
         return $request->validate([
             'title' => ['required', 'string', 'max:200'],
             'teaser' => ['nullable', 'string', 'max:300'],
-            'body' => ['required', 'string', 'max:20000'],
+            'body' => ['required', 'string', 'max:60000'],
             'category' => ['nullable', 'string', 'max:60'],
             'image' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'image_alt' => [$hasImage ? 'required' : 'nullable', 'string', 'max:200'],
@@ -91,7 +93,7 @@ class ArticleAdminController extends Controller
         ], [
             'title.required' => 'Bitte geben Sie einen Titel ein.',
             'body.required' => 'Bitte schreiben Sie den Artikeltext.',
-            'body.max' => 'Der Text darf höchstens 20.000 Zeichen lang sein.',
+            'body.max' => 'Der Text ist zu lang.',
             'teaser.max' => 'Der Anreißer darf höchstens 300 Zeichen lang sein.',
             'image.mimes' => 'Bilder müssen JPEG-, PNG- oder WebP-Dateien sein.',
             'image.max' => 'Das Bild darf höchstens 4 MB groß sein.',
