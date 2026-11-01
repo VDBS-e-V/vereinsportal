@@ -76,3 +76,19 @@ Entwurf: `docs/design/buttons-system-dunkel.png` (Quelltext `buttons-system-dunk
 | Grün | `#1f8362` | `#1d7a5b` | `#1a7054` | `#2aa87e` (Hover `#30bf90`) | `#0f3a2c` / `#14503c` / `#1a6650` |
 
 Schrift: Primär weiß (4,7–6,0 : 1), Sekundär Nebel `#f1f4f2`. Flächen: Seite `#180f18`, Karte `#261926`, erhöht `#381d39`. Primär-Fläche zur Seite 3,1–4,0 : 1; auf der erhöhten Fläche (`#381d39`) bleibt der Flächenkontrast unter 3 : 1, die Schrift (≥ 4,5 : 1) und der Fokusring tragen dort die Erkennbarkeit.
+
+### Neufassung: Dunkelmodus mit neutralem Hintergrund (ersetzt den Entwurf mit Aubergine)
+Bild: `docs/design/buttons-system-dunkel-neutral.png`. Entscheidung: Der Dunkelmodus bekommt keinen Lila-Stich im Hintergrund mehr. Lila und Grün sind reine Akzentfarben auf neutralem Graphit. Noch nicht im Code; betrifft später die Dark-Tokens von Seite, Karte und erhöhter Fläche im ganzen Portal.
+
+| Fläche | Wert |
+|---|---|
+| Seite | `#121416` |
+| Karte | `#1b1e21` |
+| Erhöht | `#25292d` |
+
+| | Fläche | Hover | Gedrückt | Schrift/Rand (Tertiär, Text) | Sekundär (Fläche/Hover/Gedrückt) |
+|---|---|---|---|---|---|
+| Lila | `#a355b2` | `#9b4dab` | `#90479f` | `#c379d2` (Hover `#d095dc`) | `#2d2336` / `#3b2f47` / `#4a3b58` |
+| Grün | `#1f8362` | `#1d7a5b` | `#1a7054` | `#2aa87e` (Hover `#30bf90`) | `#173329` / `#1d4536` / `#245a47` |
+
+Gerechnet: weiße Schrift auf Primär 4,7–5,9 : 1; Primär-Fläche zur Seite ≥ 3,1 : 1, zur Karte 3,6 : 1, zur erhöhten Fläche 3,1 : 1 (Standardzustand); Tertiär- und Text-Schrift auf allen drei Flächen ≥ 4,9 : 1; Deaktiviert 5,0 : 1; weißer Fokusring 18,5 : 1.
