@@ -36,7 +36,7 @@
                     @if ($article->published_at)
                         <div><dt>Veröffentlicht</dt><dd><time datetime="{{ $article->published_at->toIso8601String() }}">{{ $article->published_at->format('d.m.Y') }}</time></dd></div>
                     @endif
-                    @if ($article->wasChanged())
+                    @if ($article->editedAfterPublishing())
                         <div><dt>Geändert</dt><dd><time datetime="{{ $article->updated_at->toIso8601String() }}">{{ $article->updated_at->format('d.m.Y') }}</time></dd></div>
                     @endif
                     @if ($author)

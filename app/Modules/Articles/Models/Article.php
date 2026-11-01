@@ -69,7 +69,7 @@ class Article extends Model
     }
 
     /** Wurde der Artikel nach der Veröffentlichung noch geändert? (Toleranz: eine Stunde, damit das Anlegen nicht zählt) */
-    public function wasChanged(): bool
+    public function editedAfterPublishing(): bool
     {
         return $this->published_at !== null && $this->updated_at !== null && $this->updated_at->gt($this->published_at->copy()->addHour());
     }
