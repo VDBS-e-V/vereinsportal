@@ -32,7 +32,7 @@ Vier Rollen, jede in zwei Farben (Grün = Aktion `#057f5b`, Lila = Marke `#58275
 
 | Rolle | Definition | Grün | Lila |
 |---|---|---|---|
-| Primär | dunkle Fläche, weiße Schrift | `#057f5b` (Hover `#046a4d`, gedrückt `#035340`) | `#58275a` (Hover `#451d47`, gedrückt `#341534`) |
+| Primär | dunkle Fläche, weiße Schrift | `#057f5b` (Hover `#046045`, gedrückt `#034532`) | `#58275a` (Hover `#301531`, gedrückt `#1e0e1f`) |
 | Sekundär | helle Fläche, Ink-Schrift | `#dcf8ea` (Hover `#c3ecd6`, gedrückt `#a8e6cf`) | `#efe6f0` (Hover `#e0cfe2`, gedrückt `#d0b6d3`) |
 | Tertiär | weiß, Schrift und Rand in Farbe | Schrift/Rand `#057f5b`, Hover-Fläche `#dcf8ea` | Schrift/Rand `#58275a`, Hover-Fläche `#efe6f0` |
 | Text | nur Schrift in Farbe | `#057f5b`, Hover mit Fläche und Unterstrich | `#58275a`, ebenso |
@@ -73,7 +73,7 @@ Entwurf: `docs/design/buttons-system-dunkel.png` (Quelltext `buttons-system-dunk
 | | Fläche | Hover | Gedrückt | Schrift/Rand (Tertiär, Text) | Sekundär (Fläche/Hover/Gedrückt) |
 |---|---|---|---|---|---|
 | Lila | `#a455af` | `#9b4ea5` | `#8e4797` | `#c777d2` (Hover `#d394db`) | `#381d39` / `#4a2a4b` / `#5c395d` |
-| Grün | `#1f8362` | `#1d7a5b` | `#1a7054` | `#2aa87e` (Hover `#30bf90`) | `#0f3a2c` / `#14503c` / `#1a6650` |
+| Grün | `#1f8362` | `#18644b` | `#114937` | `#2aa87e` (Hover `#30bf90`) | `#0f3a2c` / `#14503c` / `#1a6650` |
 
 Schrift: Primär weiß (4,7–6,0 : 1), Sekundär Nebel `#f1f4f2`. Flächen: Seite `#180f18`, Karte `#261926`, erhöht `#381d39`. Primär-Fläche zur Seite 3,1–4,0 : 1; auf der erhöhten Fläche (`#381d39`) bleibt der Flächenkontrast unter 3 : 1, die Schrift (≥ 4,5 : 1) und der Fokusring tragen dort die Erkennbarkeit.
 
@@ -88,8 +88,8 @@ Bild: `docs/design/buttons-system-dunkel-neutral.png`. Entscheidung: Der Dunkelm
 
 | | Fläche | Hover | Gedrückt | Schrift/Rand (Tertiär, Text) | Sekundär (Fläche/Hover/Gedrückt) |
 |---|---|---|---|---|---|
-| Lila | `#a355b2` | `#9b4dab` | `#90479f` | `#c379d2` (Hover `#d095dc`) | `#2d2336` / `#3b2f47` / `#4a3b58` |
-| Grün | `#1f8362` | `#1d7a5b` | `#1a7054` | `#2aa87e` (Hover `#30bf90`) | `#173329` / `#1d4536` / `#245a47` |
+| Lila | `#a355b2` | `#7f3f8c` | `#5c2e65` | `#c379d2` (Hover `#d095dc`) | `#2d2336` / `#3b2f47` / `#4a3b58` |
+| Grün | `#1f8362` | `#18644b` | `#114937` | `#2aa87e` (Hover `#30bf90`) | `#173329` / `#1d4536` / `#245a47` |
 
 Gerechnet: weiße Schrift auf Primär 4,7–5,9 : 1; Primär-Fläche zur Seite ≥ 3,1 : 1, zur Karte 3,6 : 1, zur erhöhten Fläche 3,1 : 1 (Standardzustand); Tertiär- und Text-Schrift auf allen drei Flächen ≥ 4,9 : 1; Deaktiviert 5,0 : 1; weißer Fokusring 18,5 : 1.
 
@@ -97,3 +97,6 @@ Gerechnet: weiße Schrift auf Primär 4,7–5,9 : 1; Primär-Fläche zur Seite �
 - Entfernt: die Formen `arrow`, `line`, `link` und `outline` (Eigenschaft `shape`), der Name `quiet`, die Größe `xl`, die Komponente `link-button` samt Beispielseite und Manifest-Eintrag, die rohen `vdbs-btn`-Klassen in den Seiten.
 - Umgestellt: alle Aufrufe (Link-Buttons → Button mit Pfeil-Icon am Ende; Gefahr mit Rahmen → Gefahr gefüllt; Wiederholungs-Buttons und Assistent auf die Komponente).
 - Zur Zustimmung offen (Sonderdesigns): Gefahr (rot) als eigene Rolle, die Flächen `dark` und `brand` für Heros, die tote Alt-Ansicht (`resources/views/administration`, `identity`, `layouts/administration`) mit alten `btn`-Klassen.
+
+
+Änderung nach Rückmeldung: Primär-Hover und -Gedrückt sind deutlicher dunkler (Helligkeitsverhältnis zur Fläche ca. 1,5 : 1 beim Hover und 2,2 : 1 gedrückt, bei Lila hell 1,45 und 1,7, weil die Fläche schon sehr dunkel ist). Weiße Schrift bleibt ≥ 7 : 1. Im Dunkelmodus sinkt der Flächenkontrast von Hover und Gedrückt zur Seite unter 3 : 1; die Schrift trägt die Erkennbarkeit.

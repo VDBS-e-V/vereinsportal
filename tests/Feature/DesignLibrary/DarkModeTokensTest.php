@@ -58,12 +58,12 @@ it('uses neutral graphite surfaces in dark mode without any purple tint', functi
 
 it('defines the dark button colors exactly as designed', function () {
     expect(dmHex('--btn-lila-solid'))->toBe('#a355b2')
-        ->and(dmHex('--btn-lila-solid-hover'))->toBe('#9b4dab')
-        ->and(dmHex('--btn-lila-solid-press'))->toBe('#90479f')
+        ->and(dmHex('--btn-lila-solid-hover'))->toBe('#7f3f8c')
+        ->and(dmHex('--btn-lila-solid-press'))->toBe('#5c2e65')
         ->and(dmHex('--btn-lila-text'))->toBe('#c379d2')
         ->and(dmHex('--btn-green-solid'))->toBe('#1f8362')
-        ->and(dmHex('--btn-green-solid-hover'))->toBe('#1d7a5b')
-        ->and(dmHex('--btn-green-solid-press'))->toBe('#1a7054')
+        ->and(dmHex('--btn-green-solid-hover'))->toBe('#18644b')
+        ->and(dmHex('--btn-green-solid-press'))->toBe('#114937')
         ->and(dmHex('--btn-green-text'))->toBe('#2aa87e')
         ->and(dmHex('--btn-on-solid'))->toBe('#ffffff')
         ->and(dmHex('--btn-disabled-bg'))->toBe('#2d3135');

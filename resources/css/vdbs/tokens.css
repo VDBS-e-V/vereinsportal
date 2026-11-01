@@ -50,24 +50,25 @@
     --color-gruen-hell: #dcf8ea; /* ruhige Hinweisflächen */
     --color-gruen-leuchtend: #40cd9a; /* Grün auf dunklen Flächen (Dark Mode) */
     --color-gruen-pastell: #a8e6cf; /* Vereinsname auf dunklen Flächen */
-    --color-gruen-gedrueckt: #035340; /* Button primär gedrückt */
+    --color-gruen-aktion-hover: #046045; /* Button primär Hover (deutlich dunkler als die Fläche) */
+    --color-gruen-gedrueckt: #034532; /* Button primär gedrückt */
     --color-gruen-hell-hover: #c3ecd6; /* Button sekundär Hover */
-    --color-lila-hover: #451d47; /* Button primär Hover */
-    --color-lila-gedrueckt: #341534;
+    --color-lila-hover: #301531; /* Button primär Hover */
+    --color-lila-gedrueckt: #1e0e1f;
     --color-lila-hell: #efe6f0; /* Button sekundär */
     --color-lila-hell-hover: #e0cfe2;
     --color-lila-hell-gedrueckt: #d0b6d3;
     --color-gruen-nacht: #1f8362; /* Dark Mode: Button grün */
-    --color-gruen-nacht-hover: #1d7a5b;
-    --color-gruen-nacht-gedrueckt: #1a7054;
+    --color-gruen-nacht-hover: #18644b;
+    --color-gruen-nacht-gedrueckt: #114937;
     --color-gruen-nacht-tint: #173329;
     --color-gruen-nacht-tint-hover: #1d4536;
     --color-gruen-nacht-tint-gedrueckt: #245a47;
     --color-gruen-nacht-text: #2aa87e;
     --color-gruen-nacht-text-hover: #30bf90;
     --color-lila-nacht: #a355b2; /* Dark Mode: Button lila */
-    --color-lila-nacht-hover: #9b4dab;
-    --color-lila-nacht-gedrueckt: #90479f;
+    --color-lila-nacht-hover: #7f3f8c;
+    --color-lila-nacht-gedrueckt: #5c2e65;
     --color-lila-nacht-tint: #2d2336;
     --color-lila-nacht-tint-hover: #3b2f47;
     --color-lila-nacht-tint-gedrueckt: #4a3b58;
@@ -162,7 +163,7 @@
 
     /* Buttons: Tonfarben Grün (Aktion) und Lila (Marke); Rollen siehe components/actions/button-variants.css */
     --btn-green-solid: var(--color-gruen-dunkel);
-    --btn-green-solid-hover: var(--color-gruen-dunkler);
+    --btn-green-solid-hover: var(--color-gruen-aktion-hover);
     --btn-green-solid-press: var(--color-gruen-gedrueckt);
     --btn-green-soft: var(--color-gruen-hell);
     --btn-green-soft-hover: var(--color-gruen-hell-hover);
