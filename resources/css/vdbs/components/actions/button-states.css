@@ -50,12 +50,8 @@
     color: var(--btn-press-fg, var(--btn-hover-fg));
 }
 
-.vdbs-btn--shape-text:active:not(.vdbs-btn--disabled):not(.vdbs-btn--loading) {
-    background: var(--btn-press-bg, var(--btn-hover-bg));
-    color: var(--btn-press-fg, var(--btn-hover-fg));
-}
-
 .vdbs-btn--shape-outline:active:not(.vdbs-btn--disabled):not(.vdbs-btn--loading),
+.vdbs-btn--shape-text:active:not(.vdbs-btn--disabled):not(.vdbs-btn--loading),
 .vdbs-btn--shape-link:active:not(.vdbs-btn--disabled):not(.vdbs-btn--loading),
 .vdbs-btn--shape-line:active:not(.vdbs-btn--disabled):not(.vdbs-btn--loading) {
     background: var(--btn-press-bg, var(--btn-fill));

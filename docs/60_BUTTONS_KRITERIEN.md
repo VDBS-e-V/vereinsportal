@@ -42,7 +42,7 @@ Dunkelmodus: hellere Töne derselben Farbe (Grün `#40cd9a`, Lila `#d7b4da`) mit
 Offen: Gefahr (rot) und Gefahr-Text sind in dieser Fassung nicht enthalten. Hinweis: Die Sekundär-Fläche hebt sich nur schwach von Weiß ab (≈ 1,1 : 1); der Button wird über Beschriftung und Größe erkannt. Der Text-Button hat im Ruhezustand keinen Unterstrich (Definition „nur Text in Farbe“); erst bei Hover.
 
 ## Umsetzung im Code (Stand)
-- `<x-vdbs.actions.button>`: neue Eigenschaft `tone="green|lila"` (Standard Grün) und neue Rolle `variant="text"` (`quiet` bleibt als alter Name). Standardformen: primary und secondary = solid, tertiary = outline, text = text (neue Form), danger = solid. Die alten Formen `link` und `line` bleiben für Sonderfälle (Link-Button, Wiederholungszeilen).
+- `<x-vdbs.actions.button>`: neue Eigenschaft `tone="green|lila"` (Standard Grün) und neue Rolle `variant="text"` (`quiet` bleibt als alter Name). Jede Rolle bringt ihre Form mit (primary und secondary gefüllt, tertiary mit Rahmen, text ohne Rahmen). `shape` ist nur für Sonderformen da: `arrow`, `line`, `link` und `outline` (Gefahr).
 - Tokens (`tokens.css`): `--btn-green-*`, `--btn-lila-*` (solid, soft, text je mit hover und press), `--btn-on-solid`, `--btn-on-soft`, `--btn-disabled-*`, hell und in beiden Dark-Blöcken. Primitive Farben sind dort ergänzt.
 - CSS: `button-variants.css` (Tonfarben und Rollen), `button-shapes.css` (Form `text`), `button-states.css` (Gedrückt, Deaktiviert).
 - Migration der Seiten: `variant="tertiary"` (Textlink-Stil) → `text`; `variant="secondary" shape="outline"` → `tertiary`; `quiet` → `text`. Alle übrigen Sekundär-Buttons sind jetzt helle Flächen. Auf dunklen und Markenflächen (`on="dark|brand"`) gilt die bisherige Zuordnung weiter.

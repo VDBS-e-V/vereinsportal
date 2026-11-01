@@ -34,12 +34,12 @@
 
     background: transparent;
     border-color: transparent;
-    color: var(--btn-fg);
+    color: var(--btn-line);
 }
 
 .vdbs-btn--shape-text:hover {
-    background: var(--btn-hover-bg);
-    color: var(--btn-hover-fg);
+    background: var(--btn-fill);
+    color: var(--btn-fill-fg);
     text-decoration: underline;
     text-decoration-thickness: 2px;
     text-underline-offset: 0.2em;

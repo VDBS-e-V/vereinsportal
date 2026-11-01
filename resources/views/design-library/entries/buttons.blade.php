@@ -1,7 +1,6 @@
 @php
     $roles = ['primary' => 'Primär', 'secondary' => 'Sekundär', 'tertiary' => 'Tertiär', 'text' => 'Text', 'danger' => 'Gefahr'];
     $tones = ['green' => 'Grün', 'lila' => 'Lila'];
-    $shapes = ['solid', 'outline', 'text', 'link', 'arrow', 'line'];
     $states = ['Normal' => [], 'Deaktiviert' => ['disabled' => true], 'Lädt' => ['loading' => true]];
 @endphp
 
@@ -82,21 +81,40 @@
 </div>
 <p>Es ist immer ein Icon vor oder nach dem Text möglich. Reine Icon-Buttons sind 44 × 44 px und brauchen <code>label</code> (wird <code>aria-label</code> und <code>title</code>). Gefahr-Buttons tragen Icon <em>und</em> Text, außer in Tabellenzeilen mit Label.</p>
 
-<h2>Formen (<code>shape</code>)</h2>
-<p>Jede Rolle hat eine Standardform: primary und secondary = solid, tertiary = outline, text = text, danger = solid. Weitere Formen sind für besondere Fälle da.</p>
+<h2>Sonderformen</h2>
+<p>Die vier Rollen haben ihre Form eingebaut (Primär und Sekundär gefüllt, Tertiär mit Rahmen, Text ohne Rahmen). <code>shape</code> brauchen Sie nur für diese Sonderfälle:</p>
 <div class="vdbs-table-wrap">
     <table class="vdbs-table">
-        <caption class="vdbs-sr-only">Rollen und Formen</caption>
-        <thead><tr><th scope="col">Rolle</th>@foreach ($shapes as $shape)<th scope="col"><code>{{ $shape }}</code></th>@endforeach</tr></thead>
+        <caption class="vdbs-sr-only">Sonderformen</caption>
+        <thead><tr><th scope="col">Sonderform</th><th scope="col">Grün</th><th scope="col">Lila</th><th scope="col">Einsatz</th></tr></thead>
         <tbody>
-            @foreach ($roles as $variant => $name)
-                <tr>
-                    <th scope="row">{{ $name }}<br><code>{{ $variant }}</code></th>
-                    @foreach ($shapes as $shape)
-                        <td><x-vdbs.actions.button :variant="$variant" :shape="$shape" :icon="$variant === 'danger' ? 'trash-2' : null">Aktion</x-vdbs.actions.button></td>
-                    @endforeach
-                </tr>
-            @endforeach
+            <tr>
+                <th scope="row">Pfeil, primär<br><code>shape="arrow"</code></th>
+                <td><x-vdbs.actions.button shape="arrow">Weiter</x-vdbs.actions.button></td>
+                <td><x-vdbs.actions.button shape="arrow" tone="lila">Weiter</x-vdbs.actions.button></td>
+                <td>Große Aufrufe auf Startseiten (Kurzform <code>link-button</code>)</td>
+            </tr>
+            <tr>
+                <th scope="row">Pfeil, sekundär<br><code>variant="secondary" shape="arrow"</code></th>
+                <td><x-vdbs.actions.button variant="secondary" shape="arrow">Weiter</x-vdbs.actions.button></td>
+                <td><x-vdbs.actions.button variant="secondary" shape="arrow" tone="lila">Weiter</x-vdbs.actions.button></td>
+                <td>Zweiter Aufruf neben dem primären</td>
+            </tr>
+            <tr>
+                <th scope="row">Gefahr, zurückhaltend<br><code>variant="danger" shape="outline"</code></th>
+                <td colspan="2"><x-vdbs.actions.button variant="danger" shape="outline" icon="trash-2">Löschen</x-vdbs.actions.button></td>
+                <td>Gefahr-Aktion neben einem Primär-Button, immer mit Text</td>
+            </tr>
+            <tr>
+                <th scope="row">Link-Button<br><code>link-button variant="all"</code></th>
+                <td colspan="2"><x-vdbs.actions.link-button href="#" variant="all">Alle anzeigen</x-vdbs.actions.link-button></td>
+                <td>„Alle anzeigen“ am Ende einer Liste</td>
+            </tr>
+            <tr>
+                <th scope="row">Linie<br><code>link-button variant="line"</code></th>
+                <td colspan="2"><x-vdbs.actions.link-button href="#" variant="line">Mehr erfahren</x-vdbs.actions.link-button></td>
+                <td>Teaser mit Linie unten</td>
+            </tr>
         </tbody>
     </table>
 </div>
@@ -144,7 +162,7 @@
 ]">
     <tr><th scope="row"><code>variant</code></th><td>primary, secondary, tertiary, text, danger</td><td>Wichtigkeit der Aktion (<code>quiet</code> ist der alte Name von <code>text</code>)</td></tr>
     <tr><th scope="row"><code>tone</code></th><td>green (Standard), lila</td><td>Tonfarbe von primary, secondary, tertiary und text</td></tr>
-    <tr><th scope="row"><code>shape</code></th><td>solid, outline, text, link, arrow, line</td><td>Form; Standard je Rolle</td></tr>
+    <tr><th scope="row"><code>shape</code></th><td>arrow, line, link, outline, text</td><td>Nur für Sonderformen (siehe oben); jede Rolle bringt ihre Form mit</td></tr>
     <tr><th scope="row"><code>size</code></th><td>s, m (Standard), l, xl</td><td>36, 44, 52, 60 px Höhe</td></tr>
     <tr><th scope="row"><code>on</code></th><td>default (Standard), dark, brand</td><td>Fläche hinter dem Button; default = normale Seitenfläche, folgt dem Theme</td></tr>
     <tr><th scope="row"><code>href</code></th><td>URL</td><td>Link statt Button</td></tr>
