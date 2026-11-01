@@ -53,3 +53,6 @@ Route::middleware(['web', 'auth', 'can:school.area'])->prefix('schulen')->name('
     Route::post('/seminare/{seminar}/bestaetigen', [SchoolAreaController::class, 'confirm'])->whereNumber('seminar')->middleware('throttle:10,10')->name('seminars.confirm');
     Route::post('/seminare/{seminar}/rueckmeldung', [SchoolAreaController::class, 'feedback'])->whereNumber('seminar')->middleware('throttle:10,10')->name('seminars.feedback');
 });
+
+// Unbekannte Adressen laufen durch die Web-Middleware, damit die 404-Seite die Anmeldung kennt (Bereiche statt Login).
+Route::fallback(fn () => abort(404));
