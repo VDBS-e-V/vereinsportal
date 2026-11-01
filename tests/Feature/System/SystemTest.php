@@ -129,3 +129,19 @@ it('keeps secrets out of the stored output', function () {
 it('labels the system event in the audit log', function () {
     expect(AuditEvent::SystemTaskRun->label())->toBe('Systemaufgabe ausgeführt')->and(AuditEvent::categories())->toHaveKey(AuditEvent::SystemTaskRun->category());
 });
+
+it('gives a board member the system pages only after the console grants the administration role', function () {
+    $board = sysUser(RoleKey::BoardMember);
+
+    $this->actingAs($board)->get(route('admins.home'))->assertOk()->assertSee('Protokoll')->assertDontSee('Aufgaben');
+    $this->get(route('system.index'))->assertForbidden();
+
+    $this->artisan('role:grant-administration', ['email' => $board->email])->assertSuccessful();
+    $this->artisan('role:grant-administration', ['email' => $board->email])->assertSuccessful();
+    $this->artisan('role:grant-administration', ['email' => 'unbekannt@beispiel.example'])->assertFailed();
+
+    expect($board->activeRoleAssignments()->whereHas('role', fn ($q) => $q->where('key', RoleKey::Administration->value))->count())->toBe(1);
+
+    $this->actingAs($board->fresh())->get(route('admins.home'))->assertOk()->assertSee('Aufgaben');
+    $this->get(route('system.index'))->assertOk();
+});
