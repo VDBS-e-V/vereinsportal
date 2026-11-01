@@ -363,7 +363,7 @@
         <div class="vdbs-breadcrumb-bar">
             <x-vdbs.layout.container>@stack('vdbs-breadcrumb')</x-vdbs.layout.container>
         </div>
-    @endhasstack
+    @endif
 
     @if ($showSettingsNavigation)
         <div class="account-local-navigation">

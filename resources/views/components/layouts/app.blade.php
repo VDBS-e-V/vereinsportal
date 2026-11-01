@@ -22,7 +22,7 @@
         <div class="vdbs-breadcrumb-bar">
             <x-vdbs.layout.container :width="$width">@stack('vdbs-breadcrumb')</x-vdbs.layout.container>
         </div>
-    @endhasstack
+    @endif
 
     <x-vdbs.feedback.flash />
 

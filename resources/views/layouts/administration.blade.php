@@ -121,7 +121,7 @@
         <div class="vdbs-breadcrumb-bar">
             <x-vdbs.layout.container>@stack('vdbs-breadcrumb')</x-vdbs.layout.container>
         </div>
-    @endhasstack
+    @endif
     <main id="administration-content" class="site-main vdbs-public-main">
         <x-vdbs.frame width="normal" gutter="both">
             @if (session('status'))
