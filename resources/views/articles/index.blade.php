@@ -1,10 +1,11 @@
 @php
     $category ??= null;
+    $tag ??= null;
     $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Artikel']];
 @endphp
 
 <x-layouts.app title="Artikel" width="wide">
-    <x-vdbs.layout.page-header :title="$category ?? 'Artikel'" :lead="$category ? 'Artikel in dieser Kategorie.' : 'Aktuelle Themenartikel aus dem Verein.'" :breadcrumb="$crumbs" />
+    <x-vdbs.layout.page-header :title="$tag ? 'Schlagwort: '.$tag : ($category ?? 'Artikel')" :lead="$tag ? 'Artikel mit diesem Schlagwort.' : ($category ? 'Artikel in dieser Kategorie.' : 'Aktuelle Themenartikel aus dem Verein.')" :breadcrumb="$crumbs" />
 
     @if ($articles->isEmpty())
         <x-vdbs.feedback.empty-state title="Noch keine Artikel" icon="clipboard-list">

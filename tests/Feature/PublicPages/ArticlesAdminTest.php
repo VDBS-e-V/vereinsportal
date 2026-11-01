@@ -155,15 +155,23 @@ it('searches the article list', function () {
     $this->get(route('articles.admin.index', ['q' => 'Alpha']))->assertSee('Alpha Artikel')->assertDontSee('Beta Artikel');
 });
 
-it('shows subtitle, meta, buttons and category link on the article and filters the list by category', function () {
+it('shows subtitle, dates on top, tags, optional author, boxes and buttons and filters by category and tag', function () {
     $author = Person::factory()->create(['first_name' => 'Anna', 'last_name' => 'Autorin']);
     $user = User::factory()->create(['person_id' => $author->id]);
-    $article = Article::query()->create(['slug' => 'untertitel-test', 'title' => 'Titel', 'subtitle' => 'Ein Untertitel', 'teaser' => 'Anreißer', 'body' => '<p>Text</p>', 'category' => 'Presse', 'status' => 'published', 'published_at' => now()->subDays(3), 'created_by_user_id' => $user->id]);
+    $base = ['slug' => 'untertitel-test', 'title' => 'Titel', 'subtitle' => 'Ein Untertitel', 'teaser' => 'Anreißer', 'body' => '<p>Text</p>', 'category' => 'Presse', 'tags' => ['Demokratie', 'Berlin'], 'status' => 'published', 'published_at' => now()->subDays(3), 'created_by_user_id' => $user->id];
+    $article = Article::query()->create($base);
     Article::query()->create(['slug' => 'andere', 'title' => 'Andere Kategorie', 'body' => 'x', 'category' => 'Verein', 'status' => 'published', 'published_at' => now()->subDay()]);
 
     $this->get(route('articles.public.show', $article->slug))->assertOk()
-        ->assertSee('Ein Untertitel')->assertSee('Anna Autorin')->assertSee('Veröffentlicht')
+        ->assertSee('Ein Untertitel')->assertSee('Veröffentlicht am')->assertSee('Schlagwörter')->assertSee('Demokratie')
+        ->assertDontSee('Anna Autorin')->assertDontSee('Über die Autor:in')->assertDontSee('Weitere Informationen')
         ->assertSee('Alle Artikel ansehen')->assertSee('Zur Kategorie');
 
+    $article->update(['show_author' => true, 'author_box' => true, 'author_text' => '<p>Biografie</p>', 'more_info' => '<p>Mehr dazu</p>']);
+
+    $this->get(route('articles.public.show', $article->slug))->assertOk()
+        ->assertSee('Von Anna Autorin')->assertSee('Über die Autor:in')->assertSee('Biografie')->assertSee('Weitere Informationen')->assertSee('Mehr dazu');
+
     $this->get(route('articles.public.index', ['kategorie' => 'Presse']))->assertOk()->assertSee('Titel')->assertDontSee('Andere Kategorie');
+    $this->get(route('articles.public.index', ['schlagwort' => 'Berlin']))->assertOk()->assertSee('Titel')->assertDontSee('Andere Kategorie');
 });

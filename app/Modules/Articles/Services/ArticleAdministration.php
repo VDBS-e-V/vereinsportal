@@ -18,7 +18,7 @@ final class ArticleAdministration
     /**
      * @param  array<string, mixed>  $data  validierte Formulardaten
      */
-    public function create(array $data, ?UploadedFile $image, User $by): Article
+    public function create(array $data, ?UploadedFile $image, User $by, ?UploadedFile $authorImage = null): Article
     {
         $article = Article::query()->create($this->columns($data) + [
             'slug' => $this->uniqueSlug((string) $data['title']),
@@ -30,6 +30,10 @@ final class ArticleAdministration
             $article->forceFill(['image_path' => $this->storeImage($image)])->save();
         }
 
+        if ($authorImage !== null) {
+            $article->forceFill(['author_image_path' => $this->storeImage($authorImage)])->save();
+        }
+
         AuditLog::record(AuditEvent::ArticleCreated, $by, null, ['titel' => $article->title]);
 
         return $article;
@@ -38,7 +42,7 @@ final class ArticleAdministration
     /**
      * @param  array<string, mixed>  $data
      */
-    public function update(Article $article, array $data, ?UploadedFile $image, bool $removeImage, User $by): Article
+    public function update(Article $article, array $data, ?UploadedFile $image, bool $removeImage, User $by, ?UploadedFile $authorImage = null, bool $removeAuthorImage = false): Article
     {
         $article->fill($this->columns($data) + ['updated_by_user_id' => $by->id]);
 
@@ -50,6 +54,15 @@ final class ArticleAdministration
             $article->image_path = null;
             $article->image_alt = null;
             $article->image_credit = null;
+        }
+
+        if ($authorImage !== null) {
+            $this->deleteAuthorImage($article);
+            $article->author_image_path = $this->storeImage($authorImage);
+        } elseif ($removeAuthorImage) {
+            $this->deleteAuthorImage($article);
+            $article->author_image_path = null;
+            $article->author_image_credit = null;
         }
 
         $changed = array_values(array_diff(array_keys($article->getDirty()), ['updated_at', 'updated_by_user_id']));
@@ -67,6 +80,7 @@ final class ArticleAdministration
         AuditLog::record(AuditEvent::ArticleDeleted, $by, null, ['titel' => $article->title]);
 
         $this->deleteImage($article);
+        $this->deleteAuthorImage($article);
         $article->delete();
     }
 
@@ -87,11 +101,38 @@ final class ArticleAdministration
             'category' => $clean($data['category'] ?? null) ?? 'Themenartikel',
             'image_alt' => $clean($data['image_alt'] ?? null),
             'image_credit' => $clean($data['image_credit'] ?? null),
+            'tags' => $this->tags($data['tags'] ?? null),
+            'show_author' => (bool) ($data['show_author'] ?? false),
+            'author_name' => $clean($data['author_name'] ?? null),
+            'author_box' => (bool) ($data['author_box'] ?? false),
+            'author_text' => filled(\App\Support\Html\RichText::clean($data['author_text'] ?? null)) ? \App\Support\Html\RichText::clean($data['author_text']) : null,
+            'author_image_credit' => $clean($data['author_image_credit'] ?? null),
+            'more_info' => \App\Support\Html\RichText::clean($data['more_info'] ?? null),
             'status' => $published ? Article::STATUS_PUBLISHED : Article::STATUS_DRAFT,
             // Das Datum entscheidet, ab wann der Artikel zu sehen ist (auch in der Zukunft); ohne Angabe gilt jetzt
             'published_at' => $published ? (filled($data['published_at'] ?? null) ? $data['published_at'] : now()) : null,
             'featured' => (bool) ($data['featured'] ?? false),
         ];
+    }
+
+    /**
+     * Schlagwörter aus „a, b, c“: getrimmt, ohne Doppelte (Groß-/Kleinschreibung egal), höchstens zehn.
+     *
+     * @return list<string>|null
+     */
+    private function tags(mixed $value): ?array
+    {
+        $list = [];
+
+        foreach (preg_split('/[,;\n]+/', (string) $value) ?: [] as $tag) {
+            $tag = Str::limit(trim($tag), 40, '');
+
+            if ($tag !== '' && ! in_array(mb_strtolower($tag), array_map('mb_strtolower', $list), true)) {
+                $list[] = $tag;
+            }
+        }
+
+        return $list === [] ? null : array_slice($list, 0, 10);
     }
 
     private function storeImage(UploadedFile $image): string
@@ -106,6 +147,13 @@ final class ArticleAdministration
         Storage::disk(self::DISK)->putFileAs(dirname($path), $image, basename($path));
 
         return $path;
+    }
+
+    private function deleteAuthorImage(Article $article): void
+    {
+        if (filled($article->author_image_path)) {
+            Storage::disk(self::DISK)->delete($article->author_image_path);
+        }
     }
 
     private function deleteImage(Article $article): void

@@ -47,19 +47,19 @@ class ArticleAdminController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $article = $this->articles->create($this->validated($request), $request->file('image'), $this->actor($request));
+        $article = $this->articles->create($this->validated($request), $request->file('image'), $this->actor($request), $request->file('author_image'));
 
         return redirect()->route('articles.admin.edit', $article)->with('success', 'Der Artikel wurde gespeichert.');
     }
 
     public function edit(Article $article): View
     {
-        return view('articles.admin-form', ['article' => $article, 'values' => $article->only(['title', 'subtitle', 'teaser', 'body', 'category', 'image_alt', 'image_credit', 'status', 'featured']) + ['published_at' => ($article->published_at ?? now())->format('Y-m-d\TH:i')]]);
+        return view('articles.admin-form', ['article' => $article, 'values' => $article->only(['title', 'subtitle', 'teaser', 'body', 'category', 'image_alt', 'image_credit', 'status', 'featured', 'show_author', 'author_name', 'author_box', 'author_text', 'author_image_credit', 'more_info']) + ['tags' => implode(', ', $article->tagList()), 'published_at' => ($article->published_at ?? now())->format('Y-m-d\TH:i')]]);
     }
 
     public function update(Request $request, Article $article): RedirectResponse
     {
-        $this->articles->update($article, $this->validated($request, $article), $request->file('image'), $request->boolean('remove_image'), $this->actor($request));
+        $this->articles->update($article, $this->validated($request, $article), $request->file('image'), $request->boolean('remove_image'), $this->actor($request), $request->file('author_image'), $request->boolean('remove_author_image'));
 
         return redirect()->route('articles.admin.edit', $article)->with('success', 'Die Änderungen wurden gespeichert.');
     }
@@ -75,6 +75,7 @@ class ArticleAdminController extends Controller
     private function validated(Request $request, ?Article $article = null): array
     {
         $request->merge(['body' => \App\Support\Html\RichText::normalize($request->input('body'))]);
+        $hasAuthorImage = $request->hasFile('author_image') || ($article !== null && filled($article->author_image_path) && ! $request->boolean('remove_author_image'));
 
         $hasImage = $request->hasFile('image') || ($article !== null && filled($article->image_path) && ! $request->boolean('remove_image'));
 
@@ -88,6 +89,15 @@ class ArticleAdminController extends Controller
             'image_alt' => [$hasImage ? 'required' : 'nullable', 'string', 'max:200'],
             'image_credit' => [$hasImage ? 'required' : 'nullable', 'string', 'max:200'],
             'remove_image' => ['nullable', 'boolean'],
+            'tags' => ['nullable', 'string', 'max:500'],
+            'show_author' => ['nullable', 'boolean'],
+            'author_name' => ['nullable', 'string', 'max:120'],
+            'author_box' => ['nullable', 'boolean'],
+            'author_text' => ['nullable', 'string', 'max:5000'],
+            'author_image' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'author_image_credit' => [$hasAuthorImage ? 'required' : 'nullable', 'string', 'max:200'],
+            'remove_author_image' => ['nullable', 'boolean'],
+            'more_info' => ['nullable', 'string', 'max:5000'],
             'status' => ['required', Rule::in([Article::STATUS_DRAFT, Article::STATUS_PUBLISHED])],
             'published_at' => ['nullable', 'date'],
             'featured' => ['nullable', 'boolean'],
@@ -97,6 +107,9 @@ class ArticleAdminController extends Controller
             'body.max' => 'Der Text ist zu lang.',
             'subtitle.max' => 'Der Untertitel darf höchstens 250 Zeichen lang sein.',
             'teaser.max' => 'Der Anreißer darf höchstens 300 Zeichen lang sein.',
+            'author_image.mimes' => 'Das Autorenbild muss eine JPEG-, PNG- oder WebP-Datei sein.',
+            'author_image.max' => 'Das Autorenbild darf höchstens 4 MB groß sein.',
+            'author_image_credit.required' => 'Bitte nennen Sie die Quelle des Autorenbilds.',
             'image.mimes' => 'Bilder müssen JPEG-, PNG- oder WebP-Dateien sein.',
             'image.max' => 'Das Bild darf höchstens 4 MB groß sein.',
             'image_alt.required' => 'Bitte beschreiben Sie das Bild kurz (Alternativtext).',

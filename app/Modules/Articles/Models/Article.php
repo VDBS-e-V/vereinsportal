@@ -30,11 +30,11 @@ class Article extends Model
         return array_combine($list, $list);
     }
 
-    protected $fillable = ['slug', 'title', 'subtitle', 'teaser', 'body', 'category', 'image_path', 'image_alt', 'image_credit', 'status', 'published_at', 'featured', 'created_by_user_id', 'updated_by_user_id'];
+    protected $fillable = ['slug', 'title', 'subtitle', 'teaser', 'body', 'category', 'image_path', 'image_alt', 'image_credit', 'tags', 'show_author', 'author_name', 'author_box', 'author_text', 'author_image_path', 'author_image_credit', 'more_info', 'status', 'published_at', 'featured', 'created_by_user_id', 'updated_by_user_id'];
 
     protected function casts(): array
     {
-        return ['published_at' => 'datetime', 'featured' => 'boolean'];
+        return ['published_at' => 'datetime', 'featured' => 'boolean', 'tags' => 'array', 'show_author' => 'boolean', 'author_box' => 'boolean'];
     }
 
     /** Veröffentlicht und nicht in der Zukunft datiert. */
@@ -60,12 +60,28 @@ class Article extends Model
         return \App\Support\Html\RichText::render($this->body);
     }
 
-    /** Name der Autorin oder des Autors (Person des anlegenden Kontos), sonst nichts. */
+    /** Name der Autorin oder des Autors: freie Angabe, sonst die Person des anlegenden Kontos. */
     public function authorName(): ?string
     {
-        $name = $this->createdBy?->person?->fullName();
+        $name = filled($this->author_name) ? $this->author_name : $this->createdBy?->person?->fullName();
 
-        return filled($name) ? $name : null;
+        return filled($name) ? (string) $name : null;
+    }
+
+    /** @return list<string> */
+    public function tagList(): array
+    {
+        return array_values(array_filter((array) $this->tags, 'is_string'));
+    }
+
+    public function authorTextHtml(): string
+    {
+        return \App\Support\Html\RichText::render($this->author_text);
+    }
+
+    public function moreInfoHtml(): string
+    {
+        return \App\Support\Html\RichText::render($this->more_info);
     }
 
     /** Wurde der Artikel nach der Veröffentlichung noch geändert? (Toleranz: eine Stunde, damit das Anlegen nicht zählt) */

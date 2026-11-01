@@ -20,7 +20,7 @@
     @hasstack('vdbs-breadcrumb')
         {{-- Gleiche Breite und Seitenränder wie der Seiteninhalt, damit die Brotkrumen bündig beginnen --}}
         <div class="vdbs-breadcrumb-bar">
-            <x-vdbs.layout.container :width="$width">@stack('vdbs-breadcrumb')</x-vdbs.layout.container>
+            <x-vdbs.layout.container :width="$width === 'full' ? 'default' : $width">@stack('vdbs-breadcrumb')</x-vdbs.layout.container>
         </div>
     @endif
 

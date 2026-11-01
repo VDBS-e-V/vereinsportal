@@ -25,7 +25,13 @@ class PublicArticleController extends Controller
             $query->where('category', $category);
         }
 
-        return view('articles.index', ['articles' => $query->paginate(self::PER_PAGE)->withQueryString(), 'category' => $category !== '' ? $category : null]);
+        $tag = trim((string) $request->query('schlagwort', ''));
+
+        if ($tag !== '') {
+            $query->whereJsonContains('tags', $tag);
+        }
+
+        return view('articles.index', ['articles' => $query->paginate(self::PER_PAGE)->withQueryString(), 'category' => $category !== '' ? $category : null, 'tag' => $tag !== '' ? $tag : null]);
     }
 
     public function show(string $slug): View
@@ -35,6 +41,16 @@ class PublicArticleController extends Controller
         abort_unless($article->isVisible() || Gate::allows('articles.manage'), 404);
 
         return view('articles.show', ['article' => $article, 'preview' => ! $article->isVisible()]);
+    }
+
+    public function authorImage(string $slug): StreamedResponse
+    {
+        $article = Article::query()->where('slug', $slug)->firstOrFail();
+
+        abort_unless(($article->isVisible() || Gate::allows('articles.manage')) && filled($article->author_image_path), 404);
+        abort_unless(Storage::disk(ArticleAdministration::DISK)->exists($article->author_image_path), 404);
+
+        return Storage::disk(ArticleAdministration::DISK)->response($article->author_image_path, null, ['Cache-Control' => 'public, max-age=3600']);
     }
 
     public function image(string $slug): StreamedResponse
