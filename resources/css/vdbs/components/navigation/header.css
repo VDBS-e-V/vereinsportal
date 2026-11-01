@@ -152,3 +152,9 @@
 @media (max-width: 1099px) {
     .vdbs-main-nav__submenu { padding-inline-start: var(--space-5); }
 }
+
+/* Bereichstitel führt zur Startseite des Bereichs */
+.vdbs-header__title a { color: inherit; text-decoration: none; }
+.vdbs-header__title a:hover { text-decoration: underline; }
+
+.vdbs-area-pages { display: grid; gap: var(--space-4); margin: 0; padding: 0; list-style: none; }

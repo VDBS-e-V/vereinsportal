@@ -17,6 +17,9 @@ use App\Modules\Onboarding\Services\OnboardingDocuments;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarSession;
+use App\Support\PortalAreas;
+use App\Support\PortalNavigation;
+use App\Support\TaskOverview;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -71,6 +74,25 @@ class PortalAreaController extends Controller
             'seminarsPlanned' => Seminar::query()->whereIn('status', [SeminarStatus::Scheduled->value, SeminarStatus::Confirmed->value])->count(),
             'events' => Event::query()->where('status', EventStatus::Open->value)->count(),
         ]]);
+    }
+
+    /** Startseite der Bereiche Teamende, Koordination, Geschäftsstelle und Admins: Aufgaben und die Seiten des Bereichs als Karten. */
+    public function area(Request $request, string $area): View
+    {
+        $area = PortalAreas::from($area);
+        $user = $request->user();
+
+        abort_unless(PortalNavigation::canEnter($area, $user), 403);
+
+        $routeName = $request->route()->getName();
+        $pages = array_values(array_filter(PortalNavigation::pages($area, $user, $routeName), fn (array $page): bool => ! $page['current']));
+        $hrefs = array_column($pages, 'href');
+
+        return view('portal.area', [
+            'area' => $area,
+            'pages' => $pages,
+            'tasks' => array_values(array_filter(TaskOverview::for($user), fn (array $task): bool => in_array(strtok($task['href'], '?'), array_map(fn (string $href): string => strtok($href, '?'), $hrefs), true))),
+        ]);
     }
 
     /** Bildungsreferenten: Überblick über Seminare und Veranstaltungen (nur lesen). */

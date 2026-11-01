@@ -10,6 +10,7 @@
     $navArea = $user === null ? \App\Support\PortalAreas::Start : $currentArea;
     $areaPages = $navArea ? \App\Support\PortalNavigation::pages($navArea, $user, $routeName) : [];
     $hasAreaMenu = count($visibleAreas) > 0 || $systems->isNotEmpty();
+    $headerArea = ($user !== null || $currentArea === \App\Support\PortalAreas::Start) ? $currentArea : null;
     $headerTitle = ($user !== null || $currentArea === \App\Support\PortalAreas::Start ? $currentArea?->label() : null) ?? ($title ?? 'Start');
 @endphp
 
@@ -50,7 +51,13 @@
     <div class="vdbs-container vdbs-header__main">
         <div>
             <p class="vdbs-header__eyebrow">VDBS Portal</p>
-            <p class="vdbs-header__title">{{ $headerTitle }}</p>
+            <p class="vdbs-header__title">
+                @if ($headerArea)
+                    <a href="{{ \App\Support\PortalNavigation::home($headerArea) }}">{{ $headerTitle }}</a>
+                @else
+                    {{ $headerTitle }}
+                @endif
+            </p>
         </div>
 
         <div class="vdbs-header__actions vdbs-header__menu-panel" id="portal-menu-actions">

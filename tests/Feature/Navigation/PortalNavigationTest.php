@@ -147,12 +147,12 @@ it('lists the pages of an area by capability and marks the current one', functio
     $staff = pnUser(RoleKey::AdministrationStaff);
     $admin = pnUser(RoleKey::Administration);
 
-    expect(array_column(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff), 'label'))->toBe(['Nutzer', 'Zugangsanträge', 'Artikel', 'Seiten', 'Personen'])
-        ->and(array_column(PortalNavigation::pages(PortalAreas::Admins, $staff), 'label'))->toBe([])
-        ->and(array_column(PortalNavigation::pages(PortalAreas::Admins, $admin), 'label'))->toBe(['Protokoll', 'Design-Bibliothek'])
-        ->and(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff, 'admin.people.show')[4]['current'])->toBeTrue()
+    expect(array_column(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff), 'label'))->toBe(['Übersicht', 'Nutzer', 'Zugangsanträge', 'Artikel', 'Seiten', 'Personen'])
+        ->and(array_column(PortalNavigation::pages(PortalAreas::Admins, $staff), 'label'))->toBe(['Übersicht'])
+        ->and(array_column(PortalNavigation::pages(PortalAreas::Admins, $admin), 'label'))->toBe(['Übersicht', 'Protokoll', 'Design-Bibliothek'])
+        ->and(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff, 'admin.people.show')[5]['current'])->toBeTrue()
         ->and(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff, 'admin.people.show')[0]['current'])->toBeFalse()
-        ->and(PortalNavigation::home(PortalAreas::Geschaeftsstelle, $staff))->toBe(route('admin.users.index'));
+        ->and(PortalNavigation::home(PortalAreas::Geschaeftsstelle, $staff))->toBe(route('office.home'));
 });
 
 // ---------- Kopfbereich ----------
@@ -289,4 +289,31 @@ it('restricts the design library to administration and board', function () {
     $this->actingAs(pnUser(RoleKey::Member))->get(route('design-library.index'))->assertForbidden();
     $this->actingAs(pnUser(RoleKey::BoardMember))->get(route('design-library.index'))->assertOk();
     $this->actingAs(pnUser(RoleKey::Administration))->get(route('design-library.index'))->assertOk();
+});
+
+// ---------- Startseiten der Bereiche und Brotkrumen ----------
+
+it('gives every area a start page that is the first breadcrumb', function () {
+    foreach (PortalAreas::cases() as $area) {
+        expect(PortalNavigation::home($area))->toBe(route(PortalNavigation::catalog()[$area->value]['home']));
+    }
+
+    $crumbs = PortalNavigation::breadcrumb([['label' => 'Start', 'href' => '/'], ['label' => 'Geschäftsstelle'], ['label' => 'Artikel']], 'articles.admin.index');
+
+    expect($crumbs)->toBe([['label' => 'Geschäftsstelle', 'href' => route('office.home')], ['label' => 'Artikel']])
+        ->and(PortalNavigation::breadcrumb([['label' => 'Start', 'href' => '/'], ['label' => 'Verwaltung'], ['label' => 'Protokoll']], 'admin.audit.index')[0])->toBe(['label' => 'Admins', 'href' => route('admins.home')])
+        ->and(PortalNavigation::breadcrumb([['label' => 'Start', 'href' => '/'], ['label' => 'Koordination'], ['label' => 'Schulen']], 'partners.index')[0]['href'])->toBe(route('coordination.home'))
+        ->and(PortalNavigation::breadcrumb([['label' => 'Start', 'href' => '/'], ['label' => 'Impressum']], 'login'))->toBe([['label' => 'Start', 'href' => '/'], ['label' => 'Impressum']])
+        ->and(PortalNavigation::breadcrumb([['label' => 'Start', 'href' => '/'], ['label' => 'Koordination'], ['label' => 'Übersicht']], 'coordination.home'))->toBe([['label' => 'Koordination']]);
+});
+
+it('shows the area start pages only to people of the area and links to them from the header title', function () {
+    $staff = pnUser(RoleKey::AdministrationStaff);
+
+    $this->actingAs($staff)->get(route('office.home'))->assertOk()->assertSee('Zugangsanträge')->assertSee('href="'.route('office.home').'"', false);
+    $this->actingAs($staff)->get(route('admins.home'))->assertForbidden();
+    $this->actingAs(pnUser(RoleKey::Administration))->get(route('admins.home'))->assertOk()->assertSee('Protokoll');
+    $this->actingAs(pnUser(RoleKey::Coordination))->get(route('coordination.home'))->assertOk();
+    $this->actingAs(pnUser(RoleKey::Team))->get(route('team.home'))->assertOk();
+    $this->actingAs(pnUser(RoleKey::Team))->get(route('coordination.home'))->assertForbidden();
 });
