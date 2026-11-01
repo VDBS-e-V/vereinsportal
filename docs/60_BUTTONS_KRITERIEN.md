@@ -11,7 +11,7 @@ Stand: Entwurf für die gemeinsame Umgestaltung des Pakets Aktionen. Bild: `docs
 Hinweis: Mehrere Werte (44 px, 8 px Abstand, Beschriftungslänge) stammen aus Designsystemen und Artikeln, nicht aus Normen. Die Werte aus WCAG sind verbindlich.
 
 ## Erfolgskriterien (Merkmale eines guten Button-Systems)
-1. **Eindeutige Hierarchie:** fünf Rollen (Primär, Sekundär, Tertiär mit Rand, Text, Gefahr); pro Ansicht höchstens eine Primär-Aktion; Gefahr abgesetzt, nie vorausgewählt.
+1. **Eindeutige Hierarchie:** sechs Rollen (Primär Grün, Sekundär Lila, Tertiär mit Rand, Text, Gefahr, Gefahr als Text); pro Ansicht höchstens eine Primär-Aktion; Gefahr abgesetzt, nie vorausgewählt.
 2. **Kontrast Schrift ≥ 4,5 : 1** (WCAG 1.4.3) in jedem Zustand außer „Deaktiviert“ (dort ausgenommen, wir halten trotzdem 4,5 : 1).
 3. **Kontrast von Fläche oder Rand ≥ 3 : 1** gegen die Umgebung (WCAG 1.4.11), im hellen und im dunklen Modus.
 4. **Zielgröße:** Standard 44 px hoch, Icon-Button 44 × 44 px, kompakt 36 px (nur in dichten Tabellen); nie unter 24 px (WCAG 2.5.8); Abstand zwischen Buttons ≥ 8 px.
@@ -28,4 +28,4 @@ Hinweis: Mehrere Werte (44 px, 8 px Abstand, Beschriftungslänge) stammen aus De
 15. **Responsiv:** auf dem Handy volle Breite und gestapelt, Primär zuerst.
 
 ## Systemvorschlag (Bild)
-Farben (aus `tokens.css`): Primär `--bg-action` (#057f5b, Weiß 5,0 : 1), Hover #046a4d (6,6), Gedrückt #035340 (9,1); Sekundär Ink-Rand auf Weiß (17,9); Tertiär Aktionsgrün als Rand und Schrift (5,0); Gefahr #b42318 (6,6). Dunkelmodus: helles Grün #40cd9a mit dunkler Schrift (9,3), Rand mauve (4,8). Text-Button: Schrift #057f5b auf Weiß 5,0 : 1, Hover #046a4d auf #dcf8ea 5,9 : 1, gedrückt #035340 auf #c3ecd6. Neu gegenüber den Tokens sind nur die Zustände „Gedrückt“ die hellgrünen Flächen des Text-Buttons und die graue Fläche für „Deaktiviert“; sie müssten als Tokens angelegt werden.
+Farben (aus `tokens.css`): Primär `--bg-action` (#057f5b, Weiß 5,0 : 1), Hover #046a4d (6,6), Gedrückt #035340 (9,1); Sekundär **Lila** #58275a (zweite Markenfarbe) als Rand und Schrift auf Weiß (11,3), Hover #efe6f0, gedrückt #e0cfe2; Tertiär Aktionsgrün als Rand und Schrift (5,0); Gefahr #b42318 (6,6). Dunkelmodus: helles Grün #40cd9a mit dunkler Schrift (9,3), Sekundär mit hellem Rand `--color-mauve-400` (7,0) und Schrift Nebel, weil Lila auf dunklem Grund zu wenig Kontrast hätte; Hover-Fläche `--color-aubergine-800`. Text-Button: Schrift #057f5b auf Weiß 5,0 : 1, Hover #046a4d auf #dcf8ea 5,9 : 1, gedrückt #035340 auf #c3ecd6. Gefahr als Text: Rot #b42318 auf Weiß 6,6 : 1, Hover #8f1a10 auf #fde8e6. Neu gegenüber den Tokens sind nur die Zustände „Gedrückt“ die hellgrünen Flächen des Text-Buttons und die graue Fläche für „Deaktiviert“; sie müssten als Tokens angelegt werden.
