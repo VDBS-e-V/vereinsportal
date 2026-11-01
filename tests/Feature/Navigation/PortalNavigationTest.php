@@ -192,7 +192,7 @@ it('shows the account pages in row two without highlighting an area', function (
 
     expect($html)
         ->toContain('aria-label="Seiten im Bereich Konto"')
-        ->toMatch('/aria-current="page"\s*>Sicherheit</')
+        ->toMatch('/aria-current="page"\s*>Zwei-Faktor</')
         ->not->toMatch('/aria-current="true"/');
 
     foreach (['Profil', 'E-Mail', 'Passwort', 'Sitzungen'] as $label) {

@@ -154,8 +154,10 @@ final class AccountDeletion
             }
 
             if (filled($user->avatar_path)) {
-                Storage::disk('public')->delete($user->avatar_path);
+                Storage::disk(ProfilePhotos::DISK)->delete($user->avatar_path);
             }
+
+            $user->profile()->delete();
 
             Event::dispatch(new AccountAnonymizing($user, $person));
 

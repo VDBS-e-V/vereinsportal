@@ -1,6 +1,18 @@
 # Konzept: Profil und Konto
 
-Stand: Entwurf zur Abstimmung. Es ist noch nichts umgesetzt.
+Stand: Schritte 1 und 2 sind umgesetzt (Variante A der Menüleiste); die Seiten unter „Einstellungen“ (Benachrichtigungen, Darstellung) und Schritt 3 und 4 folgen.
+
+## 0. Umgesetzt (Variante A)
+
+Menü im Bereich Konto: **Profil ▾** (Mein Profil, Profil bearbeiten, Sichtbarkeit) · **Stammdaten** · **Anmeldung ▾** (E-Mail, Passwort, Zwei-Faktor, Sitzungen) · **Mitgliedschaft** · **Daten & Löschung**. Die Übersicht (`account.home`) ist über den Bereichstitel erreichbar. Das Avatar-Menü bietet Mein Profil, Mein Konto und Abmelden.
+
+- Entscheidungen (Standardantworten): Bereich heißt weiter „Konto“; alles ist standardmäßig privat; der Anzeigename ist frei wählbar (ohne Eingabe: Vorname und Initial); Profil für alle Angemeldeten außer Schulkonten (403, kein Menüpunkt); Fotos sind dabei.
+- Routen: `account.home`, `account.profile`, `account.profile.edit`, `account.profile.update`, `account.profile.visibility`, `account.profile.visibility.update`, `account.data`, `account.data.update`, `account.roles`, `profile.photo`. Die frühere Stammdaten-Seite unter `/konto/profil` heißt jetzt `account.data` (`/konto/stammdaten`).
+- Daten: Tabelle `user_profiles` (Anzeigename, Funktion, Kurzvorstellung, Sichtbarkeit je Angabe, Einwilligungszeitpunkt); das Foto liegt am Konto (`users.avatar_path`).
+- Dienste: `Profiles` (Speichern, Sichtbarkeit, `shownTo` als einzige Stelle der Sichtbarkeitsprüfung), `ProfilePhotos` (Upload wird mittig quadratisch zugeschnitten, auf 512 Pixel verkleinert und als JPEG neu geschrieben; Metadaten fallen weg; Ablage privat).
+- Profilbild: Der Header-Avatar zeigt immer das eigene Foto. Andere sehen es nur nach der gewählten Sichtbarkeit; die Auslieferung (`profile.photo`) prüft sie bei jedem Abruf (404 sonst). Das Foto hat keinen eigenen Alternativtext; als Avatar gilt der Anzeigename.
+- Protokoll: `account.profile_edited`, `account.profile_visibility_changed`, `account.profile_photo_changed` ohne Inhalte. „Profil geändert“ heißt jetzt „Stammdaten geändert“.
+- Konto löschen entfernt Profil und Foto.
 
 ## 1. Ziel und Begriffe
 

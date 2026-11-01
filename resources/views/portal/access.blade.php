@@ -16,7 +16,7 @@
 
     <p style="margin-top:var(--space-4)">
         @auth
-            <x-vdbs.actions.button :href="route('account.profile')" icon="user">Zu Ihrem Konto</x-vdbs.actions.button>
+            <x-vdbs.actions.button :href="route('account.home')" icon="user">Zu Ihrem Konto</x-vdbs.actions.button>
         @else
             <x-vdbs.actions.button :href="route('login')" icon="log-in">Zur Anmeldung</x-vdbs.actions.button>
             <x-vdbs.actions.button variant="secondary" :href="route('password.request')">Passwort vergessen</x-vdbs.actions.button>

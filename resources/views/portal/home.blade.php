@@ -16,7 +16,7 @@
                     <x-vdbs.cards.quick-link label="Über das Portal" :href="route('portal.about')" :tone="3" />
                     <x-vdbs.cards.quick-link label="Zugang zum Portal" :href="route('portal.access')" :tone="5" />
                     @auth
-                        <x-vdbs.cards.quick-link label="Mein Konto" :href="route('account.profile')" :tone="1" />
+                        <x-vdbs.cards.quick-link label="Mein Konto" :href="route('account.home')" :tone="1" />
                     @else
                         <x-vdbs.cards.quick-link label="Anmelden" :href="route('login')" :tone="1" />
                     @endauth
@@ -81,7 +81,7 @@
 
             <x-slot:actions>
                 @auth
-                    <x-vdbs.actions.link-button :href="route('account.profile')">Mein Konto</x-vdbs.actions.link-button>
+                    <x-vdbs.actions.link-button :href="route('account.home')">Mein Konto</x-vdbs.actions.link-button>
                 @else
                     <x-vdbs.actions.link-button :href="route('portal.access')">Zugang zum Portal</x-vdbs.actions.link-button>
                 @endauth

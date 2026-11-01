@@ -19,7 +19,7 @@
             <p>Zu Ihrem Konto ist keine Mitgliedschaft hinterlegt.</p>
         @endif
 
-        <p>Ihre Kontaktdaten ändern Sie in Ihrem <a href="{{ route('account.profile') }}">Profil</a>.</p>
+        <p>Ihre Kontaktdaten ändern Sie in Ihrem <a href="{{ route('account.data') }}">Stammdaten</a>.</p>
     </section>
 
     <section aria-labelledby="documents-heading" style="margin-top:var(--space-8)">

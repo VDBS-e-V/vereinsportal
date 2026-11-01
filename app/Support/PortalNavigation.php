@@ -47,16 +47,25 @@ final class PortalNavigation
                 ],
             ],
             PortalAreas::Konto->value => [
-                'home' => 'account.profile',
+                'home' => 'account.home',
                 'roles' => [],
                 'routes' => ['account.*'],
                 'pages' => [
-                    ['label' => 'Profil', 'route' => 'account.profile', 'match' => 'account.profile*'],
-                    ['label' => 'E-Mail', 'route' => 'account.email', 'match' => 'account.email*'],
-                    ['label' => 'Passwort', 'route' => 'account.password', 'match' => 'account.password*'],
-                    ['label' => 'Sicherheit', 'route' => 'account.security.index', 'match' => 'account.security.*'],
-                    ['label' => 'Sitzungen', 'route' => 'account.sessions', 'match' => 'account.sessions*'],
-                    ['label' => 'Konto löschen', 'route' => 'account.deletion', 'match' => 'account.deletion*'],
+                    ['label' => 'Übersicht', 'route' => 'account.home', 'match' => 'account.home'],
+                    ['label' => 'Profil', 'group' => true, 'unless' => 'school.area', 'route' => 'account.profile', 'children' => [
+                        ['description' => 'So sehen andere Ihr Profil.', 'label' => 'Mein Profil', 'route' => 'account.profile', 'match' => 'account.profile'],
+                        ['description' => 'Anzeigename, Foto und Kurzvorstellung.', 'label' => 'Profil bearbeiten', 'route' => 'account.profile.edit', 'match' => 'account.profile.edit'],
+                        ['description' => 'Wer welche Angabe sehen darf.', 'label' => 'Sichtbarkeit', 'route' => 'account.profile.visibility', 'match' => 'account.profile.visibility*'],
+                    ]],
+                    ['description' => 'Name, Geburtsdatum und Anschrift.', 'label' => 'Stammdaten', 'route' => 'account.data', 'match' => 'account.data*'],
+                    ['label' => 'Anmeldung', 'group' => true, 'route' => 'account.email', 'children' => [
+                        ['description' => 'Adresse für Anmeldung und Mitteilungen.', 'label' => 'E-Mail', 'route' => 'account.email', 'match' => 'account.email*'],
+                        ['description' => 'Passwort ändern.', 'label' => 'Passwort', 'route' => 'account.password', 'match' => 'account.password*'],
+                        ['description' => 'Authentifizierungs-App, E-Mail-Code und Wiederherstellungscodes.', 'label' => 'Zwei-Faktor', 'route' => 'account.security.index', 'match' => 'account.security.*'],
+                        ['description' => 'Wo Ihr Konto angemeldet ist.', 'label' => 'Sitzungen', 'route' => 'account.sessions', 'match' => 'account.sessions*'],
+                    ]],
+                    ['description' => 'Mitgliedschaft, Rollen und Bereiche.', 'label' => 'Mitgliedschaft', 'route' => 'account.roles', 'match' => 'account.roles'],
+                    ['description' => 'Konto löschen.', 'label' => 'Daten & Löschung', 'route' => 'account.deletion', 'match' => 'account.deletion*'],
                 ],
             ],
             PortalAreas::Vorstand->value => [
@@ -192,6 +201,11 @@ final class PortalNavigation
                     continue;
                 }
             } elseif (isset($page['can']) && ($user === null || ! $user->can($page['can']))) {
+                continue;
+            }
+
+            // „unless“: Seite entfällt für Nutzer mit dieser Berechtigung (z. B. kein Profil für Schulkonten)
+            if (isset($page['unless']) && $user !== null && $user->can($page['unless'])) {
                 continue;
             }
 

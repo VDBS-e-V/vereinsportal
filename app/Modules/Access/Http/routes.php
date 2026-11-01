@@ -1,6 +1,8 @@
 <?php
 
 use App\Modules\Access\Http\Controllers\AccountDeletionController;
+use App\Modules\Access\Http\Controllers\AccountPagesController;
+use App\Modules\Access\Http\Controllers\AccountProfileController;
 use App\Modules\Access\Http\Controllers\EmailChangeController;
 use App\Modules\Access\Http\Controllers\LoginController;
 use App\Modules\Access\Http\Controllers\PasswordController;
@@ -34,10 +36,21 @@ Route::middleware('web')->group(function (): void {
 
     // Konto
     Route::middleware('auth')->prefix('konto')->group(function (): void {
-        Route::redirect('/', '/konto/profil');
+        Route::redirect('/', '/konto/uebersicht');
 
-        Route::get('/profil', [ProfileController::class, 'show'])->name('account.profile');
-        Route::put('/profil', [ProfileController::class, 'update'])->name('account.profile.update');
+        Route::get('/uebersicht', [AccountPagesController::class, 'home'])->name('account.home');
+        Route::get('/mitgliedschaft', [AccountPagesController::class, 'roles'])->name('account.roles');
+
+        // Profil (öffentlich): ansehen, bearbeiten, Sichtbarkeit
+        Route::get('/profil', [AccountProfileController::class, 'show'])->name('account.profile');
+        Route::get('/profil/bearbeiten', [AccountProfileController::class, 'edit'])->name('account.profile.edit');
+        Route::put('/profil', [AccountProfileController::class, 'update'])->name('account.profile.update');
+        Route::get('/profil/sichtbarkeit', [AccountProfileController::class, 'visibility'])->name('account.profile.visibility');
+        Route::put('/profil/sichtbarkeit', [AccountProfileController::class, 'updateVisibility'])->name('account.profile.visibility.update');
+
+        // Stammdaten (nichtöffentlich)
+        Route::get('/stammdaten', [ProfileController::class, 'show'])->name('account.data');
+        Route::put('/stammdaten', [ProfileController::class, 'update'])->name('account.data.update');
 
         Route::get('/passwort', [PasswordController::class, 'edit'])->name('account.password');
         Route::put('/passwort', [PasswordController::class, 'update'])->name('account.password.update');
@@ -52,6 +65,9 @@ Route::middleware('web')->group(function (): void {
         Route::get('/sitzungen', [SessionsController::class, 'index'])->name('account.sessions');
         Route::delete('/sitzungen', [SessionsController::class, 'destroyOthers'])->name('account.sessions.destroy');
     });
+
+    // Profilfoto: die Auslieferung prüft die gewählte Sichtbarkeit (nur ich, angemeldet, öffentlich)
+    Route::get('/profil/foto/{user}', [AccountProfileController::class, 'photo'])->whereNumber('user')->middleware('throttle:120,1')->name('profile.photo');
 
     // Löschung abbrechen: öffentlich über den signierten Link aus der E-Mail (das gesperrte Konto kann sich nicht anmelden)
     Route::get('/konto/loeschung-abbrechen/{user}', [AccountDeletionController::class, 'cancelShow'])->whereNumber('user')->middleware(['signed', 'throttle:20,10'])->name('account.deletion.cancel');

@@ -11,7 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 /**
- * Konto > Profil: Stammdaten der Person ansehen. Name und Geburtsdatum pflegt die Geschäftsstelle;
+ * Konto › Stammdaten: Stammdaten der Person ansehen. Name und Geburtsdatum pflegt die Geschäftsstelle;
  * Telefon und Anschrift kann das Mitglied selbst ändern.
  */
 class ProfileController extends Controller
@@ -20,11 +20,9 @@ class ProfileController extends Controller
     {
         $user = $this->user($request);
 
-        return view('account.profile', [
+        return view('account.data', [
             'user' => $user,
             'person' => $user->person,
-            // Die eigene Mitgliedschaft (neueste zuerst: laufende oder beantragte vor beendeten)
-            'membership' => $user->person?->memberships()->orderByRaw("status IN ('requested','active') DESC")->orderByDesc('id')->first(),
         ]);
     }
 
@@ -57,7 +55,7 @@ class ProfileController extends Controller
             AuditLog::record(AuditEvent::ProfileUpdated, $this->user($request), $person, ['felder' => $changed]);
         }
 
-        return redirect()->route('account.profile')->with('success', 'Ihre Angaben wurden gespeichert.');
+        return redirect()->route('account.data')->with('success', 'Ihre Angaben wurden gespeichert.');
     }
 
     private function user(Request $request): User

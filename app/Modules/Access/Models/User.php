@@ -83,9 +83,16 @@ class User extends Authenticatable
             return null;
         }
 
-        return route('my.account.avatar', [
+        return route('profile.photo', [
+            'user' => $this->id,
             'v' => substr(hash('sha256', $this->avatar_path), 0, 12),
         ]);
+    }
+
+    /** @return HasOne<UserProfile, $this> */
+    public function profile(): HasOne
+    {
+        return $this->hasOne(UserProfile::class);
     }
 
     /** @return BelongsTo<Person, $this> */

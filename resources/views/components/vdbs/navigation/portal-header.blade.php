@@ -89,11 +89,13 @@
                 @php $displayName = $user->person?->fullName() ?: $user->email; @endphp
                 <x-vdbs.navigation.dropdown variant="plain" align="end" :label="$displayName">
                     <x-slot:trigger>
-                        <x-vdbs.data.avatar :name="$displayName" size="s" aria-hidden="true" />
+                        <x-vdbs.data.avatar :name="$displayName" :src="$user->avatarUrl()" size="s" aria-hidden="true" />
                         <span class="vdbs-header__user-name">{{ $displayName }}</span>
                     </x-slot:trigger>
-                    <x-vdbs.navigation.dropdown-item :href="route('account.profile')" icon="user" :current="request()->routeIs('account.profile')">Mein Konto</x-vdbs.navigation.dropdown-item>
-                    <x-vdbs.navigation.dropdown-item :href="route('account.security.index')" icon="shield" :current="request()->routeIs('account.security.*')">Sicherheit</x-vdbs.navigation.dropdown-item>
+                    @unless ($user->can('school.area'))
+                        <x-vdbs.navigation.dropdown-item :href="route('account.profile')" icon="user" :current="request()->routeIs('account.profile*')">Mein Profil</x-vdbs.navigation.dropdown-item>
+                    @endunless
+                    <x-vdbs.navigation.dropdown-item :href="route('account.home')" icon="settings" :current="request()->routeIs('account.*') && ! request()->routeIs('account.profile*')">Mein Konto</x-vdbs.navigation.dropdown-item>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <x-vdbs.navigation.dropdown-item type="submit" icon="log-out">Abmelden</x-vdbs.navigation.dropdown-item>

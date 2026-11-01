@@ -14,6 +14,9 @@ enum AuditEvent: string
     case EmailChanged = 'account.email_changed';
     case SessionsEnded = 'account.sessions_ended';
     case ProfileUpdated = 'account.profile_updated';
+    case ProfileEdited = 'account.profile_edited';
+    case ProfileVisibilityChanged = 'account.profile_visibility_changed';
+    case ProfilePhotoChanged = 'account.profile_photo_changed';
     case AccountDeletionRequested = 'account.deletion_requested';
     case AccountDeletionCancelled = 'account.deletion_cancelled';
     case AccountAnonymized = 'account.anonymized';
@@ -82,7 +85,10 @@ enum AuditEvent: string
             self::PasswordSet => 'Passwort festgelegt oder zurückgesetzt',
             self::EmailChanged => 'E-Mail-Adresse geändert',
             self::SessionsEnded => 'Andere Sitzungen beendet',
-            self::ProfileUpdated => 'Profil geändert',
+            self::ProfileUpdated => 'Stammdaten geändert',
+            self::ProfileEdited => 'Profil bearbeitet',
+            self::ProfileVisibilityChanged => 'Sichtbarkeit des Profils geändert',
+            self::ProfilePhotoChanged => 'Profilfoto geändert',
             self::AccountDeletionRequested => 'Kontolöschung beantragt',
             self::AccountDeletionCancelled => 'Kontolöschung abgebrochen',
             self::AccountAnonymized => 'Konto gelöscht (anonymisiert)',
@@ -137,7 +143,7 @@ enum AuditEvent: string
     {
         return match ($this) {
             self::Login, self::LoginFailed, self::TwoFactorFailed => 'auth',
-            self::PasswordChanged, self::PasswordSet, self::EmailChanged, self::SessionsEnded, self::ProfileUpdated, self::AccountDeletionRequested, self::AccountDeletionCancelled, self::AccountAnonymized => 'account',
+            self::PasswordChanged, self::PasswordSet, self::EmailChanged, self::SessionsEnded, self::ProfileUpdated, self::ProfileEdited, self::ProfileVisibilityChanged, self::ProfilePhotoChanged, self::AccountDeletionRequested, self::AccountDeletionCancelled, self::AccountAnonymized => 'account',
             self::TwoFactorEnabled, self::TwoFactorDisabled, self::RecoveryCodesRenewed => 'two_factor',
             self::UserCreated, self::UserInvited, self::UserDisabled, self::UserEnabled, self::UserTwoFactorReset, self::UserPasswordLinkSent => 'users',
             self::RoleAssigned, self::RoleEnded => 'roles',

@@ -1,47 +1,48 @@
-<x-account.shell title="Profil" current="profile" lead="Ihre Stammdaten im Verein.">
-    @if ($person === null)
-        <x-vdbs.feedback.alert variant="info">Ihr Konto ist keiner Person zugeordnet. Wenden Sie sich an die Geschäftsstelle, wenn Ihre Stammdaten angezeigt werden sollen.</x-vdbs.feedback.alert>
+<x-account.shell title="Mein Profil" current="profile" lead="So erscheint Ihr Profil für andere. Bearbeiten und Sichtbarkeit finden Sie im Menü Profil.">
+    <x-slot:meta><x-vdbs.data.badge tone="neutral">{{ $completeness }} % vollständig</x-vdbs.data.badge></x-slot:meta>
 
-        <x-vdbs.data.detail-list layout="inline">
-            <x-vdbs.data.detail-item label="E-Mail-Adresse">{{ $user->email }}</x-vdbs.data.detail-item>
-        </x-vdbs.data.detail-list>
-    @else
-        <h2>Stammdaten</h2>
-        <p>Name und Geburtsdatum pflegt die Geschäftsstelle. Bei Änderungen wenden Sie sich bitte dorthin.</p>
+    @php
+        $views = [
+            ['title' => 'Für Sie selbst', 'hint' => 'Ihre vollständige Ansicht.', 'shown' => $mine],
+            ['title' => 'Für angemeldete Portalnutzer', 'hint' => 'So sehen es Personen mit einem Konto im Portal.', 'shown' => $asPortal],
+            ['title' => 'Für die Öffentlichkeit', 'hint' => 'So sieht es jeder ohne Anmeldung.', 'shown' => $asPublic],
+        ];
+    @endphp
 
-        <x-vdbs.data.detail-list layout="inline">
-            <x-vdbs.data.detail-item label="Name">{{ $person->fullName() }}</x-vdbs.data.detail-item>
-            <x-vdbs.data.detail-item label="Geburtsdatum">{{ $person->birth_date?->format('d.m.Y') }}</x-vdbs.data.detail-item>
-            <x-vdbs.data.detail-item label="E-Mail-Adresse" href="{{ route('account.email') }}">{{ $user->email }}</x-vdbs.data.detail-item>
-        </x-vdbs.data.detail-list>
+    <x-vdbs.layout.grid :columns="3">
+        @foreach ($views as $view)
+            <section aria-labelledby="view-{{ $loop->index }}-heading" class="vdbs-profile-card">
+                <h2 id="view-{{ $loop->index }}-heading" style="font-size:var(--font-size-h4)">{{ $view['title'] }}</h2>
+                <p style="color:var(--text-muted)">{{ $view['hint'] }}</p>
 
-        @if ($membership)
-            @php $state = $membership->effectiveStatus(); @endphp
-            <h2 style="margin-top:var(--space-8)">Mitgliedschaft</h2>
-            <x-vdbs.data.detail-list layout="inline">
-                <x-vdbs.data.detail-item label="Status">{{ $state->label() }}</x-vdbs.data.detail-item>
-                <x-vdbs.data.detail-item label="Antrag vom">{{ $membership->requested_on?->format('d.m.Y') }}</x-vdbs.data.detail-item>
-                <x-vdbs.data.detail-item label="Mitglied seit">{{ $membership->starts_on?->format('d.m.Y') }}</x-vdbs.data.detail-item>
-                <x-vdbs.data.detail-item label="Letzter Tag der Mitgliedschaft">{{ $membership->ends_on?->format('d.m.Y') }}</x-vdbs.data.detail-item>
-            </x-vdbs.data.detail-list>
-        @endif
+                @if ($view['shown'] === [])
+                    <p>Hier ist nichts sichtbar.</p>
+                @else
+                    <div class="vdbs-profile-card__head">
+                        @if (isset($view['shown']['photo']))
+                            <x-vdbs.data.avatar :name="$view['shown']['name'] ?? 'Profilfoto'" :src="$view['shown']['photo']" size="l" />
+                        @elseif (isset($view['shown']['name']))
+                            <x-vdbs.data.avatar :name="$view['shown']['name']" size="l" />
+                        @endif
+                        <div>
+                            @if (isset($view['shown']['name']))<p class="vdbs-profile-card__name">{{ $view['shown']['name'] }}</p>@endif
+                            @if (isset($view['shown']['headline']))<p>{{ $view['shown']['headline'] }}</p>@endif
+                        </div>
+                    </div>
+                    @if (isset($view['shown']['bio']))<div class="vdbs-prose">{!! rich_text($view['shown']['bio']) !!}</div>@endif
+                    @if (isset($view['shown']['email']) || isset($view['shown']['phone']))
+                        <p>
+                            @if (isset($view['shown']['email']))E-Mail: {{ $view['shown']['email'] }}<br>@endif
+                            @if (isset($view['shown']['phone']))Telefon: {{ $view['shown']['phone'] }}@endif
+                        </p>
+                    @endif
+                @endif
+            </section>
+        @endforeach
+    </x-vdbs.layout.grid>
 
-        <h2 style="margin-top:var(--space-8)">Kontakt und Anschrift</h2>
-
-        <x-vdbs.forms.form :action="route('account.profile.update')" method="put" :summary="false">
-            <x-vdbs.forms.form-grid :columns="2">
-                <x-vdbs.forms.input name="phone" label="Telefon" type="tel" :value="old('phone', $person->phone)" :optional="true" autocomplete="tel" />
-                <div></div>
-                <x-vdbs.forms.input name="street" label="Straße" :value="old('street', $person->street)" :optional="true" autocomplete="address-line1" />
-                <x-vdbs.forms.input name="house_number" label="Hausnummer" :value="old('house_number', $person->house_number)" :optional="true" />
-                <x-vdbs.forms.input name="postal_code" label="Postleitzahl" :value="old('postal_code', $person->postal_code)" :optional="true" autocomplete="postal-code" />
-                <x-vdbs.forms.input name="city" label="Ort" :value="old('city', $person->city)" :optional="true" autocomplete="address-level2" />
-                <x-vdbs.forms.input name="country_code" label="Land (Kürzel)" hint="Zwei Buchstaben, z. B. DE" :value="old('country_code', $person->country_code)" :required="true" autocomplete="country" />
-            </x-vdbs.forms.form-grid>
-
-            <x-slot:actions>
-                <x-vdbs.actions.button type="submit">Speichern</x-vdbs.actions.button>
-            </x-slot:actions>
-        </x-vdbs.forms.form>
-    @endif
+    <x-vdbs.actions.button-group>
+        <x-vdbs.actions.button :href="route('account.profile.edit')" icon="pencil">Profil bearbeiten</x-vdbs.actions.button>
+        <x-vdbs.actions.button variant="secondary" :href="route('account.profile.visibility')" icon="eye">Sichtbarkeit einstellen</x-vdbs.actions.button>
+    </x-vdbs.actions.button-group>
 </x-account.shell>

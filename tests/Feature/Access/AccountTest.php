@@ -28,8 +28,8 @@ it('sends guests to the login for all account pages', function () {
     $this->get('/konto')->assertRedirect(route('login'));
 });
 
-it('redirects the account root to the profile', function () {
-    $this->actingAs(accUser())->get('/konto')->assertRedirect('/konto/profil');
+it('redirects the account root to the account overview', function () {
+    $this->actingAs(accUser())->get('/konto')->assertRedirect('/konto/uebersicht');
 });
 
 it('shows the account navigation on every account page', function () {
@@ -48,7 +48,7 @@ it('shows the account navigation on every account page', function () {
 
 it('shows the master data of the person', function () {
     $this->actingAs(accUser())
-        ->get(route('account.profile'))
+        ->get(route('account.data'))
         ->assertOk()
         ->assertSee('Erika Mustermann')
         ->assertSee('12.03.1980')
@@ -59,11 +59,11 @@ it('lets the member change phone and address but not the name', function () {
     $user = accUser();
 
     $this->actingAs($user)
-        ->put(route('account.profile.update'), [
+        ->put(route('account.data.update'), [
             'phone' => '030 123456', 'street' => 'Hauptstraße', 'house_number' => '5a', 'postal_code' => '10115', 'city' => 'Berlin', 'country_code' => 'de',
             'first_name' => 'Hacker', 'birth_date' => '1990-01-01',
         ])
-        ->assertRedirect(route('account.profile'))
+        ->assertRedirect(route('account.data'))
         ->assertSessionHas('success');
 
     $person = $user->person->fresh();
@@ -75,12 +75,12 @@ it('lets the member change phone and address but not the name', function () {
 });
 
 it('validates the country code of the profile', function () {
-    $this->actingAs(accUser())->put(route('account.profile.update'), ['country_code' => 'DEU'])->assertSessionHasErrors('country_code');
+    $this->actingAs(accUser())->put(route('account.data.update'), ['country_code' => 'DEU'])->assertSessionHasErrors('country_code');
 });
 
 it('explains that an account without a person has no master data', function () {
     $this->actingAs(User::factory()->create(['email' => 'allein@example.org']))
-        ->get(route('account.profile'))
+        ->get(route('account.data'))
         ->assertOk()
         ->assertSee('keiner Person zugeordnet');
 });
