@@ -117,7 +117,11 @@
     @endphp
     <a class="vdbs-skip-link" href="#administration-content">Zum Inhalt</a>
     <x-vdbs.navigation.portal-header :area="$areaLabel" :page-title="$pageTitle" :home-url="$portalHomeUrl" :area-url="$areaHomeUrl" :areas="$areas" :navigation="$navigation" :account="$account" :breadcrumbs="$breadcrumbs ?? []" />
-    @stack('vdbs-breadcrumb')
+    @hasstack('vdbs-breadcrumb')
+        <div class="vdbs-breadcrumb-bar">
+            <x-vdbs.layout.container>@stack('vdbs-breadcrumb')</x-vdbs.layout.container>
+        </div>
+    @endhasstack
     <main id="administration-content" class="site-main vdbs-public-main">
         <x-vdbs.frame width="normal" gutter="both">
             @if (session('status'))

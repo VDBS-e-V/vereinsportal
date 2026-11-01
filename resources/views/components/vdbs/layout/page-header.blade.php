@@ -16,11 +16,7 @@
 {{-- Die Brotkrumen gehören zum Kopfbereich: Sie stehen als farbige Leiste direkt darunter (die Layouts geben den Stack nach dem Kopfbereich aus). --}}
 @if (count($breadcrumb) > 0 && ! $inline)
     @push('vdbs-breadcrumb')
-        <div class="vdbs-breadcrumb-bar">
-            <div class="vdbs-container">
-                <x-vdbs.navigation.breadcrumb :items="$breadcrumb" />
-            </div>
-        </div>
+        <x-vdbs.navigation.breadcrumb :items="$breadcrumb" />
     @endpush
 @endif
 

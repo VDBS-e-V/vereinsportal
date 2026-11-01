@@ -359,7 +359,11 @@
         :login-url="auth()->check() ? null : route('my.login')"
         :account="$account"
     />
-    @stack('vdbs-breadcrumb')
+    @hasstack('vdbs-breadcrumb')
+        <div class="vdbs-breadcrumb-bar">
+            <x-vdbs.layout.container>@stack('vdbs-breadcrumb')</x-vdbs.layout.container>
+        </div>
+    @endhasstack
 
     @if ($showSettingsNavigation)
         <div class="account-local-navigation">
