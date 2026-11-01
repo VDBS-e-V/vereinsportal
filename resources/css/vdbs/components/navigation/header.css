@@ -153,8 +153,9 @@
     .vdbs-main-nav__submenu { padding-inline-start: var(--space-5); }
 }
 
-/* Bereichstitel führt zur Startseite des Bereichs */
-.vdbs-header__title a { color: inherit; text-decoration: none; }
-.vdbs-header__title a:hover { text-decoration: underline; }
+/* Eyebrow und Bereichstitel bilden zusammen einen Link zur Startseite des Bereichs (ohne Unterstreichung) */
+.vdbs-header__brand { display: block; color: inherit; text-decoration: none; }
+a.vdbs-header__brand:hover, a.vdbs-header__brand:focus-visible { text-decoration: none; }
+a.vdbs-header__brand .vdbs-header__eyebrow, a.vdbs-header__brand .vdbs-header__title { display: block; }
 
 .vdbs-area-pages { display: grid; gap: var(--space-4); margin: 0; padding: 0; list-style: none; }

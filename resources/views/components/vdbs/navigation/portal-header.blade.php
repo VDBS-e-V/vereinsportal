@@ -49,16 +49,17 @@
     </div>
 
     <div class="vdbs-container vdbs-header__main">
-        <div>
-            <p class="vdbs-header__eyebrow">VDBS Portal</p>
-            <p class="vdbs-header__title">
-                @if ($headerArea)
-                    <a href="{{ \App\Support\PortalNavigation::home($headerArea) }}">{{ $headerTitle }}</a>
-                @else
-                    {{ $headerTitle }}
-                @endif
-            </p>
-        </div>
+        @if ($headerArea)
+            <a class="vdbs-header__brand" href="{{ \App\Support\PortalNavigation::home($headerArea) }}">
+                <span class="vdbs-header__eyebrow">VDBS Portal</span>
+                <span class="vdbs-header__title">{{ $headerTitle }}</span>
+            </a>
+        @else
+            <div class="vdbs-header__brand">
+                <p class="vdbs-header__eyebrow">VDBS Portal</p>
+                <p class="vdbs-header__title">{{ $headerTitle }}</p>
+            </div>
+        @endif
 
         <div class="vdbs-header__actions vdbs-header__menu-panel" id="portal-menu-actions">
             @if (count($areaPages) > 0)
