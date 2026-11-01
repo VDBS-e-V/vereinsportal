@@ -195,3 +195,12 @@ it('takes author name, text and photo release from the profile of the creating a
 
     expect($article->fresh()->authorImagePath())->toBeNull();
 });
+
+it('offers three ways to create an article and leads to the article, the list or a new form', function () {
+    $staff = aaUser(RoleKey::AdministrationStaff);
+    $this->actingAs($staff)->get(route('articles.admin.create'))->assertOk()->assertSee('Erstellen und zur Liste')->assertSee('Erstellen und weiteren erstellen');
+
+    $this->post(route('articles.admin.store'), aaForm(['title' => 'Eins']))->assertRedirect(route('articles.public.show', Article::query()->where('title', 'Eins')->value('slug')));
+    $this->post(route('articles.admin.store'), aaForm(['title' => 'Zwei', 'after' => 'list']))->assertRedirect(route('articles.admin.index'));
+    $this->post(route('articles.admin.store'), aaForm(['title' => 'Drei', 'after' => 'new']))->assertRedirect(route('articles.admin.create'));
+});

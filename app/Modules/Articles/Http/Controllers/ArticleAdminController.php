@@ -49,7 +49,13 @@ class ArticleAdminController extends Controller
     {
         $article = $this->articles->create($this->validated($request), $request->file('image'), $this->actor($request), $request->file('author_image'));
 
-        return redirect()->route('articles.admin.edit', $article)->with('success', 'Der Artikel wurde gespeichert.');
+        $target = match ($request->input('after')) {
+            'list' => route('articles.admin.index'),
+            'new' => route('articles.admin.create'),
+            default => route('articles.public.show', $article->slug),
+        };
+
+        return redirect($target)->with('success', 'Der Artikel wurde gespeichert.');
     }
 
     public function edit(Article $article): View
