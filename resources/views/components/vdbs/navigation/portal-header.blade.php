@@ -8,7 +8,8 @@
     $currentArea = \App\Support\PortalNavigation::areaForRoute($routeName);
     // Ohne Anmeldung (und auf Fehlerseiten) stehen in Zeile 2 die öffentlichen Seiten des Bereichs Start.
     $navArea = $user === null ? \App\Support\PortalAreas::Start : $currentArea;
-    $areaPages = $navArea ? \App\Support\PortalNavigation::pages($navArea, $user, $routeName) : [];
+    // Die Übersicht (Startseite des Bereichs) ist über den Bereichstitel erreichbar und steht nicht noch einmal im Menü.
+    $areaPages = $navArea ? array_values(array_filter(\App\Support\PortalNavigation::pages($navArea, $user, $routeName), fn (array $page): bool => $page['label'] !== 'Übersicht')) : [];
     $hasAreaMenu = count($visibleAreas) > 0 || $systems->isNotEmpty();
     $headerArea = ($user !== null || $currentArea === \App\Support\PortalAreas::Start) ? $currentArea : null;
     $headerTitle = ($user !== null || $currentArea === \App\Support\PortalAreas::Start ? $currentArea?->label() : null) ?? ($title ?? 'Start');
