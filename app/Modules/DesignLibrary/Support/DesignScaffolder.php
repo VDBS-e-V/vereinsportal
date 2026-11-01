@@ -15,6 +15,25 @@ final class DesignScaffolder
 {
     public const CSS_ANCHOR = '/* design-packages:imports';
 
+    /** Anzeigenamen der vorhandenen Pakete (Ordnernamen unter components/vdbs). */
+    public const PACKAGE_TITLES = [
+        'foundation' => ['Grundlagen', 'Icons und Basis-Bausteine.'],
+        'actions' => ['Aktionen', 'Buttons, Link-Buttons, Button-Gruppen und Nach-oben-Link.'],
+        'forms' => ['Formulare', 'Felder, Auswahl, Upload, Formularaufbau und Fehlerübersicht.'],
+        'navigation' => ['Navigation', 'Kopf- und Fußbereich, Menüs, Brotkrumen, Tabs, Paginierung und Schritte.'],
+        'layout' => ['Layout', 'Container, Abschnitte, Raster, Split, Seitenkopf und Seitenlayouts.'],
+        'cards' => ['Karten', 'Karten, Teaser, Schnellzugriffe und Kontaktblock.'],
+        'data' => ['Daten', 'Tabellen, Kennzahlen, Badges, Chips, Listen, Zeitleiste und Werkzeugleiste.'],
+        'feedback' => ['Rückmeldung', 'Hinweise, Meldungen, Ladezustände, Leerzustand und Tooltip.'],
+        'overlays' => ['Overlays', 'Modal, Bestätigungsdialog und Seitenpanel.'],
+        'media' => ['Medien', 'Bilder, Figuren, Bildquellen und Hero.'],
+        'disclosure' => ['Aufklappen', 'Akkordeon.'],
+        'content' => ['Inhalte', 'Fließtext, Zitat, Download- und Terminkarte, Feature.'],
+    ];
+
+    /** Stand der gemeinsamen Umgestaltung je Komponente. */
+    public const REDESIGN_STATES = ['open' => 'Offen', 'in-progress' => 'In Arbeit', 'done' => 'Fertig'];
+
     /** @var list<string> */
     private array $log = [];
 
@@ -131,12 +150,22 @@ final class DesignScaffolder
             $test = $this->path('tests/Feature/DesignLibrary/Packages/'.Str::studly($pkg).'Test.php');
             $testCode = is_file($test) ? (string) file_get_contents($test) : null;
 
-            if ($testCode === null) {
+            // Eigene Tests verlangen nur neu angelegte Komponenten; aufgenommene Bestandskomponenten haben ihre Tests anderswo.
+            $hasNew = collect($manifest['components'])->contains(fn (array $component): bool => ($component['adopted'] ?? false) !== true);
+
+            if ($testCode === null && $hasNew) {
                 $problems[] = "{$pkg}: Testdatei fehlt.";
             }
 
             foreach ($manifest['components'] as $component) {
                 $name = $component['name'];
+
+                if (($component['adopted'] ?? false) === true) {
+                    array_push($problems, ...$this->checkAdopted($pkg, $component, $index));
+
+                    continue;
+                }
+
                 $files = [
                     "resources/views/components/vdbs/{$pkg}/{$name}.blade.php" => 'Komponente',
                     "resources/css/vdbs/components/{$pkg}/{$name}.css" => 'CSS',
@@ -180,7 +209,182 @@ final class DesignScaffolder
         return $problems;
     }
 
-    /** @return array{title: string, description: string, components: list<array<string, string>>} */
+    /**
+     * Nimmt ein vorhandenes Paket in die neue Struktur auf: schreibt das Manifest aus dem, was im Ordner liegt (Komponenten, CSS-Dateien, Beispielseiten).
+     * Blade und CSS bleiben unverändert. Gibt die Zahl der Komponenten zurück.
+     */
+    public function adopt(string $package): int
+    {
+        $package = self::slug($package);
+        $bladeDir = $this->path('resources/views/components/vdbs/'.$package);
+        $cssDir = $this->path('resources/css/vdbs/components/'.$package);
+
+        if (is_file($this->manifestPath($package)) && ! $this->force) {
+            throw new RuntimeException("Das Paket „{$package}“ hat schon ein Manifest. Mit --force neu erzeugen (Stand der Umgestaltung und Titel gehen verloren).");
+        }
+
+        $blades = [];
+
+        foreach (glob($bladeDir.'/*.blade.php') ?: [] as $file) {
+            $blades[basename($file, '.blade.php')] = 'resources/views/components/vdbs/'.$package.'/'.basename($file);
+        }
+
+        if ($package === 'foundation' && is_file($this->path('resources/views/components/vdbs/icon.blade.php'))) {
+            $blades['icon'] = 'resources/views/components/vdbs/icon.blade.php';
+        }
+
+        if ($blades === []) {
+            throw new RuntimeException("Im Paket „{$package}“ gibt es keine Komponenten (resources/views/components/vdbs/{$package}).");
+        }
+
+        ksort($blades);
+        $cssFiles = array_values(array_filter(array_map('basename', glob($cssDir.'/*.css') ?: []), fn (string $file): bool => $file !== 'index.css'));
+        sort($cssFiles);
+
+        // Jede CSS-Datei gehört zur Komponente mit dem längsten passenden Namen (button-variants.css → button).
+        $cssByComponent = [];
+        $shared = [];
+
+        foreach ($cssFiles as $file) {
+            $base = basename($file, '.css');
+            $owner = null;
+
+            foreach (array_keys($blades) as $name) {
+                if (($base === $name || str_starts_with($base, $name.'-')) && ($owner === null || strlen($name) > strlen($owner))) {
+                    $owner = $name;
+                }
+            }
+
+            if ($owner === null) {
+                $shared[] = $file;
+            } else {
+                $cssByComponent[$owner][] = $file;
+            }
+        }
+
+        $entries = [];
+
+        foreach (glob($this->path('resources/views/design-library/entries').'/*.blade.php') ?: [] as $file) {
+            $entries[basename($file, '.blade.php')] = (string) file_get_contents($file);
+        }
+
+        $components = [];
+
+        foreach ($blades as $name => $relative) {
+            $used = [];
+
+            foreach ($entries as $slug => $content) {
+                if (preg_match('/<x-vdbs\.'.preg_quote($package, '/').'\.'.preg_quote($name, '/').'[\s>\/]/', $content) || ($package === 'foundation' && $name === 'icon' && preg_match('/<x-vdbs\.icon[\s>\/]/', $content) && $slug === 'icons')) {
+                    $used[] = $slug;
+                }
+            }
+
+            $components[] = [
+                'name' => $name,
+                'title' => Str::headline($name),
+                'description' => $this->describe($this->path($relative)),
+                'status' => 'beta',
+                'adopted' => true,
+                'redesign' => 'open',
+                'blade' => $relative,
+                'css' => $cssByComponent[$name] ?? [],
+                'entries' => $used,
+            ];
+        }
+
+        [$title, $description] = self::PACKAGE_TITLES[$package] ?? [Str::headline($package), 'Design-Paket '.Str::headline($package).'.'];
+
+        $this->writeManifest($package, ['title' => $title, 'description' => $description, 'shared_css' => $shared, 'components' => $components]);
+
+        return count($components);
+    }
+
+    /** Setzt den Stand der Umgestaltung einer Komponente (open, in-progress, done). */
+    public function setRedesign(string $package, string $name, string $state): void
+    {
+        if (! array_key_exists($state, self::REDESIGN_STATES)) {
+            throw new InvalidArgumentException('Unbekannter Stand „'.$state.'“. Erlaubt: '.implode(', ', array_keys(self::REDESIGN_STATES)).'.');
+        }
+
+        $package = self::slug($package);
+        $name = self::slug($name);
+        $manifest = $this->manifest($package);
+        $found = false;
+
+        foreach ($manifest['components'] as $index => $component) {
+            if ($component['name'] === $name) {
+                $manifest['components'][$index]['redesign'] = $state;
+                $found = true;
+            }
+        }
+
+        if (! $found) {
+            throw new RuntimeException("Die Komponente „{$name}“ gibt es im Paket „{$package}“ nicht.");
+        }
+
+        $this->writeManifest($package, $manifest);
+    }
+
+    /** Die erste Zeile des Kommentars am Anfang einer Blade-Komponente als Beschreibung. */
+    private function describe(string $file): string
+    {
+        $code = is_file($file) ? (string) file_get_contents($file) : '';
+
+        if (! preg_match('/\{\{--\s*(.+?)\s*(?:\R|--\}\})/s', $code, $match)) {
+            return '';
+        }
+
+        $line = trim((string) preg_replace('/\s*\(Paket [^)]*\)/', '', $match[1]), " :\t");
+
+        return Str::limit($line, 160, '…');
+    }
+
+    /**
+     * Aufgenommene Komponenten: Blade und CSS-Dateien müssen da und im Paket-CSS eingebunden sein, Beispielseiten müssen existieren, das CSS bleibt farbfrei.
+     * Klassenname und eigener Test werden nicht verlangt (Bestand).
+     *
+     * @param  array<string, mixed>  $component
+     * @return list<string>
+     */
+    private function checkAdopted(string $package, array $component, string $index): array
+    {
+        $problems = [];
+        $name = $component['name'];
+
+        if (! is_file($this->path($component['blade']))) {
+            $problems[] = "{$package}/{$name}: Komponente fehlt ({$component['blade']}).";
+        }
+
+        foreach ($component['css'] ?? [] as $file) {
+            $path = $this->path("resources/css/vdbs/components/{$package}/{$file}");
+
+            if (! is_file($path)) {
+                $problems[] = "{$package}/{$name}: CSS fehlt ({$file}).";
+
+                continue;
+            }
+
+            if (is_file($index) && ! str_contains((string) file_get_contents($index), "./{$file}")) {
+                $problems[] = "{$package}/{$name}: {$file} nicht in {$package}/index.css eingebunden.";
+            }
+
+            $code = (string) preg_replace('~/\*.*?\*/~s', '', (string) file_get_contents($path));
+
+            if (preg_match('/#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(/', $code)) {
+                $problems[] = "{$package}/{$name}: Farbcode in {$file}.";
+            }
+        }
+
+        foreach ($component['entries'] ?? [] as $slug) {
+            if (! is_file($this->path("resources/views/design-library/entries/{$slug}.blade.php"))) {
+                $problems[] = "{$package}/{$name}: Beispielseite „{$slug}“ fehlt.";
+            }
+        }
+
+        return $problems;
+    }
+
+    /** @return array{title: string, description: string, components: list<array<string, mixed>>} */
     public function manifest(string $package): array
     {
         if (! is_file($this->manifestPath($package))) {

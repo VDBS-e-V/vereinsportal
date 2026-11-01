@@ -48,6 +48,11 @@ final class Registry
             $package = basename($file, '.php');
 
             foreach ($manifest['components'] ?? [] as $component) {
+                // Aufgenommene Komponenten haben ihre Beispielseiten schon in der Bibliothek.
+                if (($component['adopted'] ?? false) === true) {
+                    continue;
+                }
+
                 $definitions[] = [
                     'slug' => $package.'-'.$component['name'],
                     'title' => $component['title'],
@@ -61,6 +66,24 @@ final class Registry
         }
 
         return $definitions;
+    }
+
+    /**
+     * Alle Paket-Manifeste, nach Paketname.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public static function packages(?string $directory = null): array
+    {
+        $packages = [];
+
+        foreach (glob(($directory ?? __DIR__.'/../Packages').'/*.php') ?: [] as $file) {
+            $packages[basename($file, '.php')] = require $file;
+        }
+
+        ksort($packages);
+
+        return $packages;
     }
 
     private static function definitions(): array

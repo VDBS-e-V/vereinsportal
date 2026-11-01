@@ -139,3 +139,94 @@ it('runs the check command on the real project without problems', function () {
 it('explains an unknown package in the command', function () {
     $this->artisan('design:component', ['package' => 'gibt-es-nicht-xyz', 'name' => 'box'])->assertFailed();
 });
+
+// ---------- Vorhandene Pakete aufnehmen ----------
+
+function dsExistingPackage(string $root): void
+{
+    File::ensureDirectoryExists($root.'/resources/views/components/vdbs/karten');
+    File::ensureDirectoryExists($root.'/resources/css/vdbs/components/karten');
+    File::ensureDirectoryExists($root.'/resources/views/design-library/entries');
+    File::put($root.'/resources/views/components/vdbs/karten/box.blade.php', "@props(['variant' => 'a'])\n\n{{--\n    Box (Paket \"karten\"): eine Box für Hinweise.\n    variant a | b\n--}}\n<div></div>\n");
+    File::put($root.'/resources/views/components/vdbs/karten/box-header.blade.php', "<header></header>\n");
+    File::put($root.'/resources/css/vdbs/components/karten/box.css', ".vdbs-card { color: var(--text-default); }\n");
+    File::put($root.'/resources/css/vdbs/components/karten/box-header.css', ".x { }\n");
+    File::put($root.'/resources/css/vdbs/components/karten/box-shapes.css', ".y { }\n");
+    File::put($root.'/resources/css/vdbs/components/karten/gemeinsam.css', ".z { }\n");
+    File::append($root.'/resources/css/app.css', "@import './vdbs/components/karten/index.css';\n");
+    File::put($root.'/resources/css/vdbs/components/karten/index.css', "@import './box.css';\n@import './box-header.css';\n@import './box-shapes.css';\n@import './gemeinsam.css';\n");
+    File::put($root.'/resources/views/design-library/entries/karten-seite.blade.php', "<x-vdbs.karten.box>x</x-vdbs.karten.box>\n<x-vdbs.karten.box-header />\n");
+}
+
+it('adopts an existing package into a manifest without touching its files', function () {
+    $root = dsProject();
+    dsExistingPackage($root);
+    $before = file_get_contents($root.'/resources/views/components/vdbs/karten/box.blade.php');
+
+    expect(dsScaffolder($root)->adopt('karten'))->toBe(2);
+
+    $manifest = require $root.'/app/Modules/DesignLibrary/Packages/karten.php';
+    $byName = collect($manifest['components'])->keyBy('name');
+
+    expect($manifest['shared_css'])->toBe(['gemeinsam.css'])
+        ->and($byName['box']['css'])->toBe(['box-shapes.css', 'box.css'])
+        ->and($byName['box-header']['css'])->toBe(['box-header.css'])
+        ->and($byName['box']['entries'])->toBe(['karten-seite'])
+        ->and($byName['box']['description'])->toBe('Box: eine Box für Hinweise.')
+        ->and($byName['box']['adopted'])->toBeTrue()
+        ->and($byName['box']['redesign'])->toBe('open')
+        ->and(file_get_contents($root.'/resources/views/components/vdbs/karten/box.blade.php'))->toBe($before);
+
+    expect(dsScaffolder($root)->check('karten'))->toBe([]);
+});
+
+it('refuses to adopt twice unless forced and knows only existing packages', function () {
+    $root = dsProject();
+    dsExistingPackage($root);
+    dsScaffolder($root)->adopt('karten');
+
+    expect(fn () => dsScaffolder($root)->adopt('karten'))->toThrow(RuntimeException::class, 'schon ein Manifest')
+        ->and(fn () => dsScaffolder($root)->adopt('gibt-es-nicht'))->toThrow(RuntimeException::class, 'keine Komponenten');
+
+    expect(dsScaffolder($root, false, true)->adopt('karten'))->toBe(2);
+});
+
+it('keeps adopted components out of the extra library entries and reports problems', function () {
+    $root = dsProject();
+    dsExistingPackage($root);
+    dsScaffolder($root)->adopt('karten');
+
+    expect(Registry::packageDefinitions($root.'/app/Modules/DesignLibrary/Packages'))->toBe([])
+        ->and(array_keys(Registry::packages($root.'/app/Modules/DesignLibrary/Packages')))->toBe(['karten']);
+
+    File::delete($root.'/resources/css/vdbs/components/karten/box-shapes.css');
+    File::delete($root.'/resources/views/design-library/entries/karten-seite.blade.php');
+    File::put($root.'/resources/css/vdbs/components/karten/box-header.css', ".x { color: #fff; }\n");
+
+    $problems = implode("\n", dsScaffolder($root)->check('karten'));
+    expect($problems)->toContain('CSS fehlt (box-shapes.css)')->toContain('Beispielseite „karten-seite“ fehlt')->toContain('Farbcode in box-header.css');
+});
+
+it('sets and validates the state of the redesign', function () {
+    $root = dsProject();
+    dsExistingPackage($root);
+    dsScaffolder($root)->adopt('karten');
+    dsScaffolder($root)->setRedesign('karten', 'box', 'in-progress');
+
+    expect(collect((require $root.'/app/Modules/DesignLibrary/Packages/karten.php')['components'])->firstWhere('name', 'box')['redesign'])->toBe('in-progress');
+    expect(fn () => dsScaffolder($root)->setRedesign('karten', 'box', 'fertig'))->toThrow(InvalidArgumentException::class)
+        ->and(fn () => dsScaffolder($root)->setRedesign('karten', 'gibt-es-nicht', 'done'))->toThrow(RuntimeException::class);
+});
+
+it('has a manifest for every package of the design system and passes the check', function () {
+    foreach (array_keys(DesignScaffolder::PACKAGE_TITLES) as $package) {
+        expect(is_file(app_path('Modules/DesignLibrary/Packages/'.$package.'.php')))->toBeTrue("Manifest für {$package}");
+    }
+
+    $this->artisan('design:check')->assertSuccessful();
+    $this->artisan('design:status')->assertSuccessful();
+});
+
+it('shows the packages page to people with the design permission only', function () {
+    $this->get(route('design-library.packages'))->assertRedirect(route('login'));
+});

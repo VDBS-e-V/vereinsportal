@@ -9,6 +9,7 @@
         <h2 id="toc-heading" style="font-size:var(--font-size-h3)">Inhalt</h2>
         <ol>
             <li><a href="#ueberblick">Überblick</a></li>
+            <li><a href="#bestand">Die vorhandenen Pakete</a></li>
             <li><a href="#schnellstart">Schnellstart</a></li>
             <li><a href="#struktur">Ordnerstruktur</a></li>
             <li><a href="#befehle">Die Befehle</a></li>
@@ -33,7 +34,36 @@
         </ul>
         <p>Sie schreiben das Markup und das CSS. Alles andere erzeugen drei Befehle: <code>design:package</code>, <code>design:component</code> und <code>design:check</code>. Die Beispielseiten sind in der Design-Bibliothek unter <code>/design/&lt;paket&gt;-&lt;komponente&gt;</code> zu sehen. Diese Bibliothek ist nur für angemeldete Personen mit der Berechtigung <code>design.view</code> (Administration und Vorstand) zugänglich.</p>
 
-        <h2 id="schnellstart">2. Schnellstart</h2>
+        <h2 id="bestand">2. Die vorhandenen Pakete</h2>
+        <p>Das aktuelle Designsystem ist bereits in diese Struktur aufgenommen: Jedes seiner zwölf Pakete hat ein <strong>Manifest</strong> in <code>app/Modules/DesignLibrary/Packages/&lt;paket&gt;.php</code>, das alle Komponenten, ihre CSS-Dateien und ihre Beispielseiten aufführt. Die Dateien selbst liegen unverändert an ihrem Platz.</p>
+        <table>
+            <thead><tr><th scope="col">Paket</th><th scope="col">Inhalt</th></tr></thead>
+            <tbody>
+                <tr><td><code>foundation</code> Grundlagen</td><td>Icons</td></tr>
+                <tr><td><code>actions</code> Aktionen</td><td>Button, Link-Button, Button-Gruppe, Nach-oben-Link</td></tr>
+                <tr><td><code>forms</code> Formulare</td><td>Felder, Auswahl, Upload, Formularaufbau, Fehlerübersicht</td></tr>
+                <tr><td><code>navigation</code> Navigation</td><td>Kopf- und Fußbereich, Menüs, Brotkrumen, Tabs, Paginierung, Schritte</td></tr>
+                <tr><td><code>layout</code> Layout</td><td>Container, Abschnitt, Raster, Split, Seitenkopf</td></tr>
+                <tr><td><code>cards</code> Karten</td><td>Karte, Teaser, Schnellzugriffe, Kontaktblock</td></tr>
+                <tr><td><code>data</code> Daten</td><td>Tabelle, Kennzahl, Badge, Chip, Listen, Zeitleiste, Werkzeugleiste</td></tr>
+                <tr><td><code>feedback</code> Rückmeldung</td><td>Hinweis, Meldung, Fortschritt, Skeleton, Leerzustand, Tooltip</td></tr>
+                <tr><td><code>overlays</code> Overlays</td><td>Modal, Bestätigungsdialog, Seitenpanel</td></tr>
+                <tr><td><code>media</code> Medien</td><td>Bild, Figur, Bildquelle, Hero</td></tr>
+                <tr><td><code>disclosure</code> Aufklappen</td><td>Akkordeon</td></tr>
+                <tr><td><code>content</code> Inhalte</td><td>Fließtext, Zitat, Download- und Terminkarte, Feature</td></tr>
+            </tbody>
+        </table>
+        <p>Die Übersicht mit allen Komponenten, Beispielseiten und dem <strong>Stand der Umgestaltung</strong> steht in der Design-Bibliothek unter <code>/design/pakete</code>. Jede Komponente hat einen von drei Ständen: <em>Offen</em>, <em>In Arbeit</em> oder <em>Fertig</em>. So sehen wir bei der gemeinsamen Umgestaltung, was noch ansteht.</p>
+        @verbatim
+<pre><code>php artisan design:status                                   # Stand aller Komponenten
+php artisan design:status actions                           # nur ein Paket
+php artisan design:status actions --set=button:in-progress  # Stand setzen (open, in-progress, done)
+php artisan design:adopt --all --force                      # Manifeste neu aus dem Bestand erzeugen (setzt den Stand zurück!)</code></pre>
+        @endverbatim
+        <p><code>design:adopt</code> nimmt ein Paket (<code>design:adopt actions</code>) oder alle (<code>--all</code>) in die Struktur auf. Es liest die Ordner, ordnet jede CSS-Datei der Komponente mit dem längsten passenden Namen zu (<code>button-variants.css</code> gehört zu <code>button</code>), sucht die Beispielseiten, in denen die Komponente vorkommt, und schreibt das Manifest. Blade und CSS bleiben unberührt. Mit <code>--dry-run</code> zeigt es nur, was passieren würde. Ein vorhandenes Manifest ersetzt es nur mit <code>--force</code>.</p>
+        <p>Bei <strong>aufgenommenen</strong> Komponenten verlangt <code>design:check</code> nur, dass die Dateien da, eingebunden und farbfrei sind. Der Klassenname <code>vdbs-&lt;name&gt;</code> und ein eigener Test sind dort nicht Pflicht, denn sie gelten für neu angelegte Komponenten.</p>
+
+        <h2 id="schnellstart">3. Schnellstart (neues Paket)</h2>
         <p>Im Projektordner, in der Konsole:</p>
         @verbatim
 <pre><code>php artisan design:package meine-karten --title="Meine Karten"
@@ -49,7 +79,7 @@ php artisan design:check</code></pre>
         </ol>
         <p>Danach öffnen Sie <code>/design/meine-karten-info-box</code> in der Design-Bibliothek, bearbeiten die beiden Dateien <code>info-box.blade.php</code> und <code>info-box.css</code> und laden die Seite neu.</p>
 
-        <h2 id="struktur">3. Ordnerstruktur</h2>
+        <h2 id="struktur">4. Ordnerstruktur</h2>
         @verbatim
 <pre><code>resources/views/components/vdbs/&lt;paket&gt;/&lt;komponente&gt;.blade.php          ← Ihr Markup
 resources/css/vdbs/components/&lt;paket&gt;/index.css                       ← bindet alle CSS-Dateien des Pakets ein
@@ -62,7 +92,7 @@ stubs/design/*.stub                                                    ← Vorla
         @endverbatim
         <p>Die Datei <code>resources/css/app.css</code> enthält dafür eine Markierung (<code>design-packages:imports</code>). Der Befehl <code>design:package</code> fügt seine Zeile direkt davor ein. Entfernen Sie die Markierung nicht.</p>
 
-        <h2 id="befehle">4. Die Befehle</h2>
+        <h2 id="befehle">5. Die Befehle</h2>
 
         <h3>design:package</h3>
         <p>Legt ein Paket an.</p>
@@ -99,13 +129,16 @@ stubs/design/*.stub                                                    ← Vorla
         </table>
         <p>Existiert schon eine der drei Dateien der Komponente, bricht der Befehl ab, bevor er etwas anlegt. So bleibt kein halbes Ergebnis zurück.</p>
 
+        <h3>design:adopt und design:status</h3>
+        <p>Beide gehören zu den vorhandenen Paketen und sind in Abschnitt 2 erklärt. <code>design:adopt &lt;paket&gt;|--all</code> schreibt Manifeste aus dem Bestand, <code>design:status [paket] [--set=komponente:stand]</code> zeigt und setzt den Stand der Umgestaltung.</p>
+
         <h3>design:check</h3>
         @verbatim
 <pre><code>php artisan design:check [paket]</code></pre>
         @endverbatim
         <p>Prüft alle Pakete oder ein einzelnes. Der Befehl meldet fehlende Dateien (Komponente, CSS, Beispielseite, Test), fehlende Importe in <code>index.css</code> und <code>app.css</code>, Farbcodes und primitive Farb-Tokens im CSS sowie CSS ohne die Klasse <code>.vdbs-&lt;name&gt;</code>. Bei Problemen endet er mit einem Fehlercode, damit er sich auch in der Automatik (CI) nutzen lässt.</p>
 
-        <h2 id="dateien">5. Was die Befehle anlegen</h2>
+        <h2 id="dateien">6. Was die Befehle anlegen</h2>
 
         <h3>Blade-Komponente</h3>
         @verbatim
@@ -159,7 +192,7 @@ stubs/design/*.stub                                                    ← Vorla
         <h3>Test</h3>
         <p>Je Komponente entstehen zwei Tests in <code>tests/Feature/DesignLibrary/Packages/&lt;Paket&gt;Test.php</code>: Die Komponente wird mit Inhalt gerendert und muss ihre Klasse tragen, und eine unbekannte Variante fällt auf <code>default</code> zurück. Ergänzen Sie eigene Tests für Varianten, Eigenschaften und Barrierefreiheit.</p>
 
-        <h2 id="arbeiten">6. So schreiben Sie eine Komponente</h2>
+        <h2 id="arbeiten">7. So schreiben Sie eine Komponente</h2>
         <ol>
             <li><strong>Anlegen:</strong> <code>design:component</code> ausführen (am besten zuerst mit <code>--dry-run</code>).</li>
             <li><strong>Markup:</strong> In der Blade-Datei den Aufbau schreiben. Teile erhalten Klassen nach dem Muster <code>vdbs-info-box__teil</code>, Varianten <code>vdbs-info-box--variante</code>.</li>
@@ -168,11 +201,11 @@ stubs/design/*.stub                                                    ← Vorla
             <li><strong>Zustände:</strong> Fokus (<code>:focus-visible</code>), Hover, deaktiviert und Fehler gestalten. Der Fokus muss immer sichtbar sein.</li>
             <li><strong>Beispielseite:</strong> Alle Varianten und Zustände zeigen, auch mit sehr langem Text und auf schmalem Bildschirm.</li>
             <li><strong>Dunkelmodus:</strong> Weil nur Tokens verwendet werden, passt er sich an. Prüfen Sie ihn trotzdem einmal.</li>
-            <li><strong>Prüfen:</strong> <code>design:check</code> und die Tests ausführen (Abschnitt 8).</li>
+            <li><strong>Prüfen:</strong> <code>design:check</code> und die Tests ausführen (Abschnitt 9).</li>
             <li><strong>Status setzen:</strong> Im Manifest von <code>experimental</code> auf <code>beta</code> oder <code>stable</code> anheben, wenn die Komponente fertig ist.</li>
         </ol>
 
-        <h2 id="regeln">7. Regeln für Code, CSS und Texte</h2>
+        <h2 id="regeln">8. Regeln für Code, CSS und Texte</h2>
         <table>
             <thead><tr><th scope="col">Bereich</th><th scope="col">Regel</th></tr></thead>
             <tbody>
@@ -187,7 +220,7 @@ stubs/design/*.stub                                                    ← Vorla
             </tbody>
         </table>
 
-        <h2 id="pruefen">8. Prüfen und testen</h2>
+        <h2 id="pruefen">9. Prüfen und testen</h2>
         @verbatim
 <pre><code>php artisan design:check
 php -d display_errors=1 vendor\pestphp\pest\bin\pest tests/Feature/DesignLibrary
@@ -200,7 +233,7 @@ php -d display_errors=1 vendor\pestphp\pest\bin\pest</code></pre>
         </ul>
         <p>Checkliste vor dem Zusammenführen: Beispielseite zeigt alle Varianten · Tastaturbedienung geprüft · Dunkelmodus geprüft · Handy-Breite geprüft · <code>design:check</code> ohne Meldung · Tests grün · Status im Manifest gesetzt.</p>
 
-        <h2 id="fehler">9. Fehlerbehebung</h2>
+        <h2 id="fehler">10. Fehlerbehebung</h2>
         <table>
             <thead><tr><th scope="col">Meldung oder Symptom</th><th scope="col">Ursache und Lösung</th></tr></thead>
             <tbody>
@@ -210,11 +243,13 @@ php -d display_errors=1 vendor\pestphp\pest\bin\pest</code></pre>
                 <tr><td>Die Beispielseite zeigt keinen Stil</td><td><code>npm run build</code> (oder <code>npm run dev</code>) ausführen und die Seite hart neu laden.</td></tr>
                 <tr><td>Beispielseite fehlt in der Bibliothek</td><td>Prüfen, ob der Eintrag im Manifest steht. Danach <code>php artisan view:clear</code>. Den Zugriff haben nur Konten mit <code>design.view</code>.</td></tr>
                 <tr><td><code>TokensTest</code> schlägt fehl</td><td>Ein Farbcode oder ein primitives Token (<code>--color-*</code>) steckt im CSS. Durch ein semantisches Token ersetzen, das es in <code>tokens.css</code> gibt.</td></tr>
+                <tr><td>„… hat schon ein Manifest“ bei <code>design:adopt</code></td><td>Das Paket ist schon aufgenommen. Mit <code>--force</code> erzeugen Sie das Manifest neu; der Stand der Umgestaltung und von Hand geänderte Titel gehen dabei verloren.</td></tr>
+                <tr><td>„CSS fehlt“ oder „Beispielseite fehlt“ bei <code>design:check</code></td><td>Eine Datei wurde umbenannt oder gelöscht. Entweder wiederherstellen oder das Manifest mit <code>design:adopt &lt;paket&gt; --force</code> neu erzeugen.</td></tr>
                 <tr><td>„Vorlage fehlt“</td><td>Der Ordner <code>stubs/design</code> ist unvollständig. Aus dem Repository wiederherstellen.</td></tr>
             </tbody>
         </table>
 
-        <h2 id="ausblick">10. Ausblick</h2>
+        <h2 id="ausblick">11. Ausblick</h2>
         <p>Als Nächstes folgt der Befehl <code>design:docs &lt;paket&gt; &lt;name&gt;</code>, der zu jeder Komponente eine Erklärseite anlegt: Eigenschaften, Varianten, Barrierefreiheit und Einsatzhinweise. Er arbeitet nach demselben Muster wie die vorhandenen Befehle.</p>
     </div>
 </x-layouts.app>

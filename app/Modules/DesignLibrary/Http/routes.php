@@ -9,6 +9,7 @@ Route::middleware(['web', 'auth', 'can:design.view'])
     ->name('design-library.')
     ->group(function (): void {
         Route::get('/', [DesignLibraryController::class, 'index'])->name('index');
+        Route::get('/pakete', [DesignLibraryController::class, 'packages'])->name('packages');
         Route::get('/api/platzhalter', [DesignLibraryController::class, 'placeholders'])->name('placeholders');
         Route::get('/{slug}', [DesignLibraryController::class, 'show'])
             ->where('slug', '[a-z0-9-]+')

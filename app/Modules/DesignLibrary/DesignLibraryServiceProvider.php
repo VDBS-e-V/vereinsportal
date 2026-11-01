@@ -2,9 +2,11 @@
 
 namespace App\Modules\DesignLibrary;
 
+use App\Modules\DesignLibrary\Console\DesignAdoptCommand;
 use App\Modules\DesignLibrary\Console\DesignCheckCommand;
 use App\Modules\DesignLibrary\Console\DesignComponentCommand;
 use App\Modules\DesignLibrary\Console\DesignPackageCommand;
+use App\Modules\DesignLibrary\Console\DesignStatusCommand;
 use Illuminate\Support\ServiceProvider;
 
 class DesignLibraryServiceProvider extends ServiceProvider
@@ -14,7 +16,7 @@ class DesignLibraryServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
 
         if ($this->app->runningInConsole()) {
-            $this->commands([DesignPackageCommand::class, DesignComponentCommand::class, DesignCheckCommand::class]);
+            $this->commands([DesignPackageCommand::class, DesignComponentCommand::class, DesignCheckCommand::class, DesignAdoptCommand::class, DesignStatusCommand::class]);
         }
     }
 }
