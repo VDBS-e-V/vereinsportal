@@ -134,7 +134,7 @@
     --btn-on-soft: var(--night-on-soft);
     --btn-disabled-bg: var(--night-disabled-bg);
     --btn-disabled-fg: var(--night-disabled-fg);
-    --focus-ring: var(--color-weiss);
+    --focus-ring: var(--night-on-solid);
 }
 
 .vdbs-btn--on-night.vdbs-btn--danger-text,
