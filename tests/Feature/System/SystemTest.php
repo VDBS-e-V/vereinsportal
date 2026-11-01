@@ -145,3 +145,99 @@ it('gives a board member the system pages only after the console grants the admi
     $this->actingAs($board->fresh())->get(route('admins.home'))->assertOk()->assertSee('Aufgaben');
     $this->get(route('system.index'))->assertOk();
 });
+
+it('keeps the new system pages for the administration only and lists them in the submenu', function () {
+    $routes = ['system.logs', 'system.queue', 'system.settings'];
+
+    foreach ([RoleKey::AdministrationStaff, RoleKey::BoardMember, RoleKey::Member] as $role) {
+        $this->actingAs(sysUser($role));
+
+        foreach ($routes as $route) {
+            $this->get(route($route))->assertForbidden();
+        }
+
+        $this->post(route('system.settings.test-mail'), ['to' => 'a@beispiel.example'])->assertForbidden();
+        $this->delete(route('system.queue.flush'))->assertForbidden();
+    }
+
+    $this->actingAs(sysUser(RoleKey::Administration));
+
+    foreach ($routes as $route) {
+        $this->get(route($route))->assertOk();
+    }
+
+    $this->get(route('admins.home'))->assertSee('Fehlerprotokoll')->assertSee('Warteschlange')->assertSee('Einstellungen');
+});
+
+it('reads the log file newest first, filters by level and search and redacts secrets', function () {
+    $file = storage_path('logs/zz-test-'.uniqid().'.log');
+    file_put_contents($file, implode("\n", [
+        '[2026-11-01 10:00:00] testing.INFO: Alter Eintrag',
+        '[2026-11-01 10:05:00] testing.ERROR: Mail kaputt password=geheim123 token: abc123def',
+        '#0 /app/Beispiel.php(12): wirft()',
+        '#1 {main}',
+        '[2026-11-01 10:10:00] testing.WARNING: Neuer Hinweis',
+    ])."\n");
+
+    try {
+        $logs = app(\App\Modules\System\Services\SystemLogs::class);
+        $all = $logs->read();
+
+        expect($all['entries'])->toHaveCount(3)
+            ->and($all['entries'][0]['message'])->toBe('Neuer Hinweis')
+            ->and($all['entries'][1]['detail'])->toContain('Beispiel.php')
+            ->and($all['entries'][1]['message'])->not->toContain('geheim123')->not->toContain('abc123def')->toContain('***');
+
+        expect($logs->read('ab-fehler')['entries'])->toHaveCount(1)
+            ->and($logs->read('warning')['entries'])->toHaveCount(1)
+            ->and($logs->read(null, 'alter')['entries'])->toHaveCount(1)
+            ->and($logs->read(null, 'gibtesnicht')['entries'])->toBe([]);
+
+        $this->actingAs(sysUser(RoleKey::Administration))->get(route('system.logs', ['stufe' => 'ab-fehler']))->assertOk()->assertSee('Mail kaputt')->assertDontSee('Neuer Hinweis');
+    } finally {
+        @unlink($file);
+    }
+});
+
+it('redacts secrets from texts', function () {
+    $clean = \App\Modules\System\Support\Redactor::clean('Anmeldung mit password=Passwort99 und Authorization: Bearer abc.def-ghi fehlgeschlagen');
+
+    expect($clean)->not->toContain('Passwort99')->not->toContain('abc.def-ghi')->toContain('***');
+});
+
+it('lists failed jobs and lets the administration retry, forget and flush them', function () {
+    if (! \Illuminate\Support\Facades\Schema::hasTable('failed_jobs')) {
+        $this->markTestSkipped('Die Tabelle failed_jobs fehlt.');
+    }
+
+    $admin = sysUser(RoleKey::Administration);
+    $insert = fn (string $uuid) => \Illuminate\Support\Facades\DB::table('failed_jobs')->insert(['uuid' => $uuid, 'connection' => 'database', 'queue' => 'default', 'payload' => json_encode(['displayName' => 'App\\Jobs\\Beispiel', 'job' => 'x']), 'exception' => "RuntimeException: kaputt\n#0 stack", 'failed_at' => now()]);
+    $insert('aaaaaaaa-0000-0000-0000-000000000001');
+    $insert('aaaaaaaa-0000-0000-0000-000000000002');
+
+    $this->actingAs($admin)->get(route('system.queue'))->assertOk()->assertSee('App\Jobs\Beispiel')->assertSee('RuntimeException: kaputt');
+
+    $this->delete(route('system.queue.forget', 'aaaaaaaa-0000-0000-0000-000000000001'))->assertRedirect(route('system.queue'))->assertSessionHas('success');
+    expect(\Illuminate\Support\Facades\DB::table('failed_jobs')->count())->toBe(1);
+
+    $this->delete(route('system.queue.flush'))->assertSessionHasErrors('password');
+    expect(\Illuminate\Support\Facades\DB::table('failed_jobs')->count())->toBe(1);
+
+    $this->delete(route('system.queue.flush'), ['password' => 'geheim-12345'])->assertRedirect(route('system.queue'))->assertSessionHas('success');
+    expect(\Illuminate\Support\Facades\DB::table('failed_jobs')->count())->toBe(0);
+
+    $this->post(route('system.queue.retry', 'gibt-es-nicht'))->assertSessionHas('error');
+});
+
+it('shows the settings and sends a test mail with validation and a log entry', function () {
+    $admin = sysUser(RoleKey::Administration);
+
+    $this->actingAs($admin)->get(route('system.settings'))->assertOk()->assertSee('Aufbewahrungsfristen')->assertSee('AUDIT_RETENTION_DAYS')->assertSee('Testmail senden');
+
+    $this->post(route('system.settings.test-mail'), ['to' => 'kein-mail'])->assertSessionHasErrors('to');
+
+    config(['mail.default' => 'array']);
+    $this->post(route('system.settings.test-mail'), ['to' => 'ziel@beispiel.example'])->assertRedirect(route('system.settings'))->assertSessionHas('success');
+
+    expect(AuditEntry::query()->where('event', AuditEvent::SystemTaskRun->value)->get()->pluck('context.aufgabe')->all())->toContain('Testmail');
+});

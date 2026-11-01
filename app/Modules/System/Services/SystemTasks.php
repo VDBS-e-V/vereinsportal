@@ -6,6 +6,7 @@ use App\Modules\Access\Models\User;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\System\Models\SystemTaskRun;
+use App\Modules\System\Support\Redactor;
 use DomainException;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
@@ -135,12 +136,6 @@ final class SystemTasks
     /** Geheimnisse der Konfiguration aus der Ausgabe entfernen und die Länge begrenzen. */
     private function clean(string $output): string
     {
-        $secrets = array_filter([config('app.key'), config('database.connections.'.config('database.default').'.password'), config('mail.mailers.smtp.password')], fn ($v) => is_string($v) && strlen($v) >= 6);
-
-        foreach ($secrets as $secret) {
-            $output = str_replace($secret, '***', $output);
-        }
-
-        return Str::limit($output, 6000, "\n… (gekürzt)");
+        return Redactor::clean($output, 6000);
     }
 }

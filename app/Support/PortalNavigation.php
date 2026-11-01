@@ -158,8 +158,13 @@ final class PortalNavigation
                 'pages' => [
                     ['label' => 'Übersicht', 'route' => 'admins.home', 'match' => 'admins.home'],
                     ['description' => 'Das Protokoll sicherheitsrelevanter Vorgänge.', 'label' => 'Protokoll', 'route' => 'admin.audit.index', 'match' => 'admin.audit.*', 'can' => 'audit.view'],
-                    ['description' => 'Zustand des Portals: Prüfungen, Versionen, Planer.', 'label' => 'System', 'route' => 'system.index', 'match' => 'system.index', 'can' => 'system.manage'],
-                    ['description' => 'Aufgaben ausführen: Cache leeren, Migrationen, geplante Aufgaben.', 'label' => 'Aufgaben', 'route' => 'system.tasks', 'match' => 'system.tasks*', 'can' => 'system.manage'],
+                    ['label' => 'System', 'group' => true, 'route' => 'system.index', 'children' => [
+                        ['description' => 'Zustand des Portals: Prüfungen, Versionen, Planer.', 'label' => 'Zustand', 'route' => 'system.index', 'match' => 'system.index', 'can' => 'system.manage'],
+                        ['description' => 'Aufgaben ausführen: Cache leeren, Migrationen, geplante Aufgaben.', 'label' => 'Aufgaben', 'route' => 'system.tasks', 'match' => 'system.tasks*', 'can' => 'system.manage'],
+                        ['description' => 'Fehler und Warnungen der Anwendung aus der Protokolldatei.', 'label' => 'Fehlerprotokoll', 'route' => 'system.logs', 'match' => 'system.logs', 'can' => 'system.manage'],
+                        ['description' => 'Fehlgeschlagene Aufträge erneut versuchen oder verwerfen.', 'label' => 'Warteschlange', 'route' => 'system.queue', 'match' => 'system.queue*', 'can' => 'system.manage'],
+                        ['description' => 'Fristen, E-Mail und Betrieb zum Nachlesen, Testmail senden.', 'label' => 'Einstellungen', 'route' => 'system.settings', 'match' => 'system.settings*', 'can' => 'system.manage'],
+                    ]],
                     ['description' => 'Komponenten und Muster des Designsystems.', 'label' => 'Design-Bibliothek', 'route' => 'design-library.index', 'match' => 'design-library.*', 'can' => 'design.view'],
                 ],
             ],
