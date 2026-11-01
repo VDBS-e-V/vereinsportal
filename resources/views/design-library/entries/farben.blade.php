@@ -3,7 +3,7 @@
         'Marke' => ['gruen', 'gruen-dunkel', 'gruen-dunkler', 'gruen-hell', 'gruen-leuchtend', 'gruen-pastell', 'ink', 'weiss', 'lila', 'marine'],
         'Grau' => ['grau-hell', 'grau-linie', 'grau-rahmen', 'grau-text'],
         'Status' => ['fehler', 'fehler-dunkel', 'fehler-hell', 'fehler-leuchtend', 'warnung-hell', 'warnung-rand', 'warnung-text', 'warnung-leuchtend'],
-        'Dark Mode' => ['aubergine-950', 'aubergine-900', 'aubergine-800', 'aubergine-700', 'mauve-500', 'mauve-400', 'nebel'],
+        'Dark Mode' => ['graphit-950', 'graphit-900', 'graphit-800', 'graphit-750', 'graphit-700', 'graphit-500', 'graphit-400', 'nebel', 'gruen-nacht', 'gruen-nacht-text', 'lila-nacht', 'lila-nacht-text'],
     ];
     $semantic = [
         'Flächen' => ['bg-page', 'bg-surface', 'bg-accent-soft', 'bg-header-footer', 'bg-brand', 'bg-action', 'bg-action-hover', 'bg-media', 'bg-danger'],

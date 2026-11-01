@@ -78,7 +78,7 @@ Entwurf: `docs/design/buttons-system-dunkel.png` (Quelltext `buttons-system-dunk
 Schrift: Primär weiß (4,7–6,0 : 1), Sekundär Nebel `#f1f4f2`. Flächen: Seite `#180f18`, Karte `#261926`, erhöht `#381d39`. Primär-Fläche zur Seite 3,1–4,0 : 1; auf der erhöhten Fläche (`#381d39`) bleibt der Flächenkontrast unter 3 : 1, die Schrift (≥ 4,5 : 1) und der Fokusring tragen dort die Erkennbarkeit.
 
 ### Neufassung: Dunkelmodus mit neutralem Hintergrund (ersetzt den Entwurf mit Aubergine)
-Bild: `docs/design/buttons-system-dunkel-neutral.png`. Entscheidung: Der Dunkelmodus bekommt keinen Lila-Stich im Hintergrund mehr. Lila und Grün sind reine Akzentfarben auf neutralem Graphit. Noch nicht im Code; betrifft später die Dark-Tokens von Seite, Karte und erhöhter Fläche im ganzen Portal.
+Bild: `docs/design/buttons-system-dunkel-neutral.png`. Entscheidung: Der Dunkelmodus bekommt keinen Lila-Stich im Hintergrund mehr. Lila und Grün sind reine Akzentfarben auf neutralem Graphit. Umgesetzt in `tokens.css` (Dark-Blöcke); Test: `tests/Feature/DesignLibrary/DarkModeTokensTest.php`. Zusätzlich gewählt (nicht im Bild): Trennlinien `--border-default` `#343a40`, gedämpfte Schrift `--text-muted` `#9aa1a6`, Rahmen `--border-input` `#80888e`, Kopf- und Fußbereich `#1b1e21`.
 
 | Fläche | Wert |
 |---|---|
