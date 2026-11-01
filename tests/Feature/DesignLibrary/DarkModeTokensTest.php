@@ -98,3 +98,16 @@ it('keeps the contrast of the dark buttons above the thresholds', function () {
         ->and(dmContrast(dmHex('--text-muted'), dmHex('--bg-accent-soft')))->toBeGreaterThanOrEqual(4.5)
         ->and(dmContrast(dmHex('--focus-ring'), dmHex('--bg-page')))->toBeGreaterThanOrEqual(3.0);
 });
+
+it('gives the night surface exactly the tones of the dark mode', function () {
+    foreach (['green', 'lila'] as $tone) {
+        foreach (['solid', 'solid-hover', 'solid-press', 'soft', 'soft-hover', 'soft-press', 'text', 'text-hover'] as $role) {
+            expect(dmHex("--night-{$tone}-{$role}"))->toBe(dmHex("--btn-{$tone}-{$role}"), "{$tone} {$role}");
+        }
+    }
+
+    expect(dmHex('--night-bg'))->toBe(dmHex('--bg-page'))
+        ->and(dmHex('--night-on-solid'))->toBe(dmHex('--btn-on-solid'))
+        ->and(dmHex('--night-on-soft'))->toBe(dmHex('--btn-on-soft'))
+        ->and(dmHex('--night-disabled-bg'))->toBe(dmHex('--btn-disabled-bg'));
+});

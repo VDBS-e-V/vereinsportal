@@ -5,6 +5,10 @@
 @endphp
 
 <x-layouts.app title="Design-Pakete" width="wide">
+    @push('vdbs-breadcrumb')
+        <x-vdbs.navigation.breadcrumb :items="\App\Support\PortalNavigation::breadcrumb([['label' => 'Design-Bibliothek', 'href' => route('design-library.index')], ['label' => 'Pakete']], request()->route()?->getName())" />
+    @endpush
+
     <h1>Design-Pakete</h1>
     <p>Alle Pakete des Designsystems mit ihren Komponenten, Dateien und dem Stand der gemeinsamen Umgestaltung. Fortschritt: <strong>{{ $done }} von {{ $total }}</strong> Komponenten fertig.</p>
     <p>Stand setzen: <code>php artisan design:status &lt;paket&gt; --set=&lt;komponente&gt;:in-progress</code> (open, in-progress, done). <a href="{{ route('design-library.index') }}">Zur Bibliothek</a> · <a href="{{ route('portal.design-packages') }}">Anleitung</a></p>

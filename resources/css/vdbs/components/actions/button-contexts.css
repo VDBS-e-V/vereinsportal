@@ -18,10 +18,14 @@
 
 .vdbs-btn--on-dark.vdbs-btn--primary,
 .vdbs-on-dark .vdbs-btn--primary {
-    --btn-bg: var(--bg-brand);
-    --btn-fg: var(--text-on-brand);
-    --btn-fill: var(--bg-brand);
-    --btn-fill-fg: var(--text-on-brand);
+    --btn-bg: var(--on-dark-primary);
+    --btn-fg: var(--on-dark-primary-fg);
+    --btn-hover-bg: var(--on-dark-primary-hover);
+    --btn-hover-fg: var(--on-dark-primary-fg);
+    --btn-press-bg: var(--on-dark-primary-press);
+    --btn-press-fg: var(--on-dark-primary-fg);
+    --btn-fill: var(--on-dark-primary);
+    --btn-fill-fg: var(--on-dark-primary-fg);
 }
 
 .vdbs-btn--on-dark.vdbs-btn--secondary,
@@ -44,8 +48,8 @@
     --btn-fg: var(--on-dark-fg);
     --btn-hover-bg: var(--on-dark-hover);
     --btn-hover-fg: var(--on-dark-fg);
-    --btn-fill: var(--bg-brand);
-    --btn-fill-fg: var(--text-on-brand);
+    --btn-fill: var(--on-dark-fill-soft);
+    --btn-fill-fg: var(--on-dark-fg);
 }
 
 .vdbs-btn--on-dark.vdbs-btn--quiet,
@@ -112,4 +116,33 @@
     --btn-hover-fg: var(--on-brand-fg);
     --btn-fill: var(--on-brand-fill-soft);
     --btn-fill-fg: var(--on-brand-fg);
+}
+
+
+/* ---------- night (Fläche des Dunkelmodus, Graphit): die Töne des Dunkelmodus, auch im hellen Theme ----------
+ * Die Rollen bleiben unverändert (button-variants.css); nur die Tonfarben-Variablen werden durch die Nachtwerte ersetzt.
+ */
+.vdbs-btn--on-night,
+.vdbs-on-night .vdbs-btn {
+    --btn-green-solid: var(--night-green-solid);
+    --btn-green-solid-hover: var(--night-green-solid-hover);
+    --btn-green-solid-press: var(--night-green-solid-press);
+    --btn-green-soft: var(--night-green-soft);
+    --btn-green-soft-hover: var(--night-green-soft-hover);
+    --btn-green-soft-press: var(--night-green-soft-press);
+    --btn-green-text: var(--night-green-text);
+    --btn-green-text-hover: var(--night-green-text-hover);
+    --btn-lila-solid: var(--night-lila-solid);
+    --btn-lila-solid-hover: var(--night-lila-solid-hover);
+    --btn-lila-solid-press: var(--night-lila-solid-press);
+    --btn-lila-soft: var(--night-lila-soft);
+    --btn-lila-soft-hover: var(--night-lila-soft-hover);
+    --btn-lila-soft-press: var(--night-lila-soft-press);
+    --btn-lila-text: var(--night-lila-text);
+    --btn-lila-text-hover: var(--night-lila-text-hover);
+    --btn-on-solid: var(--night-on-solid);
+    --btn-on-soft: var(--night-on-soft);
+    --btn-disabled-bg: var(--night-disabled-bg);
+    --btn-disabled-fg: var(--night-disabled-fg);
+    --focus-ring: var(--color-weiss);
 }

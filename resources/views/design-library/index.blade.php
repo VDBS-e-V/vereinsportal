@@ -1,4 +1,8 @@
 <x-layouts.app title="Design-Bibliothek">
+    @push('vdbs-breadcrumb')
+        <x-vdbs.navigation.breadcrumb :items="\App\Support\PortalNavigation::breadcrumb([['label' => 'Design-Bibliothek']], request()->route()?->getName())" />
+    @endpush
+
     <h1>Design-Bibliothek</h1>
     <p>Tokens, Komponenten, Marken-Bausteine, Muster und Richtlinien des VDBS-Vereinsportals nach dem VDBS-Web-Styleguide.</p>
     <p><x-vdbs.actions.button variant="secondary" :href="route('design-library.packages')" icon="list">Pakete und Stand der Umgestaltung</x-vdbs.actions.button> · <a href="{{ route('portal.design-packages') }}">Anleitung für Design-Pakete</a></p>

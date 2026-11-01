@@ -98,7 +98,8 @@ it('falls back for unknown values', function () {
 
 it('supports the xl size and the dark and brand surfaces', function () {
     expect(button('size="xl" on="dark"'))->toContain('vdbs-btn--size-xl')->toContain('vdbs-btn--on-dark')
-        ->and(button('on="brand"'))->toContain('vdbs-btn--on-brand');
+        ->and(button('on="brand"'))->toContain('vdbs-btn--on-brand')
+        ->and(button('on="night" tone="lila"'))->toContain('vdbs-btn--on-night')->toContain('vdbs-btn--tone-lila');
 });
 
 it('renders a link when href is set and opens external links safely', function () {

@@ -132,19 +132,25 @@
 </div>
 
 <h2>Flächen (<code>on</code>)</h2>
-@foreach (['default' => 'background:var(--bg-page)', 'dark' => 'background:var(--bg-header-footer);color:var(--text-on-dark)', 'brand' => 'background:var(--bg-brand);color:var(--text-on-brand)'] as $on => $style)
+@foreach (['default' => 'background:var(--bg-page)', 'night' => 'background:var(--night-bg);color:var(--night-fg)', 'brand' => 'background:var(--bg-brand);color:var(--text-on-brand)'] as $on => $style)
     <div style="{{ $style }};padding:var(--space-5);margin-bottom:var(--space-3);border:1px solid var(--border-default)">
         <p style="margin:0 0 var(--space-3)"><code>on="{{ $on }}"</code></p>
         <x-vdbs.actions.button-group>
             @foreach ($roles as $variant => $name)
                 <x-vdbs.actions.button :variant="$variant" :on="$on">{{ $name }}</x-vdbs.actions.button>
             @endforeach
-            <x-vdbs.actions.button variant="secondary" shape="line" :on="$on">Linie</x-vdbs.actions.button>
             <x-vdbs.actions.button shape="arrow" :on="$on">Pfeil</x-vdbs.actions.button>
         </x-vdbs.actions.button-group>
+        @if (in_array($on, ['default', 'night'], true))
+            <x-vdbs.actions.button-group style="margin-top:var(--space-3)">
+                @foreach (['primary', 'secondary', 'tertiary', 'text'] as $variant)
+                    <x-vdbs.actions.button :variant="$variant" tone="lila" :on="$on">Lila {{ $roles[$variant] }}</x-vdbs.actions.button>
+                @endforeach
+            </x-vdbs.actions.button-group>
+        @endif
     </div>
 @endforeach
-<p>Alternativ gilt eine Fläche für alle Buttons darin: Container mit <code>.vdbs-on-dark</code> oder <code>.vdbs-on-brand</code> (so lösen die Heros es).</p>
+<p><code>night</code> ist die Fläche des Dunkelmodus (Graphit) mit den Tönen des Dunkelmodus, auch im hellen Theme. <code>dark</code> bleibt für Lila- und Bildflächen der Heros (weiße Umrisse). Alternativ gilt eine Fläche für alle Buttons darin: Container mit <code>.vdbs-on-night</code>, <code>.vdbs-on-dark</code> oder <code>.vdbs-on-brand</code>.</p>
 
 <h2>Gruppe und volle Breite</h2>
 <x-vdbs.actions.button-group label="Formular-Aktionen" align="end">
@@ -164,7 +170,7 @@
     <tr><th scope="row"><code>tone</code></th><td>green (Standard), lila</td><td>Tonfarbe von primary, secondary, tertiary und text</td></tr>
     <tr><th scope="row"><code>shape</code></th><td>arrow, line, link, outline, text</td><td>Nur für Sonderformen (siehe oben); jede Rolle bringt ihre Form mit</td></tr>
     <tr><th scope="row"><code>size</code></th><td>s, m (Standard), l, xl</td><td>36, 44, 52, 60 px Höhe</td></tr>
-    <tr><th scope="row"><code>on</code></th><td>default (Standard), dark, brand</td><td>Fläche hinter dem Button; default = normale Seitenfläche, folgt dem Theme</td></tr>
+    <tr><th scope="row"><code>on</code></th><td>default (Standard), night, dark, brand</td><td>Fläche hinter dem Button; default = normale Seitenfläche, folgt dem Theme</td></tr>
     <tr><th scope="row"><code>href</code></th><td>URL</td><td>Link statt Button</td></tr>
     <tr><th scope="row"><code>icon</code>, <code>icon-position</code></th><td>Lucide-Name; start, end</td><td>Icon mit Text</td></tr>
     <tr><th scope="row"><code>label</code></th><td>Text</td><td>Pflicht bei reinen Icon-Buttons</td></tr>

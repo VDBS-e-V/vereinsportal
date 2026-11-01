@@ -28,9 +28,10 @@
     tone     green | lila                                           Tonfarbe von primary, secondary, tertiary und text (Standard green = Aktion)
     shape    solid | outline | text | link | arrow | line           Form (Standard je Variante)
     size     s | m | l | xl
-    on       default | dark | brand                                 Fläche, auf der der Button steht
+    on       default | night | dark | brand                         Fläche, auf der der Button steht
+             night = Fläche des Dunkelmodus (Graphit), Töne des Dunkelmodus; dark = Lila/Ink/Bild (Heros)
              default = die normale Seitenfläche (folgt dem Theme, im Dark Mode also dunkel)
-             (Alternativ ein Container mit .vdbs-on-dark bzw. .vdbs-on-brand)
+             (Alternativ ein Container mit .vdbs-on-night, .vdbs-on-dark bzw. .vdbs-on-brand)
     href     gesetzt = <a>, sonst <button>
     icon     Lucide-Name; iconPosition start | end — in jeder Form möglich (ein Icon vor oder nach dem Text).
              Pfeil-Form: zusätzlich immer der Pfeil am Ende. Linien-Form: ohne Icon ein Chevron am Anfang.
@@ -54,7 +55,7 @@
     $shape = in_array($shape, ['solid', 'outline', 'text', 'link', 'arrow', 'line'], true) ? $shape : $defaultShape;
 
     $size = in_array($size, ['s', 'm', 'l', 'xl'], true) ? $size : 'm';
-    $on = in_array($on, ['default', 'dark', 'brand'], true) ? $on : 'default';
+    $on = in_array($on, ['default', 'dark', 'brand', 'night'], true) ? $on : 'default';
     $iconPosition = $iconPosition === 'end' ? 'end' : 'start';
 
     $iconOnly = $label !== null && $slot->isEmpty();

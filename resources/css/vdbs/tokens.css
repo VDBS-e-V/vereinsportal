@@ -223,6 +223,34 @@
     --on-dark-solid-fg: var(--color-ink);
     --on-dark-danger: var(--color-fehler-leuchtend);
     --on-dark-danger-hover: var(--color-fehler-pastell);
+    /* Primär auf dunklen Flächen (Lila, Ink, Bild): Grün in mittlerer Helligkeit mit weißer Schrift (gleiche Logik wie die helle Seite) */
+    --on-dark-primary: var(--color-gruen-nacht);
+    --on-dark-primary-hover: var(--color-gruen-nacht-hover);
+    --on-dark-primary-press: var(--color-gruen-nacht-gedrueckt);
+    --on-dark-primary-fg: var(--color-weiss);
+    /* Nachtfläche: die Fläche des Dunkelmodus (Graphit) als Beispiel- und Einbettungsfläche auch im hellen Theme; Buttons darauf nutzen die Töne des Dunkelmodus */
+    --night-bg: var(--color-graphit-950);
+    --night-fg: var(--color-nebel);
+    --night-green-solid: var(--color-gruen-nacht);
+    --night-green-solid-hover: var(--color-gruen-nacht-hover);
+    --night-green-solid-press: var(--color-gruen-nacht-gedrueckt);
+    --night-green-soft: var(--color-gruen-nacht-tint);
+    --night-green-soft-hover: var(--color-gruen-nacht-tint-hover);
+    --night-green-soft-press: var(--color-gruen-nacht-tint-gedrueckt);
+    --night-green-text: var(--color-gruen-nacht-text);
+    --night-green-text-hover: var(--color-gruen-nacht-text-hover);
+    --night-lila-solid: var(--color-lila-nacht);
+    --night-lila-solid-hover: var(--color-lila-nacht-hover);
+    --night-lila-solid-press: var(--color-lila-nacht-gedrueckt);
+    --night-lila-soft: var(--color-lila-nacht-tint);
+    --night-lila-soft-hover: var(--color-lila-nacht-tint-hover);
+    --night-lila-soft-press: var(--color-lila-nacht-tint-gedrueckt);
+    --night-lila-text: var(--color-lila-nacht-text);
+    --night-lila-text-hover: var(--color-lila-nacht-text-hover);
+    --night-on-solid: var(--color-weiss);
+    --night-on-soft: var(--color-nebel);
+    --night-disabled-bg: var(--color-graphit-750);
+    --night-disabled-fg: var(--color-graphit-400);
     --on-dark-disabled-bg: var(--alpha-weiss-12);
     --on-dark-disabled-line: var(--alpha-weiss-25);
     --on-dark-disabled-fg: var(--alpha-weiss-60);
