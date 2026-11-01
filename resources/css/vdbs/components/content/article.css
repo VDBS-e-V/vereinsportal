@@ -1,0 +1,23 @@
+/* Artikelseite: Kopf (Kategorie, Titel, Untertitel, Anreißer, Bild) breit und farbig abgesetzt, Text in Lesebreite, Metaangaben und Aktionen am Ende */
+
+.vdbs-article__head { margin-bottom: var(--space-8); padding: var(--space-6); border-radius: var(--radius-lg); background: var(--bg-surface); }
+.vdbs-article__head-text { max-width: var(--container-medium); }
+
+.vdbs-article__category { margin: 0 0 var(--space-2); color: var(--text-muted); font-size: var(--font-size-small); font-weight: var(--font-weight-bold); }
+.vdbs-article__title { margin: 0; font-size: var(--font-size-h1); font-weight: var(--font-weight-black); line-height: var(--line-height-heading); }
+.vdbs-article__subtitle { margin: var(--space-3) 0 0; font-size: var(--font-size-h3); font-weight: var(--font-weight-bold); line-height: var(--line-height-heading); }
+.vdbs-article__lead { margin: var(--space-4) 0 0; color: var(--text-muted); font-size: var(--font-size-body-lg); line-height: var(--line-height-body); }
+.vdbs-article__image { margin: var(--space-6) 0 0; }
+
+.vdbs-article__body { max-width: var(--container-medium); margin-inline: auto; }
+.vdbs-article__foot { margin-top: var(--space-8); padding-top: var(--space-5); border-top: 1px solid var(--border-default); }
+.vdbs-article__meta { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-6); margin: 0 0 var(--space-5); color: var(--text-muted); font-size: var(--font-size-small); }
+.vdbs-article__meta div { display: flex; gap: var(--space-2); }
+.vdbs-article__meta dt { font-weight: var(--font-weight-bold); }
+.vdbs-article__meta dd { margin: 0; }
+.vdbs-article__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+
+@media (max-width: 639px) {
+    .vdbs-article__head { padding: var(--space-4); }
+    .vdbs-article__actions .vdbs-btn { flex: 1 1 auto; }
+}

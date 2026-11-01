@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Articles\Models\Article;
 use App\Modules\Articles\Services\ArticleAdministration;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -15,9 +16,16 @@ class PublicArticleController extends Controller
 {
     private const PER_PAGE = 9;
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        return view('articles.index', ['articles' => Article::query()->visible()->orderByDesc('published_at')->orderByDesc('id')->paginate(self::PER_PAGE)]);
+        $category = trim((string) $request->query('kategorie', ''));
+        $query = Article::query()->visible()->orderByDesc('published_at')->orderByDesc('id');
+
+        if ($category !== '') {
+            $query->where('category', $category);
+        }
+
+        return view('articles.index', ['articles' => $query->paginate(self::PER_PAGE)->withQueryString(), 'category' => $category !== '' ? $category : null]);
     }
 
     public function show(string $slug): View

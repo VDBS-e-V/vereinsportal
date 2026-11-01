@@ -54,7 +54,7 @@ class ArticleAdminController extends Controller
 
     public function edit(Article $article): View
     {
-        return view('articles.admin-form', ['article' => $article, 'values' => $article->only(['title', 'teaser', 'body', 'category', 'image_alt', 'image_credit', 'status', 'featured']) + ['published_at' => ($article->published_at ?? now())->format('Y-m-d\TH:i')]]);
+        return view('articles.admin-form', ['article' => $article, 'values' => $article->only(['title', 'subtitle', 'teaser', 'body', 'category', 'image_alt', 'image_credit', 'status', 'featured']) + ['published_at' => ($article->published_at ?? now())->format('Y-m-d\TH:i')]]);
     }
 
     public function update(Request $request, Article $article): RedirectResponse
@@ -80,9 +80,10 @@ class ArticleAdminController extends Controller
 
         return $request->validate([
             'title' => ['required', 'string', 'max:200'],
+            'subtitle' => ['nullable', 'string', 'max:250'],
             'teaser' => ['nullable', 'string', 'max:300'],
             'body' => ['required', 'string', 'max:60000'],
-            'category' => ['nullable', 'string', 'max:60'],
+            'category' => ['required', 'string', 'max:60'],
             'image' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'image_alt' => [$hasImage ? 'required' : 'nullable', 'string', 'max:200'],
             'image_credit' => [$hasImage ? 'required' : 'nullable', 'string', 'max:200'],
@@ -94,6 +95,7 @@ class ArticleAdminController extends Controller
             'title.required' => 'Bitte geben Sie einen Titel ein.',
             'body.required' => 'Bitte schreiben Sie den Artikeltext.',
             'body.max' => 'Der Text ist zu lang.',
+            'subtitle.max' => 'Der Untertitel darf höchstens 250 Zeichen lang sein.',
             'teaser.max' => 'Der Anreißer darf höchstens 300 Zeichen lang sein.',
             'image.mimes' => 'Bilder müssen JPEG-, PNG- oder WebP-Dateien sein.',
             'image.max' => 'Das Bild darf höchstens 4 MB groß sein.',

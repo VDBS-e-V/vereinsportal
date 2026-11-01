@@ -81,6 +81,7 @@ final class ArticleAdministration
 
         return [
             'title' => trim((string) $data['title']),
+            'subtitle' => $clean($data['subtitle'] ?? null),
             'teaser' => $clean($data['teaser'] ?? null),
             'body' => trim((string) $data['body']),
             'category' => $clean($data['category'] ?? null) ?? 'Themenartikel',

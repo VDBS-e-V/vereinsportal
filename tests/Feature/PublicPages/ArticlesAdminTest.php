@@ -154,3 +154,16 @@ it('searches the article list', function () {
 
     $this->get(route('articles.admin.index', ['q' => 'Alpha']))->assertSee('Alpha Artikel')->assertDontSee('Beta Artikel');
 });
+
+it('shows subtitle, meta, buttons and category link on the article and filters the list by category', function () {
+    $author = Person::factory()->create(['first_name' => 'Anna', 'last_name' => 'Autorin']);
+    $user = User::factory()->create(['person_id' => $author->id]);
+    $article = Article::query()->create(['slug' => 'untertitel-test', 'title' => 'Titel', 'subtitle' => 'Ein Untertitel', 'teaser' => 'Anreißer', 'body' => '<p>Text</p>', 'category' => 'Presse', 'status' => 'published', 'published_at' => now()->subDays(3), 'created_by_user_id' => $user->id]);
+    Article::query()->create(['slug' => 'andere', 'title' => 'Andere Kategorie', 'body' => 'x', 'category' => 'Verein', 'status' => 'published', 'published_at' => now()->subDay()]);
+
+    $this->get(route('articles.public.show', $article->slug))->assertOk()
+        ->assertSee('Ein Untertitel')->assertSee('Anna Autorin')->assertSee('Veröffentlicht')
+        ->assertSee('Alle Artikel ansehen')->assertSee('Zur Kategorie');
+
+    $this->get(route('articles.public.index', ['kategorie' => 'Presse']))->assertOk()->assertSee('Titel')->assertDontSee('Andere Kategorie');
+});

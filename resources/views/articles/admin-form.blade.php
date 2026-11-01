@@ -17,8 +17,9 @@
     <x-vdbs.forms.form :action="$editing ? route('articles.admin.update', $article) : route('articles.admin.store')" :method="$editing ? 'put' : 'post'" :files="true">
         <x-vdbs.forms.form-section title="Artikel">
             <x-vdbs.forms.input name="title" label="Titel" :required="true" maxlength="200" :value="$values['title'] ?? null" />
+            <x-vdbs.forms.input name="subtitle" label="Untertitel" :optional="true" maxlength="250" :value="$values['subtitle'] ?? null" hint="Steht unter dem Titel, z. B. Anlass, Ort oder Datum einer Veranstaltung" />
             <x-vdbs.forms.form-grid :columns="2">
-                <x-vdbs.forms.input name="category" label="Kategorie" :optional="true" maxlength="60" :value="$values['category'] ?? null" hint="Steht auf der Karte, z. B. Themenartikel" />
+                <x-vdbs.forms.select name="category" label="Kategorie" :required="true" :options="\App\Modules\Articles\Models\Article::categoryOptions($values['category'] ?? null)" :value="$values['category'] ?? 'Themenartikel'" hint="Steht auf der Karte und über dem Titel; führt zur Artikelliste der Kategorie" />
             </x-vdbs.forms.form-grid>
             <x-vdbs.forms.textarea name="teaser" label="Anreißer" :optional="true" maxlength="300" :counter="true" :rows="2" :value="$values['teaser'] ?? null" hint="Kurzer Text für die Karte; ohne Angabe nimmt das Portal den Anfang des Artikels" />
             <x-vdbs.forms.textarea name="body" label="Text" :required="true" maxlength="60000" :rows="14" :rich="true" :value="$values['body'] ?? null" />

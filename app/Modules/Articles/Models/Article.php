@@ -15,7 +15,22 @@ class Article extends Model
 
     public const STATUS_PUBLISHED = 'published';
 
-    protected $fillable = ['slug', 'title', 'teaser', 'body', 'category', 'image_path', 'image_alt', 'image_credit', 'status', 'published_at', 'featured', 'created_by_user_id', 'updated_by_user_id'];
+    /** Auswahl der Kategorien im Formular (bestehende andere Werte bleiben erhalten). */
+    public const CATEGORIES = ['Themenartikel', 'Neuigkeiten', 'Veranstaltungen', 'Bildungsarbeit', 'Verein', 'Presse', 'Materialien'];
+
+    /** @return array<string, string> */
+    public static function categoryOptions(?string $current = null): array
+    {
+        $list = self::CATEGORIES;
+
+        if (filled($current) && ! in_array($current, $list, true)) {
+            $list[] = $current;
+        }
+
+        return array_combine($list, $list);
+    }
+
+    protected $fillable = ['slug', 'title', 'subtitle', 'teaser', 'body', 'category', 'image_path', 'image_alt', 'image_credit', 'status', 'published_at', 'featured', 'created_by_user_id', 'updated_by_user_id'];
 
     protected function casts(): array
     {
@@ -43,6 +58,20 @@ class Article extends Model
     public function html(): string
     {
         return \App\Support\Html\RichText::render($this->body);
+    }
+
+    /** Name der Autorin oder des Autors (Person des anlegenden Kontos), sonst nichts. */
+    public function authorName(): ?string
+    {
+        $name = $this->createdBy?->person?->fullName();
+
+        return filled($name) ? $name : null;
+    }
+
+    /** Wurde der Artikel nach der Veröffentlichung noch geändert? (Toleranz: eine Stunde, damit das Anlegen nicht zählt) */
+    public function wasChanged(): bool
+    {
+        return $this->published_at !== null && $this->updated_at !== null && $this->updated_at->gt($this->published_at->copy()->addHour());
     }
 
     /** @return BelongsTo<User, $this> */
