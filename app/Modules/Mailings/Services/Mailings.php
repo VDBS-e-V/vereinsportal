@@ -2,9 +2,12 @@
 
 namespace App\Modules\Mailings\Services;
 
+use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Models\User;
+use App\Modules\Access\Services\NotificationPreferences;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
+use App\Modules\Mailings\Mail\MailingApprovalMail;
 use App\Modules\Mailings\Mail\MailingMail;
 use App\Modules\Mailings\Jobs\SendMailing;
 use App\Modules\Mailings\Models\Mailing;
@@ -27,7 +30,7 @@ final class Mailings
     /** Werte, die als bereinigtes HTML eingesetzt werden und nicht maskiert werden dürfen. */
     private const RAW = ['eigener_text', 'termine'];
 
-    public function __construct(private readonly MailRecipients $recipients, private readonly MailTemplates $templates, private readonly MailSuppressions $suppressions, private readonly MailUnsubscribes $unsubscribes) {}
+    public function __construct(private readonly MailRecipients $recipients, private readonly MailTemplates $templates, private readonly MailSuppressions $suppressions, private readonly MailUnsubscribes $unsubscribes, private readonly NotificationPreferences $preferences) {}
 
     // ---------- Mitglieder ----------
 
@@ -78,22 +81,238 @@ final class Mailings
     }
 
     /**
-     * Schreiben an eine oder mehrere Gruppen, jede Adresse einmal.
+     * Schreiben an eine oder mehrere Gruppen, jede Adresse einmal: legt den Entwurf an und legt ihn sofort vor (Versand, Planung oder Freigabe, je nach Regel).
+     * Gibt es keine Empfänger, bleibt kein neuer Entwurf zurück.
      *
      * @param  list<string>  $groups
      * @param  array<string, mixed>  $meeting
      *
      * @throws DomainException
      */
-    public function sendGroups(array $groups, string $subject, string $body, array $meeting, User $by, bool $mandatory = false): Mailing
+    public function sendGroups(array $groups, string $subject, string $body, array $meeting, User $by, bool $mandatory = false, ?Carbon $sendAt = null, string $area = 'office', ?Mailing $draft = null): Mailing
     {
-        $list = $this->recipients->groups($groups, $mandatory);
+        $mailing = $this->saveDraft(['groups' => $groups, 'subject' => $subject, 'body' => $body, 'meeting' => $meeting, 'mandatory' => $mandatory, 'send_at' => $sendAt], $by, $area, $draft);
+
+        try {
+            return $this->submit($mailing, $by);
+        } catch (DomainException $exception) {
+            if ($draft === null) {
+                $mailing->delete();
+            }
+
+            throw $exception;
+        }
+    }
+
+    // ---------- Entwurf, Freigabe, Planung ----------
+
+    /**
+     * Speichert den Entwurf eines Schreibens an Gruppen (neu oder als Änderung eines eigenen Entwurfs).
+     *
+     * @param  array{groups: list<string>, subject: string, body: string, meeting: array<string, mixed>, mandatory: bool, send_at: ?Carbon}  $data
+     */
+    public function saveDraft(array $data, User $by, string $area, ?Mailing $draft = null): Mailing
+    {
+        $attributes = [
+            'kind' => Mailing::KIND_GENERAL,
+            'subject' => $data['subject'],
+            'body' => $data['body'],
+            'groups' => array_values($data['groups']),
+            'mandatory' => (bool) $data['mandatory'],
+            'send_at' => $data['send_at'] ?? null,
+            'payload' => ['meeting' => $data['meeting']],
+            'sender_area' => $area,
+            'status' => Mailing::STATUS_DRAFT,
+            'sent_by_user_id' => $by->id,
+        ];
+
+        if ($draft === null) {
+            return Mailing::query()->create($attributes + ['recipients_count' => 0, 'sent_count' => 0, 'failed_count' => 0]);
+        }
+
+        $draft->forceFill($attributes)->save();
+
+        return $draft;
+    }
+
+    /**
+     * Vorschau eines vorbereiteten Schreibens (Entwurf, vorgelegt, geplant) mit den Angaben der ansehenden Person als Beispiel.
+     *
+     * @return array{subject: string, html: string}
+     */
+    public function previewMailing(Mailing $mailing, User $viewer): array
+    {
+        $meeting = (array) (($mailing->payload ?? [])['meeting'] ?? []);
+        $author = $mailing->sentBy ?? $viewer;
+
+        return $this->render($mailing->subject, $mailing->body, $this->meetingValues($meeting), $this->sample($viewer), $this->senderName($author));
+    }
+
+    /** Gilt für dieses Schreiben die Freigabepflicht? (Konfiguration portal.mailings.approval; wer freigeben darf, schreibt frei.) */
+    public function needsApproval(User $by, int $recipients): bool
+    {
+        $config = (array) config('portal.mailings.approval', []);
+
+        if (! ($config['enabled'] ?? true) || $by->can('mailings.approve')) {
+            return false;
+        }
+
+        return $recipients >= max(1, (int) ($config['threshold'] ?? 50));
+    }
+
+    /**
+     * Legt einen Entwurf vor: Freigabe, Planung oder sofortiger Versand.
+     *
+     * @throws DomainException
+     */
+    public function submit(Mailing $mailing, User $by): Mailing
+    {
+        if ($mailing->status !== Mailing::STATUS_DRAFT) {
+            throw new DomainException('Nur ein Entwurf lässt sich vorlegen.');
+        }
+
+        $count = count($this->recipients->groups((array) $mailing->groups, (bool) $mailing->mandatory));
+
+        if ($count === 0) {
+            throw new DomainException('Für diese Auswahl gibt es keine Empfänger mit E-Mail-Adresse. Wer Mitteilungen abbestellt hat, bekommt sie nicht.');
+        }
+
+        $mailing->forceFill(['recipients_count' => $count])->save();
+
+        if ($this->needsApproval($by, $count)) {
+            $mailing->forceFill(['status' => Mailing::STATUS_PENDING, 'rejection_note' => null])->save();
+            $this->workflow('zur Freigabe vorgelegt', $by, $count);
+            $this->notifyApprovers($mailing, $by);
+
+            return $mailing->fresh();
+        }
+
+        return $this->proceed($mailing, $by);
+    }
+
+    /**
+     * Gibt ein vorgelegtes Schreiben frei. Das eigene Schreiben lässt sich nicht freigeben.
+     *
+     * @throws DomainException
+     */
+    public function approve(Mailing $mailing, User $approver): Mailing
+    {
+        if ($mailing->status !== Mailing::STATUS_PENDING) {
+            throw new DomainException('Dieses Schreiben wartet nicht auf eine Freigabe.');
+        }
+
+        if ($approver->id === $mailing->sent_by_user_id) {
+            throw new DomainException('Ein eigenes Schreiben können Sie nicht freigeben.');
+        }
+
+        $mailing->forceFill(['approved_by_user_id' => $approver->id, 'approved_at' => now()])->save();
+        $this->workflow('freigegeben', $approver, (int) $mailing->recipients_count);
+
+        return $this->proceed($mailing, $approver);
+    }
+
+    /** Gibt ein vorgelegtes Schreiben mit Begründung als Entwurf zurück. */
+    public function reject(Mailing $mailing, User $by, string $note): void
+    {
+        if ($mailing->status !== Mailing::STATUS_PENDING) {
+            throw new DomainException('Dieses Schreiben wartet nicht auf eine Freigabe.');
+        }
+
+        $mailing->forceFill(['status' => Mailing::STATUS_DRAFT, 'rejection_note' => trim($note), 'approved_by_user_id' => null, 'approved_at' => null])->save();
+        $this->workflow('zurückgegeben', $by, (int) $mailing->recipients_count);
+    }
+
+    /** Zieht ein vorgelegtes oder geplantes Schreiben zurück in den Entwurf. */
+    public function withdraw(Mailing $mailing, User $by): void
+    {
+        if (! in_array($mailing->status, [Mailing::STATUS_PENDING, Mailing::STATUS_SCHEDULED], true)) {
+            throw new DomainException('Dieses Schreiben lässt sich nicht zurückziehen.');
+        }
+
+        $mailing->forceFill(['status' => Mailing::STATUS_DRAFT, 'approved_by_user_id' => null, 'approved_at' => null])->save();
+        $this->workflow('zurückgezogen', $by, (int) $mailing->recipients_count);
+    }
+
+    public function deleteDraft(Mailing $mailing): void
+    {
+        if ($mailing->status !== Mailing::STATUS_DRAFT) {
+            throw new DomainException('Nur ein Entwurf lässt sich löschen.');
+        }
+
+        $mailing->delete();
+    }
+
+    /** Nach der Freigabe oder ohne Freigabepflicht: später planen oder sofort senden. */
+    private function proceed(Mailing $mailing, User $by): Mailing
+    {
+        if ($mailing->send_at !== null && $mailing->send_at->gt(now()->addMinute())) {
+            $mailing->forceFill(['status' => Mailing::STATUS_SCHEDULED])->save();
+            $this->workflow('geplant', $by, (int) $mailing->recipients_count);
+
+            return $mailing->fresh();
+        }
+
+        return $this->launch($mailing);
+    }
+
+    /**
+     * Startet den Versand eines vorbereiteten Schreibens: Empfänger jetzt bestimmen (mit Abmeldungen und Sperren von jetzt), Zustellzeilen anlegen, Worker beauftragen.
+     *
+     * @throws DomainException
+     */
+    public function launch(Mailing $mailing): Mailing
+    {
+        $list = $this->recipients->groups((array) $mailing->groups, (bool) $mailing->mandatory);
 
         if ($list === []) {
             throw new DomainException('Für diese Auswahl gibt es keine Empfänger mit E-Mail-Adresse. Wer Mitteilungen abbestellt hat, bekommt sie nicht.');
         }
 
-        return $this->queue(Mailing::KIND_GENERAL, $subject, $body, null, null, null, $groups, $list, $this->meetingValues($meeting), $by, $mandatory);
+        $author = $mailing->sentBy;
+        $meeting = (array) (($mailing->payload ?? [])['meeting'] ?? []);
+
+        $mailing->forceFill([
+            'status' => Mailing::STATUS_QUEUED,
+            'queued_at' => now(),
+            'recipients_count' => count($list),
+            'sent_count' => 0,
+            'failed_count' => 0,
+            'values' => ['common' => $this->meetingValues($meeting), 'absender' => $author !== null ? $this->senderName($author) : 'Verein'],
+        ])->save();
+
+        $this->insertDeliveries($mailing, $list);
+
+        AuditLog::record(AuditEvent::MailingSent, $author, null, ['art' => 'Schreiben an Gruppen', 'gruppen' => MailGroups::labels((array) $mailing->groups), 'empfaenger' => count($list)]);
+
+        SendMailing::dispatch($mailing->id);
+
+        return $mailing->fresh();
+    }
+
+    /** Hinweis an die Vorstände, die Freigaben bekommen wollen (nicht an die Person, die vorlegt). */
+    private function notifyApprovers(Mailing $mailing, User $author): void
+    {
+        $users = User::query()
+            ->whereHas('activeRoleAssignments', fn ($assignments) => $assignments->whereHas('role', fn ($role) => $role->where('key', 'board_member')))
+            ->get()
+            ->filter(fn (User $user): bool => $user->status === UserStatus::Active && $user->id !== $author->id && $user->can('mailings.approve'))
+            ->all();
+
+        $url = route('mailings.board.show', $mailing);
+
+        foreach ($this->preferences->filter($users, 'mailing_approvals') as $approver) {
+            try {
+                Mail::to($approver->email)->send(new MailingApprovalMail($mailing, $this->senderName($author), $url));
+            } catch (Throwable $exception) {
+                report($exception);
+            }
+        }
+    }
+
+    /** Protokoll ohne Text und Adressen: nur Aktion und Zahl. */
+    private function workflow(string $action, ?User $by, int $recipients): void
+    {
+        AuditLog::record(AuditEvent::MailingWorkflow, $by, null, ['aktion' => $action, 'empfaenger' => $recipients]);
     }
 
     /** @param  array<string, mixed>  $meeting */
@@ -219,10 +438,22 @@ final class Mailings
         $mailing = Mailing::query()->create([
             'kind' => $kind, 'subject' => $subject, 'body' => $body, 'own_text' => $own, 'seminar_id' => $seminarId, 'audience' => $audience, 'groups' => $groups,
             'recipients_count' => count($list), 'sent_count' => 0, 'failed_count' => 0, 'sent_by_user_id' => $by->id,
-            'status' => Mailing::STATUS_QUEUED, 'queued_at' => now(), 'mandatory' => $mandatory,
+            'status' => Mailing::STATUS_QUEUED, 'queued_at' => now(), 'mandatory' => $mandatory, 'sender_area' => $kind === Mailing::KIND_TEAM ? 'team' : 'office',
             'values' => ['common' => $values, 'absender' => $this->senderName($by)],
         ]);
 
+        $this->insertDeliveries($mailing, $list);
+
+        AuditLog::record(AuditEvent::MailingSent, $by, null, ['art' => $kind === Mailing::KIND_GENERAL ? 'Schreiben an Gruppen' : 'Mitteilung an Teamende', 'gruppen' => $groups !== null ? MailGroups::labels($groups) : null, 'empfaenger' => count($list)]);
+
+        SendMailing::dispatch($mailing->id);
+
+        return $mailing->fresh();
+    }
+
+    /** @param  list<array<string, string>>  $list */
+    private function insertDeliveries(Mailing $mailing, array $list): void
+    {
         $now = now();
 
         foreach (array_chunk($list, 500) as $chunk) {
@@ -239,12 +470,6 @@ final class Mailings
                 'updated_at' => $now,
             ], $chunk));
         }
-
-        AuditLog::record(AuditEvent::MailingSent, $by, null, ['art' => $kind === Mailing::KIND_GENERAL ? 'Schreiben an Gruppen' : 'Mitteilung an Teamende', 'gruppen' => $groups !== null ? MailGroups::labels($groups) : null, 'empfaenger' => count($list)]);
-
-        SendMailing::dispatch($mailing->id);
-
-        return $mailing->fresh();
     }
 
     /**
@@ -267,7 +492,9 @@ final class Mailings
         $topic = MailGroups::topicFor($delivery->group);
         $unsubscribeUrl = ! $mailing->mandatory && $topic !== null ? $this->unsubscribes->url($delivery->email, $topic) : null;
 
-        Mail::to($delivery->email)->send(new MailingMail($rendered['subject'], $rendered['html'], $delivery->group ?: 'internal', $unsubscribeUrl, (bool) $mailing->mandatory));
+        $sender = (array) config('portal.mailings.senders.'.($mailing->sender_area ?: 'office'), []);
+
+        Mail::to($delivery->email)->send(new MailingMail($rendered['subject'], $rendered['html'], $delivery->group ?: 'internal', $unsubscribeUrl, (bool) $mailing->mandatory, $sender['name'] ?? null, $sender['reply_to'] ?? null));
     }
 
     /**
@@ -292,7 +519,7 @@ final class Mailings
     /** Bricht ein laufendes Schreiben ab: offene Zustellungen werden übersprungen, Gesendetes bleibt. */
     public function cancel(Mailing $mailing): void
     {
-        if (! $mailing->isActive()) {
+        if (! $mailing->isActive() && $mailing->status !== Mailing::STATUS_SCHEDULED) {
             return;
         }
 
@@ -337,6 +564,18 @@ final class Mailings
     /** Hinweis nach dem Anlegen, je nachdem ob der Versand schon durch ist. */
     public function flashMessage(Mailing $mailing): string
     {
+        if ($mailing->status === Mailing::STATUS_DRAFT) {
+            return 'Der Entwurf wurde gespeichert.';
+        }
+
+        if ($mailing->status === Mailing::STATUS_PENDING) {
+            return 'Das Schreiben liegt dem Vorstand zur Freigabe vor ('.$mailing->recipients_count.' Empfänger). Sie bekommen den Stand hier angezeigt.';
+        }
+
+        if ($mailing->status === Mailing::STATUS_SCHEDULED) {
+            return 'Das Schreiben ist für den '.$mailing->send_at?->format('d.m.Y, H:i').' Uhr geplant.';
+        }
+
         if ($mailing->isActive()) {
             return 'Das Schreiben ist in der Warteschlange ('.$mailing->recipients_count.' Empfänger). Den Fortschritt sehen Sie hier.';
         }

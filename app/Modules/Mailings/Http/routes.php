@@ -21,12 +21,17 @@ foreach (['board' => ['vorstand/mitteilungen', 'mailings.members'], 'office' => 
         Route::post('/vorschau', [GroupMailingController::class, 'preview'])->name('preview');
         Route::post('/test', [GroupMailingController::class, 'test'])->middleware('throttle:10,10')->name('test');
         Route::post('/', [GroupMailingController::class, 'store'])->middleware('throttle:6,10')->name('store');
+        Route::post('/entwurf', [GroupMailingController::class, 'draft'])->middleware('throttle:30,10')->name('draft');
         Route::get('/gesperrt', [SuppressionController::class, 'index'])->name('suppressions');
         Route::post('/gesperrt', [SuppressionController::class, 'store'])->middleware('throttle:20,10')->name('suppressions.store');
         Route::post('/gesperrt/{suppression}/freigeben', [SuppressionController::class, 'release'])->whereNumber('suppression')->name('suppressions.release');
         Route::get('/{mailing}', [MailingProgressController::class, 'show'])->whereNumber('mailing')->name('show');
         Route::post('/{mailing}/abbrechen', [MailingProgressController::class, 'cancel'])->whereNumber('mailing')->name('cancel');
         Route::post('/{mailing}/wiederholen', [MailingProgressController::class, 'retry'])->whereNumber('mailing')->name('retry');
+        Route::post('/{mailing}/freigeben', [MailingProgressController::class, 'approve'])->whereNumber('mailing')->name('approve');
+        Route::post('/{mailing}/zurueckgeben', [MailingProgressController::class, 'reject'])->whereNumber('mailing')->name('reject');
+        Route::post('/{mailing}/zurueckziehen', [MailingProgressController::class, 'withdraw'])->whereNumber('mailing')->name('withdraw');
+        Route::delete('/{mailing}', [MailingProgressController::class, 'destroy'])->whereNumber('mailing')->name('destroy');
     });
 }
 

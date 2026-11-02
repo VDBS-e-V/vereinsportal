@@ -11,6 +11,22 @@
         </x-slot:actions>
     </x-vdbs.layout.page-header>
 
+    @if ($preparing->isNotEmpty())
+        <section aria-labelledby="prep-title" style="margin-bottom:var(--space-8)">
+            <h2 id="prep-title" style="font-size:var(--font-size-h3)">In Vorbereitung</h2>
+            <x-vdbs.data.table caption="Entwürfe, Freigaben und geplante Schreiben" :columns="[['key' => 'subject', 'label' => 'Betreff'], ['key' => 'status', 'label' => 'Stand'], ['key' => 'when', 'label' => 'Geplant für'], ['key' => 'by', 'label' => 'Von']]">
+                @foreach ($preparing as $item)
+                    <tr class="vdbs-table__row--link">
+                        <td><a class="vdbs-table__row-link" href="{{ route($base.'.show', $item) }}">{{ $item->subject }}</a></td>
+                        <td><x-vdbs.data.badge :tone="$item->statusTone()">{{ $item->statusLabel() }}</x-vdbs.data.badge></td>
+                        <td>{{ $item->send_at?->format('d.m.Y, H:i') ?? '–' }}</td>
+                        <td>{{ $item->sentBy?->person?->fullName() ?? $item->sentBy?->email ?? '–' }}</td>
+                    </tr>
+                @endforeach
+            </x-vdbs.data.table>
+        </section>
+    @endif
+
     <section aria-labelledby="sent-title">
         <h2 id="sent-title" style="font-size:var(--font-size-h3)">Gesendete Schreiben</h2>
 

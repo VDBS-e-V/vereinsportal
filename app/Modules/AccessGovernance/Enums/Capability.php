@@ -95,6 +95,9 @@ enum Capability: string
     /** Mitteilungen an Teamende zu Seminaren senden (Koordination). */
     case MailingsTeam = 'mailings.team';
 
+    /** Schreiben an Gruppen freigeben (Vorstand): Schreiben der Geschäftsstelle an viele Personen brauchen die Freigabe. */
+    case MailingsApprove = 'mailings.approve';
+
     /** Mailvorlagen für Mitteilungen bearbeiten (Geschäftsstelle). */
     case MailTemplatesManage = 'mail_templates.manage';
 

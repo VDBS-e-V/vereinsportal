@@ -125,6 +125,8 @@ Gmail zeigt bei einer Testmail den „Abbestellen“-Knopf, ein Klick dort träg
 
 **Ziel:** Schreiben lassen sich vorbereiten, einplanen und vor dem Versand prüfen lassen.
 
+**Stand: umgesetzt (Update 3)**, siehe `docs/63_RUNDSCHREIBEN.md`.
+
 ### Datenmodell
 - `mailings`: `status` erweitert um `draft`, `pending_approval`, `scheduled`. Spalten `send_at`, `approved_by_user_id`, `approved_at`, `created_by_user_id`, Eingabefelder des Formulars (JSON `payload`) für Entwürfe.
 - Berechtigung `mailings.approve` (Vorstand). Einstellung `portal.mailings.approval` (Schwelle, Gruppen).

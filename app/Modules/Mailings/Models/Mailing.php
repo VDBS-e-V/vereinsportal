@@ -17,6 +17,12 @@ class Mailing extends Model
 
     public const KIND_GENERAL = 'general';
 
+    public const STATUS_DRAFT = 'draft';
+
+    public const STATUS_PENDING = 'pending_approval';
+
+    public const STATUS_SCHEDULED = 'scheduled';
+
     public const STATUS_QUEUED = 'queued';
 
     public const STATUS_SENDING = 'sending';
@@ -27,11 +33,11 @@ class Mailing extends Model
 
     public const STATUS_FAILED = 'failed';
 
-    protected $fillable = ['kind', 'subject', 'body', 'own_text', 'seminar_id', 'audience', 'groups', 'recipients_count', 'sent_count', 'failed_count', 'sent_by_user_id', 'status', 'queued_at', 'started_at', 'finished_at', 'cancelled_at', 'values', 'mandatory'];
+    protected $fillable = ['kind', 'subject', 'body', 'own_text', 'seminar_id', 'audience', 'groups', 'recipients_count', 'sent_count', 'failed_count', 'sent_by_user_id', 'status', 'queued_at', 'started_at', 'finished_at', 'cancelled_at', 'values', 'mandatory', 'send_at', 'approved_by_user_id', 'approved_at', 'payload', 'rejection_note', 'sender_area'];
 
     protected function casts(): array
     {
-        return ['groups' => 'array', 'values' => 'array', 'mandatory' => 'boolean', 'queued_at' => 'datetime', 'started_at' => 'datetime', 'finished_at' => 'datetime', 'cancelled_at' => 'datetime'];
+        return ['groups' => 'array', 'values' => 'array', 'payload' => 'array', 'mandatory' => 'boolean', 'send_at' => 'datetime', 'approved_at' => 'datetime', 'queued_at' => 'datetime', 'started_at' => 'datetime', 'finished_at' => 'datetime', 'cancelled_at' => 'datetime'];
     }
 
     /** @return BelongsTo<Seminar, $this> */
@@ -58,9 +64,24 @@ class Mailing extends Model
         return in_array($this->status, [self::STATUS_QUEUED, self::STATUS_SENDING], true);
     }
 
+    /** Noch nicht versendet: Entwurf, wartet auf Freigabe oder ist geplant. */
+    public function isPreparation(): bool
+    {
+        return in_array($this->status, [self::STATUS_DRAFT, self::STATUS_PENDING, self::STATUS_SCHEDULED], true);
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by_user_id');
+    }
+
     public function statusLabel(): string
     {
         return match ($this->status) {
+            self::STATUS_DRAFT => 'Entwurf',
+            self::STATUS_PENDING => 'Wartet auf Freigabe',
+            self::STATUS_SCHEDULED => 'Geplant',
             self::STATUS_QUEUED => 'Wartet auf den Versand',
             self::STATUS_SENDING => 'Wird gesendet',
             self::STATUS_CANCELLED => 'Abgebrochen',
@@ -72,7 +93,8 @@ class Mailing extends Model
     public function statusTone(): string
     {
         return match ($this->status) {
-            self::STATUS_QUEUED, self::STATUS_SENDING => 'warning',
+            self::STATUS_QUEUED, self::STATUS_SENDING, self::STATUS_PENDING => 'warning',
+            self::STATUS_DRAFT, self::STATUS_SCHEDULED => 'neutral',
             self::STATUS_CANCELLED => 'neutral',
             self::STATUS_FAILED => 'error',
             default => 'success',

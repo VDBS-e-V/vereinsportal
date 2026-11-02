@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
 use App\Modules\Mailings\Models\Mailing;
 use App\Modules\Mailings\Models\MailingDelivery;
+use App\Modules\Mailings\Services\MailRecipients;
 use App\Modules\Mailings\Services\Mailings;
 use App\Modules\Mailings\Support\MailGroups;
 use DomainException;
@@ -13,6 +14,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
 /**
@@ -27,6 +29,10 @@ class MailingProgressController extends Controller
     {
         $base = $this->base($request);
         $this->ensureKind($base, $mailing);
+
+        if ($mailing->isPreparation()) {
+            return $this->showPreparation($base, $mailing);
+        }
 
         $counts = $mailing->deliveries()->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
         $total = max(1, (int) $mailing->recipients_count);
@@ -47,12 +53,98 @@ class MailingProgressController extends Controller
         ]);
     }
 
+    /** Vorbereitung: Entwurf, zur Freigabe vorgelegt oder geplant. Entwürfe sehen nur ihre Autorinnen, vorgelegte auch der Vorstand. */
+    private function showPreparation(string $base, Mailing $mailing): View
+    {
+        $user = $this->user();
+        $isAuthor = $user->id === $mailing->sent_by_user_id;
+        $canApprove = $user->can('mailings.approve');
+
+        abort_unless($isAuthor || ($canApprove && $mailing->status !== Mailing::STATUS_DRAFT) || $mailing->status === Mailing::STATUS_SCHEDULED, 404);
+
+        $mailing->load(['sentBy.person', 'approvedBy.person']);
+
+        return view('mailings.preparation', [
+            'mailing' => $mailing,
+            'base' => $base,
+            'area' => $base === 'mailings.board' ? 'Vorstand' : 'Geschäftsstelle',
+            'preview' => $this->mailings->previewMailing($mailing, $user),
+            'groupLabels' => $mailing->groups ? MailGroups::labels($mailing->groups) : null,
+            'recipientsNow' => count(app(MailRecipients::class)->groups((array) $mailing->groups, (bool) $mailing->mandatory)),
+            'isAuthor' => $isAuthor,
+            'canApprove' => $canApprove && ! $isAuthor && $mailing->status === Mailing::STATUS_PENDING,
+        ]);
+    }
+
+    public function approve(Request $request, Mailing $mailing): RedirectResponse
+    {
+        $base = $this->base($request);
+        $this->ensureKind($base, $mailing);
+        Gate::authorize('mailings.approve');
+
+        try {
+            $approved = $this->mailings->approve($mailing, $this->user());
+        } catch (DomainException $exception) {
+            return redirect()->route($base.'.show', $mailing)->with('error', $exception->getMessage());
+        }
+
+        return redirect()->route($base.'.show', $approved)->with('success', 'Freigegeben. '.$this->mailings->flashMessage($approved));
+    }
+
+    public function reject(Request $request, Mailing $mailing): RedirectResponse
+    {
+        $base = $this->base($request);
+        $this->ensureKind($base, $mailing);
+        Gate::authorize('mailings.approve');
+
+        $data = $request->validate(['note' => ['required', 'string', 'max:500']], ['note.required' => 'Bitte nennen Sie der Autorin oder dem Autor einen Grund.']);
+
+        try {
+            $this->mailings->reject($mailing, $this->user(), $data['note']);
+        } catch (DomainException $exception) {
+            return redirect()->route($base.'.show', $mailing)->with('error', $exception->getMessage());
+        }
+
+        return redirect()->route($base.'.index')->with('success', 'Das Schreiben wurde mit Ihrer Begründung als Entwurf zurückgegeben.');
+    }
+
+    /** Zurückziehen: die Autorin oder der Autor zieht ein vorgelegtes oder geplantes Schreiben zurück in den Entwurf. */
+    public function withdraw(Request $request, Mailing $mailing): RedirectResponse
+    {
+        $base = $this->base($request);
+        $this->ensureKind($base, $mailing);
+        abort_unless($this->user()->id === $mailing->sent_by_user_id || $this->user()->can('mailings.approve'), 403);
+
+        try {
+            $this->mailings->withdraw($mailing, $this->user());
+        } catch (DomainException $exception) {
+            return redirect()->route($base.'.show', $mailing)->with('error', $exception->getMessage());
+        }
+
+        return redirect()->route($base.'.create', ['entwurf' => $mailing->id])->with('success', 'Das Schreiben ist wieder ein Entwurf.');
+    }
+
+    public function destroy(Request $request, Mailing $mailing): RedirectResponse
+    {
+        $base = $this->base($request);
+        $this->ensureKind($base, $mailing);
+        abort_unless($this->user()->id === $mailing->sent_by_user_id, 403);
+
+        try {
+            $this->mailings->deleteDraft($mailing);
+        } catch (DomainException $exception) {
+            return redirect()->route($base.'.show', $mailing)->with('error', $exception->getMessage());
+        }
+
+        return redirect()->route($base.'.index')->with('success', 'Der Entwurf wurde gelöscht.');
+    }
+
     public function cancel(Request $request, Mailing $mailing): RedirectResponse
     {
         $base = $this->base($request);
         $this->ensureKind($base, $mailing);
 
-        if (! $mailing->isActive()) {
+        if (! $mailing->isActive() && $mailing->status !== Mailing::STATUS_SCHEDULED) {
             return redirect()->route($base.'.show', $mailing)->with('error', 'Das Schreiben ist schon abgeschlossen.');
         }
 

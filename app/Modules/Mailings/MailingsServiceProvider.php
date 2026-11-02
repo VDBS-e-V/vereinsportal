@@ -2,6 +2,7 @@
 
 namespace App\Modules\Mailings;
 
+use App\Modules\Mailings\Console\DispatchDueMailings;
 use App\Modules\Mailings\Console\PruneMailingDeliveries;
 use Illuminate\Support\ServiceProvider;
 
@@ -12,7 +13,7 @@ class MailingsServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
 
         if ($this->app->runningInConsole()) {
-            $this->commands([PruneMailingDeliveries::class]);
+            $this->commands([PruneMailingDeliveries::class, DispatchDueMailings::class]);
         }
     }
 }

@@ -192,6 +192,14 @@ return [
         'batch_size' => (int) env('MAILINGS_BATCH_SIZE', 25),
         'max_attempts' => (int) env('MAILINGS_MAX_ATTEMPTS', 3),
         'delivery_retention_days' => (int) env('MAILINGS_DELIVERY_RETENTION_DAYS', 90),
+        // Freigabe: Schreiben von Personen ohne die Berechtigung mailings.approve (Geschäftsstelle) an mindestens so viele Empfänger brauchen die Freigabe des Vorstands.
+        'approval' => ['enabled' => (bool) env('MAILINGS_APPROVAL', true), 'threshold' => (int) env('MAILINGS_APPROVAL_THRESHOLD', 50)],
+        // Absendername und Antwortadresse je Bereich (die Absenderadresse bleibt MAIL_FROM_ADDRESS)
+        'senders' => [
+            'board' => ['name' => env('MAILINGS_FROM_NAME_BOARD', 'VDBS Vorstand'), 'reply_to' => env('MAILINGS_REPLY_TO_BOARD')],
+            'office' => ['name' => env('MAILINGS_FROM_NAME_OFFICE', 'VDBS Geschäftsstelle'), 'reply_to' => env('MAILINGS_REPLY_TO_OFFICE')],
+            'team' => ['name' => env('MAILINGS_FROM_NAME_TEAM', 'VDBS Koordination'), 'reply_to' => env('MAILINGS_REPLY_TO_TEAM')],
+        ],
     ],
 
     /*

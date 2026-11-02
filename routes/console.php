@@ -11,6 +11,9 @@ Artisan::command('inspire', function () {
 // Herzschlag des Planers: Die Systemsteuerung zeigt daran, ob der Cron-Eintrag läuft.
 Schedule::call(fn () => \Illuminate\Support\Facades\Cache::forever(\App\Modules\System\Services\SystemChecks::HEARTBEAT_KEY, time()))->name('system-heartbeat')->everyMinute();
 
+// Geplante Schreiben an Gruppen starten, wenn ihr Zeitpunkt erreicht ist.
+Schedule::command('mailings:dispatch-due')->everyMinute();
+
 // Zustelllisten der Schreiben an Gruppen nach der Aufbewahrungsfrist löschen (Adressen und Fehlergründe).
 Schedule::command('mailings:prune')->daily();
 

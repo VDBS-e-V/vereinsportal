@@ -17,6 +17,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -31,22 +32,38 @@ class GroupMailingController extends Controller
 
     public function index(Request $request): View
     {
+        $user = $this->user();
+        $kinds = [Mailing::KIND_GENERAL, Mailing::KIND_MEMBERS];
+        $preparing = [Mailing::STATUS_DRAFT, Mailing::STATUS_PENDING, Mailing::STATUS_SCHEDULED];
+
         return view('mailings.groups-index', [
             'base' => $this->base($request),
             'area' => $this->area($request),
-            'mailings' => Mailing::query()->whereIn('kind', [Mailing::KIND_GENERAL, Mailing::KIND_MEMBERS])->with('sentBy.person')->orderByDesc('id')->paginate(15),
+            'mailings' => Mailing::query()->whereIn('kind', $kinds)->whereNotIn('status', $preparing)->with('sentBy.person')->orderByDesc('id')->paginate(15),
+            // In Vorbereitung: die eigenen Entwürfe und Vorlagen zur Freigabe sowie, wer freigeben darf, alle vorgelegten und geplanten Schreiben
+            'preparing' => Mailing::query()->whereIn('kind', $kinds)->whereIn('status', $preparing)
+                ->where(fn ($query) => $query->where('sent_by_user_id', $user->id)->orWhere(fn ($other) => $other->whereIn('status', [Mailing::STATUS_PENDING, Mailing::STATUS_SCHEDULED])->whereRaw('1 = ?', [$user->can('mailings.approve') ? 1 : 0])))
+                ->with('sentBy.person')->orderByDesc('id')->get(),
         ]);
     }
 
     public function create(Request $request): View
     {
-        $allowed = MailGroups::allowedFor($this->user());
-        $selected = array_values(array_intersect((array) old('groups', []), array_keys($allowed)));
+        $user = $this->user();
+        $allowed = MailGroups::allowedFor($user);
         $template = null;
+        $draft = null;
 
         if ($request->filled('vorlage')) {
             $template = MailTemplate::query()->where('kind', MailTemplate::KIND_GENERAL)->find((int) $request->query('vorlage'));
         }
+
+        if ($request->filled('entwurf')) {
+            $draft = Mailing::query()->where('status', Mailing::STATUS_DRAFT)->where('sent_by_user_id', $user->id)->find((int) $request->query('entwurf'));
+        }
+
+        $prefill = $this->prefill($draft, $template);
+        $selected = array_values(array_intersect((array) old('groups', $prefill['groups'] ?? []), array_keys($allowed)));
 
         $options = [];
 
@@ -54,24 +71,50 @@ class GroupMailingController extends Controller
             $options[$key] = ['label' => $group['label'].' ('.count($this->recipients->groups([$key])).')', 'hint' => $group['description']];
         }
 
-        $canMandatory = $this->user()->can('mailings.members');
-        $mandatory = $canMandatory && (bool) old('mandatory');
+        $canMandatory = $user->can('mailings.members');
+        $mandatory = $canMandatory && (bool) old('mandatory', $prefill['mandatory'] ?? false);
         $stats = $selected === [] ? ['kept' => [], 'unsubscribed' => 0, 'suppressed' => 0] : $this->recipients->groupsWithStats($selected, $mandatory);
+        $total = count($stats['kept']);
 
         return view('mailings.groups-form', [
             'base' => $this->base($request),
             'area' => $this->area($request),
             'groupOptions' => $options,
             'selected' => $selected,
-            'total' => count($stats['kept']),
+            'total' => $total,
             'unsubscribedCount' => $stats['unsubscribed'],
             'suppressedCount' => $stats['suppressed'],
             'canMandatory' => $canMandatory,
+            'mandatoryChecked' => $mandatory,
+            'needsApproval' => $this->mailings->needsApproval($user, $total),
             'placeholders' => MailPlaceholders::definitions('general'),
             'templates' => $this->templates->general()->mapWithKeys(fn (MailTemplate $t): array => [$t->id => $t->name])->all(),
             'template' => $template,
-            'prefillBody' => $template ? RichText::forEditor($template->body) : null,
+            'draft' => $draft,
+            'prefill' => $prefill,
         ]);
+    }
+
+    /**
+     * Vorbelegung des Formulars aus einem Entwurf, sonst aus einer Vorlage.
+     *
+     * @return array<string, mixed>
+     */
+    private function prefill(?Mailing $draft, ?MailTemplate $template): array
+    {
+        if ($draft !== null) {
+            $meeting = (array) (($draft->payload ?? [])['meeting'] ?? []);
+
+            return [
+                'subject' => $draft->subject, 'body' => RichText::forEditor($draft->body), 'groups' => (array) $draft->groups, 'mandatory' => (bool) $draft->mandatory,
+                'send_at' => $draft->send_at?->format('Y-m-d\TH:i'),
+                'meeting_title' => $meeting['title'] ?? null, 'meeting_date' => $meeting['date'] ?? null, 'meeting_time' => $meeting['time'] ?? null,
+                'meeting_place' => $meeting['place'] ?? null, 'meeting_link' => $meeting['link'] ?? null, 'meeting_deadline' => $meeting['deadline'] ?? null,
+                'rejection_note' => $draft->rejection_note,
+            ];
+        }
+
+        return $template !== null ? ['subject' => $template->subject, 'body' => RichText::forEditor($template->body)] : [];
     }
 
     public function preview(Request $request): RedirectResponse
@@ -90,12 +133,21 @@ class GroupMailingController extends Controller
         return redirect()->route($this->base($request).'.create')->withInput($request->all())->with('success', 'Die Testmail wurde an Ihre Adresse gesendet.');
     }
 
+    /** Speichert das Formular als Entwurf (ohne zu senden) und öffnet ihn wieder. */
+    public function draft(Request $request): RedirectResponse
+    {
+        $data = $this->validated($request);
+        $mailing = $this->mailings->saveDraft(['groups' => array_values($data['groups']), 'subject' => $data['subject'], 'body' => $data['body'], 'meeting' => $this->meeting($data), 'mandatory' => $data['mandatory'], 'send_at' => $this->sendAt($data)], $this->user(), $this->areaKey($request), $this->ownDraft($request));
+
+        return redirect()->route($this->base($request).'.create', ['entwurf' => $mailing->id])->with('success', $this->mailings->flashMessage($mailing));
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validated($request);
 
         try {
-            $mailing = $this->mailings->sendGroups(array_values($data['groups']), $data['subject'], $data['body'], $this->meeting($data), $this->user(), $data['mandatory']);
+            $mailing = $this->mailings->sendGroups(array_values($data['groups']), $data['subject'], $data['body'], $this->meeting($data), $this->user(), $data['mandatory'], $this->sendAt($data), $this->areaKey($request), $this->ownDraft($request));
         } catch (DomainException $exception) {
             return redirect()->route($this->base($request).'.create')->withInput($request->all())->with('error', $exception->getMessage());
         }
@@ -121,7 +173,11 @@ class GroupMailingController extends Controller
             'meeting_link' => ['nullable', 'url', 'max:300'],
             'meeting_deadline' => ['nullable', 'date'],
             'mandatory' => ['nullable', 'boolean'],
+            'send_at' => ['nullable', 'date', 'after:now'],
+            'draft_id' => ['nullable', 'integer'],
         ], [
+            'send_at.after' => 'Der Versandzeitpunkt muss in der Zukunft liegen.',
+            'send_at.date' => 'Bitte geben Sie einen gültigen Zeitpunkt an.',
             'groups.required' => 'Bitte wählen Sie mindestens eine Gruppe.',
             'groups.min' => 'Bitte wählen Sie mindestens eine Gruppe.',
             'groups.*.in' => 'Diese Gruppe dürfen Sie nicht anschreiben.',
@@ -167,6 +223,28 @@ class GroupMailingController extends Controller
     private function meeting(array $data): array
     {
         return ['title' => $data['meeting_title'] ?? null, 'date' => $data['meeting_date'] ?? null, 'time' => $data['meeting_time'] ?? null, 'place' => $data['meeting_place'] ?? null, 'link' => $data['meeting_link'] ?? null, 'deadline' => $data['meeting_deadline'] ?? null];
+    }
+
+    /** Der geplante Versandzeitpunkt, falls angegeben. @param  array<string, mixed>  $data */
+    private function sendAt(array $data): ?Carbon
+    {
+        return filled($data['send_at'] ?? null) ? Carbon::parse((string) $data['send_at']) : null;
+    }
+
+    /** Der eigene Entwurf, an dem das Formular gerade arbeitet (draft_id), sonst null. */
+    private function ownDraft(Request $request): ?Mailing
+    {
+        if (! $request->filled('draft_id')) {
+            return null;
+        }
+
+        return Mailing::query()->where('status', Mailing::STATUS_DRAFT)->where('sent_by_user_id', $this->user()->id)->find((int) $request->input('draft_id'));
+    }
+
+    /** board oder office. */
+    private function areaKey(Request $request): string
+    {
+        return Str::afterLast($this->base($request), '.');
     }
 
     /** Routenpräfix der aufrufenden Seite: mailings.board oder mailings.office. */

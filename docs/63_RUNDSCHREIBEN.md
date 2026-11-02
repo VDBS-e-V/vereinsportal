@@ -49,5 +49,13 @@ Gespeichert werden Betreff, Text mit Platzhaltern, Gruppen und Zahl der Empfäng
 - **Zahlen vor dem Senden:** Das Formular zeigt Erreichbare, Abgemeldete und Gesperrte.
 - **Prüfung beim Senden:** Der Worker prüft jede Adresse noch einmal unmittelbar vor dem Versand. Wer sich nach dem Anlegen abmeldet oder gesperrt wird, wird übersprungen (Zeile „übersprungen“ mit Grund).
 
+## Entwürfe, Planung und Freigabe (seit Update 3)
+
+- **Entwurf:** Im Formular „Als Entwurf speichern“. Entwürfe sieht nur die schreibende Person; sie öffnet ihn unter „In Vorbereitung“ wieder und kann ihn ändern oder löschen.
+- **Planung:** Das Feld „Senden am“ plant den Versand. Der Planer (`mailings:dispatch-due`, jede Minute) startet das Schreiben zur Zeit. Die Empfänger werden erst dann bestimmt, Abmeldungen und Sperren gelten also bis zuletzt. Ein geplantes Schreiben lässt sich zurückziehen.
+- **Freigabe (Vier-Augen-Prinzip):** Ab `MAILINGS_APPROVAL_THRESHOLD` Empfängern (Standard 50) legt das Schreiben Personen ohne Recht `mailings.approve` zur Freigabe vor. Der Vorstand wird benachrichtigt (Einstellung „Schreiben zur Freigabe“), gibt frei oder mit Begründung zurück. Das eigene Schreiben lässt sich nicht freigeben. Der Vorstand schreibt frei. Abschalten: `MAILINGS_APPROVAL=false`.
+- **Absender je Bereich:** `MAILINGS_FROM_NAME_BOARD/OFFICE/TEAM` und `MAILINGS_REPLY_TO_BOARD/OFFICE/TEAM`. Die Absenderadresse bleibt die des Versanddienstes.
+- Jeder Schritt (vorgelegt, freigegeben, zurückgegeben, geplant, zurückgezogen) steht im Protokoll („Schreiben: Freigabe und Planung“).
+
 ## Grenzen
 Stürzt ein Worker mitten in einer Mail ab, kann diese eine Mail doppelt zugestellt werden (Zeilen im Zustand „wird gesendet“ werden nach 10 Minuten wieder freigegeben). Bounces folgen im nächsten Update (siehe `docs/65_RUNDSCHREIBEN_ENTWICKLUNGSPLAN.md`).
