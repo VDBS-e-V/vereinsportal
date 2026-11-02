@@ -18,9 +18,9 @@ final class MailPlaceholders
         'portal' => 'Adresse des Portals',
     ];
 
-    /** Zusätzlich beim Rundschreiben an Mitglieder (aus den Angaben zur Versammlung). @var array<string, string> */
+    /** Zusätzlich bei Schreiben an Gruppen (aus den Angaben zu Termin oder Versammlung). @var array<string, string> */
     public const MEMBERS = [
-        'versammlung' => 'Titel der Versammlung',
+        'versammlung' => 'Titel der Versammlung oder des Termins',
         'termin' => 'Termin mit Wochentag, Datum und Uhrzeit',
         'datum' => 'Datum der Versammlung',
         'uhrzeit' => 'Uhrzeit der Versammlung',
@@ -41,13 +41,13 @@ final class MailPlaceholders
         'eigener_text' => 'Der Textabschnitt der Koordination (nur in der Vorlage)',
     ];
 
-    public const KINDS = ['members', 'team'];
+    public const KINDS = ['general', 'team'];
 
     /** @return array<string, string> Platzhalter => Bedeutung für eine Art von Schreiben */
     public static function definitions(string $kind): array
     {
         return self::GENERAL + match ($kind) {
-            'members' => self::MEMBERS,
+            'members', 'general' => self::MEMBERS,
             'team' => self::TEAM,
             default => [],
         };

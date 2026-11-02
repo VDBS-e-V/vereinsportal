@@ -1,18 +1,22 @@
 # Rundschreiben und Mitteilungen per E-Mail
 
-Modul `app/Modules/Mailings`. Zwei Wege, ein Platzhalter-System.
+Modul `app/Modules/Mailings`. Ein Platzhalter-System, drei Wege.
 
-## Vorstand: Rundschreiben an Mitglieder
-- Seite „Rundschreiben“ im Bereich Vorstand (`/vorstand/rundschreiben`), Berechtigung `mailings.members` (nur Vorstand).
-- Der Vorstand schreibt **frei**: Betreff und Text (Editor), dazu optional Angaben zur Versammlung (Titel, Datum, Uhrzeit, Ort, Link, Frist).
-- Ablauf: Schreiben → Vorschau (mit den Angaben der schreibenden Person eingesetzt) → optional Testmail an sich selbst → Senden.
-- Empfänger: alle laufenden Mitgliedschaften mit E-Mail-Adresse (Person oder an der Mitgliedschaft hinterlegt), jede Adresse einmal. Nicht abbestellbar, weil Vereinspost (Einladung zur Versammlung).
+## 1. Rundschreiben an Gruppen (Vorstand und Geschäftsstelle)
+- Zwei Seiten, eine Klasse (`GroupMailingController`): im Bereich **Vorstand** (`/vorstand/mitteilungen`, Berechtigung `mailings.members`) und im Bereich **Geschäftsstelle** (`/geschaeftsstelle/mitteilungen`, Berechtigung `mailings.send`).
+- Gruppen zur Auswahl (mehrere möglich, jede Adresse einmal): Mitglieder, Teamende, Schulen, Koordination, Bildungsreferenten, Vorstand, Geschäftsstelle.
+  - **Mitglieder** darf nur der Vorstand anschreiben (`mailings.members`). Die Mail kommt aus den laufenden Mitgliedschaften mit E-Mail-Adresse und ist nicht abbestellbar (Vereinspost).
+  - Alle anderen Gruppen sind aktive Konten mit der jeweiligen Rolle. **Teamende** und **Schulen** können die Mitteilungen in Konto › Benachrichtigungen abbestellen; wer das getan hat, wird nicht gezählt und nicht angeschrieben.
+- Schreiben: frei im Editor mit Platzhaltern, **oder** eine Vorlage laden (dann Betreff und Text ändern). Optional Angaben zu Termin oder Versammlung (Titel, Datum, Uhrzeit, Ort, Link, Frist).
+- Ablauf: Gruppen wählen → schreiben → Vorschau (mit den Angaben der schreibenden Person eingesetzt) → optional Testmail an sich → Senden.
 
-## Koordination: Mitteilungen an Teamende
-- Seite „Mitteilungen an Teamende“ im Bereich Koordination (`/koordination/mitteilungen`), Berechtigung `mailings.team` (Rolle Koordination).
-- Die **Vorlage** (Betreff und Text) pflegt die Geschäftsstelle unter „Mailvorlagen“ (`/geschaeftsstelle/vorlagen`, Berechtigung `mail_templates.manage`: Geschäftsstelle und Vorstand). Ohne gespeicherte Fassung gilt die eingebaute.
-- Die Koordination wählt ein Seminar (in Planung, terminiert oder bestätigt), die Empfänger und schreibt einen **eigenen Textabschnitt**, der an der Stelle `{eigener_text}` der Vorlage steht (fehlt die Stelle, wird er angehängt).
-- Empfänger: alle aktiven Teamenden, nur die mit Interesse an diesem Seminar oder nur die im Team des Seminars. Wer unter Konto › Benachrichtigungen „Mitteilungen der Koordination“ abbestellt hat, bekommt sie nicht.
+## 2. Mailvorlagen (Geschäftsstelle und Vorstand, `mail_templates.manage`)
+- `/geschaeftsstelle/vorlagen`: eigene Vorlagen für Rundschreiben anlegen, ändern, löschen (Name, Beschreibung, Betreff, Text).
+- Dort auch der **feste Rahmen für Mitteilungen an Teamende zu Seminaren** (`/geschaeftsstelle/vorlagen/seminar`). Ohne gespeicherte Fassung gilt die eingebaute.
+
+## 3. Koordination: Mitteilungen an Teamende zu Seminaren
+- `/koordination/mitteilungen`, Berechtigung `mailings.team` (Rolle Koordination).
+- Seminar wählen (in Planung, terminiert oder bestätigt), Empfänger wählen (alle Teamenden, Interesse an diesem Seminar, im Team dieses Seminars), eigenen **Textabschnitt** schreiben. Er steht an der Stelle `{eigener_text}` der Vorlage der Geschäftsstelle (fehlt die Stelle, wird er angehängt).
 
 ## Platzhalter
 Geschrieben als `{name}`. Unbekannte werden beim Speichern und Senden abgelehnt.
@@ -20,13 +24,13 @@ Geschrieben als `{name}`. Unbekannte werden beim Speichern und Senden abgelehnt.
 | Art | Platzhalter |
 |---|---|
 | Alle | `{vorname}` `{nachname}` `{name}` `{absender}` `{verein}` `{portal}` |
-| Mitglieder | `{versammlung}` `{termin}` `{datum}` `{uhrzeit}` `{ort}` `{link}` `{frist}` |
-| Teamende | `{seminar}` `{schule}` `{termine}` `{erster_termin}` `{ort}` `{stichtag}` `{link}` `{eigener_text}` |
+| Rundschreiben | `{versammlung}` `{termin}` `{datum}` `{uhrzeit}` `{ort}` `{link}` `{frist}` |
+| Seminar-Mitteilungen | `{seminar}` `{schule}` `{termine}` `{erster_termin}` `{ort}` `{stichtag}` `{link}` `{eigener_text}` |
 
-Wer einen Platzhalter der Versammlung nutzt, muss die Angabe machen. Werte werden maskiert eingesetzt (nur `{termine}` und `{eigener_text}` sind bereinigtes HTML).
+Wer einen Platzhalter des Termins nutzt, muss die Angabe machen. Fehlt der Vorname einer Person, steht eine neutrale Anrede der Gruppe (z. B. „Mitglied“, „Teamer:in“, „Schule“). Werte werden maskiert eingesetzt (nur `{termine}` und `{eigener_text}` sind bereinigtes HTML).
 
 ## Datenschutz und Protokoll
-Gespeichert werden Betreff, Text mit Platzhaltern, Zahl der Empfänger und Zahl der Fehlschläge, nie die Empfängerliste. Das Protokoll hält nur Art und Zahlen fest („Schreiben versendet“).
+Gespeichert werden Betreff, Text mit Platzhaltern, Gruppen und Zahl der Empfänger und Fehlschläge, nie die Empfängerliste. Das Protokoll hält nur Art, Gruppen und Zahlen fest („Schreiben versendet“).
 
 ## Grenzen
-Der Versand läuft direkt im Seitenaufruf, eine Mail nach der anderen (pro Aufruf Zeitlimit des Servers). Für sehr viele Empfänger braucht es später einen Queue-Worker. Fehlgeschlagene Zustellungen stehen im Fehlerprotokoll der Systemsteuerung.
+Der Versand läuft direkt im Seitenaufruf, eine Mail nach der anderen (Zeitlimit des Servers). Für sehr viele Empfänger braucht es später einen Queue-Worker. Fehlgeschlagene Zustellungen stehen im Fehlerprotokoll der Systemsteuerung.

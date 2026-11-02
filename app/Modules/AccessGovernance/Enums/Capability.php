@@ -86,7 +86,10 @@ enum Capability: string
     /** Design-Bibliothek ansehen (Entwicklungswerkzeug). */
     case DesignView = 'design.view';
 
-    /** Rundschreiben an alle Mitglieder verfassen und senden (Vorstand). */
+    /** Schreiben an Gruppen (Teamende, Schulen, Koordination, Vorstand, Geschäftsstelle …) verfassen und senden (Geschäftsstelle und Vorstand). */
+    case MailingsSend = 'mailings.send';
+
+    /** Zusätzlich die Gruppe Mitglieder anschreiben, z. B. Einladung zur Versammlung (Vorstand). */
     case MailingsMembers = 'mailings.members';
 
     /** Mitteilungen an Teamende zu Seminaren senden (Koordination). */

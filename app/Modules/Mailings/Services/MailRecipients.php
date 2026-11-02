@@ -7,6 +7,7 @@ use App\Modules\Access\Models\User;
 use App\Modules\Access\Services\NotificationPreferences;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\Mailings\Models\Mailing;
+use App\Modules\Mailings\Support\MailGroups;
 use App\Modules\Membership\Enums\MembershipStatus;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\Seminars\Enums\ApplicationStatus;
@@ -38,6 +39,8 @@ final class MailRecipients
                 'email' => (string) $membership->contactEmail(),
                 'first' => (string) ($membership->person?->first_name ?? $membership->first_name ?? ''),
                 'last' => (string) ($membership->person?->last_name ?? $membership->last_name ?? ''),
+                'fallback' => 'Mitglied',
+                'group' => 'members',
             ];
         }
 
@@ -64,7 +67,52 @@ final class MailRecipients
             'email' => (string) $user->email,
             'first' => (string) ($user->person?->first_name ?? ''),
             'last' => (string) ($user->person?->last_name ?? ''),
+            'fallback' => 'Teamer:in',
+            'group' => 'team',
         ], $users));
+    }
+
+    /**
+     * Empfänger aus mehreren Gruppen, jede Adresse einmal (die erste Gruppe zählt).
+     *
+     * @param  list<string>  $groups
+     * @return list<array{email: string, first: string, last: string, fallback: string, group: string}>
+     */
+    public function groups(array $groups): array
+    {
+        $list = [];
+
+        foreach ($groups as $key) {
+            $definition = MailGroups::GROUPS[$key] ?? null;
+
+            if ($definition === null) {
+                continue;
+            }
+
+            if ($key === 'members') {
+                array_push($list, ...$this->members());
+
+                continue;
+            }
+
+            $users = User::query()
+                ->whereHas('activeRoleAssignments', fn ($assignments) => $assignments->whereHas('role', fn ($role) => $role->where('key', $definition['role'])))
+                ->with('person')
+                ->get()
+                ->all();
+
+            $users = array_filter($users, fn (User $user): bool => $user->status === UserStatus::Active);
+
+            if ($definition['optout'] !== null) {
+                $users = $this->preferences->filter($users, $definition['optout']);
+            }
+
+            foreach ($users as $user) {
+                $list[] = ['email' => (string) $user->email, 'first' => (string) ($user->person?->first_name ?? ''), 'last' => (string) ($user->person?->last_name ?? ''), 'fallback' => $definition['fallback'], 'group' => $key];
+            }
+        }
+
+        return $this->unique($list);
     }
 
     public function count(string $kind, ?Seminar $seminar = null, string $audience = 'all'): int
@@ -83,8 +131,8 @@ final class MailRecipients
     }
 
     /**
-     * @param  list<array{email: string, first: string, last: string}>  $list
-     * @return list<array{email: string, first: string, last: string}>
+     * @param  list<array<string, string>>  $list
+     * @return list<array{email: string, first: string, last: string, fallback: string, group: string}>
      */
     private function unique(array $list): array
     {
@@ -99,7 +147,7 @@ final class MailRecipients
             }
 
             $seen[$email] = true;
-            $result[] = ['email' => $email, 'first' => trim($entry['first']), 'last' => trim($entry['last'])];
+            $result[] = ['email' => $email, 'first' => trim($entry['first']), 'last' => trim($entry['last']), 'fallback' => $entry['fallback'] ?? 'Mitglied', 'group' => $entry['group'] ?? 'members'];
         }
 
         return $result;

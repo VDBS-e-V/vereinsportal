@@ -7,6 +7,7 @@ use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Mailings\Mail\MailingMail;
 use App\Modules\Mailings\Models\Mailing;
+use App\Modules\Mailings\Support\MailGroups;
 use App\Modules\Mailings\Support\MailPlaceholders;
 use App\Modules\Seminars\Models\Seminar;
 use App\Support\Html\RichText;
@@ -69,32 +70,36 @@ final class Mailings
      * @param  array<string, mixed>  $meeting
      * @return array{subject: string, html: string}
      */
-    public function previewMembers(string $subject, string $body, array $meeting, User $by): array
+    public function previewGroups(string $subject, string $body, array $meeting, User $by): array
     {
         return $this->render($subject, $body, $this->meetingValues($meeting), $this->sample($by), $by);
     }
 
     /**
+     * Schreiben an eine oder mehrere Gruppen, jede Adresse einmal.
+     *
+     * @param  list<string>  $groups
      * @param  array<string, mixed>  $meeting
      *
      * @throws DomainException
      */
-    public function sendMembers(string $subject, string $body, array $meeting, User $by): Mailing
+    public function sendGroups(array $groups, string $subject, string $body, array $meeting, User $by): Mailing
     {
-        $list = $this->recipients->members();
+        $list = $this->recipients->groups($groups);
 
         if ($list === []) {
-            throw new DomainException('Es gibt keine Mitglieder mit E-Mail-Adresse.');
+            throw new DomainException('Für diese Auswahl gibt es keine Empfänger mit E-Mail-Adresse. Wer Mitteilungen abbestellt hat, bekommt sie nicht.');
         }
 
-        [$sent, $failed] = $this->deliver($list, $subject, $body, $this->meetingValues($meeting), $by, Mailing::KIND_MEMBERS);
+        [$sent, $failed] = $this->deliver($list, $subject, $body, $this->meetingValues($meeting), $by);
 
-        return $this->record(Mailing::KIND_MEMBERS, $subject, $body, null, null, 'members', $sent, $failed, $by);
+        return $this->record(Mailing::KIND_GENERAL, $subject, $body, null, null, null, $groups, $sent, $failed, $by);
     }
 
-    public function sendMembersTest(string $subject, string $body, array $meeting, User $by): void
+    /** @param  array<string, mixed>  $meeting */
+    public function sendGroupsTest(string $subject, string $body, array $meeting, User $by): void
     {
-        $this->deliver([$this->sample($by)], '[Test] '.$subject, $body, $this->meetingValues($meeting), $by, Mailing::KIND_MEMBERS);
+        $this->deliver([$this->sample($by)], '[Test] '.$subject, $body, $this->meetingValues($meeting), $by);
     }
 
     // ---------- Teamende ----------
@@ -131,16 +136,16 @@ final class Mailings
         }
 
         $composed = $this->composeTeam($ownText);
-        [$sent, $failed] = $this->deliver($list, $composed['subject'], $composed['body'], $this->seminarValues($seminar), $by, Mailing::KIND_TEAM);
+        [$sent, $failed] = $this->deliver($list, $composed['subject'], $composed['body'], $this->seminarValues($seminar), $by);
 
-        return $this->record(Mailing::KIND_TEAM, $composed['subject'], $composed['body'], RichText::clean($ownText), $seminar->id, $audience, $sent, $failed, $by);
+        return $this->record(Mailing::KIND_TEAM, $composed['subject'], $composed['body'], RichText::clean($ownText), $seminar->id, $audience, null, $sent, $failed, $by);
     }
 
     public function sendTeamTest(Seminar $seminar, string $ownText, User $by): void
     {
         $composed = $this->composeTeam($ownText);
 
-        $this->deliver([$this->sample($by)], '[Test] '.$composed['subject'], $composed['body'], $this->seminarValues($seminar), $by, Mailing::KIND_TEAM);
+        $this->deliver([$this->sample($by)], '[Test] '.$composed['subject'], $composed['body'], $this->seminarValues($seminar), $by);
     }
 
     /** Platzhalter aus den Angaben des Seminars. @return array<string, string> */
@@ -167,7 +172,7 @@ final class Mailings
 
     /**
      * @param  array<string, string>  $values
-     * @param  array{email: string, first: string, last: string}  $recipient
+     * @param  array<string, string>  $recipient
      * @return array{subject: string, html: string}
      */
     private function render(string $subject, string $body, array $values, array $recipient, User $by): array
@@ -178,11 +183,11 @@ final class Mailings
     }
 
     /**
-     * @param  list<array{email: string, first: string, last: string}>  $list
+     * @param  list<array<string, string>>  $list
      * @param  array<string, string>  $values
      * @return array{0: int, 1: int} gesendet, fehlgeschlagen
      */
-    private function deliver(array $list, string $subject, string $body, array $values, User $by, string $kind): array
+    private function deliver(array $list, string $subject, string $body, array $values, User $by): array
     {
         $sent = 0;
         $failed = 0;
@@ -191,7 +196,7 @@ final class Mailings
             $rendered = $this->render($subject, $body, $values, $recipient, $by);
 
             try {
-                Mail::to($recipient['email'])->send(new MailingMail($rendered['subject'], $rendered['html'], $kind));
+                Mail::to($recipient['email'])->send(new MailingMail($rendered['subject'], $rendered['html'], $recipient['group'] ?? 'internal'));
                 $sent++;
             } catch (Throwable $exception) {
                 $failed++;
@@ -202,22 +207,23 @@ final class Mailings
         return [$sent, $failed];
     }
 
-    private function record(string $kind, string $subject, string $body, ?string $own, ?int $seminarId, string $audience, int $sent, int $failed, User $by): Mailing
+    /** @param  list<string>|null  $groups */
+    private function record(string $kind, string $subject, string $body, ?string $own, ?int $seminarId, ?string $audience, ?array $groups, int $sent, int $failed, User $by): Mailing
     {
-        $mailing = Mailing::query()->create(['kind' => $kind, 'subject' => $subject, 'body' => $body, 'own_text' => $own, 'seminar_id' => $seminarId, 'audience' => $audience, 'recipients_count' => $sent, 'failed_count' => $failed, 'sent_by_user_id' => $by->id]);
+        $mailing = Mailing::query()->create(['kind' => $kind, 'subject' => $subject, 'body' => $body, 'own_text' => $own, 'seminar_id' => $seminarId, 'audience' => $audience, 'groups' => $groups, 'recipients_count' => $sent, 'failed_count' => $failed, 'sent_by_user_id' => $by->id]);
 
-        AuditLog::record(AuditEvent::MailingSent, $by, null, ['art' => $kind === Mailing::KIND_MEMBERS ? 'Rundschreiben an Mitglieder' : 'Mitteilung an Teamende', 'empfaenger' => $sent, 'fehlgeschlagen' => $failed]);
+        AuditLog::record(AuditEvent::MailingSent, $by, null, ['art' => $kind === Mailing::KIND_GENERAL ? 'Schreiben an Gruppen' : 'Mitteilung an Teamende', 'gruppen' => $groups !== null ? MailGroups::labels($groups) : null, 'empfaenger' => $sent, 'fehlgeschlagen' => $failed]);
 
         return $mailing;
     }
 
     /**
-     * @param  array{email: string, first: string, last: string}  $recipient
+     * @param  array<string, string>  $recipient
      * @return array<string, string>
      */
     private function personal(array $recipient, User $by): array
     {
-        $first = $recipient['first'] !== '' ? $recipient['first'] : 'Mitglied';
+        $first = $recipient['first'] !== '' ? $recipient['first'] : ($recipient['fallback'] ?? 'Mitglied');
         $name = trim($recipient['first'].' '.$recipient['last']);
 
         return [
@@ -230,10 +236,10 @@ final class Mailings
         ];
     }
 
-    /** Die schreibende Person als Beispiel-Empfänger für Vorschau und Testmail. @return array{email: string, first: string, last: string} */
+    /** Die schreibende Person als Beispiel-Empfänger für Vorschau und Testmail. @return array<string, string> */
     private function sample(User $by): array
     {
-        return ['email' => (string) $by->email, 'first' => (string) ($by->person?->first_name ?? ''), 'last' => (string) ($by->person?->last_name ?? '')];
+        return ['email' => (string) $by->email, 'first' => (string) ($by->person?->first_name ?? ''), 'last' => (string) ($by->person?->last_name ?? ''), 'fallback' => 'Mitglied', 'group' => 'internal'];
     }
 
     private function senderName(User $by): string

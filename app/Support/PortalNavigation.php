@@ -80,7 +80,7 @@ final class PortalNavigation
                     ['label' => 'Mitgliedschaften', 'route' => 'membership.index', 'match' => 'membership.*', 'can' => 'memberships.view', 'children' => [
                         ['label' => 'Willkommenspaket', 'route' => 'onboarding.member', 'match' => 'onboarding.member*', 'can' => 'memberships.view'],
                     ]],
-                    ['description' => 'Einladungen und Mitteilungen per E-Mail an alle Mitglieder.', 'label' => 'Rundschreiben', 'route' => 'mailings.members.index', 'match' => 'mailings.members.*', 'can' => 'mailings.members'],
+                    ['description' => 'E-Mails an Mitglieder und andere Gruppen, frei oder mit Vorlage.', 'label' => 'Rundschreiben', 'route' => 'mailings.board.index', 'match' => 'mailings.board.*', 'can' => 'mailings.members'],
                     ['label' => 'Berichte', 'route' => 'board.reports', 'match' => 'board.reports*', 'can' => 'reports.view'],
                 ],
             ],
@@ -139,7 +139,8 @@ final class PortalNavigation
                     ['label' => 'Inhalte', 'group' => true, 'route' => 'articles.admin.index', 'children' => [
                         ['description' => 'Artikel für Startseite und Artikelliste.', 'label' => 'Artikel', 'route' => 'articles.admin.index', 'match' => 'articles.admin.*', 'can' => 'articles.manage'],
                         ['description' => 'Rechtstexte und andere Seiten.', 'label' => 'Seiten', 'route' => 'pages.admin.index', 'match' => 'pages.admin.*', 'can' => 'pages.manage'],
-                        ['description' => 'Vorlage für E-Mails der Koordination an Teamende.', 'label' => 'Mailvorlagen', 'route' => 'mailings.templates.edit', 'match' => 'mailings.templates.*', 'can' => 'mail_templates.manage'],
+                        ['description' => 'E-Mails an Gruppen wie Teamende, Schulen oder Koordination.', 'label' => 'Rundschreiben', 'route' => 'mailings.office.index', 'match' => 'mailings.office.*', 'can' => 'mailings.send'],
+                        ['description' => 'Vorlagen für Rundschreiben und für Mitteilungen an Teamende.', 'label' => 'Mailvorlagen', 'route' => 'mailings.templates.index', 'match' => 'mailings.templates.*', 'can' => 'mail_templates.manage'],
                     ]],
                     ['label' => 'Preise & Angebote', 'group' => true, 'route' => 'seminar-quotes.index', 'children' => [
                         ['description' => 'Kostenvoranschläge für Seminare.', 'label' => 'Kostenvoranschläge', 'route' => 'seminar-quotes.index', 'match' => 'seminar-quotes.*', 'can' => 'seminars.view'],

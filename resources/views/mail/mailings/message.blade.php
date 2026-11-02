@@ -6,8 +6,12 @@
     <p style="font-size:13px;color:#475569">
         @if ($kind === 'members')
             Sie erhalten diese Nachricht als Mitglied des Verbands für Demokratiebildung und Bibliotheken an Schulen e. V.
-        @else
+        @elseif ($kind === 'team')
             Sie erhalten diese Nachricht als Teamende:r des Verbands für Demokratiebildung und Bibliotheken an Schulen e. V. Sie können solche Mitteilungen im Portal unter Konto › Benachrichtigungen abbestellen.
+        @elseif ($kind === 'schools')
+            Sie erhalten diese Nachricht als Schulkonto im Portal des Verbands für Demokratiebildung und Bibliotheken an Schulen e. V. Sie können solche Mitteilungen im Portal unter Konto › Benachrichtigungen abbestellen.
+        @else
+            Diese Nachricht kommt vom Verband für Demokratiebildung und Bibliotheken an Schulen e. V.
         @endif
     </p>
 </body>

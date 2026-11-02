@@ -8,9 +8,11 @@ use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\Mailings\Mail\MailingMail;
+use App\Modules\Mailings\Models\MailTemplate;
 use App\Modules\Mailings\Models\Mailing;
 use App\Modules\Mailings\Services\MailRecipients;
 use App\Modules\Mailings\Services\MailTemplates;
+use App\Modules\Mailings\Support\MailGroups;
 use App\Modules\Mailings\Support\MailPlaceholders;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\People\Models\Person;
@@ -51,15 +53,16 @@ function mlSeminar(array $attributes = []): Seminar
 
 function mlMeeting(array $overrides = []): array
 {
-    return $overrides + ['subject' => 'Einladung zur {versammlung}', 'body' => '<p>Liebe {vorname}, wir laden Sie für den {termin} in {ort} ein. Von {absender}.</p>', 'meeting_title' => 'Mitgliederversammlung 2026', 'meeting_date' => '2026-12-12', 'meeting_time' => '10:00', 'meeting_place' => 'Berlin, Haus der Demokratie'];
+    return $overrides + ['groups' => ['members'], 'subject' => 'Einladung zur {versammlung}', 'body' => '<p>Liebe {vorname}, wir laden Sie für den {termin} in {ort} ein. Von {absender}.</p>', 'meeting_title' => 'Mitgliederversammlung 2026', 'meeting_date' => '2026-12-12', 'meeting_time' => '10:00', 'meeting_place' => 'Berlin, Haus der Demokratie'];
 }
 
 // ---------- Platzhalter ----------
 
 it('finds, renders and escapes placeholders and refuses unknown ones', function () {
     expect(MailPlaceholders::used('Hallo {vorname}, {seminar} und {vorname}'))->toBe(['vorname', 'seminar'])
-        ->and(MailPlaceholders::unknown('{vorname} {tippfehler}', 'members'))->toBe(['tippfehler'])
-        ->and(MailPlaceholders::unknown('{seminar}', 'members'))->toBe(['seminar'])
+        ->and(MailPlaceholders::unknown('{vorname} {tippfehler}', 'general'))->toBe(['tippfehler'])
+        ->and(MailPlaceholders::unknown('{seminar}', 'general'))->toBe(['seminar'])
+        ->and(MailPlaceholders::unknown('{ort} {frist}', 'general'))->toBe([])
         ->and(MailPlaceholders::unknown('{seminar} {eigener_text}', 'team'))->toBe([])
         ->and(MailPlaceholders::render('Hallo {vorname} {x}', ['vorname' => 'Ann']))->toBe('Hallo Ann {x}')
         ->and(MailPlaceholders::render('<p>{name}</p>', ['name' => '<b>A&B</b>'], true))->toBe('<p>&lt;b&gt;A&amp;B&lt;/b&gt;</p>')
@@ -69,41 +72,46 @@ it('finds, renders and escapes placeholders and refuses unknown ones', function 
 // ---------- Rechte ----------
 
 it('lets each role use only its own pages', function () {
-    $this->get(route('mailings.members.index'))->assertRedirect(route('login'));
+    $this->get(route('mailings.board.index'))->assertRedirect(route('login'));
 
     $this->actingAs(mlUser(RoleKey::BoardMember));
-    $this->get(route('mailings.members.index'))->assertOk();
-    $this->get(route('mailings.members.create'))->assertOk()->assertSee('Platzhalter');
+    $this->get(route('mailings.board.index'))->assertOk();
+    $this->get(route('mailings.board.create'))->assertOk()->assertSee('Platzhalter')->assertSee('Mitglieder');
+    $this->get(route('mailings.office.index'))->assertOk();
     $this->get(route('mailings.team.index'))->assertForbidden();
-    $this->get(route('mailings.templates.edit'))->assertOk();
+    $this->get(route('mailings.templates.index'))->assertOk();
+
+    $this->actingAs(mlUser(RoleKey::AdministrationStaff));
+    $this->get(route('mailings.office.index'))->assertOk();
+    $this->get(route('mailings.office.create'))->assertOk();
+    $this->get(route('mailings.board.index'))->assertForbidden();
+    $this->get(route('mailings.templates.index'))->assertOk();
+    $this->get(route('mailings.templates.team'))->assertOk()->assertSee('{eigener_text}');
+    $this->get(route('mailings.team.index'))->assertForbidden();
 
     $this->actingAs(mlUser(RoleKey::Coordination));
     $this->get(route('mailings.team.index'))->assertOk();
     $this->get(route('mailings.team.create'))->assertOk();
-    $this->get(route('mailings.members.index'))->assertForbidden();
-    $this->get(route('mailings.templates.edit'))->assertForbidden();
-
-    $this->actingAs(mlUser(RoleKey::AdministrationStaff));
-    $this->get(route('mailings.templates.edit'))->assertOk()->assertSee('{eigener_text}');
-    $this->get(route('mailings.members.index'))->assertForbidden();
-    $this->get(route('mailings.team.index'))->assertForbidden();
+    $this->get(route('mailings.board.index'))->assertForbidden();
+    $this->get(route('mailings.office.index'))->assertForbidden();
+    $this->get(route('mailings.templates.index'))->assertForbidden();
 
     foreach ([RoleKey::Member, RoleKey::Team, RoleKey::Administration] as $role) {
         $this->actingAs(mlUser($role));
-        $this->get(route('mailings.members.index'))->assertForbidden();
-        $this->post(route('mailings.members.store'), mlMeeting())->assertForbidden();
+        $this->get(route('mailings.board.index'))->assertForbidden();
+        $this->post(route('mailings.office.store'), mlMeeting())->assertForbidden();
         $this->get(route('mailings.team.index'))->assertForbidden();
-        $this->get(route('mailings.templates.edit'))->assertForbidden();
+        $this->get(route('mailings.templates.index'))->assertForbidden();
     }
 });
 
 it('lists the new pages in the menus of the three areas', function () {
     $this->actingAs(mlUser(RoleKey::BoardMember))->get(route('board.overview'))->assertOk()->assertSee('Rundschreiben');
     $this->actingAs(mlUser(RoleKey::Coordination))->get(route('coordination.home'))->assertOk()->assertSee('Mitteilungen an Teamende');
-    $this->actingAs(mlUser(RoleKey::AdministrationStaff))->get(route('office.home'))->assertOk()->assertSee('Mailvorlagen');
+    $this->actingAs(mlUser(RoleKey::AdministrationStaff))->get(route('office.home'))->assertOk()->assertSee('Mailvorlagen')->assertSee('Rundschreiben');
 });
 
-// ---------- Mitglieder ----------
+// ---------- Gruppen ----------
 
 it('addresses running memberships with an address, once per address', function () {
     Membership::factory()->create(['person_id' => Person::factory()->create(['email' => 'a@beispiel.example', 'first_name' => 'Anna', 'last_name' => 'Alt'])->id]);
@@ -118,59 +126,144 @@ it('addresses running memberships with an address, once per address', function (
     expect($emails)->toBe(['a@beispiel.example', 'm@beispiel.example']);
 });
 
-it('sends a personal letter to every member, free in wording, with the details of the meeting', function () {
+it('collects the groups by role, once per address, without opted out accounts, and offers the members only to the board', function () {
+    $team = mlUser(RoleKey::Team, ['email' => 'team@beispiel.example']);
+    $optedOut = mlUser(RoleKey::Team);
+    $school = mlUser(RoleKey::School);
+    $board = mlUser(RoleKey::BoardMember);
+    $coordination = mlUser(RoleKey::Coordination);
+    $both = mlUser(RoleKey::Team);
+    RoleAssignment::query()->create(['user_id' => $both->id, 'role_id' => Role::query()->where('key', RoleKey::Coordination->value)->value('id'), 'source' => RoleAssignmentSource::Manual, 'starts_at' => now()->subMinute()]);
+    DB::table('notification_preferences')->insert(['user_id' => $optedOut->id, 'key' => 'team_mailings', 'enabled' => false, 'created_at' => now(), 'updated_at' => now()]);
+
+    $recipients = app(MailRecipients::class);
+    $emails = fn (array $groups) => collect($recipients->groups($groups))->pluck('email')->sort()->values()->all();
+
+    expect($emails(['team']))->toBe(collect([$team->email, $both->email])->map(fn ($e) => mb_strtolower($e))->sort()->values()->all())
+        ->and($emails(['schools']))->toBe([mb_strtolower($school->email)])
+        ->and($emails(['board']))->toBe([mb_strtolower($board->email)])
+        ->and($emails(['team', 'coordination']))->toHaveCount(3)
+        ->and($emails(['unbekannt']))->toBe([]);
+
+    expect(array_keys(MailGroups::allowedFor($board)))->toContain('members', 'team', 'schools')
+        ->and(array_keys(MailGroups::allowedFor(mlUser(RoleKey::AdministrationStaff))))->toContain('team', 'schools')->not->toContain('members')
+        ->and(MailGroups::allowedFor($coordination))->toBe([]);
+});
+
+it('sends a personal letter to the chosen groups, free in wording, with the details of the meeting', function () {
     Membership::factory()->create(['person_id' => Person::factory()->create(['email' => 'anna@beispiel.example', 'first_name' => 'Anna', 'last_name' => 'Alt'])->id]);
     Membership::factory()->create(['person_id' => Person::factory()->create(['email' => 'bert@beispiel.example', 'first_name' => 'Bert', 'last_name' => 'Neu'])->id]);
+    $team = mlUser(RoleKey::Team, ['first_name' => 'Timo', 'last_name' => 'Team']);
     $board = mlUser(RoleKey::BoardMember, ['first_name' => 'Vera', 'last_name' => 'Vorstand']);
 
-    $this->actingAs($board)->post(route('mailings.members.store'), mlMeeting())->assertRedirect(route('mailings.members.index'))->assertSessionHas('success');
+    $this->actingAs($board)->post(route('mailings.board.store'), mlMeeting(['groups' => ['members', 'team']]))->assertRedirect(route('mailings.board.index'))->assertSessionHas('success');
 
-    Mail::assertSent(MailingMail::class, 2);
+    Mail::assertSent(MailingMail::class, 3);
     Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo('anna@beispiel.example')
         && $mail->subjectLine === 'Einladung zur Mitgliederversammlung 2026'
         && str_contains($mail->html, 'Liebe Anna')
         && str_contains($mail->html, 'Samstag, 12.12.2026 um 10:00 Uhr')
         && str_contains($mail->html, 'Haus der Demokratie')
         && str_contains($mail->html, 'Vera Vorstand'));
-    Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo('bert@beispiel.example') && str_contains($mail->html, 'Liebe Bert'));
+    Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($team->email) && str_contains($mail->html, 'Liebe Timo') && $mail->kind === 'team');
 
     $mailing = Mailing::query()->firstOrFail();
-    expect($mailing->kind)->toBe('members')->and($mailing->recipients_count)->toBe(2)->and($mailing->subject)->toContain('{versammlung}')->and($mailing->body)->toContain('{vorname}');
+    expect($mailing->kind)->toBe('general')->and($mailing->groups)->toBe(['members', 'team'])->and($mailing->recipients_count)->toBe(3)->and($mailing->subject)->toContain('{versammlung}')->and($mailing->body)->toContain('{vorname}');
 
     $entry = AuditEntry::query()->where('event', AuditEvent::MailingSent->value)->firstOrFail();
-    expect(json_encode($entry->context))->toContain('Rundschreiben')->not->toContain('anna@beispiel.example')->not->toContain('Einladung');
+    expect(json_encode($entry->context))->toContain('Schreiben an Gruppen')->toContain('Mitglieder, Teamende')->not->toContain('anna@beispiel.example')->not->toContain('Einladung');
 });
 
-it('refuses unknown placeholders and placeholders without details of the meeting', function () {
-    Membership::factory()->create();
+it('lets the office write to the groups but not to the members', function () {
+    Membership::factory()->create(['person_id' => Person::factory()->create(['email' => 'anna@beispiel.example'])->id]);
+    $school = mlUser(RoleKey::School, ['first_name' => 'Sabine']);
+    $staff = mlUser(RoleKey::AdministrationStaff);
+
+    $this->actingAs($staff)->post(route('mailings.office.store'), mlMeeting(['groups' => ['members']]))->assertSessionHasErrors('groups.0');
+    Mail::assertNothingSent();
+
+    $this->post(route('mailings.office.store'), mlMeeting(['groups' => ['schools'], 'body' => '<p>Guten Tag {vorname}, {name}.</p>', 'subject' => 'Hinweis']))->assertRedirect(route('mailings.office.index'));
+
+    Mail::assertSent(MailingMail::class, 1);
+    Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($school->email) && str_contains($mail->html, 'Guten Tag Sabine') && $mail->kind === 'schools');
+});
+
+it('uses a neutral salutation for accounts without a first name', function () {
+    $user = User::factory()->create(['person_id' => null]);
+    RoleAssignment::query()->create(['user_id' => $user->id, 'role_id' => Role::query()->where('key', RoleKey::School->value)->value('id'), 'source' => RoleAssignmentSource::Manual, 'starts_at' => now()->subMinute()]);
+
+    $this->actingAs(mlUser(RoleKey::AdministrationStaff))->post(route('mailings.office.store'), ['groups' => ['schools'], 'subject' => 'Hallo', 'body' => '<p>Guten Tag {vorname}!</p>'])->assertSessionHasNoErrors();
+
+    Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($user->email) && str_contains($mail->html, 'Guten Tag Schule!'));
+});
+
+it('refuses unknown placeholders, missing groups and placeholders without details of the meeting', function () {
+    mlUser(RoleKey::Team);
     $this->actingAs(mlUser(RoleKey::BoardMember));
 
-    $this->post(route('mailings.members.store'), mlMeeting(['body' => '<p>{tippfehler}</p>']))->assertSessionHasErrors('body');
-    $this->post(route('mailings.members.store'), mlMeeting(['body' => '<p>Ort: {ort}</p>', 'meeting_place' => '']))->assertSessionHasErrors('body');
-    $this->post(route('mailings.members.store'), mlMeeting(['subject' => '']))->assertSessionHasErrors('subject');
-    $this->post(route('mailings.members.store'), mlMeeting(['meeting_link' => 'kein-link']))->assertSessionHasErrors('meeting_link');
+    $this->post(route('mailings.board.store'), mlMeeting(['groups' => ['team'], 'body' => '<p>{tippfehler}</p>']))->assertSessionHasErrors('body');
+    $this->post(route('mailings.board.store'), mlMeeting(['groups' => ['team'], 'body' => '<p>Ort: {ort}</p>', 'meeting_place' => '']))->assertSessionHasErrors('body');
+    $this->post(route('mailings.board.store'), mlMeeting(['groups' => ['team'], 'subject' => '']))->assertSessionHasErrors('subject');
+    $this->post(route('mailings.board.store'), mlMeeting(['groups' => []]))->assertSessionHasErrors('groups');
+    $this->post(route('mailings.board.store'), mlMeeting(['groups' => ['administration']]))->assertSessionHasErrors('groups.0');
+    $this->post(route('mailings.board.store'), mlMeeting(['groups' => ['team'], 'meeting_link' => 'kein-link']))->assertSessionHasErrors('meeting_link');
 
     Mail::assertNothingSent();
     expect(Mailing::query()->count())->toBe(0);
 });
 
-it('tells the board when there is nobody to write to and shows a preview and a test mail only to the sender', function () {
+it('tells the sender when nobody is reached and shows a preview and a test mail only to the sender', function () {
     $board = mlUser(RoleKey::BoardMember, ['first_name' => 'Vera']);
     $this->actingAs($board);
 
-    $this->post(route('mailings.members.store'), mlMeeting())->assertRedirect(route('mailings.members.create'))->assertSessionHas('error');
+    $this->post(route('mailings.board.store'), mlMeeting())->assertRedirect(route('mailings.board.create'))->assertSessionHas('error');
 
     Membership::factory()->create(['person_id' => Person::factory()->create(['email' => 'anna@beispiel.example'])->id]);
 
-    $this->post(route('mailings.members.preview'), mlMeeting())->assertRedirect(route('mailings.members.create'))->assertSessionHas('preview');
+    $this->post(route('mailings.board.preview'), mlMeeting())->assertRedirect(route('mailings.board.create'))->assertSessionHas('preview');
     Mail::assertNothingSent();
 
-    $this->followingRedirects()->post(route('mailings.members.preview'), mlMeeting())->assertSee('Vorschau')->assertSee('Liebe Vera')->assertSee('An 1 Mitglieder senden');
+    $this->followingRedirects()->post(route('mailings.board.preview'), mlMeeting())->assertSee('Vorschau')->assertSee('Liebe Vera')->assertSee('An 1 Personen senden');
 
-    $this->post(route('mailings.members.test'), mlMeeting())->assertSessionHas('success');
+    $this->post(route('mailings.board.test'), mlMeeting())->assertSessionHas('success');
     Mail::assertSent(MailingMail::class, 1);
     Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($board->email) && str_starts_with($mail->subjectLine, '[Test]'));
     expect(Mailing::query()->count())->toBe(0);
+});
+
+it('takes subject and text from a template that the office keeps for the groups', function () {
+    $staff = mlUser(RoleKey::AdministrationStaff);
+    $this->actingAs($staff);
+
+    $this->get(route('mailings.board.create'))->assertForbidden();
+    $this->get(route('mailings.office.create'))->assertOk()->assertDontSee('Vorlage übernehmen');
+
+    $this->post(route('mailings.templates.store'), ['name' => 'Einladung zur Versammlung', 'description' => 'Für die Mitgliederversammlung', 'subject' => 'Einladung zur {versammlung}', 'body' => '<p>Liebe {vorname}, wir treffen uns am {datum}.</p>'])->assertRedirect(route('mailings.templates.index'));
+
+    $template = MailTemplate::query()->where('kind', 'general')->firstOrFail();
+    expect($template->name)->toBe('Einladung zur Versammlung')->and($template->key)->toStartWith('vorlage-');
+
+    $this->get(route('mailings.templates.index'))->assertOk()->assertSee('Einladung zur Versammlung');
+    $this->get(route('mailings.office.create'))->assertOk()->assertSee('Vorlage übernehmen')->assertSee('Einladung zur Versammlung');
+    $this->get(route('mailings.office.create', ['vorlage' => $template->id]))->assertOk()->assertSee('Einladung zur {versammlung}', false)->assertSee('wir treffen uns am {datum}', false);
+
+    $this->put(route('mailings.templates.update', $template), ['name' => 'Neuer Name', 'subject' => 'Betreff neu', 'body' => '<p>Text {name}</p>'])->assertRedirect(route('mailings.templates.index'));
+    expect($template->fresh()->name)->toBe('Neuer Name');
+
+    $this->put(route('mailings.templates.update', $template), ['name' => 'x', 'subject' => 'y', 'body' => '<p>{erfunden}</p>'])->assertSessionHasErrors('body');
+    $this->post(route('mailings.templates.store'), ['name' => '', 'subject' => 'y', 'body' => '<p>z</p>'])->assertSessionHasErrors('name');
+
+    $this->delete(route('mailings.templates.destroy', $template))->assertRedirect(route('mailings.templates.index'));
+    expect(MailTemplate::query()->where('kind', 'general')->count())->toBe(0);
+});
+
+it('does not let the system template be opened or deleted as a general one', function () {
+    $this->actingAs(mlUser(RoleKey::AdministrationStaff));
+    $system = MailTemplate::query()->create(['key' => 'team_seminar', 'kind' => 'system', 'subject' => 's', 'body' => '<p>b</p>']);
+
+    $this->get(route('mailings.templates.edit', $system))->assertNotFound();
+    $this->delete(route('mailings.templates.destroy', $system))->assertNotFound();
+    expect(MailTemplate::query()->where('key', 'team_seminar')->exists())->toBeTrue();
 });
 
 // ---------- Teamende ----------
@@ -203,7 +296,7 @@ it('uses a changed template and appends the own passage when the template has no
     $team = mlUser(RoleKey::Team);
     $seminar = mlSeminar();
 
-    $this->actingAs($staff)->put(route('mailings.templates.update'), ['subject' => 'Neu: {seminar}', 'body' => '<p>Hallo {vorname}, es geht um {seminar}.</p>'])->assertSessionHasNoErrors();
+    $this->actingAs($staff)->put(route('mailings.templates.team.update'), ['subject' => 'Neu: {seminar}', 'body' => '<p>Hallo {vorname}, es geht um {seminar}.</p>'])->assertSessionHasNoErrors();
 
     $this->actingAs(mlUser(RoleKey::Coordination))->post(route('mailings.team.store'), ['seminar_id' => $seminar->id, 'audience' => 'all', 'own_text' => '<p>Mein Zusatz</p>']);
 
@@ -269,17 +362,18 @@ it('refuses unknown placeholders in the template, keeps an old text until saved 
     $staff = mlUser(RoleKey::AdministrationStaff);
     $this->actingAs($staff);
 
-    $this->put(route('mailings.templates.update'), ['subject' => 'x', 'body' => '<p>{erfunden}</p>'])->assertSessionHasErrors('body');
+    $this->put(route('mailings.templates.team.update'), ['subject' => 'x', 'body' => '<p>{erfunden}</p>'])->assertSessionHasErrors('body');
     expect(app(MailTemplates::class)->isCustomized(MailTemplates::TEAM_SEMINAR))->toBeFalse();
 
-    $this->put(route('mailings.templates.update'), ['subject' => 'Eigener Betreff', 'body' => '<p>Hallo {vorname}</p>{eigener_text}'])->assertSessionHasNoErrors();
+    $this->put(route('mailings.templates.team.update'), ['subject' => 'Eigener Betreff', 'body' => '<p>Hallo {vorname}</p>{eigener_text}'])->assertSessionHasNoErrors();
     expect(app(MailTemplates::class)->get(MailTemplates::TEAM_SEMINAR)['subject'])->toBe('Eigener Betreff');
 
-    $this->delete(route('mailings.templates.reset'))->assertRedirect(route('mailings.templates.edit'));
+    $this->delete(route('mailings.templates.team.reset'))->assertRedirect(route('mailings.templates.team'));
     expect(app(MailTemplates::class)->get(MailTemplates::TEAM_SEMINAR)['subject'])->toBe(MailTemplates::builtin(MailTemplates::TEAM_SEMINAR)['subject']);
 });
 
 it('lets Teamende switch the coordination messages off in their notification settings', function () {
-    $this->actingAs(mlUser(RoleKey::Team))->get(route('account.notifications'))->assertOk()->assertSee('Mitteilungen der Koordination');
-    $this->actingAs(mlUser(RoleKey::Member))->get(route('account.notifications'))->assertOk()->assertDontSee('Mitteilungen der Koordination');
+    $this->actingAs(mlUser(RoleKey::Team))->get(route('account.notifications'))->assertOk()->assertSee('Mitteilungen an Teamende');
+    $this->actingAs(mlUser(RoleKey::School))->get(route('account.notifications'))->assertOk()->assertSee('Mitteilungen an Schulen');
+    $this->actingAs(mlUser(RoleKey::Member))->get(route('account.notifications'))->assertOk()->assertDontSee('Mitteilungen an Teamende')->assertDontSee('Mitteilungen an Schulen');
 });

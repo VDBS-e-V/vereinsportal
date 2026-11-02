@@ -4,6 +4,8 @@ namespace App\Modules\Mailings\Services;
 
 use App\Modules\Access\Models\User;
 use App\Modules\Mailings\Models\MailTemplate;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 /**
  * Mailvorlagen der Geschäftsstelle. Ohne gespeicherte Fassung gilt die eingebaute. Die Vorlage für Seminare enthält {eigener_text}:
@@ -46,6 +48,24 @@ final class MailTemplates
     public function save(string $key, string $subject, string $body, User $by): MailTemplate
     {
         return MailTemplate::query()->updateOrCreate(['key' => $key], ['subject' => trim($subject), 'body' => $body, 'updated_by_user_id' => $by->id]);
+    }
+
+    /** Vorlagen für freie Schreiben an Gruppen, nach Name. @return Collection<int, MailTemplate> */
+    public function general(): Collection
+    {
+        return MailTemplate::query()->where('kind', MailTemplate::KIND_GENERAL)->orderBy('name')->get();
+    }
+
+    public function createGeneral(string $name, ?string $description, string $subject, string $body, User $by): MailTemplate
+    {
+        return MailTemplate::query()->create(['key' => 'vorlage-'.Str::lower(Str::random(12)), 'kind' => MailTemplate::KIND_GENERAL, 'name' => trim($name), 'description' => filled($description) ? trim((string) $description) : null, 'subject' => trim($subject), 'body' => $body, 'updated_by_user_id' => $by->id]);
+    }
+
+    public function updateGeneral(MailTemplate $template, string $name, ?string $description, string $subject, string $body, User $by): MailTemplate
+    {
+        $template->update(['name' => trim($name), 'description' => filled($description) ? trim((string) $description) : null, 'subject' => trim($subject), 'body' => $body, 'updated_by_user_id' => $by->id]);
+
+        return $template;
     }
 
     public function reset(string $key): void

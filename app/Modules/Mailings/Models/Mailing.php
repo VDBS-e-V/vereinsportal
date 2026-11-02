@@ -14,7 +14,14 @@ class Mailing extends Model
 
     public const KIND_TEAM = 'team';
 
-    protected $fillable = ['kind', 'subject', 'body', 'own_text', 'seminar_id', 'audience', 'recipients_count', 'failed_count', 'sent_by_user_id'];
+    public const KIND_GENERAL = 'general';
+
+    protected $fillable = ['kind', 'subject', 'body', 'own_text', 'seminar_id', 'audience', 'groups', 'recipients_count', 'failed_count', 'sent_by_user_id'];
+
+    protected function casts(): array
+    {
+        return ['groups' => 'array'];
+    }
 
     /** @return BelongsTo<Seminar, $this> */
     public function seminar(): BelongsTo
