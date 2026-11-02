@@ -11,6 +11,9 @@ Artisan::command('inspire', function () {
 // Herzschlag des Planers: Die Systemsteuerung zeigt daran, ob der Cron-Eintrag läuft.
 Schedule::call(fn () => \Illuminate\Support\Facades\Cache::forever(\App\Modules\System\Services\SystemChecks::HEARTBEAT_KEY, time()))->name('system-heartbeat')->everyMinute();
 
+// Zustelllisten der Schreiben an Gruppen nach der Aufbewahrungsfrist löschen (Adressen und Fehlergründe).
+Schedule::command('mailings:prune')->daily();
+
 // Mitgliedschaften mit abgelaufenem Austrittsdatum beenden, Rolle Vereinsmitglied abgleichen.
 Schedule::command('membership:sync')->daily();
 

@@ -182,12 +182,31 @@ final class SystemChecks
                 $failed = Schema::hasTable('failed_jobs') ? DB::table('failed_jobs')->count() : 0;
                 $detail .= ' '.$waiting.' wartend, '.$failed.' fehlgeschlagen.';
                 $status = $failed > 0 ? 'warning' : 'ok';
+                $oldest = DB::table('jobs')->where('available_at', '<=', time())->min('created_at');
+
+                if ($oldest !== null && time() - (int) $oldest > 300) {
+                    $detail .= ' Der älteste wartende Auftrag ist '.(int) floor((time() - (int) $oldest) / 60).' Minuten alt: Läuft der Worker (php artisan queue:work)?';
+                    $status = 'warning';
+                }
+            } elseif ($queue === 'sync') {
+                $detail .= ' Aufträge laufen sofort im Seitenaufruf (kein Worker nötig, aber große Schreiben können das Zeitlimit erreichen).';
             }
         } catch (Throwable) {
             $status = 'warning';
         }
 
         $checks[] = $this->check('Dienste', 'Warteschlange', $status, $detail);
+
+        try {
+            if (Schema::hasTable('mailings')) {
+                $stuck = DB::table('mailings')->whereIn('status', ['queued', 'sending'])->where('queued_at', '<', now()->subMinutes(15))->count();
+                $checks[] = $stuck > 0
+                    ? $this->check('Dienste', 'Schreiben an Gruppen', 'warning', $stuck.' Schreiben warten seit über 15 Minuten auf den Versand. Läuft der Worker?')
+                    : $this->check('Dienste', 'Schreiben an Gruppen', 'ok', 'Keine Schreiben im Rückstand.');
+            }
+        } catch (Throwable) {
+            // Die Prüfung darf nie selbst scheitern.
+        }
 
         return $checks;
     }

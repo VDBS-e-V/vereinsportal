@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Mailings\Http\Controllers\GroupMailingController;
+use App\Modules\Mailings\Http\Controllers\MailingProgressController;
 use App\Modules\Mailings\Http\Controllers\MailTemplateController;
 use App\Modules\Mailings\Http\Controllers\TeamMailingController;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +19,9 @@ foreach (['board' => ['vorstand/mitteilungen', 'mailings.members'], 'office' => 
         Route::post('/vorschau', [GroupMailingController::class, 'preview'])->name('preview');
         Route::post('/test', [GroupMailingController::class, 'test'])->middleware('throttle:10,10')->name('test');
         Route::post('/', [GroupMailingController::class, 'store'])->middleware('throttle:6,10')->name('store');
+        Route::get('/{mailing}', [MailingProgressController::class, 'show'])->whereNumber('mailing')->name('show');
+        Route::post('/{mailing}/abbrechen', [MailingProgressController::class, 'cancel'])->whereNumber('mailing')->name('cancel');
+        Route::post('/{mailing}/wiederholen', [MailingProgressController::class, 'retry'])->whereNumber('mailing')->name('retry');
     });
 }
 
@@ -27,6 +31,9 @@ Route::middleware(['web', 'auth', 'can:mailings.team'])->prefix('koordination/mi
     Route::post('/vorschau', [TeamMailingController::class, 'preview'])->name('preview');
     Route::post('/test', [TeamMailingController::class, 'test'])->middleware('throttle:10,10')->name('test');
     Route::post('/', [TeamMailingController::class, 'store'])->middleware('throttle:10,10')->name('store');
+    Route::get('/{mailing}', [MailingProgressController::class, 'show'])->whereNumber('mailing')->name('show');
+    Route::post('/{mailing}/abbrechen', [MailingProgressController::class, 'cancel'])->whereNumber('mailing')->name('cancel');
+    Route::post('/{mailing}/wiederholen', [MailingProgressController::class, 'retry'])->whereNumber('mailing')->name('retry');
 });
 
 Route::middleware(['web', 'auth', 'can:mail_templates.manage'])->prefix('geschaeftsstelle/vorlagen')->name('mailings.templates.')->group(function (): void {

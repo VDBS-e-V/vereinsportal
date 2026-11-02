@@ -6,7 +6,9 @@ use App\Modules\Access\Models\User;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Mailings\Mail\MailingMail;
+use App\Modules\Mailings\Jobs\SendMailing;
 use App\Modules\Mailings\Models\Mailing;
+use App\Modules\Mailings\Models\MailingDelivery;
 use App\Modules\Mailings\Support\MailGroups;
 use App\Modules\Mailings\Support\MailPlaceholders;
 use App\Modules\Seminars\Models\Seminar;
@@ -72,7 +74,7 @@ final class Mailings
      */
     public function previewGroups(string $subject, string $body, array $meeting, User $by): array
     {
-        return $this->render($subject, $body, $this->meetingValues($meeting), $this->sample($by), $by);
+        return $this->render($subject, $body, $this->meetingValues($meeting), $this->sample($by), $this->senderName($by));
     }
 
     /**
@@ -91,9 +93,7 @@ final class Mailings
             throw new DomainException('Für diese Auswahl gibt es keine Empfänger mit E-Mail-Adresse. Wer Mitteilungen abbestellt hat, bekommt sie nicht.');
         }
 
-        [$sent, $failed] = $this->deliver($list, $subject, $body, $this->meetingValues($meeting), $by);
-
-        return $this->record(Mailing::KIND_GENERAL, $subject, $body, null, null, null, $groups, $sent, $failed, $by);
+        return $this->queue(Mailing::KIND_GENERAL, $subject, $body, null, null, null, $groups, $list, $this->meetingValues($meeting), $by);
     }
 
     /** @param  array<string, mixed>  $meeting */
@@ -123,7 +123,7 @@ final class Mailings
     {
         $composed = $this->composeTeam($ownText);
 
-        return $this->render($composed['subject'], $composed['body'], $this->seminarValues($seminar), $this->sample($by), $by);
+        return $this->render($composed['subject'], $composed['body'], $this->seminarValues($seminar), $this->sample($by), $this->senderName($by));
     }
 
     /** @throws DomainException */
@@ -136,9 +136,8 @@ final class Mailings
         }
 
         $composed = $this->composeTeam($ownText);
-        [$sent, $failed] = $this->deliver($list, $composed['subject'], $composed['body'], $this->seminarValues($seminar), $by);
 
-        return $this->record(Mailing::KIND_TEAM, $composed['subject'], $composed['body'], RichText::clean($ownText), $seminar->id, $audience, null, $sent, $failed, $by);
+        return $this->queue(Mailing::KIND_TEAM, $composed['subject'], $composed['body'], RichText::clean($ownText), $seminar->id, $audience, null, $list, $this->seminarValues($seminar), $by);
     }
 
     public function sendTeamTest(Seminar $seminar, string $ownText, User $by): void
@@ -175,9 +174,9 @@ final class Mailings
      * @param  array<string, string>  $recipient
      * @return array{subject: string, html: string}
      */
-    private function render(string $subject, string $body, array $values, array $recipient, User $by): array
+    private function render(string $subject, string $body, array $values, array $recipient, string $senderName): array
     {
-        $all = $this->personal($recipient, $by) + $values;
+        $all = $this->personal($recipient, $senderName) + $values;
 
         return ['subject' => MailPlaceholders::render($subject, $all), 'html' => MailPlaceholders::render($body, $all, true, self::RAW)];
     }
@@ -193,7 +192,7 @@ final class Mailings
         $failed = 0;
 
         foreach ($list as $recipient) {
-            $rendered = $this->render($subject, $body, $values, $recipient, $by);
+            $rendered = $this->render($subject, $body, $values, $recipient, $this->senderName($by));
 
             try {
                 Mail::to($recipient['email'])->send(new MailingMail($rendered['subject'], $rendered['html'], $recipient['group'] ?? 'internal'));
@@ -207,21 +206,129 @@ final class Mailings
         return [$sent, $failed];
     }
 
-    /** @param  list<string>|null  $groups */
-    private function record(string $kind, string $subject, string $body, ?string $own, ?int $seminarId, ?string $audience, ?array $groups, int $sent, int $failed, User $by): Mailing
+    /**
+     * Legt das Schreiben und eine Zustellzeile je Adresse an und übergibt den Versand an den Worker.
+     * Mit dem Treiber „sync“ (Tests, einfache Einrichtungen) läuft der Versand sofort mit.
+     *
+     * @param  list<string>|null  $groups
+     * @param  list<array<string, string>>  $list
+     * @param  array<string, string>  $values  Werte der Platzhalter, die für alle gleich sind
+     */
+    private function queue(string $kind, string $subject, string $body, ?string $own, ?int $seminarId, ?string $audience, ?array $groups, array $list, array $values, User $by): Mailing
     {
-        $mailing = Mailing::query()->create(['kind' => $kind, 'subject' => $subject, 'body' => $body, 'own_text' => $own, 'seminar_id' => $seminarId, 'audience' => $audience, 'groups' => $groups, 'recipients_count' => $sent, 'failed_count' => $failed, 'sent_by_user_id' => $by->id]);
+        $mailing = Mailing::query()->create([
+            'kind' => $kind, 'subject' => $subject, 'body' => $body, 'own_text' => $own, 'seminar_id' => $seminarId, 'audience' => $audience, 'groups' => $groups,
+            'recipients_count' => count($list), 'sent_count' => 0, 'failed_count' => 0, 'sent_by_user_id' => $by->id,
+            'status' => Mailing::STATUS_QUEUED, 'queued_at' => now(),
+            'values' => ['common' => $values, 'absender' => $this->senderName($by)],
+        ]);
 
-        AuditLog::record(AuditEvent::MailingSent, $by, null, ['art' => $kind === Mailing::KIND_GENERAL ? 'Schreiben an Gruppen' : 'Mitteilung an Teamende', 'gruppen' => $groups !== null ? MailGroups::labels($groups) : null, 'empfaenger' => $sent, 'fehlgeschlagen' => $failed]);
+        $now = now();
 
-        return $mailing;
+        foreach (array_chunk($list, 500) as $chunk) {
+            MailingDelivery::query()->insert(array_map(fn (array $recipient): array => [
+                'mailing_id' => $mailing->id,
+                'email' => $recipient['email'],
+                'first_name' => $recipient['first'] ?? '',
+                'last_name' => $recipient['last'] ?? '',
+                'fallback' => $recipient['fallback'] ?? 'Mitglied',
+                'group' => $recipient['group'] ?? 'internal',
+                'status' => MailingDelivery::PENDING,
+                'attempts' => 0,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ], $chunk));
+        }
+
+        AuditLog::record(AuditEvent::MailingSent, $by, null, ['art' => $kind === Mailing::KIND_GENERAL ? 'Schreiben an Gruppen' : 'Mitteilung an Teamende', 'gruppen' => $groups !== null ? MailGroups::labels($groups) : null, 'empfaenger' => count($list)]);
+
+        SendMailing::dispatch($mailing->id);
+
+        return $mailing->fresh();
+    }
+
+    /**
+     * Text und Betreff für eine Zustellung: Platzhalter des Schreibens mit den Angaben der Person.
+     *
+     * @return array{subject: string, html: string}
+     */
+    public function renderDelivery(Mailing $mailing, MailingDelivery $delivery): array
+    {
+        $recipient = ['email' => $delivery->email, 'first' => $delivery->first_name, 'last' => $delivery->last_name, 'fallback' => $delivery->fallback, 'group' => $delivery->group];
+
+        return $this->render($mailing->subject, $mailing->body, (array) ($mailing->values['common'] ?? []), $recipient, (string) ($mailing->values['absender'] ?? 'Verein'));
+    }
+
+    /** Sendet die Mail einer Zustellung. Wirft bei einem Fehler des Mailversands. */
+    public function sendDelivery(Mailing $mailing, MailingDelivery $delivery): void
+    {
+        $rendered = $this->renderDelivery($mailing, $delivery);
+
+        Mail::to($delivery->email)->send(new MailingMail($rendered['subject'], $rendered['html'], $delivery->group ?: 'internal'));
+    }
+
+    /** Bricht ein laufendes Schreiben ab: offene Zustellungen werden übersprungen, Gesendetes bleibt. */
+    public function cancel(Mailing $mailing): void
+    {
+        if (! $mailing->isActive()) {
+            return;
+        }
+
+        $mailing->forceFill(['status' => Mailing::STATUS_CANCELLED, 'cancelled_at' => now(), 'finished_at' => now()])->save();
+        $mailing->deliveries()->whereIn('status', [MailingDelivery::PENDING, MailingDelivery::SENDING])->update(['status' => MailingDelivery::SKIPPED]);
+        $this->refreshCounts($mailing);
+    }
+
+    /**
+     * Fehlgeschlagene Zustellungen noch einmal versuchen.
+     *
+     * @throws DomainException
+     */
+    public function retryFailed(Mailing $mailing): int
+    {
+        if ($mailing->isActive()) {
+            throw new DomainException('Das Schreiben wird noch gesendet.');
+        }
+
+        $count = $mailing->deliveries()->where('status', MailingDelivery::FAILED)->update(['status' => MailingDelivery::PENDING, 'attempts' => 0, 'error' => null]);
+
+        if ($count === 0) {
+            throw new DomainException('Es gibt keine fehlgeschlagenen Zustellungen.');
+        }
+
+        $mailing->forceFill(['status' => Mailing::STATUS_QUEUED, 'finished_at' => null, 'cancelled_at' => null])->save();
+        $this->refreshCounts($mailing);
+
+        SendMailing::dispatch($mailing->id);
+
+        return $count;
+    }
+
+    /** Zähler des Schreibens aus den Zustellzeilen neu berechnen. */
+    public function refreshCounts(Mailing $mailing): void
+    {
+        $counts = $mailing->deliveries()->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
+
+        $mailing->forceFill(['sent_count' => (int) ($counts[MailingDelivery::SENT] ?? 0), 'failed_count' => (int) ($counts[MailingDelivery::FAILED] ?? 0)])->save();
+    }
+
+    /** Hinweis nach dem Anlegen, je nachdem ob der Versand schon durch ist. */
+    public function flashMessage(Mailing $mailing): string
+    {
+        if ($mailing->isActive()) {
+            return 'Das Schreiben ist in der Warteschlange ('.$mailing->recipients_count.' Empfänger). Den Fortschritt sehen Sie hier.';
+        }
+
+        $note = $mailing->failed_count > 0 ? ' '.$mailing->failed_count.' Zustellungen sind fehlgeschlagen.' : '';
+
+        return 'Das Schreiben wurde an '.$mailing->sent_count.' Personen gesendet.'.$note;
     }
 
     /**
      * @param  array<string, string>  $recipient
      * @return array<string, string>
      */
-    private function personal(array $recipient, User $by): array
+    private function personal(array $recipient, string $senderName): array
     {
         $first = $recipient['first'] !== '' ? $recipient['first'] : ($recipient['fallback'] ?? 'Mitglied');
         $name = trim($recipient['first'].' '.$recipient['last']);
@@ -230,7 +337,7 @@ final class Mailings
             'vorname' => $first,
             'nachname' => $recipient['last'],
             'name' => $name !== '' ? $name : $first,
-            'absender' => $this->senderName($by),
+            'absender' => $senderName,
             'verein' => 'Verband für Demokratiebildung und Bibliotheken an Schulen e. V.',
             'portal' => url('/'),
         ];

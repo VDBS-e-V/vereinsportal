@@ -186,6 +186,18 @@ return [
      * Zugangsanträge (öffentliche Seite „Zugang zum Portal“): Aufbewahrung in Tagen (entschiedene Anträge, liegengebliebene offene Anträge),
      * Hinweis an die Geschäftsstelle bei neuen Anträgen und die Fassung der Nutzungsbedingungen, der zugestimmt wird.
      */
+    /*
+     * Schreiben an Gruppen (Modul Mailings). per_minute: Obergrenze der Mails pro Minute je Worker; batch_size: Zustellungen je Auftragslauf;
+     * max_attempts: Versuche je Adresse, bevor sie als fehlgeschlagen gilt; delivery_retention_days: so lange bleibt die Zustellliste mit den Adressen
+     * (danach nur noch Betreff, Text und Zahlen).
+     */
+    'mailings' => [
+        'per_minute' => (int) env('MAILINGS_PER_MINUTE', 60),
+        'batch_size' => (int) env('MAILINGS_BATCH_SIZE', 25),
+        'max_attempts' => (int) env('MAILINGS_MAX_ATTEMPTS', 3),
+        'delivery_retention_days' => (int) env('MAILINGS_DELIVERY_RETENTION_DAYS', 90),
+    ],
+
     'access_requests' => [
         'notify_staff' => (bool) env('ACCESS_REQUESTS_NOTIFY_STAFF', true),
         'retention_days' => (int) env('ACCESS_REQUESTS_RETENTION_DAYS', 180),

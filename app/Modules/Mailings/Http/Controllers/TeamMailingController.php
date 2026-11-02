@@ -76,9 +76,7 @@ class TeamMailingController extends Controller
             return redirect()->route('mailings.team.create')->withInput($request->all())->withErrors(['audience' => $exception->getMessage()]);
         }
 
-        $note = $mailing->failed_count > 0 ? ' '.$mailing->failed_count.' Zustellungen sind fehlgeschlagen (siehe Fehlerprotokoll).' : '';
-
-        return redirect()->route('mailings.team.index')->with('success', 'Die Mitteilung wurde an '.$mailing->recipients_count.' Teamende gesendet.'.$note);
+        return redirect()->route('mailings.team.show', $mailing)->with('success', $this->mailings->flashMessage($mailing));
     }
 
     /** Seminare, zu denen Teamende angeschrieben werden können (in Planung, terminiert oder bestätigt). @return \Illuminate\Support\Collection<int, Seminar> */

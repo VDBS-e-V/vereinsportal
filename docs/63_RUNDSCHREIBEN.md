@@ -32,5 +32,13 @@ Wer einen Platzhalter des Termins nutzt, muss die Angabe machen. Fehlt der Vorna
 ## Datenschutz und Protokoll
 Gespeichert werden Betreff, Text mit Platzhaltern, Gruppen und Zahl der Empfänger und Fehlschläge, nie die Empfängerliste. Das Protokoll hält nur Art, Gruppen und Zahlen fest („Schreiben versendet“).
 
+## Versand im Hintergrund (seit Update 1)
+- Ein Schreiben wird in die **Warteschlange** gestellt und von einem Worker versendet: lokal `php artisan queue:work`, produktiv als Dienst (z. B. Supervisor). Mit `QUEUE_CONNECTION=sync` läuft der Versand sofort im Seitenaufruf (Tests, kleine Gruppen).
+- Je Adresse gibt es eine **Zustellzeile** (wartend, wird gesendet, gesendet, fehlgeschlagen, übersprungen) mit Versuchen und Fehlergrund. Eine Zeile wird atomar „in Arbeit“ gesetzt, bevor gesendet wird: Ein wiederholter Lauf sendet nie doppelt.
+- Der Versand läuft in Paketen (`MAILINGS_BATCH_SIZE`, Standard 25) mit Drosselung (`MAILINGS_PER_MINUTE`, Standard 60) und bis zu `MAILINGS_MAX_ATTEMPTS` (3) Versuchen je Adresse.
+- Die **Versandseite** (Klick auf ein Schreiben in der Liste) zeigt Stand, Zähler, Fortschritt und die fehlgeschlagenen Adressen (nur für die schreibende Person und den Vorstand), dazu „Versand abbrechen“ und „Fehlgeschlagene erneut versuchen“. Sie aktualisiert sich selbst, solange der Versand läuft.
+- **Aufbewahrung:** Die Zustelllisten mit den Adressen werden nach `MAILINGS_DELIVERY_RETENTION_DAYS` (Standard 90) von `php artisan mailings:prune` gelöscht (täglich im Planer). Betreff, Text und Zahlen bleiben.
+- Systemsteuerung › Zustand warnt, wenn ein Auftrag lange wartet oder ein Schreiben über 15 Minuten nicht versendet wurde (Hinweis auf den Worker).
+
 ## Grenzen
-Der Versand läuft direkt im Seitenaufruf, eine Mail nach der anderen (Zeitlimit des Servers). Für sehr viele Empfänger braucht es später einen Queue-Worker. Fehlgeschlagene Zustellungen stehen im Fehlerprotokoll der Systemsteuerung.
+Stürzt ein Worker mitten in einer Mail ab, kann diese eine Mail doppelt zugestellt werden (Zeilen im Zustand „wird gesendet“ werden nach 10 Minuten wieder freigegeben). Bounces und Abmeldelinks folgen in den nächsten Updates (siehe `docs/65_RUNDSCHREIBEN_ENTWICKLUNGSPLAN.md`).

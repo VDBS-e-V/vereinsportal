@@ -12,13 +12,14 @@
     @if ($mailings->isEmpty())
         <x-vdbs.feedback.empty-state title="Noch nichts gesendet" icon="mail"><p>Gesendete Mitteilungen stehen hier mit Seminar und Zahl der Empfänger. Die Empfängerliste wird nicht gespeichert.</p></x-vdbs.feedback.empty-state>
     @else
-        <x-vdbs.data.table caption="Gesendete Mitteilungen" :columns="[['key' => 'date', 'label' => 'Gesendet'], ['key' => 'seminar', 'label' => 'Seminar'], ['key' => 'audience', 'label' => 'Empfänger'], ['key' => 'count', 'label' => 'Anzahl'], ['key' => 'by', 'label' => 'Von']]">
+        <x-vdbs.data.table caption="Gesendete Mitteilungen" :columns="[['key' => 'date', 'label' => 'Angelegt'], ['key' => 'seminar', 'label' => 'Seminar'], ['key' => 'audience', 'label' => 'Empfänger'], ['key' => 'status', 'label' => 'Stand'], ['key' => 'count', 'label' => 'Gesendet'], ['key' => 'by', 'label' => 'Von']]">
             @foreach ($mailings as $mailing)
-                <tr>
+                <tr class="vdbs-table__row--link">
                     <td>{{ $mailing->created_at->format('d.m.Y, H:i') }}</td>
-                    <td>{{ $mailing->seminar?->title ?? '–' }}</td>
+                    <td><a class="vdbs-table__row-link" href="{{ route('mailings.team.show', $mailing) }}">{{ $mailing->seminar?->title ?? $mailing->subject }}</a></td>
                     <td>{{ \App\Modules\Mailings\Http\Controllers\TeamMailingController::AUDIENCES[$mailing->audience] ?? $mailing->audience }}</td>
-                    <td>{{ $mailing->recipients_count }}@if ($mailing->failed_count > 0) <x-vdbs.data.badge tone="warning">{{ $mailing->failed_count }} fehlgeschlagen</x-vdbs.data.badge>@endif</td>
+                    <td><x-vdbs.data.badge :tone="$mailing->statusTone()">{{ $mailing->statusLabel() }}</x-vdbs.data.badge></td>
+                    <td>{{ $mailing->sent_count }} von {{ $mailing->recipients_count }}@if ($mailing->failed_count > 0) <x-vdbs.data.badge tone="warning">{{ $mailing->failed_count }} fehlgeschlagen</x-vdbs.data.badge>@endif</td>
                     <td>{{ $mailing->sentBy?->person?->fullName() ?? $mailing->sentBy?->email ?? '–' }}</td>
                 </tr>
             @endforeach

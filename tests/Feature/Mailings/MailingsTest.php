@@ -156,7 +156,7 @@ it('sends a personal letter to the chosen groups, free in wording, with the deta
     $team = mlUser(RoleKey::Team, ['first_name' => 'Timo', 'last_name' => 'Team']);
     $board = mlUser(RoleKey::BoardMember, ['first_name' => 'Vera', 'last_name' => 'Vorstand']);
 
-    $this->actingAs($board)->post(route('mailings.board.store'), mlMeeting(['groups' => ['members', 'team']]))->assertRedirect(route('mailings.board.index'))->assertSessionHas('success');
+    $this->actingAs($board)->post(route('mailings.board.store'), mlMeeting(['groups' => ['members', 'team']]))->assertRedirectContains('/vorstand/mitteilungen/')->assertSessionHas('success');
 
     Mail::assertSent(MailingMail::class, 3);
     Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo('anna@beispiel.example')
@@ -168,7 +168,7 @@ it('sends a personal letter to the chosen groups, free in wording, with the deta
     Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($team->email) && str_contains($mail->bodyHtml, 'Liebe Timo') && $mail->kind === 'team');
 
     $mailing = Mailing::query()->firstOrFail();
-    expect($mailing->kind)->toBe('general')->and($mailing->groups)->toBe(['members', 'team'])->and($mailing->recipients_count)->toBe(3)->and($mailing->subject)->toContain('{versammlung}')->and($mailing->body)->toContain('{vorname}');
+    expect($mailing->kind)->toBe('general')->and($mailing->groups)->toBe(['members', 'team'])->and($mailing->recipients_count)->toBe(3)->and($mailing->sent_count)->toBe(3)->and($mailing->status)->toBe('done')->and($mailing->subject)->toContain('{versammlung}')->and($mailing->body)->toContain('{vorname}');
 
     $entry = AuditEntry::query()->where('event', AuditEvent::MailingSent->value)->firstOrFail();
     expect(json_encode($entry->context))->toContain('Schreiben an Gruppen')->toContain('Mitglieder, Teamende')->not->toContain('anna@beispiel.example')->not->toContain('Einladung');
@@ -182,7 +182,7 @@ it('lets the office write to the groups but not to the members', function () {
     $this->actingAs($staff)->post(route('mailings.office.store'), mlMeeting(['groups' => ['members']]))->assertSessionHasErrors('groups.0');
     Mail::assertNothingSent();
 
-    $this->post(route('mailings.office.store'), mlMeeting(['groups' => ['schools'], 'body' => '<p>Guten Tag {vorname}, {name}.</p>', 'subject' => 'Hinweis']))->assertRedirect(route('mailings.office.index'));
+    $this->post(route('mailings.office.store'), mlMeeting(['groups' => ['schools'], 'body' => '<p>Guten Tag {vorname}, {name}.</p>', 'subject' => 'Hinweis']))->assertRedirectContains('/geschaeftsstelle/mitteilungen/');
 
     Mail::assertSent(MailingMail::class, 1);
     Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($school->email) && str_contains($mail->bodyHtml, 'Guten Tag Sabine') && $mail->kind === 'schools');
@@ -275,7 +275,7 @@ it('writes to Teamende with the template of the office and the own passage of th
     $seminar = mlSeminar();
 
     $this->actingAs($coordination)->post(route('mailings.team.store'), ['seminar_id' => $seminar->id, 'audience' => 'all', 'own_text' => '<p>Bitte Moderationsmaterial mitbringen.</p>'])
-        ->assertRedirect(route('mailings.team.index'))->assertSessionHas('success');
+        ->assertRedirectContains('/koordination/mitteilungen/')->assertSessionHas('success');
 
     Mail::assertSent(MailingMail::class, 1);
     Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($team->email)

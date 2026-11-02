@@ -93,9 +93,7 @@ class GroupMailingController extends Controller
             return redirect()->route($this->base($request).'.create')->withInput($request->all())->with('error', $exception->getMessage());
         }
 
-        $note = $mailing->failed_count > 0 ? ' '.$mailing->failed_count.' Zustellungen sind fehlgeschlagen (siehe Fehlerprotokoll).' : '';
-
-        return redirect()->route($this->base($request).'.index')->with('success', 'Das Schreiben wurde an '.$mailing->recipients_count.' Personen gesendet.'.$note);
+        return redirect()->route($this->base($request).'.show', $mailing)->with('success', $this->mailings->flashMessage($mailing));
     }
 
     /** @return array<string, mixed> */
