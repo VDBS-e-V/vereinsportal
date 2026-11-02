@@ -12,6 +12,7 @@ use App\Modules\Membership\Enums\MembershipStatus;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\Seminars\Enums\ApplicationStatus;
 use App\Modules\Seminars\Models\Seminar;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Wer ein Schreiben bekommt. Je E-Mail-Adresse genau eine Nachricht. Mitglieder: alle laufenden Mitgliedschaften mit Adresse (Einladungen zu
@@ -23,14 +24,69 @@ final class MailRecipients
 {
     public function __construct(private readonly NotificationPreferences $preferences, private readonly MailSuppressions $suppressions, private readonly MailUnsubscribes $unsubscribes) {}
 
-    /** @return list<array{email: string, first: string, last: string}> */
-    public function members(): array
+    /** @return Collection<int, Membership> */
+    private function activeMemberships(): Collection
     {
-        $memberships = Membership::query()
+        return Membership::query()
             ->where('status', MembershipStatus::Active->value)
             ->where(fn ($query) => $query->whereNull('ends_on')->orWhere('ends_on', '>=', today()))
             ->with('person')
             ->get();
+    }
+
+    /**
+     * Mitglieder, die ein Schreiben an die Gruppe Mitglieder nicht erreicht hat (laufende Mitgliedschaften, Stand heute): ohne gültige Adresse,
+     * gesperrte Adresse, Mitteilungen abbestellt (außer bei Pflichtmitteilungen) oder Zustellung fehlgeschlagen oder übersprungen. Nur Namen und Grund.
+     *
+     * @return list<array{name: string, reason: string}>
+     */
+    public function unreachableMembers(Mailing $mailing): array
+    {
+        $memberships = $this->activeMemberships();
+        $emails = [];
+
+        foreach ($memberships as $membership) {
+            $email = mb_strtolower(trim((string) $membership->contactEmail()));
+
+            if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL) !== false) {
+                $emails[] = $email;
+            }
+        }
+
+        $suppressed = $this->suppressions->among($emails);
+        $unsubscribed = $mailing->mandatory ? [] : ($this->unsubscribes->among($emails)[MailGroups::topicFor('members') ?? ''] ?? []);
+        $deliveries = $mailing->deliveries()->whereIn('status', ['failed', 'skipped'])->pluck('status', 'email')->mapWithKeys(fn ($status, $email): array => [mb_strtolower((string) $email) => $status])->all();
+        $result = [];
+
+        foreach ($memberships as $membership) {
+            $email = mb_strtolower(trim((string) $membership->contactEmail()));
+            $reason = match (true) {
+                $email === '' || filter_var($email, FILTER_VALIDATE_EMAIL) === false => 'Keine gültige E-Mail-Adresse hinterlegt',
+                isset($suppressed[$email]) => 'E-Mail-Adresse gesperrt',
+                isset($unsubscribed[$email]) => 'Hat Mitteilungen abbestellt',
+                ($deliveries[$email] ?? null) === 'failed' => 'Zustellung fehlgeschlagen',
+                ($deliveries[$email] ?? null) === 'skipped' => 'Nicht zugestellt (übersprungen)',
+                default => null,
+            };
+
+            if ($reason === null) {
+                continue;
+            }
+
+            $first = trim((string) ($membership->person?->first_name ?? $membership->first_name ?? ''));
+            $last = trim((string) ($membership->person?->last_name ?? $membership->last_name ?? ''));
+            $result[] = ['name' => trim($first.' '.$last) !== '' ? trim($first.' '.$last) : 'Mitglied ohne Namen', 'reason' => $reason, 'sort' => mb_strtolower($last.' '.$first)];
+        }
+
+        usort($result, fn (array $a, array $b): int => $a['sort'] <=> $b['sort']);
+
+        return array_map(fn (array $row): array => ['name' => $row['name'], 'reason' => $row['reason']], $result);
+    }
+
+    /** @return list<array{email: string, first: string, last: string}> */
+    public function members(): array
+    {
+        $memberships = $this->activeMemberships();
 
         $list = [];
 

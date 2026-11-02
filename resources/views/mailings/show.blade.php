@@ -20,6 +20,9 @@
             @elseif ($failedCount > 0)
                 <form method="post" action="{{ route($base.'.retry', $mailing) }}">@csrf<x-vdbs.actions.button type="submit" icon="refresh-cw">Fehlgeschlagene erneut versuchen</x-vdbs.actions.button></form>
             @endif
+            @if ($hasCertificate && ! $active)
+                <x-vdbs.actions.button variant="secondary" icon="printer" :href="route($base.'.certificate', $mailing)">Versandbescheinigung</x-vdbs.actions.button>
+            @endif
             <x-vdbs.actions.button variant="secondary" :href="route($base.'.index')">Zur Liste</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.layout.page-header>
@@ -55,6 +58,25 @@
                             <td>{{ $delivery->email }}</td>
                             <td>{{ $delivery->attempts }}</td>
                             <td>{{ $delivery->error ?? '–' }}</td>
+                        </tr>
+                    @endforeach
+                </x-vdbs.data.table>
+            @endif
+        </section>
+    @endif
+
+    @if ($unreachable !== null)
+        <section aria-labelledby="unreachable-title" style="margin-top:var(--space-6)">
+            <h2 id="unreachable-title" style="font-size:var(--font-size-h3)">Nicht erreichte Mitglieder</h2>
+            @if ($unreachable === [])
+                <p>Alle laufenden Mitgliedschaften hatten eine zustellbare Adresse.</p>
+            @else
+                <x-vdbs.feedback.alert variant="info">{{ count($unreachable) }} Mitglieder haben dieses Schreiben nicht per E-Mail bekommen. Bitte laden Sie sie, wenn es nötig ist, postalisch ein. Die Liste zeigt den heutigen Stand der Mitgliedschaften.</x-vdbs.feedback.alert>
+                <x-vdbs.data.table caption="Nicht erreichte Mitglieder" :columns="[['key' => 'name', 'label' => 'Name'], ['key' => 'reason', 'label' => 'Grund']]">
+                    @foreach ($unreachable as $row)
+                        <tr>
+                            <td>{{ $row['name'] }}</td>
+                            <td>{{ $row['reason'] }}</td>
                         </tr>
                     @endforeach
                 </x-vdbs.data.table>

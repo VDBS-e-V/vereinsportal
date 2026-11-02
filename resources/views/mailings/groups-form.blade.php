@@ -72,6 +72,9 @@
     @if ($preview)
         <section aria-labelledby="preview-title" style="margin-top:var(--space-8)">
             <h2 id="preview-title" style="font-size:var(--font-size-h3)">Vorschau</h2>
+            @if (session('notice'))
+                <x-vdbs.feedback.alert variant="warning"><strong>Einladungsfrist:</strong> {{ session('notice') }}</x-vdbs.feedback.alert>
+            @endif
             <p style="color:var(--text-muted)">So sieht die Nachricht für Sie aus (Name und Angaben eingesetzt). Das Schreiben geht an {{ $total }} Personen.</p>
             <div class="vdbs-article__box" style="display:block">
                 <p><strong>Betreff:</strong> {{ $preview['subject'] }}</p>

@@ -50,6 +50,47 @@ class MailingProgressController extends Controller
             'detailsKept' => $detailsKept,
             'failed' => $canSeeAddresses ? $mailing->deliveries()->where('status', MailingDelivery::FAILED)->orderBy('id')->limit(100)->get() : collect(),
             'canSeeAddresses' => $canSeeAddresses,
+            'hasCertificate' => $canSeeAddresses && in_array($base, ['mailings.board', 'mailings.office'], true),
+            'unreachable' => $this->unreachable($mailing),
+        ]);
+    }
+
+    /** Mitglieder, die ein Schreiben an die Gruppe Mitglieder nicht erreicht hat. Nur für die, die Mitglieder anschreiben dürfen, und erst nach dem Versand. */
+    private function unreachable(Mailing $mailing): ?array
+    {
+        if (! in_array('members', (array) $mailing->groups, true) || $mailing->isActive() || ! $this->user()->can('mailings.members')) {
+            return null;
+        }
+
+        return app(MailRecipients::class)->unreachableMembers($mailing);
+    }
+
+    /** Versandbescheinigung: Beleg über Zeitpunkt, Text und Zahlen des Versands, als Druckansicht ohne Navigation. */
+    public function certificate(Request $request, Mailing $mailing): View
+    {
+        $base = $this->base($request);
+        $this->ensureKind($base, $mailing);
+        abort_if($mailing->isPreparation(), 404);
+        abort_unless($mailing->addressesVisibleTo($this->user()), 403);
+
+        $mailing->load(['sentBy.person', 'approvedBy.person']);
+        $recipients = (int) $mailing->recipients_count;
+        $excluded = (array) (($mailing->values ?? [])['excluded'] ?? []);
+
+        return view('mailings.certificate', [
+            'mailing' => $mailing,
+            'base' => $base,
+            'groupLabels' => $mailing->groups ? MailGroups::labels($mailing->groups) : null,
+            'meeting' => $this->mailings->meetingValues((array) (($mailing->payload ?? [])['meeting'] ?? [])),
+            'recipients' => $recipients,
+            'sent' => (int) $mailing->sent_count,
+            'failed' => (int) $mailing->failed_count,
+            'open' => max(0, $recipients - (int) $mailing->sent_count - (int) $mailing->failed_count),
+            'unsubscribed' => $excluded['unsubscribed'] ?? null,
+            'suppressed' => $excluded['suppressed'] ?? null,
+            'sender' => $mailing->sentBy?->person?->fullName() ?? $mailing->sentBy?->email ?? 'unbekannt',
+            'approver' => $mailing->approvedBy ? ($mailing->approvedBy->person?->fullName() ?? $mailing->approvedBy->email) : null,
+            'issuedAt' => now(),
         ]);
     }
 
@@ -72,6 +113,7 @@ class MailingProgressController extends Controller
             'groupLabels' => $mailing->groups ? MailGroups::labels($mailing->groups) : null,
             'recipientsNow' => count(app(MailRecipients::class)->groups((array) $mailing->groups, (bool) $mailing->mandatory)),
             'isAuthor' => $isAuthor,
+            'notice' => $this->mailings->noticeWarning((array) $mailing->groups, (array) (($mailing->payload ?? [])['meeting'] ?? []), $mailing->send_at),
             'canApprove' => $canApprove && ! $isAuthor && $mailing->status === Mailing::STATUS_PENDING,
         ]);
     }

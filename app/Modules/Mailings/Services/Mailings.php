@@ -148,6 +148,38 @@ final class Mailings
         return $this->render($mailing->subject, $mailing->body, $this->meetingValues($meeting), $this->sample($viewer), $this->senderName($author));
     }
 
+    /**
+     * Fristwarnung für Einladungen zu Versammlungen: liegt zwischen Versand (geplanter Zeitpunkt, sonst heute) und Versammlung weniger als die
+     * eingestellte Einladungsfrist? Nur eine Warnung, kein Sperren. Gilt nur, wenn die Gruppe Mitglieder dabei ist und ein Datum angegeben wurde.
+     *
+     * @param  list<string>  $groups
+     * @param  array<string, mixed>  $meeting
+     */
+    public function noticeWarning(array $groups, array $meeting, ?Carbon $sendAt = null): ?string
+    {
+        $required = (int) config('portal.mailings.invitation_notice_days', 14);
+
+        if ($required <= 0 || ! in_array('members', $groups, true) || ! filled($meeting['date'] ?? null)) {
+            return null;
+        }
+
+        $send = ($sendAt !== null && $sendAt->gt(now()) ? $sendAt->copy() : now())->startOfDay();
+        $meetingDay = Carbon::parse((string) $meeting['date'])->startOfDay();
+        $days = (int) $send->diffInDays($meetingDay, false);
+
+        if ($days >= $required) {
+            return null;
+        }
+
+        $hint = ' Die eingestellte Einladungsfrist beträgt '.$required.' Tage. Bitte gleichen Sie sie mit der Satzung ab.';
+
+        if ($days < 0) {
+            return 'Die Versammlung am '.$meetingDay->format('d.m.Y').' liegt vor dem Versand am '.$send->format('d.m.Y').'.'.$hint;
+        }
+
+        return 'Zwischen Versand ('.$send->format('d.m.Y').') und Versammlung ('.$meetingDay->format('d.m.Y').') '.($days === 1 ? 'liegt nur 1 Tag' : 'liegen nur '.$days.' Tage').'.'.$hint;
+    }
+
     /** Gilt für dieses Schreiben die Freigabepflicht? (Konfiguration portal.mailings.approval; wer freigeben darf, schreibt frei.) */
     public function needsApproval(User $by, int $recipients): bool
     {
@@ -262,7 +294,8 @@ final class Mailings
      */
     public function launch(Mailing $mailing): Mailing
     {
-        $list = $this->recipients->groups((array) $mailing->groups, (bool) $mailing->mandatory);
+        $stats = $this->recipients->groupsWithStats((array) $mailing->groups, (bool) $mailing->mandatory);
+        $list = $stats['kept'];
 
         if ($list === []) {
             throw new DomainException('Für diese Auswahl gibt es keine Empfänger mit E-Mail-Adresse. Wer Mitteilungen abbestellt hat, bekommt sie nicht.');
@@ -277,7 +310,7 @@ final class Mailings
             'recipients_count' => count($list),
             'sent_count' => 0,
             'failed_count' => 0,
-            'values' => ['common' => $this->meetingValues($meeting), 'absender' => $author !== null ? $this->senderName($author) : 'Verein'],
+            'values' => ['common' => $this->meetingValues($meeting), 'absender' => $author !== null ? $this->senderName($author) : 'Verein', 'excluded' => ['unsubscribed' => $stats['unsubscribed'], 'suppressed' => $stats['suppressed']]],
         ])->save();
 
         $this->insertDeliveries($mailing, $list);

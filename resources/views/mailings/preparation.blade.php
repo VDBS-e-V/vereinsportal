@@ -34,6 +34,10 @@
         <x-vdbs.feedback.alert variant="warning"><strong>Zurückgegeben mit der Begründung:</strong> {{ $mailing->rejection_note }}</x-vdbs.feedback.alert>
     @endif
 
+    @if ($notice)
+        <x-vdbs.feedback.alert variant="warning"><strong>Einladungsfrist:</strong> {{ $notice }}</x-vdbs.feedback.alert>
+    @endif
+
     @if ($pending)
         <x-vdbs.feedback.alert variant="info">{{ $pendingText }}</x-vdbs.feedback.alert>
     @endif

@@ -122,7 +122,9 @@ class GroupMailingController extends Controller
         $data = $this->validated($request);
         $preview = $this->mailings->previewGroups($data['subject'], $data['body'], $this->meeting($data), $this->user());
 
-        return redirect()->route($this->base($request).'.create')->withInput($request->all())->with('preview', $preview);
+        $notice = $this->mailings->noticeWarning(array_values($data['groups']), $this->meeting($data), $this->sendAt($data));
+
+        return redirect()->route($this->base($request).'.create')->withInput($request->all())->with('preview', $preview)->with('notice', $notice);
     }
 
     public function test(Request $request): RedirectResponse

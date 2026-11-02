@@ -26,6 +26,7 @@ foreach (['board' => ['vorstand/mitteilungen', 'mailings.members'], 'office' => 
         Route::post('/gesperrt', [SuppressionController::class, 'store'])->middleware('throttle:20,10')->name('suppressions.store');
         Route::post('/gesperrt/{suppression}/freigeben', [SuppressionController::class, 'release'])->whereNumber('suppression')->name('suppressions.release');
         Route::get('/{mailing}', [MailingProgressController::class, 'show'])->whereNumber('mailing')->name('show');
+        Route::get('/{mailing}/bescheinigung', [MailingProgressController::class, 'certificate'])->whereNumber('mailing')->name('certificate');
         Route::post('/{mailing}/abbrechen', [MailingProgressController::class, 'cancel'])->whereNumber('mailing')->name('cancel');
         Route::post('/{mailing}/wiederholen', [MailingProgressController::class, 'retry'])->whereNumber('mailing')->name('retry');
         Route::post('/{mailing}/freigeben', [MailingProgressController::class, 'approve'])->whereNumber('mailing')->name('approve');

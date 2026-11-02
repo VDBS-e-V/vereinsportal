@@ -156,6 +156,8 @@ Die Geschäftsstelle plant ein Rundschreiben für morgen früh, der Vorstand gib
 
 **Ziel:** Die Einladung zur Mitgliederversammlung ist nachweisbar und fristgerecht.
 
+**Stand: umgesetzt (Update 4)**, siehe `docs/63_RUNDSCHREIBEN.md`. Die Frist ist als Annahme (14 Tage) eingestellt, bis die Satzung geklärt ist.
+
 ### Umfang
 - Einstellung `invitation_notice_days` (Annahme 14) und Eingabe „Termin der Versammlung“ (bestehende Terminangabe). Beim Planen und Senden Fristwarnung: „Zwischen Versand und Versammlung liegen nur 9 Tage. Ihre Satzung verlangt 14.“ Nur Warnung, kein Sperren.
 - **Versandbescheinigung** je Schreiben (Seite mit Druckansicht): Versandzeitpunkt, Betreff, Text, Zahl der Empfänger, davon zugestellt, fehlgeschlagen, gesperrt. Kein Rechtsgutachten, aber ein belastbarer Beleg.

@@ -57,5 +57,11 @@ Gespeichert werden Betreff, Text mit Platzhaltern, Gruppen und Zahl der Empfäng
 - **Absender je Bereich:** `MAILINGS_FROM_NAME_BOARD/OFFICE/TEAM` und `MAILINGS_REPLY_TO_BOARD/OFFICE/TEAM`. Die Absenderadresse bleibt die des Versanddienstes.
 - Jeder Schritt (vorgelegt, freigegeben, zurückgegeben, geplant, zurückgezogen) steht im Protokoll („Schreiben: Freigabe und Planung“).
 
+## Nachweis für Versammlungen (seit Update 4)
+
+- **Fristwarnung:** Bei Schreiben an die Gruppe Mitglieder mit einem Versammlungsdatum warnt die Vorschau (und die Seite eines vorbereiteten Schreibens), wenn zwischen Versand und Versammlung weniger als `MAILINGS_INVITATION_NOTICE_DAYS` Tage liegen (Standard 14, Annahme: bitte mit der Satzung abgleichen). Es ist nur eine Warnung, nichts wird gesperrt. Als Versandtag zählt der geplante Zeitpunkt, sonst heute.
+- **Versandbescheinigung:** Auf der Versandseite eines beendeten Schreibens (Vorstand, Geschäftsstelle), sichtbar für die sendende Person und alle mit `mailings.members`. Druckansicht ohne Navigation mit Versandzeitpunkt, Freigabe, Gruppen, Text, Zahlen (Empfänger, zugestellt, fehlgeschlagen, abbestellt, gesperrt). Sie protokolliert den Versand durch das Portal und belegt nicht den Zugang bei einzelnen Personen. Kein Rechtsgutachten.
+- **Nicht erreichte Mitglieder:** Unter der Versandseite (nur mit `mailings.members`) die Liste der laufenden Mitgliedschaften ohne gültige Adresse, mit gesperrter Adresse, mit Abbestellung (außer bei Pflichtmitteilungen) oder mit fehlgeschlagener Zustellung, nur Name und Grund, Stand heute. Die Zustelldetails entfallen nach der Aufbewahrungsfrist.
+
 ## Grenzen
 Stürzt ein Worker mitten in einer Mail ab, kann diese eine Mail doppelt zugestellt werden (Zeilen im Zustand „wird gesendet“ werden nach 10 Minuten wieder freigegeben). Bounces folgen im nächsten Update (siehe `docs/65_RUNDSCHREIBEN_ENTWICKLUNGSPLAN.md`).
