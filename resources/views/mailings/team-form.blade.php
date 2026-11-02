@@ -2,8 +2,8 @@
     $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Koordination'], ['label' => 'Mitteilungen an Teamende', 'href' => route('mailings.team.index')], ['label' => 'Neue Mitteilung']];
     $preview = session('preview');
     $fields = ['seminar_id', 'audience', 'own_text'];
-    $slot = '<p><em>[Hier steht Ihr eigener Textabschnitt]</em></p>';
-    $templateBody = str_replace('{eigener_text}', $slot, $template['body']);
+    $slotMarker = '<p><em>[Hier steht Ihr eigener Textabschnitt]</em></p>';
+    $templateBody = str_replace('{eigener_text}', $slotMarker, $template['body']);
     $audienceOptions = [];
     foreach ($audiences as $key => $label) {
         $audienceOptions[$key] = $label.' ('.$counts[$key].')';
