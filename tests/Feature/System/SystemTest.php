@@ -241,3 +241,29 @@ it('shows the settings and sends a test mail with validation and a log entry', f
 
     expect(AuditEntry::query()->where('event', AuditEvent::SystemTaskRun->value)->get()->pluck('context.aufgabe')->all())->toContain('Testmail');
 });
+
+it('posts every task to its own address and gives every dialog a unique id', function () {
+    $html = $this->actingAs(sysUser(RoleKey::Administration))->get(route('system.tasks'))->assertOk()->getContent();
+
+    foreach (['cache-leeren', 'migrationen', 'mitgliedschaften-abgleichen', 'protokoll-aufraeumen', 'wartung-an'] as $key) {
+        expect($html)->toContain('/admins/system/aufgaben/'.$key);
+    }
+
+    expect($html)->not->toMatch('#/admins/system/aufgaben/\d+#');
+
+    preg_match_all('/<dialog id="([^"]+)"/', $html, $ids);
+
+    expect($ids[1])->not->toBeEmpty()->and(array_unique($ids[1]))->toHaveCount(count($ids[1]))->and($ids[1])->toContain('task-migrationen', 'task-wartung-an');
+});
+
+it('does not show the maintenance access link while the portal is up', function () {
+    expect(app(SystemTasks::class)->maintenanceSecret())->toBeNull();
+
+    $this->actingAs(sysUser(RoleKey::Administration))->get(route('system.tasks'))->assertOk()->assertDontSee('Der Wartungsmodus ist');
+});
+
+it('keeps the routes cacheable: the fallback route is a controller, not a closure', function () {
+    $fallback = collect(app('router')->getRoutes()->getRoutes())->first(fn ($route) => $route->isFallback);
+
+    expect($fallback)->not->toBeNull()->and($fallback->getAction('uses'))->not->toBeInstanceOf(Closure::class)->and($fallback->getActionName())->toContain('NotFoundController');
+});

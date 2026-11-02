@@ -2,7 +2,7 @@
     $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Admins'], ['label' => 'System']];
     $tones = ['ok' => 'success', 'warning' => 'warning', 'error' => 'error', 'info' => 'neutral'];
     $labels = ['ok' => 'In Ordnung', 'warning' => 'Prüfen', 'error' => 'Fehler', 'info' => 'Info'];
-    $errors = $counts['error'] ?? 0;
+    $errorCount = $counts['error'] ?? 0;
     $warnings = $counts['warning'] ?? 0;
 @endphp
 
@@ -14,7 +14,7 @@
     </x-vdbs.layout.page-header>
 
     <x-vdbs.layout.grid :columns="4">
-        <x-vdbs.data.stat label="Prüfungen" :value="$errors > 0 ? $errors.' mit Fehler' : ($warnings > 0 ? $warnings.' zu prüfen' : 'Alles in Ordnung')" :tone="$errors > 0 ? 'error' : ($warnings > 0 ? 'warning' : 'success')" icon="shield" />
+        <x-vdbs.data.stat label="Prüfungen" :value="$errorCount > 0 ? $errorCount.' mit Fehler' : ($warnings > 0 ? $warnings.' zu prüfen' : 'Alles in Ordnung')" :tone="$errorCount > 0 ? 'error' : ($warnings > 0 ? 'warning' : 'success')" icon="shield" />
         <x-vdbs.data.stat label="Migrationen" :value="$pending === 0 ? 'Aktuell' : ($pending < 0 ? 'Unbekannt' : $pending.' ausstehend')" :tone="$pending === 0 ? 'success' : 'warning'" icon="clipboard-list" />
         <x-vdbs.data.stat label="Planer" :value="$schedulerAge === null ? 'Noch nie gelaufen' : 'Vor '.$schedulerAge.' Min.'" :tone="$schedulerAge !== null && $schedulerAge <= 10 ? 'success' : 'warning'" icon="clock" />
         <x-vdbs.data.stat label="Wartungsmodus" :value="$maintenance ? 'Eingeschaltet' : 'Aus'" :tone="$maintenance ? 'warning' : 'success'" icon="settings" />

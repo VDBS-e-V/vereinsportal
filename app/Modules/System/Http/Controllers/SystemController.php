@@ -37,8 +37,21 @@ class SystemController extends Controller
     {
         $last = SystemTaskRun::query()->orderByDesc('id')->limit(300)->get()->unique('task')->keyBy('task');
 
+        // Gruppen von Hand bilden: groupBy() würde die Schlüssel der Aufgaben durch 0, 1, 2 … ersetzen.
+        $groups = [];
+
+        foreach ($this->tasks->all() as $key => $task) {
+            if ($this->tasks->available($key)) {
+                $groups[$task['group']][$key] = $task;
+            }
+        }
+
+        $secret = $this->tasks->maintenanceSecret();
+
         return view('system.tasks', [
-            'groups' => collect($this->tasks->all())->filter(fn ($task, $key) => $this->tasks->available($key))->groupBy('group'),
+            'groups' => $groups,
+            'maintenance' => app()->isDownForMaintenance(),
+            'accessLink' => $secret !== null ? url('/'.$secret) : null,
             'last' => $last,
             'runs' => SystemTaskRun::query()->with('user.person')->orderByDesc('id')->limit(15)->get(),
             'labels' => collect($this->tasks->all())->map(fn ($task) => $task['label'])->all(),
@@ -71,9 +84,9 @@ class SystemController extends Controller
             return redirect()->route('system.tasks')->with('error', $exception->getMessage());
         }
 
-        $redirect = $task === 'wartung-an' && preg_match('#/([A-Za-z0-9]{24})#', (string) $run->output, $match) === 1
-            ? redirect('/'.$match[1])
-            : redirect()->route('system.tasks');
+        // Nach dem Einschalten über den geheimen Link gehen: Er setzt das Zugangs-Cookie, damit die Administration nicht ausgesperrt ist.
+        $secret = $run->status === SystemTaskRun::SUCCESS && $task === 'wartung-an' ? $this->tasks->maintenanceSecret() : null;
+        $redirect = $secret !== null ? redirect('/'.$secret) : redirect()->route('system.tasks');
 
         return $run->status === SystemTaskRun::SUCCESS
             ? $redirect->with('success', 'Die Aufgabe „'.$this->tasks->find($task)['label'].'“ wurde ausgeführt.')

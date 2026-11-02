@@ -11,6 +11,16 @@
 
     <x-vdbs.forms.error-summary />
 
+    @if ($maintenance)
+        <x-vdbs.feedback.alert variant="warning">
+            Der Wartungsmodus ist <strong>eingeschaltet</strong>: Besucher sehen eine Wartungsseite.
+            @if ($accessLink)
+                Zugang für die Administration (öffnen setzt das Zugangs-Cookie in Ihrem Browser): <a href="{{ $accessLink }}">{{ $accessLink }}</a>
+            @endif
+            Beenden Sie ihn unten unter „Wartungsmodus“ oder in der Konsole mit <code>php artisan up</code>.
+        </x-vdbs.feedback.alert>
+    @endif
+
     @foreach ($groups as $group => $tasks)
         <section aria-labelledby="group-{{ \Illuminate\Support\Str::slug($group) }}" style="margin-top:var(--space-6)">
             <h2 id="group-{{ \Illuminate\Support\Str::slug($group) }}" style="font-size:var(--font-size-h3)">{{ $group }}</h2>

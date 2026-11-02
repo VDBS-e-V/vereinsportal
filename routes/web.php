@@ -56,4 +56,4 @@ Route::middleware(['web', 'auth', 'can:school.area'])->prefix('schulen')->name('
 
 // Unbekannte Adressen laufen durch die Web-Middleware, damit die 404-Seite die Anmeldung kennt (Bereiche statt Login).
 // Alle Methoden, damit eine unbekannte Adresse nicht plötzlich 405 statt 404 liefert.
-Route::match(['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], '{fallbackPlaceholder}', fn () => abort(404))->where('fallbackPlaceholder', '.*')->fallback();
+Route::match(['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], '{fallbackPlaceholder}', [\App\Http\Controllers\NotFoundController::class, '__invoke'])->where('fallbackPlaceholder', '.*')->fallback();

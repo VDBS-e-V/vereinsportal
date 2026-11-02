@@ -61,6 +61,18 @@ final class SystemTasks
         return $this->all()[$key] ?? null;
     }
 
+    /** Geheimer Zugang der Administration, solange der Wartungsmodus an ist (sonst null). */
+    public function maintenanceSecret(): ?string
+    {
+        if (! app()->isDownForMaintenance()) {
+            return null;
+        }
+
+        $secret = app()->maintenanceMode()->data()['secret'] ?? null;
+
+        return is_string($secret) && $secret !== '' ? $secret : null;
+    }
+
     public function needsPassword(string $key): bool
     {
         return ($this->find($key)['risk'] ?? null) === self::RISK_HIGH;
