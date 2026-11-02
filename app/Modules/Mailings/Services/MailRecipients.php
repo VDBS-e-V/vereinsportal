@@ -1,0 +1,107 @@
+<?php
+
+namespace App\Modules\Mailings\Services;
+
+use App\Modules\Access\Enums\UserStatus;
+use App\Modules\Access\Models\User;
+use App\Modules\Access\Services\NotificationPreferences;
+use App\Modules\AccessGovernance\Enums\RoleKey;
+use App\Modules\Mailings\Models\Mailing;
+use App\Modules\Membership\Enums\MembershipStatus;
+use App\Modules\Membership\Models\Membership;
+use App\Modules\Seminars\Enums\ApplicationStatus;
+use App\Modules\Seminars\Models\Seminar;
+
+/**
+ * Wer ein Schreiben bekommt. Je E-Mail-Adresse genau eine Nachricht. Mitglieder: alle laufenden Mitgliedschaften mit Adresse (Einladungen zu
+ * Versammlungen sind Vereinspost und nicht abschaltbar). Teamende: aktive Konten mit der Rolle Team, die diese Mitteilungen nicht abbestellt haben.
+ *
+ * @phpstan-type Recipient array{email: string, first: string, last: string}
+ */
+final class MailRecipients
+{
+    public function __construct(private readonly NotificationPreferences $preferences) {}
+
+    /** @return list<array{email: string, first: string, last: string}> */
+    public function members(): array
+    {
+        $memberships = Membership::query()
+            ->where('status', MembershipStatus::Active->value)
+            ->where(fn ($query) => $query->whereNull('ends_on')->orWhere('ends_on', '>=', today()))
+            ->with('person')
+            ->get();
+
+        $list = [];
+
+        foreach ($memberships as $membership) {
+            $list[] = [
+                'email' => (string) $membership->contactEmail(),
+                'first' => (string) ($membership->person?->first_name ?? $membership->first_name ?? ''),
+                'last' => (string) ($membership->person?->last_name ?? $membership->last_name ?? ''),
+            ];
+        }
+
+        return $this->unique($list);
+    }
+
+    /** @return list<array{email: string, first: string, last: string}> */
+    public function team(?Seminar $seminar, string $audience): array
+    {
+        $users = match ($audience) {
+            'applied' => $this->applicants($seminar, ApplicationStatus::Applied),
+            'confirmed' => $this->applicants($seminar, ApplicationStatus::Confirmed),
+            default => User::query()
+                ->whereHas('activeRoleAssignments', fn ($assignments) => $assignments->whereHas('role', fn ($role) => $role->where('key', RoleKey::Team->value)))
+                ->with('person')
+                ->get()
+                ->all(),
+        };
+
+        $users = array_filter($users, fn (User $user): bool => $user->status === UserStatus::Active);
+        $users = $this->preferences->filter($users, 'team_mailings');
+
+        return $this->unique(array_map(fn (User $user): array => [
+            'email' => (string) $user->email,
+            'first' => (string) ($user->person?->first_name ?? ''),
+            'last' => (string) ($user->person?->last_name ?? ''),
+        ], $users));
+    }
+
+    public function count(string $kind, ?Seminar $seminar = null, string $audience = 'all'): int
+    {
+        return count($kind === Mailing::KIND_MEMBERS ? $this->members() : $this->team($seminar, $audience));
+    }
+
+    /** @return list<User> */
+    private function applicants(?Seminar $seminar, ApplicationStatus $status): array
+    {
+        if ($seminar === null) {
+            return [];
+        }
+
+        return $seminar->applications()->where('status', $status->value)->with('user.person')->get()->pluck('user')->filter()->values()->all();
+    }
+
+    /**
+     * @param  list<array{email: string, first: string, last: string}>  $list
+     * @return list<array{email: string, first: string, last: string}>
+     */
+    private function unique(array $list): array
+    {
+        $seen = [];
+        $result = [];
+
+        foreach ($list as $entry) {
+            $email = mb_strtolower(trim($entry['email']));
+
+            if ($email === '' || filter_var($email, FILTER_VALIDATE_EMAIL) === false || isset($seen[$email])) {
+                continue;
+            }
+
+            $seen[$email] = true;
+            $result[] = ['email' => $email, 'first' => trim($entry['first']), 'last' => trim($entry['last'])];
+        }
+
+        return $result;
+    }
+}

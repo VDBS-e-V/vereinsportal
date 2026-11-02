@@ -5,6 +5,7 @@ use App\Modules\AccessRequests\AccessRequestsServiceProvider;
 use App\Modules\AccessGovernance\AccessGovernanceServiceProvider;
 use App\Modules\Articles\ArticlesServiceProvider;
 use App\Modules\System\SystemServiceProvider;
+use App\Modules\Mailings\MailingsServiceProvider;
 use App\Modules\Audit\AuditServiceProvider;
 use App\Modules\DesignLibrary\DesignLibraryServiceProvider;
 use App\Modules\Membership\MembershipServiceProvider;
@@ -38,6 +39,7 @@ return [
     AccessRequestsServiceProvider::class,
     ArticlesServiceProvider::class,
     SystemServiceProvider::class,
+    MailingsServiceProvider::class,
     PagesServiceProvider::class,
     EventsServiceProvider::class,
     SsoServiceProvider::class,

@@ -1,0 +1,55 @@
+<?php
+
+namespace App\Modules\Mailings\Services;
+
+use App\Modules\Access\Models\User;
+use App\Modules\Mailings\Models\MailTemplate;
+
+/**
+ * Mailvorlagen der Geschäftsstelle. Ohne gespeicherte Fassung gilt die eingebaute. Die Vorlage für Seminare enthält {eigener_text}:
+ * An dieser Stelle setzt die Koordination ihren eigenen Textabschnitt ein.
+ */
+final class MailTemplates
+{
+    public const TEAM_SEMINAR = 'team_seminar';
+
+    /** @return array{subject: string, body: string} */
+    public static function builtin(string $key): array
+    {
+        return match ($key) {
+            self::TEAM_SEMINAR => [
+                'subject' => 'Seminar {seminar}: Informationen für Teamende',
+                'body' => '<p>Hallo {vorname},</p>'
+                    .'<p>wir melden uns zum Seminar <strong>{seminar}</strong> an der Schule {schule}.</p>'
+                    .'<p><strong>Termine</strong><br>{termine}</p>'
+                    .'{eigener_text}'
+                    .'<p>Alle Einzelheiten finden Sie im Portal unter „Seminare“: <a href="{link}">{link}</a></p>'
+                    .'<p>Herzliche Grüße<br>{absender}<br>{verein}</p>',
+            ],
+            default => ['subject' => '', 'body' => ''],
+        };
+    }
+
+    /** Die gültige Vorlage: gespeichert, sonst eingebaut. @return array{subject: string, body: string} */
+    public function get(string $key): array
+    {
+        $saved = MailTemplate::query()->where('key', $key)->first();
+
+        return $saved !== null ? ['subject' => $saved->subject, 'body' => $saved->body] : self::builtin($key);
+    }
+
+    public function isCustomized(string $key): bool
+    {
+        return MailTemplate::query()->where('key', $key)->exists();
+    }
+
+    public function save(string $key, string $subject, string $body, User $by): MailTemplate
+    {
+        return MailTemplate::query()->updateOrCreate(['key' => $key], ['subject' => trim($subject), 'body' => $body, 'updated_by_user_id' => $by->id]);
+    }
+
+    public function reset(string $key): void
+    {
+        MailTemplate::query()->where('key', $key)->delete();
+    }
+}

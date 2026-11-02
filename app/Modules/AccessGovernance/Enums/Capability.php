@@ -86,6 +86,15 @@ enum Capability: string
     /** Design-Bibliothek ansehen (Entwicklungswerkzeug). */
     case DesignView = 'design.view';
 
+    /** Rundschreiben an alle Mitglieder verfassen und senden (Vorstand). */
+    case MailingsMembers = 'mailings.members';
+
+    /** Mitteilungen an Teamende zu Seminaren senden (Koordination). */
+    case MailingsTeam = 'mailings.team';
+
+    /** Mailvorlagen für Mitteilungen bearbeiten (Geschäftsstelle). */
+    case MailTemplatesManage = 'mail_templates.manage';
+
     /** Systemsteuerung: Zustand ansehen und Aufgaben ausführen (nur Administration). */
     case SystemManage = 'system.manage';
 

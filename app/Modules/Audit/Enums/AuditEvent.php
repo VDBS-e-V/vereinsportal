@@ -78,6 +78,8 @@ enum AuditEvent: string
 
     case SystemTaskRun = 'system.task_run';
 
+    case MailingSent = 'mailing.sent';
+
     public function label(): string
     {
         return match ($this) {
@@ -141,6 +143,7 @@ enum AuditEvent: string
             self::TeamOnboardingCompleted => 'Einarbeitung der Teamenden abgeschlossen',
             self::AuditExported => 'Protokoll exportiert',
             self::SystemTaskRun => 'Systemaufgabe ausgeführt',
+            self::MailingSent => 'Schreiben versendet',
         };
     }
 
@@ -162,6 +165,7 @@ enum AuditEvent: string
             self::OnboardingDocumentUploaded, self::TeamOnboardingStarted, self::TeamOnboardingCompleted => 'onboarding',
             self::AuditExported => 'audit',
             self::SystemTaskRun => 'system',
+            self::MailingSent => 'mailings',
         };
     }
 
@@ -184,6 +188,7 @@ enum AuditEvent: string
             'events' => 'Veranstaltungen',
             'audit' => 'Protokoll',
             'system' => 'System',
+            'mailings' => 'Schreiben',
         ];
     }
 
