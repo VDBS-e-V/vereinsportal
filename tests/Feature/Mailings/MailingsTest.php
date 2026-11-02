@@ -161,11 +161,11 @@ it('sends a personal letter to the chosen groups, free in wording, with the deta
     Mail::assertSent(MailingMail::class, 3);
     Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo('anna@beispiel.example')
         && $mail->subjectLine === 'Einladung zur Mitgliederversammlung 2026'
-        && str_contains($mail->html, 'Liebe Anna')
-        && str_contains($mail->html, 'Samstag, 12.12.2026 um 10:00 Uhr')
-        && str_contains($mail->html, 'Haus der Demokratie')
-        && str_contains($mail->html, 'Vera Vorstand'));
-    Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($team->email) && str_contains($mail->html, 'Liebe Timo') && $mail->kind === 'team');
+        && str_contains($mail->bodyHtml, 'Liebe Anna')
+        && str_contains($mail->bodyHtml, 'Samstag, 12.12.2026 um 10:00 Uhr')
+        && str_contains($mail->bodyHtml, 'Haus der Demokratie')
+        && str_contains($mail->bodyHtml, 'Vera Vorstand'));
+    Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($team->email) && str_contains($mail->bodyHtml, 'Liebe Timo') && $mail->kind === 'team');
 
     $mailing = Mailing::query()->firstOrFail();
     expect($mailing->kind)->toBe('general')->and($mailing->groups)->toBe(['members', 'team'])->and($mailing->recipients_count)->toBe(3)->and($mailing->subject)->toContain('{versammlung}')->and($mailing->body)->toContain('{vorname}');
@@ -185,7 +185,7 @@ it('lets the office write to the groups but not to the members', function () {
     $this->post(route('mailings.office.store'), mlMeeting(['groups' => ['schools'], 'body' => '<p>Guten Tag {vorname}, {name}.</p>', 'subject' => 'Hinweis']))->assertRedirect(route('mailings.office.index'));
 
     Mail::assertSent(MailingMail::class, 1);
-    Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($school->email) && str_contains($mail->html, 'Guten Tag Sabine') && $mail->kind === 'schools');
+    Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($school->email) && str_contains($mail->bodyHtml, 'Guten Tag Sabine') && $mail->kind === 'schools');
 });
 
 it('uses a neutral salutation for accounts without a first name', function () {
@@ -194,7 +194,7 @@ it('uses a neutral salutation for accounts without a first name', function () {
 
     $this->actingAs(mlUser(RoleKey::AdministrationStaff))->post(route('mailings.office.store'), ['groups' => ['schools'], 'subject' => 'Hallo', 'body' => '<p>Guten Tag {vorname}!</p>'])->assertSessionHasNoErrors();
 
-    Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($user->email) && str_contains($mail->html, 'Guten Tag Schule!'));
+    Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($user->email) && str_contains($mail->bodyHtml, 'Guten Tag Schule!'));
 });
 
 it('refuses unknown placeholders, missing groups and placeholders without details of the meeting', function () {
@@ -280,12 +280,12 @@ it('writes to Teamende with the template of the office and the own passage of th
     Mail::assertSent(MailingMail::class, 1);
     Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($team->email)
         && $mail->subjectLine === 'Seminar SV-Tage Nord: Informationen für Teamende'
-        && str_contains($mail->html, 'Hallo Timo')
-        && str_contains($mail->html, 'SV-Tage Nord')
-        && str_contains($mail->html, 'Aula')
-        && str_contains($mail->html, 'Bitte Moderationsmaterial mitbringen.')
-        && str_contains($mail->html, 'Karla Koordination')
-        && ! str_contains($mail->html, '{'));
+        && str_contains($mail->bodyHtml, 'Hallo Timo')
+        && str_contains($mail->bodyHtml, 'SV-Tage Nord')
+        && str_contains($mail->bodyHtml, 'Aula')
+        && str_contains($mail->bodyHtml, 'Bitte Moderationsmaterial mitbringen.')
+        && str_contains($mail->bodyHtml, 'Karla Koordination')
+        && ! str_contains($mail->bodyHtml, '{'));
 
     $mailing = Mailing::query()->firstOrFail();
     expect($mailing->kind)->toBe('team')->and($mailing->seminar_id)->toBe($seminar->id)->and($mailing->recipients_count)->toBe(1)->and($mailing->own_text)->toContain('Moderationsmaterial');
@@ -300,7 +300,7 @@ it('uses a changed template and appends the own passage when the template has no
 
     $this->actingAs(mlUser(RoleKey::Coordination))->post(route('mailings.team.store'), ['seminar_id' => $seminar->id, 'audience' => 'all', 'own_text' => '<p>Mein Zusatz</p>']);
 
-    Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($team->email) && $mail->subjectLine === 'Neu: SV-Tage Nord' && str_ends_with(trim(strip_tags($mail->html)), 'Mein Zusatz'));
+    Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($team->email) && $mail->subjectLine === 'Neu: SV-Tage Nord' && str_ends_with(trim(strip_tags($mail->bodyHtml)), 'Mein Zusatz'));
 });
 
 it('picks the audience by interest or team and respects an opted out account', function () {
