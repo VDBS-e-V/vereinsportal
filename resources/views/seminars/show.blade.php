@@ -27,6 +27,9 @@
                 @endif
                 <x-vdbs.actions.button variant="secondary" :href="route('seminar-quotes.create', ['seminar' => $seminar->id])" icon="clipboard-list">Kostenvoranschlag berechnen</x-vdbs.actions.button>
                 <x-vdbs.actions.button variant="secondary" :href="route('seminars.edit', $seminar)" icon="pencil">Bearbeiten</x-vdbs.actions.button>
+                @can('mailings.team')
+                    <x-vdbs.actions.button variant="secondary" :href="route('mailings.team.create', ['seminar' => $seminar->id])" icon="mail">Teamende anschreiben</x-vdbs.actions.button>
+                @endcan
                 @if ($deletable)
                     <x-vdbs.actions.button variant="danger" icon="trash-2" data-vdbs-dialog-open="delete-seminar">Löschen</x-vdbs.actions.button>
                 @endif

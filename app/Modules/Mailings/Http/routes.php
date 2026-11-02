@@ -22,6 +22,7 @@ foreach (['board' => ['vorstand/mitteilungen', 'mailings.members'], 'office' => 
         Route::post('/test', [GroupMailingController::class, 'test'])->middleware('throttle:10,10')->name('test');
         Route::post('/', [GroupMailingController::class, 'store'])->middleware('throttle:6,10')->name('store');
         Route::post('/entwurf', [GroupMailingController::class, 'draft'])->middleware('throttle:30,10')->name('draft');
+        Route::get('/personen', [GroupMailingController::class, 'people'])->middleware('throttle:60,1')->name('people');
         Route::get('/gesperrt', [SuppressionController::class, 'index'])->name('suppressions');
         Route::post('/gesperrt', [SuppressionController::class, 'store'])->middleware('throttle:20,10')->name('suppressions.store');
         Route::post('/gesperrt/{suppression}/freigeben', [SuppressionController::class, 'release'])->whereNumber('suppression')->name('suppressions.release');

@@ -16,6 +16,7 @@
         ['Zugestellt an den Versanddienst', $sent],
         ['Fehlgeschlagen', $failed],
         ['Offen oder übersprungen', $open],
+        ['Durch „Außer“ nicht angeschrieben', $groupExcluded ?? 'nicht erfasst'],
         ['Wegen Abbestellung nicht angeschrieben', $unsubscribed ?? 'nicht erfasst'],
         ['Wegen gesperrter Adresse nicht angeschrieben', $suppressed ?? 'nicht erfasst'],
     ];

@@ -59,7 +59,7 @@ it('saves a draft without sending anything and lets the author continue it', fun
     Mail::assertNothingSent();
 
     $this->get(route('mailings.office.create', ['entwurf' => $draft->id]))->assertOk()->assertSee('Entwurf bearbeiten')->assertSee('Hinweis');
-    $this->actingAs(apUser(RoleKey::AdministrationStaff))->get(route('mailings.office.show', $draft))->assertForbidden();
+    $this->actingAs(apUser(RoleKey::AdministrationStaff))->get(route('mailings.office.show', $draft))->assertNotFound();
 });
 
 it('sends directly below the approval threshold', function () {

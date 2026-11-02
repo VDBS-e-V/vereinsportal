@@ -177,6 +177,8 @@ Entscheidung 2 (Satzungswortlaut) bestimmt Standardfrist und Wortlaut der Hinwei
 
 **Ziel:** Treffsichere Empfängerwahl.
 
+**Stand: B2, B3, B4 (Schule, Seminar) und B6 umgesetzt (Update 5), siehe `docs/63_RUNDSCHREIBEN.md`. Offen: B5/B7 Filter und Segmente, Kontextstart bei Veranstaltungen (dort gibt es bereits die Nachricht an Angemeldete).**
+
 ### Umfang
 - **B2 Ausschlüsse:** Zweite Auswahl „außer …“ (Gruppen). Rechenweg: Vereinigung der Gruppen minus Ausschlüsse, danach Duplikate und Sperren.
 - **B3 Einzelpersonen:** Suchfeld mit Auswahl (Konten und Mitgliedschaften), Chips mit Entfernen.

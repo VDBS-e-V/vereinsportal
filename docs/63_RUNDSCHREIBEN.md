@@ -63,5 +63,12 @@ Gespeichert werden Betreff, Text mit Platzhaltern, Gruppen und Zahl der Empfäng
 - **Versandbescheinigung:** Auf der Versandseite eines beendeten Schreibens (Vorstand, Geschäftsstelle), sichtbar für die sendende Person und alle mit `mailings.members`. Druckansicht ohne Navigation mit Versandzeitpunkt, Freigabe, Gruppen, Text, Zahlen (Empfänger, zugestellt, fehlgeschlagen, abbestellt, gesperrt). Sie protokolliert den Versand durch das Portal und belegt nicht den Zugang bei einzelnen Personen. Kein Rechtsgutachten.
 - **Nicht erreichte Mitglieder:** Unter der Versandseite (nur mit `mailings.members`) die Liste der laufenden Mitgliedschaften ohne gültige Adresse, mit gesperrter Adresse, mit Abbestellung (außer bei Pflichtmitteilungen) oder mit fehlgeschlagener Zustellung, nur Name und Grund, Stand heute. Die Zustelldetails entfallen nach der Aufbewahrungsfrist.
 
+## Empfänger genauer wählen (seit Update 5)
+
+- **Außer:** Zweite Auswahl neben den Gruppen. Rechenweg: Vereinigung der gewählten Gruppen, minus alle Adressen der „Außer“-Gruppen (auch wenn dort Mitteilungen abbestellt wurden), dazu die einzeln gewählten Personen, danach Duplikate, Abmeldungen und Sperren. Die Vorschau nennt, wie viele Personen durch „Außer“, Abmeldung und Sperre nicht angeschrieben werden.
+- **Einzelne Personen:** Suchfeld mit Chips (Konten mit `mailings.send`, Mitglieder nur mit `mailings.members`, nur Namen, keine Adressen). Direkt gewählte Personen bekommen das Schreiben auch bei Abbestellung von Sammelmitteilungen, gesperrte Adressen nie. Ein Schreiben darf auch nur aus einzelnen Personen bestehen. Ohne JavaScript bleiben bereits gewählte Personen als Häkchen erhalten.
+- **Kontextstart:** Auf der Schulseite „Ansprechpersonen anschreiben“ (öffnet das Formular der Geschäftsstelle mit den Ansprechpersonen, die eine Adresse haben), auf der Seminarseite „Teamende anschreiben“ (Formular der Koordination mit dem Seminar). Die Berechtigung wird serverseitig geprüft.
+- Auswahl und Ausschlüsse stehen in `payload` des Schreibens. Segmente (gespeicherte Filter) folgen später.
+
 ## Grenzen
 Stürzt ein Worker mitten in einer Mail ab, kann diese eine Mail doppelt zugestellt werden (Zeilen im Zustand „wird gesendet“ werden nach 10 Minuten wieder freigegeben). Bounces folgen im nächsten Update (siehe `docs/65_RUNDSCHREIBEN_ENTWICKLUNGSPLAN.md`).

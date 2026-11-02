@@ -10,6 +10,9 @@
         @if ($canManage)
             <x-slot:actions>
                 <x-vdbs.actions.button variant="secondary" :href="route('partners.edit', $partner)" icon="pencil">Bearbeiten</x-vdbs.actions.button>
+                @can('mailings.send')
+                    <x-vdbs.actions.button variant="secondary" :href="route('mailings.office.create', ['schule' => $partner->id])" icon="mail">Ansprechpersonen anschreiben</x-vdbs.actions.button>
+                @endcan
                 @can('seminars.manage')
                     <x-vdbs.actions.button variant="secondary" :href="route('seminars.create', ['schule' => $partner->id])" icon="calendar">Seminar anlegen</x-vdbs.actions.button>
                 @endcan

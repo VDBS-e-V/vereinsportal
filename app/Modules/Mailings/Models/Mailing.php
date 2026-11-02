@@ -101,6 +101,18 @@ class Mailing extends Model
         };
     }
 
+    /** Gruppen, die ausgenommen werden (Auswahl „außer“). @return list<string> */
+    public function excludedGroups(): array
+    {
+        return array_values(array_map('strval', (array) (($this->payload ?? [])['exclude'] ?? [])));
+    }
+
+    /** Einzeln gewählte Personen (Marken). @return list<string> */
+    public function chosenPeople(): array
+    {
+        return array_values(array_map('strval', (array) (($this->payload ?? [])['people'] ?? [])));
+    }
+
     /** Dürfen die Adressen der fehlgeschlagenen Zustellungen gezeigt werden? Wer das Schreiben gesendet hat und wer die Gruppe anschreiben darf. */
     public function addressesVisibleTo(User $user): bool
     {

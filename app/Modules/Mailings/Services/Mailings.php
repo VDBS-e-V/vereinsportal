@@ -89,9 +89,9 @@ final class Mailings
      *
      * @throws DomainException
      */
-    public function sendGroups(array $groups, string $subject, string $body, array $meeting, User $by, bool $mandatory = false, ?Carbon $sendAt = null, string $area = 'office', ?Mailing $draft = null): Mailing
+    public function sendGroups(array $groups, string $subject, string $body, array $meeting, User $by, bool $mandatory = false, ?Carbon $sendAt = null, string $area = 'office', ?Mailing $draft = null, array $exclude = [], array $people = []): Mailing
     {
-        $mailing = $this->saveDraft(['groups' => $groups, 'subject' => $subject, 'body' => $body, 'meeting' => $meeting, 'mandatory' => $mandatory, 'send_at' => $sendAt], $by, $area, $draft);
+        $mailing = $this->saveDraft(['groups' => $groups, 'subject' => $subject, 'body' => $body, 'meeting' => $meeting, 'mandatory' => $mandatory, 'send_at' => $sendAt, 'exclude' => $exclude, 'people' => $people], $by, $area, $draft);
 
         try {
             return $this->submit($mailing, $by);
@@ -120,7 +120,7 @@ final class Mailings
             'groups' => array_values($data['groups']),
             'mandatory' => (bool) $data['mandatory'],
             'send_at' => $data['send_at'] ?? null,
-            'payload' => ['meeting' => $data['meeting']],
+            'payload' => ['meeting' => $data['meeting'], 'exclude' => array_values($data['exclude'] ?? []), 'people' => array_values($data['people'] ?? [])],
             'sender_area' => $area,
             'status' => Mailing::STATUS_DRAFT,
             'sent_by_user_id' => $by->id,
@@ -203,7 +203,7 @@ final class Mailings
             throw new DomainException('Nur ein Entwurf lässt sich vorlegen.');
         }
 
-        $count = count($this->recipients->groups((array) $mailing->groups, (bool) $mailing->mandatory));
+        $count = count($this->recipients->groups((array) $mailing->groups, (bool) $mailing->mandatory, $mailing->excludedGroups(), $mailing->chosenPeople()));
 
         if ($count === 0) {
             throw new DomainException('Für diese Auswahl gibt es keine Empfänger mit E-Mail-Adresse. Wer Mitteilungen abbestellt hat, bekommt sie nicht.');
@@ -294,7 +294,7 @@ final class Mailings
      */
     public function launch(Mailing $mailing): Mailing
     {
-        $stats = $this->recipients->groupsWithStats((array) $mailing->groups, (bool) $mailing->mandatory);
+        $stats = $this->recipients->groupsWithStats((array) $mailing->groups, (bool) $mailing->mandatory, $mailing->excludedGroups(), $mailing->chosenPeople());
         $list = $stats['kept'];
 
         if ($list === []) {
@@ -310,7 +310,7 @@ final class Mailings
             'recipients_count' => count($list),
             'sent_count' => 0,
             'failed_count' => 0,
-            'values' => ['common' => $this->meetingValues($meeting), 'absender' => $author !== null ? $this->senderName($author) : 'Verein', 'excluded' => ['unsubscribed' => $stats['unsubscribed'], 'suppressed' => $stats['suppressed']]],
+            'values' => ['common' => $this->meetingValues($meeting), 'absender' => $author !== null ? $this->senderName($author) : 'Verein', 'excluded' => ['unsubscribed' => $stats['unsubscribed'], 'suppressed' => $stats['suppressed'], 'groups' => $stats['excluded']]],
         ])->save();
 
         $this->insertDeliveries($mailing, $list);
