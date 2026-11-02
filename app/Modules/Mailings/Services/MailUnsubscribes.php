@@ -71,8 +71,15 @@ final class MailUnsubscribes
     /** @return array{email: string, topic: string}|null null bei ungültigem oder verändertem Link */
     public function parse(string $token): ?array
     {
+        $raw = base64_decode(strtr($token, '-_', '+/'), true);
+
+        // Nur die ausgegebene Schreibweise gilt: angehängte oder veränderte Zeichen machen den Link ungültig
+        if ($raw === false || rtrim(strtr(base64_encode($raw), '+/', '-_'), '=') !== $token) {
+            return null;
+        }
+
         try {
-            $decoded = json_decode(Crypt::decryptString(base64_decode(strtr($token, '-_', '+/'), true) ?: ''), true);
+            $decoded = json_decode(Crypt::decryptString($raw), true);
         } catch (Throwable) {
             return null;
         }

@@ -12,7 +12,6 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 /** Gesperrte Adressen (Vorstand und Geschäftsstelle): ansehen, manuell sperren, freigeben. Die Zahlen der Abmeldungen je Thema stehen dabei. */
 class SuppressionController extends Controller
@@ -21,7 +20,7 @@ class SuppressionController extends Controller
 
     public function index(Request $request): View
     {
-        $base = Str::beforeLast((string) $request->route()?->getName(), '.');
+        $base = $this->base($request);
 
         return view('mailings.suppressions', [
             'base' => $base,
@@ -49,9 +48,10 @@ class SuppressionController extends Controller
         return redirect()->route($this->base($request).'.suppressions')->with('success', 'Die Sperre wurde aufgehoben.');
     }
 
+    /** Routenpräfix der Seite: die ersten zwei Namensteile (mailings.board oder mailings.office). */
     private function base(Request $request): string
     {
-        return Str::beforeLast((string) $request->route()?->getName(), '.');
+        return implode('.', array_slice(explode('.', (string) $request->route()?->getName()), 0, 2));
     }
 
     private function user(): User
