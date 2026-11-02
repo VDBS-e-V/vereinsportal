@@ -23,6 +23,23 @@ final class MailGroups
         'office' => ['label' => 'Geschäftsstelle', 'description' => 'Konten mit der Rolle Geschäftsstelle', 'role' => 'administration_staff', 'optout' => null, 'fallback' => 'Kolleg:in', 'ability' => 'mailings.send'],
     ];
 
+    /** Themen der Abmeldung. Interne Gruppen (Koordination, Bildungsreferenten, Vorstand, Geschäftsstelle) haben keines: Organisationspost ist nicht abbestellbar. */
+    public const TOPICS = [
+        'member_info' => 'Mitteilungen des Vereins an Mitglieder',
+        'team_mailings' => 'Mitteilungen an Teamende',
+        'school_mailings' => 'Mitteilungen an Schulen',
+    ];
+
+    public static function topicFor(?string $group): ?string
+    {
+        return match ($group) {
+            'members' => 'member_info',
+            'team' => 'team_mailings',
+            'schools' => 'school_mailings',
+            default => null,
+        };
+    }
+
     /** Gruppen, die diese Person anschreiben darf. @return array<string, array{label: string, description: string}> */
     public static function allowedFor(User $user): array
     {

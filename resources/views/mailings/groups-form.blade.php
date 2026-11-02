@@ -1,7 +1,7 @@
 @php
     $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => $area], ['label' => 'Rundschreiben', 'href' => route($base.'.index')], ['label' => 'Neues Schreiben']];
     $preview = session('preview');
-    $fields = ['subject', 'body', 'meeting_title', 'meeting_date', 'meeting_time', 'meeting_place', 'meeting_link', 'meeting_deadline'];
+    $fields = ['subject', 'body', 'meeting_title', 'meeting_date', 'meeting_time', 'meeting_place', 'meeting_link', 'meeting_deadline', 'mandatory'];
     $prefillSubject = $template?->subject;
 @endphp
 
@@ -17,7 +17,13 @@
 
     <x-vdbs.forms.form :action="route($base.'.preview')" method="post">
         <x-vdbs.forms.form-section title="Empfänger">
-            <x-vdbs.forms.checkbox-group name="groups" legend="Gruppen" :required="true" :options="$groupOptions" :value="$selected" hint="Mehrere Gruppen sind möglich. Die Zahl in Klammern nennt die erreichbaren Personen (ohne Abbestellte)." />
+            <x-vdbs.forms.checkbox-group name="groups" legend="Gruppen" :required="true" :options="$groupOptions" :value="$selected" hint="Mehrere Gruppen sind möglich. Die Zahl in Klammern nennt die erreichbaren Personen (ohne Abbestellte und Gesperrte)." />
+            @if ($selected !== [])
+                <p style="margin:0;color:var(--text-muted)">Erreichbar: {{ $total }} Personen. Ausgeschlossen: {{ $unsubscribedCount }} Abgemeldete, {{ $suppressedCount }} gesperrte Adressen.</p>
+            @endif
+            @if ($canMandatory)
+                <x-vdbs.forms.checkbox name="mandatory" label="Pflichtmitteilung (nicht abbestellbar)" :checked="(bool) old('mandatory')" hint="Nur für Vereinspost wie die Einladung zur Mitgliederversammlung. Die Mail enthält dann keinen Abmeldelink. Gesperrte Adressen bekommen sie trotzdem nicht." />
+            @endif
         </x-vdbs.forms.form-section>
 
         <x-vdbs.forms.form-section title="Schreiben">

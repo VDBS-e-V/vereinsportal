@@ -115,7 +115,7 @@ it('lists the new pages in the menus of the three areas', function () {
 
 it('addresses running memberships with an address, once per address', function () {
     Membership::factory()->create(['person_id' => Person::factory()->create(['email' => 'a@beispiel.example', 'first_name' => 'Anna', 'last_name' => 'Alt'])->id]);
-    Membership::factory()->create(['person_id' => Person::factory()->create(['email' => 'A@beispiel.example'])->id]);
+    Membership::factory()->manual()->create(['email' => 'A@beispiel.example']);
     Membership::factory()->manual()->create(['email' => 'm@beispiel.example']);
     Membership::factory()->manual()->create(['email' => null]);
     Membership::factory()->requested()->create(['person_id' => Person::factory()->create(['email' => 'beantragt@beispiel.example'])->id]);

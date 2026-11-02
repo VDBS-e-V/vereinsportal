@@ -27,7 +27,7 @@ final class Mailings
     /** Werte, die als bereinigtes HTML eingesetzt werden und nicht maskiert werden dürfen. */
     private const RAW = ['eigener_text', 'termine'];
 
-    public function __construct(private readonly MailRecipients $recipients, private readonly MailTemplates $templates) {}
+    public function __construct(private readonly MailRecipients $recipients, private readonly MailTemplates $templates, private readonly MailSuppressions $suppressions, private readonly MailUnsubscribes $unsubscribes) {}
 
     // ---------- Mitglieder ----------
 
@@ -85,15 +85,15 @@ final class Mailings
      *
      * @throws DomainException
      */
-    public function sendGroups(array $groups, string $subject, string $body, array $meeting, User $by): Mailing
+    public function sendGroups(array $groups, string $subject, string $body, array $meeting, User $by, bool $mandatory = false): Mailing
     {
-        $list = $this->recipients->groups($groups);
+        $list = $this->recipients->groups($groups, $mandatory);
 
         if ($list === []) {
             throw new DomainException('Für diese Auswahl gibt es keine Empfänger mit E-Mail-Adresse. Wer Mitteilungen abbestellt hat, bekommt sie nicht.');
         }
 
-        return $this->queue(Mailing::KIND_GENERAL, $subject, $body, null, null, null, $groups, $list, $this->meetingValues($meeting), $by);
+        return $this->queue(Mailing::KIND_GENERAL, $subject, $body, null, null, null, $groups, $list, $this->meetingValues($meeting), $by, $mandatory);
     }
 
     /** @param  array<string, mixed>  $meeting */
@@ -214,12 +214,12 @@ final class Mailings
      * @param  list<array<string, string>>  $list
      * @param  array<string, string>  $values  Werte der Platzhalter, die für alle gleich sind
      */
-    private function queue(string $kind, string $subject, string $body, ?string $own, ?int $seminarId, ?string $audience, ?array $groups, array $list, array $values, User $by): Mailing
+    private function queue(string $kind, string $subject, string $body, ?string $own, ?int $seminarId, ?string $audience, ?array $groups, array $list, array $values, User $by, bool $mandatory = false): Mailing
     {
         $mailing = Mailing::query()->create([
             'kind' => $kind, 'subject' => $subject, 'body' => $body, 'own_text' => $own, 'seminar_id' => $seminarId, 'audience' => $audience, 'groups' => $groups,
             'recipients_count' => count($list), 'sent_count' => 0, 'failed_count' => 0, 'sent_by_user_id' => $by->id,
-            'status' => Mailing::STATUS_QUEUED, 'queued_at' => now(),
+            'status' => Mailing::STATUS_QUEUED, 'queued_at' => now(), 'mandatory' => $mandatory,
             'values' => ['common' => $values, 'absender' => $this->senderName($by)],
         ]);
 
@@ -264,7 +264,29 @@ final class Mailings
     {
         $rendered = $this->renderDelivery($mailing, $delivery);
 
-        Mail::to($delivery->email)->send(new MailingMail($rendered['subject'], $rendered['html'], $delivery->group ?: 'internal'));
+        $topic = MailGroups::topicFor($delivery->group);
+        $unsubscribeUrl = ! $mailing->mandatory && $topic !== null ? $this->unsubscribes->url($delivery->email, $topic) : null;
+
+        Mail::to($delivery->email)->send(new MailingMail($rendered['subject'], $rendered['html'], $delivery->group ?: 'internal', $unsubscribeUrl, (bool) $mailing->mandatory));
+    }
+
+    /**
+     * Grund, warum an diese Adresse jetzt nicht gesendet wird (gesperrt oder abgemeldet), sonst null.
+     * Wird beim Senden geprüft, nicht nur beim Anlegen: Eine Abmeldung dazwischen wirkt noch.
+     */
+    public function deliveryBlock(Mailing $mailing, MailingDelivery $delivery): ?string
+    {
+        if ($this->suppressions->isSuppressed($delivery->email)) {
+            return 'Adresse gesperrt';
+        }
+
+        $topic = MailGroups::topicFor($delivery->group);
+
+        if (! $mailing->mandatory && $topic !== null && $this->unsubscribes->isUnsubscribed($delivery->email, $topic)) {
+            return 'Abgemeldet';
+        }
+
+        return null;
     }
 
     /** Bricht ein laufendes Schreiben ab: offene Zustellungen werden übersprungen, Gesendetes bleibt. */

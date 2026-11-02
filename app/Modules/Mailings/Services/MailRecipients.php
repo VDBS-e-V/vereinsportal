@@ -21,7 +21,7 @@ use App\Modules\Seminars\Models\Seminar;
  */
 final class MailRecipients
 {
-    public function __construct(private readonly NotificationPreferences $preferences) {}
+    public function __construct(private readonly NotificationPreferences $preferences, private readonly MailSuppressions $suppressions, private readonly MailUnsubscribes $unsubscribes) {}
 
     /** @return list<array{email: string, first: string, last: string}> */
     public function members(): array
@@ -63,13 +63,15 @@ final class MailRecipients
         $users = array_filter($users, fn (User $user): bool => $user->status === UserStatus::Active);
         $users = $this->preferences->filter($users, 'team_mailings');
 
-        return $this->unique(array_map(fn (User $user): array => [
+        $list = $this->unique(array_map(fn (User $user): array => [
             'email' => (string) $user->email,
             'first' => (string) ($user->person?->first_name ?? ''),
             'last' => (string) ($user->person?->last_name ?? ''),
             'fallback' => 'Teamer:in',
             'group' => 'team',
         ], $users));
+
+        return $this->filter($list, false)['kept'];
     }
 
     /**
@@ -78,7 +80,68 @@ final class MailRecipients
      * @param  list<string>  $groups
      * @return list<array{email: string, first: string, last: string, fallback: string, group: string}>
      */
-    public function groups(array $groups): array
+    public function groups(array $groups, bool $mandatory = false): array
+    {
+        return $this->filter($this->rawGroups($groups), $mandatory)['kept'];
+    }
+
+    /**
+     * Wie groups(), mit den Zahlen der Ausgeschlossenen: Abgemeldete und Gesperrte.
+     *
+     * @param  list<string>  $groups
+     * @return array{kept: list<array<string, string>>, unsubscribed: int, suppressed: int}
+     */
+    public function groupsWithStats(array $groups, bool $mandatory = false): array
+    {
+        return $this->filter($this->rawGroups($groups), $mandatory);
+    }
+
+    /**
+     * Nimmt Gesperrte heraus (immer) und Abgemeldete (außer bei Pflichtmitteilungen).
+     *
+     * @param  list<array<string, string>>  $list
+     * @return array{kept: list<array<string, string>>, unsubscribed: int, suppressed: int}
+     */
+    private function filter(array $list, bool $mandatory): array
+    {
+        if ($list === []) {
+            return ['kept' => [], 'unsubscribed' => 0, 'suppressed' => 0];
+        }
+
+        $emails = array_column($list, 'email');
+        $suppressed = $this->suppressions->among($emails);
+        $unsubscribed = $mandatory ? [] : $this->unsubscribes->among($emails);
+        $kept = [];
+        $countSuppressed = 0;
+        $countUnsubscribed = 0;
+
+        foreach ($list as $entry) {
+            $email = mb_strtolower($entry['email']);
+            $topic = MailGroups::topicFor($entry['group'] ?? null);
+
+            if (isset($suppressed[$email])) {
+                $countSuppressed++;
+
+                continue;
+            }
+
+            if ($topic !== null && isset($unsubscribed[$topic][$email])) {
+                $countUnsubscribed++;
+
+                continue;
+            }
+
+            $kept[] = $entry;
+        }
+
+        return ['kept' => $kept, 'unsubscribed' => $countUnsubscribed, 'suppressed' => $countSuppressed];
+    }
+
+    /**
+     * @param  list<string>  $groups
+     * @return list<array<string, string>>
+     */
+    private function rawGroups(array $groups): array
     {
         $list = [];
 

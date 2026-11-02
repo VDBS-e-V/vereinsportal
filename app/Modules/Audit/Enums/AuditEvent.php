@@ -79,6 +79,7 @@ enum AuditEvent: string
     case SystemTaskRun = 'system.task_run';
 
     case MailingSent = 'mailing.sent';
+    case MailSuppressionChanged = 'mailing.suppression_changed';
 
     public function label(): string
     {
@@ -144,6 +145,7 @@ enum AuditEvent: string
             self::AuditExported => 'Protokoll exportiert',
             self::SystemTaskRun => 'Systemaufgabe ausgeführt',
             self::MailingSent => 'Schreiben versendet',
+            self::MailSuppressionChanged => 'Adresssperre geändert',
         };
     }
 
@@ -165,7 +167,7 @@ enum AuditEvent: string
             self::OnboardingDocumentUploaded, self::TeamOnboardingStarted, self::TeamOnboardingCompleted => 'onboarding',
             self::AuditExported => 'audit',
             self::SystemTaskRun => 'system',
-            self::MailingSent => 'mailings',
+            self::MailingSent, self::MailSuppressionChanged => 'mailings',
         };
     }
 

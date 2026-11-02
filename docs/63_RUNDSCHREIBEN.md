@@ -40,5 +40,14 @@ Gespeichert werden Betreff, Text mit Platzhaltern, Gruppen und Zahl der Empfäng
 - **Aufbewahrung:** Die Zustelllisten mit den Adressen werden nach `MAILINGS_DELIVERY_RETENTION_DAYS` (Standard 90) von `php artisan mailings:prune` gelöscht (täglich im Planer). Betreff, Text und Zahlen bleiben.
 - Systemsteuerung › Zustand warnt, wenn ein Auftrag lange wartet oder ein Schreiben über 15 Minuten nicht versendet wurde (Hinweis auf den Worker).
 
+## Abmelden und Sperren (seit Update 2)
+- **Abmeldelink:** Jede abbestellbare Mail enthält im Fuß „Mitteilungen dieser Art abbestellen“ und die Kopfzeilen `List-Unsubscribe` und `List-Unsubscribe-Post: List-Unsubscribe=One-Click` (RFC 2369 und RFC 8058). Der Link `/abmelden/{Token}` enthält Adresse und Thema **verschlüsselt** und funktioniert ohne Anmeldung. Die Seite zeigt nur die verkürzte Adresse (`a***@…`), meldet mit einem Klick ab und lässt sich rückgängig machen. Der POST nimmt auch den One-Click-Aufruf der Postfachanbieter entgegen (ohne CSRF-Token, Drosselung 60 pro Minute).
+- **Themen:** Mitglieder (`member_info`), Teamende (`team_mailings`), Schulen (`school_mailings`). Abmeldung gilt je Thema. Interne Gruppen (Koordination, Bildungsreferenten, Vorstand, Geschäftsstelle) sind Organisationspost und nicht abbestellbar, die Mails haben keinen Abmeldelink.
+- **Konto und Link im Gleichschritt:** Teamende und Schulen mit Konto: Die Abmeldung per Link setzt die Einstellung unter Konto › Benachrichtigungen und umgekehrt.
+- **Pflichtmitteilung** (nur Vorstand): Kreuzfeld „Pflichtmitteilung (nicht abbestellbar)“ im Formular. Die Mail geht auch an Abgemeldete, enthält keinen Abmeldelink und trägt im Fuß den Hinweis, dass sie nicht abbestellt werden kann. Für Einladungen zur Mitgliederversammlung gedacht.
+- **Gesperrte Adressen** (Vorstand und Geschäftsstelle, Seite „Gesperrte Adressen“ in der Rundschreiben-Liste): Gesperrte bekommen **nie** ein Schreiben an Gruppen, auch keine Pflichtmitteilung. Sperren manuell setzen und aufheben; Gründe „Dauerhafter Zustellfehler“ und „Beschwerde“ sind für die späteren Bounce-Updates vorbereitet. Das allgemeine Protokoll nennt nur Aktion und Grund, nie die Adresse.
+- **Zahlen vor dem Senden:** Das Formular zeigt Erreichbare, Abgemeldete und Gesperrte.
+- **Prüfung beim Senden:** Der Worker prüft jede Adresse noch einmal unmittelbar vor dem Versand. Wer sich nach dem Anlegen abmeldet oder gesperrt wird, wird übersprungen (Zeile „übersprungen“ mit Grund).
+
 ## Grenzen
-Stürzt ein Worker mitten in einer Mail ab, kann diese eine Mail doppelt zugestellt werden (Zeilen im Zustand „wird gesendet“ werden nach 10 Minuten wieder freigegeben). Bounces und Abmeldelinks folgen in den nächsten Updates (siehe `docs/65_RUNDSCHREIBEN_ENTWICKLUNGSPLAN.md`).
+Stürzt ein Worker mitten in einer Mail ab, kann diese eine Mail doppelt zugestellt werden (Zeilen im Zustand „wird gesendet“ werden nach 10 Minuten wieder freigegeben). Bounces folgen im nächsten Update (siehe `docs/65_RUNDSCHREIBEN_ENTWICKLUNGSPLAN.md`).

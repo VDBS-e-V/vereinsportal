@@ -27,11 +27,11 @@ class Mailing extends Model
 
     public const STATUS_FAILED = 'failed';
 
-    protected $fillable = ['kind', 'subject', 'body', 'own_text', 'seminar_id', 'audience', 'groups', 'recipients_count', 'sent_count', 'failed_count', 'sent_by_user_id', 'status', 'queued_at', 'started_at', 'finished_at', 'cancelled_at', 'values'];
+    protected $fillable = ['kind', 'subject', 'body', 'own_text', 'seminar_id', 'audience', 'groups', 'recipients_count', 'sent_count', 'failed_count', 'sent_by_user_id', 'status', 'queued_at', 'started_at', 'finished_at', 'cancelled_at', 'values', 'mandatory'];
 
     protected function casts(): array
     {
-        return ['groups' => 'array', 'values' => 'array', 'queued_at' => 'datetime', 'started_at' => 'datetime', 'finished_at' => 'datetime', 'cancelled_at' => 'datetime'];
+        return ['groups' => 'array', 'values' => 'array', 'mandatory' => 'boolean', 'queued_at' => 'datetime', 'started_at' => 'datetime', 'finished_at' => 'datetime', 'cancelled_at' => 'datetime'];
     }
 
     /** @return BelongsTo<Seminar, $this> */

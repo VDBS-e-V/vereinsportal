@@ -62,6 +62,13 @@ class SendMailing implements ShouldQueue
             }
 
             $delivery = MailingDelivery::query()->find($deliveryId);
+            $block = $mailings->deliveryBlock($mailing, $delivery);
+
+            if ($block !== null) {
+                $delivery->forceFill(['status' => MailingDelivery::SKIPPED, 'error' => $block])->save();
+
+                continue;
+            }
 
             try {
                 $mailings->sendDelivery($mailing, $delivery);

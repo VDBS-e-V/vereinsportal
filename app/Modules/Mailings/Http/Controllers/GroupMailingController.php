@@ -54,12 +54,19 @@ class GroupMailingController extends Controller
             $options[$key] = ['label' => $group['label'].' ('.count($this->recipients->groups([$key])).')', 'hint' => $group['description']];
         }
 
+        $canMandatory = $this->user()->can('mailings.members');
+        $mandatory = $canMandatory && (bool) old('mandatory');
+        $stats = $selected === [] ? ['kept' => [], 'unsubscribed' => 0, 'suppressed' => 0] : $this->recipients->groupsWithStats($selected, $mandatory);
+
         return view('mailings.groups-form', [
             'base' => $this->base($request),
             'area' => $this->area($request),
             'groupOptions' => $options,
             'selected' => $selected,
-            'total' => $selected === [] ? 0 : count($this->recipients->groups($selected)),
+            'total' => count($stats['kept']),
+            'unsubscribedCount' => $stats['unsubscribed'],
+            'suppressedCount' => $stats['suppressed'],
+            'canMandatory' => $canMandatory,
             'placeholders' => MailPlaceholders::definitions('general'),
             'templates' => $this->templates->general()->mapWithKeys(fn (MailTemplate $t): array => [$t->id => $t->name])->all(),
             'template' => $template,
@@ -88,7 +95,7 @@ class GroupMailingController extends Controller
         $data = $this->validated($request);
 
         try {
-            $mailing = $this->mailings->sendGroups(array_values($data['groups']), $data['subject'], $data['body'], $this->meeting($data), $this->user());
+            $mailing = $this->mailings->sendGroups(array_values($data['groups']), $data['subject'], $data['body'], $this->meeting($data), $this->user(), $data['mandatory']);
         } catch (DomainException $exception) {
             return redirect()->route($this->base($request).'.create')->withInput($request->all())->with('error', $exception->getMessage());
         }
@@ -113,6 +120,7 @@ class GroupMailingController extends Controller
             'meeting_place' => ['nullable', 'string', 'max:200'],
             'meeting_link' => ['nullable', 'url', 'max:300'],
             'meeting_deadline' => ['nullable', 'date'],
+            'mandatory' => ['nullable', 'boolean'],
         ], [
             'groups.required' => 'Bitte wählen Sie mindestens eine Gruppe.',
             'groups.min' => 'Bitte wählen Sie mindestens eine Gruppe.',
@@ -125,6 +133,9 @@ class GroupMailingController extends Controller
             'meeting_link.url' => 'Bitte geben Sie eine vollständige Adresse mit https:// an.',
             'meeting_deadline.date' => 'Bitte geben Sie ein gültiges Datum ein.',
         ]);
+
+        // Pflichtmitteilungen (nicht abbestellbar) darf nur schreiben, wer auch die Mitglieder anschreiben darf
+        $data['mandatory'] = $this->user()->can('mailings.members') && (bool) ($data['mandatory'] ?? false);
 
         $errors = [];
 
