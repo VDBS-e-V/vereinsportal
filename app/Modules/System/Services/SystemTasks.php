@@ -101,9 +101,16 @@ final class SystemTasks
             throw new DomainException('Diese Aufgabe ist im aktuellen Zustand nicht möglich.');
         }
 
-        $lock = Cache::lock('system-task', 300);
+        // Sperre gegen parallele Läufe. Fehlt dem Cache-Speicher die Sperr-Tabelle, läuft die Aufgabe ohne Sperre weiter.
+        try {
+            $lock = Cache::lock('system-task', 300);
+            $acquired = $lock->get();
+        } catch (Throwable) {
+            $lock = null;
+            $acquired = true;
+        }
 
-        if (! $lock->get()) {
+        if (! $acquired) {
             throw new DomainException('Es läuft bereits eine Aufgabe. Bitte warten Sie, bis sie beendet ist.');
         }
 
@@ -128,7 +135,11 @@ final class SystemTasks
             $code = 1;
             $output = 'Fehler: '.$exception->getMessage();
         } finally {
-            $lock->release();
+            try {
+                $lock?->release();
+            } catch (Throwable) {
+                // Die Sperre läuft nach fünf Minuten von selbst ab.
+            }
         }
 
         $run->forceFill([
