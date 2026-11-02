@@ -65,7 +65,7 @@ it('adds chosen people once, ignores unsubscribes for them but never suppressed 
     $tokens = ['u:'.$team->id, 'm:'.$membership->id, 'k:'.$contact->id, 'k:'.$noMail->id, 'k:'.$contact->id, 'x:1', 'u:999999'];
 
     expect(rcEmails($recipients->groups([], false, [], $tokens)))->toBe(['sekretariat@beispiel.example', 'tina@beispiel.example'])
-        ->and(rcEmails($recipients->groups(['team'], false, [], ['u:'.$team->id])))->toBe([])
+        ->and(rcEmails($recipients->groups(['team'], false, [], ['u:'.$team->id])))->toBe(['tina@beispiel.example'])
         ->and(array_column($recipients->describe($tokens), 'label'))->toBe([$team->person->fullName(), 'Mia Muster', 'Frau Beispiel']);
 });
 
