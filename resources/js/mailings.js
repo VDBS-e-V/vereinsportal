@@ -67,3 +67,89 @@ if (subject && body && (buttons.length > 0 || picker)) {
         });
     }
 }
+
+/*
+ * Einzelne Personen: Die Mehrfachauswahl kennt zunächst nur die schon gewählten Personen. Tippt man im Filterfeld mindestens zwei Buchstaben, holt dieses
+ * Skript passende Konten und Mitglieder vom Server und hängt sie als wählbare Einträge an. Ohne JavaScript bleiben nur die gewählten Personen sichtbar.
+ */
+const peopleBox = document.querySelector('[data-people-url]');
+
+if (peopleBox) {
+    const filter = peopleBox.querySelector('[data-vdbs-multiselect-filter]');
+    const list = peopleBox.querySelector('.vdbs-multiselect__options');
+    const empty = peopleBox.querySelector('[data-vdbs-multiselect-empty]');
+    let timer = null;
+
+    const addOption = (item) => {
+        const id = `people-option-${item.token.replace(':', '-')}`;
+
+        if (document.getElementById(id)) {
+            return;
+        }
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'vdbs-choice vdbs-choice--checkbox vdbs-multiselect__option';
+        wrapper.dataset.vdbsMultiselectOption = '';
+        wrapper.dataset.remote = '1';
+
+        const row = document.createElement('div');
+        row.className = 'vdbs-choice__row';
+
+        const input = document.createElement('input');
+        input.className = 'vdbs-choice__input';
+        input.type = 'checkbox';
+        input.id = id;
+        input.name = 'people[]';
+        input.value = item.token;
+
+        const label = document.createElement('label');
+        label.className = 'vdbs-choice__label';
+        label.htmlFor = id;
+        label.textContent = `${item.label} (${item.hint})`;
+
+        row.append(input, label);
+        wrapper.append(row);
+        list.append(wrapper);
+    };
+
+    filter?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
+    });
+
+    filter?.addEventListener('input', () => {
+        clearTimeout(timer);
+        const query = filter.value.trim();
+
+        // Treffer der letzten Suche, die nicht gewählt wurden, wieder entfernen
+        list.querySelectorAll('[data-remote="1"]').forEach((option) => {
+            if (!option.querySelector('input:checked')) {
+                option.remove();
+            }
+        });
+
+        if (query.length < 2) {
+            return;
+        }
+
+        timer = setTimeout(() => {
+            fetch(`${peopleBox.dataset.peopleUrl}?q=${encodeURIComponent(query)}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
+                .then((response) => (response.ok ? response.json() : { results: [] }))
+                .then((data) => {
+                    (data.results || []).forEach(addOption);
+
+                    list.querySelectorAll('[data-vdbs-multiselect-option]').forEach((option) => {
+                        if (option.dataset.remote === '1') {
+                            option.hidden = false;
+                        }
+                    });
+
+                    if (empty) {
+                        empty.hidden = list.querySelectorAll('[data-vdbs-multiselect-option]:not([hidden])').length > 0;
+                    }
+                })
+                .catch(() => {});
+        }, 250);
+    });
+}

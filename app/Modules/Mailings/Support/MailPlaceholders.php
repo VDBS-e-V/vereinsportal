@@ -16,6 +16,10 @@ final class MailPlaceholders
         'absender' => 'Name der Person, die das Schreiben verschickt',
         'verein' => 'Name des Vereins',
         'portal' => 'Adresse des Portals',
+        'email' => 'E-Mail-Adresse der empfangenden Person',
+        'heute' => 'Datum des Versands',
+        'jahr' => 'Jahr des Versands',
+        'abmelden' => 'Link zum Abbestellen dieser Mitteilungen (leer bei Pflichtmitteilungen, dafür {abmelden|Standardtext} nutzen)',
     ];
 
     /** Zusätzlich bei Schreiben an Gruppen (aus den Angaben zu Termin oder Versammlung). @var array<string, string> */
@@ -27,6 +31,8 @@ final class MailPlaceholders
         'ort' => 'Ort der Versammlung',
         'link' => 'Link zur Online-Teilnahme oder zu Unterlagen',
         'frist' => 'Anmelde- oder Antragsfrist',
+        'wochentag' => 'Wochentag der Versammlung',
+        'tage_bis' => 'Anzahl der Tage vom Versand bis zur Versammlung',
     ];
 
     /** Zusätzlich bei Mitteilungen zu Seminaren. @var array<string, string> */

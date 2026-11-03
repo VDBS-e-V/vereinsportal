@@ -27,22 +27,11 @@
         <input type="hidden" name="draft_id" value="{{ $draftId }}">
 
         <x-vdbs.forms.form-section title="Empfänger">
-            <x-vdbs.forms.checkbox-group name="groups" legend="Gruppen" :options="$groupOptions" :value="$selected" hint="Mehrere Gruppen sind möglich. Die Zahl in Klammern nennt die erreichbaren Personen (ohne Abbestellte und Gesperrte). Wählen Sie mindestens eine Gruppe oder eine einzelne Person." />
-            <x-vdbs.forms.checkbox-group name="exclude" legend="Außer" :options="$excludeOptions" :value="$excludedGroups" hint="Wer in einer dieser Gruppen ist, wird nicht angeschrieben, auch wenn die Person zu einer gewählten Gruppe gehört." />
-
-            <fieldset class="vdbs-mailings__people" style="border:0;padding:0;margin:0">
-                <legend>Einzelne Personen</legend>
-                <p style="margin:0 0 var(--space-2);color:var(--text-muted)">Direkt gewählte Personen bekommen das Schreiben auch dann, wenn sie keine Sammelmitteilungen wollen. Gesperrte Adressen nie.</p>
-                <div id="people-chips">
-                    @foreach ($chips as $chip)
-                        <label style="display:inline-flex;gap:var(--space-2);margin:0 var(--space-4) var(--space-2) 0"><input type="checkbox" name="people[]" value="{{ $chip['token'] }}" checked> {{ $chip['label'] }}</label>
-                    @endforeach
-                </div>
-                <div data-people-url="{{ route($base.'.people') }}" style="position:relative;max-width:28rem">
-                    <x-vdbs.forms.input name="people_search" label="Person suchen" :optional="true" autocomplete="off" data-people-search="1" hint="Mindestens zwei Buchstaben des Namens. Abwählen entfernt die Person wieder." />
-                    <ul id="people-results" hidden style="list-style:none;margin:0;padding:0"></ul>
-                </div>
-            </fieldset>
+            <x-vdbs.forms.multi-select name="groups" label="Gruppen" :searchable="true" placeholder="Gruppen wählen oder suchen" search-label="Gruppen filtern" :options="$groupOptions" :value="$selected" hint="Mehrere Gruppen sind möglich. Die Zahl in Klammern nennt die erreichbaren Personen (ohne Abbestellte und Gesperrte). Wählen Sie mindestens eine Gruppe oder eine einzelne Person." />
+            <x-vdbs.forms.multi-select name="exclude" label="Außer" :optional="true" :searchable="true" placeholder="Gruppen ausnehmen" search-label="Gruppen filtern" :options="$excludeOptions" :value="$excludedGroups" hint="Wer in einer dieser Gruppen ist, wird nicht angeschrieben, auch wenn die Person zu einer gewählten Gruppe gehört." />
+            <div data-people-url="{{ route($base.'.people') }}">
+                <x-vdbs.forms.multi-select name="people" label="Einzelne Personen" :optional="true" :searchable="true" placeholder="Person suchen (mindestens zwei Buchstaben)" search-label="Name suchen" :options="$peopleOptions" :value="array_keys($peopleOptions)" hint="Tippen Sie einen Namen, die Treffer erscheinen in der Liste. Direkt gewählte Personen bekommen das Schreiben auch dann, wenn sie keine Sammelmitteilungen wollen, gesperrte Adressen nie." />
+            </div>
 
             @if ($selected !== [] || $chips !== [])
                 <p style="margin:0;color:var(--text-muted)">Erreichbar: {{ $total }} Personen. Nicht angeschrieben: {{ $excludedCount }} durch „Außer“, {{ $unsubscribedCount }} Abgemeldete, {{ $suppressedCount }} gesperrte Adressen.</p>
@@ -162,52 +151,4 @@
         </section>
     @endif
 
-    <script>
-        (function () {
-            var box = document.querySelector('[data-people-url]');
-            if (!box) { return; }
-            var input = box.querySelector('[data-people-search]');
-            var list = document.getElementById('people-results');
-            var chips = document.getElementById('people-chips');
-            var timer = null;
-
-            function addChip(item) {
-                if (chips.querySelector('input[value="' + item.token + '"]')) { return; }
-                var label = document.createElement('label');
-                label.style.cssText = 'display:inline-flex;gap:var(--space-2);margin:0 var(--space-4) var(--space-2) 0';
-                var check = document.createElement('input');
-                check.type = 'checkbox'; check.name = 'people[]'; check.value = item.token; check.checked = true;
-                label.appendChild(check);
-                label.appendChild(document.createTextNode(' ' + item.label));
-                chips.appendChild(label);
-            }
-
-            function show(results) {
-                list.textContent = '';
-                results.forEach(function (item) {
-                    var li = document.createElement('li');
-                    var button = document.createElement('button');
-                    button.type = 'button';
-                    button.textContent = item.label + ' (' + item.hint + ')';
-                    button.addEventListener('click', function () { addChip(item); list.hidden = true; input.value = ''; });
-                    li.appendChild(button);
-                    list.appendChild(li);
-                });
-                list.hidden = results.length === 0;
-            }
-
-            input.addEventListener('keydown', function (event) { if (event.key === 'Enter') { event.preventDefault(); } });
-            input.addEventListener('input', function () {
-                clearTimeout(timer);
-                var q = input.value.trim();
-                if (q.length < 2) { list.hidden = true; return; }
-                timer = setTimeout(function () {
-                    fetch(box.dataset.peopleUrl + '?q=' + encodeURIComponent(q), { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
-                        .then(function (response) { return response.ok ? response.json() : { results: [] }; })
-                        .then(function (data) { show(data.results || []); })
-                        .catch(function () { list.hidden = true; });
-                }, 250);
-            });
-        })();
-    </script>
 </x-layouts.app>

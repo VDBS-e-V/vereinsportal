@@ -79,5 +79,11 @@ Gespeichert werden Betreff, Text mit Platzhaltern, Gruppen und Zahl der Empfäng
 - **Textversion:** Jede Mail enthält zusätzlich einen Nur-Text-Teil (Absätze, Listen, Links als „Text (Adresse)“).
 - **Lesbarkeitshinweise** in der Vorschau: nichtssagende Linktexte („hier“), leere oder übersprungene Überschriften, Bilder ohne Alternativtext, sehr lange Absätze. Nur Hinweise, nichts wird gesperrt.
 
+## Auswahl per Mehrfachauswahl und weitere Platzhalter (seit Update 7)
+
+- **Gruppen, „Außer“ und einzelne Personen** sind Mehrfachauswahlen mit Suchfeld. Bei den Personen holt das Suchfeld ab zwei Buchstaben passende Konten und Mitglieder vom Server (nur Namen). Ohne JavaScript bleiben die schon gewählten Personen sichtbar, die Suche braucht JavaScript (`npm run build`).
+- **Neue Platzhalter für alle Schreiben:** `{email}` (Adresse der empfangenden Person), `{heute}` (Datum des Versands), `{jahr}`, `{abmelden}` (Link zum Abbestellen, bei Pflichtmitteilungen und Direktauswahl leer, dann greift ein Standardtext wie `{abmelden|nicht möglich}`).
+- **Neu bei Schreiben an Gruppen:** `{wochentag}` und `{tage_bis}` (Tage vom Versand bis zur Versammlung, zum Sendezeitpunkt berechnet, auch bei geplantem Versand). Beide brauchen das Datum der Versammlung.
+
 ## Grenzen
 Stürzt ein Worker mitten in einer Mail ab, kann diese eine Mail doppelt zugestellt werden (Zeilen im Zustand „wird gesendet“ werden nach 10 Minuten wieder freigegeben). Bounces folgen im nächsten Update (siehe `docs/65_RUNDSCHREIBEN_ENTWICKLUNGSPLAN.md`).

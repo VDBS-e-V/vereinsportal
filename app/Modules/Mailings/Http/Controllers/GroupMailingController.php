@@ -75,7 +75,7 @@ class GroupMailingController extends Controller
         $options = [];
 
         foreach ($allowed as $key => $group) {
-            $options[$key] = ['label' => $group['label'].' ('.count($this->recipients->groups([$key])).')', 'hint' => $group['description']];
+            $options[$key] = $group['label'].' ('.count($this->recipients->groups([$key])).')';
         }
 
         $canMandatory = $user->can('mailings.members');
@@ -91,6 +91,7 @@ class GroupMailingController extends Controller
             'excludedGroups' => $excluded,
             'excludeOptions' => array_map(fn (array $group): string => $group['label'], $allowed),
             'chips' => $chips,
+            'peopleOptions' => array_column($chips, 'label', 'token'),
             'excludedCount' => $stats['excluded'],
             'total' => $total,
             'unsubscribedCount' => $stats['unsubscribed'],

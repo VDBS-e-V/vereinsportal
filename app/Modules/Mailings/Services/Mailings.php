@@ -54,6 +54,8 @@ final class Mailings
             'ort' => trim((string) ($meeting['place'] ?? '')),
             'link' => trim((string) ($meeting['link'] ?? '')),
             'frist' => $deadline,
+            'wochentag' => $date?->isoFormat('dddd') ?? '',
+            'tage_bis' => $date !== null ? (string) (int) today()->diffInDays($date->copy()->startOfDay(), false) : '',
         ];
     }
 
@@ -427,9 +429,9 @@ final class Mailings
      * @param  array<string, string>  $recipient
      * @return array{subject: string, html: string}
      */
-    private function render(string $subject, string $body, array $values, array $recipient, string $senderName): array
+    private function render(string $subject, string $body, array $values, array $recipient, string $senderName, bool $mandatory = false): array
     {
-        $all = $this->personal($recipient, $senderName) + $values;
+        $all = $this->personal($recipient, $senderName, $mandatory) + $values;
 
         return ['subject' => MailPlaceholders::render($subject, $all), 'html' => MailPlaceholders::render($body, $all, true, self::RAW)];
     }
@@ -515,7 +517,7 @@ final class Mailings
     {
         $recipient = ['email' => $delivery->email, 'first' => $delivery->first_name, 'last' => $delivery->last_name, 'fallback' => $delivery->fallback, 'group' => $delivery->group];
 
-        return $this->render($mailing->subject, $mailing->body, (array) ($mailing->values['common'] ?? []), $recipient, (string) ($mailing->values['absender'] ?? 'Verein'));
+        return $this->render($mailing->subject, $mailing->body, (array) ($mailing->values['common'] ?? []), $recipient, (string) ($mailing->values['absender'] ?? 'Verein'), (bool) $mailing->mandatory);
     }
 
     /** Sendet die Mail einer Zustellung. Wirft bei einem Fehler des Mailversands. */
@@ -623,8 +625,9 @@ final class Mailings
      * @param  array<string, string>  $recipient
      * @return array<string, string>
      */
-    private function personal(array $recipient, string $senderName): array
+    private function personal(array $recipient, string $senderName, bool $mandatory = false): array
     {
+        $topic = MailGroups::topicFor($recipient['group'] ?? null);
         $first = $recipient['first'] !== '' ? $recipient['first'] : ($recipient['fallback'] ?? 'Mitglied');
         $name = trim($recipient['first'].' '.$recipient['last']);
 
@@ -635,6 +638,10 @@ final class Mailings
             'absender' => $senderName,
             'verein' => 'Verband für Demokratiebildung und Bibliotheken an Schulen e. V.',
             'portal' => url('/'),
+            'email' => (string) ($recipient['email'] ?? ''),
+            'heute' => now()->format('d.m.Y'),
+            'jahr' => (string) now()->year,
+            'abmelden' => ! $mandatory && $topic !== null && filled($recipient['email'] ?? null) ? $this->unsubscribes->url((string) $recipient['email'], $topic) : '',
         ];
     }
 

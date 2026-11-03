@@ -12,7 +12,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /** Anhänge eines Entwurfs (Vorstand, Geschäftsstelle): hochladen, entfernen, herunterladen. Hochladen und Entfernen nur die Autorin des Entwurfs. */
@@ -65,7 +64,7 @@ class MailingAttachmentController extends Controller
 
     private function back(Request $request, Mailing $mailing): RedirectResponse
     {
-        return redirect()->route(Str::beforeLast((string) $request->route()?->getName(), '.').'.create', ['entwurf' => $mailing->id]);
+        return redirect()->route(implode('.', array_slice(explode('.', (string) $request->route()?->getName()), 0, 2)).'.create', ['entwurf' => $mailing->id]);
     }
 
     private function user(): User
