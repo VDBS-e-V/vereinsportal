@@ -216,6 +216,8 @@ Entscheidung 2 (Satzungswortlaut) bestimmt Standardfrist und Wortlaut der Hinwei
 
 ## Phase 7: Zustellqualität und Bounces
 
+**Stand: umgesetzt (Update 8)** mit neutralem Webhook-Format; ein dienstspezifischer Adapter folgt mit der Dienstwahl.
+
 ### Umfang
 - **E1 Absenderprüfung** in der Systemsteuerung: DNS-Abfrage für die Absenderdomain (SPF vorhanden, DMARC-Eintrag vorhanden, optional DKIM-Selektor aus der Konfiguration). Ergebnis als Ampel mit Erklärung, kein Sendestopp.
 - **E4 Bounces und Beschwerden:** Eingehender Webhook (`POST /webhooks/mail/{dienst}` mit gemeinsamem Geheimnis und Signaturprüfung), Adapter-Schnittstelle `BounceAdapter` mit einer Umsetzung für den gewählten Dienst. Harte Bounces und Beschwerden schreiben in `mail_suppressions`, weiche zählen mit (Sperre nach 5 in Folge, Annahme).
@@ -233,6 +235,8 @@ Entscheidung 1 (Versanddienst) legt den Adapter fest. Ohne Dienstwahl bleibt E1 
 ---
 
 ## Phase 8: Feinschliff
+
+**Stand:** C10, D8 und I3 umgesetzt (Update 8). C9 (Mehrsprachigkeit) bewusst offen, bis es gewünscht wird. Offen aus Phase 5: Filter und Segmente (B5/B7).
 
 - **C9 Mehrsprachige Vorlagen** (nur falls gewünscht: Sprache je Vorlage, Auswahl beim Schreiben).
 - **C10 Versionsverlauf** der Vorlagen (Tabelle `mail_template_versions`, Wiederherstellen).

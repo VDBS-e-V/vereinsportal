@@ -85,5 +85,14 @@ Gespeichert werden Betreff, Text mit Platzhaltern, Gruppen und Zahl der Empfäng
 - **Neue Platzhalter für alle Schreiben:** `{email}` (Adresse der empfangenden Person), `{heute}` (Datum des Versands), `{jahr}`, `{abmelden}` (Link zum Abbestellen, bei Pflichtmitteilungen und Direktauswahl leer, dann greift ein Standardtext wie `{abmelden|nicht möglich}`).
 - **Neu bei Schreiben an Gruppen:** `{wochentag}` und `{tage_bis}` (Tage vom Versand bis zur Versammlung, zum Sendezeitpunkt berechnet, auch bei geplantem Versand). Beide brauchen das Datum der Versammlung.
 
+## Zustellqualität, Rückmeldungen und Nachfassen (seit Update 8)
+
+- **Seite „Zustellqualität“** (Geschäftsstelle, `mail_templates.manage`): je Monat Schreiben, Empfänger, Fehlerquote, neue Sperren und Abmeldungen als Tabelle. **Absenderprüfung** per DNS (SPF, DMARC, bei eingestelltem `MAILINGS_DKIM_SELECTOR` auch DKIM) auf Knopfdruck, nur als Ampel mit Erklärung.
+- **Warnung bei hoher Fehlerquote:** Über `MAILINGS_FAILURE_WARNING_PERCENT` (Standard 5 %) erscheint ein Hinweis auf der Seite des Schreibens und in den Zustandsprüfungen der Systemsteuerung.
+- **Rückmelde-Webhook** `POST /webhooks/mail`: Der Versanddienst sendet im Kopf `X-Signature` den HMAC-SHA256 des Inhalts, berechnet mit `MAILINGS_WEBHOOK_SECRET`. Ohne gesetztes Geheimnis antwortet die Adresse mit 404. Format (neutral, `GenericBounceAdapter`): `{"events":[{"type":"hard_bounce|soft_bounce|complaint","email":"..."}]}`. Dauerhafte Fehler und Beschwerden sperren sofort, vorläufige Fehler zählen und sperren nach `MAILINGS_SOFT_BOUNCE_LIMIT` (Standard 5, Zählung verfällt nach 30 Tagen, Annahme). Für einen bestimmten Dienst wird eine weitere Umsetzung von `Contracts\BounceAdapter` ergänzt.
+- **Nachfassen:** Auf der Seite eines Schreibens mit fehlgeschlagenen Zustellungen legt „Nachfassen an nicht Erreichte“ einen Entwurf mit denselben Adressen an (höchstens 200, nur solange die Zustellliste noch gespeichert ist).
+- **Versionsverlauf der Vorlagen:** Beim Speichern einer Vorlage bleibt der vorherige Stand erhalten (die letzten 20) und lässt sich wiederherstellen. Gilt für Vorlagen für Rundschreiben, nicht für den festen Rahmen der Koordination.
+- Anleitungen in einfacher Sprache: `docs/66_RUNDSCHREIBEN_ANLEITUNGEN.md`.
+
 ## Grenzen
 Stürzt ein Worker mitten in einer Mail ab, kann diese eine Mail doppelt zugestellt werden (Zeilen im Zustand „wird gesendet“ werden nach 10 Minuten wieder freigegeben). Bounces folgen im nächsten Update (siehe `docs/65_RUNDSCHREIBEN_ENTWICKLUNGSPLAN.md`).

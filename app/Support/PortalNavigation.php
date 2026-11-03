@@ -141,6 +141,7 @@ final class PortalNavigation
                         ['description' => 'Rechtstexte und andere Seiten.', 'label' => 'Seiten', 'route' => 'pages.admin.index', 'match' => 'pages.admin.*', 'can' => 'pages.manage'],
                         ['description' => 'E-Mails an Gruppen wie Teamende, Schulen oder Koordination.', 'label' => 'Rundschreiben', 'route' => 'mailings.office.index', 'match' => 'mailings.office.*', 'can' => 'mailings.send'],
                         ['description' => 'Vorlagen für Rundschreiben und für Mitteilungen an Teamende.', 'label' => 'Mailvorlagen', 'route' => 'mailings.templates.index', 'match' => 'mailings.templates.*', 'can' => 'mail_templates.manage'],
+                        ['description' => 'Fehlerquote, Sperren und Abmeldungen der Rundschreiben, Prüfung der Absenderdomain.', 'label' => 'Zustellqualität', 'route' => 'mailings.quality.index', 'match' => 'mailings.quality.*', 'can' => 'mail_templates.manage'],
                     ]],
                     ['label' => 'Preise & Angebote', 'group' => true, 'route' => 'seminar-quotes.index', 'children' => [
                         ['description' => 'Kostenvoranschläge für Seminare.', 'label' => 'Kostenvoranschläge', 'route' => 'seminar-quotes.index', 'match' => 'seminar-quotes.*', 'can' => 'seminars.view'],

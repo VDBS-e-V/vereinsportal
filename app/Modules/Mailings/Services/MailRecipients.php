@@ -293,7 +293,7 @@ final class MailRecipients
         $allowed = [];
 
         foreach (array_unique(array_map('strval', $tokens)) as $token) {
-            if (! preg_match('/^([umk]):\d+$/', $token, $match)) {
+            if (! preg_match('/^([umke]):.+$/', $token, $match) || ! preg_match('/^([umk]:\d+|e:[^\s@]+@[^\s@]+)$/', $token)) {
                 continue;
             }
 
@@ -374,6 +374,12 @@ final class MailRecipients
         }
 
         $found = [];
+
+        foreach ($tokens as $token) {
+            if (preg_match('/^e:([^\s@]+@[^\s@]+)$/', (string) $token, $match) && filter_var($match[1], FILTER_VALIDATE_EMAIL) !== false) {
+                $found[(string) $token] = ['label' => mb_strtolower($match[1]), 'entry' => ['email' => mb_strtolower($match[1]), 'first' => '', 'last' => '', 'fallback' => 'Hallo', 'group' => 'direct']];
+            }
+        }
 
         if ($ids['u'] !== []) {
             foreach (User::query()->whereIn('id', $ids['u'])->where('status', UserStatus::Active->value)->with('person')->get() as $user) {

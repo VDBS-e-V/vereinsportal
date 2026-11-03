@@ -6,6 +6,11 @@
     $skipped = (int) ($counts['skipped'] ?? 0);
     $active = $mailing->isActive();
     $who = $mailing->sentBy?->person?->fullName() ?? $mailing->sentBy?->email ?? 'unbekannt';
+    $failedForRate = max($failedCount, (int) $mailing->failed_count);
+    $failureRate = (int) $mailing->recipients_count > 0 ? $failedForRate / (int) $mailing->recipients_count * 100 : 0;
+    $failureThreshold = (int) config('portal.mailings.failure_warning_percent', 5);
+    $failureWarning = ! $active && $failedForRate > 0 && $failureRate > $failureThreshold;
+    $failureText = 'Bei '.number_format($failureRate, 1, ',', '.').' % der Adressen ist die Zustellung fehlgeschlagen (Warnschwelle '.$failureThreshold.' %). Prüfen Sie die Adressen unten, die Zustellqualität und die Absenderprüfung.';
     $meta = $mailing->created_at?->format('d.m.Y, H:i').' von '.$who;
 @endphp
 
@@ -20,12 +25,19 @@
             @elseif ($failedCount > 0)
                 <form method="post" action="{{ route($base.'.retry', $mailing) }}">@csrf<x-vdbs.actions.button type="submit" icon="refresh-cw">Fehlgeschlagene erneut versuchen</x-vdbs.actions.button></form>
             @endif
+            @if ($hasCertificate && ! $active && $failedCount > 0 && $canSeeAddresses)
+                <form method="post" action="{{ route($base.'.followup', $mailing) }}">@csrf<x-vdbs.actions.button type="submit" variant="secondary" icon="mail">Nachfassen an nicht Erreichte</x-vdbs.actions.button></form>
+            @endif
             @if ($hasCertificate && ! $active)
                 <x-vdbs.actions.button variant="secondary" icon="printer" :href="route($base.'.certificate', $mailing)">Versandbescheinigung</x-vdbs.actions.button>
             @endif
             <x-vdbs.actions.button variant="secondary" :href="route($base.'.index')">Zur Liste</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.layout.page-header>
+
+    @if ($failureWarning)
+        <x-vdbs.feedback.alert variant="warning"><strong>Hohe Fehlerquote:</strong> {{ $failureText }}</x-vdbs.feedback.alert>
+    @endif
 
     @if ($active)
         <x-vdbs.feedback.alert variant="info">Das Schreiben wird im Hintergrund gesendet. Diese Seite aktualisiert sich alle paar Sekunden. Sie können sie schließen, der Versand läuft weiter. Läuft kein Worker (<code>php artisan queue:work</code>), bleibt das Schreiben in der Warteschlange.</x-vdbs.feedback.alert>

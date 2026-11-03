@@ -1,9 +1,11 @@
 <?php
 
+use App\Modules\Mailings\Http\Controllers\DeliveryQualityController;
 use App\Modules\Mailings\Http\Controllers\GroupMailingController;
 use App\Modules\Mailings\Http\Controllers\MailingAttachmentController;
 use App\Modules\Mailings\Http\Controllers\MailingProgressController;
 use App\Modules\Mailings\Http\Controllers\MailSnippetController;
+use App\Modules\Mailings\Http\Controllers\MailWebhookController;
 use App\Modules\Mailings\Http\Controllers\MailTemplateController;
 use App\Modules\Mailings\Http\Controllers\SuppressionController;
 use App\Modules\Mailings\Http\Controllers\UnsubscribeController;
@@ -32,6 +34,7 @@ foreach (['board' => ['vorstand/mitteilungen', 'mailings.members'], 'office' => 
         Route::get('/{mailing}/bescheinigung', [MailingProgressController::class, 'certificate'])->whereNumber('mailing')->name('certificate');
         Route::post('/{mailing}/abbrechen', [MailingProgressController::class, 'cancel'])->whereNumber('mailing')->name('cancel');
         Route::post('/{mailing}/wiederholen', [MailingProgressController::class, 'retry'])->whereNumber('mailing')->name('retry');
+        Route::post('/{mailing}/nachfassen', [MailingProgressController::class, 'followUp'])->middleware('throttle:10,10')->whereNumber('mailing')->name('followup');
         Route::post('/{mailing}/anhaenge', [MailingAttachmentController::class, 'store'])->middleware('throttle:30,10')->whereNumber('mailing')->name('attachments.store');
         Route::get('/{mailing}/anhaenge/{attachment}', [MailingAttachmentController::class, 'download'])->whereNumber(['mailing', 'attachment'])->name('attachments.download');
         Route::delete('/{mailing}/anhaenge/{attachment}', [MailingAttachmentController::class, 'destroy'])->whereNumber(['mailing', 'attachment'])->name('attachments.destroy');
@@ -65,6 +68,7 @@ Route::middleware(['web', 'auth', 'can:mail_templates.manage'])->prefix('geschae
     Route::delete('/seminar', [MailTemplateController::class, 'resetTeam'])->name('team.reset');
     Route::get('/{template}/bearbeiten', [MailTemplateController::class, 'edit'])->whereNumber('template')->name('edit');
     Route::put('/{template}', [MailTemplateController::class, 'update'])->whereNumber('template')->name('update');
+    Route::post('/{template}/versionen/{version}', [MailTemplateController::class, 'restore'])->whereNumber(['template', 'version'])->name('restore');
     Route::delete('/{template}', [MailTemplateController::class, 'destroy'])->whereNumber('template')->name('destroy');
 });
 
@@ -77,3 +81,11 @@ Route::middleware(['web', 'throttle:60,1'])->prefix('abmelden')->name('mailings.
     Route::post('/{token}', [UnsubscribeController::class, 'store'])->where('token', '[A-Za-z0-9_\-]+')->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class, \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])->name('store');
     Route::post('/{token}/anmelden', [UnsubscribeController::class, 'resubscribe'])->where('token', '[A-Za-z0-9_\-]+')->name('resubscribe');
 });
+
+Route::middleware(['web', 'auth', 'can:mail_templates.manage'])->prefix('geschaeftsstelle/zustellqualitaet')->name('mailings.quality.')->group(function (): void {
+    Route::get('/', [DeliveryQualityController::class, 'index'])->name('index');
+    Route::post('/pruefen', [DeliveryQualityController::class, 'check'])->middleware('throttle:10,1')->name('check');
+});
+
+// Rückmeldungen des Versanddienstes: ohne Sitzung und ohne CSRF, gesichert durch die Signatur im Kopf X-Signature
+Route::middleware('throttle:120,1')->post('/webhooks/mail', MailWebhookController::class)->name('mailings.webhook');

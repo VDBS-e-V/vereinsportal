@@ -196,6 +196,25 @@ class MailingProgressController extends Controller
         return redirect()->route($base.'.show', $mailing)->with('success', 'Der Versand wurde abgebrochen. Bereits gesendete Nachrichten bleiben gesendet.');
     }
 
+    /** Nachfassen: legt einen Entwurf mit demselben Text an die Adressen an, bei denen die Zustellung fehlgeschlagen ist. */
+    public function followUp(Request $request, Mailing $mailing): RedirectResponse
+    {
+        $base = $this->base($request);
+        $this->ensureKind($base, $mailing);
+        abort_unless($mailing->addressesVisibleTo($this->user()) && ! $mailing->isPreparation() && ! $mailing->isActive(), 403);
+
+        $emails = $mailing->deliveries()->where('status', MailingDelivery::FAILED)->orderBy('id')->limit(200)->pluck('email')->map(fn ($email): string => 'e:'.mb_strtolower((string) $email))->unique()->values()->all();
+
+        if ($emails === []) {
+            return redirect()->route($base.'.show', $mailing)->with('error', 'Es gibt keine fehlgeschlagenen Adressen mehr. Die Zustelllisten werden nach der Aufbewahrungsfrist gelöscht.');
+        }
+
+        $meeting = (array) (($mailing->payload ?? [])['meeting'] ?? []);
+        $draft = $this->mailings->saveDraft(['groups' => [], 'subject' => $mailing->subject, 'body' => $mailing->body, 'meeting' => $meeting, 'mandatory' => (bool) $mailing->mandatory, 'send_at' => null, 'exclude' => [], 'people' => $emails], $this->user(), Str::afterLast($base, '.'));
+
+        return redirect()->route($base.'.create', ['entwurf' => $draft->id])->with('success', 'Der Entwurf an die '.count($emails).' nicht erreichten Adressen ist angelegt. Prüfen Sie die Adressen, bevor Sie senden.');
+    }
+
     public function retry(Request $request, Mailing $mailing): RedirectResponse
     {
         $base = $this->base($request);

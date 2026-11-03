@@ -4,6 +4,7 @@ namespace App\Modules\Mailings\Services;
 
 use App\Modules\Access\Models\User;
 use App\Modules\Mailings\Models\MailTemplate;
+use App\Modules\Mailings\Models\MailTemplateVersion;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -61,11 +62,27 @@ final class MailTemplates
         return MailTemplate::query()->create(['key' => 'vorlage-'.Str::lower(Str::random(12)), 'kind' => MailTemplate::KIND_GENERAL, 'name' => trim($name), 'description' => filled($description) ? trim((string) $description) : null, 'subject' => trim($subject), 'body' => $body, 'updated_by_user_id' => $by->id]);
     }
 
+    /** Höchstens so viele frühere Stände je Vorlage bleiben erhalten. */
+    public const KEEP_VERSIONS = 20;
+
     public function updateGeneral(MailTemplate $template, string $name, ?string $description, string $subject, string $body, User $by): MailTemplate
     {
+        if ($template->subject !== trim($subject) || $template->body !== $body || $template->name !== trim($name)) {
+            MailTemplateVersion::query()->create(['mail_template_id' => $template->id, 'name' => $template->name, 'subject' => $template->subject, 'body' => $template->body, 'saved_by_user_id' => $template->updated_by_user_id]);
+
+            $old = MailTemplateVersion::query()->where('mail_template_id', $template->id)->orderByDesc('id')->skip(self::KEEP_VERSIONS)->take(1000)->pluck('id');
+            MailTemplateVersion::query()->whereIn('id', $old)->delete();
+        }
+
         $template->update(['name' => trim($name), 'description' => filled($description) ? trim((string) $description) : null, 'subject' => trim($subject), 'body' => $body, 'updated_by_user_id' => $by->id]);
 
         return $template;
+    }
+
+    /** Stellt einen früheren Stand wieder her. Der aktuelle Stand wird dabei selbst zur Version, die Wiederherstellung lässt sich also zurücknehmen. */
+    public function restore(MailTemplate $template, MailTemplateVersion $version, User $by): MailTemplate
+    {
+        return $this->updateGeneral($template, (string) ($version->name ?: $template->name), $template->description, $version->subject, $version->body, $by);
     }
 
     public function reset(string $key): void

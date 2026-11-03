@@ -200,7 +200,7 @@ class GroupMailingController extends Controller
             'exclude' => ['nullable', 'array'],
             'exclude.*' => ['string', Rule::in($allowed)],
             'people' => ['nullable', 'array', 'max:200'],
-            'people.*' => ['string', 'regex:/^[umk]:\d+$/'],
+            'people.*' => ['string', 'regex:/^([umk]:\d+|e:[^\s@]+@[^\s@]+)$/'],
             'subject' => ['required', 'string', 'max:150'],
             'body' => ['required', 'string', 'max:20000'],
             'meeting_title' => ['nullable', 'string', 'max:150'],

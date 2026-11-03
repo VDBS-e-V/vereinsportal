@@ -208,6 +208,20 @@ final class SystemChecks
             // Die Prüfung darf nie selbst scheitern.
         }
 
+        try {
+            if (Schema::hasTable('mailings')) {
+                $threshold = (int) config('portal.mailings.failure_warning_percent', 5);
+                $bad = DB::table('mailings')->whereIn('status', ['done', 'failed'])->where('created_at', '>=', now()->subDays(7))->where('recipients_count', '>', 0)->where('failed_count', '>', 0)
+                    ->whereRaw('failed_count * 100 > recipients_count * ?', [$threshold])->count();
+
+                if ($bad > 0) {
+                    $checks[] = $this->check('Dienste', 'Zustellqualität', 'warning', $bad.' Schreiben der letzten 7 Tage hatten eine Fehlerquote über '.$threshold.' %. Siehe Geschäftsstelle › Zustellqualität.');
+                }
+            }
+        } catch (Throwable) {
+            // Die Prüfung darf nie selbst scheitern.
+        }
+
         return $checks;
     }
 

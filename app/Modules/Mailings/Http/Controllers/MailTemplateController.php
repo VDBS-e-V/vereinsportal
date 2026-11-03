@@ -5,6 +5,7 @@ namespace App\Modules\Mailings\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
 use App\Modules\Mailings\Models\MailTemplate;
+use App\Modules\Mailings\Models\MailTemplateVersion;
 use App\Modules\Mailings\Services\MailTemplates;
 use App\Modules\Mailings\Support\MailPlaceholders;
 use App\Support\Html\RichText;
@@ -48,7 +49,7 @@ class MailTemplateController extends Controller
     {
         abort_unless($template->kind === MailTemplate::KIND_GENERAL, 404);
 
-        return view('mailings.template-form', ['template' => $template, 'body' => RichText::forEditor($template->body), 'placeholders' => MailPlaceholders::definitions('general')]);
+        return view('mailings.template-form', ['template' => $template, 'body' => RichText::forEditor($template->body), 'placeholders' => MailPlaceholders::definitions('general'), 'versions' => $template->versions()->with('savedBy.person')->get()]);
     }
 
     public function update(Request $request, MailTemplate $template): RedirectResponse
@@ -59,6 +60,15 @@ class MailTemplateController extends Controller
         $this->templates->updateGeneral($template, $data['name'], $data['description'] ?? null, $data['subject'], $data['body'], $this->user());
 
         return redirect()->route('mailings.templates.index')->with('success', 'Die Vorlage wurde gespeichert.');
+    }
+
+    public function restore(MailTemplate $template, MailTemplateVersion $version): RedirectResponse
+    {
+        abort_unless($template->kind === MailTemplate::KIND_GENERAL && $version->mail_template_id === $template->id, 404);
+
+        $this->templates->restore($template, $version, $this->user());
+
+        return redirect()->route('mailings.templates.edit', $template)->with('success', 'Der frühere Stand wurde wiederhergestellt.');
     }
 
     public function destroy(MailTemplate $template): RedirectResponse

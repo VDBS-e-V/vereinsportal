@@ -28,6 +28,23 @@
         </x-slot:actions>
     </x-vdbs.forms.form>
 
+    @if ($editing && $versions->isNotEmpty())
+        <section aria-labelledby="versions-title" style="margin-top:var(--space-8)">
+            <h2 id="versions-title" style="font-size:var(--font-size-h3)">Frühere Stände</h2>
+            <p>Beim Speichern bleibt der vorherige Stand erhalten (die letzten {{ \App\Modules\Mailings\Services\MailTemplates::KEEP_VERSIONS }}). Wiederherstellen macht den früheren Stand zur Vorlage; der jetzige Stand bleibt als Version erhalten.</p>
+            <x-vdbs.data.table caption="Frühere Stände der Vorlage" :columns="[['key' => 'date', 'label' => 'Gespeichert'], ['key' => 'subject', 'label' => 'Betreff'], ['key' => 'by', 'label' => 'Von'], ['key' => 'action', 'label' => 'Aktion']]">
+                @foreach ($versions as $version)
+                    <tr>
+                        <td>{{ $version->created_at?->format('d.m.Y, H:i') }}</td>
+                        <td>{{ $version->subject }}</td>
+                        <td>{{ $version->savedBy?->person?->fullName() ?? '–' }}</td>
+                        <td><form method="post" action="{{ route('mailings.templates.restore', [$template, $version]) }}">@csrf<x-vdbs.actions.button type="submit" size="s" variant="secondary">Wiederherstellen</x-vdbs.actions.button></form></td>
+                    </tr>
+                @endforeach
+            </x-vdbs.data.table>
+        </section>
+    @endif
+
     @if ($editing)
         <x-vdbs.overlays.confirm-dialog id="delete-template" title="Vorlage löschen?" variant="danger" :action="route('mailings.templates.destroy', $template)" method="delete" confirm-label="Vorlage löschen">
             <p>Die Vorlage <strong>{{ $template->name }}</strong> wird gelöscht. Bereits gesendete Schreiben bleiben unverändert.</p>

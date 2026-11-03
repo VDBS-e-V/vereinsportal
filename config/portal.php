@@ -196,6 +196,11 @@ return [
         'approval' => ['enabled' => (bool) env('MAILINGS_APPROVAL', true), 'threshold' => (int) env('MAILINGS_APPROVAL_THRESHOLD', 50)],
         // Anhänge an Schreiben: alle zusammen höchstens so viele KB (PDF, JPEG, PNG)
         'attachments' => ['max_kb' => (int) env('MAILINGS_ATTACHMENTS_MAX_KB', 5120)],
+        // Zustellqualität: Warnung ab dieser Fehlerquote (Prozent) eines Versands, Sperre nach so vielen vorläufigen Zustellfehlern, Geheimnis des Rückmelde-Webhooks, DKIM-Selektor der Absenderdomain
+        'failure_warning_percent' => (int) env('MAILINGS_FAILURE_WARNING_PERCENT', 5),
+        'soft_bounce_limit' => (int) env('MAILINGS_SOFT_BOUNCE_LIMIT', 5),
+        'webhook_secret' => env('MAILINGS_WEBHOOK_SECRET'),
+        'dkim_selector' => env('MAILINGS_DKIM_SELECTOR'),
         // Einladungsfrist zu Versammlungen in Tagen (Annahme, mit der Satzung abgleichen). Unterschreitung ergibt nur eine Warnung.
         'invitation_notice_days' => (int) env('MAILINGS_INVITATION_NOTICE_DAYS', 14),
         // Absendername und Antwortadresse je Bereich (die Absenderadresse bleibt MAIL_FROM_ADDRESS)
