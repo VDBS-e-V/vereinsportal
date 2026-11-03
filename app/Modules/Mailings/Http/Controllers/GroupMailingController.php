@@ -4,11 +4,14 @@ namespace App\Modules\Mailings\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
+use App\Modules\Mailings\Models\MailSnippet;
 use App\Modules\Mailings\Models\MailTemplate;
 use App\Modules\Mailings\Models\Mailing;
+use App\Modules\Mailings\Services\MailAttachments;
 use App\Modules\Mailings\Services\MailRecipients;
 use App\Modules\Mailings\Services\Mailings;
 use App\Modules\Mailings\Services\MailTemplates;
+use App\Modules\Mailings\Support\MailAccessibilityCheck;
 use App\Modules\Mailings\Support\MailGroups;
 use App\Modules\Mailings\Support\MailPlaceholders;
 use App\Support\Html\RichText;
@@ -100,6 +103,9 @@ class GroupMailingController extends Controller
             'template' => $template,
             'draft' => $draft,
             'prefill' => $prefill,
+            'snippets' => MailSnippet::query()->orderBy('name')->get(['id', 'name', 'body']),
+            'attachments' => $draft?->attachments ?? collect(),
+            'attachmentLimitMb' => round(app(MailAttachments::class)->maxKb() / 1024, 1),
         ]);
     }
 
@@ -148,7 +154,7 @@ class GroupMailingController extends Controller
 
         $notice = $this->mailings->noticeWarning(array_values($data['groups']), $this->meeting($data), $this->sendAt($data));
 
-        return redirect()->route($this->base($request).'.create')->withInput($request->all())->with('preview', $preview)->with('notice', $notice);
+        return redirect()->route($this->base($request).'.create')->withInput($request->all())->with('preview', $preview)->with('notice', $notice)->with('hints', MailAccessibilityCheck::check($data['body']));
     }
 
     public function test(Request $request): RedirectResponse

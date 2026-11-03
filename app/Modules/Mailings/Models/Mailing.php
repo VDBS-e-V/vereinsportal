@@ -101,6 +101,12 @@ class Mailing extends Model
         };
     }
 
+    /** @return HasMany<MailingAttachment, $this> */
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(MailingAttachment::class)->orderBy('id');
+    }
+
     /** Gruppen, die ausgenommen werden (Auswahl „außer“). @return list<string> */
     public function excludedGroups(): array
     {

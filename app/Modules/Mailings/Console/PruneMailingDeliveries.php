@@ -3,6 +3,7 @@
 namespace App\Modules\Mailings\Console;
 
 use App\Modules\Mailings\Models\Mailing;
+use App\Modules\Mailings\Models\MailingAttachment;
 use App\Modules\Mailings\Models\MailingDelivery;
 use Illuminate\Console\Command;
 
@@ -31,6 +32,8 @@ class PruneMailingDeliveries extends Command
 
         if (! $this->option('dry-run')) {
             $query->delete();
+            // Anhänge werden mit den Zustelllisten gelöscht (Datei und Datensatz)
+            MailingAttachment::query()->whereIn('mailing_id', $finished)->get()->each->delete();
         }
 
         $this->components->info($count.' Zustellungen '.($this->option('dry-run') ? 'würden gelöscht' : 'gelöscht').' (älter als '.$days.' Tage).');

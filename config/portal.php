@@ -194,6 +194,8 @@ return [
         'delivery_retention_days' => (int) env('MAILINGS_DELIVERY_RETENTION_DAYS', 90),
         // Freigabe: Schreiben von Personen ohne die Berechtigung mailings.approve (Geschäftsstelle) an mindestens so viele Empfänger brauchen die Freigabe des Vorstands.
         'approval' => ['enabled' => (bool) env('MAILINGS_APPROVAL', true), 'threshold' => (int) env('MAILINGS_APPROVAL_THRESHOLD', 50)],
+        // Anhänge an Schreiben: alle zusammen höchstens so viele KB (PDF, JPEG, PNG)
+        'attachments' => ['max_kb' => (int) env('MAILINGS_ATTACHMENTS_MAX_KB', 5120)],
         // Einladungsfrist zu Versammlungen in Tagen (Annahme, mit der Satzung abgleichen). Unterschreitung ergibt nur eine Warnung.
         'invitation_notice_days' => (int) env('MAILINGS_INVITATION_NOTICE_DAYS', 14),
         // Absendername und Antwortadresse je Bereich (die Absenderadresse bleibt MAIL_FROM_ADDRESS)

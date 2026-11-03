@@ -30,7 +30,7 @@ final class Mailings
     /** Werte, die als bereinigtes HTML eingesetzt werden und nicht maskiert werden dürfen. */
     private const RAW = ['eigener_text', 'termine'];
 
-    public function __construct(private readonly MailRecipients $recipients, private readonly MailTemplates $templates, private readonly MailSuppressions $suppressions, private readonly MailUnsubscribes $unsubscribes, private readonly NotificationPreferences $preferences) {}
+    public function __construct(private readonly MailRecipients $recipients, private readonly MailTemplates $templates, private readonly MailSuppressions $suppressions, private readonly MailUnsubscribes $unsubscribes, private readonly NotificationPreferences $preferences, private readonly MailAttachments $attachmentFiles) {}
 
     // ---------- Mitglieder ----------
 
@@ -271,6 +271,7 @@ final class Mailings
             throw new DomainException('Nur ein Entwurf lässt sich löschen.');
         }
 
+        $mailing->attachments()->get()->each->delete();
         $mailing->delete();
     }
 
@@ -527,7 +528,7 @@ final class Mailings
 
         $sender = (array) config('portal.mailings.senders.'.($mailing->sender_area ?: 'office'), []);
 
-        Mail::to($delivery->email)->send(new MailingMail($rendered['subject'], $rendered['html'], $delivery->group ?: 'internal', $unsubscribeUrl, (bool) $mailing->mandatory, $sender['name'] ?? null, $sender['reply_to'] ?? null));
+        Mail::to($delivery->email)->send(new MailingMail($rendered['subject'], $rendered['html'], $delivery->group ?: 'internal', $unsubscribeUrl, (bool) $mailing->mandatory, $sender['name'] ?? null, $sender['reply_to'] ?? null, $this->attachmentFiles->files($mailing->loadMissing('attachments'))));
     }
 
     /**

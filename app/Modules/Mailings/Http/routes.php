@@ -1,7 +1,9 @@
 <?php
 
 use App\Modules\Mailings\Http\Controllers\GroupMailingController;
+use App\Modules\Mailings\Http\Controllers\MailingAttachmentController;
 use App\Modules\Mailings\Http\Controllers\MailingProgressController;
+use App\Modules\Mailings\Http\Controllers\MailSnippetController;
 use App\Modules\Mailings\Http\Controllers\MailTemplateController;
 use App\Modules\Mailings\Http\Controllers\SuppressionController;
 use App\Modules\Mailings\Http\Controllers\UnsubscribeController;
@@ -30,6 +32,9 @@ foreach (['board' => ['vorstand/mitteilungen', 'mailings.members'], 'office' => 
         Route::get('/{mailing}/bescheinigung', [MailingProgressController::class, 'certificate'])->whereNumber('mailing')->name('certificate');
         Route::post('/{mailing}/abbrechen', [MailingProgressController::class, 'cancel'])->whereNumber('mailing')->name('cancel');
         Route::post('/{mailing}/wiederholen', [MailingProgressController::class, 'retry'])->whereNumber('mailing')->name('retry');
+        Route::post('/{mailing}/anhaenge', [MailingAttachmentController::class, 'store'])->middleware('throttle:30,10')->whereNumber('mailing')->name('attachments.store');
+        Route::get('/{mailing}/anhaenge/{attachment}', [MailingAttachmentController::class, 'download'])->whereNumber(['mailing', 'attachment'])->name('attachments.download');
+        Route::delete('/{mailing}/anhaenge/{attachment}', [MailingAttachmentController::class, 'destroy'])->whereNumber(['mailing', 'attachment'])->name('attachments.destroy');
         Route::post('/{mailing}/freigeben', [MailingProgressController::class, 'approve'])->whereNumber('mailing')->name('approve');
         Route::post('/{mailing}/zurueckgeben', [MailingProgressController::class, 'reject'])->whereNumber('mailing')->name('reject');
         Route::post('/{mailing}/zurueckziehen', [MailingProgressController::class, 'withdraw'])->whereNumber('mailing')->name('withdraw');
@@ -52,6 +57,9 @@ Route::middleware(['web', 'auth', 'can:mail_templates.manage'])->prefix('geschae
     Route::get('/', [MailTemplateController::class, 'index'])->name('index');
     Route::get('/neu', [MailTemplateController::class, 'create'])->name('create');
     Route::post('/', [MailTemplateController::class, 'store'])->name('store');
+    Route::get('/bausteine', [MailSnippetController::class, 'index'])->name('snippets');
+    Route::post('/bausteine', [MailSnippetController::class, 'store'])->name('snippets.store');
+    Route::delete('/bausteine/{snippet}', [MailSnippetController::class, 'destroy'])->whereNumber('snippet')->name('snippets.destroy');
     Route::get('/seminar', [MailTemplateController::class, 'team'])->name('team');
     Route::put('/seminar', [MailTemplateController::class, 'updateTeam'])->name('team.update');
     Route::delete('/seminar', [MailTemplateController::class, 'resetTeam'])->name('team.reset');

@@ -5,6 +5,7 @@
 <x-layouts.app title="Mailvorlagen" width="wide">
     <x-vdbs.layout.page-header title="Mailvorlagen" lead="Vorlagen für Rundschreiben an Gruppen und der feste Rahmen für Mitteilungen an Teamende zu Seminaren. Alle Vorlagen arbeiten mit Platzhaltern." :breadcrumb="$crumbs">
         <x-slot:actions>
+            <x-vdbs.actions.button variant="secondary" :href="route('mailings.templates.snippets')" icon="clipboard-list">Textbausteine</x-vdbs.actions.button>
             <x-vdbs.actions.button :href="route('mailings.templates.create')" icon="plus">Neue Vorlage</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.layout.page-header>

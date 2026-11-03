@@ -70,5 +70,14 @@ Gespeichert werden Betreff, Text mit Platzhaltern, Gruppen und Zahl der Empfäng
 - **Kontextstart:** Auf der Schulseite „Ansprechpersonen anschreiben“ (öffnet das Formular der Geschäftsstelle mit den Ansprechpersonen, die eine Adresse haben), auf der Seminarseite „Teamende anschreiben“ (Formular der Koordination mit dem Seminar). Die Berechtigung wird serverseitig geprüft.
 - Auswahl und Ausschlüsse stehen in `payload` des Schreibens. Segmente (gespeicherte Filter) folgen später.
 
+## Inhalt ausbauen (seit Update 6)
+
+- **Standardwerte:** `{ort|noch offen}` setzt den Standardwert, wenn der Platzhalter leer ist. Die Prüfung bleibt streng: nur bekannte Namen vor dem `|`. (`{vorname}` ist nie leer, dort greift schon die Anrede-Ersatzform.)
+- **Textbausteine** (Geschäftsstelle, Vorstand mit `mail_templates.manage`): unter Mailvorlagen → Textbausteine. Beim Schreiben fügt eine Auswahl den Baustein in den Text ein. Das Einfügen kopiert den Text, spätere Änderungen am Baustein wirken nicht rückwirkend.
+- **Einfügen per Klick:** Platzhalter lassen sich in Betreff oder Text (an der Cursorposition) einfügen. Dafür muss das Frontend neu gebaut werden (`npm run build`). Ohne JavaScript bleibt die Liste zum Abtippen.
+- **Anhänge:** Nur an einem gespeicherten Entwurf (PDF, JPEG, PNG; zusammen höchstens `MAILINGS_ATTACHMENTS_MAX_KB`, Standard 5120 KB). Privater Speicher, Download nur für die schreibende Person, Freigebende und `mailings.members`. Jede Mail trägt die Anhänge. Sie werden mit dem Entwurf gelöscht und von `mailings:prune` zusammen mit den Zustelllisten.
+- **Textversion:** Jede Mail enthält zusätzlich einen Nur-Text-Teil (Absätze, Listen, Links als „Text (Adresse)“).
+- **Lesbarkeitshinweise** in der Vorschau: nichtssagende Linktexte („hier“), leere oder übersprungene Überschriften, Bilder ohne Alternativtext, sehr lange Absätze. Nur Hinweise, nichts wird gesperrt.
+
 ## Grenzen
 Stürzt ein Worker mitten in einer Mail ab, kann diese eine Mail doppelt zugestellt werden (Zeilen im Zustand „wird gesendet“ werden nach 10 Minuten wieder freigegeben). Bounces folgen im nächsten Update (siehe `docs/65_RUNDSCHREIBEN_ENTWICKLUNGSPLAN.md`).

@@ -57,6 +57,18 @@
 
         <x-vdbs.forms.form-section title="Schreiben">
             <x-vdbs.forms.input name="subject" label="Betreff" :required="true" maxlength="150" :value="$prefill['subject'] ?? null" hint="Platzhalter sind erlaubt, zum Beispiel: Einladung zur {versammlung} am {datum}" />
+            @if ($snippets->isNotEmpty())
+                <div data-snippet-picker style="display:none;align-items:flex-end;gap:var(--space-3);flex-wrap:wrap">
+                    <label for="snippet-select">Textbaustein einfügen</label>
+                    <select id="snippet-select" data-snippet-select>
+                        <option value="">Baustein wählen …</option>
+                        @foreach ($snippets as $snippet)
+                            <option value="{{ $snippet->id }}" data-body="{{ $snippet->body }}">{{ $snippet->name }}</option>
+                        @endforeach
+                    </select>
+                    <x-vdbs.actions.button type="button" size="s" variant="secondary" data-snippet-insert="1">Einfügen</x-vdbs.actions.button>
+                </div>
+            @endif
             <x-vdbs.forms.textarea name="body" label="Text" :required="true" maxlength="20000" :rows="14" :rich="true" :value="$prefill['body'] ?? null" />
             <x-mailings.placeholders :placeholders="$placeholders" />
         </x-vdbs.forms.form-section>
@@ -85,11 +97,45 @@
         </x-slot:actions>
     </x-vdbs.forms.form>
 
+    <section aria-labelledby="attachments-title" style="margin-top:var(--space-6)">
+        <h2 id="attachments-title" style="font-size:var(--font-size-h3)">Anhänge</h2>
+        @if (! $draft)
+            <p style="color:var(--text-muted)">Anhänge können Sie hinzufügen, sobald das Schreiben als Entwurf gespeichert ist.</p>
+        @else
+            @if ($attachments->isNotEmpty())
+                <ul style="list-style:none;margin:0 0 var(--space-4);padding:0">
+                    @foreach ($attachments as $attachment)
+                        <li style="display:flex;gap:var(--space-3);align-items:center;margin-bottom:var(--space-2)">
+                            <a href="{{ route($base.'.attachments.download', [$draft, $attachment]) }}">{{ $attachment->original_name }}</a>
+                            <span style="color:var(--text-muted)">{{ number_format($attachment->size / 1024, 0, ',', '.') }} KB</span>
+                            <form method="post" action="{{ route($base.'.attachments.destroy', [$draft, $attachment]) }}">@csrf @method('delete')<x-vdbs.actions.button type="submit" size="s" variant="danger-text">Entfernen</x-vdbs.actions.button></form>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+            <form method="post" action="{{ route($base.'.attachments.store', $draft) }}" enctype="multipart/form-data" style="max-width:32rem">
+                @csrf
+                <x-vdbs.forms.file name="attachment" label="Datei anhängen" accept=".pdf,.jpg,.jpeg,.png" :hint="'PDF, JPEG oder PNG. Alle Anhänge zusammen höchstens '.$attachmentLimitMb.' MB.'" />
+                <x-vdbs.actions.button type="submit" variant="secondary" icon="plus">Anhängen</x-vdbs.actions.button>
+            </form>
+        @endif
+    </section>
+
     @if ($preview)
         <section aria-labelledby="preview-title" style="margin-top:var(--space-8)">
             <h2 id="preview-title" style="font-size:var(--font-size-h3)">Vorschau</h2>
             @if (session('notice'))
                 <x-vdbs.feedback.alert variant="warning"><strong>Einladungsfrist:</strong> {{ session('notice') }}</x-vdbs.feedback.alert>
+            @endif
+            @if (session('hints'))
+                <x-vdbs.feedback.alert variant="info">
+                    <strong>Hinweise zur Lesbarkeit:</strong>
+                    <ul style="margin:var(--space-2) 0 0">
+                        @foreach (session('hints') as $hint)
+                            <li>{{ $hint }}</li>
+                        @endforeach
+                    </ul>
+                </x-vdbs.feedback.alert>
             @endif
             <p style="color:var(--text-muted)">So sieht die Nachricht für Sie aus (Name und Angaben eingesetzt). Das Schreiben geht an {{ $total }} Personen.</p>
             <div class="vdbs-article__box" style="display:block">

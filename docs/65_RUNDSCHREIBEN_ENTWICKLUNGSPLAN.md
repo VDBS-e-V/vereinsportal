@@ -195,6 +195,8 @@ Entscheidung 2 (Satzungswortlaut) bestimmt Standardfrist und Wortlaut der Hinwei
 
 ## Phase 6: Inhalt ausbauen
 
+**Stand: umgesetzt (Update 6)**, siehe `docs/63_RUNDSCHREIBEN.md`. Anhänge nur an Entwürfen.
+
 ### Umfang
 - **C2 Standardwerte:** Syntax `{vorname|Mitglied}`. Der Parser kennt den Wert hinter `|`, die Platzhalter-Prüfung bleibt streng (nur bekannte Namen).
 - **C3 Textbausteine:** Tabelle `mail_snippets` (Name, Inhalt), Verwaltung unter Mailvorlagen, Einfügen im Editor per Auswahl.

@@ -43,6 +43,9 @@ final class MailPlaceholders
 
     public const KINDS = ['general', 'team'];
 
+    /** {name} oder {name|Standardwert}: Der Standardwert gilt, wenn der Platzhalter leer ist. */
+    private const PATTERN = '/\{([a-z_]+)(?:\|([^{}|]{0,60}))?\}/u';
+
     /** @return array<string, string> Platzhalter => Bedeutung für eine Art von Schreiben */
     public static function definitions(string $kind): array
     {
@@ -59,16 +62,16 @@ final class MailPlaceholders
         return array_values(array_diff(self::used($text), array_keys(self::definitions($kind))));
     }
 
-    /** Alle in einem Text verwendeten Platzhalter. @return list<string> */
+    /** Alle in einem Text verwendeten Platzhalter (auch die mit Standardwert {name|Standard}). @return list<string> */
     public static function used(string $text): array
     {
-        preg_match_all('/\{([a-z_]+)\}/', $text, $matches);
+        preg_match_all(self::PATTERN, $text, $matches);
 
         return array_values(array_unique($matches[1]));
     }
 
     /**
-     * Setzt die Werte ein. Bekannte Platzhalter ohne Wert bleiben leer, unbekannte Schreibweisen bleiben stehen.
+     * Setzt die Werte ein. Bekannte Platzhalter ohne Wert bleiben leer (oder nehmen den Standardwert {name|Standard}), unbekannte Schreibweisen bleiben stehen.
      * In HTML werden die Werte maskiert, außer den Schlüsseln in $raw (bereits bereinigtes HTML).
      *
      * @param  array<string, string>  $values
@@ -76,12 +79,16 @@ final class MailPlaceholders
      */
     public static function render(string $text, array $values, bool $html = false, array $raw = []): string
     {
-        return (string) preg_replace_callback('/\{([a-z_]+)\}/', function (array $match) use ($values, $html, $raw): string {
+        return (string) preg_replace_callback(self::PATTERN, function (array $match) use ($values, $html, $raw): string {
             if (! array_key_exists($match[1], $values)) {
                 return $match[0];
             }
 
             $value = (string) $values[$match[1]];
+
+            if (trim($value) === '' && isset($match[2]) && $match[2] !== '') {
+                return $html ? e($match[2]) : $match[2];
+            }
 
             return $html && ! in_array($match[1], $raw, true) ? e($value) : $value;
         }, $text);
