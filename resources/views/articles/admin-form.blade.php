@@ -57,7 +57,7 @@
 
         <x-vdbs.forms.form-section title="Veröffentlichung">
             <x-vdbs.forms.form-grid :columns="2">
-                <x-vdbs.forms.select name="status" label="Status" :required="true" :options="['draft' => 'Entwurf', 'published' => 'Veröffentlicht']" :value="$values['status'] ?? 'draft'" />
+                <x-vdbs.forms.radio-group name="status" legend="Status" :required="true" :options="['draft' => 'Entwurf', 'published' => 'Veröffentlicht']" :value="old('status', $values['status'] ?? 'draft')" />
                 <x-vdbs.forms.input name="published_at" label="Veröffentlichen ab" type="datetime-local" :optional="true" :value="$values['published_at'] ?? null" hint="Ein Datum in der Zukunft plant den Artikel" />
             </x-vdbs.forms.form-grid>
             <x-vdbs.forms.checkbox name="featured" label="Auf der Startseite empfehlen" :checked="(bool) ($values['featured'] ?? false)" />

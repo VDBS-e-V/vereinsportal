@@ -19,7 +19,7 @@ final class MailPlaceholders
         'email' => 'E-Mail-Adresse der empfangenden Person',
         'heute' => 'Datum des Versands',
         'jahr' => 'Jahr des Versands',
-        'abmelden' => 'Link zum Abbestellen dieser Mitteilungen (leer bei Pflichtmitteilungen, dafür {abmelden|Standardtext} nutzen)',
+        'abmelden' => 'Link zum Abbestellen dieser Mitteilungen (leer, wenn die Mail nicht abbestellbar ist; dafür {abmelden|Standardtext} nutzen)',
     ];
 
     /** Zusätzlich bei Schreiben an Gruppen (aus den Angaben zu Termin oder Versammlung). @var array<string, string> */

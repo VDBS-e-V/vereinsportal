@@ -47,15 +47,9 @@
         <x-vdbs.forms.form-section title="Schreiben">
             <x-vdbs.forms.input name="subject" label="Betreff" :required="true" maxlength="150" :value="$prefill['subject'] ?? null" hint="Platzhalter sind erlaubt, zum Beispiel: Einladung zur {versammlung} am {datum}" />
             @if ($snippets->isNotEmpty())
-                <div data-snippet-picker style="display:none;align-items:flex-end;gap:var(--space-3);flex-wrap:wrap">
-                    <label for="snippet-select">Textbaustein einfügen</label>
-                    <select id="snippet-select" data-snippet-select>
-                        <option value="">Baustein wählen …</option>
-                        @foreach ($snippets as $snippet)
-                            <option value="{{ $snippet->id }}" data-body="{{ $snippet->body }}">{{ $snippet->name }}</option>
-                        @endforeach
-                    </select>
-                    <x-vdbs.actions.button type="button" size="s" variant="secondary" data-snippet-insert="1">Einfügen</x-vdbs.actions.button>
+                <div data-snippet-picker data-snippets="{{ json_encode($snippets->pluck('body', 'id')->all(), JSON_UNESCAPED_UNICODE) }}" style="display:none">
+                    <x-vdbs.forms.multi-select name="snippet_pick" label="Textbausteine einfügen" :optional="true" :searchable="true" placeholder="Bausteine wählen oder suchen" search-label="Bausteine filtern" :options="$snippets->pluck('name', 'id')->all()" :value="[]" hint="Wählen Sie einen oder mehrere Bausteine. „Einfügen“ setzt sie in dieser Reihenfolge an die Cursorposition im Text." />
+                    <x-vdbs.actions.button type="button" size="s" variant="secondary" data-snippet-insert="1">Ausgewählte einfügen</x-vdbs.actions.button>
                 </div>
             @endif
             <x-vdbs.forms.textarea name="body" label="Text" :required="true" maxlength="20000" :rows="14" :rich="true" :value="$prefill['body'] ?? null" />

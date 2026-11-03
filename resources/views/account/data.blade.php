@@ -22,10 +22,10 @@
                 <x-vdbs.forms.input name="phone" label="Telefon" type="tel" :value="old('phone', $person->phone)" :optional="true" autocomplete="tel" />
                 <div></div>
                 <x-vdbs.forms.input name="street" label="Straße" :value="old('street', $person->street)" :optional="true" autocomplete="address-line1" />
-                <x-vdbs.forms.input name="house_number" label="Hausnummer" :value="old('house_number', $person->house_number)" :optional="true" />
-                <x-vdbs.forms.input name="postal_code" label="Postleitzahl" :value="old('postal_code', $person->postal_code)" :optional="true" autocomplete="postal-code" />
+                <x-vdbs.forms.input name="house_number" label="Hausnummer" maxlength="10" :value="old('house_number', $person->house_number)" :optional="true" />
+                <x-vdbs.forms.input name="postal_code" label="Postleitzahl" maxlength="10" :value="old('postal_code', $person->postal_code)" :optional="true" autocomplete="postal-code" />
                 <x-vdbs.forms.input name="city" label="Ort" :value="old('city', $person->city)" :optional="true" autocomplete="address-level2" />
-                <x-vdbs.forms.input name="country_code" label="Land (Kürzel)" hint="Zwei Buchstaben, z. B. DE" :value="old('country_code', $person->country_code)" :required="true" autocomplete="country" />
+                <x-vdbs.forms.input name="country_code" label="Land (Kürzel)" maxlength="2" autocapitalize="characters" hint="Zwei Buchstaben, z. B. DE" :value="old('country_code', $person->country_code)" :required="true" autocomplete="country" />
             </x-vdbs.forms.form-grid>
 
             <x-slot:actions>

@@ -100,7 +100,7 @@ it('keeps snippets with the people who manage templates and offers them when wri
     expect($snippet->fresh()->name)->toBe('Anmeldehinweis neu');
 
     $this->get(route('mailings.templates.snippets'))->assertOk()->assertSee('Anmeldehinweis neu');
-    $this->get(route('mailings.office.create'))->assertOk()->assertSee('Textbaustein einfügen')->assertSee('data-snippet-select', false)->assertSee('Anmeldehinweis neu');
+    $this->get(route('mailings.office.create'))->assertOk()->assertSee('Textbausteine einfügen')->assertSee('data-snippet-picker', false)->assertSee('Anmeldehinweis neu');
 
     $this->delete(route('mailings.templates.snippets.destroy', $snippet))->assertRedirect();
     expect(MailSnippet::query()->count())->toBe(0);

@@ -68,7 +68,7 @@
                             <x-vdbs.forms.input name="last_name" label="Nachname" :required="true" placeholder="Mustermann" autocomplete="family-name" data-vdbs-review-label="Nachname" />
                             <x-vdbs.forms.input name="email" label="E-Mail-Adresse" type="email" :required="true" placeholder="max.mustermann@beispiel.example" autocomplete="email" hint="Dorthin senden wir Ihre Einladung." data-vdbs-review-label="E-Mail-Adresse" />
                             <x-vdbs.forms.input name="birth_date" label="Geburtsdatum" type="date" :required="true" autocomplete="bday" data-vdbs-review-label="Geburtsdatum" />
-                            <x-vdbs.forms.input name="phone" label="Telefon" :optional="true" maxlength="50" placeholder="Telefonnummer" autocomplete="tel" data-vdbs-review-label="Telefon" />
+                            <x-vdbs.forms.input name="phone" label="Telefon" type="tel" :optional="true" maxlength="50" placeholder="Telefonnummer" autocomplete="tel" data-vdbs-review-label="Telefon" />
                         </x-vdbs.forms.form-grid>
                     </x-vdbs.forms.form-section>
                     <div class="vdbs-btn-group">

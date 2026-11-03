@@ -16,7 +16,7 @@
         <x-vdbs.forms.form-section title="Preise in Euro">
             <x-vdbs.forms.form-grid :columns="2">
                 @foreach ($items as $key => [$label, $note])
-                    <x-vdbs.forms.input :name="'price_'.$key" :label="$label" :required="true" :value="$values[$key] ?? null" :hint="$note" suffix="€" />
+                    <x-vdbs.forms.input :name="'price_'.$key" :label="$label" :required="true" inputmode="decimal" :value="$values[$key] ?? null" :hint="$note" suffix="€" />
                 @endforeach
             </x-vdbs.forms.form-grid>
         </x-vdbs.forms.form-section>

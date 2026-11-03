@@ -24,8 +24,8 @@
                 @endif
                 <x-vdbs.forms.input name="phone" label="Telefon" type="tel" :optional="true" autocomplete="tel" />
                 <x-vdbs.forms.input name="street" label="Straße" :optional="true" autocomplete="address-line1" />
-                <x-vdbs.forms.input name="house_number" label="Hausnummer" :optional="true" />
-                <x-vdbs.forms.input name="postal_code" label="Postleitzahl" :optional="true" autocomplete="postal-code" />
+                <x-vdbs.forms.input name="house_number" label="Hausnummer" maxlength="10" :optional="true" />
+                <x-vdbs.forms.input name="postal_code" label="Postleitzahl" maxlength="10" :optional="true" autocomplete="postal-code" />
                 <x-vdbs.forms.input name="city" label="Ort" :optional="true" autocomplete="address-level2" />
             </x-vdbs.forms.form-grid>
         </x-vdbs.forms.form-section>

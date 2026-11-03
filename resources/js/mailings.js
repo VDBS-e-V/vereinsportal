@@ -54,16 +54,26 @@ if (subject && body && (buttons.length > 0 || picker)) {
     });
 
     if (picker) {
-        picker.style.display = 'flex';
-        const select = picker.querySelector('[data-snippet-select]');
+        picker.style.display = '';
+        const bodies = JSON.parse(picker.dataset.snippets || '{}');
+        const boxes = Array.from(picker.querySelectorAll('input[type="checkbox"]'));
+
+        // Die Auswahl dient nur dem Einfügen und wird nicht mit dem Formular gesendet
+        boxes.forEach((box) => box.removeAttribute('name'));
 
         picker.querySelector('[data-snippet-insert]').addEventListener('click', () => {
-            const option = select.selectedOptions[0];
+            const chosen = boxes.filter((box) => box.checked);
 
-            if (option && option.dataset.body) {
-                insertIntoBody(option.dataset.body);
-                select.value = '';
+            if (chosen.length === 0) {
+                return;
             }
+
+            insertIntoBody(chosen.map((box) => bodies[box.value] ?? '').join(''));
+
+            chosen.forEach((box) => {
+                box.checked = false;
+                box.dispatchEvent(new Event('change', { bubbles: true }));
+            });
         });
     }
 }
