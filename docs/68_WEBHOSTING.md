@@ -69,3 +69,14 @@ Der Planer (Erinnerungen, geplante Rundschreiben, Aufräumen) und die Warteschla
 
 ## 10 Was noch fehlt in Paket A
 Wochenende-Probelauf auf dem echten Hosting, Test der PDF-Erzeugung (kommt mit Paket D), Anleitung in einfacher Sprache, Anpassung von `docs/05`, `27`, `28`, `30`, `31`.
+
+
+## Update einspielen (`portal:update`)
+
+Nach dem Hochladen einer neuen Version genügt **ein** Schritt:
+
+- mit Konsole (lokal/Test): `php artisan portal:update`
+- ohne Konsole: Systemsteuerung → Betrieb → **Update ausführen** (Passwort erforderlich)
+
+Ablauf: Paket gegen `release-manifest.json` prüfen → Datenbankverbindung prüfen → Wartungsmodus an → `migrate --force` → Zwischenspeicher leeren → Wartungsmodus aus.
+Ist das Paket unvollständig oder die Datenbank nicht erreichbar, wird **nichts** verändert. Scheitert die Migration, bleibt das Portal bewusst in der Wartung; die Ausgabe nennt den geheimen Zugangslink. Die Datenbanksicherung vorher ersetzt der Befehl nicht.

@@ -86,3 +86,30 @@ it('forgets cron runs after fourteen days', function () {
 
     expect(CronRun::query()->where('started_at', '<', now()->subDays(14))->count())->toBe(0);
 });
+
+it('portal:update migriert, leert den Cache und beendet die Wartung wieder', function () {
+    $this->artisan('portal:update', ['--skip-verify' => true])->assertSuccessful();
+
+    expect(app()->isDownForMaintenance())->toBeFalse();
+});
+
+it('portal:update bricht bei unvollständigem Paket ab, ohne die Wartung einzuschalten', function () {
+    $path = base_path('release-manifest.json');
+    $existed = is_file($path);
+    $backup = $existed ? file_get_contents($path) : null;
+    file_put_contents($path, json_encode(['version' => 'test', 'files' => ['gibt-es-nicht.php' => ['size' => 1, 'sha256' => 'x']]]));
+
+    try {
+        $this->artisan('portal:update')->assertFailed();
+        expect(app()->isDownForMaintenance())->toBeFalse();
+    } finally {
+        $existed ? file_put_contents($path, $backup) : unlink($path);
+    }
+});
+
+it('bietet das Update als Aufgabe der Systemsteuerung mit Passwort an', function () {
+    $tasks = app(\App\Modules\System\Services\SystemTasks::class);
+
+    expect($tasks->find('update')['command'])->toBe('portal:update')
+        ->and($tasks->needsPassword('update'))->toBeTrue();
+});
