@@ -32,6 +32,9 @@ enum Capability: string
     /** Schulen anlegen, ändern, löschen und per CSV importieren. */
     case PartnersManage = 'partners.manage';
 
+    /** Importierte Mailingliste (Teamkontakte) und persönliche Zugänge verwalten (Geschäftsstelle). */
+    case ContactsManage = 'contacts.manage';
+
     /** Seminare ansehen (Bereich Koordination). */
     case SeminarsView = 'seminars.view';
 

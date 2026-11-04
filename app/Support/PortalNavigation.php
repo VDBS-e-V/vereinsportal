@@ -135,6 +135,7 @@ final class PortalNavigation
                         ['description' => 'Konten, Rollen und Sicherheit.', 'label' => 'Nutzer', 'route' => 'admin.users.index', 'match' => 'admin.users.*', 'can' => 'users.view'],
                         ['description' => 'Anträge auf Zugang zum Portal.', 'label' => 'Zugangsanträge', 'route' => 'access-requests.index', 'match' => 'access-requests.*', 'can' => 'access_requests.view'],
                         ['description' => 'Personen und ihre Kontaktdaten.', 'label' => 'Personen', 'route' => 'admin.people.index', 'match' => 'admin.people.*', 'can' => 'people.view'],
+                        ['description' => 'Importierte Mailingliste und persönliche Zugänge für Bewerbungen.', 'label' => 'Teamkontakte', 'route' => 'contacts.index', 'match' => 'contacts.*', 'can' => 'contacts.manage'],
                     ]],
                     ['label' => 'Inhalte', 'group' => true, 'route' => 'articles.admin.index', 'children' => [
                         ['description' => 'Artikel für Startseite und Artikelliste.', 'label' => 'Artikel', 'route' => 'articles.admin.index', 'match' => 'articles.admin.*', 'can' => 'articles.manage'],

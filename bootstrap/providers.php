@@ -42,6 +42,7 @@ return [
     SystemServiceProvider::class,
     SetupServiceProvider::class,
     MailingsServiceProvider::class,
+    \App\Modules\Contacts\ContactsServiceProvider::class,
     PagesServiceProvider::class,
     EventsServiceProvider::class,
     SsoServiceProvider::class,

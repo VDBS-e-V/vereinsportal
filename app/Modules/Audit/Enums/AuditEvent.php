@@ -82,6 +82,8 @@ enum AuditEvent: string
     case MailSuppressionChanged = 'mailing.suppression_changed';
     case MailingWorkflow = 'mailing.workflow';
 
+    case ContactsImported = 'contacts.imported';
+
     public function label(): string
     {
         return match ($this) {
@@ -148,6 +150,7 @@ enum AuditEvent: string
             self::MailingSent => 'Schreiben versendet',
             self::MailSuppressionChanged => 'Adresssperre geändert',
             self::MailingWorkflow => 'Schreiben: Freigabe und Planung',
+            self::ContactsImported => 'Mailingliste importiert',
         };
     }
 
@@ -170,6 +173,7 @@ enum AuditEvent: string
             self::AuditExported => 'audit',
             self::SystemTaskRun => 'system',
             self::MailingSent, self::MailSuppressionChanged, self::MailingWorkflow => 'mailings',
+            self::ContactsImported => 'contacts',
         };
     }
 
@@ -193,6 +197,7 @@ enum AuditEvent: string
             'audit' => 'Protokoll',
             'system' => 'System',
             'mailings' => 'Schreiben',
+            'contacts' => 'Teamkontakte',
         ];
     }
 

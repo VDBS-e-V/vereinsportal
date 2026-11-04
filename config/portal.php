@@ -187,6 +187,13 @@ return [
      * max_attempts: Versuche je Adresse, bevor sie als fehlgeschlagen gilt; delivery_retention_days: so lange bleibt die Zustellliste mit den Adressen
      * (danach nur noch Betreff, Text und Zahlen).
      */
+    'contacts' => [
+        // Frühere Zugänge einer Adresse gelten nach dem Erzeugen eines neuen noch so viele Tage weiter.
+        'old_access_days' => (int) env('CONTACT_ACCESS_GRACE_DAYS', 14),
+        // Minuten ohne Aktivität, nach denen die Sitzung eines persönlichen Zugangs endet.
+        'idle_minutes' => (int) env('CONTACT_ACCESS_IDLE_MINUTES', 30),
+    ],
+
     'seminars' => [
         // Format der Seminarnummer: {Y} = Jahr, {N:4} = laufende Nummer mit vier Stellen.
         'number_format' => env('SEMINAR_NUMBER_FORMAT', 'S-{Y}-{N:4}'),
