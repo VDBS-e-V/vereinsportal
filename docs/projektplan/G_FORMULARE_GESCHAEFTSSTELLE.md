@@ -10,12 +10,12 @@ Aufwand: **11 ET**. Ziel: Drei Vorgänge laufen digital statt per Papier und E-M
 
 | Frage | Entscheidung / Annahme |
 |---|---|
-| Wer stellt Anträge? | **Teamende, Mitarbeitende, Koordination, Bildungsreferenten, Geschäftsstelle und Vorstand** (Capability `forms.submit`); **Mitglieder nicht** (Antwort 24). Teamende **ohne Konto**: über den **persönlichen Zugang mit Code** aus Paket C (G6). |
+| Wer stellt Anträge? | **Teamende, Mitarbeitende, Koordination, Bildungsreferenten, Geschäftsstelle und Vorstand mit Konto** (Capability `forms.submit`); **Mitglieder nicht**. **Teamende ohne Konto können keine Anträge stellen** (Antwort R2b): Anträge gehen erst mit dem Teamkonto. |
 | Wer prüft? | **Alles läuft über die Geschäftsstelle** (`forms.manage`): formale Prüfung, Rückfragen, Freigabe bis zur Grenze, Auszahlung vermerken (Antwort 19). |
-| Wer gibt frei? | **Bis 50 € Gesamtsumme** die Geschäftsstelle. **Ab 50 €** zusätzlich die Rolle **Geschäftsführung oder Vorstand** (`forms.approve`). Die Grenze ist in `form_settings` einstellbar. Niemand gibt ein eigenes Formular frei (auch nicht als Geschäftsstelle, Geschäftsführung oder Vorstand). Gilt für alle drei Formulartypen. Rolle „Geschäftsführung“: **Rückfrage R3**. |
+| Wer gibt frei? | **Bis 50 € Gesamtsumme** die Geschäftsstelle. **Über 50 €** zusätzlich eine Person der Rolle **Geschäftsführung oder Vorstand** (`forms.approve`); es gibt **keinen Höchstbetrag**, hohe Beträge werden nur zur Bewilligung vorgelegt. Die Grenze ist in `form_settings` einstellbar. Niemand gibt ein eigenes Formular frei. Gilt für alle drei Formulartypen. Rollen: Paket I. |
 | Geld | In Cent als Ganzzahl, nur Euro. Rundung auf volle Cent je Position. Server rechnet, nicht der Browser. |
 | Belege | PDF, JPEG, PNG (hier sind Bilder erlaubt, es sind Belegfotos), je Datei 15 MB, je Antrag 100 MB. Pflicht für alle Positionen außer Kilometerpauschale. |
-| Belegfrist | **Belegdatum im laufenden Kalenderjahr; einreichbar bis Ende Februar des Folgejahres** (Antwort 21). Beispiel: Belege aus 2026 können von Januar 2026 bis Ende Februar 2027 eingereicht werden. Die Härte der Regel (Sperre oder Warnung) klärt Rückfrage R5. |
+| Belegfrist | **Belegdatum im Kalenderjahr J, einreichbar bis Ende Februar von J+1** (Antwort 21). Beispiel: Belege aus 2026 können von Januar 2026 bis Ende Februar 2027 eingereicht werden. **Harte Sperre**; die Geschäftsstelle (`forms.manage`) kann pro Antrag eine **Ausnahme freischalten** (Begründung Pflicht, im Verlauf und Protokoll vermerkt). |
 | IBAN | Prüfsumme (mod 97), Kontoinhaber:in. **Verschlüsselt gespeichert** und 30 Tage nach „ausgezahlt“ gelöscht. |
 | Nummern | `E-2027-0001` (Erstattung), `F-2027-0001` (Fahrtkosten), `M-2027-0001` (Material); gleicher Dienst wie die Seminarnummer (Paket B). |
 | Zahlung | Außerhalb des Portals. Das Portal liefert Sammelliste (CSV) und später eine SEPA-Datei (G8, optional). |
@@ -101,14 +101,16 @@ Antrag **vor** dem Kauf:
 Bereich **Geschäftsstelle › Anträge**:
 - Eingangsliste mit Filter (Art, Status, Zeitraum, Seminar, Antragsteller), Suche nach Nummer, Zähler im Seitenkopf.
 - Prüfseite: Positionen, Belege (Vorschau, Download), Verlauf, Aktionen: Rückfrage, Prüfung abschließen, Freigabe vorlegen (bei Stufe Vorstand), Ablehnen mit Begründung, „Ausgezahlt“ mit Datum und Verweis.
-- **Sammelauszahlung:** Auswahl freigegebener Anträge → CSV (Spalten: Nummer, Name, IBAN, Betrag, Verwendungszweck `E-2027-0001 Erstattung`, Kostenstelle, Seminar-Nr.). Nach Export Markierung „Sammelliste erstellt“; „Ausgezahlt“ setzt Datum.
-- **Buchhaltungsexport:** CSV der Positionen (Datum, Art, Betrag, Kostenstelle, Seminar, Belegnummer), Zeitraum wählbar; Formelschutz.
+- **Export 1: Auszahlungsliste** (Auswahl freigegebener Anträge). Trennzeichen `;`, Dezimalkomma, UTF-8 mit BOM, Formelschutz. Spalten: `Antragsnummer; Art; Eingereicht am; Freigegeben am; Antragsteller:in (Name); E-Mail; Kontoinhaber:in; IBAN; Betrag gesamt (EUR); Verwendungszweck (z. B. "E-2027-0001 Erstattung Seminar S-2027-0042"); Kostenstelle; Seminar-Nr.; Geprüft von; Freigegeben von; Ausnahme Belegfrist (ja/nein); Bemerkung`. Nach Export Markierung „Sammelliste erstellt“; „Ausgezahlt“ setzt Datum.
+- **Export 2: Buchungsliste** (Zeitraum, Typ, Status wählbar), eine Zeile je Position: `Antragsnummer; Position; Belegdatum; Art; Beschreibung; Menge; Einzelbetrag (EUR); Betrag (EUR); Kilometer; Start; Ziel; Verkehrsmittel; Lieferant; Kostenstelle; Seminar-Nr.; Seminar-Titel; Antragsteller:in; Freigabe-Datum; Auszahlungsdatum; Auszahlungsreferenz; Belegdateiname; Belegnummer`.
+- **Export 3: Jahresübersicht** je Kostenstelle und Art (Summen), für die Abstimmung mit der Kasse.
 - Einstellungen: km-Satz, Grenzen, Fristen (`forms.manage`).
 - Tests: Filter, Export-Spalten, IBAN nur im Export und nur für Berechtigte, Formelschutz, Einstellungen wirken.
 
-### G6 Anträge über den persönlichen Zugang (0,5 ET)
-Teamende ohne Konto stellen Anträge über ihren **persönlichen Zugang mit Code** (Paket C0). Die Zugangsseite bietet „Erstattung beantragen“ und „Fahrtkosten abrechnen“; Name und E-Mail sind aus der Person vorbelegt (`applicant_person_id` statt eigener Link-Token). Seminarauswahl nur aus Seminaren, in denen die Person bestätigt ist. Verlauf und Rückfragen: Seite „Meine Anträge“ im Zugang, Rückfrage-Mail mit Link.
-- Tests: nur eigene Anträge sichtbar, nur eigene Seminare wählbar, Zugang ohne Konto sieht keinen Bereich, Drosselung, Wechsel zum Teamkonto behält die Anträge.
+### G6 Kostenstellen und Übergangsregel (0,5 ET)
+- Tabelle `cost_centers` (`code` unique, `name`, `active`), Pflege durch `forms.manage` und `forms.approve` (langfristig eine Stelle in der Geschäftsstelle; **aktuell der Kassierer im Vorstand**, Antwort R13). Auswahlfeld statt Freitext in allen Formularen und im Seminar (Paket B3).
+- **Übergangsregel:** Solange die Stelle in der Geschäftsstelle nicht besetzt ist, übernimmt die Zusatzrolle „Kassenführung“ (Vorstandsmitglied Kasse) die Rechte von `forms.manage`. Die Zusatzrolle wird später entzogen (Rollenvergabe vorhanden). Eigene Anträge der Kassenführung prüft eine andere Person mit `forms.approve` (kein Selbstprüfen, getestet).
+- Tests: Kostenstellen-Pflege, Auswahl in Formularen, Selbstprüfung gesperrt, Zusatzrolle gibt und nimmt Recht.
 
 ### G7 Aufbewahrung und Datenschutz (0,5 ET)
 - Befehl `forms:prune`: IBAN und Kontoinhaber 30 Tage nach „ausgezahlt/abgelehnt/geschlossen“ löschen; Belege und Anträge nach 10 Jahren (Ende des Jahres der Auszahlung) löschen; Entwürfe ohne Änderung nach 90 Tagen löschen. Systemsteuerung (hoch), Planer täglich.

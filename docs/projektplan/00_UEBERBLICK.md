@@ -23,9 +23,10 @@ Stand: Plan. Ersetzt den Kurzplan in `docs/67_PROJEKTPLAN_LUECKEN.md` im Detail;
 | E | Digitale Feedbackformulare | `E_FEEDBACK.md` | 11,5 | B, D (Schnappschuss) |
 | F | SSO / OAuth als Anbieter | `F_SSO.md` | 6 | A (Schlüssel und Einrichtung) |
 | G | Formulare der Geschäftsstelle | `G_FORMULARE_GESCHAEFTSSTELLE.md` | 11 | A, C (persönlicher Zugang für Teamende) |
-| H | Verteiler, Rechte-Matrix, Grundbestand Bausteine | `H_VERTEILER_BAUSTEINE.md` | 6 | – |
+| H | Verteiler, Rechte-Matrix, Grundbestand Bausteine | `H_VERTEILER_BAUSTEINE.md` | 7 | – |
+| I | Neue Rollen Mitarbeitende und Geschäftsführung | `I_ROLLEN.md` | 2 | – (vor G) |
 
-Summe: **66 ET** (Details der Änderungen in `02_ENTSCHEIDUNGEN.md`), Schätzung ±30 %. Ein Entwicklungstag meint einen Arbeitstag einer Person einschließlich Tests und Doku.
+Summe: **69 ET** (Details der Änderungen in `02_ENTSCHEIDUNGEN.md`), Schätzung ±30 %. Ein Entwicklungstag meint einen Arbeitstag einer Person einschließlich Tests und Doku.
 
 ### Empfohlene Reihenfolge und Meilensteine
 
@@ -36,10 +37,11 @@ Summe: **66 ET** (Details der Änderungen in `02_ENTSCHEIDUNGEN.md`), Schätzung
 5. **M5 Geschäftsstelle** (G, H). H kann jederzeit vorgezogen werden, es hat keine Abhängigkeit.
 
 ```
-A ──► B ──► C ──► G
-      │      
+A ──► B ──► C
+      │
       ├──► D ──► E
 A ──► F
+I ──► G
 H (frei)
 ```
 
@@ -65,7 +67,7 @@ H (frei)
 | `team.invites` | Koordination | C |
 | `forms.submit` | Teamende, Mitarbeitende, Koordination, Bildungsreferenten, Geschäftsstelle, Vorstand (Mitglieder nicht) | G |
 | `forms.manage` | Geschäftsstelle | G |
-| `forms.approve` | Vorstand | G |
+| `forms.approve` | Geschäftsführung, Vorstand | G |
 | `oauth.manage` | Administration | F |
 | `mail_segments.manage` | Geschäftsstelle, Vorstand | H |
 

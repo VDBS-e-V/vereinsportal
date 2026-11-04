@@ -41,3 +41,33 @@ Antworten des Vorstands auf die 28 Fragen aus `01_OFFENE_FRAGEN.md` (Stand: Antw
 | E | 11 | 11,5 | Anonymisieren/Archivieren (+0,5) |
 | G | 12 | 11 | SEPA entfällt, Antragslink über persönlichen Zugang spart Aufwand (−1) |
 | gesamt | 63 | **66** | |
+
+---
+
+# Zweite Runde (Antworten auf R1 bis R14)
+
+| Nr. | Antwort | Folge |
+|---|---|---|
+| R1 | Einwilligung liegt vor; die Liste liegt **direkt im Mailsystem** | C0: Import aus dem Export des Mailsystems; Einwilligungsbestätigung im Importdialog (Pflichthäkchen, protokolliert). Welches Mailsystem: Rückfrage Q1. |
+| R2 | Die Liste enthält **nur E-Mail-Adressen** | C0: Statt `people` eine leichte Tabelle **`team_contacts`** (E-Mail, Name leer). Den **Namen erfragt die Bewerbungsseite einmalig** beim ersten Zugang. Beim Teamkonto wird daraus eine Person. |
+| R2a | Zugang per E-Mail, Neuanforderung erlaubt | wie geplant |
+| R2b | Zugang **nur für Bewerbungen**, alles andere später über das Konto | C0 und G6: Der Zugang öffnet nur Bewerbung und eigene Bewerbungen. **G6 entfällt**: Anträge (Erstattung, Fahrtkosten) stellen nur Konten. Kontoaktivierung bleibt über den Code möglich. |
+| R3 | Neue Rollen **Mitarbeitende** (arbeiten auch außerhalb der Geschäftsstelle, z. B. Schulbibliothek) und **Geschäftsführung** (vom Vorstand mit besonderen Rechten benannt) | Neues **Paket I** (2 ET). Geschäftsführung kann nur der Vorstand vergeben oder entziehen. |
+| R4 | Moodle **nur Anmeldung**; Moodle **5.1.3**, Nextcloud **Hub 10 (31.0.11)** | F: Anleitungen für diese Versionen; keine Kurszuordnung. |
+| R12 | PHP bis **8.5** wählbar | A: PHP 8.4 oder 8.5, Test auf beiden. `composer.json` (`^8.4.1`) bleibt. |
+| R5 | Belegfrist **harte Sperre**, Geschäftsstelle darf überschreiben | G2: Sperre mit Ausnahmeknopf für `forms.manage` (Begründung Pflicht, protokolliert). |
+| R6 | 50 € Gesamtsumme; **mehr darf beantragt werden**, braucht dann Bewilligung durch Geschäftsführung oder Vorstand | G: kein Höchstbetrag, nur Freigabestufe; gilt für alle drei Formulare. |
+| R7/R8 | Vorstand und Geschäftsstelle lesen das anonymisierte Archiv; Ablauf in Ordnung | E5 wie geplant, Frist 24 Monate. |
+| R9 | Filter: **PLZ, Alter, Mitgliedsstatus**, „…“ | H2: zusätzliche Filter (+1 ET): PLZ-Bereich (Anfang der PLZ), Altersgruppe, Mitgliedsstatus (Antrag, Mitglied, beendet, kein Mitglied), plus bisherige Liste. Ergänzende Wünsche: Rückfrage Q6. |
+| R10 | Exportspalten: lieber mehr als zu wenige | G5: zwei Exporte mit reichen Spalten (siehe G, Abschnitt 4). |
+| R11 | Texte folgen | Platzhalter bis zur Lieferung. |
+| R13 | Kostenstellen: langfristig Stelle in der Geschäftsstelle, **aktuell der Kassierer im Vorstand** | G: Tabelle `cost_centers` (pflegbar), und **Übergangsregel**: Solange die Stelle fehlt, hat das Vorstandsamt Kassierer:in `forms.manage` (Capability über Zusatzrolle „Kassenführung“, Q5). |
+| R14 | Datenschutz: aktuell ein Vorstandsmitglied, langfristig vielleicht ein Mitarbeiter | Datenschutz-Ansprechperson als **Einstellung** (Name, E-Mail) auf der Datenschutzseite und in Feedback- und Importtexten, keine Rolle im Code. |
+
+## Aufwand nach der zweiten Runde
+| Paket | vorher | nachher | Grund |
+|---|---|---|---|
+| G | 11 | 11 | G6 entfällt (−0,5), Kostenstellen, Übergangsrecht und Ausnahme (+0,5) |
+| H | 6 | 7 | zusätzliche Filter (+1) |
+| I | – | 2 | neue Rollen Mitarbeitende und Geschäftsführung |
+| gesamt | 66 | **69** | |

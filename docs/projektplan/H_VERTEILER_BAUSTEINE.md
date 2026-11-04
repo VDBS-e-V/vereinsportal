@@ -1,6 +1,6 @@
 # Paket H: Verteiler, Rechte-Matrix und Grundbestand an Vorlagen und Textbausteinen
 
-Aufwand: **6 ET**. Ziel: Wiederkehrende Empfängerkreise sind als **benannte Verteiler** gespeichert, die Rechte je Rolle sind klar geregelt, und die Geschäftsstelle startet mit einem **umfangreichen Grundbestand** an Vorlagen und Textbausteinen.
+Aufwand: **7 ET**. Ziel: Wiederkehrende Empfängerkreise sind als **benannte Verteiler** gespeichert, die Rechte je Rolle sind klar geregelt, und die Geschäftsstelle startet mit einem **umfangreichen Grundbestand** an Vorlagen und Textbausteinen.
 
 ## 1 Ausgangslage
 - Rundschreiben (Vorstand, Geschäftsstelle) mit Gruppen nach Rolle, „Außer“-Auswahl, Einzelpersonen (Konten, Mitglieder, Schul-Ansprechpersonen, einzelne Adressen), Kontextstart ab Schule und Seminar. Koordination: Mitteilungen an Teamende zu Seminaren (Zielgruppe nach Seminar).
@@ -15,7 +15,7 @@ Aufwand: **6 ET**. Ziel: Wiederkehrende Empfängerkreise sind als **benannte Ver
 | Wer legt an? | `mail_segments.manage` (Geschäftsstelle, Vorstand). Der Vorstand darf Mitglieder-Verteiler anlegen, die Geschäftsstelle nicht. |
 | Wer nutzt? | Je Verteiler wählbar: Vorstand, Geschäftsstelle, Koordination (siehe Rechte-Matrix 4). |
 | Koordination und Gruppen | Annahme: Die Koordination darf **Teamende, Schulen (Ansprechpersonen), Bildungsreferenten** anschreiben, aber **nicht Mitglieder** und nicht den Vorstand. Bitte bestätigen (Frage 1). |
-| Filter | Gewünscht (Antwort 27): Bundesland der Schule, Schulart, Seminar (Teamende bestätigt/beworben), Einarbeitung offen, Rolle, Mitgliedschaft seit/bis (Jahr), Teamprofil vollständig/unvollständig, Kompetenzen, **Importierte Kontakte** (Zugang gesendet/benutzt/nie benutzt, aus Paket C0). Weitere nach Bedarf, Priorisierung in R9. |
+| Filter | Gewünscht (Antwort 27): Bundesland der Schule, Schulart, Seminar (Teamende bestätigt/beworben), Einarbeitung offen, Rolle, Mitgliedschaft seit/bis (Jahr), Teamprofil vollständig/unvollständig, Kompetenzen, **Importierte Kontakte** (Zugang gesendet/benutzt/nie benutzt, aus Paket C0). Gewünscht außerdem (Antwort R9): **PLZ-Bereich** (Anfang der Postleitzahl, z. B. `10`, `101`), **Altersgruppe** (aus dem Geburtsdatum der Person, Gruppen 18–29, 30–49, 50–64, 65+), **Mitgliedsstatus** (Antrag, Mitglied, beendet, kein Mitglied). Weitere Wünsche: Q6. |
 | Grundbestand | Als **Migration/Seeder** (`MailDefaults`), nur wenn die Tabellen leer sind; danach frei änderbar. Nie überschreiben. |
 
 ## 3 Datenmodell

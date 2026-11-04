@@ -1,6 +1,19 @@
 # Offene Fragen
 
-Stand: nach Ihren Antworten auf die ersten 28 Fragen (siehe `02_ENTSCHEIDUNGEN.md`). Hier stehen nur noch die **Rückfragen**, die sich aus Ihren Antworten ergeben. Wo Sie nicht antworten, gilt die Annahme.
+Stand: nach der zweiten Antwortrunde (siehe `02_ENTSCHEIDUNGEN.md`). Die Fragen R1 bis R14 sind beantwortet (Tabelle weiter unten als Archiv). **Offen sind nur noch Q1 bis Q7.** Wo Sie nicht antworten, gilt die Annahme.
+
+## Offen
+| Nr. | Thema | Frage | Annahme |
+|---|---|---|---|
+| Q1 | Mailsystem (C0) | In welchem Mailsystem liegt die Liste (Strato-Mail, Mailman, Brevo, Mailchimp, …)? Lässt sie sich als CSV mit einer Spalte E-Mail exportieren? Wie viele Adressen? | CSV-Export, bis 3 000 Adressen |
+| Q2 | Zugang (C0) | Da die Liste nur Adressen enthält: Darf die Bewerbungsseite beim ersten Aufruf Vorname und Nachname erfragen und der Adresse zuordnen? | ja, einmalig, danach vorbelegt |
+| Q3 | Rollen (I) | Welche **besonderen Rechte** hat die Geschäftsführung außer der Freigabe ab 50 €? Zum Beispiel Rundschreiben freigeben, Mitgliedschaften sehen, Protokoll lesen, Kostenstellen pflegen. | Freigabe ab 50 €, Kostenstellen pflegen, Nextcloud, Zwei-Faktor Pflicht; sonst nichts |
+| Q4 | Rollen (I) | Welche Rechte und welchen Bereich bekommen **Mitarbeitende**? Brauchen sie einen eigenen Bereich „Mitarbeitende“ (Start, Anträge, Nextcloud-Link), und soll der **Einsatzort** (z. B. „Schulbibliothek X“) erfasst werden? | Eigener kleiner Bereich mit Anträgen und Nextcloud-Link; Einsatzort als Freitext in der Rollenvergabe |
+| Q5 | Übergang (G) | Solange es die Stelle in der Geschäftsstelle nicht gibt, soll der **Kassierer im Vorstand** die Prüfung der Anträge und die Ausnahmen bei der Belegfrist übernehmen? Dann bekommt er eine Zusatzrolle „Kassenführung“ mit `forms.manage`. Wer prüft die Anträge der Kassenführung selbst? | Zusatzrolle „Kassenführung“; eigene Anträge der Kassenführung prüft eine andere Person mit `forms.approve` |
+| Q6 | Filter (H) | Weitere Filterwünsche außer PLZ, Alter, Mitgliedsstatus? (Das „…“ in Ihrer Antwort.) | Bundesland, Schulart, Seminar, Einarbeitung, Kompetenzen, Zugang gesendet/benutzt |
+| Q7 | Strato (A) | Welcher externe Cron-Dienst? Und sind `zip`, `gd`, `intl` im Tarif vorhanden? (Nicht beantwortet.) | cron-job.org, alle vorhanden |
+
+## Archiv: Fragen R1 bis R14 (beantwortet)
 
 | Nr. | Thema | Frage | Annahme |
 |---|---|---|---|

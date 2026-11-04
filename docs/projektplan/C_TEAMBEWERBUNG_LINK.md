@@ -1,6 +1,6 @@
 # Paket C: Import der Mailingliste, persönlicher Zugang, Teambewerbung ohne Konto, gemeinsame Teaminformation
 
-Aufwand: **12 ET**. Ziel: Die bestehende Mailingliste wird importiert. **Jede Person bekommt einen persönlichen Zugang mit Code**, der sie eindeutig einer Person zuordnet. Damit bewerben sich Teamende auf Seminare, bis die Teamkonten kommen (zeitnah danach). Nach der Auswahl wird das **ganze Team gemeinsam** informiert.
+Aufwand: **12 ET**. Ziel: Die bestehende Mailingliste (Einwilligung liegt vor, Export aus dem Mailsystem, **nur E-Mail-Adressen**) wird importiert. **Jede Adresse bekommt einen persönlichen Zugang mit Code**. Damit bewerben sich Teamende auf Seminare, bis die Teamkonten kommen (zeitnah danach). Der Zugang gilt **nur für Bewerbungen**; alles andere geht später über das Konto. Nach der Auswahl wird das **ganze Team gemeinsam** informiert.
 
 ## 1 Ausgangslage
 - `SeminarApplication` verlangt `user_id` (Konto der Rolle Team, Capability `seminars.apply`). Bewerben, Zurückziehen, Entscheidungen, Zusammensetzung (`review`), Vorschlag (`suggest`), Überschneidungswarnung (`conflicts`) und Benachrichtigungen (`send`) arbeiten mit `User`.
@@ -53,27 +53,27 @@ Die aktuelle Mailingliste wird ins Portal importiert. Alle auf der Liste bekomme
 
 **Datenmodell**
 - Vorhanden: `people` (Name, E-Mail, Telefon …, `email` eindeutig) und `mail_unsubscribes`/`mail_suppressions` (Abmeldungen, Sperren).
-- Neu: `people.contact_type` (z. B. `team_contact`) und `people.import_batch_id`.
-- Neu: `access_credentials`: `id`, `person_id` (FK), `token_hash` (SHA-256, Index), `code_hash` (SHA-256), `code_hint` (letzte 2 Zeichen, zur Rückfrage am Telefon), `created_at`, `last_used_at`, `revoked_at`, `expires_at` null, `sent_at` null, `uses` uint.
+- Neu: **`team_contacts`** statt `people` (die Liste hat nur Adressen; `people` verlangt Namen und Geburtsdatum): `id`, `email` (eindeutig, ohne Groß/Kleinschreibung), `first_name` null, `last_name` null, `phone` null, `competences` json null, `import_batch_id`, `consent_confirmed_at`, `person_id` null (wird beim Teamkonto gesetzt), `created_at`.
+- Neu: `access_credentials`: `id`, `contact_id` (FK `team_contacts`), `token_hash` (SHA-256, Index), `code_hash` (SHA-256), `code_hint` (letzte 2 Zeichen, zur Rückfrage am Telefon), `created_at`, `last_used_at`, `revoked_at`, `expires_at` null, `sent_at` null, `uses` uint.
 - Neu: `import_batches`: `id`, `kind` (`mailing_list`), `file_name`, `created_by_user_id`, `rows_total`, `rows_new`, `rows_updated`, `rows_skipped`, `rows_error`, `created_at`, `finished_at`.
 - Neu: `import_rows` (nur während der Prüfung, 14 Tage): `batch_id`, `line`, `data` json, `status`, `message`.
 
 **Ablauf der Oberfläche** (Bereich Geschäftsstelle, Recht `people.import`: Geschäftsstelle und Vorstand):
-1. **Datei hochladen** (CSV, UTF-8 oder Windows-1252, Trennzeichen `;`/`,` – die Schulen-Import-Logik `PartnerImport` ist Vorlage). Spalten: `E-Mail` (Pflicht), `Vorname`, `Nachname`, `Telefon`, optional `Kompetenzen`, `Bundesland`, `Anmerkung`. Eine Mustervorlage zum Download.
+1. **Datei hochladen** (CSV oder einfache Textliste mit einer Adresse pro Zeile, UTF-8 oder Windows-1252, Trennzeichen `;`/`,` – die Schulen-Import-Logik `PartnerImport` ist Vorlage). Pflichtspalte `E-Mail`; vorhandene weitere Spalten (`Vorname`, `Nachname`, `Telefon`) werden übernommen, sind aber nicht nötig. Mustervorlage zum Download. **Pflichthäkchen:** „Die Einwilligung zur E-Mail-Kommunikation liegt für alle Adressen vor.“ (protokolliert mit Datum und Person).
 2. **Vorschau, nichts wird gespeichert:** je Zeile neu, vorhanden (wird ergänzt), doppelt in der Datei, ungültige Adresse, Abgemeldet/Gesperrt (wird übernommen, aber **nicht angeschrieben**). Zusammenfassung mit Zahlen; Fehlerliste mit Zeilennummer.
 3. **Import bestätigen** (alles oder nichts, wie beim Schulen-Import und bei Veranstaltungslisten): legt `people` an bzw. ergänzt leere Felder (überschreibt nie vorhandene Daten) und erzeugt je Person einen Zugang (`access_credentials`).
 4. **Zugänge versenden:** über das Rundschreiben (Gruppe „Importierte Kontakte“ als Verteiler, Vorlage „Ihr persönlicher Zugang“ mit den Platzhaltern **`{zugangslink}`** und **`{zugangscode}`**). Die Platzhalter sind je Empfänger eindeutig; der Klartext von Link und Code wird **nur im Versandmoment erzeugt**, danach ist nur der Hash gespeichert. Erneutes Senden erzeugt neue Werte (alte gelten 14 Tage weiter oder werden sofort gesperrt, einstellbar).
 5. **Liste der Zugänge:** je Person Status (gesendet, benutzt, gesperrt), Neu senden, Sperren, Code vergeben (für Telefon: Zugang neu erzeugen und einmal anzeigen).
 
 **Datenschutz und Rechtsgrundlage**
-- Vor dem ersten Versand klären (Frage R1): Wie sind die Adressen der Liste entstanden, liegt eine Einwilligung zur E-Mail-Kommunikation vor? Der Importdialog zeigt dazu einen Pflichthinweis und protokolliert die Bestätigung der Geschäftsstelle (Datum, Person, kein Listeninhalt).
+- Einwilligung liegt vor (Antwort R1); der Importdialog verlangt die Bestätigung und protokolliert sie (Datum, Person, kein Listeninhalt). Abgemeldete im Mailsystem sollten vor dem Export entfernt werden (Hinweis im Dialog).
 - Abgemeldete/Gesperrte werden nie angeschrieben; Abmelden bleibt möglich (Rundschreiben-Mechanik).
 - Aufbewahrung: Kontakte ohne Aktivität und ohne Konto werden nach 24 Monaten ohne Nutzung des Zugangs zur Löschung vorgeschlagen (Aufgabenübersicht, kein automatisches Löschen).
 - Protokoll: „Import durchgeführt“ nur mit Zahlen.
 
 **Sicherheit des Zugangs**
 - Token und Code als Hash; Vergleich mit `hash_equals`; Drosselung je Adresse und je Code; kein Hinweis, ob ein Code existiert (immer „Code oder Link nicht gültig“).
-- Sitzung nach Zugang: kurzlebige Sitzung (30 Minuten Leerlauf), nur für Gast-Funktionen (Bewerbung, Antrag, Profil lesen/ändern der eigenen Kontaktdaten). Kein Zugriff auf Bereiche des Portals.
+- Sitzung nach Zugang: kurzlebige Sitzung (30 Minuten Leerlauf), **nur für die Bewerbung** (Offene Seminare ansehen, bewerben, zurückziehen, eigene Bewerbungen, Name und Telefon ändern). Kein Zugriff auf Bereiche des Portals, keine Anträge, kein Profil (das kommt mit dem Konto).
 - Erneuern/Sperren durch Geschäftsstelle; Person kann sich den Zugang per Adresse neu schicken lassen (neutrale Antwort wie beim Passwort-Zurücksetzen).
 
 **Tests** (`ImportAccessTest`): Vorschau schreibt nichts; alles oder nichts bei Fehlern; Duplikate (Datei und Bestand, unabhängig von Groß/Kleinschreibung); Abgemeldete werden nicht angeschrieben; Code funktioniert einmal pro Hash, falscher Code wird gedrosselt; Klartext nirgends gespeichert; Platzhalter je Person verschieden; Rechte (`people.import`); Sperren/Erneuern; Zugang öffnet keine Portalbereiche.
@@ -93,7 +93,7 @@ Ziel: Alle Dienste arbeiten mit einer Sicht auf Bewerbende, ob Konto oder Gast.
 - Platzhalter `{bewerbungslink}` für Teamende-Mitteilungen (Paket H nutzt ihn in der Vorlage „Team-Ausschreibung“).
 
 ### C3 Öffentliche Bewerbung (2 ET)
-**Persönlicher Zugang (Hauptweg):** `GET /z/{token}` und `GET|POST /zugang` (Code) öffnen die Seite „Offene Seminare für Sie“ (Liste der Seminare mit offener Bewerbung, Bewerben mit einem Klick, Rückzug, eigene Bewerbungen). Bewerbung ohne E-Mail-Bestätigung; Profil (Name, Telefon, Kompetenzen, Erfahrung, Führungswunsch) ist vorbelegt und änderbar. Honorar-Überblick sichtbar.
+**Persönlicher Zugang (Hauptweg):** `GET /z/{token}` und `GET|POST /zugang` (Code) öffnen die Seite „Offene Seminare für Sie“ (Liste der Seminare mit offener Bewerbung, Bewerben mit einem Klick, Rückzug, eigene Bewerbungen). **Beim ersten Aufruf** fragt die Seite einmalig Vorname und Nachname (und optional Telefon, Kompetenzen) ab und ordnet sie der Adresse zu; danach sind die Angaben vorbelegt (Antwort Q2, Annahme). Bewerbung ohne E-Mail-Bestätigung. Honorar-Überblick sichtbar.
 
 **Allgemeiner Link (Zweitweg):**
 Routen (ohne Anmeldung, `throttle:20,1`):
