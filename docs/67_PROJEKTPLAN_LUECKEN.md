@@ -1,5 +1,7 @@
 # 67 Projektplan: Lücken gegenüber der Anforderungsliste
 
+> **Detailpläne je Paket:** `docs/projektplan/` (Überblick `00_UEBERBLICK.md`, offene Fragen `01_OFFENE_FRAGEN.md`, Pakete A bis H). Dieses Dokument bleibt die Kurzfassung und Bestandsaufnahme.
+
 Stand: Plan, noch nichts davon gebaut. Grundlage ist eine Prüfung des Codes (Module, Migrationen, Routen) gegen die Liste des Vorstands. Aufwände sind grobe Schätzungen in Entwicklungstagen (ET) einer Person.
 
 Zeichen: ✓ abgedeckt, ◐ teilweise, ✗ fehlt.
