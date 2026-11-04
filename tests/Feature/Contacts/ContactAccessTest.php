@@ -353,7 +353,7 @@ it('filters by several access states at once', function () {
     $revoked = kcContact('gesperrt@example.org');
     $service = app(AccessCredentials::class);
     $service->issue($used)['credential']->forceFill(['sent_at' => now(), 'last_used_at' => now()])->save();
-    $service->issue($revoked);
+    $service->issue($revoked)['credential']->forceFill(['sent_at' => now()])->save();
     $service->revokeAll($revoked);
 
     $this->actingAs($user)->get(route('contacts.index', ['zugang' => ['benutzt', 'gesperrt']]))->assertOk()
