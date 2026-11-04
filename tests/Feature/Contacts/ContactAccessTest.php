@@ -25,7 +25,7 @@ beforeEach(function () {
     Mail::fake();
 });
 
-function ctUser(?RoleKey $role = RoleKey::AdministrationStaff): User
+function kcUser(?RoleKey $role = RoleKey::AdministrationStaff): User
 {
     $person = Person::factory()->create();
     $user = User::factory()->create(['person_id' => $person->id, 'email' => $person->email]);
@@ -37,13 +37,13 @@ function ctUser(?RoleKey $role = RoleKey::AdministrationStaff): User
     return $user;
 }
 
-function ctContact(string $email = 'kontakt@example.org', array $extra = []): TeamContact
+function kcContact(string $email = 'kontakt@example.org', array $extra = []): TeamContact
 {
     return TeamContact::query()->create(['email' => $email] + $extra);
 }
 
 it('checks a list without saving anything', function () {
-    ctContact('vorhanden@example.org');
+    kcContact('vorhanden@example.org');
 
     $preview = app(ContactImporter::class)->preview("E-Mail;Vorname\nneu@example.org;Anna\nvorhanden@example.org;Bea\nNEU@example.org;Doppelt\n");
 
@@ -53,7 +53,7 @@ it('checks a list without saving anything', function () {
 });
 
 it('reads a plain list with one address per line and the template columns', function () {
-    $user = ctUser();
+    $user = kcUser();
 
     $result = app(ContactImporter::class)->import("eins@example.org\nzwei@example.org;Zoe;Zander;030 1234\n", $user);
 
@@ -62,16 +62,16 @@ it('reads a plain list with one address per line and the template columns', func
 });
 
 it('imports nothing and names every faulty line', function () {
-    $result = app(ContactImporter::class)->import("E-Mail\ngut@example.org\nkaputt\nauch kaputt@\n", ctUser());
+    $result = app(ContactImporter::class)->import("E-Mail\ngut@example.org\nkaputt\nauch kaputt@\n", kcUser());
 
     expect($result['created'])->toBe(0)->and($result['errors'])->toHaveCount(2)->and($result['errors'][0])->toContain('Zeile 3')
         ->and(TeamContact::query()->count())->toBe(0);
 });
 
 it('does not overwrite existing data but fills empty fields', function () {
-    ctContact('a@example.org', ['first_name' => 'Alt']);
+    kcContact('a@example.org', ['first_name' => 'Alt']);
 
-    $result = app(ContactImporter::class)->import("E-Mail;Vorname;Nachname\na@example.org;Neu;Müller\n", ctUser());
+    $result = app(ContactImporter::class)->import("E-Mail;Vorname;Nachname\na@example.org;Neu;Müller\n", kcUser());
 
     $contact = TeamContact::query()->where('email', 'a@example.org')->first();
     expect($result['updated'])->toBe(1)->and($contact->first_name)->toBe('Alt')->and($contact->last_name)->toBe('Müller');
@@ -100,7 +100,7 @@ it('marks blocked and unsubscribed addresses in the preview but still imports th
 });
 
 it('previews and imports through the pages with the consent and logs only numbers', function () {
-    $user = ctUser();
+    $user = kcUser();
 
     $this->actingAs($user)->post(route('contacts.import.preview'), ['list' => "a@example.org\nb@example.org", 'consent' => '0'])->assertSessionHasErrors('consent');
     $this->post(route('contacts.import.preview'), ['list' => "a@example.org\nb@example.org", 'consent' => '1'])->assertOk()->assertSee('a@example.org');
@@ -116,7 +116,7 @@ it('previews and imports through the pages with the consent and logs only number
 });
 
 it('accepts an uploaded file and offers the template', function () {
-    $user = ctUser();
+    $user = kcUser();
     $file = UploadedFile::fake()->createWithContent('liste.csv', "E-Mail;Vorname\nx@example.org;Xaver\n");
 
     $this->actingAs($user)->post(route('contacts.import.preview'), ['file' => $file, 'consent' => '1'])->assertOk()->assertSee('x@example.org');
@@ -127,18 +127,18 @@ it('keeps the contact pages for the office and the board', function () {
     $this->get(route('contacts.index'))->assertRedirect(route('login'));
 
     foreach ([RoleKey::Coordination, RoleKey::Team, RoleKey::Member, null] as $role) {
-        $this->actingAs(ctUser($role))->get(route('contacts.index'))->assertForbidden();
+        $this->actingAs(kcUser($role))->get(route('contacts.index'))->assertForbidden();
     }
 
     foreach ([RoleKey::AdministrationStaff, RoleKey::BoardMember] as $role) {
-        $this->actingAs(ctUser($role))->get(route('contacts.index'))->assertOk();
+        $this->actingAs(kcUser($role))->get(route('contacts.index'))->assertOk();
     }
 });
 
 it('lists contacts with their access state and finds them', function () {
-    $user = ctUser();
-    $contact = ctContact('suche@example.org', ['first_name' => 'Susi', 'last_name' => 'Suche']);
-    ctContact('andere@example.org');
+    $user = kcUser();
+    $contact = kcContact('suche@example.org', ['first_name' => 'Susi', 'last_name' => 'Suche']);
+    kcContact('andere@example.org');
 
     $this->actingAs($user)->get(route('contacts.index'))->assertOk()->assertSee('suche@example.org')->assertSee('andere@example.org');
     $this->get(route('contacts.index', ['q' => 'Susi']))->assertOk()->assertSee('suche@example.org')->assertDontSee('andere@example.org');
@@ -148,7 +148,7 @@ it('lists contacts with their access state and finds them', function () {
 });
 
 it('stores only hashes of the link and the code', function () {
-    $contact = ctContact();
+    $contact = kcContact();
 
     $issued = app(AccessCredentials::class)->issue($contact);
     $row = AccessCredential::query()->first();
@@ -160,7 +160,7 @@ it('stores only hashes of the link and the code', function () {
 });
 
 it('logs in with the link and with email and code', function () {
-    $contact = ctContact();
+    $contact = kcContact();
     $issued = app(AccessCredentials::class)->issue($contact);
 
     $this->get(route('access.link', ['token' => $issued['token']]))->assertRedirect(route('access.home'));
@@ -175,7 +175,7 @@ it('logs in with the link and with email and code', function () {
 });
 
 it('gives the same answer for a wrong link, a wrong code and an unknown address', function () {
-    $contact = ctContact();
+    $contact = kcContact();
     app(AccessCredentials::class)->issue($contact);
 
     $this->get(route('access.link', ['token' => str_repeat('a', 40)]))->assertRedirect(route('access.code'))->assertSessionHasErrors('code');
@@ -184,7 +184,7 @@ it('gives the same answer for a wrong link, a wrong code and an unknown address'
 });
 
 it('blocks the code entry for an address after five wrong tries, even with the right code', function () {
-    $contact = ctContact();
+    $contact = kcContact();
     $issued = app(AccessCredentials::class)->issue($contact);
     RateLimiter::clear('contact-code:'.sha1($contact->email));
 
@@ -197,7 +197,7 @@ it('blocks the code entry for an address after five wrong tries, even with the r
 });
 
 it('does not accept revoked or expired access', function () {
-    $contact = ctContact();
+    $contact = kcContact();
     $service = app(AccessCredentials::class);
     $issued = $service->issue($contact);
 
@@ -212,7 +212,7 @@ it('does not accept revoked or expired access', function () {
 });
 
 it('ends the session after the idle time', function () {
-    $contact = ctContact();
+    $contact = kcContact();
     $issued = app(AccessCredentials::class)->issue($contact);
 
     $this->get(route('access.link', ['token' => $issued['token']]));
@@ -223,7 +223,7 @@ it('ends the session after the idle time', function () {
 });
 
 it('keeps an older access valid for the grace time and then lets it expire', function () {
-    $contact = ctContact();
+    $contact = kcContact();
     $service = app(AccessCredentials::class);
     $old = $service->issue($contact);
     $new = $service->issue($contact);
@@ -235,7 +235,7 @@ it('keeps an older access valid for the grace time and then lets it expire', fun
 });
 
 it('opens only the pages for applications and no area of the portal', function () {
-    $contact = ctContact();
+    $contact = kcContact();
     $issued = app(AccessCredentials::class)->issue($contact);
     $this->get(route('access.link', ['token' => $issued['token']]));
 
@@ -245,7 +245,7 @@ it('opens only the pages for applications and no area of the portal', function (
 });
 
 it('saves the details only with the tick and otherwise only for the visit', function () {
-    $contact = ctContact();
+    $contact = kcContact();
     $issued = app(AccessCredentials::class)->issue($contact);
     $this->get(route('access.link', ['token' => $issued['token']]));
 
@@ -259,8 +259,8 @@ it('saves the details only with the tick and otherwise only for the visit', func
 });
 
 it('sends the access mail with link and code and stores nothing in clear', function () {
-    $user = ctUser();
-    $contact = ctContact('post@example.org', ['first_name' => 'Pia']);
+    $user = kcUser();
+    $contact = kcContact('post@example.org', ['first_name' => 'Pia']);
 
     $this->actingAs($user)->post(route('contacts.send', $contact))->assertRedirect(route('contacts.index'))->assertSessionHas('success');
 
@@ -274,9 +274,9 @@ it('sends the access mail with link and code and stores nothing in clear', funct
 });
 
 it('sends different links and codes to different people', function () {
-    $user = ctUser();
-    $a = ctContact('a@example.org');
-    $b = ctContact('b@example.org');
+    $user = kcUser();
+    $a = kcContact('a@example.org');
+    $b = kcContact('b@example.org');
 
     $this->actingAs($user)->post(route('contacts.send', $a));
     $this->post(route('contacts.send', $b));
@@ -286,12 +286,12 @@ it('sends different links and codes to different people', function () {
 });
 
 it('sends nothing to blocked or unsubscribed addresses', function () {
-    $user = ctUser();
+    $user = kcUser();
     app(MailSuppressions::class)->suppress('gesperrt@example.org', 'manual', null, null);
     app(MailUnsubscribes::class)->unsubscribe('abgemeldet@example.org', 'team_mailings');
-    $blocked = ctContact('gesperrt@example.org');
-    $unsubscribed = ctContact('abgemeldet@example.org');
-    ctContact('frei@example.org');
+    $blocked = kcContact('gesperrt@example.org');
+    $unsubscribed = kcContact('abgemeldet@example.org');
+    kcContact('frei@example.org');
 
     $this->actingAs($user)->post(route('contacts.send', $blocked))->assertSessionHas('warning');
     $this->post(route('contacts.send', $unsubscribed))->assertSessionHas('warning');
@@ -302,9 +302,9 @@ it('sends nothing to blocked or unsubscribed addresses', function () {
 });
 
 it('sends to all without an access once and not again', function () {
-    $user = ctUser();
-    ctContact('a@example.org');
-    ctContact('b@example.org');
+    $user = kcUser();
+    kcContact('a@example.org');
+    kcContact('b@example.org');
 
     $this->actingAs($user)->post(route('contacts.send-all'));
     $this->post(route('contacts.send-all'));
@@ -313,7 +313,7 @@ it('sends to all without an access once and not again', function () {
 });
 
 it('sends a new access on request with the same answer for known and unknown addresses', function () {
-    ctContact('bekannt@example.org');
+    kcContact('bekannt@example.org');
 
     $known = $this->post(route('access.resend'), ['email' => 'bekannt@example.org']);
     $knownMessage = session('success');
@@ -326,8 +326,8 @@ it('sends a new access on request with the same answer for known and unknown add
 });
 
 it('revokes an access and deletes a contact with its credentials', function () {
-    $user = ctUser();
-    $contact = ctContact();
+    $user = kcUser();
+    $contact = kcContact();
     $issued = app(AccessCredentials::class)->issue($contact);
 
     $this->actingAs($user)->post(route('contacts.revoke', $contact))->assertSessionHas('success');
@@ -338,7 +338,7 @@ it('revokes an access and deletes a contact with its credentials', function () {
 });
 
 it('shows open seminars read-only on the access page', function () {
-    $contact = ctContact();
+    $contact = kcContact();
     $seminar = \App\Modules\Seminars\Models\Seminar::factory()->create(['title' => 'Offenes Seminar', 'status' => 'scheduled', 'team_needed' => 3, 'application_deadline' => now()->addWeek()]);
     $issued = app(AccessCredentials::class)->issue($contact);
 
