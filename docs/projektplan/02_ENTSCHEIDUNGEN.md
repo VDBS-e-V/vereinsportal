@@ -71,3 +71,24 @@ Antworten des Vorstands auf die 28 Fragen aus `01_OFFENE_FRAGEN.md` (Stand: Antw
 | H | 6 | 7 | zusätzliche Filter (+1) |
 | I | – | 2 | neue Rollen Mitarbeitende und Geschäftsführung |
 | gesamt | 66 | **69** | |
+
+---
+
+# Dritte Runde (Antworten auf Q1 bis Q7)
+
+| Nr. | Antwort | Folge |
+|---|---|---|
+| Q1 | Kein Export aus dem Mailsystem; **Sie bekommen eine Vorlage und tragen die Adressen händisch ein** | C0: Download **Vorlage** (CSV, Excel-tauglich, mit Kopfzeile und Beispielzeile) plus **Eingabe im Browser** (Textfeld, eine Adresse pro Zeile, oder Tabelle). Beides führt in dieselbe Vorschau. Die Einwilligung bestätigen Sie weiterhin im Dialog. |
+| Q2 | Name wird abgefragt, **nur mit der Option „für die Zukunft speichern“**. Zusätzlich **freiwillige Adresse** (praktisch zum Vorausfüllen von Verträgen) | C3: Beim ersten Zugang fragt die Seite Vor- und Nachname (Pflicht für die Bewerbung) und freiwillig Telefon und Anschrift. Das Häkchen „Für die Zukunft speichern“ entscheidet, ob die Angaben im Kontakt bleiben. Ohne Häkchen gelten sie nur für diese Bewerbung und werden mit ihr gelöscht (Frist 6 Monate nach Seminarende). Vertragsvorlage: Rückfrage Q9. |
+| Q3 | Rechte der Geschäftsführung **exakt wie geplant**, mehr später | I: Freigabe ab 50 €, Kostenstellen pflegen, Nextcloud/Moodle, Zwei-Faktor Pflicht. |
+| Q4 | Langfristig Bereich Mitarbeitende mit **Arbeitszeiterfassung** u. a. | I3: Bereich zunächst klein; neue Datei `J_AUSBLICK_MITARBEITENDE.md` skizziert den späteren Ausbau (nicht Teil der 69 ET). |
+| Q5 | Kassenführung: „er selber / andere aus dem Vorstand“ | G6: Die Kassenführung darf die **Prüfung** ihrer eigenen Anträge selbst vornehmen (Vermerk „Selbstprüfung“ im Verlauf, für alle sichtbar), andere Vorstandsmitglieder können es ebenfalls. Die **Freigabe** über 50 € gibt immer eine andere Person. Freigabe bis 50 € der eigenen Anträge: Rückfrage Q8. |
+| Q6 | Keine weiteren Filter, „außer du hast gute Ideen“ | H2: Vorschläge, die ich einbaue (+0,25 ET): *Bewerbung in den letzten 12 Monaten / nie beworben*, *Zugang gesendet aber nie geöffnet*, *durchgeführte Seminare (mindestens n)*, *Teamprofil vollständig*, *Einarbeitung abgeschlossen*. |
+| Q7 | **cron-job.org**; Erweiterungen unbekannt | A1: neues Prüfskript `scripts/hostcheck.php` (liegt bereits im Repository), das Sie per FTP hochladen und im Browser öffnen: zeigt PHP-Version, alle Erweiterungen, Grenzwerte, Schreibrechte, HTTPS und testet die Datenbank. Damit ist Q7 in fünf Minuten beantwortet. A6: Anleitung für cron-job.org (URL mit Schlüssel, Takt 1 Minute, Zeitüberschreitung 60 s, Benachrichtigung bei Fehlschlag). |
+
+## Aufwand nach der dritten Runde
+| Paket | vorher | nachher | Grund |
+|---|---|---|---|
+| C | 12 | 12,5 | Vorlage und Eingabe im Browser (+0,25), Adresse und Speicheroption (+0,25) |
+| H | 7 | 7,25 | zusätzliche Filter |
+| gesamt | 69 | **70** | (Rundung) |

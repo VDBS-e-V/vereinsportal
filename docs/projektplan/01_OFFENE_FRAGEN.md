@@ -3,15 +3,13 @@
 Stand: nach der zweiten Antwortrunde (siehe `02_ENTSCHEIDUNGEN.md`). Die Fragen R1 bis R14 sind beantwortet (Tabelle weiter unten als Archiv). **Offen sind nur noch Q1 bis Q7.** Wo Sie nicht antworten, gilt die Annahme.
 
 ## Offen
+Die Fragen Q1 bis Q7 sind beantwortet (siehe `02_ENTSCHEIDUNGEN.md`, dritte Runde). **Offen sind nur noch Q8 bis Q10.** Keine davon blockiert den Start von Paket A.
+
 | Nr. | Thema | Frage | Annahme |
 |---|---|---|---|
-| Q1 | Mailsystem (C0) | In welchem Mailsystem liegt die Liste (Strato-Mail, Mailman, Brevo, Mailchimp, …)? Lässt sie sich als CSV mit einer Spalte E-Mail exportieren? Wie viele Adressen? | CSV-Export, bis 3 000 Adressen |
-| Q2 | Zugang (C0) | Da die Liste nur Adressen enthält: Darf die Bewerbungsseite beim ersten Aufruf Vorname und Nachname erfragen und der Adresse zuordnen? | ja, einmalig, danach vorbelegt |
-| Q3 | Rollen (I) | Welche **besonderen Rechte** hat die Geschäftsführung außer der Freigabe ab 50 €? Zum Beispiel Rundschreiben freigeben, Mitgliedschaften sehen, Protokoll lesen, Kostenstellen pflegen. | Freigabe ab 50 €, Kostenstellen pflegen, Nextcloud, Zwei-Faktor Pflicht; sonst nichts |
-| Q4 | Rollen (I) | Welche Rechte und welchen Bereich bekommen **Mitarbeitende**? Brauchen sie einen eigenen Bereich „Mitarbeitende“ (Start, Anträge, Nextcloud-Link), und soll der **Einsatzort** (z. B. „Schulbibliothek X“) erfasst werden? | Eigener kleiner Bereich mit Anträgen und Nextcloud-Link; Einsatzort als Freitext in der Rollenvergabe |
-| Q5 | Übergang (G) | Solange es die Stelle in der Geschäftsstelle nicht gibt, soll der **Kassierer im Vorstand** die Prüfung der Anträge und die Ausnahmen bei der Belegfrist übernehmen? Dann bekommt er eine Zusatzrolle „Kassenführung“ mit `forms.manage`. Wer prüft die Anträge der Kassenführung selbst? | Zusatzrolle „Kassenführung“; eigene Anträge der Kassenführung prüft eine andere Person mit `forms.approve` |
-| Q6 | Filter (H) | Weitere Filterwünsche außer PLZ, Alter, Mitgliedsstatus? (Das „…“ in Ihrer Antwort.) | Bundesland, Schulart, Seminar, Einarbeitung, Kompetenzen, Zugang gesendet/benutzt |
-| Q7 | Strato (A) | Welcher externe Cron-Dienst? Und sind `zip`, `gd`, `intl` im Tarif vorhanden? (Nicht beantwortet.) | cron-job.org, alle vorhanden |
+| Q8 | Eigene Anträge (G) | Darf die Kassenführung eigene Anträge **bis 50 €** auch selbst **freigeben**, oder gibt die Freigabe immer eine andere Person? (Prüfen darf sie selbst, Antwort Q5.) | Freigabe immer eine andere Person, auch bis 50 € |
+| Q9 | Verträge (D) | Gibt es Verträge für Teamende (z. B. Honorarvertrag), die das Portal mit Name, Anschrift, Seminar, Terminen und Honorar **vorausfüllen** soll? Dann brauche ich die Vorlage. (+2 ET, als PDF/Druckansicht in der Seminarsicherung) | Später, nach Lieferung der Vorlage |
+| Q10 | Kostenstellen (G6) | Die Liste der Kostenstellen kann der Kassierer als einfache Tabelle (Nummer, Name) liefern; wir importieren sie einmalig. | ja |
 
 ## Archiv: Fragen R1 bis R14 (beantwortet)
 

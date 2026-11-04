@@ -15,7 +15,7 @@ Aufwand: **8,75 ET**. Hoster: **Strato Webhosting** (PHP 8.4, Document-Root frei
 
 ## 2 Entscheidungen
 
-1. **Cron-Aufruf (Hauptweg):** Ein externer Dienst (z. B. cron-job.org, EasyCron oder Uptime-Dienst mit Zeitplan) ruft **jede Minute** `https://portal.example/cron/<SCHLÜSSEL>` auf. Takt und Dienst sind frei konfigurierbar. Der Schlüssel steht in der `.env` (`CRON_KEY`), ist in der Systemsteuerung sichtbar und **erneuerbar**. Ein PHP-Cron im Kundenmenü wäre die Alternative (`php artisan portal:tick`).
+1. **Cron-Aufruf (Hauptweg):** Ein externer Dienst (z. B. cron-job.org, EasyCron oder Uptime-Dienst mit Zeitplan) ruft **jede Minute** `https://portal.example/cron/<SCHLÜSSEL>` auf. Takt und Dienst sind frei konfigurierbar. **Dienst: cron-job.org** (Antwort Q7): neuer Cronjob, Adresse `https://portal.example/cron/<SCHLÜSSEL>`, Zeitplan „jede Minute“, Zeitüberschreitung 60 Sekunden, Methode GET, Benachrichtigung bei mehrfachem Fehlschlag aktivieren. Der Schlüssel steht in der `.env` (`CRON_KEY`), ist in der Systemsteuerung sichtbar und **erneuerbar**. Ein PHP-Cron im Kundenmenü wäre die Alternative (`php artisan portal:tick`).
 2. **Ein Befehl für alles:** `portal:tick` führt `schedule:run` aus und arbeitet danach höchstens 45 Sekunden Aufträge ab (`queue:work --stop-when-empty --max-time=45`). Eine Sperre (`Cache::lock`) verhindert, dass zwei Läufe gleichzeitig laufen.
 3. **Einrichtung im Browser** statt Konsole, mit Einmal-Token aus der `.env` und Sperrdatei danach.
 4. **Release-Paket** wird lokal gebaut; der Server bekommt nur fertige Dateien.
@@ -24,6 +24,8 @@ Aufwand: **8,75 ET**. Hoster: **Strato Webhosting** (PHP 8.4, Document-Root frei
 ## 3 Arbeitspakete
 
 ### A1 Hoster-Prüfung und Dokument `docs/68_WEBHOSTING.md` (0,5 ET)
+**Schnelltest sofort möglich:** `scripts/hostcheck.php` (liegt im Repository). Passwort in der Datei eintragen, per FTP hochladen, `https://IHRE-DOMAIN/hostcheck.php?key=PASSWORT` öffnen. Die Seite listet PHP-Version, alle nötigen und gewünschten Erweiterungen, Grenzwerte, gesperrte Funktionen, Schreibrechte, HTTPS und testet auf Wunsch die Datenbank. **Danach löschen.** Das Ergebnis schicken Sie mir (Foto oder Text), daraus entsteht die ausgefüllte Tabelle.
+
 Checkliste, die Sie beim Hoster abfragen oder im Kundenmenü ablesen:
 
 | Frage | Mindestens | Wo nachsehen |

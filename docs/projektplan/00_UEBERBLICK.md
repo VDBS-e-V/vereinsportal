@@ -18,15 +18,15 @@ Stand: Plan. Ersetzt den Kurzplan in `docs/67_PROJEKTPLAN_LUECKEN.md` im Detail;
 |---|---|---|---|---|
 | A | Betrieb auf Webhosting ohne Konsole | `A_BETRIEB_WEBHOSTING.md` | 8,75 | – |
 | B | Seminarnummer und Stammdaten | `B_SEMINARNUMMER.md` | 3 | A (nur für Livegang) |
-| C | Import der Mailingliste, persönlicher Zugang, Teambewerbung, gemeinsame Teaminformation | `C_TEAMBEWERBUNG_LINK.md` | 12 | B |
+| C | Import der Mailingliste, persönlicher Zugang, Teambewerbung, gemeinsame Teaminformation | `C_TEAMBEWERBUNG_LINK.md` | 12,5 | B |
 | D | Sicherung des Seminars (Dokumente, Statistik, Mappe) | `D_SEMINARSICHERUNG.md` | 8 | B |
 | E | Digitale Feedbackformulare | `E_FEEDBACK.md` | 11,5 | B, D (Schnappschuss) |
 | F | SSO / OAuth als Anbieter | `F_SSO.md` | 6 | A (Schlüssel und Einrichtung) |
 | G | Formulare der Geschäftsstelle | `G_FORMULARE_GESCHAEFTSSTELLE.md` | 11 | A, C (persönlicher Zugang für Teamende) |
-| H | Verteiler, Rechte-Matrix, Grundbestand Bausteine | `H_VERTEILER_BAUSTEINE.md` | 7 | – |
+| H | Verteiler, Rechte-Matrix, Grundbestand Bausteine | `H_VERTEILER_BAUSTEINE.md` | 7,25 | – |
 | I | Neue Rollen Mitarbeitende und Geschäftsführung | `I_ROLLEN.md` | 2 | – (vor G) |
 
-Summe: **69 ET** (Details der Änderungen in `02_ENTSCHEIDUNGEN.md`), Schätzung ±30 %. Ein Entwicklungstag meint einen Arbeitstag einer Person einschließlich Tests und Doku.
+Summe: **70 ET** (Details der Änderungen in `02_ENTSCHEIDUNGEN.md`), Schätzung ±30 %. Ein Entwicklungstag meint einen Arbeitstag einer Person einschließlich Tests und Doku.
 
 ### Empfohlene Reihenfolge und Meilensteine
 

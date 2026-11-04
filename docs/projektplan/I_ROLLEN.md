@@ -30,6 +30,9 @@ Eine Person kann mehrere Rollen tragen. Rollen werden zeitlich begrenzt vergeben
 ### I3 Bereich „Mitarbeitende“ (0,5 ET)
 Neuer Bereich in `PortalNavigation` (Gruppe, Kennzeichnung nach `docs/43_BEREICHE.md`): Seiten Start (Hinweise, eigene Anträge, offene Rückfragen), Anträge (Paket G), Link zu Nextcloud (Einstellung `NEXTCLOUD_URL`). Aufgabenübersicht zeigt offene Rückfragen.
 
+### I3a Ausblick (nicht Teil der 2 ET)
+Langfristig bekommt der Bereich Mitarbeitende eine **Arbeitszeiterfassung** und weitere Funktionen; siehe `J_AUSBLICK_MITARBEITENDE.md`.
+
 ### I4 Tests und Doku (0,25 ET)
 `RolesTest`: Rollen vorhanden, Rechte-Matrix, Vergaberegel (Geschäftsstelle kann `managing_director` nicht vergeben, Vorstand kann), Zwei-Faktor-Pflicht, Bereich sichtbar nur mit Rolle. Doku `docs/43_BEREICHE.md` und `docs/40_NUTZERVERWALTUNG.md`.
 
@@ -40,4 +43,4 @@ Neuer Bereich in `PortalNavigation` (Gruppe, Kennzeichnung nach `docs/43_BEREICH
 4. Beide richten bei der nächsten Anmeldung Zwei-Faktor ein.
 
 ## 5 Offene Fragen
-Q3 (weitere Rechte der Geschäftsführung), Q4 (Rechte und Bereich der Mitarbeitenden, Einsatzort als Feld), Q5 (Zusatzrolle Kassenführung).
+Beantwortet: Q3 (Rechte wie geplant), Q4 (Bereich langfristig mit Arbeitszeiterfassung), Q5 (Kassenführung prüft selbst, Freigabe immer durch andere Person).
