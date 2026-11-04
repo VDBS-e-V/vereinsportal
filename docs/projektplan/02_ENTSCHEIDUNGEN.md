@@ -110,3 +110,15 @@ Zusätzlich liegt `vorlagen/mailingliste_vorlage.csv` bereit (Spalten `E-Mail;Vo
 |---|---|
 | K | neu, 4,5 ET |
 | gesamt | **74,5 ET** |
+
+---
+
+# Fünfte Runde (Antworten auf Q11 bis Q15)
+
+| Nr. | Antwort | Folge |
+|---|---|---|
+| Q11 | Vergütung aus dem Kostenvoranschlag | K wie geplant. |
+| Q12 | 30 Cent je km, **Vertragstext vorerst nicht anpassen** | G3: 30 Cent. K: Text wortgleich zur Vorlage. Der Hinweis auf das Bundesreisekostengesetz bleibt als offene Prüfaufgabe für die Steuerberatung (Risikotabelle in K). |
+| Q13 | Teamende wählen die Umsatzsteuer | K2: Auswahl in „Meine Vertragsdaten“; ohne Angabe bleiben die Kästchen unausgefüllt. |
+| Q14 | Nur zum Ausdrucken, Unterschrift an den Seminartagen | K4: kein Versand, Status `created → signed`, Erinnerung an fehlende Scans. |
+| Q15 | „Wo sind die Kostenstellen?“ | Die Vorlage liegt im Repository unter `docs/projektplan/vorlagen/kostenstellen_vorlage.csv` und wurde Ihnen im Chat zugeschickt. |

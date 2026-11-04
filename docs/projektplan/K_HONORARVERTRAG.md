@@ -25,10 +25,10 @@ Rot markierte Stellen der Vorlage sind die **veränderlichen Felder**: Leistung,
 |---|---|
 | Wer erzeugt Verträge? | Koordination (`contracts.manage`), je Seminar für alle bestätigten Teamende auf einen Klick. Geschäftsstelle und Vorstand dürfen ebenfalls. |
 | Wann? | Nach der Teambestätigung (Paket C5), vor dem Seminar. |
-| Unterschrift | Auf Papier. Der Verein unterschreibt, die Person unterschreibt, der **Scan wird als Dokument abgelegt** (Seminar-Dokumente, Paket D, Art `contract`). Eine digitale Signatur ist nicht Teil dieses Pakets. |
+| Unterschrift | Auf Papier, **an den Seminartagen** (Antwort Q14). Das Portal erzeugt die Verträge nur zum **Ausdrucken**, es versendet sie nicht. Nach dem Seminartag wird der **Scan als Dokument abgelegt** (Seminar-Dokumente, Paket D, Art `contract`). Eine digitale Signatur ist nicht Teil dieses Pakets. |
 | Fehlende Daten | Fehlt ein Wert (z. B. Steuernummer), druckt das Portal eine **leere Zeile zum Ausfüllen von Hand**. Der Vertrag lässt sich also auch ohne Vertragsdaten erzeugen. |
-| Vergütung | Aus dem Kostenvoranschlag des Seminars (Honorar nach Stunden je Tag, Zuschlag für die Leitung), **vor dem Erzeugen änderbar**. Festbeträge je Seminar möglich. |
-| Umsatzsteuer | Voreinstellung „ohne Umsatzsteuer“. Die Auswahl treffen die Person (in ihren Vertragsdaten) oder die Koordination. |
+| Vergütung | **Übernahme aus dem Kostenvoranschlag** (Antwort Q11): Honorar nach Stunden je Tag, Zuschlag für die Leitung. Vor dem Erzeugen änderbar (mit Vermerk). |
+| Umsatzsteuer | **Teamende wählen** (Antwort Q13) in ihren Vertragsdaten (19 %, 7 %, ohne). Ohne Angabe druckt der Vertrag die drei Kästchen unausgefüllt, die Person kreuzt am Seminartag an. |
 | Vertragstext | Wortgleich aus der Vorlage; als **versionierter Text** im Portal (Datenbank), änderbar nur durch den Vorstand, jede Version bleibt erhalten. Platzhalter, keine freie Textbearbeitung im Einzelvertrag außer der Leistungsbeschreibung. |
 | Aufbewahrung | Wie Seminarunterlagen: 10 Jahre (Abrechnungsunterlage). |
 
@@ -47,7 +47,7 @@ Rot markierte Stellen der Vorlage sind die **veränderlichen Felder**: Leistung,
 | applicant_ref | Verweis auf Teamkonto (`user_id`) oder Kontakt (`contact_id`) |
 | template_id, template_version | |
 | data | json: Name, Anschrift, Steuernummer (verschlüsselt), USt-Art, Bank, BIC, IBAN (verschlüsselt), Leistungstext, Betrag in Cent, Ort, Datum |
-| status | `draft`, `created`, `sent`, `signed`, `cancelled` |
+| status | `draft`, `created`, `signed`, `cancelled` |
 | pdf_path | erzeugte Datei (privat) |
 | signed_document_id | FK `seminar_documents` (Scan) |
 | created_by_user_id, created_at, signed_at | |
@@ -75,7 +75,7 @@ Rot markierte Stellen der Vorlage sind die **veränderlichen Felder**: Leistung,
 - Seminarseite, Abschnitt **Verträge** (sichtbar, sobald mindestens eine Person bestätigt ist): Tabelle je bestätigter Person mit Status, Vergütung, Datum, Knöpfen **Vertrag erzeugen**, **Ansehen/Herunterladen**, **Als versendet markieren**, **Unterschriebenen Scan hochladen** (PDF/JPEG/PNG, wird als Seminar-Dokument Art `contract` abgelegt), **Stornieren**.
 - Sammelknopf **Alle Verträge erzeugen**; Sammel-PDF (ein Dokument, eine Seite je Vertrag) zum Drucken.
 - **Vorschau und Bearbeitung vor dem Erzeugen:** Leistungstext (vorbelegt aus Seminar: „Durchführung des Seminars <Leistung> <Titel> an der <Schule> am <Termine>, <Stunden> Stunden“), Vergütung (aus dem Kostenvoranschlag, änderbar mit Vermerk), USt-Art, Ort und Datum.
-- **Versand** (optional): Mail an die Person mit Anhang (PDF) über das Rundschreiben-System (Vorlage „Honorarvertrag“, Paket H), nur Anhang und kurze Erklärung; kein Vertragsinhalt im Mailtext.
+- **Kein Versand** (Antwort Q14): Die Verträge werden nur gedruckt und an den Seminartagen unterschrieben. Der Knopf „Als versendet markieren“ entfällt; Status: `created` → `signed`. Die Aufgabenübersicht erinnert nach dem letzten Seminartag an fehlende Scans.
 - Abschluss-Checkliste (Paket D3): „Verträge unterschrieben“ wird automatisch erkannt, wenn jeder bestätigten Person ein unterschriebener Scan zugeordnet ist.
 - Protokoll: „Vertrag erzeugt/unterschrieben“ mit Seminarnummer und Zahl, keine Namen, keine Beträge.
 
@@ -108,4 +108,4 @@ Doku `docs/70_HONORARVERTRAG.md` und Anleitung in einfacher Sprache.
 | Unterschrift auf Papier verzögert | Statusanzeige „offen“ und Erinnerung in der Aufgabenübersicht |
 
 ## 7 Offene Fragen
-Siehe `01_OFFENE_FRAGEN.md`: Q11 (Vergütungsregel), Q12 (Reisekostensatz), Q13 (Steuerthemen), Q14 (Versand des Vertrags).
+Beantwortet: Q11 (aus Kostenvoranschlag), Q12 (30 Cent, Vertragstext unverändert), Q13 (Teamende wählen die Umsatzsteuer), Q14 (nur drucken, Unterschrift an den Seminartagen). Offen bleibt nur Q15 (Kostenstellen).
