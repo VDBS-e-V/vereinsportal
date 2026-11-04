@@ -123,7 +123,7 @@ class AccessController extends Controller
     {
         $this->credentials->touch($credential);
         $request->session()->regenerate();
-        $request->session()->put('contact_access', ['credential' => $credential->id, 'at' => time()]);
+        $request->session()->put('contact_access', ['credential' => $credential->id, 'at' => now()->getTimestamp()]);
 
         return redirect()->route('access.home');
     }

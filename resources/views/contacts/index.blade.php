@@ -4,8 +4,7 @@
     $count = $total === 1 ? '1 Adresse' : $total.' Adressen';
     $active = collect([
         $filters['q'] !== null ? ['label' => 'Suche: '.$filters['q'], 'href' => request()->fullUrlWithoutQuery(['q', 'page'])] : null,
-        $filters['zugang'] !== null ? ['label' => 'Zugang: '.['keiner' => 'noch nicht gesendet', 'gesendet' => 'gesendet, nicht benutzt', 'benutzt' => 'benutzt', 'gesperrt' => 'gesperrt'][$filters['zugang']], 'href' => request()->fullUrlWithoutQuery(['zugang', 'page'])] : null,
-    ])->filter()->values()->all();
+    ])->filter()->merge(collect($filters['zugang'])->map(fn (string $s) => ['label' => 'Zugang: '.$stateOptions[$s], 'href' => request()->fullUrlWithQuery(['zugang' => array_values(array_diff($filters['zugang'], [$s])) ?: null, 'page' => null])]))->values()->all();
 @endphp
 
 <x-layouts.app title="Teamkontakte" width="wide">
@@ -25,7 +24,7 @@
     </x-vdbs.layout.grid>
 
     <x-vdbs.data.toolbar label="Kontakte filtern" :count="$count" :active="$active" :reset-href="route('contacts.index')" search-placeholder="E-Mail-Adresse oder Name suchen">
-        <x-vdbs.forms.select name="zugang" label="Zugang" placeholder="Alle" :options="['keiner' => 'Noch nicht gesendet', 'gesendet' => 'Gesendet, nicht benutzt', 'benutzt' => 'Benutzt', 'gesperrt' => 'Gesperrt']" :value="$filters['zugang']" />
+        <x-vdbs.forms.multi-select name="zugang" label="Zugang" placeholder="Alle" :options="$stateOptions" :value="$filters['zugang']" />
     </x-vdbs.data.toolbar>
 
     @if ($contacts->isEmpty())
@@ -34,7 +33,7 @@
             <x-slot:actions><x-vdbs.actions.button :href="route('contacts.import')" icon="upload">Liste importieren</x-vdbs.actions.button></x-slot:actions>
         </x-vdbs.feedback.empty-state>
     @else
-        <x-vdbs.data.table caption="Teamkontakte" :columns="[['key' => 'email', 'label' => 'E-Mail-Adresse'], ['key' => 'name', 'label' => 'Name'], ['key' => 'access', 'label' => 'Zugang'], ['key' => 'actions', 'label' => 'Aktionen']]">
+        <x-vdbs.data.table caption="Teamkontakte" :columns="[['key' => 'select', 'label' => 'Wahl'], ['key' => 'email', 'label' => 'E-Mail-Adresse'], ['key' => 'name', 'label' => 'Name'], ['key' => 'access', 'label' => 'Zugang'], ['key' => 'actions', 'label' => 'Aktionen']]">
             @foreach ($contacts as $row)
                 @php
                     $credential = $row->credentials->first();
@@ -49,6 +48,7 @@
                     };
                 @endphp
                 <tr>
+                    <td><input type="checkbox" name="ids[]" value="{{ $row->id }}" form="bulk-form" aria-label="{{ $row->email }} auswählen"></td>
                     <td>{{ $row->email }}@if ($blocked) <x-vdbs.data.badge tone="warning">gesperrt oder abgemeldet</x-vdbs.data.badge>@endif</td>
                     <td>{{ $row->first_name || $row->last_name ? $row->displayName() : '–' }}</td>
                     <td><x-vdbs.data.badge :tone="$tone">{{ $label }}</x-vdbs.data.badge>@if ($credential) <span class="vdbs-hint">Code endet auf …{{ $credential->code_hint }}</span>@endif</td>
@@ -69,6 +69,12 @@
                 </tr>
             @endforeach
         </x-vdbs.data.table>
+
+        <form id="bulk-form" method="post" style="margin-top:var(--space-4)">@csrf
+            <p class="vdbs-hint">Mit dem Häkchen links wählen Sie mehrere Adressen aus.</p>
+            <x-vdbs.actions.button type="submit" variant="secondary" icon="mail" formaction="{{ route('contacts.send-selected') }}">Zugang an Auswahl senden</x-vdbs.actions.button>
+            <x-vdbs.actions.button type="submit" variant="text" icon="lock" formaction="{{ route('contacts.revoke-selected') }}">Zugang der Auswahl sperren</x-vdbs.actions.button>
+        </form>
 
         <div style="margin-top:var(--space-4)"><x-vdbs.navigation.pagination :paginator="$contacts" /></div>
     @endif

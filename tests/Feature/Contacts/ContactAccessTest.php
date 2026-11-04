@@ -142,7 +142,7 @@ it('lists contacts with their access state and finds them', function () {
 
     $this->actingAs($user)->get(route('contacts.index'))->assertOk()->assertSee('suche@example.org')->assertSee('andere@example.org');
     $this->get(route('contacts.index', ['q' => 'Susi']))->assertOk()->assertSee('suche@example.org')->assertDontSee('andere@example.org');
-    $this->get(route('contacts.index', ['zugang' => 'keiner']))->assertOk()->assertSee('suche@example.org');
+    $this->get(route('contacts.index', ['zugang' => ['keiner']]))->assertOk()->assertSee('suche@example.org');
 
     expect($contact->displayName())->toBe('Susi Suche');
 });
@@ -344,4 +344,36 @@ it('shows open seminars read-only on the access page', function () {
 
     $this->get(route('access.link', ['token' => $issued['token']]));
     $this->get(route('access.home'))->assertOk()->assertSee('Offenes Seminar')->assertSee($seminar->number);
+});
+
+it('filters by several access states at once', function () {
+    $user = kcUser();
+    $none = kcContact('keiner@example.org');
+    $used = kcContact('benutzt@example.org');
+    $revoked = kcContact('gesperrt@example.org');
+    $service = app(AccessCredentials::class);
+    $service->issue($used)['credential']->forceFill(['sent_at' => now(), 'last_used_at' => now()])->save();
+    $service->issue($revoked);
+    $service->revokeAll($revoked);
+
+    $this->actingAs($user)->get(route('contacts.index', ['zugang' => ['benutzt', 'gesperrt']]))->assertOk()
+        ->assertSee('benutzt@example.org')->assertSee('gesperrt@example.org')->assertDontSee('keiner@example.org');
+    $this->get(route('contacts.index', ['zugang' => ['keiner', 'benutzt']]))->assertOk()->assertSee('keiner@example.org')->assertSee('benutzt@example.org')->assertDontSee('gesperrt@example.org');
+});
+
+it('sends and revokes the access for several ticked addresses at once', function () {
+    $user = kcUser();
+    $a = kcContact('a@example.org');
+    $b = kcContact('b@example.org');
+    kcContact('c@example.org');
+    app(MailSuppressions::class)->suppress('b@example.org', 'manual', null, null);
+
+    $this->actingAs($user)->post(route('contacts.send-selected'), [])->assertSessionHasErrors('ids');
+    $this->post(route('contacts.send-selected'), ['ids' => [$a->id, $b->id]])->assertSessionHas('success');
+
+    Mail::assertSent(ContactAccessMail::class, 1);
+    Mail::assertSent(ContactAccessMail::class, fn (ContactAccessMail $mail): bool => $mail->hasTo('a@example.org'));
+
+    $this->post(route('contacts.revoke-selected'), ['ids' => [$a->id, $b->id]])->assertSessionHas('success');
+    expect(AccessCredential::query()->valid()->count())->toBe(0);
 });

@@ -20,6 +20,8 @@ class ContactController extends Controller
 {
     private const PER_PAGE = 25;
 
+    public const STATES = ['keiner' => 'Noch nicht gesendet', 'gesendet' => 'Gesendet, nicht benutzt', 'benutzt' => 'Benutzt', 'gesperrt' => 'Gesperrt'];
+
     public function __construct(
         private readonly ContactImporter $importer,
         private readonly ContactAccessSender $sender,
@@ -31,17 +33,23 @@ class ContactController extends Controller
     public function index(Request $request): View
     {
         $search = trim((string) $request->query('q', ''));
-        $state = in_array($request->query('zugang'), ['keiner', 'gesendet', 'benutzt', 'gesperrt'], true) ? (string) $request->query('zugang') : '';
+        $states = array_values(array_intersect(array_keys(self::STATES), \Illuminate\Support\Arr::wrap($request->query('zugang'))));
 
         $query = TeamContact::query()->with('credentials')
             ->when($search !== '', function ($builder) use ($search): void {
                 $like = '%'.addcslashes($search, '%_\\').'%';
                 $builder->where(fn ($inner) => $inner->where('email', 'like', $like)->orWhere('first_name', 'like', $like)->orWhere('last_name', 'like', $like));
             })
-            ->when($state === 'keiner', fn ($builder) => $builder->whereDoesntHave('credentials', fn ($c) => $c->whereNotNull('sent_at')))
-            ->when($state === 'gesendet', fn ($builder) => $builder->whereHas('credentials', fn ($c) => $c->valid()->whereNotNull('sent_at')->whereNull('last_used_at')))
-            ->when($state === 'benutzt', fn ($builder) => $builder->whereHas('credentials', fn ($c) => $c->valid()->whereNotNull('last_used_at')))
-            ->when($state === 'gesperrt', fn ($builder) => $builder->whereHas('credentials')->whereDoesntHave('credentials', fn ($c) => $c->valid()))
+            ->when($states !== [], fn ($builder) => $builder->where(function ($any) use ($states): void {
+                foreach ($states as $state) {
+                    $any->orWhere(fn ($one) => match ($state) {
+                        'keiner' => $one->whereDoesntHave('credentials', fn ($c) => $c->whereNotNull('sent_at')),
+                        'gesendet' => $one->whereHas('credentials', fn ($c) => $c->valid()->whereNotNull('sent_at')->whereNull('last_used_at')),
+                        'benutzt' => $one->whereHas('credentials', fn ($c) => $c->valid()->whereNotNull('last_used_at')),
+                        default => $one->whereHas('credentials')->whereDoesntHave('credentials', fn ($c) => $c->valid()),
+                    });
+                }
+            }))
             ->orderBy('email');
 
         $page = $query->paginate(self::PER_PAGE)->withQueryString();
@@ -53,7 +61,8 @@ class ContactController extends Controller
             'contacts' => $page,
             'suppressed' => $suppressed,
             'unsubscribed' => $unsubscribed,
-            'filters' => ['q' => $search !== '' ? $search : null, 'zugang' => $state !== '' ? $state : null],
+            'filters' => ['q' => $search !== '' ? $search : null, 'zugang' => $states],
+            'stateOptions' => self::STATES,
             'stats' => [
                 'total' => TeamContact::query()->count(),
                 'without' => TeamContact::query()->whereDoesntHave('credentials', fn ($c) => $c->whereNotNull('sent_at'))->count(),
@@ -118,6 +127,40 @@ class ContactController extends Controller
         });
 
         return redirect()->route('contacts.index')->with('success', "{$sent} Zugänge werden versendet".($blocked > 0 ? ", {$blocked} Adressen sind gesperrt oder abgemeldet und bekommen nichts." : '.'));
+    }
+
+    /** Zugänge an die angehakten Adressen senden. */
+    public function sendSelected(Request $request): RedirectResponse
+    {
+        $contacts = $this->selected($request);
+        $sent = 0;
+        $blocked = 0;
+
+        foreach ($contacts as $contact) {
+            $this->sender->queue($contact) ? $sent++ : $blocked++;
+        }
+
+        return redirect()->back()->with('success', "{$sent} Zugänge werden versendet".($blocked > 0 ? ", {$blocked} Adressen sind gesperrt oder abgemeldet und bekommen nichts." : '.'));
+    }
+
+    /** Zugänge der angehakten Adressen sperren. */
+    public function revokeSelected(Request $request): RedirectResponse
+    {
+        $count = 0;
+
+        foreach ($this->selected($request) as $contact) {
+            $count += $this->credentials->revokeAll($contact) > 0 ? 1 : 0;
+        }
+
+        return redirect()->back()->with('success', "{$count} Zugänge wurden gesperrt.");
+    }
+
+    /** @return \Illuminate\Database\Eloquent\Collection<int, TeamContact> */
+    private function selected(Request $request)
+    {
+        $data = $request->validate(['ids' => ['required', 'array', 'min:1', 'max:500'], 'ids.*' => ['integer']], ['ids.required' => 'Bitte haken Sie mindestens eine Adresse an.', 'ids.min' => 'Bitte haken Sie mindestens eine Adresse an.']);
+
+        return TeamContact::query()->whereIn('id', $data['ids'])->get();
     }
 
     public function send(TeamContact $contact): RedirectResponse

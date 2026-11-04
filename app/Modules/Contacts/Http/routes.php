@@ -16,6 +16,8 @@ Route::middleware(['web', 'auth', 'can:contacts.manage'])->prefix('geschaeftsste
     Route::post('/import/vorschau', [ContactController::class, 'preview'])->middleware('throttle:20,10')->name('import.preview');
     Route::post('/import', [ContactController::class, 'import'])->middleware('throttle:10,10')->name('import.store');
     Route::post('/zugaenge/senden', [ContactController::class, 'sendAll'])->middleware('throttle:5,10')->name('send-all');
+    Route::post('/auswahl/senden', [ContactController::class, 'sendSelected'])->middleware('throttle:10,10')->name('send-selected');
+    Route::post('/auswahl/sperren', [ContactController::class, 'revokeSelected'])->name('revoke-selected');
     Route::post('/{contact}/zugang', [ContactController::class, 'send'])->whereNumber('contact')->middleware('throttle:30,10')->name('send');
     Route::post('/{contact}/sperren', [ContactController::class, 'revoke'])->whereNumber('contact')->name('revoke');
     Route::delete('/{contact}', [ContactController::class, 'destroy'])->whereNumber('contact')->name('destroy');
