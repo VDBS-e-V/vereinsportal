@@ -31,7 +31,7 @@
             <h2 id="quote-data-heading" style="font-size:var(--font-size-h3)">Angaben</h2>
             <x-vdbs.data.detail-list layout="inline">
                 <x-vdbs.data.detail-item label="Schule"><a href="{{ route('partners.show', $quote->partner) }}">{{ $quote->partner->name }}</a></x-vdbs.data.detail-item>
-                <x-vdbs.data.detail-item label="Seminar">@if ($quote->seminar)<a href="{{ route('seminars.show', $quote->seminar) }}">{{ $quote->seminar->title }}</a>@endif</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Seminar">@if ($quote->seminar)<a href="{{ route('seminars.show', $quote->seminar) }}">{{ $quote->seminar->number ? $quote->seminar->number.' – ' : '' }}{{ $quote->seminar->title }}</a>@endif</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Endsumme">{{ $money($data['total_cents']) }}</x-vdbs.data.detail-item>
             </x-vdbs.data.detail-list>
         </section>

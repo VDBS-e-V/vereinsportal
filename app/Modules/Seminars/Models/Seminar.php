@@ -6,6 +6,7 @@ use App\Modules\Access\Models\User;
 use App\Modules\Partners\Models\Partner;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Enums\SeminarType;
+use App\Modules\Seminars\Services\SeminarNumbers;
 use Database\Factories\SeminarFactory;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,7 +23,23 @@ class Seminar extends Model
 
     protected $attributes = ['status' => 'request'];
 
-    protected $fillable = ['title', 'type', 'partner_id', 'status', 'grade_level', 'expected_participants', 'team_needed', 'application_deadline', 'team_competences', 'deadline_notified_at', 'notes', 'created_by_user_id', 'updated_by_user_id'];
+    protected $fillable = ['title', 'classes_count', 'location_notes', 'cost_center', 'coordinator_user_id', 'type', 'partner_id', 'status', 'grade_level', 'expected_participants', 'team_needed', 'application_deadline', 'team_competences', 'deadline_notified_at', 'notes', 'created_by_user_id', 'updated_by_user_id'];
+
+    /** Jedes Seminar bekommt beim Anlegen eine Nummer; eine vergebene Nummer lässt sich nicht mehr ändern. */
+    protected static function booted(): void
+    {
+        static::creating(function (Seminar $seminar): void {
+            if (blank($seminar->number)) {
+                $seminar->number = app(SeminarNumbers::class)->next();
+            }
+        });
+
+        static::updating(function (Seminar $seminar): void {
+            if ($seminar->isDirty('number') && filled($seminar->getOriginal('number'))) {
+                $seminar->number = $seminar->getOriginal('number');
+            }
+        });
+    }
 
     protected function casts(): array
     {
@@ -63,6 +80,12 @@ class Seminar extends Model
     public function quotes(): HasMany
     {
         return $this->hasMany(SeminarQuote::class)->orderByDesc('id');
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function coordinator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'coordinator_user_id');
     }
 
     /** @return BelongsTo<User, $this> */

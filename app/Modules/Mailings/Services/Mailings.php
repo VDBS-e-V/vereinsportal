@@ -413,6 +413,7 @@ final class Mailings
 
         return [
             'seminar' => (string) $seminar->title,
+            'seminar_nr' => (string) ($seminar->number ?? ''),
             'schule' => (string) ($seminar->partner?->name ?? ''),
             'termine' => $lines !== [] ? implode('<br>', $lines) : 'Die Termine folgen.',
             'erster_termin' => $first?->period() ?? '',

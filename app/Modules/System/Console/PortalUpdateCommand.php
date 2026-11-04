@@ -75,6 +75,8 @@ class PortalUpdateCommand extends Command
             return self::FAILURE;
         }
 
+        $this->callSilently('seminars:number-existing');
+
         $this->components->info('5/5 Zwischenspeicher leeren und Wartungsmodus beenden');
         $this->callSilently('optimize:clear');
 

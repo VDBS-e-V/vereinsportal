@@ -20,7 +20,7 @@
         <x-vdbs.data.stat label="Terminiert oder bestätigt" value="{{ $stats['planned'] }}" icon="check" tone="success" />
     </x-vdbs.layout.grid>
 
-    <x-vdbs.data.toolbar label="Seminare filtern" :count="$count" :active="$active" :reset-href="route('seminars.index')" search-placeholder="Titel, Schule oder Ort suchen">
+    <x-vdbs.data.toolbar label="Seminare filtern" :count="$count" :active="$active" :reset-href="route('seminars.index')" search-placeholder="Nummer, Titel, Schule oder Ort suchen">
         <x-vdbs.forms.select name="status" label="Status" placeholder="Alle" :options="$statusOptions" :value="$filters['status']" />
         <x-vdbs.forms.select name="type" label="Leistung" placeholder="Alle" :options="$typeOptions" :value="$filters['type']" />
     </x-vdbs.data.toolbar>
@@ -31,9 +31,10 @@
             <x-slot:actions><x-vdbs.actions.button variant="secondary" :href="route('seminars.index')">Filter zurücksetzen</x-vdbs.actions.button></x-slot:actions>
         </x-vdbs.feedback.empty-state>
     @else
-        <x-vdbs.data.table caption="Seminare" :columns="[['key' => 'title', 'label' => 'Seminar'], ['key' => 'school', 'label' => 'Schule'], ['key' => 'type', 'label' => 'Leistung'], ['key' => 'date', 'label' => 'Erster Termin'], ['key' => 'status', 'label' => 'Status']]">
+        <x-vdbs.data.table caption="Seminare" :columns="[['key' => 'number', 'label' => 'Nr.'], ['key' => 'title', 'label' => 'Seminar'], ['key' => 'school', 'label' => 'Schule'], ['key' => 'type', 'label' => 'Leistung'], ['key' => 'date', 'label' => 'Erster Termin'], ['key' => 'status', 'label' => 'Status']]">
             @foreach ($seminars as $row)
                 <tr class="vdbs-table__row--link">
+                    <td style="white-space:nowrap">{{ $row->number }}</td>
                     <td><a class="vdbs-table__row-link" href="{{ route('seminars.show', $row) }}">{{ $row->title }}</a></td>
                     <td>{{ $row->partner->name }}</td>
                     <td>{{ $row->type->label() }}</td>

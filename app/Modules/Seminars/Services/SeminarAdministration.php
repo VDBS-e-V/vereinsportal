@@ -126,6 +126,10 @@ final class SeminarAdministration
             'grade_level' => $clean($data['grade_level'] ?? null),
             'expected_participants' => ($data['expected_participants'] ?? null) !== null && $data['expected_participants'] !== '' ? (int) $data['expected_participants'] : null,
             'notes' => $clean($data['notes'] ?? null),
+            'classes_count' => ($data['classes_count'] ?? null) !== null && $data['classes_count'] !== '' ? (int) $data['classes_count'] : null,
+            'location_notes' => $clean($data['location_notes'] ?? null),
+            'cost_center' => $clean($data['cost_center'] ?? null),
+            'coordinator_user_id' => ($data['coordinator_user_id'] ?? null) !== null && $data['coordinator_user_id'] !== '' ? (int) $data['coordinator_user_id'] : null,
         ];
     }
 

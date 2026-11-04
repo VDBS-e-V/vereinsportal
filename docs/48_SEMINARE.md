@@ -93,3 +93,9 @@ Tabellen: `seminar_applications` (Seminar, Konto, Stand, Nachricht, Leitung, int
 
 `php artisan onboarding:remind-team` (täglich geplant) schickt Teamende mit offener Einarbeitung eine E-Mail, **14 Tage nach Beginn**, dann alle **14 Tage**, **höchstens dreimal**
 (`portal.onboarding.reminder`). Die Mail nennt nur die Zahl der offenen Schritte, nie welche. `--dry-run` zählt nur. Abgeschlossene Einarbeitungen und Konten ohne Teamende-Rolle bekommen nichts.
+
+## Seminarnummer (Paket B)
+Jedes Seminar bekommt beim Anlegen eine unveränderliche Nummer im Format `S-JJJJ-NNNN` (z. B. `S-2027-0042`). Das Jahr ist das Anlegejahr, der Zähler beginnt je Jahr bei 1 und vergibt eine Nummer nie ein zweites Mal. Das Format ist über `SEMINAR_NUMBER_FORMAT` in der `.env` änderbar (`{Y}` Jahr, `{N:4}` laufende Nummer mit vier Stellen).
+- Sichtbar in der Seminarliste (erste Spalte, durchsuchbar auch mit Teilen wie `0042`), im Kopf der Seminarseite, im Kostenvoranschlag (Ansicht und Druck) und als Platzhalter `{seminar_nr}` in Schreiben an Teamende.
+- Vorhandene Seminare ohne Nummer: `php artisan seminars:number-existing` oder Systemsteuerung › „Seminarnummern nachtragen“. `portal:update` erledigt das automatisch.
+- Neue Stammdaten am Seminar: Anzahl Klassen oder Gruppen, Räume und Hinweise zum Ort, Kostenstelle, verantwortliche Koordination.

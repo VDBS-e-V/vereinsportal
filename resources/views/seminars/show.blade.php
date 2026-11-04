@@ -18,7 +18,7 @@
 
 <x-layouts.app :title="$seminar->title" width="wide">
     <x-vdbs.layout.page-header :title="$seminar->title" :breadcrumb="$crumbs" eyebrow="{{ $seminar->type->label() }}">
-        <x-slot:meta><x-vdbs.data.badge :tone="$seminar->status->tone()">{{ $seminar->status->label() }}</x-vdbs.data.badge></x-slot:meta>
+        <x-slot:meta>@if ($seminar->number)<x-vdbs.data.badge tone="neutral">{{ $seminar->number }}</x-vdbs.data.badge> @endif<x-vdbs.data.badge :tone="$seminar->status->tone()">{{ $seminar->status->label() }}</x-vdbs.data.badge></x-slot:meta>
 
         @if ($canManage)
             <x-slot:actions>
@@ -43,11 +43,16 @@
         <section aria-labelledby="seminar-heading">
             <h2 id="seminar-heading" style="font-size:var(--font-size-h3)">Seminar</h2>
             <x-vdbs.data.detail-list layout="inline">
+                <x-vdbs.data.detail-item label="Nummer">{{ $seminar->number }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Titel">{{ $seminar->title }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Leistung">{{ $seminar->type->label() }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Schule"><a href="{{ route('partners.show', $seminar->partner) }}">{{ $seminar->partner->name }}</a></x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Klassenstufe">{{ $seminar->grade_level }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Erwartete Teilnehmende">{{ $seminar->expected_participants }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Anzahl Klassen oder Gruppen">{{ $seminar->classes_count }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Räume und Hinweise zum Ort">{{ $seminar->location_notes }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Kostenstelle">{{ $seminar->cost_center }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Verantwortliche Koordination">{{ $person($seminar->coordinator) }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Status">{{ $seminar->status->label() }}</x-vdbs.data.detail-item>
             </x-vdbs.data.detail-list>
 

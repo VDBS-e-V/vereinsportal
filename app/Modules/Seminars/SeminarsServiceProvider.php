@@ -3,6 +3,7 @@
 namespace App\Modules\Seminars;
 
 use App\Modules\Seminars\Console\NotifyTeamDeadlines;
+use App\Modules\Seminars\Console\NumberExistingSeminars;
 use Illuminate\Support\ServiceProvider;
 
 class SeminarsServiceProvider extends ServiceProvider
@@ -12,7 +13,7 @@ class SeminarsServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
 
         if ($this->app->runningInConsole()) {
-            $this->commands([NotifyTeamDeadlines::class]);
+            $this->commands([NotifyTeamDeadlines::class, NumberExistingSeminars::class]);
         }
     }
 }

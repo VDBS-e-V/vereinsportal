@@ -38,6 +38,7 @@ final class MailPlaceholders
     /** Zusätzlich bei Mitteilungen zu Seminaren. @var array<string, string> */
     public const TEAM = [
         'seminar' => 'Titel des Seminars',
+        'seminar_nr' => 'Nummer des Seminars, z. B. S-2027-0042',
         'schule' => 'Name der Schule',
         'termine' => 'Alle Termine des Seminars mit Ort',
         'erster_termin' => 'Der erste Termin des Seminars',

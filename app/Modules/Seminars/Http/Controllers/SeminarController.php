@@ -11,6 +11,7 @@ use App\Modules\Seminars\Enums\SeminarType;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarSession;
 use App\Modules\Seminars\Services\SeminarAdministration;
+use App\Modules\Seminars\Support\CoordinationRecipients;
 use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -35,7 +36,7 @@ class SeminarController extends Controller
             ->with(['partner', 'sessions'])
             ->when($search !== '', function ($builder) use ($search): void {
                 $like = '%'.addcslashes($search, '%_\\').'%';
-                $builder->where(fn ($inner) => $inner->where('title', 'like', $like)->orWhereHas('partner', fn ($partner) => $partner->where('name', 'like', $like)->orWhere('city', 'like', $like)));
+                $builder->where(fn ($inner) => $inner->where('number', 'like', $like)->orWhere('title', 'like', $like)->orWhereHas('partner', fn ($partner) => $partner->where('name', 'like', $like)->orWhere('city', 'like', $like)));
             })
             ->when($status !== null, fn ($builder) => $builder->where('status', $status?->value))
             ->when($type !== null, fn ($builder) => $builder->where('type', $type?->value))
@@ -66,7 +67,7 @@ class SeminarController extends Controller
 
     public function show(Seminar $seminar): View
     {
-        $seminar->load(['partner', 'sessions', 'events.actor', 'quotes', 'createdBy.person', 'updatedBy.person', 'applications.user.person']);
+        $seminar->load(['coordinator.person', 'partner', 'sessions', 'events.actor', 'quotes', 'createdBy.person', 'updatedBy.person', 'applications.user.person']);
         $team = app(\App\Modules\Seminars\Services\TeamApplications::class);
 
         return view('seminars.show', [
@@ -96,7 +97,7 @@ class SeminarController extends Controller
 
     public function edit(Seminar $seminar): View
     {
-        return view('seminars.form', $this->formData($seminar, array_merge($seminar->only(['title', 'partner_id', 'grade_level', 'expected_participants', 'notes']), ['type' => $seminar->type->value])));
+        return view('seminars.form', $this->formData($seminar, array_merge($seminar->only(['title', 'partner_id', 'grade_level', 'expected_participants', 'notes', 'classes_count', 'location_notes', 'cost_center', 'coordinator_user_id']), ['type' => $seminar->type->value])));
     }
 
     public function update(Request $request, Seminar $seminar): RedirectResponse
@@ -188,7 +189,15 @@ class SeminarController extends Controller
             'grade_level' => ['nullable', 'string', 'max:100'],
             'expected_participants' => ['nullable', 'integer', 'min:1', 'max:2000'],
             'notes' => ['nullable', 'string', 'max:10000'],
+            'classes_count' => ['nullable', 'integer', 'min:1', 'max:200'],
+            'location_notes' => ['nullable', 'string', 'max:500'],
+            'cost_center' => ['nullable', 'string', 'max:40'],
+            'coordinator_user_id' => ['nullable', 'integer', Rule::in(CoordinationRecipients::users()->pluck('id')->all())],
         ], [
+            'classes_count.integer' => 'Die Anzahl der Klassen muss eine ganze Zahl sein.',
+            'classes_count.min' => 'Die Anzahl der Klassen muss mindestens 1 sein.',
+            'classes_count.max' => 'Bitte prüfen Sie die Anzahl der Klassen.',
+            'coordinator_user_id.in' => 'Bitte wählen Sie eine Person aus der Liste.',
             'title.required' => 'Bitte geben Sie einen Titel ein.',
             'type.required' => 'Bitte wählen Sie die Leistung.',
             'type.enum' => 'Bitte wählen Sie eine bekannte Leistung.',
@@ -210,6 +219,7 @@ class SeminarController extends Controller
             'seminar' => $seminar,
             'values' => $values,
             'typeOptions' => SeminarType::options(),
+            'coordinatorOptions' => CoordinationRecipients::users()->load('person')->mapWithKeys(fn (User $user): array => [$user->id => $user->person?->fullName() ?: $user->email])->all(),
             'partnerOptions' => Partner::query()->where('type', PartnerType::School->value)->orderBy('name')->get()
                 ->mapWithKeys(fn (Partner $partner): array => [$partner->id => $partner->name.($partner->city ? ' ('.$partner->city.')' : '')])->all(),
         ];

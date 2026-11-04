@@ -89,6 +89,9 @@
         <h1>Kostenvoranschlag</h1>
 
         <div class="date"><span>Datum:</span><span>{{ $data['at']?->format('d.m.Y') }}</span></div>
+        @if ($quote->seminar?->number)
+            <div class="date"><span>Seminar:</span><span>{{ $quote->seminar->number }}</span></div>
+        @endif
 
         <table>
             <thead>
