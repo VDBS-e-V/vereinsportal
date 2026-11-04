@@ -134,7 +134,7 @@ it('saves the master data and rejects a foreign coordinator', function () {
     $seminar = Seminar::query()->latest('id')->first();
     expect($seminar->classes_count)->toBe(3)->and($seminar->cost_center)->toBe('K-100')->and($seminar->coordinator_user_id)->toBe($user->id);
 
-    $this->post(route('seminars.store'), $data + ['coordinator_user_id' => $outsider->id])->assertSessionHasErrors('coordinator_user_id');
+    $this->post(route('seminars.store'), array_merge($data, ['coordinator_user_id' => $outsider->id]))->assertSessionHasErrors('coordinator_user_id');
 });
 
 it('offers the placeholder for the seminar number in team letters', function () {
