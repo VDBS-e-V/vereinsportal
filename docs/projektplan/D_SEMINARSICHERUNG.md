@@ -14,7 +14,7 @@ Aufwand: **8 ET**. Ziel: Alles, was zu einem Seminar gehört, liegt an einem Ort
 | Was heißt „Sicherung“? | (1) Ablage aller Dokumente je Seminar, (2) **Schnappschuss** der veränderlichen Daten beim Abschluss, (3) Download als ZIP. Es ist keine Datensicherung der Datenbank (die ist Paket A8). |
 | Welche Dateien? | PDF, Word, Excel/CSV, ODT/ODS, ZIP, Text. **Bilddateien sind nicht erlaubt** (JPEG, PNG, GIF, WebP, HEIC), im Dialog mit Begründung. Ausnahme auf Antrag über eine Einstellung (Fotos von Plakaten o. ä. sind nicht vorgesehen). |
 | Wer darf? | `seminars.documents`: Koordination, Geschäftsstelle, Vorstand (hochladen, löschen, herunterladen). Teamende sehen nichts. |
-| Größe | Einzeldatei 10 MB, je Seminar 100 MB (einstellbar, wegen Hostingspeicher). |
+| Größe | Einzeldatei 25 MB, je Seminar 500 MB (einstellbar; Hosting hat 100 GB). |
 | Aufbewahrung | Abrechnungsunterlagen 10 Jahre, Teamlisten und Auswertungen 3 Jahre, Sonstiges 3 Jahre (je Dokumentart einstellbar). |
 | Namen der Teilnehmenden | SuS-Daten gehören nicht ins Seminar. Teilnehmendenzahlen ja, Namenslisten nur als hochgeladenes Dokument, wenn die Schule sie liefert (Hinweis in der Oberfläche, Frist 3 Jahre). |
 
@@ -60,7 +60,7 @@ Beim Speichern bzw. auf Knopfdruck erzeugt das Portal Dokumente als **HTML-Druck
 3. **Teamübersicht** (Namen, Rollen; Kontaktdaten nur nach Einwilligung aus Paket C).
 4. **Rückmeldung** (Zusammenfassung der Feedbackformulare, Paket E).
 Jedes erzeugte Dokument bekommt `is_snapshot = true` und ist nicht änderbar.
-Entscheidung PDF: Ist `dompdf/dompdf` auf dem Hosting lauffähig (reines PHP, braucht `gd` oder `imagick` nur für Bilder; Speicher), wird PDF erzeugt, sonst bleibt es HTML mit „Als PDF drucken“. Prüfung in A1/A3, Entscheidung im Paketstart.
+**PDF (Antwort 12):** Jedes automatisch erzeugte Dokument bekommt einen **PDF-Download-Knopf**. Umsetzung mit `dompdf/dompdf` (reines PHP, kein Konsolenzugriff nötig; `gd` oder `imagick` nur für Bilder, Speicher 256 MB). Ein Test in A3 (Zustandsprüfung „PDF-Erzeugung“) erzeugt beim Start ein Probe-PDF auf dem Strato-Hosting. Schlägt es fehl, bleibt die **Druckansicht** als Fallback und der Knopf verschwindet. Schriften: eingebettete Schrift (DejaVu Sans oder die Portalschrift), damit Umlaute stimmen.
 
 ### D3 Abschluss mit Checkliste (1,5 ET)
 Beim Statuswechsel auf **Abgeschlossen** öffnet sich eine Seite statt des bisherigen Sofortwechsels:
@@ -115,4 +115,4 @@ Befehl `seminars:prune-documents` löscht Dateien und Datensätze nach `retentio
 ## 8 Offene Fragen
 1. Fristen aus 4.2 (Überblick) bestätigen lassen (Vorstand/Steuerberatung).
 2. Soll die Schule ein Ergebnisdokument (z. B. Schulkonferenz-Protokoll) direkt im Schulkonto hochladen dürfen? Vorschlag: nein in dieser Runde.
-3. PDF gewünscht oder reicht HTML zum Drucken?
+3. Entschieden: PDF-Download wenn möglich, sonst Druckansicht (Antwort 12).

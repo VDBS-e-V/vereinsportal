@@ -16,7 +16,8 @@ Aufwand: **6 ET**. Ziel: Nextcloud, Moodle und weitere Systeme melden Nutzende *
 | Scopes | `openid`, `profile` (Name, Anzeigename), `email` (Adresse, bestätigt), `roles` (Rollenschlüssel), `groups` (Bereiche als Gruppen für Nextcloud). **Keine** Adresse, kein Geburtsdatum, keine Telefonnummer. |
 | Subject (`sub`) | stabile, nicht erratbare ID: `u_` + UUID im Konto (neue Spalte `users.public_uuid`), nicht die Datenbank-ID. |
 | Wer verwaltet Clients? | Nur Administration (`oauth.manage` → Rolle Administration). Vorstand sieht eine Liste (nur lesen), kein Geheimnis. |
-| Wer darf sich anmelden? | Alle aktiven Konten. Pro Client einstellbar: erlaubte Rollen (leer = alle). Beispiel Nextcloud nur für Mitarbeitende. |
+| Wer darf sich anmelden? | Je Anbindung einstellbare Rollen. **Standard für Nextcloud und Moodle:** Mitarbeitende, Koordination, Bildungsreferenten, Geschäftsstelle, Vorstand (Antwort 18). Teamende und Mitglieder nicht, solange nicht freigegeben. |
+| Gruppen und Teamordner | `groups`-Claim mit **stabilen Gruppennamen je Rolle** (`vdbs-mitarbeitende`, `vdbs-koordination`, `vdbs-bildungsreferenten`, `vdbs-geschaeftsstelle`, `vdbs-vorstand`). In Nextcloud ordnen Sie den Gruppen **Gruppenordner** mit jeweils eigenen Rechten zu (App „Team folders“). Das ist technisch der einfachste Weg (Antwort 17). |
 | Zwei-Faktor | Gilt wie beim Portal-Login; der OAuth-Ablauf nutzt die bestehende Sitzung. |
 | Abmeldung | Portal-Logout beendet Tokens; RP-initiated Logout (`end_session_endpoint`) leitet zurück. Back-Channel-Logout nur wenn Nextcloud/Moodle es nutzen (zweite Stufe). |
 
@@ -94,6 +95,4 @@ Tests (`OidcTest`):
 | Umleitungsadressen falsch | strenge Validierung, Testanmeldung auf der Anbindungsseite |
 
 ## 8 Offene Fragen
-1. Welche Systeme sollen zuerst angebunden werden (Nextcloud, Moodle, Umfragetool)? Adresse und Version für die Anleitung.
-2. Sollen Rollen aus dem Portal in Nextcloud als Gruppen ankommen (Vorschlag: ja)?
-3. Soll die Anmeldung bei Nextcloud nur für Mitarbeitende und Vorstand gelten?
+Siehe `01_OFFENE_FRAGEN.md`: R3 (Rolle Mitarbeitende), R4 (Adresse und Version von Nextcloud und Moodle, Moodle-Kurszuordnung).

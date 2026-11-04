@@ -1,6 +1,6 @@
 # Paket A: Betrieb auf Webhosting ohne Konsole
 
-Aufwand: **9 ET**. Ziel: Das Portal läuft per FTP-Upload, wird im Browser eingerichtet und aktualisiert, und alle Hintergrundarbeit (Planer, Warteschlange) läuft über **einen Cron-Eintrag im Kundenmenü des Hosters**.
+Aufwand: **8,75 ET**. Hoster: **Strato Webhosting** (PHP 8.4, Document-Root frei wählbar, 100 GB, große Datenbanken, SMTP, nur FTP). Ziel: Das Portal läuft per FTP-Upload, wird im Browser eingerichtet und aktualisiert. Alle Hintergrundarbeit (Planer, Warteschlange) läuft über **einen Web-Cron-Aufruf eines externen Dienstes** an eine öffentliche Adresse mit Schlüssel.
 
 ## 1 Ausgangslage im Projekt
 
@@ -15,11 +15,11 @@ Aufwand: **9 ET**. Ziel: Das Portal läuft per FTP-Upload, wird im Browser einge
 
 ## 2 Entscheidungen
 
-1. **Cron-Aufruf:** Der Hoster ruft jede Minute (oder so oft wie erlaubt, mindestens alle 5 Minuten) `php /pfad/artisan portal:tick` auf. Falls das Kundenmenü nur URLs erlaubt, ruft es `https://…/cron/<token>` auf. Beide Wege führen denselben Code aus.
+1. **Cron-Aufruf (Hauptweg):** Ein externer Dienst (z. B. cron-job.org, EasyCron oder Uptime-Dienst mit Zeitplan) ruft **jede Minute** `https://portal.example/cron/<SCHLÜSSEL>` auf. Takt und Dienst sind frei konfigurierbar. Der Schlüssel steht in der `.env` (`CRON_KEY`), ist in der Systemsteuerung sichtbar und **erneuerbar**. Ein PHP-Cron im Kundenmenü wäre die Alternative (`php artisan portal:tick`).
 2. **Ein Befehl für alles:** `portal:tick` führt `schedule:run` aus und arbeitet danach höchstens 45 Sekunden Aufträge ab (`queue:work --stop-when-empty --max-time=45`). Eine Sperre (`Cache::lock`) verhindert, dass zwei Läufe gleichzeitig laufen.
 3. **Einrichtung im Browser** statt Konsole, mit Einmal-Token aus der `.env` und Sperrdatei danach.
 4. **Release-Paket** wird lokal gebaut; der Server bekommt nur fertige Dateien.
-5. **Document-Root:** Variante 1 (frei wählbar, zeigt auf `public/`) bevorzugt, Variante 2 (fest `public_html`) vorbereitet.
+5. **Document-Root:** frei wählbar, zeigt auf `public/` (Variante 1). Variante 2 (fest `public_html`) entfällt als Standard und steht nur noch als Notiz in der Doku.
 
 ## 3 Arbeitspakete
 
@@ -59,10 +59,10 @@ Tests: `ReleaseManifestTest` (Manifest-Klasse erkennt fehlende, veränderte, zus
 ### A3 Zustandsprüfung für Webhosting (0,5 ET)
 Erweiterung von `SystemChecks`: `zip`, `gd`, `intl`, `fileinfo`, Schreibrechte `storage/` und `bootstrap/cache`, PHP-Version, `max_execution_time`, `memory_limit`, `upload_max_filesize` gegen die Grenzen aus den Paketen D/G, `.env` nicht erreichbar (HTTP-Selbsttest `GET /.env` darf nicht 200 liefern), HTTPS aktiv, `APP_DEBUG=false` im Livebetrieb, `APP_URL` passt zum Aufruf, Cron-Herzschlag (letzter `portal:tick`-Lauf).
 
-### A4 Verzeichnislayout und Zugriffsschutz (1 ET)
-**Variante 1 (Document-Root frei):** Document-Root auf `<Pfad>/public`. Fertig.
+### A4 Verzeichnislayout und Zugriffsschutz (0,5 ET)
+**Variante 1 (Strato, Document-Root frei):** Document-Root auf `<Pfad>/public` stellen, `.htaccess` aus dem Paket verwenden. Fertig.
 
-**Variante 2 (Document-Root fest `public_html`):**
+**Notiz Variante 2 (nur falls je nötig, Document-Root fest `public_html`):**
 ```
 /home/kunde/
   portal/              ← Anwendung (app, bootstrap, config, vendor, storage, .env …)
@@ -98,7 +98,7 @@ Tests (`SetupTest`): ohne Token 404; falscher Token 403; Token richtig und Sperr
 4. `queue:work --stop-when-empty --max-time=45 --tries=3` (Standardwarteschlange).
 5. Protokoll: Zahl der verarbeiteten Aufträge in `system_task_runs` (kein Inhalt).
 
-**Web-Cron** `GET /cron/{token}`: Token aus `CRON_TOKEN`, `hash_equals`, Drosselung, nur wenn gesetzt; ruft `portal:tick` auf; antwortet `204`. Dient als Notlösung, falls das Kundenmenü nur URLs aufrufen kann.
+**Web-Cron (Hauptweg)** `GET /cron/{key}`: Schlüssel aus `CRON_KEY` (mindestens 40 Zeichen, `hash_equals`), nur wenn gesetzt, Drosselung 5 Aufrufe je Minute je Adresse, Sperre gegen Parallelläufe, antwortet `204` ohne Inhalt (verrät nichts). Gespeichert werden Zeit, Dauer, Zahl der Aufträge, Ergebnis (Tabelle `cron_runs`, 14 Tage). Die Systemsteuerung zeigt „letzter Aufruf vor … Minuten“ und warnt ab 10 Minuten. **Schlüssel erneuern** per Knopf (zeigt die neue Adresse einmal an, trägt sie nicht in die `.env` ein; Hinweis, die `.env` per FTP anzupassen, oder Speicherung in der Datenbank `system_settings`, damit kein FTP nötig ist: Empfehlung).
 
 **Taktung:** Empfohlen jede Minute. Bei 5-Minuten-Takt gilt: `mailings:dispatch-due` startet verspätet; geplante Schreiben kommen bis zu 5 Minuten später.
 
@@ -120,8 +120,8 @@ Ergänzungen im Code:
 - Während Migrationen läuft Wartungsmodus automatisch (Task `migrationen` schaltet `down` vor, `up` nach Erfolg).
 - Dateien im Paket, die auf dem Server nie überschrieben werden dürfen, stehen in `UPLOAD.txt` (`.env`, `storage/`).
 
-### A8 Sicherung und Wiederherstellung ohne Konsole (0,5 ET)
-`docs/68_WEBHOSTING.md`: Datenbank-Dump im Kundenmenü (phpMyAdmin Export) vor jedem Update; Dateisicherung per FTP-Download von `storage/app/private` (Uploads) und `storage/` Schlüssel; Rückspielen per Import und Upload. Optional: Admin-Seite **„Sicherung herunterladen“** erzeugt einen DB-Export per PHP (nur kleine Datenbanken, `mysqldump` ist auf Webhosting meist nicht verfügbar; Fallback Tabelle für Tabelle als SQL, begrenzt auf Administration, Passwortabfrage). Entscheidung nach A1.
+### A8 Sicherung und Wiederherstellung ohne Konsole (0,25 ET)
+`docs/68_WEBHOSTING.md`: Datenbank-Dump im Strato-Kundenmenü (phpMyAdmin-Export) vor jedem Update; Dateisicherung per FTP-Download von `storage/app/private` (Uploads) und der Schlüsseldateien; Rückspielen per Import und Upload. Eine PHP-Sicherungsfunktion entfällt (Antwort 5).
 
 ### A9 Betriebsdoku ersetzen (0,5 ET)
 `docs/05`, `27`, `28`, `30`, `31`: Hosting als Hauptweg, VM als Alternative. `docs/99_CURRENT_HANDOFF.md` aktualisieren.

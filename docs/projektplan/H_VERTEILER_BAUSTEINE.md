@@ -15,7 +15,7 @@ Aufwand: **6 ET**. Ziel: Wiederkehrende Empfängerkreise sind als **benannte Ver
 | Wer legt an? | `mail_segments.manage` (Geschäftsstelle, Vorstand). Der Vorstand darf Mitglieder-Verteiler anlegen, die Geschäftsstelle nicht. |
 | Wer nutzt? | Je Verteiler wählbar: Vorstand, Geschäftsstelle, Koordination (siehe Rechte-Matrix 4). |
 | Koordination und Gruppen | Annahme: Die Koordination darf **Teamende, Schulen (Ansprechpersonen), Bildungsreferenten** anschreiben, aber **nicht Mitglieder** und nicht den Vorstand. Bitte bestätigen (Frage 1). |
-| Filter | Bundesland der Schule, Schulart, Seminar (Teamende bestätigt/beworben), Einarbeitung offen, Rolle, Mitgliedschaft seit/bis (Jahr), Teamprofil vollständig/unvollständig. Weitere nach Bedarf. |
+| Filter | Gewünscht (Antwort 27): Bundesland der Schule, Schulart, Seminar (Teamende bestätigt/beworben), Einarbeitung offen, Rolle, Mitgliedschaft seit/bis (Jahr), Teamprofil vollständig/unvollständig, Kompetenzen, **Importierte Kontakte** (Zugang gesendet/benutzt/nie benutzt, aus Paket C0). Weitere nach Bedarf, Priorisierung in R9. |
 | Grundbestand | Als **Migration/Seeder** (`MailDefaults`), nur wenn die Tabellen leer sind; danach frei änderbar. Nie überschreiben. |
 
 ## 3 Datenmodell
@@ -51,7 +51,7 @@ Filter sind UND-verknüpft, Werte innerhalb eines Filters ODER-verknüpft.
 | Vorstand / Geschäftsstelle | ✓ | ✓ | – |
 | Einzelpersonen: Konten | ✓ | ✓ | nur Teamende und Schulen |
 | Einzelpersonen: Mitglieder | ✓ | – | – |
-| Freigabe nötig | – (gibt frei) | ab 50 Empfängern | ab 50 Empfängern (Annahme) |
+| Freigabe nötig | – (gibt frei) | ab 50 Empfängern | **nein** (Antwort 26) |
 | Verteiler anlegen/ändern | alle | außer Mitglieder-Verteiler | – (nutzt freigegebene) |
 
 Die Matrix steht als Tabelle in `docs/63_RUNDSCHREIBEN.md` und als **Test**, der jede Zelle prüft (`MailRightsMatrixTest`). Technisch: `MailGroups::GROUPS[…]['ability']` bleibt; die Koordination bekommt `mailings.send` **eingeschränkt** über eine neue Capability `mailings.send_limited` mit eigener Gruppenliste (`MailGroups::allowedFor` berücksichtigt sie).
@@ -61,7 +61,7 @@ Die Matrix steht als Tabelle in `docs/63_RUNDSCHREIBEN.md` und als **Test**, der
 ### H1 Rechte-Matrix umsetzen (1 ET)
 - Capability `mailings.send_limited` (Koordination). `MailGroups::allowedFor` liefert für sie `team`, `schools`, `coordination`, `education`. Das Rundschreiben-Formular für die Koordination: neue Seite im Bereich Koordination `Rundschreiben` (`mailings.coordination.*`) – wiederverwendet `GroupMailingController` mit dem Routenpräfix, wie die Bereiche Vorstand und Geschäftsstelle.
 - Absender-Standard `MAILINGS_FROM_NAME_COORDINATION`/`REPLY_TO_COORDINATION`.
-- Freigabeschwelle für `coordination` wie Geschäftsstelle.
+- **Keine** Freigabeschwelle für die Koordination (Antwort 26); Freigabe bleibt nur für die Geschäftsstelle ab 50 Empfängern.
 - Tests: Matrixtest (alle Zellen), Koordination sieht keine Mitglieder-Gruppe und nicht die Mitglieder-Personensuche, Navigationseintrag.
 
 ### H2 Gespeicherte Verteiler (2 ET)
@@ -127,7 +127,4 @@ Neue Platzhalter, die die Pakete B, C, E brauchen: `{seminar_nr}`, `{team}`, `{b
 | Filter-Performance | Auflösung in einer Abfrage je Filterart, Grenzen (max. 5 000 Empfänger) |
 
 ## 8 Offene Fragen
-1. Rechte-Matrix (Abschnitt 4) bestätigen, besonders: darf die Koordination die Schulen anschreiben?
-2. Weitere Filter, die Sie brauchen (Eintrittsjahr, Postleitzahl, Fördermitglied, …)?
-3. Gibt es feste Texte der Satzung (Einladungsfrist, Antragsfrist), die in die Vorlagen müssen?
-4. Welche Absendernamen für die Koordination (`VDBS Koordination`)?
+Siehe `01_OFFENE_FRAGEN.md`: R9 (Filter), R11 (Satzungstexte liefern, Antwort 28: exakt übernehmen).

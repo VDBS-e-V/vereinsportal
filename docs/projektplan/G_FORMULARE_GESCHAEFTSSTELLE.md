@@ -1,6 +1,6 @@
 # Paket G: Formulare der Geschäftsstelle
 
-Aufwand: **12 ET**. Ziel: Drei Vorgänge laufen digital statt per Papier und E-Mail: **Kostenrückerstattung**, **Fahrtkostenabrechnung**, **Materialbestellung/Beschaffung**. Alle drei teilen sich einen gemeinsamen Ablauf mit Prüfung, Freigabe, Verlauf, Belegen und Export für die Buchhaltung.
+Aufwand: **11 ET**. Ziel: Drei Vorgänge laufen digital statt per Papier und E-Mail: **Kostenrückerstattung**, **Fahrtkostenabrechnung**, **Materialbestellung/Beschaffung**. Alle drei teilen sich einen gemeinsamen Ablauf mit Prüfung, Freigabe, Verlauf, Belegen und Export für die Buchhaltung.
 
 ## 1 Ausgangslage
 - Kein Formular- oder Antragsmodul. Vorhanden und wiederverwendbar: Vier-Augen-Freigabe aus den Rundschreiben (`mailings.approve`-Muster), private Dateiablage (Muster `MailAttachments`, `OnboardingDocuments`), Preisverwaltung für Seminare (Preislisten mit Gültigkeitsstart, Muster für Sätze wie den Kilometersatz), Aufgabenübersicht (`TaskOverview`), Benachrichtigungseinstellungen, Protokoll, CSV-Export mit Formelschutz, Eingabekomponenten.
@@ -10,11 +10,12 @@ Aufwand: **12 ET**. Ziel: Drei Vorgänge laufen digital statt per Papier und E-M
 
 | Frage | Entscheidung / Annahme |
 |---|---|
-| Wer stellt Anträge? | Alle mit **Konto** (Teamende, Mitglieder, Mitarbeitende), Capability `forms.submit`. Teamende **ohne Konto**: persönlicher Antragslink (G6). |
-| Wer prüft? | Geschäftsstelle (`forms.manage`): formale Prüfung, Rückfragen, Auszahlung vermerken. |
-| Wer gibt frei? | Geschäftsstelle bis zu einer Grenze, **Vorstand** (`forms.approve`) darüber. Grenzen einstellbar, Annahme: Erstattung/Fahrtkosten bis 150 € Geschäftsstelle, darüber Vorstand; Material bis 100 € Geschäftsstelle, bis 500 € Geschäftsstellenleitung (Vorstandsmitglied), darüber zwei Vorstände (Annahme, bitte bestätigen). Der Antragstellende gibt nie sein eigenes Formular frei. |
+| Wer stellt Anträge? | **Teamende, Mitarbeitende, Koordination, Bildungsreferenten, Geschäftsstelle und Vorstand** (Capability `forms.submit`); **Mitglieder nicht** (Antwort 24). Teamende **ohne Konto**: über den **persönlichen Zugang mit Code** aus Paket C (G6). |
+| Wer prüft? | **Alles läuft über die Geschäftsstelle** (`forms.manage`): formale Prüfung, Rückfragen, Freigabe bis zur Grenze, Auszahlung vermerken (Antwort 19). |
+| Wer gibt frei? | **Bis 50 € Gesamtsumme** die Geschäftsstelle. **Ab 50 €** zusätzlich die Rolle **Geschäftsführung oder Vorstand** (`forms.approve`). Die Grenze ist in `form_settings` einstellbar. Niemand gibt ein eigenes Formular frei (auch nicht als Geschäftsstelle, Geschäftsführung oder Vorstand). Gilt für alle drei Formulartypen. Rolle „Geschäftsführung“: **Rückfrage R3**. |
 | Geld | In Cent als Ganzzahl, nur Euro. Rundung auf volle Cent je Position. Server rechnet, nicht der Browser. |
-| Belege | PDF, JPEG, PNG (hier sind Bilder erlaubt, es sind Belegfotos), je Datei 10 MB, je Antrag 30 MB. Pflicht für alle Positionen außer Kilometerpauschale. |
+| Belege | PDF, JPEG, PNG (hier sind Bilder erlaubt, es sind Belegfotos), je Datei 15 MB, je Antrag 100 MB. Pflicht für alle Positionen außer Kilometerpauschale. |
+| Belegfrist | **Belegdatum im laufenden Kalenderjahr; einreichbar bis Ende Februar des Folgejahres** (Antwort 21). Beispiel: Belege aus 2026 können von Januar 2026 bis Ende Februar 2027 eingereicht werden. Die Härte der Regel (Sperre oder Warnung) klärt Rückfrage R5. |
 | IBAN | Prüfsumme (mod 97), Kontoinhaber:in. **Verschlüsselt gespeichert** und 30 Tage nach „ausgezahlt“ gelöscht. |
 | Nummern | `E-2027-0001` (Erstattung), `F-2027-0001` (Fahrtkosten), `M-2027-0001` (Material); gleicher Dienst wie die Seminarnummer (Paket B). |
 | Zahlung | Außerhalb des Portals. Das Portal liefert Sammelliste (CSV) und später eine SEPA-Datei (G8, optional). |
@@ -71,7 +72,7 @@ Formularaufbau (Schritte mit Zwischenspeichern als Entwurf):
 4. **Erklärung:** „Die Angaben sind richtig, die Belege sind Originalausgaben, keine Doppelerstattung.“ (Pflichthäkchen).
 5. **Zusammenfassung** mit Summe, Absenden.
 
-Regeln: Beträge > 0, Datum nicht in der Zukunft und nicht älter als 3 Monate (Warnung statt Sperre, einstellbar), Beleg je Position Pflicht, Gesamtsumme = Summe der Positionen (Server).
+Regeln: Beträge > 0, Datum nicht in der Zukunft; **Belegfrist** wie in Abschnitt 2 (Belegdatum im Kalenderjahr J, Einreichung bis 28./29.02. von J+1); Beleg je Position Pflicht, Gesamtsumme = Summe der Positionen (Server).
 
 Bearbeitung nach „Rückfrage“: Antragstellende sehen den Kommentar, ändern, senden erneut.
 
@@ -105,17 +106,17 @@ Bereich **Geschäftsstelle › Anträge**:
 - Einstellungen: km-Satz, Grenzen, Fristen (`forms.manage`).
 - Tests: Filter, Export-Spalten, IBAN nur im Export und nur für Berechtigte, Formelschutz, Einstellungen wirken.
 
-### G6 Antragslink für Teamende ohne Konto (1 ET)
-Bis es Teamkonten gibt: Bestätigte Gastteamende (Paket C) erhalten über die Teambestätigung einen **persönlichen Antragslink** je Seminar (`…/antrag/{token}`, ein Token je Person und Seminar, Hash gespeichert, gültig 12 Monate). Der Link öffnet das Formular für Erstattung und Fahrtkosten mit vorausgefüllter Person und Seminar. Rückfragen und Verlauf laufen über die E-Mail-Adresse (Link zur Antwortseite mit Token). Fehlerfälle: Link abgelaufen, Seminar nicht mehr offen.
-- Tests: Link nur für bestätigte Teamende, nur für das eigene Seminar, Verlauf ohne Konto sichtbar, Missbrauchsschutz (Drosselung).
+### G6 Anträge über den persönlichen Zugang (0,5 ET)
+Teamende ohne Konto stellen Anträge über ihren **persönlichen Zugang mit Code** (Paket C0). Die Zugangsseite bietet „Erstattung beantragen“ und „Fahrtkosten abrechnen“; Name und E-Mail sind aus der Person vorbelegt (`applicant_person_id` statt eigener Link-Token). Seminarauswahl nur aus Seminaren, in denen die Person bestätigt ist. Verlauf und Rückfragen: Seite „Meine Anträge“ im Zugang, Rückfrage-Mail mit Link.
+- Tests: nur eigene Anträge sichtbar, nur eigene Seminare wählbar, Zugang ohne Konto sieht keinen Bereich, Drosselung, Wechsel zum Teamkonto behält die Anträge.
 
 ### G7 Aufbewahrung und Datenschutz (0,5 ET)
 - Befehl `forms:prune`: IBAN und Kontoinhaber 30 Tage nach „ausgezahlt/abgelehnt/geschlossen“ löschen; Belege und Anträge nach 10 Jahren (Ende des Jahres der Auszahlung) löschen; Entwürfe ohne Änderung nach 90 Tagen löschen. Systemsteuerung (hoch), Planer täglich.
 - Konto löschen (`account:purge`): Anträge bleiben (steuerliche Pflicht), Name wird anonymisiert, IBAN gelöscht. In `AccountDeletion` ergänzen.
 - Datenschutzerklärung: Abschnitt „Kostenerstattung und Beschaffung“.
 
-### G8 Optional: SEPA-Sammelüberweisung (1,5 ET, nur bei Bedarf)
-Datei `pain.001.001.03` aus den ausgewählten freigegebenen Anträgen. Erst nach Rücksprache mit der Bank; Format und Testdatei der Bank nötig.
+### G8 SEPA-Datei: entfällt (Antwort 23)
+Nur die CSV-Sammelliste (G5). Eine SEPA-Datei kann später nachgerüstet werden.
 
 ### G9 Später (nicht in den 12 ET)
 Honorarabrechnung Teamende (Stunden × Satz aus Preisliste), Urlaubs-/Abwesenheitsanträge. Beide laufen auf demselben Ablauf (G1) und brauchen nur ein neues Formular und eine Berechnungsregel (je ca. 2–3 ET).
@@ -126,15 +127,16 @@ Honorarabrechnung Teamende (Stunden × Satz aus Preisliste), Urlaubs-/Abwesenhei
 ## 5 Rechte und Bereiche
 | Seite | Bereich | Recht |
 |---|---|---|
-| Neuer Antrag, Meine Anträge | Bereich der Person (Teamende / Mitglieder / Geschäftsstelle) | `forms.submit` |
+| Neuer Antrag, Meine Anträge | Bereich der Person (Teamende, Koordination, Bildungsreferenten, Geschäftsstelle, Vorstand) | `forms.submit` |
 | Anträge, Prüfung, Export, Einstellungen | Geschäftsstelle | `forms.manage` |
-| Freigaben | Vorstand | `forms.approve` |
-| Antragslink (ohne Konto) | öffentlich, Token | – |
+| Freigaben ab 50 € | Geschäftsführung, Vorstand | `forms.approve` |
+| Anträge über den persönlichen Zugang | öffentlich, Code (Paket C0) | – |
 
 ## 6 Abnahme (M5, Teil 1)
 1. Erstattung mit zwei Positionen und Belegen einreichen, Rückfrage, Korrektur, Freigabe, Auszahlungsvermerk.
-2. Fahrtkosten PKW 120 km Hin und zurück ergibt 72,00 € bei 30 Cent.
-3. Materialantrag über 320 € läuft über die Vorstandsfreigabe.
+2. Fahrtkosten PKW 120 km Hin und zurück ergibt 72,00 € bei 30 Cent (über 50 €: zweite Freigabe).
+3. Materialantrag über 320 € läuft über Geschäftsstelle und danach Geschäftsführung oder Vorstand.
+3a. Antrag unter 50 € wird allein durch die Geschäftsstelle freigegeben.
 4. Sammelliste herunterladen, IBAN erscheint nur dort.
 5. 31 Tage nach Auszahlung ist die IBAN gelöscht (Testdatum).
 
@@ -148,9 +150,4 @@ Honorarabrechnung Teamende (Stunden × Satz aus Preisliste), Urlaubs-/Abwesenhei
 | Selbstfreigabe | im Dienst blockiert, getestet |
 
 ## 8 Offene Fragen
-1. Schwellen für die Freigabe (150 € / 100 € / 500 €) und wer „Geschäftsstellenleitung“ ist.
-2. Kilometersatz (30 Cent?) und ob Mitfahrende einen Zuschlag bekommen.
-3. Wie viele Monate zurück dürfen Belege liegen?
-4. Welche Spalten braucht die Buchhaltung für den Export (DATEV? einfache CSV genügt?)?
-5. Bank: SEPA-Datei gewünscht (G8)?
-6. Müssen Mitglieder ohne Teamrolle auch Anträge stellen können?
+Siehe `01_OFFENE_FRAGEN.md`: R3 (Rollen Mitarbeitende und Geschäftsführung), R5 (Belegfrist hart oder Warnung), R6 (50 €: Gesamtsumme oder je Position; Material), R10 (CSV-Spalten).

@@ -1,6 +1,6 @@
 # Paket E: Digitale Feedbackformulare (SuS, Lehrkräfte, Teamende)
 
-Aufwand: **11 ET**. Ziel: Rückmeldungen zu jedem Seminar werden digital, **ohne Konto und ohne personenbezogene Daten der Schülerinnen und Schüler** erhoben, ausgewertet und im Seminar gesichert.
+Aufwand: **11,5 ET**. Ziel: Rückmeldungen zu jedem Seminar werden digital, **ohne Konto und ohne personenbezogene Daten der Schülerinnen und Schüler** erhoben, ausgewertet und im Seminar gesichert.
 
 ## 1 Ausgangslage
 - Es gibt nur den Freitext „Rückmeldung“ der Schule (`SchoolRequests::feedback`, ein Textfeld ohne Auswertung).
@@ -15,7 +15,8 @@ Aufwand: **11 ET**. Ziel: Rückmeldungen zu jedem Seminar werden digital, **ohne
 | Anonym? | SuS und Lehrkräfte: **vollständig anonym** (keine Namen, keine IP, keine Zeitstempel unter einer Minute, kein Cookie als Kennung). Teamende: wahlweise mit Namen (Auswahl im Formular). |
 | Ein Link für viele | Ein Link je Seminar und Zielgruppe, viele Antworten. Begrenzung durch Gültigkeitszeitraum und Höchstzahl (Standard: Teilnehmendenzahl × 1,5). |
 | Mehrfachabgabe | Nicht technisch verhindert (sonst bräuchte man Kennungen). Gegenmaßnahmen: Drosselung je Link und Schutzfeld, Auswertung zeigt „Antworten insgesamt“ gegen erwartete Zahl. |
-| Auswertung | Erst ab **mindestens 5 Antworten** je Zielgruppe (einstellbar), sonst „zu wenige Antworten“. Freitexte erst ab 5 Antworten sichtbar, damit einzelne Personen nicht erkennbar werden. |
+| Auswertung | **Mindestanzahl Antworten** entscheidet die Koordination **je Link** (Standard 5, auch 0 möglich). Unter der Grenze steht „zu wenige Antworten“, Freitexte erscheinen erst ab der Grenze. Die Einstellung steht am Link, mit Hinweis auf das Rückschlussrisiko bei kleinen Gruppen. |
+| Wer liest? | **Nur die Koordination** (`feedback.view`). Vorstand und Geschäftsstelle sehen keine Antworten. Kennzahlen im Seminar-Schnappschuss (D) werden erst **nach dem Anonymisieren** (E5) bereitgestellt. |
 | Formulare | Fest mitgelieferte Standardformulare (siehe 4), **bearbeitbar** durch die Koordination (Versionen). |
 | Sprache | Einfache Sprache für SuS (Klasse 5 bis 13), deutsch. Mehrsprachigkeit nicht in dieser Runde. |
 
@@ -129,8 +130,10 @@ Bereich Koordination, Seiten „Rückmeldungen“:
 - Kennzahlen gehen in den Seminar-Schnappschuss (Paket D3/D4).
 - Mindestanzahl einstellbar (`portal.feedback.min_responses`, Standard 5).
 
-### E5 Aufbewahrung und Löschung (0,5 ET)
-Befehl `feedback:prune`: löscht Rohantworten 24 Monate nach Linkende (einstellbar), behält Aggregat im Schnappschuss. Löscht Links und Namen der Teamenden. Systemsteuerung (hoch), Planer täglich. Abschnitt in der Datenschutzerklärung.
+### E5 Anonymisieren, Archivieren, Löschen (1 ET)
+- **Anonymisieren und archivieren** (Koordination, je Link): Die Koordination liest die Antworten, blendet unzulässige Freitexte aus, **bearbeitet Freitexte** (Namen entfernen) und bestätigt „anonymisiert“. Danach werden Rohantworten durch das **bereinigte Archiv** ersetzt: Aggregate je Frage (Durchschnitt, Verteilung) plus bereinigte Freitexte ohne Reihenfolge und ohne Datum unter dem Tag. Das Archiv ist die langfristige Aufbewahrung (Seminar-Schnappschuss, Jahresbericht) und für Vorstand/Geschäftsstelle als Kennzahl lesbar.
+- Befehl `feedback:prune`: löscht **nicht anonymisierte** Rohantworten 24 Monate nach Linkende (einstellbar), löscht Links und Namen der Teamenden. Systemsteuerung (hoch), Planer täglich.
+- Datenschutzerklärung: Abschnitt Rückmeldungen.
 
 ### E6 Ablösung der alten Rückmeldung (0,25 ET)
 Das Freitext-Feedback der Schule bleibt als „Nachricht an die Koordination“ bestehen (Umbenennung), der Link zu den Formularen wird auf der Seminarseite der Schule angezeigt, sobald ein Lehrkraft-Link existiert.
@@ -144,8 +147,8 @@ Das Freitext-Feedback der Schule bleibt als „Nachricht an die Koordination“ 
 5. Drosselung je Link, Formularschutz.
 6. Versionierung: Änderung erhöht die Version, alte Antworten bleiben gültig.
 7. Auswertung: Durchschnitte und Verteilungen stimmen, unter 5 Antworten keine Freitexte, Zufallsreihenfolge (kein Rückschluss auf Abgabereihenfolge).
-8. Rechte: `feedback.manage` bearbeitet Formulare, Geschäftsstelle sieht nur Kennzahlen, Teamende und Schulen nichts.
-9. Löschen nach Frist.
+8. Rechte: `feedback.manage` bearbeitet Formulare, **nur Koordination** liest Antworten; Vorstand und Geschäftsstelle sehen erst das anonymisierte Archiv; Teamende und Schulen nichts.
+9. Löschen nicht anonymisierter Rohantworten nach Frist; Anonymisieren ersetzt Rohantworten durch das Archiv und behält Aggregate.
 10. Teamende-Namen nur bei Auswahl „namentlich“.
 11. Erinnerung: wird nur einmal und nur bei geringem Rücklauf verschickt.
 
@@ -169,7 +172,4 @@ Das Freitext-Feedback der Schule bleibt als „Nachricht an die Koordination“ 
 | Unpassende Fragen | Freigabe der Kataloge vor dem Bau, Editor |
 
 ## 9 Offene Fragen
-1. Katalog-Entwürfe (4.1–4.3) durchsehen: streichen, ergänzen?
-2. Mindestanzahl Antworten 5 in Ordnung?
-3. Soll das Feedback der Lehrkräfte optional mit Schulname erfolgen (Vorschlag: nein, der Link gehört zum Seminar und damit zur Schule)?
-4. Aufbewahrung der Rohantworten 24 Monate in Ordnung?
+Siehe `01_OFFENE_FRAGEN.md`: R7 (Kennzahlen für Vorstand/Geschäftsstelle erst nach dem Anonymisieren) und R8 (Ablauf des Anonymisierens).

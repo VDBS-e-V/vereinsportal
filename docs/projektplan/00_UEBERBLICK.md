@@ -6,8 +6,9 @@ Stand: Plan. Ersetzt den Kurzplan in `docs/67_PROJEKTPLAN_LUECKEN.md` im Detail;
 
 | Thema | Entscheidung | Folge |
 |---|---|---|
-| Hosting | Webhosting, **PHP 8.4**, **Cron im Kundenmenü**, keine Konsole, nur FTP | Paket A baut auf Cron auf (Planer und Warteschlange in einem Aufruf). Der Web-Cron-Aufruf bleibt als Notlösung. Document-Root noch unbekannt: Paket A liefert beide Varianten. |
-| Login | Das Portal ist **nur Anbieter** (Nextcloud, Moodle). Keine Anmeldung über Google/Microsoft | Paket F5 entfällt. |
+| Hosting | **Strato Webhosting**, PHP 8.4, Document-Root frei wählbar, 100 GB, große Datenbanken, SMTP, **Cron über externen Dienst mit öffentlicher URL und Schlüssel**, nur FTP | Paket A: Document-Root auf `public/`, Web-Cron `GET /cron/{key}` als Hauptweg. |
+| Login | Das Portal ist **nur Anbieter** (Nextcloud, Moodle), Webinterface für Anbindungen. Keine Anmeldung über Google/Microsoft | Paket F5 entfällt. |
+| Teamende-Liste | Die bestehende **Mailingliste wird importiert**; jede Person bekommt einen **persönlichen Zugang mit Code**, der sie eindeutig zuordnet. Teamkonten folgen zeitnah danach | Paket C0. |
 | Formulare Geschäftsstelle | **Kostenrückerstattung**, **Fahrtkostenabrechnung**, **Materialbestellung/Beschaffung** | Paket G mit gemeinsamem Ablauf und drei Formulartypen. Honorarabrechnung und Urlaub sind nicht Teil dieser Runde (siehe G, Abschnitt „Später“). |
 | Feedbackfragen | **Entwurf durch mich**, Sie prüfen | Fragenkataloge stehen in Paket E (Abschnitt 4) und werden vor dem Bau von der Koordination freigegeben. |
 
@@ -15,16 +16,16 @@ Stand: Plan. Ersetzt den Kurzplan in `docs/67_PROJEKTPLAN_LUECKEN.md` im Detail;
 
 | Paket | Inhalt | Datei | Aufwand (ET) | Abhängig von |
 |---|---|---|---|---|
-| A | Betrieb auf Webhosting ohne Konsole | `A_BETRIEB_WEBHOSTING.md` | 9 | – |
+| A | Betrieb auf Webhosting ohne Konsole | `A_BETRIEB_WEBHOSTING.md` | 8,75 | – |
 | B | Seminarnummer und Stammdaten | `B_SEMINARNUMMER.md` | 3 | A (nur für Livegang) |
-| C | Teambewerbung per Link, gemeinsame Teaminformation | `C_TEAMBEWERBUNG_LINK.md` | 8 | B |
+| C | Import der Mailingliste, persönlicher Zugang, Teambewerbung, gemeinsame Teaminformation | `C_TEAMBEWERBUNG_LINK.md` | 12 | B |
 | D | Sicherung des Seminars (Dokumente, Statistik, Mappe) | `D_SEMINARSICHERUNG.md` | 8 | B |
-| E | Digitale Feedbackformulare | `E_FEEDBACK.md` | 11 | B, D (Schnappschuss) |
+| E | Digitale Feedbackformulare | `E_FEEDBACK.md` | 11,5 | B, D (Schnappschuss) |
 | F | SSO / OAuth als Anbieter | `F_SSO.md` | 6 | A (Schlüssel und Einrichtung) |
-| G | Formulare der Geschäftsstelle | `G_FORMULARE_GESCHAEFTSSTELLE.md` | 12 | A, C (Link für Teamende) |
+| G | Formulare der Geschäftsstelle | `G_FORMULARE_GESCHAEFTSSTELLE.md` | 11 | A, C (persönlicher Zugang für Teamende) |
 | H | Verteiler, Rechte-Matrix, Grundbestand Bausteine | `H_VERTEILER_BAUSTEINE.md` | 6 | – |
 
-Summe: **63 ET**, Schätzung ±30 %. Ein Entwicklungstag meint einen Arbeitstag einer Person einschließlich Tests und Doku.
+Summe: **66 ET** (Details der Änderungen in `02_ENTSCHEIDUNGEN.md`), Schätzung ±30 %. Ein Entwicklungstag meint einen Arbeitstag einer Person einschließlich Tests und Doku.
 
 ### Empfohlene Reihenfolge und Meilensteine
 
@@ -60,9 +61,9 @@ H (frei)
 |---|---|---|
 | `seminars.documents` | Koordination, Geschäftsstelle, Vorstand | D |
 | `feedback.manage` | Koordination, Vorstand | E |
-| `feedback.view` | Koordination, Vorstand, Geschäftsstelle (nur Kennzahlen) | E |
+| `feedback.view` | **nur Koordination** (liest und anonymisiert) | E |
 | `team.invites` | Koordination | C |
-| `forms.submit` | Teamende, Mitglieder, Mitarbeitende (alle mit Konto) | G |
+| `forms.submit` | Teamende, Mitarbeitende, Koordination, Bildungsreferenten, Geschäftsstelle, Vorstand (Mitglieder nicht) | G |
 | `forms.manage` | Geschäftsstelle | G |
 | `forms.approve` | Vorstand | G |
 | `oauth.manage` | Administration | F |
