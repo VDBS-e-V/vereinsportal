@@ -80,3 +80,6 @@ Nach dem Hochladen einer neuen Version genügt **ein** Schritt:
 
 Ablauf: Paket gegen `release-manifest.json` prüfen → Datenbankverbindung prüfen → Wartungsmodus an → `migrate --force` → Zwischenspeicher leeren → Wartungsmodus aus.
 Ist das Paket unvollständig oder die Datenbank nicht erreichbar, wird **nichts** verändert. Scheitert die Migration, bleibt das Portal bewusst in der Wartung; die Ausgabe nennt den geheimen Zugangslink. Die Datenbanksicherung vorher ersetzt der Befehl nicht.
+
+## Neue Einstellungen in die `.env` übernehmen (`env:sync`)
+Kommen mit einer neuen Version Einstellungen in die `.env.example` dazu, ergänzt `php artisan env:sync` sie in Ihrer `.env`. Vorhandene Werte werden **nie** geändert, nichts wird gelöscht; vorher entsteht eine Sicherungskopie `.env.backup-<Datum>`. Mit `--dry-run` sehen Sie nur, was ergänzt würde. Danach `php artisan config:clear`. Auf dem Webhosting ohne Konsole vergleichen Sie `deploy/env.strato.example` von Hand mit Ihrer `.env`.

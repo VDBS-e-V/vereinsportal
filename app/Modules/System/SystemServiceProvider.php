@@ -2,6 +2,7 @@
 
 namespace App\Modules\System;
 
+use App\Modules\System\Console\EnvSyncCommand;
 use App\Modules\System\Console\PortalTickCommand;
 use App\Modules\System\Console\PortalUpdateCommand;
 use App\Modules\System\Console\VerifyReleaseCommand;
@@ -14,7 +15,7 @@ class SystemServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
 
         if ($this->app->runningInConsole()) {
-            $this->commands([PortalTickCommand::class, PortalUpdateCommand::class, VerifyReleaseCommand::class]);
+            $this->commands([EnvSyncCommand::class, PortalTickCommand::class, PortalUpdateCommand::class, VerifyReleaseCommand::class]);
         }
     }
 }
