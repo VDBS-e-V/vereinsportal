@@ -78,7 +78,7 @@ class SetupController extends Controller
         $validator = Validator::make($request->all(), [
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'email', 'max:190', 'unique:users,email', 'unique:people,email'],
+            'email' => ['required', 'email', 'max:190', 'unique:users,email', 'unique:persons,email'],
             'birth_date' => ['required', 'date', 'before:today', 'after:1900-01-01'],
             'password' => ['required', 'confirmed', 'min:12', 'regex:/[a-z]/', 'regex:/[A-Z]/', 'regex:/\d/'],
         ], [
