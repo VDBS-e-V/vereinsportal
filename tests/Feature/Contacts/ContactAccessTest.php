@@ -377,3 +377,71 @@ it('sends and revokes the access for several ticked addresses at once', function
     $this->post(route('contacts.revoke-selected'), ['ids' => [$a->id, $b->id]])->assertSessionHas('success');
     expect(AccessCredential::query()->valid()->count())->toBe(0);
 });
+
+it('offers a select-all box in the table head and large boxes in the rows', function () {
+    $user = kcUser();
+    kcContact('a@example.org');
+
+    $this->actingAs($user)->get(route('contacts.index'))->assertOk()
+        ->assertSee('data-vdbs-select-all="bulk-form"', false)
+        ->assertSee('vdbs-table__select', false)
+        ->assertSee('form="bulk-form"', false)
+        ->assertSee('Auswahl löschen');
+
+    expect(file_get_contents(resource_path('js/select-all.js')))->toContain('data-vdbs-select-all')
+        ->and(file_get_contents(resource_path('js/app.js')))->toContain('./select-all')
+        ->and(file_get_contents(resource_path('css/vdbs/components/data/table.css')))->toContain('.vdbs-table__select .vdbs-choice__input');
+});
+
+it('deletes several ticked contacts only after a confirmation page', function () {
+    $user = kcUser();
+    $a = kcContact('weg1@example.org');
+    $b = kcContact('weg2@example.org');
+    $c = kcContact('bleibt@example.org');
+    app(AccessCredentials::class)->issue($a);
+
+    $this->actingAs($user)->post(route('contacts.delete-selected'), [])->assertSessionHasErrors('ids');
+
+    $this->post(route('contacts.delete-selected'), ['ids' => [$a->id, $b->id]])->assertOk()->assertSee('weg1@example.org')->assertSee('weg2@example.org')->assertSee('Endgültig löschen');
+    expect(TeamContact::query()->count())->toBe(3);
+
+    $this->post(route('contacts.delete-selected'), ['ids' => [$a->id, $b->id], 'confirmed' => '1'])->assertRedirect(route('contacts.index'))->assertSessionHas('success');
+    expect(TeamContact::query()->pluck('email')->all())->toBe(['bleibt@example.org'])->and(AccessCredential::query()->count())->toBe(0);
+});
+
+it('keeps the bulk delete for the office and the board', function () {
+    $contact = kcContact();
+
+    $this->post(route('contacts.delete-selected'), ['ids' => [$contact->id], 'confirmed' => '1'])->assertRedirect(route('login'));
+    $this->actingAs(kcUser(RoleKey::Coordination))->post(route('contacts.delete-selected'), ['ids' => [$contact->id], 'confirmed' => '1'])->assertForbidden();
+    expect(TeamContact::query()->count())->toBe(1);
+});
+
+it('adds a single address with the consent and sends the access on request', function () {
+    $user = kcUser();
+
+    $this->actingAs($user)->get(route('contacts.create'))->assertOk()->assertSee('E-Mail-Adresse');
+    $this->post(route('contacts.store'), ['email' => 'neu@example.org'])->assertSessionHasErrors('consent');
+
+    $this->post(route('contacts.store'), ['email' => ' Neu@Example.org ', 'first_name' => 'Nora', 'consent' => '1', 'send_access' => '1'])->assertRedirect(route('contacts.index'))->assertSessionHas('success');
+
+    $contact = TeamContact::query()->first();
+    expect($contact->email)->toBe('neu@example.org')->and($contact->first_name)->toBe('Nora')->and($contact->consent_confirmed_at)->not->toBeNull();
+    Mail::assertSent(ContactAccessMail::class, fn (ContactAccessMail $mail): bool => $mail->hasTo('neu@example.org'));
+});
+
+it('refuses a duplicate or invalid address when adding one', function () {
+    $user = kcUser();
+    kcContact('da@example.org');
+
+    $this->actingAs($user)->post(route('contacts.store'), ['email' => 'DA@example.org', 'consent' => '1'])->assertSessionHasErrors('email');
+    $this->post(route('contacts.store'), ['email' => 'kaputt', 'consent' => '1'])->assertSessionHasErrors('email');
+    expect(TeamContact::query()->count())->toBe(1);
+});
+
+it('adds an address without sending the access and keeps the form for the office only', function () {
+    $this->actingAs(kcUser())->post(route('contacts.store'), ['email' => 'still@example.org', 'consent' => '1'])->assertSessionHas('success');
+    Mail::assertNothingSent();
+
+    $this->actingAs(kcUser(RoleKey::Coordination))->get(route('contacts.create'))->assertForbidden();
+});

@@ -11,12 +11,15 @@ use Illuminate\Support\Facades\Route;
  */
 Route::middleware(['web', 'auth', 'can:contacts.manage'])->prefix('geschaeftsstelle/kontakte')->name('contacts.')->group(function (): void {
     Route::get('/', [ContactController::class, 'index'])->name('index');
+    Route::get('/neu', [ContactController::class, 'create'])->name('create');
+    Route::post('/', [ContactController::class, 'store'])->middleware('throttle:60,10')->name('store');
     Route::get('/import', [ContactController::class, 'importForm'])->name('import');
     Route::get('/import/vorlage', [ContactController::class, 'template'])->name('import.template');
     Route::post('/import/vorschau', [ContactController::class, 'preview'])->middleware('throttle:20,10')->name('import.preview');
     Route::post('/import', [ContactController::class, 'import'])->middleware('throttle:10,10')->name('import.store');
     Route::post('/zugaenge/senden', [ContactController::class, 'sendAll'])->middleware('throttle:5,10')->name('send-all');
     Route::post('/auswahl/senden', [ContactController::class, 'sendSelected'])->middleware('throttle:10,10')->name('send-selected');
+    Route::post('/auswahl/loeschen', [ContactController::class, 'deleteSelected'])->middleware('throttle:10,10')->name('delete-selected');
     Route::post('/auswahl/sperren', [ContactController::class, 'revokeSelected'])->name('revoke-selected');
     Route::post('/{contact}/zugang', [ContactController::class, 'send'])->whereNumber('contact')->middleware('throttle:30,10')->name('send');
     Route::post('/{contact}/sperren', [ContactController::class, 'revoke'])->whereNumber('contact')->name('revoke');

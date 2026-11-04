@@ -71,6 +71,45 @@ class ContactController extends Controller
         ]);
     }
 
+    public function create(): View
+    {
+        return view('contacts.form');
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $request->merge(['email' => mb_strtolower(trim((string) $request->input('email')))]);
+
+        $data = $request->validate([
+            'email' => ['required', 'string', 'email', 'max:190', 'unique:team_contacts,email'],
+            'first_name' => ['nullable', 'string', 'max:100'],
+            'last_name' => ['nullable', 'string', 'max:100'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'consent' => ['accepted'],
+            'send_access' => ['nullable', 'boolean'],
+        ], [
+            'email.required' => 'Bitte geben Sie die E-Mail-Adresse ein.',
+            'email.email' => 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
+            'email.unique' => 'Diese Adresse steht schon auf der Liste.',
+            'consent.accepted' => 'Bitte bestätigen Sie, dass die Einwilligung zur E-Mail-Kommunikation vorliegt.',
+        ]);
+
+        $contact = TeamContact::query()->create(array_filter([
+            'email' => $data['email'],
+            'first_name' => $data['first_name'] ?? null,
+            'last_name' => $data['last_name'] ?? null,
+            'phone' => $data['phone'] ?? null,
+        ], fn ($value): bool => filled($value)) + ['consent_confirmed_at' => now()]);
+
+        \App\Modules\Audit\Support\AuditLog::record(\App\Modules\Audit\Enums\AuditEvent::ContactsImported, $this->actor($request), null, ['neu' => 1, 'ergaenzt' => 0, 'uebersprungen' => 0]);
+
+        if ($request->boolean('send_access')) {
+            return redirect()->route('contacts.index')->with($this->sender->queue($contact) ? 'success' : 'warning', $this->sender->canMail($contact) ? 'Die Adresse wurde hinzugefügt, der Zugang wird versendet.' : 'Die Adresse wurde hinzugefügt. Sie ist gesperrt oder abgemeldet und bekommt keinen Zugang.');
+        }
+
+        return redirect()->route('contacts.index')->with('success', 'Die Adresse wurde hinzugefügt.');
+    }
+
     public function importForm(): View
     {
         return view('contacts.import', ['preview' => null, 'list' => '']);
@@ -153,6 +192,21 @@ class ContactController extends Controller
         }
 
         return redirect()->back()->with('success', "{$count} Zugänge wurden gesperrt.");
+    }
+
+    /** Auswahl löschen: erst eine Bestätigungsseite mit den Adressen, dann (mit confirmed=1) das Löschen. */
+    public function deleteSelected(Request $request): View|RedirectResponse
+    {
+        $contacts = $this->selected($request);
+
+        if (! $request->boolean('confirmed')) {
+            return view('contacts.delete-selected', ['contacts' => $contacts]);
+        }
+
+        $count = $contacts->count();
+        $contacts->each->delete();
+
+        return redirect()->route('contacts.index')->with('success', $count === 1 ? '1 Kontakt wurde gelöscht.' : "{$count} Kontakte wurden gelöscht.");
     }
 
     /** @return \Illuminate\Database\Eloquent\Collection<int, TeamContact> */

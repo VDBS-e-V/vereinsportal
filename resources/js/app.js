@@ -14,3 +14,4 @@ import './wizard';
 import './bot-guard';
 import './richtext';
 import './mailings';
+import './select-all';

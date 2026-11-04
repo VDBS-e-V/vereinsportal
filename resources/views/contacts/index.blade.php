@@ -10,6 +10,7 @@
 <x-layouts.app title="Teamkontakte" width="wide">
     <x-vdbs.layout.page-header title="Teamkontakte" lead="Die importierte Mailingliste. Jede Adresse bekommt einen persönlichen Zugang, mit dem sie sich auf Seminare bewerben kann." :breadcrumb="$crumbs">
         <x-slot:actions>
+            <x-vdbs.actions.button variant="secondary" :href="route('contacts.create')" icon="plus">Adresse hinzufügen</x-vdbs.actions.button>
             <x-vdbs.actions.button variant="secondary" :href="route('contacts.import')" icon="upload">Liste importieren</x-vdbs.actions.button>
             @if ($stats['without'] > 0)
                 <x-vdbs.actions.button icon="mail" data-vdbs-dialog-open="send-all">Zugänge an alle ohne Zugang senden</x-vdbs.actions.button>
@@ -33,7 +34,7 @@
             <x-slot:actions><x-vdbs.actions.button :href="route('contacts.import')" icon="upload">Liste importieren</x-vdbs.actions.button></x-slot:actions>
         </x-vdbs.feedback.empty-state>
     @else
-        <x-vdbs.data.table caption="Teamkontakte" :columns="[['key' => 'select', 'label' => 'Wahl'], ['key' => 'email', 'label' => 'E-Mail-Adresse'], ['key' => 'name', 'label' => 'Name'], ['key' => 'access', 'label' => 'Zugang'], ['key' => 'actions', 'label' => 'Aktionen']]">
+        <x-vdbs.data.table caption="Teamkontakte" :columns="[['key' => 'select', 'label' => 'Auswahl', 'selectAll' => 'bulk-form'], ['key' => 'email', 'label' => 'E-Mail-Adresse'], ['key' => 'name', 'label' => 'Name'], ['key' => 'access', 'label' => 'Zugang'], ['key' => 'actions', 'label' => 'Aktionen']]">
             @foreach ($contacts as $row)
                 @php
                     $credential = $row->credentials->first();
@@ -48,7 +49,7 @@
                     };
                 @endphp
                 <tr>
-                    <td><input type="checkbox" name="ids[]" value="{{ $row->id }}" form="bulk-form" aria-label="{{ $row->email }} auswählen"></td>
+                    <td class="vdbs-table__select"><span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="ids[]" value="{{ $row->id }}" form="bulk-form" aria-label="{{ $row->email }} auswählen"></span></td>
                     <td>{{ $row->email }}@if ($blocked) <x-vdbs.data.badge tone="warning">gesperrt oder abgemeldet</x-vdbs.data.badge>@endif</td>
                     <td>{{ $row->first_name || $row->last_name ? $row->displayName() : '–' }}</td>
                     <td><x-vdbs.data.badge :tone="$tone">{{ $label }}</x-vdbs.data.badge>@if ($credential) <span class="vdbs-hint">Code endet auf …{{ $credential->code_hint }}</span>@endif</td>
@@ -71,9 +72,10 @@
         </x-vdbs.data.table>
 
         <form id="bulk-form" method="post" style="margin-top:var(--space-4)">@csrf
-            <p class="vdbs-hint">Mit dem Häkchen links wählen Sie mehrere Adressen aus.</p>
+            <p class="vdbs-table__select-count" role="status" data-vdbs-select-count="bulk-form">Mit den Kästchen links wählen Sie mehrere Adressen aus, das Kästchen im Tabellenkopf wählt alle auf dieser Seite.</p>
             <x-vdbs.actions.button type="submit" variant="secondary" icon="mail" formaction="{{ route('contacts.send-selected') }}">Zugang an Auswahl senden</x-vdbs.actions.button>
             <x-vdbs.actions.button type="submit" variant="text" icon="lock" formaction="{{ route('contacts.revoke-selected') }}">Zugang der Auswahl sperren</x-vdbs.actions.button>
+            <x-vdbs.actions.button type="submit" variant="danger" icon="trash-2" formaction="{{ route('contacts.delete-selected') }}">Auswahl löschen</x-vdbs.actions.button>
         </form>
 
         <div style="margin-top:var(--space-4)"><x-vdbs.navigation.pagination :paginator="$contacts" /></div>
