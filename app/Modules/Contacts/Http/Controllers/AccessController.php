@@ -7,10 +7,14 @@ use App\Modules\Contacts\Models\AccessCredential;
 use App\Modules\Contacts\Models\TeamContact;
 use App\Modules\Contacts\Services\AccessCredentials;
 use App\Modules\Contacts\Services\ContactAccessSender;
+use App\Modules\Seminars\Models\Seminar;
+use App\Modules\Seminars\Models\SeminarApplication;
 use App\Modules\Seminars\Services\TeamApplications;
+use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 /** Persönlicher Zugang ohne Konto: Anmelden per Link oder Code, Angaben, offene Seminare. Gilt nur für Bewerbungen. */
 class AccessController extends Controller
@@ -74,11 +78,117 @@ class AccessController extends Controller
         /** @var TeamContact $contact */
         $contact = $request->attributes->get('contact');
 
+        $mine = SeminarApplication::query()->where('contact_id', $contact->id)->with('seminar.partner')->latest('updated_at')->get();
+
         return view('access.home', [
             'contact' => $contact,
             'seminars' => app(TeamApplications::class)->open(),
+            'mine' => $mine,
+            'mineBySeminar' => $mine->keyBy('seminar_id'),
             'draft' => $request->session()->get('contact_access.draft', []),
+            'competenceOptions' => (array) config('portal.team.competences', []),
         ]);
+    }
+
+    /** Bewerbung auf ein oder mehrere Seminare in einem Schritt (Mehrfachauswahl). */
+    public function apply(Request $request): RedirectResponse
+    {
+        /** @var TeamContact $contact */
+        $contact = $request->attributes->get('contact');
+        $draft = (array) $request->session()->get('contact_access.draft', []);
+        $first = trim((string) ($draft['first_name'] ?? $contact->first_name));
+        $last = trim((string) ($draft['last_name'] ?? $contact->last_name));
+
+        if ($first === '' || $last === '') {
+            return back()->withErrors(['name' => 'Bitte tragen Sie zuerst unter „Ihre Angaben“ Ihren Vor- und Nachnamen ein.']);
+        }
+
+        $data = $request->validate([
+            'seminar_ids' => ['required', 'array', 'min:1', 'max:50'],
+            'seminar_ids.*' => ['integer'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'birth_year' => ['nullable', 'integer', 'min:1930', 'max:'.((int) now()->format('Y') - 14)],
+            'competences' => ['nullable', 'array'],
+            'competences.*' => ['string', Rule::in(array_keys((array) config('portal.team.competences', [])))],
+            'experience' => ['nullable', 'string', 'max:800'],
+            'note' => ['nullable', 'string', 'max:300'],
+            'wants_lead' => ['nullable', 'boolean'],
+            'consent_contact' => ['nullable', 'boolean'],
+            'consent_data' => ['accepted'],
+            'save' => ['nullable', 'boolean'],
+        ], [
+            'seminar_ids.required' => 'Bitte haken Sie mindestens ein Seminar an.',
+            'seminar_ids.min' => 'Bitte haken Sie mindestens ein Seminar an.',
+            'birth_year.min' => 'Bitte prüfen Sie das Geburtsjahr.',
+            'birth_year.max' => 'Bitte prüfen Sie das Geburtsjahr.',
+            'consent_data.accepted' => 'Bitte stimmen Sie der Verarbeitung Ihrer Angaben zur Teambildung zu.',
+        ]);
+
+        $details = [
+            'name' => $first.' '.$last,
+            'phone' => $data['phone'] ?? ($draft['phone'] ?? $contact->phone),
+            'birth_year' => $data['birth_year'] ?? null,
+            'competences' => $data['competences'] ?? [],
+            'experience' => $data['experience'] ?? null,
+            'note' => $data['note'] ?? null,
+            'wants_lead' => $request->boolean('wants_lead'),
+            'consent_contact' => $request->boolean('consent_contact'),
+        ];
+
+        $team = app(TeamApplications::class);
+        $done = 0;
+        $problems = [];
+
+        foreach (Seminar::query()->whereIn('id', $data['seminar_ids'])->get() as $seminar) {
+            try {
+                $team->applyContact($seminar, $contact, $details);
+                $done++;
+            } catch (DomainException $exception) {
+                $problems[] = $seminar->title.': '.$exception->getMessage();
+            }
+        }
+
+        if ($request->boolean('save')) {
+            $contact->forceFill(['competences' => $details['competences'], 'profile_saved' => true] + ($details['phone'] ? ['phone' => $details['phone']] : []))->save();
+        }
+
+        $redirect = back();
+
+        if ($problems !== []) {
+            $redirect = $redirect->withErrors(['apply' => implode(' ', $problems)]);
+        }
+
+        return $done > 0 ? $redirect->with('success', $done === 1 ? 'Ihr Interesse wurde eingetragen.' : "Ihr Interesse an {$done} Seminaren wurde eingetragen.") : $redirect;
+    }
+
+    /** Eine oder mehrere Bewerbungen zurückziehen (Mehrfachauswahl). */
+    public function withdraw(Request $request): RedirectResponse
+    {
+        /** @var TeamContact $contact */
+        $contact = $request->attributes->get('contact');
+
+        $data = $request->validate(['application_ids' => ['required', 'array', 'min:1'], 'application_ids.*' => ['integer']], ['application_ids.required' => 'Bitte haken Sie mindestens eine Bewerbung an.', 'application_ids.min' => 'Bitte haken Sie mindestens eine Bewerbung an.']);
+
+        $team = app(TeamApplications::class);
+        $done = 0;
+        $problems = [];
+
+        foreach (SeminarApplication::query()->where('contact_id', $contact->id)->whereIn('id', $data['application_ids'])->with('seminar')->get() as $application) {
+            try {
+                $team->withdrawContact($application);
+                $done++;
+            } catch (DomainException $exception) {
+                $problems[] = $application->seminar->title.': '.$exception->getMessage();
+            }
+        }
+
+        $redirect = back();
+
+        if ($problems !== []) {
+            $redirect = $redirect->withErrors(['withdraw' => implode(' ', $problems)]);
+        }
+
+        return $done > 0 ? $redirect->with('success', $done === 1 ? 'Die Bewerbung wurde zurückgezogen.' : "{$done} Bewerbungen wurden zurückgezogen.") : $redirect;
     }
 
     public function profile(Request $request): RedirectResponse

@@ -34,6 +34,8 @@ Route::middleware('web')->group(function (): void {
 
     Route::middleware(EnsureContactAccess::class)->group(function (): void {
         Route::get('/zugang/start', [AccessController::class, 'home'])->name('access.home');
+        Route::post('/zugang/bewerben', [AccessController::class, 'apply'])->name('access.apply');
+        Route::post('/zugang/zurueckziehen', [AccessController::class, 'withdraw'])->name('access.withdraw');
         Route::post('/zugang/angaben', [AccessController::class, 'profile'])->name('access.profile');
         Route::post('/zugang/abmelden', [AccessController::class, 'logout'])->name('access.logout');
     });

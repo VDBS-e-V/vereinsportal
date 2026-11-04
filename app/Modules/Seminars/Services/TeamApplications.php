@@ -12,6 +12,7 @@ use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Seminars\Mail\SeminarDeadlineMail;
 use App\Modules\Seminars\Mail\SeminarTeamMail;
+use App\Modules\Contacts\Models\TeamContact;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
 use App\Modules\Seminars\Models\TeamProfile;
@@ -71,6 +72,57 @@ final class TeamApplications
         return $application;
     }
 
+    /**
+     * Bewerbung über den persönlichen Zugang (ohne Konto). Die Angaben gelten für diese Bewerbung; die Adresse kommt aus dem Kontakt.
+     *
+     * @param  array{name: string, phone?: ?string, birth_year?: ?int, competences?: list<string>, experience?: ?string, note?: ?string, wants_lead?: bool, consent_contact?: bool}  $details
+     *
+     * @throws DomainException
+     */
+    public function applyContact(Seminar $seminar, TeamContact $contact, array $details): SeminarApplication
+    {
+        if (! $this->isOpen($seminar)) {
+            throw new DomainException($seminar->deadlinePassed() ? 'Der Stichtag ist vorbei. Interesse lässt sich nicht mehr bekunden.' : 'Für dieses Seminar lässt sich kein Interesse bekunden.');
+        }
+
+        $existing = $seminar->applications()->where('contact_id', $contact->id)->first();
+
+        if ($existing instanceof SeminarApplication && $existing->status !== ApplicationStatus::Withdrawn) {
+            throw new DomainException($existing->status === ApplicationStatus::Declined ? 'Ihre Interessenbekundung wurde bereits entschieden.' : 'Sie haben schon Interesse bekundet.');
+        }
+
+        $application = $existing ?? new SeminarApplication(['seminar_id' => $seminar->id, 'contact_id' => $contact->id]);
+        $application->fill([
+            'status' => ApplicationStatus::Applied,
+            'note' => filled($details['note'] ?? null) ? mb_substr(trim((string) $details['note']), 0, 300) : null,
+            'wants_lead' => (bool) ($details['wants_lead'] ?? false),
+            'decided_by_user_id' => null,
+            'decided_at' => null,
+            'guest_name' => mb_substr(trim($details['name']), 0, 150),
+            'guest_phone' => filled($details['phone'] ?? null) ? trim((string) $details['phone']) : null,
+            'guest_birth_year' => $details['birth_year'] ?? null,
+            'guest_competences' => array_values((array) ($details['competences'] ?? [])),
+            'guest_experience' => filled($details['experience'] ?? null) ? mb_substr(trim((string) $details['experience']), 0, 800) : null,
+            'guest_consent_contact' => (bool) ($details['consent_contact'] ?? false),
+        ])->save();
+
+        $this->record($seminar, SeminarEventType::TeamApplied, null, $application->guest_name, 'Persönlicher Zugang');
+
+        return $application;
+    }
+
+    /** @throws DomainException */
+    public function withdrawContact(SeminarApplication $application): void
+    {
+        if ($application->status !== ApplicationStatus::Applied) {
+            throw new DomainException($application->status === ApplicationStatus::Confirmed ? 'Sie sind bereits im Team. Bitte melden Sie sich bei der Koordination, wenn Sie nicht teilnehmen können.' : 'Diese Interessenbekundung lässt sich nicht zurückziehen.');
+        }
+
+        $application->forceFill(['status' => ApplicationStatus::Withdrawn])->save();
+
+        $this->record($application->seminar, SeminarEventType::TeamWithdrawn, null, $application->applicantName(), 'Persönlicher Zugang');
+    }
+
     /** @throws DomainException */
     public function withdraw(SeminarApplication $application, User $user): void
     {
@@ -110,11 +162,10 @@ final class TeamApplications
 
         $application->forceFill(['status' => $target, 'decided_by_user_id' => $by->id, 'decided_at' => now()])->save();
 
-        $user = $application->user;
-        $this->record($seminar, $target === ApplicationStatus::Confirmed ? SeminarEventType::TeamConfirmed : SeminarEventType::TeamDeclined, $by, $this->name($user));
+        $this->record($seminar, $target === ApplicationStatus::Confirmed ? SeminarEventType::TeamConfirmed : SeminarEventType::TeamDeclined, $by, $application->applicantName());
         AuditLog::record(AuditEvent::SeminarTeamDecided, $by, $seminar, ['entscheidung' => $target->label()]);
 
-        $this->send($user, $target === ApplicationStatus::Confirmed ? 'confirmed' : 'declined', $seminar);
+        $this->notify($application, $target === ApplicationStatus::Confirmed ? 'confirmed' : 'declined', $seminar);
     }
 
     /**
@@ -159,14 +210,35 @@ final class TeamApplications
     public function review(Seminar $seminar): array
     {
         $applications = $seminar->applications->reject(fn (SeminarApplication $application): bool => $application->status === ApplicationStatus::Withdrawn)->values();
-        $userIds = $applications->pluck('user_id')->all();
+        $userIds = $applications->pluck('user_id')->filter()->all();
+        $contactIds = $applications->pluck('contact_id')->filter()->all();
+
+        $contactExperience = SeminarApplication::query()->whereIn('contact_id', $contactIds)->where('status', ApplicationStatus::Confirmed->value)
+            ->whereHas('seminar', fn ($query) => $query->whereIn('status', [SeminarStatus::Done->value, SeminarStatus::Completed->value]))
+            ->selectRaw('contact_id, count(*) as aggregate')->groupBy('contact_id')->pluck('aggregate', 'contact_id');
 
         $profiles = TeamProfile::query()->whereIn('user_id', $userIds)->get()->keyBy('user_id');
         $experience = SeminarApplication::query()->whereIn('user_id', $userIds)->where('status', ApplicationStatus::Confirmed->value)
             ->whereHas('seminar', fn ($query) => $query->whereIn('status', [SeminarStatus::Done->value, SeminarStatus::Completed->value]))
             ->selectRaw('user_id, count(*) as aggregate')->groupBy('user_id')->pluck('aggregate', 'user_id');
 
-        $rows = $applications->map(function (SeminarApplication $application) use ($profiles, $experience, $seminar): array {
+        $rows = $applications->map(function (SeminarApplication $application) use ($profiles, $experience, $contactExperience, $seminar): array {
+            if ($application->isContact()) {
+                return [
+                    'application' => $application,
+                    'name' => $application->applicantName(),
+                    'age' => $application->guest_birth_year ? max(0, (int) now()->format('Y') - (int) $application->guest_birth_year) : null,
+                    'gender' => null,
+                    'competences' => (array) ($application->guest_competences ?? []),
+                    'experience_note' => $application->guest_experience,
+                    'seminars_done' => (int) ($contactExperience[$application->contact_id] ?? 0),
+                    'lead' => $application->wants_lead,
+                    'lead_experience' => false,
+                    'conflicts' => $this->conflictsFor($application, $seminar)->pluck('title')->all(),
+                    'via_link' => true,
+                ];
+            }
+
             $user = $application->user;
             $profile = $profiles->get($user->id);
             $birth = $user->person?->birth_date;
@@ -318,14 +390,26 @@ final class TeamApplications
         return $count;
     }
 
+    /** Wie conflicts(), für Konto oder Kontakt einer Bewerbung. @return Collection<int, Seminar> */
+    public function conflictsFor(SeminarApplication $application, Seminar $seminar): Collection
+    {
+        return $application->isContact() ? $this->overlaps('contact_id', (int) $application->contact_id, $seminar) : $this->conflicts($application->user, $seminar);
+    }
+
     /** Bestätigte Seminare der Person, die sich zeitlich mit diesem überschneiden. @return Collection<int, Seminar> */
     public function conflicts(User $user, Seminar $seminar): Collection
+    {
+        return $this->overlaps('user_id', $user->id, $seminar);
+    }
+
+    /** @return Collection<int, Seminar> */
+    private function overlaps(string $column, int $id, Seminar $seminar): Collection
     {
         $mine = $seminar->relationLoaded('sessions') ? $seminar->sessions : $seminar->sessions()->get();
 
         return Seminar::query()
             ->whereKeyNot($seminar->id)
-            ->whereIn('id', SeminarApplication::query()->where('user_id', $user->id)->where('status', ApplicationStatus::Confirmed->value)->select('seminar_id'))
+            ->whereIn('id', SeminarApplication::query()->where($column, $id)->where('status', ApplicationStatus::Confirmed->value)->select('seminar_id'))
             ->whereNotIn('status', [SeminarStatus::Cancelled->value])
             ->with('sessions')
             ->get()
@@ -336,8 +420,8 @@ final class TeamApplications
     /** Wird ein Seminar abgesagt, erfahren es alle Bestätigten und Beworbenen. */
     public function notifyCancelled(Seminar $seminar): void
     {
-        $seminar->applications()->whereIn('status', [ApplicationStatus::Applied->value, ApplicationStatus::Confirmed->value])->with('user')->get()
-            ->each(fn (SeminarApplication $application) => $this->send($application->user, 'cancelled', $seminar));
+        $seminar->applications()->whereIn('status', [ApplicationStatus::Applied->value, ApplicationStatus::Confirmed->value])->with(['user', 'contact'])->get()
+            ->each(fn (SeminarApplication $application) => $this->notify($application, 'cancelled', $seminar));
     }
 
     /** Termine der bestätigten Seminare als iCalendar-Datei. */
@@ -384,6 +468,28 @@ final class TeamApplications
         return $user->person?->fullName() ?: $user->email;
     }
 
+    /** Nachricht an Konto oder (über den persönlichen Zugang) an den Kontakt. Gesperrte und abgemeldete Adressen bekommen nichts. */
+    private function notify(SeminarApplication $application, string $kind, Seminar $seminar): void
+    {
+        if (! $application->isContact()) {
+            $this->send($application->user, $kind, $seminar);
+
+            return;
+        }
+
+        $contact = $application->contact;
+
+        if ($contact === null || ! app(\App\Modules\Contacts\Services\ContactAccessSender::class)->canMail($contact)) {
+            return;
+        }
+
+        try {
+            Mail::to($contact->email)->send(new SeminarTeamMail($kind, $seminar->loadMissing(['partner', 'sessions']), route('access.code')));
+        } catch (Throwable $exception) {
+            report($exception);
+        }
+    }
+
     private function send(User $user, string $kind, Seminar $seminar): void
     {
         if (! app(\App\Modules\Access\Services\NotificationPreferences::class)->allows($user, 'seminar_team')) {
@@ -397,13 +503,13 @@ final class TeamApplications
         }
     }
 
-    private function record(Seminar $seminar, SeminarEventType $type, ?User $by, ?string $comment = null): void
+    private function record(Seminar $seminar, SeminarEventType $type, ?User $by, ?string $comment = null, ?string $actorLabel = null): void
     {
         $seminar->events()->create([
             'type' => $type,
             'occurred_at' => now(),
             'actor_user_id' => $by?->id,
-            'actor_label' => $by !== null ? AuditLog::label($by) : null,
+            'actor_label' => $by !== null ? AuditLog::label($by) : $actorLabel,
             'comment' => $comment,
         ]);
     }

@@ -16,3 +16,13 @@ Stand: Teil 1 von Paket C (C0). **Noch nicht auf dem echten System erprobt.** Di
 
 ## Noch offen (Teil 2)
 Bewerben und Zurückziehen mit dem Zugang, Gäste in Bewerberliste und Teamvorschlag, Entscheidungsmails an Kontakte, allgemeiner Seminarlink als Zweitweg, „Team informieren“, Aufräumbefehl für Kontakte ohne Aktivität (Vorschlag nach 24 Monaten), Kontoaktivierung über den Zugang.
+
+## Teil 2: Bewerbung mit dem persönlichen Zugang
+- Auf `/zugang/start` sehen Kontakte die offenen Seminare. **Mehrere Seminare lassen sich anhaken** (auch „alle auswählen“) und mit einem Klick bewerben. Angaben: Kompetenzen (Mehrfachauswahl), Erfahrung, Geburtsjahr (freiwillig), Telefon, Nachricht, Wunsch zur Seminarleitung, Weitergabe der Kontaktdaten ans Team (freiwillig) und die Zustimmung zur Verarbeitung (Pflicht). Kompetenzen und Telefon bleiben nur mit „Für die Zukunft speichern“.
+- **Ihre Bewerbungen:** Liste mit Stand; mehrere offene Bewerbungen lassen sich gemeinsam zurückziehen.
+- **Koordination:** Bewerbungen über den Zugang erscheinen in der Liste der Seminarseite mit dem Kennzeichen „Persönlicher Zugang“, werden in Teamvorschlag, Zusammensetzung und Überschneidungswarnung berücksichtigt und lassen sich wie Konto-Bewerbungen bestätigen oder ablehnen. Entscheidungs- und Absagemails gehen an die Adresse des Kontakts (nicht an gesperrte oder abgemeldete), mit Link auf `/zugang`.
+- **Mitteilungen an Teamende** mit Zielgruppe „Interesse bekundet“ oder „Im Team“ erreichen auch diese Bewerbenden.
+- Löscht man einen Kontakt, verschwinden seine Bewerbungen mit.
+
+## Noch offen (Teil 3)
+Allgemeiner Seminarlink als Zweitweg mit E-Mail-Bestätigung, „Team informieren“ (gemeinsame Mail mit Team-Übersicht), Aufräumbefehl für Kontakte ohne Aktivität, Kontoaktivierung über den Zugang, Honorar-Überblick nach Anmeldung.

@@ -50,7 +50,8 @@ final class YearReport
         $add('Kostenvoranschläge', 'Erstellte Kostenvoranschläge', (clone $quotes)->count());
         $add('Kostenvoranschläge', 'Summe der Endsummen (€)', number_format(((int) (clone $quotes)->sum('total_cents')) / 100, 2, ',', '.'));
 
-        $add('Teamende', 'Teamende im Einsatz', SeminarApplication::query()->where('status', ApplicationStatus::Confirmed->value)->whereIn('seminar_id', $seminarIds)->distinct('user_id')->count('user_id'));
+        $confirmed = SeminarApplication::query()->where('status', ApplicationStatus::Confirmed->value)->whereIn('seminar_id', $seminarIds);
+        $add('Teamende', 'Teamende im Einsatz', (clone $confirmed)->distinct('user_id')->count('user_id') + (clone $confirmed)->distinct('contact_id')->count('contact_id'));
 
         $events = Event::query()->whereHas('sessions', fn ($query) => $query->whereBetween('starts_at', [$from, $to]));
         $eventIds = (clone $events)->pluck('id');

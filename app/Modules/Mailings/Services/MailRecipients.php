@@ -132,6 +132,22 @@ final class MailRecipients
             'group' => 'team',
         ], $users));
 
+        // Bewerbungen über den persönlichen Zugang (ohne Konto) zählen zu „Interesse“ und „Team“ eines Seminars.
+        if ($seminar !== null && in_array($audience, ['applied', 'confirmed'], true)) {
+            $status = $audience === 'applied' ? ApplicationStatus::Applied : ApplicationStatus::Confirmed;
+            $viaLink = $seminar->applications()->where('status', $status->value)->whereNotNull('contact_id')->with('contact')->get()
+                ->filter(fn ($application): bool => $application->contact !== null)
+                ->map(fn ($application): array => [
+                    'email' => (string) $application->contact->email,
+                    'first' => (string) ($application->contact->first_name ?: strtok($application->applicantName(), ' ')),
+                    'last' => (string) $application->contact->last_name,
+                    'fallback' => 'Teamer:in',
+                    'group' => 'team',
+                ])->all();
+
+            $list = $this->unique(array_merge($list, $viaLink));
+        }
+
         return $this->filter($list, false)['kept'];
     }
 

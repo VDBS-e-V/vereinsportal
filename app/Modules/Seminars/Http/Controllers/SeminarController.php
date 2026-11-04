@@ -67,7 +67,7 @@ class SeminarController extends Controller
 
     public function show(Seminar $seminar): View
     {
-        $seminar->load(['coordinator.person', 'partner', 'sessions', 'events.actor', 'quotes', 'createdBy.person', 'updatedBy.person', 'applications.user.person']);
+        $seminar->load(['coordinator.person', 'partner', 'sessions', 'events.actor', 'quotes', 'createdBy.person', 'updatedBy.person', 'applications.user.person', 'applications.contact']);
         $team = app(\App\Modules\Seminars\Services\TeamApplications::class);
 
         return view('seminars.show', [

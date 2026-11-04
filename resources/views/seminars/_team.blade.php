@@ -49,6 +49,8 @@
                 <tr>
                     <td>
                         {{ $row['name'] }}
+                        @if (! empty($row['via_link']))<br><x-vdbs.data.badge tone="info">Persönlicher Zugang</x-vdbs.data.badge>@endif
+                        @if ($canManage && ! empty($row['via_link']) && $application->guest_phone)<br><small>{{ $application->guest_phone }}</small>@endif
                         @if ($row['lead'])<br><x-vdbs.data.badge tone="info">möchte leiten</x-vdbs.data.badge>@endif
                         @if ($row['conflicts'])<br><x-vdbs.data.badge tone="warning">Überschneidung: {{ implode(', ', $row['conflicts']) }}</x-vdbs.data.badge>@endif
                     </td>

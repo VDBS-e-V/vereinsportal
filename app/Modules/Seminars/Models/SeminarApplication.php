@@ -10,17 +10,43 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /** Modul: Seminars. Bewerbung eines Teamenden-Kontos auf ein Seminar. */
 class SeminarApplication extends Model
 {
-    protected $fillable = ['seminar_id', 'user_id', 'status', 'note', 'wants_lead', 'internal_note', 'decided_by_user_id', 'decided_at'];
+    protected $fillable = ['seminar_id', 'user_id', 'contact_id', 'guest_name', 'guest_phone', 'guest_birth_year', 'guest_competences', 'guest_experience', 'guest_consent_contact', 'status', 'note', 'wants_lead', 'internal_note', 'decided_by_user_id', 'decided_at'];
 
     protected function casts(): array
     {
-        return ['status' => ApplicationStatus::class, 'decided_at' => 'datetime', 'wants_lead' => 'boolean'];
+        return ['status' => ApplicationStatus::class, 'decided_at' => 'datetime', 'wants_lead' => 'boolean', 'guest_competences' => 'array', 'guest_consent_contact' => 'boolean'];
     }
 
     /** @return BelongsTo<Seminar, $this> */
     public function seminar(): BelongsTo
     {
         return $this->belongsTo(Seminar::class);
+    }
+
+    /** @return BelongsTo<\App\Modules\Contacts\Models\TeamContact, $this> */
+    public function contact(): BelongsTo
+    {
+        return $this->belongsTo(\App\Modules\Contacts\Models\TeamContact::class, 'contact_id');
+    }
+
+    /** Bewerbung über den persönlichen Zugang (ohne Konto). */
+    public function isContact(): bool
+    {
+        return $this->user_id === null && $this->contact_id !== null;
+    }
+
+    public function applicantName(): string
+    {
+        if ($this->isContact()) {
+            return $this->guest_name ?: ($this->contact?->displayName() ?? 'Unbekannt');
+        }
+
+        return $this->user?->person?->fullName() ?: (string) $this->user?->email;
+    }
+
+    public function applicantEmail(): ?string
+    {
+        return $this->isContact() ? $this->contact?->email : $this->user?->email;
     }
 
     /** @return BelongsTo<User, $this> */
