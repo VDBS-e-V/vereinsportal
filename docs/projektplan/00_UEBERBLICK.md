@@ -25,8 +25,9 @@ Stand: Plan. Ersetzt den Kurzplan in `docs/67_PROJEKTPLAN_LUECKEN.md` im Detail;
 | G | Formulare der Geschäftsstelle | `G_FORMULARE_GESCHAEFTSSTELLE.md` | 11 | A, C (persönlicher Zugang für Teamende) |
 | H | Verteiler, Rechte-Matrix, Grundbestand Bausteine | `H_VERTEILER_BAUSTEINE.md` | 7,25 | – |
 | I | Neue Rollen Mitarbeitende und Geschäftsführung | `I_ROLLEN.md` | 2 | – (vor G) |
+| K | Honorarvertrag (Dienstleistungsvertrag) für Teamende als PDF | `K_HONORARVERTRAG.md` | 4,5 | C (Team bestätigt), D (Ablage, PDF), B (Nummer) |
 
-Summe: **70 ET** (Details der Änderungen in `02_ENTSCHEIDUNGEN.md`), Schätzung ±30 %. Ein Entwicklungstag meint einen Arbeitstag einer Person einschließlich Tests und Doku.
+Summe: **74,5 ET** (Details der Änderungen in `02_ENTSCHEIDUNGEN.md`), Schätzung ±30 %. Ein Entwicklungstag meint einen Arbeitstag einer Person einschließlich Tests und Doku.
 
 ### Empfohlene Reihenfolge und Meilensteine
 
@@ -42,6 +43,7 @@ A ──► B ──► C
       ├──► D ──► E
 A ──► F
 I ──► G
+C, D ──► K
 H (frei)
 ```
 
@@ -68,6 +70,7 @@ H (frei)
 | `forms.submit` | Teamende, Mitarbeitende, Koordination, Bildungsreferenten, Geschäftsstelle, Vorstand (Mitglieder nicht) | G |
 | `forms.manage` | Geschäftsstelle | G |
 | `forms.approve` | Geschäftsführung, Vorstand | G |
+| `contracts.manage` | Koordination, Geschäftsstelle, Vorstand | K |
 | `oauth.manage` | Administration | F |
 | `mail_segments.manage` | Geschäftsstelle, Vorstand | H |
 

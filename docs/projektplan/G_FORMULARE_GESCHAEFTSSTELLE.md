@@ -109,7 +109,7 @@ Bereich **Geschäftsstelle › Anträge**:
 
 ### G6 Kostenstellen und Übergangsregel (0,5 ET)
 - Tabelle `cost_centers` (`code` unique, `name`, `active`), Pflege durch `forms.manage` und `forms.approve` (langfristig eine Stelle in der Geschäftsstelle; **aktuell der Kassierer im Vorstand**, Antwort R13). Auswahlfeld statt Freitext in allen Formularen und im Seminar (Paket B3).
-- **Übergangsregel:** Solange die Stelle in der Geschäftsstelle nicht besetzt ist, übernimmt die Zusatzrolle „Kassenführung“ (Vorstandsmitglied Kasse) die Rechte von `forms.manage`. Die Zusatzrolle wird später entzogen (Rollenvergabe vorhanden). Die Kassenführung darf die **Prüfung** ihrer eigenen Anträge selbst vornehmen; im Verlauf steht „Selbstprüfung“ für alle sichtbar. Andere Vorstandsmitglieder können sie ebenfalls prüfen. Die **Freigabe über 50 €** gibt immer eine andere Person mit `forms.approve`. Freigabe bis 50 € eigener Anträge: Rückfrage Q8.
+- **Übergangsregel:** Solange die Stelle in der Geschäftsstelle nicht besetzt ist, übernimmt die Zusatzrolle „Kassenführung“ (Vorstandsmitglied Kasse) die Rechte von `forms.manage`. Die Zusatzrolle wird später entzogen (Rollenvergabe vorhanden). Die Kassenführung darf die **Prüfung** ihrer eigenen Anträge selbst vornehmen; im Verlauf steht „Selbstprüfung“ für alle sichtbar. Andere Vorstandsmitglieder können sie ebenfalls prüfen. Die **Freigabe über 50 €** gibt immer eine andere Person mit `forms.approve`. **Freigabe** eigener Anträge gibt **immer eine andere Person** (Antwort Q8), auch bis 50 €.
 - Tests: Kostenstellen-Pflege, Auswahl in Formularen, Selbstprüfung der Kassenführung erlaubt und sichtbar vermerkt, Selbstfreigabe über 50 € gesperrt, Zusatzrolle gibt und nimmt Recht.
 
 ### G7 Aufbewahrung und Datenschutz (0,5 ET)

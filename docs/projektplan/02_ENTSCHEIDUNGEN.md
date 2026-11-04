@@ -92,3 +92,21 @@ Antworten des Vorstands auf die 28 Fragen aus `01_OFFENE_FRAGEN.md` (Stand: Antw
 | C | 12 | 12,5 | Vorlage und Eingabe im Browser (+0,25), Adresse und Speicheroption (+0,25) |
 | H | 7 | 7,25 | zusätzliche Filter |
 | gesamt | 69 | **70** | (Rundung) |
+
+---
+
+# Vierte Runde (Antworten auf Q8 bis Q10, Vertragsvorlage)
+
+| Nr. | Antwort | Folge |
+|---|---|---|
+| Q8 | Freigabe eigener Anträge **immer eine andere Person** | G6: Die Kassenführung darf **prüfen**, aber nie **freigeben**, was sie selbst eingereicht hat, auch nicht bis 50 €. |
+| Q9 | **Ja**, Vertrag für Teamende vorausfüllen; Vorlage `Vertragsvorlage_-1.pdf` (Dienstleistungsvertrag) | **Neues Paket K** (4,5 ET): Honorarvertrag als PDF. Analyse der Vorlage in `K_HONORARVERTRAG.md`. |
+| Q10 | Kostenstellen: unsicher, **Vorlage gewünscht** | `vorlagen/kostenstellen_vorlage.csv` mit Vorschlag von elf Kostenstellen; Sie ändern, löschen oder ergänzen und schicken sie zurück (oder der Kassierer pflegt sie später im Portal). |
+
+Zusätzlich liegt `vorlagen/mailingliste_vorlage.csv` bereit (Spalten `E-Mail;Vorname;Nachname;Telefon`, Excel-tauglich mit BOM).
+
+## Aufwand nach der vierten Runde
+| Paket | Änderung |
+|---|---|
+| K | neu, 4,5 ET |
+| gesamt | **74,5 ET** |

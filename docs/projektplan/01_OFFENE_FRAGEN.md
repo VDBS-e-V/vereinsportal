@@ -3,13 +3,15 @@
 Stand: nach der zweiten Antwortrunde (siehe `02_ENTSCHEIDUNGEN.md`). Die Fragen R1 bis R14 sind beantwortet (Tabelle weiter unten als Archiv). **Offen sind nur noch Q1 bis Q7.** Wo Sie nicht antworten, gilt die Annahme.
 
 ## Offen
-Die Fragen Q1 bis Q7 sind beantwortet (siehe `02_ENTSCHEIDUNGEN.md`, dritte Runde). **Offen sind nur noch Q8 bis Q10.** Keine davon blockiert den Start von Paket A.
+Q1 bis Q10 sind beantwortet (siehe `02_ENTSCHEIDUNGEN.md`). **Offen sind Q11 bis Q15**, alle aus der Vertragsvorlage und der Kostenstellenvorlage. Keine blockiert den Start von Paket A.
 
 | Nr. | Thema | Frage | Annahme |
 |---|---|---|---|
-| Q8 | Eigene Anträge (G) | Darf die Kassenführung eigene Anträge **bis 50 €** auch selbst **freigeben**, oder gibt die Freigabe immer eine andere Person? (Prüfen darf sie selbst, Antwort Q5.) | Freigabe immer eine andere Person, auch bis 50 € |
-| Q9 | Verträge (D) | Gibt es Verträge für Teamende (z. B. Honorarvertrag), die das Portal mit Name, Anschrift, Seminar, Terminen und Honorar **vorausfüllen** soll? Dann brauche ich die Vorlage. (+2 ET, als PDF/Druckansicht in der Seminarsicherung) | Später, nach Lieferung der Vorlage |
-| Q10 | Kostenstellen (G6) | Die Liste der Kostenstellen kann der Kassierer als einfache Tabelle (Nummer, Name) liefern; wir importieren sie einmalig. | ja |
+| Q11 | Vergütung (K) | Wie wird die Vergütung im Vertrag bestimmt: aus dem Honorar des Kostenvoranschlags (Stundensatz je Tag, Zuschlag Leitung) **oder** ein Festbetrag je Einsatz (wie die 75,00 € in der Vorlage)? Gibt es Unterschiede zwischen Teamenden und Leitung? | Aus dem Kostenvoranschlag, vor dem Erzeugen änderbar |
+| Q12 | Reisekosten (G3, K) | Die Vorlage verweist auf das **Bundesreisekostengesetz**; Sie nannten 30 Cent je km. Nach meinem Wissen sieht das BRKG für Kfz 20 Cent je km vor, Berlin hat ein eigenes Landesreisekostengesetz. Welcher Satz gilt, und soll der Vertragstext angepasst werden? (Bitte mit der Steuerberatung klären.) | 30 Cent, Vertragstext unverändert |
+| Q13 | Umsatzsteuer (K) | Wer wählt die Umsatzsteuer-Art (19 %, 7 %, ohne): die Person in ihren Vertragsdaten, die Koordination, oder fest „ohne“? | Standard „ohne“, Person oder Koordination ändert |
+| Q14 | Versand (K) | Soll der Vertrag nur als PDF zum Ausdrucken erzeugt werden, oder soll das Portal ihn auch per E-Mail an die Person schicken? | Nur erzeugen, Versand optional per Rundschreiben mit Anhang |
+| Q15 | Kostenstellen (G6) | Bitte `vorlagen/kostenstellen_vorlage.csv` ansehen: Welche Stellen passen, welche fehlen? Der Kassierer kann die Liste später im Portal pflegen. | Vorschlag wird übernommen und später angepasst |
 
 ## Archiv: Fragen R1 bis R14 (beantwortet)
 
