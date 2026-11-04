@@ -110,7 +110,7 @@ it('warns about a high failure rate on the progress page and in the system check
 
     $this->get(route('mailings.office.show', $bad))->assertOk()->assertSee('Hohe Fehlerquote');
     $this->get(route('mailings.office.show', $fine))->assertOk()->assertDontSee('Hohe Fehlerquote');
-    expect(json_encode(app(SystemChecks::class)->all()))->toContain('Zustellqualität');
+    expect(json_encode(app(SystemChecks::class)->all(), JSON_UNESCAPED_UNICODE))->toContain('Zustellqualität');
 });
 
 it('creates a follow-up draft for the failed addresses and sends it to exactly those', function () {
