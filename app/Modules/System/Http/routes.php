@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\System\Http\Controllers\CronController;
 use App\Modules\System\Http\Controllers\SystemController;
 use App\Modules\System\Http\Controllers\SystemLogController;
 use App\Modules\System\Http\Controllers\SystemQueueController;
@@ -20,4 +21,9 @@ Route::middleware(['web', 'auth', 'can:system.manage'])->prefix('admins/system')
     Route::get('/einstellungen', [SystemSettingsController::class, 'index'])->name('settings');
     Route::post('/einstellungen/testmail', [SystemSettingsController::class, 'testMail'])->name('settings.test-mail');
     Route::post('/aufgaben/{task}', [SystemController::class, 'run'])->where('task', '[a-z0-9\-]+')->name('tasks.run');
+});
+
+// Cron-Aufruf für Webhosting: ohne Sitzung und ohne Anmeldung, geschützt durch den Schlüssel in der Adresse (CRON_KEY) und eine Drosselung.
+Route::middleware('throttle:10,1')->group(function (): void {
+    Route::match(['get', 'head'], '/cron/{key}', CronController::class)->where('key', '[A-Za-z0-9_\-]{8,200}')->name('system.cron');
 });

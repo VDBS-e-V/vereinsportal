@@ -257,4 +257,12 @@ return [
             'bank_lines' => ['Geldinstitut: Berliner Sparkasse', 'IBAN: DE63 1005 0000 0191 2739 96', 'BIC: BELADEBEXXX'],
         ],
     ],
+
+    /*
+     * Betrieb auf Webhosting ohne Konsole. SETUP_TOKEN schaltet die Einrichtung im Browser (/einrichtung) frei, bis die Sperrdatei
+     * storage/app/setup.lock existiert. CRON_KEY (mindestens 32 Zeichen) ist der Schlüssel in der Adresse /cron/{key}, die ein externer Dienst
+     * jede Minute aufruft; PORTAL_TICK_SECONDS begrenzt, wie lange ein Aufruf Aufträge abarbeitet.
+     */
+    'setup' => ['token' => env('SETUP_TOKEN'), 'lock' => storage_path('app/setup.lock')],
+    'cron' => ['key' => env('CRON_KEY'), 'seconds' => (int) env('PORTAL_TICK_SECONDS', 45)],
 ];

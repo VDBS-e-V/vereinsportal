@@ -4,6 +4,7 @@ use App\Modules\Access\AccessServiceProvider;
 use App\Modules\AccessRequests\AccessRequestsServiceProvider;
 use App\Modules\AccessGovernance\AccessGovernanceServiceProvider;
 use App\Modules\Articles\ArticlesServiceProvider;
+use App\Modules\Setup\SetupServiceProvider;
 use App\Modules\System\SystemServiceProvider;
 use App\Modules\Mailings\MailingsServiceProvider;
 use App\Modules\Audit\AuditServiceProvider;
@@ -39,6 +40,7 @@ return [
     AccessRequestsServiceProvider::class,
     ArticlesServiceProvider::class,
     SystemServiceProvider::class,
+    SetupServiceProvider::class,
     MailingsServiceProvider::class,
     PagesServiceProvider::class,
     EventsServiceProvider::class,

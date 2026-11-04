@@ -100,6 +100,22 @@ final class SystemChecks
             ? $this->check('PHP', 'Erweiterung gd', 'ok', 'Vorhanden: Profilfotos werden zugeschnitten und verkleinert.')
             : $this->check('PHP', 'Erweiterung gd', 'warning', 'Fehlt: Profilfotos werden unverändert gespeichert. In der php.ini extension=gd aktivieren.');
 
+        foreach (['zip' => 'Seminarmappe als ZIP-Datei', 'intl' => 'Sortierung und Formate'] as $extension => $purpose) {
+            $checks[] = extension_loaded($extension)
+                ? $this->check('PHP', 'Erweiterung '.$extension, 'ok', 'Vorhanden.')
+                : $this->check('PHP', 'Erweiterung '.$extension, 'warning', 'Fehlt ('.$purpose.'). Im Kundenmenü des Hosters aktivieren.');
+        }
+
+        $checks[] = version_compare(PHP_VERSION, '8.4.1', '>=')
+            ? $this->check('PHP', 'PHP-Version', 'ok', PHP_VERSION.'.')
+            : $this->check('PHP', 'PHP-Version', 'error', PHP_VERSION.': nötig ist 8.4.1 oder höher (im Kundenmenü des Hosters einstellen).');
+
+        $time = (int) ini_get('max_execution_time');
+        $tick = (int) config('portal.cron.seconds', 45);
+        $checks[] = $time !== 0 && $time < $tick + 10
+            ? $this->check('PHP', 'Zeitlimit', 'warning', 'max_execution_time ist '.$time.' Sekunden. Der Cron-Aufruf arbeitet bis zu '.$tick.' Sekunden: PORTAL_TICK_SECONDS in der .env verkleinern.')
+            : $this->check('PHP', 'Zeitlimit', 'ok', $time === 0 ? 'Unbegrenzt.' : $time.' Sekunden.');
+
         return $checks;
     }
 
@@ -170,6 +186,22 @@ final class SystemChecks
             $age === null => $this->check('Dienste', 'Planer (Scheduler)', 'warning', 'Noch nie gelaufen. Auf dem Server fehlt der Cron-Eintrag „php artisan schedule:run“ jede Minute (lokal: php artisan schedule:work).'),
             $age > 10 => $this->check('Dienste', 'Planer (Scheduler)', 'warning', 'Der letzte Lauf war vor '.$age.' Minuten. Die täglichen Aufgaben laufen nicht zuverlässig.'),
             default => $this->check('Dienste', 'Planer (Scheduler)', 'ok', 'Läuft (letzter Lauf vor '.$age.' Min.).'),
+        };
+
+        $keyLength = strlen((string) config('portal.cron.key', ''));
+
+        try {
+            $last = $keyLength >= 32 && Schema::hasTable('cron_runs') ? \App\Modules\System\Models\CronRun::query()->latest('started_at')->first() : null;
+        } catch (Throwable) {
+            $last = null;
+        }
+
+        $checks[] = match (true) {
+            $keyLength < 32 => $this->check('Dienste', 'Cron-Aufruf', 'info', 'Nicht eingerichtet (CRON_KEY mit mindestens 32 Zeichen in der .env fehlt). Ohne ihn braucht der Server einen eigenen Cron-Eintrag.'),
+            $last === null => $this->check('Dienste', 'Cron-Aufruf', 'warning', 'Eingerichtet, aber noch nie aufgerufen. Der externe Dienst muss jede Minute /cron/<Schlüssel> aufrufen.'),
+            $last->started_at->lt(now()->subMinutes(10)) => $this->check('Dienste', 'Cron-Aufruf', 'warning', 'Der letzte Aufruf war vor '.(int) $last->started_at->diffInMinutes(now()).' Minuten. Läuft der Dienst (z. B. cron-job.org)?'),
+            $last->status === 'error' => $this->check('Dienste', 'Cron-Aufruf', 'warning', 'Der letzte Aufruf endete mit einem Fehler: '.($last->error ?? 'unbekannt')),
+            default => $this->check('Dienste', 'Cron-Aufruf', 'ok', 'Letzter Aufruf vor '.(int) $last->started_at->diffInMinutes(now()).' Minuten, '.$last->jobs_run.' Aufträge, '.(int) $last->duration_ms.' ms.'),
         };
 
         $queue = (string) config('queue.default');
