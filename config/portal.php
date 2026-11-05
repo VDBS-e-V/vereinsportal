@@ -202,6 +202,8 @@ return [
         'min_responses' => (int) env('FEEDBACK_MIN_RESPONSES', 5),
         // Aufbewahrung der Einzelantworten in Monaten nach Ende des Links, danach anonymisiert/archiviert bzw. gelöscht.
         'retention_months' => (int) env('FEEDBACK_RETENTION_MONTHS', 12),
+        // Erinnerung an Lehrkräfte und Teamende, wenn so viele Tage nach dem letzten Termin noch zu wenig geantwortet wurde.
+        'remind_after_days' => (int) env('FEEDBACK_REMIND_AFTER_DAYS', 7),
     ],
 
     'seminars' => [

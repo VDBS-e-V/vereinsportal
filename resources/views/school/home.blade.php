@@ -42,8 +42,13 @@
                 @endif
             @endif
 
+            @php($teacherLink = $seminar->feedbackLinks()->where('audience', 'teachers')->orderByDesc('id')->get()->first(fn ($candidate): bool => app(\App\Modules\Feedback\Services\FeedbackLinks::class)->state($candidate) === 'open'))
+            @if ($teacherLink)
+                <p style="margin-top:var(--space-4)"><strong>Wie war das Seminar?</strong> Bitte nehmen Sie sich ein paar Minuten für die anonyme Rückmeldung: <a href="{{ $teacherLink->url() }}">zum Fragebogen für Lehrkräfte</a>.</p>
+            @endif
+
             <details style="margin-top:var(--space-4)">
-                <summary>Rückmeldung an die Koordination schicken</summary>
+                <summary>Nachricht an die Koordination schicken</summary>
                 <x-vdbs.forms.form :action="route('school.seminars.feedback', $seminar)" :summary="false">
                     <x-vdbs.forms.textarea :id="'note-'.$seminar->id" name="note" label="Ihre Nachricht" :required="true" maxlength="1000" :rows="3" hint="z. B. Terminwunsch, Änderung der Teilnehmerzahl oder eine Frage zum Kostenvoranschlag" />
                     <x-slot:actions><x-vdbs.actions.button type="submit" variant="secondary" icon="send">Senden</x-vdbs.actions.button></x-slot:actions>

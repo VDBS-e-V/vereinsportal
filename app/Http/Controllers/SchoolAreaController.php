@@ -104,11 +104,11 @@ class SchoolAreaController extends Controller
 
         abort_unless($seminar->partner_id === $account->partner_id, 404);
 
-        $data = $request->validate(['note' => ['required', 'string', 'max:1000']], ['note.required' => 'Bitte schreiben Sie Ihre Rückmeldung.', 'note.max' => 'Die Rückmeldung darf höchstens 1.000 Zeichen lang sein.']);
+        $data = $request->validate(['note' => ['required', 'string', 'max:1000']], ['note.required' => 'Bitte schreiben Sie Ihre Nachricht.', 'note.max' => 'Die Nachricht darf höchstens 1.000 Zeichen lang sein.']);
 
         $this->requests->feedback($seminar, $account, $data['note']);
 
-        return redirect()->route('school.home')->with('success', 'Ihre Rückmeldung wurde an die Koordination geschickt.');
+        return redirect()->route('school.home')->with('success', 'Ihre Nachricht wurde an die Koordination geschickt.');
     }
 
     /** Veranstaltungen, zu denen die Schule Anmeldelisten hochladen kann (öffentlich sichtbare Veranstaltungen). */

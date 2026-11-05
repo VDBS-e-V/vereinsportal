@@ -142,11 +142,40 @@ final class FeedbackEvaluation
             }
 
             $link->responses()->delete();
+
+            // Der geltende Seminarabschluss bekommt die Kennzahlen erst jetzt, nach dem Anonymisieren.
+            $closure = $link->seminar?->currentClosure();
+
+            if ($closure !== null && $outcome === 'archived') {
+                $snapshot = (array) $closure->snapshot;
+                $snapshot['feedback'] = $this->archivedFigures($link->seminar);
+                $closure->forceFill(['snapshot' => $snapshot])->save();
+            }
+
             $link->forceFill(['anonymized_at' => now(), 'closed_at' => $link->closed_at ?? now()])->save();
             AuditLog::record(AuditEvent::FeedbackLinkAnonymized, $by, null, ['seminar' => $link->seminar_id, 'gruppe' => $link->audienceLabel(), 'ergebnis' => $outcome]);
 
             return $outcome;
         });
+    }
+
+    /**
+     * Zahlen der anonymisierten Rückmeldungen eines Seminars je Gruppe (Antworten, gewichteter Durchschnitt des Gesamteindrucks).
+     *
+     * @return array<string, array{count: int, avg: ?float}>
+     */
+    public function archivedFigures(Seminar $seminar): array
+    {
+        $out = [];
+
+        foreach (FeedbackArchive::query()->where('seminar_id', $seminar->id)->get()->groupBy('audience') as $audience => $rows) {
+            $count = (int) $rows->sum('responses_count');
+            $weighted = $rows->filter(fn ($row): bool => $row->overall_avg !== null)->sum(fn ($row): float => $row->overall_avg * $row->responses_count);
+            $withAvg = (int) $rows->filter(fn ($row): bool => $row->overall_avg !== null)->sum('responses_count');
+            $out[(string) $audience] = ['count' => $count, 'avg' => $withAvg > 0 ? round($weighted / $withAvg, 2) : null];
+        }
+
+        return $out;
     }
 
     /** Links, deren Aufbewahrung abgelaufen ist (Ende des Zeitraums, bei beendeten Links das frühere Datum, plus Monate aus der Konfiguration). */

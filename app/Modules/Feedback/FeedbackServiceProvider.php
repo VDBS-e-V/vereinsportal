@@ -11,7 +11,7 @@ class FeedbackServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
 
         if ($this->app->runningInConsole()) {
-            $this->commands([\App\Modules\Feedback\Console\PruneFeedback::class]);
+            $this->commands([\App\Modules\Feedback\Console\PruneFeedback::class, \App\Modules\Feedback\Console\RemindFeedback::class]);
         }
     }
 }

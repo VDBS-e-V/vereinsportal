@@ -148,6 +148,8 @@ final class SeminarClosures
             'team_size' => $seminar->applications()->where('status', ApplicationStatus::Confirmed->value)->count(),
             'quote_total_cents' => $quote?->total_cents,
             'documents' => $seminar->documents()->get()->groupBy('kind')->map->count()->all(),
+            // Nur anonymisierte Rückmeldungen (Zahlen aus dem Archiv); die Rohantworten sehen nur die Koordination.
+            'feedback' => app(\App\Modules\Feedback\Services\FeedbackEvaluation::class)->archivedFigures($seminar),
         ];
     }
 }

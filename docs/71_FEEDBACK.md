@@ -26,3 +26,8 @@ Auswertung, Anonymisieren/Archivieren, Aufräumbefehl, Erinnerungen, Platzhalter
 - **Platzhalter** in Schreiben an Teamende: `{feedback_link_lehrkraft}` und `{feedback_link_team}` (leer, wenn kein offener Link besteht).
 
 Noch nicht gebaut: Erinnerungen an Lehrkräfte/Teamende, Kennzahlen im Seminarabschluss, Umbenennen des Schulfeedbacks in „Nachricht an die Koordination“ (E6).
+
+## Ergänzungen
+- **Erinnerung** (`feedback:remind`, täglich): Eine Woche nach dem letzten Termin (`FEEDBACK_REMIND_AFTER_DAYS`) erhalten Lehrkräfte (Hauptansprechperson der Schule, sonst alle Ansprechpersonen mit E-Mail) eine Erinnerung, wenn noch niemand geantwortet hat; das bestätigte Team, wenn weniger als die Hälfte geantwortet hat. Einmal je Link, die Mail enthält nur Seminar und Link.
+- **Seminarabschluss:** Der Schnappschuss enthält `feedback` (Antworten und Durchschnitt je Gruppe), aber nur aus **anonymisierten** Links. Beim Anonymisieren wird der geltende Abschluss ergänzt.
+- **Schulen:** Das Freitextfeld heißt jetzt „Nachricht an die Koordination“. Solange ein Lehrkräfte-Link offen ist, steht der Link zum Fragebogen auf der Seite der Schule.
