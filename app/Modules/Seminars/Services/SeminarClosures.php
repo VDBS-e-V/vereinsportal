@@ -83,6 +83,15 @@ final class SeminarClosures
             ]);
 
             app(SeminarAdministration::class)->changeStatus($seminar, SeminarStatus::Completed, $by, 'Abschluss mit Checkliste');
+
+            // Terminübersicht und Teamübersicht als unveränderliche Schnappschüsse ablegen (ein Fehler hier verhindert den Abschluss nicht).
+            foreach (array_keys(GeneratedDocuments::types()) as $type) {
+                try {
+                    app(GeneratedDocuments::class)->generate($seminar->fresh(), $type, 'html', $by);
+                } catch (\Throwable $exception) {
+                    report($exception);
+                }
+            }
             AuditLog::record(AuditEvent::SeminarClosed, $by, $seminar, ['nummer' => (string) $seminar->number]);
 
             return $closure;
@@ -132,6 +141,7 @@ final class SeminarClosures
             'school' => (string) ($seminar->partner?->name ?? ''),
             'sessions' => $sessions->count(),
             'hours' => round($hours, 1),
+            'year' => $sessions->first()?->starts_at->format('Y'),
             'first_day' => $sessions->first()?->starts_at->format('d.m.Y'),
             'last_day' => $sessions->last()?->ends_at->format('d.m.Y'),
             'expected_participants' => $seminar->expected_participants,

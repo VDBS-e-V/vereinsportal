@@ -61,6 +61,6 @@ class SeminarDocument extends Model
 
     public function isProtected(): bool
     {
-        return in_array($this->kind, self::PROTECTED_KINDS, true);
+        return $this->is_snapshot || in_array($this->kind, self::PROTECTED_KINDS, true);
     }
 }

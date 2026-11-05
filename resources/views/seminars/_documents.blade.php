@@ -49,6 +49,22 @@
         <p class="vdbs-hint">{{ $documents->count() }} Dokumente, zusammen {{ $totalMb }} MB.</p>
     @endif
 
+    <fieldset class="vdbs-fieldset" style="margin-top:var(--space-5)">
+        <legend class="vdbs-fieldset__legend">Aus dem Portal erzeugen</legend>
+        <div class="vdbs-btn-group">
+            @foreach (\App\Modules\Seminars\Services\GeneratedDocuments::types() as $type => $label)
+                @foreach (array_filter(['html' => 'HTML', 'pdf' => \App\Modules\Seminars\Services\GeneratedDocuments::pdfAvailable() ? 'PDF' : null]) as $format => $formatLabel)
+                    <form method="post" action="{{ route('seminars.documents.generate', $seminar) }}">@csrf
+                        <input type="hidden" name="type" value="{{ $type }}">
+                        <input type="hidden" name="format" value="{{ $format }}">
+                        <x-vdbs.actions.button type="submit" variant="secondary" icon="clipboard-list">{{ $label }} ({{ $formatLabel }})</x-vdbs.actions.button>
+                    </form>
+                @endforeach
+            @endforeach
+        </div>
+        <p class="vdbs-hint">Beim Abschluss legt das Portal Termin- und Teamübersicht selbst ab. Erzeugte Dokumente lassen sich nicht ändern.</p>
+    </fieldset>
+
     <x-vdbs.forms.form :action="route('seminars.documents.store', $seminar)" :files="true" style="margin-top:var(--space-5)" :summary="false">
         <x-vdbs.forms.form-section title="Dokumente ablegen">
             <x-vdbs.forms.form-grid :columns="2">

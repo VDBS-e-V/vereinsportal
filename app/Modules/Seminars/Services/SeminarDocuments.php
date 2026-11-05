@@ -104,6 +104,42 @@ final class SeminarDocuments
     }
 
     /**
+     * Legt vom Portal erzeugten Inhalt (Schnappschuss) als Dokument ab. Er umgeht die Dateiprüfung des Hochladens, weil der Inhalt aus dem Portal selbst stammt.
+     *
+     * @throws DomainException
+     */
+    public function addContent(Seminar $seminar, string $content, string $name, string $mime, string $kind, string $title, User $by, bool $isSnapshot = true): SeminarDocument
+    {
+        if (! array_key_exists($kind, SeminarDocument::KINDS)) {
+            throw new DomainException('Bitte wählen Sie eine Art des Dokuments.');
+        }
+
+        if ($this->totalBytes($seminar) + strlen($content) > $this->maxTotalBytes()) {
+            throw new DomainException('Alle Dokumente eines Seminars zusammen dürfen höchstens '.round($this->maxTotalBytes() / 1048576).' MB groß sein.');
+        }
+
+        $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION)) ?: 'html';
+        $path = 'seminars/'.$seminar->id.'/'.Str::random(40).'.'.$extension;
+        Storage::disk(SeminarDocument::DISK)->put($path, $content);
+
+        $document = $seminar->documents()->create([
+            'kind' => $kind,
+            'title' => Str::limit($title, 200, ''),
+            'original_name' => Str::limit($name, 190, ''),
+            'path' => $path,
+            'mime' => $mime,
+            'size' => strlen($content),
+            'is_snapshot' => $isSnapshot,
+            'uploaded_by_user_id' => $by->id,
+            'retention_until' => $this->retentionFor($seminar, $kind),
+        ]);
+
+        AuditLog::record(AuditEvent::SeminarDocumentAdded, $by, $seminar, ['art' => $document->kindLabel(), 'nummer' => (string) $seminar->number]);
+
+        return $document;
+    }
+
+    /**
      * Entfernt ein Dokument. Nach dem Abschluss darf nur der Vorstand geschützte Dokumente löschen, und nur mit Begründung.
      *
      * @throws DomainException

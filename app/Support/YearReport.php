@@ -42,6 +42,10 @@ final class YearReport
         $add('Seminare', 'Seminartage (Termine)', (clone $sessions)->count());
         $add('Seminare', 'Beteiligte Schulen', (clone $seminars)->distinct('partner_id')->count('partner_id'));
 
+        $closures = \App\Modules\Seminars\Models\SeminarClosure::query()->whereNull('reopened_at')->whereBetween('closed_at', [$from, $to])->get();
+        $add('Seminare', 'Abgeschlossene Seminare (mit Abschluss im Portal)', $closures->count());
+        $add('Seminare', 'Seminarstunden laut Abschluss', str_replace('.', ',', (string) round((float) $closures->sum(fn ($closure): float => (float) ($closure->snapshot['hours'] ?? 0)), 1)));
+
         foreach (SeminarType::cases() as $type) {
             $add('Seminare', $type->label(), (clone $seminars)->where('type', $type->value)->count());
         }

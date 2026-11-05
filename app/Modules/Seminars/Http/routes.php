@@ -44,6 +44,7 @@ Route::middleware(['web', 'auth'])->group(function (): void {
 
         Route::middleware('can:seminars.documents')->group(function (): void {
             Route::post('/{seminar}/dokumente', [\App\Modules\Seminars\Http\Controllers\SeminarDocumentController::class, 'store'])->whereNumber('seminar')->middleware('throttle:30,10')->name('documents.store');
+            Route::post('/{seminar}/dokumente/erzeugen', [\App\Modules\Seminars\Http\Controllers\SeminarDocumentController::class, 'generate'])->whereNumber('seminar')->middleware('throttle:20,10')->name('documents.generate');
             Route::post('/{seminar}/dokumente/loeschen', [\App\Modules\Seminars\Http\Controllers\SeminarDocumentController::class, 'destroy'])->whereNumber('seminar')->name('documents.destroy');
             Route::get('/{seminar}/dokumente/{document}', [\App\Modules\Seminars\Http\Controllers\SeminarDocumentController::class, 'download'])->whereNumber(['seminar', 'document'])->name('documents.download');
             Route::get('/{seminar}/mappe', [\App\Modules\Seminars\Http\Controllers\SeminarDocumentController::class, 'folder'])->whereNumber('seminar')->middleware('throttle:10,10')->name('folder');
@@ -53,6 +54,11 @@ Route::middleware(['web', 'auth'])->group(function (): void {
             Route::get('/', [SeminarController::class, 'index'])->name('index');
             Route::get('/{seminar}', [SeminarController::class, 'show'])->whereNumber('seminar')->name('show');
         });
+    });
+
+    Route::prefix('koordination/seminarstatistik')->name('seminar-stats.')->middleware('can:seminars.view')->group(function (): void {
+        Route::get('/', [\App\Modules\Seminars\Http\Controllers\SeminarStatisticsController::class, 'index'])->name('index');
+        Route::get('/export', [\App\Modules\Seminars\Http\Controllers\SeminarStatisticsController::class, 'export'])->name('export');
     });
 
     Route::prefix('geschaeftsstelle/kostenvoranschlaege')->name('seminar-quotes.')->group(function (): void {

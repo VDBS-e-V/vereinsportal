@@ -20,5 +20,11 @@ Der Statuswechsel auf „Abgeschlossen“ führt auf eine eigene Seite. Die Chec
 ## Aufbewahrung
 `php artisan seminars:prune-documents` (täglich und als Systemaufgabe „Seminardokumente aufräumen“) löscht Dokumente nach der Frist: Verträge, Kostenvoranschläge und Rechnungen 10 Jahre, alles andere 3 Jahre nach dem letzten Termin (`config/portal.php` › `seminars.documents.retention_years`). **Die Fristen bitte mit Vorstand oder Steuerberatung bestätigen.**
 
-## Noch offen (Teil 2)
-Automatisch erzeugte Dokumente (Terminübersicht, Teamübersicht, Kostenvoranschlag) mit PDF-Download, Seminarstatistik über alle abgeschlossenen Seminare mit CSV-Export, Übernahme in den Jahresbericht, Anzeige „läuft bald ab“.
+## Teil 2: Statistik und erzeugte Dokumente
+- **Seminarstatistik** (Koordination › Statistik, Berechtigung `seminars.view`): alle abgeschlossenen Seminare mit Termine, Stunden, Team, erwarteten Teilnehmenden und Endsumme des Kostenvoranschlags, mit Summenzeile. Die Filter Jahr, Leistung und Schule nehmen **mehrere Werte**. CSV-Export mit Formelschutz. Die Zahlen kommen aus dem Schnappschuss des Abschlusses (nur Zahlen); ein wieder geöffneter Abschluss zählt nicht. Darunter stehen die Dokumente, deren Aufbewahrungsfrist in den nächsten 90 Tagen abläuft (nur für `seminars.documents`).
+- **Jahresbericht:** zwei neue Zeilen „Abgeschlossene Seminare (mit Abschluss im Portal)“ und „Seminarstunden laut Abschluss“.
+- **Erzeugte Dokumente:** Terminübersicht und Teamübersicht als HTML-Druckansicht, auf Wunsch als PDF. Das Team enthält Kontaktdaten nur bei Personen mit Einwilligung. Erzeugte Dokumente sind Schnappschüsse und ab dem Abschluss geschützt. **Beim Abschluss legt das Portal beide selbst ab.**
+- **PDF** braucht das Paket `dompdf/dompdf` (`composer require dompdf/dompdf`, reines PHP). Ohne das Paket gibt es nur die HTML-Datei; der PDF-Knopf erscheint dann nicht. Auf Strato muss das Paket zusammen mit `vendor/` hochgeladen werden (das Paketbau-Skript nimmt es automatisch mit).
+
+## Noch offen
+Kostenvoranschlag als erzeugtes Dokument (die vorhandene Druckansicht bleibt), Rückmeldung aus den Feedbackformularen (kommt mit Paket E), Erstattungen (Paket G).

@@ -8,6 +8,7 @@ use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarDocument;
+use App\Modules\Seminars\Services\GeneratedDocuments;
 use App\Modules\Seminars\Services\SeminarDocuments;
 use App\Modules\Seminars\Services\SeminarFolder;
 use DomainException;
@@ -57,6 +58,20 @@ class SeminarDocumentController extends Controller
         }
 
         return $done > 0 ? $redirect->with('success', $done === 1 ? 'Das Dokument wurde abgelegt.' : "{$done} Dokumente wurden abgelegt.") : $redirect;
+    }
+
+    /** Terminübersicht oder Teamübersicht aus dem Portal erzeugen (HTML, auf Wunsch PDF). */
+    public function generate(Request $request, Seminar $seminar): RedirectResponse
+    {
+        $data = $request->validate(['type' => ['required', Rule::in(array_keys(GeneratedDocuments::types()))], 'format' => ['required', Rule::in(['html', 'pdf'])]], ['type.required' => 'Bitte wählen Sie, was erzeugt werden soll.']);
+
+        try {
+            app(GeneratedDocuments::class)->generate($seminar, $data['type'], $data['format'], $this->actor($request));
+        } catch (DomainException $exception) {
+            return redirect()->route('seminars.show', $seminar)->withErrors(['documents' => $exception->getMessage()]);
+        }
+
+        return redirect()->route('seminars.show', $seminar)->with('success', 'Das Dokument wurde erzeugt und abgelegt.');
     }
 
     public function download(Request $request, Seminar $seminar, SeminarDocument $document): StreamedResponse
