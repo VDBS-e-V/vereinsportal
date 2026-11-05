@@ -35,6 +35,20 @@ Route::middleware(['web', 'auth'])->group(function (): void {
             Route::delete('/{seminar}/termine/{session}', [SeminarController::class, 'destroySession'])->whereNumber(['seminar', 'session'])->name('sessions.destroy');
         });
 
+        Route::middleware('can:seminars.manage')->group(function (): void {
+            Route::get('/{seminar}/abschluss', [\App\Modules\Seminars\Http\Controllers\SeminarClosureController::class, 'show'])->whereNumber('seminar')->name('closure');
+            Route::post('/{seminar}/abschluss', [\App\Modules\Seminars\Http\Controllers\SeminarClosureController::class, 'store'])->whereNumber('seminar')->middleware('throttle:20,10')->name('closure.store');
+        });
+
+        Route::post('/{seminar}/abschluss/oeffnen', [\App\Modules\Seminars\Http\Controllers\SeminarClosureController::class, 'reopen'])->whereNumber('seminar')->middleware(['can:seminars.reopen', 'throttle:10,10'])->name('closure.reopen');
+
+        Route::middleware('can:seminars.documents')->group(function (): void {
+            Route::post('/{seminar}/dokumente', [\App\Modules\Seminars\Http\Controllers\SeminarDocumentController::class, 'store'])->whereNumber('seminar')->middleware('throttle:30,10')->name('documents.store');
+            Route::post('/{seminar}/dokumente/loeschen', [\App\Modules\Seminars\Http\Controllers\SeminarDocumentController::class, 'destroy'])->whereNumber('seminar')->name('documents.destroy');
+            Route::get('/{seminar}/dokumente/{document}', [\App\Modules\Seminars\Http\Controllers\SeminarDocumentController::class, 'download'])->whereNumber(['seminar', 'document'])->name('documents.download');
+            Route::get('/{seminar}/mappe', [\App\Modules\Seminars\Http\Controllers\SeminarDocumentController::class, 'folder'])->whereNumber('seminar')->middleware('throttle:10,10')->name('folder');
+        });
+
         Route::middleware('can:seminars.view')->group(function (): void {
             Route::get('/', [SeminarController::class, 'index'])->name('index');
             Route::get('/{seminar}', [SeminarController::class, 'show'])->whereNumber('seminar')->name('show');

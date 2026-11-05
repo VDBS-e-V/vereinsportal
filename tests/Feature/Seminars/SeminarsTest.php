@@ -245,7 +245,8 @@ it('walks through the status pipeline with history entries', function () {
     $this->post(route('seminar-quotes.store'), smQuote($seminar));
     $this->post(route('seminars.status', $seminar), ['status' => 'confirmed']);
     $this->post(route('seminars.status', $seminar), ['status' => 'done']);
-    $this->post(route('seminars.status', $seminar), ['status' => 'completed']);
+    $this->post(route('seminars.status', $seminar), ['status' => 'completed'])->assertRedirect(route('seminars.closure', $seminar));
+    $this->post(route('seminars.closure.store', $seminar), ['skip_reason' => ['invoice' => 'Keine Rechnung nötig', 'team' => 'Team folgt nicht', 'evaluation' => 'Keine Auswertung', 'payments' => 'Entfällt']])->assertSessionHasNoErrors();
 
     expect($seminar->fresh()->status)->toBe(SeminarStatus::Completed)
         ->and($seminar->events()->where('type', 'status_changed')->count())->toBe(5);

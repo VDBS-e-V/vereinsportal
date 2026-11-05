@@ -84,6 +84,12 @@ enum AuditEvent: string
 
     case ContactsImported = 'contacts.imported';
 
+    case SeminarDocumentAdded = 'seminar.document_added';
+    case SeminarDocumentRemoved = 'seminar.document_removed';
+    case SeminarClosed = 'seminar.closed';
+    case SeminarReopened = 'seminar.reopened';
+    case SeminarFolderDownloaded = 'seminar.folder_downloaded';
+
     public function label(): string
     {
         return match ($this) {
@@ -151,6 +157,11 @@ enum AuditEvent: string
             self::MailSuppressionChanged => 'Adresssperre geändert',
             self::MailingWorkflow => 'Schreiben: Freigabe und Planung',
             self::ContactsImported => 'Mailingliste importiert',
+            self::SeminarDocumentAdded => 'Seminardokument hinzugefügt',
+            self::SeminarDocumentRemoved => 'Seminardokument entfernt',
+            self::SeminarClosed => 'Seminar abgeschlossen',
+            self::SeminarReopened => 'Seminarabschluss wieder geöffnet',
+            self::SeminarFolderDownloaded => 'Seminarmappe heruntergeladen',
         };
     }
 
@@ -164,7 +175,7 @@ enum AuditEvent: string
             self::RoleAssigned, self::RoleEnded => 'roles',
             self::PersonCreated, self::PersonUpdated, self::PersonDeleted => 'people',
             self::PartnerCreated, self::PartnerUpdated, self::PartnerDeleted, self::PartnersImported => 'partners',
-            self::SeminarCreated, self::SeminarUpdated, self::SeminarDeleted, self::SeminarStatusChanged, self::SeminarQuoteCreated, self::SeminarQuoteUpdated, self::SeminarQuoteDeleted, self::SeminarPricesChanged, self::SeminarTextsChanged, self::SeminarTeamDecided => 'seminars',
+            self::SeminarCreated, self::SeminarUpdated, self::SeminarDeleted, self::SeminarStatusChanged, self::SeminarQuoteCreated, self::SeminarQuoteUpdated, self::SeminarQuoteDeleted, self::SeminarPricesChanged, self::SeminarTextsChanged, self::SeminarTeamDecided, self::SeminarDocumentAdded, self::SeminarDocumentRemoved, self::SeminarClosed, self::SeminarReopened, self::SeminarFolderDownloaded => 'seminars',
             self::ArticleCreated, self::ArticleUpdated, self::ArticleDeleted => 'articles',
             self::PageUpdated => 'pages',
             self::EventCreated, self::EventUpdated, self::EventDeleted, self::EventRegistrationsImported, self::EventRegistrationRemoved, self::EventMessageSent => 'events',

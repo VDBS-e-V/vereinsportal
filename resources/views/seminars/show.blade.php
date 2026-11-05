@@ -122,6 +122,10 @@
 
     @include('seminars._team')
 
+    @can('seminars.documents')
+        @include('seminars._documents')
+    @endcan
+
     <section aria-labelledby="history-heading" style="margin-top:var(--space-8)">
         <h2 id="history-heading" style="font-size:var(--font-size-h3)">Verlauf</h2>
 

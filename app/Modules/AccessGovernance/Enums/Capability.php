@@ -41,6 +41,12 @@ enum Capability: string
     /** Seminare anlegen, ändern, Status wechseln, Termine pflegen und Kostenvoranschläge erstellen. */
     case SeminarsManage = 'seminars.manage';
 
+    /** Dokumente zu Seminaren ablegen, herunterladen, löschen und die Seminarmappe laden. */
+    case SeminarsDocuments = 'seminars.documents';
+
+    /** Einen abgeschlossenen Seminarabschluss wieder öffnen und geschützte Dokumente nach dem Abschluss löschen (Vorstand). */
+    case SeminarsReopen = 'seminars.reopen';
+
     /** Preisliste der Seminare ändern (neue Fassung anlegen). */
     case SeminarPricesManage = 'seminars.prices';
 

@@ -125,6 +125,10 @@ class SeminarController extends Controller
             'comment' => ['nullable', 'string', 'max:500'],
         ], ['status.required' => 'Bitte wählen Sie den neuen Status.', 'status.enum' => 'Bitte wählen Sie einen gültigen Status.']);
 
+        if ($data['status'] === SeminarStatus::Completed->value) {
+            return redirect()->route('seminars.closure', $seminar);
+        }
+
         try {
             $this->seminars->changeStatus($seminar, SeminarStatus::from($data['status']), $this->actor($request), $data['comment'] ?? null);
         } catch (DomainException $exception) {

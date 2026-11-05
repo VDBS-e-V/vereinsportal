@@ -76,6 +76,24 @@ class Seminar extends Model
         return $this->hasMany(SeminarApplication::class)->orderBy('created_at')->orderBy('id');
     }
 
+    /** @return HasMany<SeminarDocument, $this> */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(SeminarDocument::class)->orderBy('kind')->orderByDesc('id');
+    }
+
+    /** @return HasMany<SeminarClosure, $this> */
+    public function closures(): HasMany
+    {
+        return $this->hasMany(SeminarClosure::class)->orderByDesc('id');
+    }
+
+    /** Der geltende Abschluss (nicht wieder geöffnet), sonst null. */
+    public function currentClosure(): ?SeminarClosure
+    {
+        return $this->closures()->whereNull('reopened_at')->first();
+    }
+
     /** @return HasMany<SeminarTeamInvite, $this> */
     public function teamInvites(): HasMany
     {

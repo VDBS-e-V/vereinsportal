@@ -199,6 +199,13 @@ return [
     'seminars' => [
         // Format der Seminarnummer: {Y} = Jahr, {N:4} = laufende Nummer mit vier Stellen.
         'number_format' => env('SEMINAR_NUMBER_FORMAT', 'S-{Y}-{N:4}'),
+        // Dokumente je Seminar: Größe einer Datei und aller Dateien zusammen (in KB), Aufbewahrung in Jahren je Art (nach dem letzten Termin).
+        'documents' => [
+            'max_kb' => (int) env('SEMINAR_DOCUMENT_MAX_KB', 25600),
+            'max_total_kb' => (int) env('SEMINAR_DOCUMENTS_MAX_TOTAL_KB', 512000),
+            'folder_max_mb' => (int) env('SEMINAR_FOLDER_MAX_MB', 100),
+            'retention_years' => ['contract' => 10, 'quote' => 10, 'invoice' => 10, 'default' => 3],
+        ],
     ],
 
     'mailings' => [
