@@ -17,6 +17,7 @@ enum SeminarEventType: string
     case TeamWithdrawn = 'team_withdrawn';
     case TeamConfirmed = 'team_confirmed';
     case TeamDeclined = 'team_declined';
+    case TeamInformed = 'team_informed';
     case SchoolConfirmed = 'school_confirmed';
     case SchoolNote = 'school_note';
 
@@ -36,6 +37,7 @@ enum SeminarEventType: string
             self::TeamWithdrawn => 'Interesse zurückgezogen',
             self::TeamConfirmed => 'In das Team aufgenommen',
             self::TeamDeclined => 'Nicht berücksichtigt',
+            self::TeamInformed => 'Team informiert',
             self::SchoolConfirmed => 'Schule hat bestätigt',
             self::SchoolNote => 'Rückmeldung der Schule',
         };

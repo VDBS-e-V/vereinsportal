@@ -65,7 +65,7 @@ class ContactController extends Controller
             'stateOptions' => self::STATES,
             'stats' => [
                 'total' => TeamContact::query()->count(),
-                'without' => TeamContact::query()->whereDoesntHave('credentials', fn ($c) => $c->whereNotNull('sent_at'))->count(),
+                'without' => TeamContact::query()->where('origin', 'import')->whereDoesntHave('credentials', fn ($c) => $c->whereNotNull('sent_at'))->count(),
                 'used' => TeamContact::query()->whereHas('credentials', fn ($c) => $c->valid()->whereNotNull('last_used_at'))->count(),
             ],
         ]);
@@ -161,7 +161,7 @@ class ContactController extends Controller
         $sent = 0;
         $blocked = 0;
 
-        TeamContact::query()->whereDoesntHave('credentials', fn ($c) => $c->whereNotNull('sent_at'))->orderBy('id')->each(function (TeamContact $contact) use (&$sent, &$blocked): void {
+        TeamContact::query()->where('origin', 'import')->whereDoesntHave('credentials', fn ($c) => $c->whereNotNull('sent_at'))->orderBy('id')->each(function (TeamContact $contact) use (&$sent, &$blocked): void {
             $this->sender->queue($contact) ? $sent++ : $blocked++;
         });
 

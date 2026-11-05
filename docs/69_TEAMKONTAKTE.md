@@ -26,3 +26,12 @@ Bewerben und Zurückziehen mit dem Zugang, Gäste in Bewerberliste und Teamvorsc
 
 ## Noch offen (Teil 3)
 Allgemeiner Seminarlink als Zweitweg mit E-Mail-Bestätigung, „Team informieren“ (gemeinsame Mail mit Team-Übersicht), Aufräumbefehl für Kontakte ohne Aktivität, Kontoaktivierung über den Zugang, Honorar-Überblick nach Anmeldung.
+
+## Teil 3: Bewerbungslink, Team informieren, Aufbewahrung
+- **Bewerbungslink je Seminar** (Seminarseite › Team › „Bewerbungslink erzeugen“): für Personen ohne persönlichen Zugang. Der Link wird nur beim Erzeugen angezeigt (gespeichert ist eine Prüfsumme) und gilt bis einen Tag nach dem Stichtag; ein neuer Link sperrt den alten, „Link sperren“ beendet ihn. Die öffentliche Seite zeigt Titel, Leistung, Ort (Stadt), Termin, Bedarf und Stichtag, **nicht** Schulname, Straße, Ansprechperson oder Honorar.
+- **Bestätigung per E-Mail:** Die Bewerbung zählt erst nach dem Klick auf den signierten Link (24 Stunden). Bis dahin erscheint sie nicht in der Auswertung und lässt sich nicht entscheiden. Die Antwort nach dem Absenden ist immer dieselbe; wer die Mail nicht bekam, sendet das Formular erneut. Die Adresse wird als Kontakt mit Herkunft „Bewerbungslink“ angelegt und bekommt **keine** Massen-Zugangsmail.
+- **Team informieren** (Seminarseite, sobald jemand im Team ist): eine Nachricht an die ausgewählten Teammitglieder (Mehrfachauswahl, alle vorgewählt, gesperrte und abgemeldete Adressen werden ausgelassen) mit Termine, Ort, eigenem Zusatztext und Team-Übersicht. Kontaktdaten stehen nur bei Personen, die der Weitergabe zugestimmt haben. Ändert sich das Team danach, weist die Seite darauf hin.
+- **Aufbewahrung** (`php artisan seminars:prune-applicants`, täglich und als Systemaufgabe „Bewerbungen ohne Konto aufräumen“): unbestätigte Bewerbungen werden nach 7 Tagen gelöscht, zurückgezogene nach 30 Tagen anonymisiert, alle übrigen 6 Monate nach dem letzten Termin oder der Absage (`CONTACT_APPLICANT_RETENTION_MONTHS`). Kontakte, die nur über den Link kamen und keine Bewerbung mehr haben, werden gelöscht.
+
+## Noch offen
+Kontoaktivierung über den Zugang (kommt mit den Teamkonten), Honorar-Überblick nach der Anmeldung, QR-Code für den Bewerbungslink, Vorschlag zur Löschung von Kontakten ohne Nutzung nach 24 Monaten.

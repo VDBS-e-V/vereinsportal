@@ -27,6 +27,9 @@ Schedule::command('access-requests:prune')->daily();
 // Koordination informieren, wenn der Stichtag für Interessenbekundungen auf ein Seminar vorbei ist.
 Schedule::command('seminars:team-deadlines')->daily();
 
+// Bewerbungen ohne Konto: Fristen der Aufbewahrung
+Schedule::command('seminars:prune-applicants')->daily();
+
 // Teamende mit offener Einarbeitung erinnern (nach 14 Tagen, dann alle 14 Tage, höchstens dreimal).
 Schedule::command('onboarding:remind-team')->daily();
 

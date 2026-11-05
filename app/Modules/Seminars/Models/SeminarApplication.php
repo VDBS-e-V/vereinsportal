@@ -10,11 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /** Modul: Seminars. Bewerbung eines Teamenden-Kontos auf ein Seminar. */
 class SeminarApplication extends Model
 {
-    protected $fillable = ['seminar_id', 'user_id', 'contact_id', 'guest_name', 'guest_phone', 'guest_birth_year', 'guest_competences', 'guest_experience', 'guest_consent_contact', 'status', 'note', 'wants_lead', 'internal_note', 'decided_by_user_id', 'decided_at'];
+    protected $fillable = ['seminar_id', 'user_id', 'contact_id', 'guest_name', 'guest_phone', 'guest_birth_year', 'guest_competences', 'guest_experience', 'guest_consent_contact', 'confirmed_at', 'status', 'note', 'wants_lead', 'internal_note', 'decided_by_user_id', 'decided_at'];
 
     protected function casts(): array
     {
-        return ['status' => ApplicationStatus::class, 'decided_at' => 'datetime', 'wants_lead' => 'boolean', 'guest_competences' => 'array', 'guest_consent_contact' => 'boolean'];
+        return ['status' => ApplicationStatus::class, 'decided_at' => 'datetime', 'wants_lead' => 'boolean', 'guest_competences' => 'array', 'guest_consent_contact' => 'boolean', 'confirmed_at' => 'datetime'];
     }
 
     /** @return BelongsTo<Seminar, $this> */
@@ -35,8 +35,24 @@ class SeminarApplication extends Model
         return $this->user_id === null && $this->contact_id !== null;
     }
 
+    /** Zählt die Bewerbung? Konten ja; Kontakte erst, wenn die Adresse bestätigt ist. */
+    public function isConfirmedApplicant(): bool
+    {
+        return $this->user_id !== null || $this->confirmed_at !== null;
+    }
+
+    /** Daten sind nach der Aufbewahrungsfrist entfernt. */
+    public function isAnonymized(): bool
+    {
+        return $this->user_id === null && $this->contact_id === null;
+    }
+
     public function applicantName(): string
     {
+        if ($this->isAnonymized()) {
+            return 'Anonymisiert';
+        }
+
         if ($this->isContact()) {
             return $this->guest_name ?: ($this->contact?->displayName() ?? 'Unbekannt');
         }

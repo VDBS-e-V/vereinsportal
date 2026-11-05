@@ -23,7 +23,7 @@ class Seminar extends Model
 
     protected $attributes = ['status' => 'request'];
 
-    protected $fillable = ['title', 'classes_count', 'location_notes', 'cost_center', 'coordinator_user_id', 'type', 'partner_id', 'status', 'grade_level', 'expected_participants', 'team_needed', 'application_deadline', 'team_competences', 'deadline_notified_at', 'notes', 'created_by_user_id', 'updated_by_user_id'];
+    protected $fillable = ['title', 'classes_count', 'location_notes', 'cost_center', 'coordinator_user_id', 'type', 'partner_id', 'status', 'grade_level', 'expected_participants', 'team_needed', 'application_deadline', 'team_competences', 'deadline_notified_at', 'team_informed_at', 'team_informed_key', 'notes', 'created_by_user_id', 'updated_by_user_id'];
 
     /** Jedes Seminar bekommt beim Anlegen eine Nummer; eine vergebene Nummer lässt sich nicht mehr ändern. */
     protected static function booted(): void
@@ -43,7 +43,7 @@ class Seminar extends Model
 
     protected function casts(): array
     {
-        return ['type' => SeminarType::class, 'status' => SeminarStatus::class, 'application_deadline' => 'date', 'team_competences' => 'array', 'deadline_notified_at' => 'datetime'];
+        return ['type' => SeminarType::class, 'status' => SeminarStatus::class, 'application_deadline' => 'date', 'team_competences' => 'array', 'deadline_notified_at' => 'datetime', 'team_informed_at' => 'datetime'];
     }
 
     /** Der Stichtag für Interessenbekundungen ist vorbei (der Stichtag selbst zählt noch mit). */
@@ -74,6 +74,12 @@ class Seminar extends Model
     public function applications(): HasMany
     {
         return $this->hasMany(SeminarApplication::class)->orderBy('created_at')->orderBy('id');
+    }
+
+    /** @return HasMany<SeminarTeamInvite, $this> */
+    public function teamInvites(): HasMany
+    {
+        return $this->hasMany(SeminarTeamInvite::class);
     }
 
     /** @return HasMany<SeminarQuote, $this> */

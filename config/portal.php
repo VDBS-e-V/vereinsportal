@@ -191,6 +191,8 @@ return [
         // Frühere Zugänge einer Adresse gelten nach dem Erzeugen eines neuen noch so viele Tage weiter.
         'old_access_days' => (int) env('CONTACT_ACCESS_GRACE_DAYS', 14),
         // Minuten ohne Aktivität, nach denen die Sitzung eines persönlichen Zugangs endet.
+        // Monate nach dem letzten Termin, nach denen Angaben von Bewerbenden ohne Konto anonymisiert werden.
+        'applicant_retention_months' => (int) env('CONTACT_APPLICANT_RETENTION_MONTHS', 6),
         'idle_minutes' => (int) env('CONTACT_ACCESS_IDLE_MINUTES', 30),
     ],
 

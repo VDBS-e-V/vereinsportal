@@ -25,6 +25,10 @@ Route::middleware(['web', 'auth'])->group(function (): void {
             Route::post('/{seminar}/notiz', [SeminarController::class, 'note'])->whereNumber('seminar')->name('note');
             Route::post('/{seminar}/termine', [SeminarController::class, 'storeSession'])->whereNumber('seminar')->name('sessions.store');
             Route::put('/{seminar}/bedarf', [SeminarTeamController::class, 'need'])->whereNumber('seminar')->name('team.need');
+            Route::post('/{seminar}/bewerbungslink', [SeminarTeamController::class, 'createInvite'])->whereNumber('seminar')->middleware('throttle:20,10')->name('team.invite.create');
+            Route::delete('/{seminar}/bewerbungslink', [SeminarTeamController::class, 'revokeInvite'])->whereNumber('seminar')->name('team.invite.revoke');
+            Route::get('/{seminar}/team/information', [\App\Modules\Seminars\Http\Controllers\TeamInfoController::class, 'show'])->whereNumber('seminar')->name('team.info');
+            Route::post('/{seminar}/team/information', [\App\Modules\Seminars\Http\Controllers\TeamInfoController::class, 'send'])->whereNumber('seminar')->middleware('throttle:10,10')->name('team.info.send');
             Route::post('/{seminar}/team/vorschlag', [SeminarTeamController::class, 'suggestion'])->whereNumber('seminar')->name('team.suggestion');
             Route::put('/{seminar}/bewerbungen/{application}/notiz', [SeminarTeamController::class, 'note'])->whereNumber(['seminar', 'application'])->name('team.note');
             Route::post('/{seminar}/bewerbungen/{application}/{decision}', [SeminarTeamController::class, 'decide'])->whereNumber(['seminar', 'application'])->where('decision', 'bestaetigen|ablehnen')->name('team.decide');
@@ -78,4 +82,14 @@ Route::middleware(['web', 'auth'])->group(function (): void {
         Route::post('/{seminar}/bewerbung', [TeamSeminarController::class, 'apply'])->whereNumber('seminar')->middleware('throttle:20,10')->name('apply');
         Route::delete('/{seminar}/bewerbung', [TeamSeminarController::class, 'withdraw'])->whereNumber('seminar')->name('withdraw');
     });
+});
+
+/*
+ * Bewerbungslink eines Seminars (öffentlich, ohne Konto): Formular, Bestätigung der E-Mail-Adresse per signiertem Link.
+ */
+Route::middleware('web')->prefix('team/bewerbung')->name('team-invite.')->group(function (): void {
+    Route::get('/gesendet', [\App\Modules\Seminars\Http\Controllers\TeamInviteController::class, 'sent'])->name('sent');
+    Route::get('/bestaetigen/{application}', [\App\Modules\Seminars\Http\Controllers\TeamInviteController::class, 'confirm'])->whereNumber('application')->middleware(['signed', 'throttle:30,1'])->name('confirm');
+    Route::get('/{token}', [\App\Modules\Seminars\Http\Controllers\TeamInviteController::class, 'show'])->where('token', '[A-Za-z0-9]{20,64}')->middleware('throttle:60,1')->name('show');
+    Route::post('/{token}', [\App\Modules\Seminars\Http\Controllers\TeamInviteController::class, 'store'])->where('token', '[A-Za-z0-9]{20,64}')->middleware(['throttle:10,10', 'bot.guard'])->name('store');
 });

@@ -36,6 +36,36 @@
         </x-vdbs.forms.form>
     @endif
 
+    @if ($canManage && $needed > 0)
+        @php($activeInvite = $seminar->teamInvites()->valid()->latest('id')->first())
+        <aside aria-labelledby="invite-heading" style="margin-top:var(--space-5);padding:var(--space-4);background:var(--bg-surface)">
+            <h3 id="invite-heading" style="margin-top:0;font-size:var(--font-size-h4)">Bewerbungslink für Personen ohne Zugang</h3>
+            @if (session('invite_link'))
+                <x-vdbs.forms.input name="invite_link_display" label="Neuer Bewerbungslink (nur jetzt sichtbar)" :value="session('invite_link')" :readonly="true" />
+                <x-vdbs.actions.button type="button" variant="secondary" icon="copy" data-vdbs-copy="{{ session('invite_link') }}">Link kopieren</x-vdbs.actions.button>
+            @elseif ($activeInvite)
+                <p>Ein Bewerbungslink ist aktiv (gültig bis {{ $activeInvite->expires_at?->format('d.m.Y') ?? 'unbefristet' }}). Der Link ist nach dem Erzeugen nicht mehr lesbar; zum Weitergeben erzeugen Sie einen neuen.</p>
+            @else
+                <p>Wer keinen persönlichen Zugang hat, kann sich über einen Link bewerben und bestätigt seine Adresse per E-Mail. Der Link gilt bis zum Stichtag.</p>
+            @endif
+            <div class="vdbs-btn-group" style="margin-top:var(--space-3)">
+                <form method="post" action="{{ route('seminars.team.invite.create', $seminar) }}">@csrf<x-vdbs.actions.button type="submit" variant="secondary" icon="link">{{ $activeInvite ? 'Neuen Link erzeugen (alter wird gesperrt)' : 'Bewerbungslink erzeugen' }}</x-vdbs.actions.button></form>
+                @if ($activeInvite)
+                    <form method="post" action="{{ route('seminars.team.invite.revoke', $seminar) }}">@csrf @method('delete')<x-vdbs.actions.button type="submit" variant="text" icon="lock">Link sperren</x-vdbs.actions.button></form>
+                @endif
+            </div>
+        </aside>
+    @endif
+
+    @if ($canManage && $summary['size'] > 0)
+        <p style="margin-top:var(--space-4)">
+            <x-vdbs.actions.button :href="route('seminars.team.info', $seminar)" icon="mail">Team informieren</x-vdbs.actions.button>
+            @if ($seminar->team_informed_at)
+                <span class="vdbs-hint">Zuletzt informiert am {{ $seminar->team_informed_at->format('d.m.Y') }}.</span>
+            @endif
+        </p>
+    @endif
+
     @if ($rows->isNotEmpty())
         <h3 style="margin-top:var(--space-6);font-size:var(--font-size-h4)">Interessenbekundungen</h3>
 

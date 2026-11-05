@@ -41,6 +41,25 @@ class SeminarTeamController extends Controller
         return redirect()->route('seminars.show', $seminar)->with('success', 'Bedarf, Stichtag und gesuchte Kompetenzen wurden gespeichert.');
     }
 
+    /** Neuen Bewerbungslink erzeugen; der Link wird einmalig angezeigt. */
+    public function createInvite(Request $request, Seminar $seminar): RedirectResponse
+    {
+        if (! $this->team->isOpen($seminar)) {
+            return redirect()->route('seminars.show', $seminar)->withErrors(['team' => 'Einen Bewerbungslink gibt es nur für terminierte Seminare mit Bedarf und Stichtag in der Zukunft.']);
+        }
+
+        $created = app(\App\Modules\Seminars\Services\TeamInvites::class)->create($seminar, $this->actor($request));
+
+        return redirect()->route('seminars.show', $seminar)->with('success', 'Der Bewerbungslink wurde erzeugt. Kopieren Sie ihn jetzt, später ist er nicht mehr lesbar.')->with('invite_link', $created['link']);
+    }
+
+    public function revokeInvite(Request $request, Seminar $seminar): RedirectResponse
+    {
+        $count = app(\App\Modules\Seminars\Services\TeamInvites::class)->revoke($seminar, $this->actor($request));
+
+        return redirect()->route('seminars.show', $seminar)->with('success', $count > 0 ? 'Der Bewerbungslink wurde gesperrt.' : 'Es gab keinen gültigen Bewerbungslink.');
+    }
+
     public function suggestion(Request $request, Seminar $seminar): RedirectResponse
     {
         try {

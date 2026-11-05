@@ -79,7 +79,7 @@ final class TeamApplications
      *
      * @throws DomainException
      */
-    public function applyContact(Seminar $seminar, TeamContact $contact, array $details): SeminarApplication
+    public function applyContact(Seminar $seminar, TeamContact $contact, array $details, bool $confirmed = true): SeminarApplication
     {
         if (! $this->isOpen($seminar)) {
             throw new DomainException($seminar->deadlinePassed() ? 'Der Stichtag ist vorbei. Interesse lässt sich nicht mehr bekunden.' : 'Für dieses Seminar lässt sich kein Interesse bekunden.');
@@ -104,9 +104,10 @@ final class TeamApplications
             'guest_competences' => array_values((array) ($details['competences'] ?? [])),
             'guest_experience' => filled($details['experience'] ?? null) ? mb_substr(trim((string) $details['experience']), 0, 800) : null,
             'guest_consent_contact' => (bool) ($details['consent_contact'] ?? false),
+            'confirmed_at' => $confirmed ? now() : null,
         ])->save();
 
-        $this->record($seminar, SeminarEventType::TeamApplied, null, $application->guest_name, 'Persönlicher Zugang');
+        $this->record($seminar, SeminarEventType::TeamApplied, null, $application->guest_name, $confirmed ? 'Persönlicher Zugang' : 'Bewerbungslink');
 
         return $application;
     }
@@ -146,6 +147,10 @@ final class TeamApplications
 
         if ($application->status === ApplicationStatus::Withdrawn) {
             throw new DomainException('Die Interessenbekundung wurde zurückgezogen.');
+        }
+
+        if (! $application->isConfirmedApplicant()) {
+            throw new DomainException('Die E-Mail-Adresse der Person ist noch nicht bestätigt.');
         }
 
         if ($application->status === $target) {
@@ -209,7 +214,7 @@ final class TeamApplications
      */
     public function review(Seminar $seminar): array
     {
-        $applications = $seminar->applications->reject(fn (SeminarApplication $application): bool => $application->status === ApplicationStatus::Withdrawn)->values();
+        $applications = $seminar->applications->reject(fn (SeminarApplication $application): bool => $application->status === ApplicationStatus::Withdrawn || $application->isAnonymized() || ! $application->isConfirmedApplicant())->values();
         $userIds = $applications->pluck('user_id')->filter()->all();
         $contactIds = $applications->pluck('contact_id')->filter()->all();
 
