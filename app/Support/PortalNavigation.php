@@ -112,6 +112,14 @@ final class PortalNavigation
                     ['label' => 'Übersicht', 'route' => 'employee.home', 'match' => 'employee.home', 'can' => 'employee.area'],
                 ],
             ],
+            PortalAreas::Antraege->value => [
+                'home' => 'forms.index',
+                'roles' => [RoleKey::Team, RoleKey::Coordination, RoleKey::EducationCoordination, RoleKey::AdministrationStaff, RoleKey::Employee, RoleKey::ManagingDirector, RoleKey::Treasury],
+                'routes' => ['forms.*'],
+                'pages' => [
+                    ['description' => 'Kostenrückerstattung und weitere Anträge an die Geschäftsstelle.', 'label' => 'Meine Anträge', 'route' => 'forms.index', 'match' => 'forms.*', 'can' => 'forms.submit'],
+                ],
+            ],
             PortalAreas::Schulen->value => [
                 'home' => 'school.home',
                 'roles' => [RoleKey::School],
@@ -139,7 +147,8 @@ final class PortalNavigation
             ],
             PortalAreas::Geschaeftsstelle->value => [
                 'home' => 'office.home',
-                'roles' => [RoleKey::AdministrationStaff, RoleKey::Administration],
+                'roles' => [RoleKey::AdministrationStaff, RoleKey::Administration, RoleKey::ManagingDirector, RoleKey::Treasury],
+                'routes' => ['forms-office.*'],
                 'pages' => [
                     ['label' => 'Übersicht', 'route' => 'office.home', 'match' => 'office.home'],
                     ['label' => 'Personen & Zugang', 'group' => true, 'route' => 'admin.users.index', 'children' => [
@@ -148,6 +157,7 @@ final class PortalNavigation
                         ['description' => 'Personen und ihre Kontaktdaten.', 'label' => 'Personen', 'route' => 'admin.people.index', 'match' => 'admin.people.*', 'can' => 'people.view'],
                         ['description' => 'Importierte Mailingliste und persönliche Zugänge für Bewerbungen.', 'label' => 'Teamkontakte', 'route' => 'contacts.index', 'match' => 'contacts.*', 'can' => 'contacts.manage'],
                     ]],
+                    ['description' => 'Anträge prüfen, freigeben und die Sammelliste für die Auszahlung erstellen.', 'label' => 'Anträge', 'route' => 'forms-office.index', 'match' => 'forms-office.*', 'can' => 'forms.view'],
                     ['label' => 'Inhalte', 'group' => true, 'route' => 'articles.admin.index', 'children' => [
                         ['description' => 'Artikel für Startseite und Artikelliste.', 'label' => 'Artikel', 'route' => 'articles.admin.index', 'match' => 'articles.admin.*', 'can' => 'articles.manage'],
                         ['description' => 'Rechtstexte und andere Seiten.', 'label' => 'Seiten', 'route' => 'pages.admin.index', 'match' => 'pages.admin.*', 'can' => 'pages.manage'],

@@ -35,6 +35,7 @@ return [
     PartnersServiceProvider::class,
     SeminarsServiceProvider::class,
     \App\Modules\Feedback\FeedbackServiceProvider::class,
+    \App\Modules\Forms\FormsServiceProvider::class,
     PeopleServiceProvider::class,
     MembershipServiceProvider::class,
     OnboardingServiceProvider::class,

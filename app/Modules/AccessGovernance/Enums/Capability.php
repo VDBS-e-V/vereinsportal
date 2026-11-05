@@ -136,4 +136,7 @@ enum Capability: string
 
     /** Den Bereich Mitarbeitende sehen. */
     case EmployeeArea = 'employee.area';
+
+    /** Anträge in der Geschäftsstelle ansehen (Geschäftsstelle, Vorstand, Geschäftsführung, Kassenführung). */
+    case FormsView = 'forms.view';
 }

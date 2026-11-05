@@ -197,6 +197,11 @@ return [
         'idle_minutes' => (int) env('CONTACT_ACCESS_IDLE_MINUTES', 30),
     ],
 
+    'forms' => [
+        // Freigeschaltete Arten von Anträgen (expense, travel, purchase).
+        'enabled_types' => array_filter(explode(',', (string) env('FORMS_ENABLED_TYPES', 'expense'))),
+    ],
+
     'feedback' => [
         // Mindestzahl an Antworten pro Link, ab der Auswertungen gezeigt werden (Schutz vor Rückschlüssen auf Einzelne).
         'min_responses' => (int) env('FEEDBACK_MIN_RESPONSES', 5),

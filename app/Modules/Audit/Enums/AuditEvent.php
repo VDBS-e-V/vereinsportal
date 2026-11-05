@@ -100,6 +100,10 @@ enum AuditEvent: string
     case OauthClientDeleted = 'oauth.client_deleted';
     case OauthKeysRenewed = 'oauth.keys_renewed';
 
+    case FormStatusChanged = 'form.status_changed';
+    case FormExported = 'form.exported';
+    case FormSettingsChanged = 'form.settings_changed';
+
     public function label(): string
     {
         return match ($this) {
@@ -180,6 +184,9 @@ enum AuditEvent: string
             self::OauthClientChanged => 'Anbindung geändert',
             self::OauthClientDeleted => 'Anbindung gelöscht',
             self::OauthKeysRenewed => 'Anmeldeschlüssel erneuert',
+            self::FormStatusChanged => 'Antrag bearbeitet',
+            self::FormExported => 'Sammelliste der Anträge erstellt',
+            self::FormSettingsChanged => 'Einstellungen der Anträge geändert',
         };
     }
 
@@ -205,6 +212,7 @@ enum AuditEvent: string
             self::ContactsImported => 'contacts',
             self::FeedbackFormSaved, self::FeedbackLinkCreated, self::FeedbackLinkClosed, self::FeedbackLinkAnonymized => 'feedback',
             self::OauthClientCreated, self::OauthClientChanged, self::OauthClientDeleted, self::OauthKeysRenewed => 'sso',
+            self::FormStatusChanged, self::FormExported, self::FormSettingsChanged => 'forms',
         };
     }
 
@@ -231,6 +239,7 @@ enum AuditEvent: string
             'contacts' => 'Teamkontakte',
             'feedback' => 'Feedback',
             'sso' => 'Anbindungen',
+            'forms' => 'Anträge',
         ];
     }
 
