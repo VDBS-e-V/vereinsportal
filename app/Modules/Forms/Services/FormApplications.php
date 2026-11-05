@@ -66,7 +66,7 @@ final class FormApplications
     /**
      * Speichert den Entwurf. Unvollständige Angaben sind erlaubt; falsche Formate nicht.
      *
-     * @param  array<string, mixed>  $input  purpose, seminar_id, cost_center, items[<n>][id|date|kind|description|amount], account_holder, iban, declaration
+     * @param  array<string, mixed>  $input  purpose, seminar_id, cost_center, items[<n>][...], account_holder, iban, declaration (Bestellung: urgency, wanted_date, delivery, delivery_address, delivery_contact)
      * @param  array<int|string, UploadedFile>  $uploads  Beleg je Positionsnummer
      *
      * @throws DomainException
@@ -95,14 +95,14 @@ final class FormApplications
             throw new DomainException('Die IBAN ist nicht gültig. Bitte prüfen Sie Länderkennung und Ziffern.');
         }
 
-        $rows = $this->parseRows((array) ($input['items'] ?? []));
+        $rows = $this->parseRows($application->type, (array) ($input['items'] ?? []));
 
         DB::transaction(function () use ($application, $input, $seminarId, $costCenter, $iban, $rows, $uploads): void {
             $keep = [];
 
             foreach ($rows as $row) {
                 $item = isset($row['id']) ? $application->items()->whereKey($row['id'])->first() : null;
-                $data = ['position' => $row['position'], 'date' => $row['date'], 'kind' => $row['kind'], 'description' => $row['description'], 'quantity' => 1, 'unit_cents' => $row['amount_cents'], 'amount_cents' => $row['amount_cents']];
+                $data = ['position' => $row['position'], 'date' => $row['date'], 'kind' => $row['kind'], 'description' => $row['description'], 'quantity' => $row['quantity'], 'unit_cents' => $row['unit_cents'], 'amount_cents' => $row['amount_cents'], 'extra' => $row['extra']];
 
                 if ($item !== null) {
                     $item->forceFill($data)->save();
@@ -128,6 +128,14 @@ final class FormApplications
             $data = (array) $application->data;
             $data['declaration'] = ! empty($input['declaration']);
 
+            if ($application->type === 'purchase') {
+                $data['urgency'] = in_array(($input['urgency'] ?? 'normal'), ['normal', 'urgent'], true) ? $input['urgency'] : 'normal';
+                $data['wanted_date'] = filled($input['wanted_date'] ?? null) ? $this->safeDate((string) $input['wanted_date']) : null;
+                $data['delivery'] = ($input['delivery'] ?? 'office') === 'other' ? 'other' : 'office';
+                $data['delivery_address'] = Str::limit(trim((string) ($input['delivery_address'] ?? '')), 300, '');
+                $data['delivery_contact'] = Str::limit(trim((string) ($input['delivery_contact'] ?? '')), 150, '');
+            }
+
             $application->forceFill([
                 'purpose' => Str::limit(trim((string) ($input['purpose'] ?? '')), 300, ''),
                 'seminar_id' => $seminarId,
@@ -142,46 +150,134 @@ final class FormApplications
         return $application->refresh();
     }
 
+    private function safeDate(string $value): ?string
+    {
+        try {
+            return Carbon::parse($value)->toDateString();
+        } catch (Throwable) {
+            throw new DomainException('Das Datum ist ungültig.');
+        }
+    }
+
     /**
      * @param  array<int|string, mixed>  $items
-     * @return list<array{key: int|string, id: ?int, position: int, date: string, kind: string, description: string, amount_cents: int}>
+     * @return list<array{key: int|string, id: ?int, position: int, date: string, kind: string, description: string, quantity: float, unit_cents: int, amount_cents: int, extra: ?array<string, mixed>}>
      *
      * @throws DomainException
      */
-    private function parseRows(array $items): array
+    private function parseRows(string $type, array $items): array
     {
         $rows = [];
         $position = 0;
 
         foreach ($items as $key => $item) {
             $item = (array) $item;
+            $blank = collect($item)->except(['id', 'kind', 'mode', 'round_trip'])->filter(fn ($value): bool => filled($value))->isEmpty();
 
-            if (! filled($item['date'] ?? null) && ! filled($item['description'] ?? null) && ! filled($item['amount'] ?? null) && empty($item['id'])) {
+            if ($blank && empty($item['id'])) {
                 continue;
             }
 
             $position++;
             $label = 'Position '.$position;
-            $date = null;
+            $id = filled($item['id'] ?? null) ? (int) $item['id'] : null;
 
-            try {
-                $date = filled($item['date'] ?? null) ? Carbon::parse((string) $item['date'])->toDateString() : null;
-            } catch (Throwable) {
-                throw new DomainException($label.': Das Datum ist ungültig.');
-            }
-
-            $cents = filled($item['amount'] ?? null) ? Money::parseEuro((string) $item['amount']) : 0;
-
-            if ($cents === null) {
-                throw new DomainException($label.': Der Betrag ist ungültig. Bitte in Euro angeben, zum Beispiel 12,50.');
-            }
-
-            $kind = (string) ($item['kind'] ?? 'other');
-
-            $rows[] = ['key' => $key, 'id' => filled($item['id'] ?? null) ? (int) $item['id'] : null, 'position' => $position, 'date' => $date ?? now()->toDateString(), 'kind' => array_key_exists($kind, FormItem::KINDS) ? $kind : 'other', 'description' => Str::limit(trim((string) ($item['description'] ?? '')), 200, ''), 'amount_cents' => $cents];
+            $rows[] = match ($type) {
+                'travel' => $this->travelRow($key, $id, $position, $label, $item),
+                'purchase' => $this->purchaseRow($key, $id, $position, $label, $item),
+                default => $this->expenseRow($key, $id, $position, $label, $item),
+            };
         }
 
         return $rows;
+    }
+
+    private function dateOf(string $label, mixed $value, bool $fallbackToday = true): string
+    {
+        if (! filled($value)) {
+            return $fallbackToday ? now()->toDateString() : '';
+        }
+
+        try {
+            return Carbon::parse((string) $value)->toDateString();
+        } catch (Throwable) {
+            throw new DomainException($label.': Das Datum ist ungültig.');
+        }
+    }
+
+    private function euroOf(string $label, mixed $value): int
+    {
+        if (! filled($value)) {
+            return 0;
+        }
+
+        $cents = Money::parseEuro((string) $value);
+
+        if ($cents === null) {
+            throw new DomainException($label.': Der Betrag ist ungültig. Bitte in Euro angeben, zum Beispiel 12,50.');
+        }
+
+        return $cents;
+    }
+
+    private function numberOf(string $label, mixed $value, string $what): float
+    {
+        if (! filled($value)) {
+            return 0.0;
+        }
+
+        $text = str_replace(',', '.', trim((string) $value));
+
+        if (preg_match('/^\d{1,6}(\.\d{1,2})?$/', $text) !== 1) {
+            throw new DomainException($label.': '.$what.' ist ungültig.');
+        }
+
+        return (float) $text;
+    }
+
+    /** @return array<string, mixed> */
+    private function expenseRow(int|string $key, ?int $id, int $position, string $label, array $item): array
+    {
+        $kind = (string) ($item['kind'] ?? 'other');
+        $cents = $this->euroOf($label, $item['amount'] ?? null);
+
+        return ['key' => $key, 'id' => $id, 'position' => $position, 'date' => $this->dateOf($label, $item['date'] ?? null), 'kind' => array_key_exists($kind, FormItem::KINDS) ? $kind : 'other', 'description' => Str::limit(trim((string) ($item['description'] ?? '')), 200, ''), 'quantity' => 1.0, 'unit_cents' => $cents, 'amount_cents' => $cents, 'extra' => null];
+    }
+
+    /** Fahrt: PKW rechnet Kilometer mal Satz (Hin- und Rückfahrt verdoppelt), sonst zählt der Fahrschein; Parkgebühr kommt dazu. @return array<string, mixed> */
+    private function travelRow(int|string $key, ?int $id, int $position, string $label, array $item): array
+    {
+        $mode = in_array(($item['mode'] ?? 'car'), ['car', 'train', 'public', 'ride'], true) ? (string) $item['mode'] : 'car';
+        $round = ! empty($item['round_trip']);
+        $km = $this->numberOf($label, $item['km'] ?? null, 'Die Kilometerangabe');
+        $ticket = $this->euroOf($label, $item['ticket'] ?? null);
+        $parking = $this->euroOf($label, $item['parking'] ?? null);
+        $rate = $this->settings->int('km_rate_cents');
+        $distance = $km * ($round ? 2 : 1);
+        $fare = $mode === 'car' ? (int) round($distance * $rate) : $ticket;
+        $from = Str::limit(trim((string) ($item['from'] ?? '')), 100, '');
+        $to = Str::limit(trim((string) ($item['to'] ?? '')), 100, '');
+        $modeLabels = ['car' => 'PKW', 'train' => 'Bahn', 'public' => 'Nahverkehr', 'ride' => 'Mitfahrt'];
+
+        return [
+            'key' => $key, 'id' => $id, 'position' => $position, 'date' => $this->dateOf($label, $item['date'] ?? null), 'kind' => 'travel',
+            'description' => Str::limit(trim($from.' → '.$to.' ('.$modeLabels[$mode].($round ? ', hin und zurück' : '').')'), 200, ''),
+            'quantity' => $mode === 'car' ? $distance : 1.0, 'unit_cents' => $mode === 'car' ? $rate : $ticket, 'amount_cents' => $fare + $parking,
+            'extra' => ['from' => $from, 'to' => $to, 'mode' => $mode, 'round_trip' => $round, 'km' => $km, 'ticket_cents' => $mode === 'car' ? 0 : $ticket, 'parking_cents' => $parking, 'rate_cents' => $rate],
+        ];
+    }
+
+    /** Bestellposition: Menge mal Einzelpreis (brutto). @return array<string, mixed> */
+    private function purchaseRow(int|string $key, ?int $id, int $position, string $label, array $item): array
+    {
+        $quantity = filled($item['quantity'] ?? null) ? $this->numberOf($label, $item['quantity'], 'Die Menge') : 1.0;
+        $unit = $this->euroOf($label, $item['unit'] ?? null);
+
+        return [
+            'key' => $key, 'id' => $id, 'position' => $position, 'date' => now()->toDateString(), 'kind' => 'material',
+            'description' => Str::limit(trim((string) ($item['description'] ?? '')), 200, ''), 'quantity' => $quantity, 'unit_cents' => $unit, 'amount_cents' => (int) round($quantity * $unit),
+            'extra' => ['supplier' => Str::limit(trim((string) ($item['supplier'] ?? '')), 150, ''), 'link' => Str::limit(trim((string) ($item['link'] ?? '')), 300, '')],
+        ];
     }
 
     // ---------- Einreichen ----------
@@ -197,6 +293,7 @@ final class FormApplications
     {
         $application->loadMissing(['items.files']);
         $problems = [];
+        $type = $application->type;
 
         if (trim($application->purpose) === '') {
             $problems[] = 'Bitte geben Sie den Zweck an.';
@@ -208,13 +305,44 @@ final class FormApplications
 
         foreach ($application->items as $item) {
             $label = 'Position '.$item->position;
-
-            if (trim($item->description) === '') {
-                $problems[] = $label.': Bitte beschreiben Sie die Ausgabe.';
-            }
+            $extra = (array) $item->extra;
 
             if ($item->amount_cents <= 0) {
                 $problems[] = $label.': Der Betrag muss größer als 0 sein.';
+            }
+
+            if ($type === 'purchase') {
+                if (trim($item->description) === '') {
+                    $problems[] = $label.': Bitte benennen Sie den Artikel.';
+                }
+
+                if ($item->quantity <= 0) {
+                    $problems[] = $label.': Die Menge muss größer als 0 sein.';
+                }
+
+                continue;
+            }
+
+            if ($type === 'travel') {
+                if (blank($extra['from'] ?? null) || blank($extra['to'] ?? null)) {
+                    $problems[] = $label.': Bitte geben Sie Start und Ziel an.';
+                }
+
+                if (($extra['mode'] ?? 'car') === 'car' && (float) ($extra['km'] ?? 0) <= 0) {
+                    $problems[] = $label.': Bitte geben Sie die Kilometer an.';
+                }
+
+                if (($extra['mode'] ?? 'car') !== 'car' && (int) ($extra['ticket_cents'] ?? 0) <= 0) {
+                    $problems[] = $label.': Bitte geben Sie den Fahrpreis an.';
+                }
+
+                $needsReceipt = (int) ($extra['ticket_cents'] ?? 0) > 0 || (int) ($extra['parking_cents'] ?? 0) > 0;
+            } else {
+                if (trim($item->description) === '') {
+                    $problems[] = $label.': Bitte beschreiben Sie die Ausgabe.';
+                }
+
+                $needsReceipt = true;
             }
 
             if ($item->date->isFuture()) {
@@ -225,12 +353,18 @@ final class FormApplications
                 $problems[] = $label.': Belege aus '.$item->date->format('Y').' konnten nur bis '.$this->deadlineFor($item->date)->format('d.m.Y').' eingereicht werden. Bitte wenden Sie sich an die Geschäftsstelle.';
             }
 
-            if ($item->files->isEmpty()) {
+            if ($needsReceipt && $item->files->isEmpty()) {
                 $problems[] = $label.': Es fehlt der Beleg.';
             }
         }
 
-        if (blank($application->account_holder) || blank($application->iban_encrypted) || ! Iban::valid((string) $application->iban_encrypted)) {
+        if ($type === 'purchase') {
+            $data = (array) $application->data;
+
+            if (($data['delivery'] ?? 'office') === 'other' && blank($data['delivery_address'] ?? null)) {
+                $problems[] = 'Bitte geben Sie die Lieferadresse an.';
+            }
+        } elseif (blank($application->account_holder) || blank($application->iban_encrypted) || ! Iban::valid((string) $application->iban_encrypted)) {
             $problems[] = 'Bitte geben Sie Kontoinhaber:in und eine gültige IBAN an.';
         }
 
@@ -239,6 +373,23 @@ final class FormApplications
         }
 
         return $problems;
+    }
+
+    /** @return list<string> Hinweise, die das Einreichen nicht verhindern (zum Beispiel sehr lange Fahrten) */
+    public function warnings(FormApplication $application): array
+    {
+        $max = $this->settings->int('max_km_per_trip');
+        $warnings = [];
+
+        foreach ($application->items as $item) {
+            $km = (float) (((array) $item->extra)['km'] ?? 0) * (! empty(((array) $item->extra)['round_trip']) ? 2 : 1);
+
+            if ($application->type === 'travel' && $max > 0 && $km > $max) {
+                $warnings[] = 'Position '.$item->position.': '.rtrim(rtrim(number_format($km, 2, ',', ''), '0'), ',').' km sind sehr viel. Bitte prüfen Sie die Angabe (kürzeste übliche Strecke).';
+            }
+        }
+
+        return $warnings;
     }
 
     /** @throws DomainException */
@@ -320,7 +471,7 @@ final class FormApplications
         $application->forceFill(['status' => 'approved', 'approved_by_user_id' => $by->id, 'approved_at' => now()])->save();
         $this->event($application, 'approved', $by);
         $this->log($application, $by, 'freigegeben');
-        $this->notifyApplicant($application, 'Ihr Antrag wurde freigegeben', 'Ihr Antrag wurde freigegeben. Die Auszahlung folgt durch die Geschäftsstelle.');
+        $this->notifyApplicant($application, 'Ihr Antrag wurde freigegeben', $application->type === 'purchase' ? 'Ihre Bestellung wurde freigegeben. Die Geschäftsstelle bestellt jetzt.' : 'Ihr Antrag wurde freigegeben. Die Auszahlung folgt durch die Geschäftsstelle.');
 
         return $application;
     }
@@ -363,6 +514,10 @@ final class FormApplications
     {
         $this->requireStatus($application, ['approved']);
 
+        if ($application->type === 'purchase') {
+            throw new DomainException('Bestellungen werden nicht ausgezahlt. Bitte vermerken Sie Bestellung, Lieferung und Rechnung.');
+        }
+
         if (! Capabilities::has($by, Capability::FormsManage)) {
             throw new DomainException('Nur die Geschäftsstelle vermerkt Auszahlungen.');
         }
@@ -401,6 +556,74 @@ final class FormApplications
 
         $this->files->removeAll($application);
         $application->delete();
+    }
+
+    // ---------- Bestellung: bestellt, geliefert, Rechnung, Abschluss ----------
+
+    /** @throws DomainException */
+    public function markOrdered(FormApplication $application, User $by): FormApplication
+    {
+        $this->requirePurchaseStep($application, $by, ['approved'], 'ordered', 'bestellt', 'Die Bestellung ist aufgegeben.');
+
+        return $application;
+    }
+
+    /** @throws DomainException */
+    public function markDelivered(FormApplication $application, User $by): FormApplication
+    {
+        $this->requirePurchaseStep($application, $by, ['ordered'], 'delivered', 'geliefert', 'Die Lieferung ist angekommen.');
+
+        return $application;
+    }
+
+    /** Hängt die Rechnung an eine Bestellung. @throws DomainException */
+    public function attachInvoice(FormApplication $application, User $by, UploadedFile $file): FormApplication
+    {
+        if ($application->type !== 'purchase' || ! in_array($application->status, ['ordered', 'delivered'], true) || ! Capabilities::has($by, Capability::FormsManage)) {
+            throw new DomainException('Die Rechnung lässt sich hier nicht anhängen.');
+        }
+
+        $stored = $this->files->add($application, $file);
+        $data = (array) $application->data;
+        $data['invoice_file_id'] = $stored->id;
+        $application->forceFill(['data' => $data])->save();
+        $this->event($application, 'invoice', $by);
+
+        return $application;
+    }
+
+    /** @throws DomainException */
+    public function close(FormApplication $application, User $by): FormApplication
+    {
+        if ($application->type === 'purchase' && empty(((array) $application->data)['invoice_file_id'])) {
+            throw new DomainException('Bitte hängen Sie zuerst die Rechnung an.');
+        }
+
+        $this->requirePurchaseStep($application, $by, ['delivered'], 'closed', 'abgeschlossen', 'Der Antrag ist abgeschlossen.', true);
+        $application->forceFill(['retention_until' => $this->retentionEnd()])->save();
+
+        return $application;
+    }
+
+    /** @param  list<string>  $from */
+    private function requirePurchaseStep(FormApplication $application, User $by, array $from, string $to, string $what, string $mailText, bool $silent = false): void
+    {
+        if ($application->type !== 'purchase') {
+            throw new DomainException('Das gibt es nur bei Bestellungen.');
+        }
+
+        if (! Capabilities::has($by, Capability::FormsManage)) {
+            throw new DomainException('Nur die Geschäftsstelle trägt das ein.');
+        }
+
+        $this->requireStatus($application, $from);
+        $application->forceFill(['status' => $to])->save();
+        $this->event($application, $to, $by);
+        $this->log($application, $by, $what);
+
+        if (! $silent) {
+            $this->notifyApplicant($application, 'Zu Ihrer Bestellung gibt es Neuigkeiten', $mailText);
+        }
     }
 
     // ---------- Hilfen ----------

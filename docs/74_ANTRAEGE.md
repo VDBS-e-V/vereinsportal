@@ -27,3 +27,13 @@ Geschäftsstelle › Anträge › Einstellungen: Freigabegrenze, Kilometersatz, 
 
 ## Noch offen
 Fahrtkostenabrechnung (G3), Materialbestellung (G4), Buchungsliste und Jahresübersicht (G5 Rest), Aufbewahrung und Löschen (G7), Aufgabenübersicht.
+
+## Teil 2: Fahrtkosten, Bestellung, Exporte, Aufbewahrung
+- **Fahrtkostenabrechnung** (`F-…`): je Fahrt Datum, Verkehrsmittel (PKW, Bahn, Nahverkehr, Mitfahrt), Start, Ziel, Kilometer, Hin-/Rückfahrt (doppelt), Fahrpreis, Parkgebühr. **Der Server rechnet**: PKW = Kilometer × Satz (Standard 30 Cent, Einstellung), sonst der Fahrpreis, plus Parkgebühr. Der Satz wird je Fahrt festgehalten, spätere Änderungen betreffen nur neue Fahrten. Belege für Fahrkarten und Parkgebühren sind Pflicht, die Kilometerpauschale braucht keinen. Warnung (nicht blockierend) ab 1 000 km je Fahrt (Einstellung).
+- **Materialbestellung** (`M-…`): Antrag **vor** dem Kauf mit Artikeln (Menge × Einzelpreis brutto, Lieferant, Link), Dringlichkeit, Wunschtermin, Lieferadresse; keine Bankdaten. Gleiche Freigaberegeln. Danach trägt die Geschäftsstelle ein: **bestellt**, **geliefert**, Rechnung anhängen, **abschließen** (nur mit Rechnung). Bestellungen werden nicht ausgezahlt und stehen nicht in der Sammelliste.
+- **Exporte** (Geschäftsstelle › Anträge): Sammelliste (Auszahlung, nur Erstattung und Fahrtkosten), **Buchungsliste** (eine Zeile je Position; Filter per Adresse `von`, `bis`, `art[]`, `status[]`), **Jahresübersicht** je Kostenstelle und Art.
+- **Aufbewahrung** (`forms:prune`, täglich, auch als Systemaufgabe „Anträge aufräumen“): Kontodaten 30 Tage nach Auszahlung/Ablehnung/Abschluss löschen; Anträge samt Belegen 10 Jahre nach Ende des Jahres der Auszahlung; ruhende Entwürfe nach 90 Tagen.
+- **Kontolöschung:** Anträge bleiben (Aufbewahrungspflicht), Name, E-Mail und Kontodaten werden entfernt.
+- `FORMS_ENABLED_TYPES` (Standard `expense,travel,purchase`) schaltet Arten frei.
+
+Noch offen: Aufgabenübersicht („X Anträge warten“), Abschnitt in der Datenschutzerklärung, Seminarseite mit Summen der Anträge, Weiterführung Bestellung → Erstattung.

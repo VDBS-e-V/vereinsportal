@@ -69,6 +69,20 @@
                 <x-vdbs.actions.button type="submit" icon="check">Als ausgezahlt vermerken</x-vdbs.actions.button>
             </form>
         @endif
+        @if ($can['purchase'])
+            <div style="display:flex;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-4)">
+                @if ($application->status === 'approved')<form method="post" action="{{ route('forms-office.act', $application) }}">@csrf<input type="hidden" name="action" value="ordered"><x-vdbs.actions.button type="submit">Als bestellt vermerken</x-vdbs.actions.button></form>@endif
+                @if ($application->status === 'ordered')<form method="post" action="{{ route('forms-office.act', $application) }}">@csrf<input type="hidden" name="action" value="delivered"><x-vdbs.actions.button type="submit">Als geliefert vermerken</x-vdbs.actions.button></form>@endif
+                @if ($application->status === 'delivered')<form method="post" action="{{ route('forms-office.act', $application) }}">@csrf<input type="hidden" name="action" value="close"><x-vdbs.actions.button type="submit" icon="check">Abschließen</x-vdbs.actions.button></form>@endif
+            </div>
+            @if (in_array($application->status, ['ordered', 'delivered'], true))
+                <form method="post" action="{{ route('forms-office.invoice', $application) }}" enctype="multipart/form-data" style="margin-bottom:var(--space-4)">@csrf
+                    <label for="invoice" style="display:block;font-weight:600">Rechnung anhängen (PDF, JPEG, PNG)</label>
+                    <input id="invoice" type="file" name="invoice" accept="application/pdf,image/jpeg,image/png">
+                    <x-vdbs.actions.button type="submit" variant="secondary" icon="upload">Rechnung hochladen</x-vdbs.actions.button>
+                </form>
+            @endif
+        @endif
         @if ($can['exception'])
             <form method="post" action="{{ route('forms-office.act', $application) }}">@csrf<input type="hidden" name="action" value="exception">
                 <x-vdbs.forms.input name="note" id="note-exception" label="Ausnahme bei der Belegfrist: Begründung" :optional="true" maxlength="300" />

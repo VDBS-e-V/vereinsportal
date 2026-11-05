@@ -73,7 +73,8 @@ class FormOfficeController extends Controller
             'can' => [
                 'check' => $this->policy->canCheck($user, $application) && in_array($application->status, ['submitted', 'in_review'], true),
                 'approve' => $this->policy->canApprove($user, $application) && in_array($application->status, ['submitted', 'in_review'], true),
-                'pay' => Capabilities::has($user, Capability::FormsManage) && $application->status === 'approved',
+                'pay' => Capabilities::has($user, Capability::FormsManage) && $application->status === 'approved' && $application->type !== 'purchase',
+                'purchase' => Capabilities::has($user, Capability::FormsManage) && $application->type === 'purchase' && in_array($application->status, ['approved', 'ordered', 'delivered'], true),
                 'exception' => Capabilities::has($user, Capability::FormsManage) && in_array($application->status, ['returned', 'submitted', 'in_review'], true),
             ],
             'limit' => $this->settings->approvalLimit(),
@@ -94,6 +95,9 @@ class FormOfficeController extends Controller
                 'return' => $this->applications->returnToApplicant($application, $user, $note),
                 'reject' => $this->applications->reject($application, $user, $note),
                 'paid' => $this->applications->markPaid($application, $user, $note),
+                'ordered' => $this->applications->markOrdered($application, $user),
+                'delivered' => $this->applications->markDelivered($application, $user),
+                'close' => $this->applications->close($application, $user),
                 'exception' => $this->applications->grantException($application, $user, $note),
                 default => throw new DomainException('Diese Aktion gibt es nicht.'),
             };
@@ -108,7 +112,7 @@ class FormOfficeController extends Controller
     public function exportPayout(Request $request): StreamedResponse|RedirectResponse
     {
         $ids = array_map('intval', (array) $request->input('ids', []));
-        $applications = FormApplication::query()->whereIn('id', $ids)->where('status', 'approved')->with(['seminar', 'checkedBy.person', 'approvedBy.person'])->orderBy('number')->get();
+        $applications = FormApplication::query()->whereIn('id', $ids)->where('status', 'approved')->whereIn('type', ['expense', 'travel'])->with(['seminar', 'checkedBy.person', 'approvedBy.person'])->orderBy('number')->get();
 
         if ($applications->isEmpty()) {
             return back()->with('warning', 'Bitte wählen Sie mindestens einen freigegebenen Antrag aus.');
@@ -138,6 +142,87 @@ class FormOfficeController extends Controller
 
             fclose($out);
         }, 'auszahlungsliste-'.now()->format('Y-m-d').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    public function invoice(Request $request, FormApplication $application): RedirectResponse
+    {
+        $request->validate(['invoice' => ['required', 'file']], ['invoice.required' => 'Bitte wählen Sie die Rechnung aus.']);
+
+        try {
+            $this->applications->attachInvoice($application, $request->user(), $request->file('invoice'));
+        } catch (DomainException $exception) {
+            return redirect()->route('forms-office.show', $application)->with('warning', $exception->getMessage());
+        }
+
+        return redirect()->route('forms-office.show', $application)->with('status', 'Die Rechnung wurde angehängt.');
+    }
+
+    /** Buchungsliste: eine Zeile je Position, filterbar nach Zeitraum, Art und Stand. */
+    public function exportBookings(Request $request): StreamedResponse
+    {
+        $applications = $this->filteredForExport($request)->with(['items.files', 'seminar'])->orderBy('number')->get();
+
+        return response()->streamDownload(function () use ($applications): void {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, ['Antragsnummer', 'Position', 'Belegdatum', 'Art', 'Beschreibung', 'Menge', 'Einzelbetrag (EUR)', 'Betrag (EUR)', 'Kilometer', 'Start', 'Ziel', 'Verkehrsmittel', 'Lieferant', 'Kostenstelle', 'Seminar-Nr.', 'Seminar-Titel', 'Antragsteller:in', 'Freigabe-Datum', 'Auszahlungsdatum', 'Auszahlungsreferenz', 'Beleg'], ';', '"', '\\');
+
+            foreach ($applications as $application) {
+                foreach ($application->items as $item) {
+                    $extra = (array) $item->extra;
+                    fputcsv($out, array_map([CsvCell::class, 'safe'], [
+                        $application->number, $item->position, $item->date->format('d.m.Y'), $item->kindLabel(), $item->description, rtrim(rtrim(number_format($item->quantity, 2, ',', ''), '0'), ','),
+                        number_format($item->unit_cents / 100, 2, ',', ''), number_format($item->amount_cents / 100, 2, ',', ''), isset($extra['km']) ? str_replace('.', ',', (string) $extra['km']) : '', (string) ($extra['from'] ?? ''), (string) ($extra['to'] ?? ''),
+                        (string) ($extra['mode'] ?? ''), (string) ($extra['supplier'] ?? ''), (string) $application->cost_center, (string) ($application->seminar?->number ?? ''), (string) ($application->seminar?->title ?? ''),
+                        $application->applicant_name, $application->approved_at?->format('d.m.Y'), $application->paid_at?->format('d.m.Y'), (string) $application->paid_reference, $item->files->pluck('original_name')->implode(', '),
+                    ]), ';', '"', '\\');
+                }
+            }
+
+            fclose($out);
+        }, 'buchungsliste-'.now()->format('Y-m-d').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /** Jahresübersicht: Summen je Kostenstelle und Art. */
+    public function exportSummary(Request $request): StreamedResponse
+    {
+        $rows = $this->filteredForExport($request)->get()->groupBy(fn (FormApplication $application): string => ($application->cost_center ?: '(ohne)').'|'.$application->type)->map(fn ($group, string $key): array => [explode('|', $key)[0], FormTypes::label(explode('|', $key)[1]), $group->count(), $group->sum('total_cents')])->sortKeys()->values();
+
+        return response()->streamDownload(function () use ($rows): void {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, ['Kostenstelle', 'Art', 'Anträge', 'Summe (EUR)'], ';', '"', '\\');
+
+            foreach ($rows as [$center, $type, $count, $sum]) {
+                fputcsv($out, array_map([CsvCell::class, 'safe'], [$center, $type, $count, number_format($sum / 100, 2, ',', '')]), ';', '"', '\\');
+            }
+
+            fputcsv($out, ['Summe', '', $rows->sum(2), number_format($rows->sum(3) / 100, 2, ',', '')], ';', '"', '\\');
+            fclose($out);
+        }, 'jahresuebersicht-'.now()->format('Y-m-d').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /** @return \Illuminate\Database\Eloquent\Builder<FormApplication> */
+    private function filteredForExport(Request $request)
+    {
+        $statuses = array_values(array_intersect(array_map('strval', (array) $request->query('status', ['approved', 'paid', 'ordered', 'delivered', 'closed'])), array_keys(FormApplication::STATUS_LABELS)));
+        $types = array_values(array_intersect(array_map('strval', (array) $request->query('art', [])), array_keys(FormTypes::TYPES)));
+        $query = FormApplication::query()->where('status', '!=', 'draft')->whereIn('status', $statuses ?: ['approved']);
+
+        if ($types !== []) {
+            $query->whereIn('type', $types);
+        }
+
+        foreach (['von' => '>=', 'bis' => '<='] as $key => $operator) {
+            if (filled($request->query($key))) {
+                try {
+                    $query->whereDate('approved_at', $operator, \Illuminate\Support\Carbon::parse((string) $request->query($key))->toDateString());
+                } catch (\Throwable) {
+                }
+            }
+        }
+
+        return $query;
     }
 
     public function costCenters(): View

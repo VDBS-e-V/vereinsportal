@@ -199,7 +199,7 @@ return [
 
     'forms' => [
         // Freigeschaltete Arten von Anträgen (expense, travel, purchase).
-        'enabled_types' => array_filter(explode(',', (string) env('FORMS_ENABLED_TYPES', 'expense'))),
+        'enabled_types' => array_filter(explode(',', (string) env('FORMS_ENABLED_TYPES', 'expense,travel,purchase'))),
     ],
 
     'feedback' => [

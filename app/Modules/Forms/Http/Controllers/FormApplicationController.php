@@ -63,6 +63,9 @@ class FormApplicationController extends Controller
             'seminars' => Seminar::query()->orderByDesc('id')->limit(300)->get()->mapWithKeys(fn (Seminar $seminar): array => [$seminar->id => trim(($seminar->number ? $seminar->number.' ' : '').$seminar->title)])->all(),
             'costCenters' => CostCenter::query()->where('active', true)->orderBy('code')->get()->mapWithKeys(fn (CostCenter $center): array => [$center->code => $center->label()])->all(),
             'iban' => $application->iban_encrypted ? Iban::pretty((string) $application->iban_encrypted) : '',
+            'items' => $application->items->values(),
+            'settings' => app(\App\Modules\Forms\Services\FormSettings::class),
+            'warnings' => $this->applications->warnings($application),
             'problems' => $application->status === 'returned' || $request->boolean('check') ? $this->applications->problems($application) : [],
         ]);
     }

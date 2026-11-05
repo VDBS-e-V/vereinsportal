@@ -34,6 +34,7 @@
             @endforeach
         </x-vdbs.data.table>
         {{ $applications->links() }}
+        @if ($canManage) <p style="margin-top:var(--space-4)"><a href="{{ route('forms-office.export.bookings') }}">Buchungsliste (CSV)</a> · <a href="{{ route('forms-office.export.summary') }}">Jahresübersicht je Kostenstelle (CSV)</a> <span class="vdbs-hint">– Filter per Adresse: von, bis, art[], status[]</span></p> @endif
         @if ($canManage) <x-vdbs.actions.button type="submit" form="export-form" icon="download">Sammelliste für die Auszahlung herunterladen</x-vdbs.actions.button> <p class="vdbs-hint">Nur freigegebene Anträge. Die Liste enthält die IBAN; bitte nach dem Überweisen löschen.</p> @endif
     @endif
 </x-layouts.app>

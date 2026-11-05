@@ -25,7 +25,10 @@ Route::middleware(['web', 'auth'])->group(function (): void {
         Route::get('/einstellungen', [FormOfficeController::class, 'settings'])->middleware('can:forms.manage')->name('settings');
         Route::put('/einstellungen', [FormOfficeController::class, 'updateSettings'])->middleware('can:forms.manage')->name('settings.update');
         Route::post('/sammelliste', [FormOfficeController::class, 'exportPayout'])->middleware(['can:forms.manage', 'throttle:20,10'])->name('export');
+        Route::get('/buchungsliste', [FormOfficeController::class, 'exportBookings'])->middleware('can:forms.manage')->name('export.bookings');
+        Route::get('/jahresuebersicht', [FormOfficeController::class, 'exportSummary'])->middleware('can:forms.manage')->name('export.summary');
         Route::get('/{application}', [FormOfficeController::class, 'show'])->whereNumber('application')->name('show');
+        Route::post('/{application}/rechnung', [FormOfficeController::class, 'invoice'])->whereNumber('application')->middleware(['can:forms.manage', 'throttle:20,10'])->name('invoice');
         Route::post('/{application}/aktion', [FormOfficeController::class, 'act'])->whereNumber('application')->middleware('throttle:60,10')->name('act');
         Route::get('/{application}/belege/{file}', [FormApplicationController::class, 'file'])->whereNumber(['application', 'file'])->name('file');
     });
