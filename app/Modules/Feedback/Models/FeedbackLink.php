@@ -11,13 +11,13 @@ use Illuminate\Support\Facades\Crypt;
 /** Modul: Feedback. Ein Link zu einem Formular für ein Seminar (viele Antworten über einen Link). Der Link ist verschlüsselt gespeichert und darf von der Koordination wieder angezeigt werden. */
 class FeedbackLink extends Model
 {
-    protected $fillable = ['seminar_id', 'form_id', 'form_version', 'audience', 'token_hash', 'token_enc', 'label', 'opens_at', 'closes_at', 'max_responses', 'min_responses', 'closed_at', 'created_by_user_id'];
+    protected $fillable = ['seminar_id', 'form_id', 'form_version', 'audience', 'token_hash', 'token_enc', 'label', 'opens_at', 'closes_at', 'max_responses', 'min_responses', 'closed_at', 'anonymized_at', 'created_by_user_id'];
 
     protected $hidden = ['token_hash', 'token_enc'];
 
     protected function casts(): array
     {
-        return ['opens_at' => 'datetime', 'closes_at' => 'datetime', 'closed_at' => 'datetime', 'max_responses' => 'integer', 'min_responses' => 'integer'];
+        return ['opens_at' => 'datetime', 'closes_at' => 'datetime', 'closed_at' => 'datetime', 'anonymized_at' => 'datetime', 'max_responses' => 'integer', 'min_responses' => 'integer'];
     }
 
     /** @return BelongsTo<Seminar, $this> */
@@ -36,6 +36,12 @@ class FeedbackLink extends Model
     public function responses(): HasMany
     {
         return $this->hasMany(FeedbackResponse::class, 'link_id');
+    }
+
+    /** @return \Illuminate\Database\Eloquent\Relations\HasOne<FeedbackArchive, $this> */
+    public function archive(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(FeedbackArchive::class, 'link_id');
     }
 
     public function url(): string

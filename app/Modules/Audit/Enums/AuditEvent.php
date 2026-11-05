@@ -93,6 +93,7 @@ enum AuditEvent: string
     case FeedbackFormSaved = 'feedback.form_saved';
     case FeedbackLinkCreated = 'feedback.link_created';
     case FeedbackLinkClosed = 'feedback.link_closed';
+    case FeedbackLinkAnonymized = 'feedback.link_anonymized';
 
     public function label(): string
     {
@@ -169,6 +170,7 @@ enum AuditEvent: string
             self::FeedbackFormSaved => 'Feedbackformular gespeichert',
             self::FeedbackLinkCreated => 'Feedbacklink angelegt',
             self::FeedbackLinkClosed => 'Feedbacklink beendet',
+            self::FeedbackLinkAnonymized => 'Feedbacklink anonymisiert',
         };
     }
 
@@ -192,7 +194,7 @@ enum AuditEvent: string
             self::SystemTaskRun => 'system',
             self::MailingSent, self::MailSuppressionChanged, self::MailingWorkflow => 'mailings',
             self::ContactsImported => 'contacts',
-            self::FeedbackFormSaved, self::FeedbackLinkCreated, self::FeedbackLinkClosed => 'feedback',
+            self::FeedbackFormSaved, self::FeedbackLinkCreated, self::FeedbackLinkClosed, self::FeedbackLinkAnonymized => 'feedback',
         };
     }
 

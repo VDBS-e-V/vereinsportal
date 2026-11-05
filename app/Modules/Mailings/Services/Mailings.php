@@ -420,7 +420,18 @@ final class Mailings
             'ort' => (string) ($first?->location ?? ''),
             'stichtag' => $seminar->application_deadline?->format('d.m.Y') ?? '',
             'link' => route('seminar-applications.index'),
+            'feedback_link_lehrkraft' => $this->feedbackLink($seminar, 'teachers'),
+            'feedback_link_team' => $this->feedbackLink($seminar, 'team'),
         ];
+    }
+
+    /** Adresse des zurzeit offenen Feedbacklinks einer Gruppe, sonst leer. */
+    private function feedbackLink(Seminar $seminar, string $audience): string
+    {
+        $links = app(\App\Modules\Feedback\Services\FeedbackLinks::class);
+        $link = $seminar->feedbackLinks()->where('audience', $audience)->orderByDesc('id')->get()->first(fn ($candidate): bool => $links->state($candidate) === 'open');
+
+        return $link ? $link->url() : '';
     }
 
     // ---------- gemeinsam ----------

@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Feedback\Http\Controllers\FeedbackEvaluationController;
 use App\Modules\Feedback\Http\Controllers\FeedbackFormController;
 use App\Modules\Feedback\Http\Controllers\FeedbackLinkController;
 use App\Modules\Feedback\Http\Controllers\PublicFeedbackController;
@@ -21,6 +22,15 @@ Route::middleware(['web', 'auth', 'can:feedback.manage'])->group(function (): vo
         Route::post('/', [FeedbackLinkController::class, 'store'])->middleware('throttle:30,10')->name('store');
         Route::post('/beenden', [FeedbackLinkController::class, 'close'])->name('close');
         Route::get('/{link}/aushang', [FeedbackLinkController::class, 'print'])->whereNumber('link')->name('print');
+    });
+});
+
+Route::middleware(['web', 'auth', 'can:feedback.view'])->group(function (): void {
+    Route::prefix('koordination/feedback-auswertung')->name('feedback-eval.')->group(function (): void {
+        Route::get('/', [FeedbackEvaluationController::class, 'index'])->name('index');
+        Route::get('/export', [FeedbackEvaluationController::class, 'export'])->name('export');
+        Route::get('/seminar/{seminar}', [FeedbackEvaluationController::class, 'seminar'])->whereNumber('seminar')->name('seminar');
+        Route::post('/seminar/{seminar}/anonymisieren', [FeedbackEvaluationController::class, 'anonymize'])->whereNumber('seminar')->middleware(['can:feedback.manage', 'throttle:20,10'])->name('anonymize');
     });
 });
 

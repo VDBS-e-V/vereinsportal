@@ -17,3 +17,12 @@ Digitale Rückmeldebögen für Schülerinnen und Schüler, Lehrkräfte und Teame
 
 ## Noch offen (Teil 2)
 Auswertung, Anonymisieren/Archivieren, Aufräumbefehl, Erinnerungen, Platzhalter in Schreiben, Kennzahlen im Seminarabschluss.
+
+## Teil 2: Auswertung, Anonymisieren, Platzhalter
+
+- **Auswertung** (Koordination → Feedback-Auswertung, Recht `feedback.view`): je Seminar (`Auswertung ansehen` auf der Seminarseite) mit Durchschnitt, Verteilung, Ja/Nein, Auswahl und Freitexten in **zufälliger Reihenfolge**; im Vergleich mit Mehrfachfiltern Jahr, Leistung, Schule und Gruppe, Rücklauf gegen erwartete Teilnehmende, CSV-Export (ohne Texte).
+- **Mindestzahl:** Unter der Mindestzahl je Link (Standard 5) werden keine Ergebnisse gezeigt.
+- **Anonymisieren:** nach `FEEDBACK_RETENTION_MONTHS` (12) nach Ende des Links täglich automatisch (`feedback:prune`, auch als Systemaufgabe „Feedback anonymisieren“), oder von Hand je Seminar (Mehrfachauswahl, Recht `feedback.manage`). Bei genug Antworten bleiben die Zahlen im Archiv (`feedback_archives`), Einzelantworten, Freitexte und Namen werden gelöscht. Bei zu wenigen Antworten wird nur gelöscht.
+- **Platzhalter** in Schreiben an Teamende: `{feedback_link_lehrkraft}` und `{feedback_link_team}` (leer, wenn kein offener Link besteht).
+
+Noch nicht gebaut: Erinnerungen an Lehrkräfte/Teamende, Kennzahlen im Seminarabschluss, Umbenennen des Schulfeedbacks in „Nachricht an die Koordination“ (E6).

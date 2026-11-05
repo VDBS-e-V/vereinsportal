@@ -9,6 +9,10 @@
 
     <x-vdbs.feedback.alert variant="info">Ein Link gilt für viele Antworten. Die Antworten sind anonym; gespeichert werden nur die Antworten und der Tag der Abgabe. Teilen Sie den Link im Unterricht oder drucken Sie den Aushang.</x-vdbs.feedback.alert>
 
+    @can('feedback.view')
+        <p><a href="{{ route('feedback-eval.seminar', $seminar) }}">Auswertung ansehen</a></p>
+    @endcan
+
     @error('feedback') <x-vdbs.feedback.alert variant="error">{{ $message }}</x-vdbs.feedback.alert> @enderror
 
     @if ($feedbackLinks->isEmpty())

@@ -45,6 +45,8 @@ final class MailPlaceholders
         'ort' => 'Ort des ersten Termins',
         'stichtag' => 'Stichtag für Interessenbekundungen',
         'link' => 'Link zur Seite „Seminare“ im Portal',
+        'feedback_link_lehrkraft' => 'Feedbacklink für Lehrkräfte (leer, wenn keiner offen ist)',
+        'feedback_link_team' => 'Feedbacklink für Teamende (leer, wenn keiner offen ist)',
         'eigener_text' => 'Der Textabschnitt der Koordination (nur in der Vorlage)',
     ];
 
