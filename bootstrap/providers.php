@@ -34,6 +34,7 @@ return [
     AuditServiceProvider::class,
     PartnersServiceProvider::class,
     SeminarsServiceProvider::class,
+    \App\Modules\Feedback\FeedbackServiceProvider::class,
     PeopleServiceProvider::class,
     MembershipServiceProvider::class,
     OnboardingServiceProvider::class,

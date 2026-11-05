@@ -88,6 +88,12 @@ class Seminar extends Model
         return $this->hasMany(SeminarClosure::class)->orderByDesc('id');
     }
 
+    /** @return HasMany<\App\Modules\Feedback\Models\FeedbackLink, $this> */
+    public function feedbackLinks(): HasMany
+    {
+        return $this->hasMany(\App\Modules\Feedback\Models\FeedbackLink::class);
+    }
+
     /** Der geltende Abschluss (nicht wieder geöffnet), sonst null. */
     public function currentClosure(): ?SeminarClosure
     {

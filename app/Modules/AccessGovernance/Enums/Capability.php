@@ -47,6 +47,12 @@ enum Capability: string
     /** Einen abgeschlossenen Seminarabschluss wieder öffnen und geschützte Dokumente nach dem Abschluss löschen (Vorstand). */
     case SeminarsReopen = 'seminars.reopen';
 
+    /** Feedbackformulare bearbeiten und Feedbacklinks zu Seminaren anlegen. */
+    case FeedbackManage = 'feedback.manage';
+
+    /** Rückmeldungen zu Seminaren lesen und auswerten (nur Koordination). */
+    case FeedbackView = 'feedback.view';
+
     /** Preisliste der Seminare ändern (neue Fassung anlegen). */
     case SeminarPricesManage = 'seminars.prices';
 

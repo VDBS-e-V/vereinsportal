@@ -196,6 +196,13 @@ return [
         'idle_minutes' => (int) env('CONTACT_ACCESS_IDLE_MINUTES', 30),
     ],
 
+    'feedback' => [
+        // Mindestzahl an Antworten pro Link, ab der Auswertungen gezeigt werden (Schutz vor Rückschlüssen auf Einzelne).
+        'min_responses' => (int) env('FEEDBACK_MIN_RESPONSES', 5),
+        // Aufbewahrung der Einzelantworten in Monaten nach Ende des Links, danach anonymisiert/archiviert bzw. gelöscht.
+        'retention_months' => (int) env('FEEDBACK_RETENTION_MONTHS', 12),
+    ],
+
     'seminars' => [
         // Format der Seminarnummer: {Y} = Jahr, {N:4} = laufende Nummer mit vier Stellen.
         'number_format' => env('SEMINAR_NUMBER_FORMAT', 'S-{Y}-{N:4}'),

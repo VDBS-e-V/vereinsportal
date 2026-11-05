@@ -90,6 +90,10 @@ enum AuditEvent: string
     case SeminarReopened = 'seminar.reopened';
     case SeminarFolderDownloaded = 'seminar.folder_downloaded';
 
+    case FeedbackFormSaved = 'feedback.form_saved';
+    case FeedbackLinkCreated = 'feedback.link_created';
+    case FeedbackLinkClosed = 'feedback.link_closed';
+
     public function label(): string
     {
         return match ($this) {
@@ -162,6 +166,9 @@ enum AuditEvent: string
             self::SeminarClosed => 'Seminar abgeschlossen',
             self::SeminarReopened => 'Seminarabschluss wieder geöffnet',
             self::SeminarFolderDownloaded => 'Seminarmappe heruntergeladen',
+            self::FeedbackFormSaved => 'Feedbackformular gespeichert',
+            self::FeedbackLinkCreated => 'Feedbacklink angelegt',
+            self::FeedbackLinkClosed => 'Feedbacklink beendet',
         };
     }
 
@@ -185,6 +192,7 @@ enum AuditEvent: string
             self::SystemTaskRun => 'system',
             self::MailingSent, self::MailSuppressionChanged, self::MailingWorkflow => 'mailings',
             self::ContactsImported => 'contacts',
+            self::FeedbackFormSaved, self::FeedbackLinkCreated, self::FeedbackLinkClosed => 'feedback',
         };
     }
 
@@ -209,6 +217,7 @@ enum AuditEvent: string
             'system' => 'System',
             'mailings' => 'Schreiben',
             'contacts' => 'Teamkontakte',
+            'feedback' => 'Feedback',
         ];
     }
 
