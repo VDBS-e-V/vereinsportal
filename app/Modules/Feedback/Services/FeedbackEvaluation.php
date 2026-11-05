@@ -184,6 +184,8 @@ final class FeedbackEvaluation
 
             switch ($type) {
                 case 'scale':
+                    $values = $values->filter(fn ($v) => is_numeric($v) && $v >= 1 && $v <= 5)->values();
+                    $row['n'] = $values->count();
                     $dist = array_fill(1, 5, 0);
                     foreach ($values as $value) {
                         $dist[(int) $value] = ($dist[(int) $value] ?? 0) + 1;

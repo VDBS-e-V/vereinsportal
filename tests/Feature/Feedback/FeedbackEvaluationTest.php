@@ -50,7 +50,7 @@ function feLink(int $count, string $audience = 'students', ?Seminar $seminar = n
     $link = app(FeedbackLinks::class)->create($seminar ?? feSeminar(), $audience, $input, feUser());
 
     for ($i = 0; $i < $count; $i++) {
-        FeedbackResponse::query()->create(['link_id' => $link->id, 'submitted_on' => now()->toDateString(), 'answers' => ['q1' => $i % 2 === 0 ? 4 : 5, 'q7' => 'Text '.$i, 'q9' => 'yes'], 'respondent_name' => null]);
+        FeedbackResponse::query()->create(['link_id' => $link->id, 'submitted_on' => now()->toDateString(), 'answers' => ['q1' => $i % 2 === 0 ? 4 : 5] + ($audience === 'students' ? ['q7' => 'Text '.$i, 'q9' => 'yes'] : []), 'respondent_name' => null]);
     }
 
     return $link->fresh();
