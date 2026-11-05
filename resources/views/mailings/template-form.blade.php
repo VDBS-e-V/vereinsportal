@@ -17,6 +17,8 @@
         <x-vdbs.forms.form-section title="Vorlage">
             <x-vdbs.forms.input name="name" label="Name der Vorlage" :required="true" maxlength="120" :value="$template?->name" hint="Unter diesem Namen erscheint sie beim Schreiben, z. B. Einladung zur Mitgliederversammlung" />
             <x-vdbs.forms.input name="description" label="Beschreibung" :optional="true" maxlength="250" :value="$template?->description" />
+            <x-vdbs.forms.select name="category" label="Kategorie" :optional="true" placeholder="Ohne Kategorie" :options="$categories" :value="$template?->category" />
+            <x-vdbs.forms.select name="audience" label="Zielgruppe" :optional="true" placeholder="Nicht festgelegt" :options="$audiences" :value="$template?->audience" hint="Nur ein Hinweis für die Auswahl, er schränkt den Versand nicht ein." />
             <x-vdbs.forms.input name="subject" label="Betreff" :required="true" maxlength="200" :value="$template?->subject" />
             <x-vdbs.forms.textarea name="body" label="Text" :required="true" maxlength="20000" :rows="14" :rich="true" :value="$body" />
             <x-mailings.placeholders :placeholders="$placeholders" />

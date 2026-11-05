@@ -96,3 +96,8 @@ Gespeichert werden Betreff, Text mit Platzhaltern, Gruppen und Zahl der Empfäng
 
 ## Grenzen
 Stürzt ein Worker mitten in einer Mail ab, kann diese eine Mail doppelt zugestellt werden (Zeilen im Zustand „wird gesendet“ werden nach 10 Minuten wieder freigegeben). Bounces folgen im nächsten Update (siehe `docs/65_RUNDSCHREIBEN_ENTWICKLUNGSPLAN.md`).
+
+## Grundbestand, Kategorien und Platzhalter (Paket H3–H5)
+- **Grundbestand:** 15 Mailvorlagen (Versammlung, Schulen, Team, Feedback, Allgemein) und 27 Textbausteine werden mit `php artisan mail:load-defaults` angelegt. Der Befehl läuft auch bei `portal:update` und als Aufgabe „Standardinhalte laden“ in der Systemsteuerung. Er ergänzt nur fehlende Einträge (nach Name) und überschreibt nie. Alle Texte sind Entwürfe zur Freigabe durch Vorstand oder Geschäftsstelle und danach frei änderbar.
+- **Kategorien:** Vorlagen (Versammlung & Mitglieder, Schulen & Seminare, Team, Feedback, Allgemein) und Bausteine (Anrede & Gruß, Termine & Orte, Anmeldung & Fristen, Datenschutz & Abmeldung, Kontakt, Seminare, Allgemein) haben eine feste Kategorie. Die Verwaltung hat Suche und Kategoriefilter, Bausteine eine Reihenfolge, gleiche Namen werden abgelehnt. Beim Schreiben erscheint die Kategorie vor dem Namen. Mehrere Einträge lassen sich per Auswahl gemeinsam löschen.
+- **Neue Platzhalter:** `{stichtag}`, `{bewerbungslink}`, `{antraglink}` (bei Schreiben an Gruppen und bei Seminarmitteilungen). `{seminar_nr}`, `{feedback_link_lehrkraft}`, `{feedback_link_team}` gelten bei Seminarmitteilungen der Koordination. `{team}` ist noch nicht umgesetzt.

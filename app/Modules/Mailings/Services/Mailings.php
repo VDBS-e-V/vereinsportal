@@ -56,6 +56,9 @@ final class Mailings
             'frist' => $deadline,
             'wochentag' => $date?->isoFormat('dddd') ?? '',
             'tage_bis' => $date !== null ? (string) (int) today()->diffInDays($date->copy()->startOfDay(), false) : '',
+            'stichtag' => $deadline,
+            'bewerbungslink' => route('seminar-applications.index'),
+            'antraglink' => route('home'),
         ];
     }
 
@@ -420,6 +423,8 @@ final class Mailings
             'ort' => (string) ($first?->location ?? ''),
             'stichtag' => $seminar->application_deadline?->format('d.m.Y') ?? '',
             'link' => route('seminar-applications.index'),
+            'bewerbungslink' => route('seminar-applications.index'),
+            'antraglink' => route('home'),
             'feedback_link_lehrkraft' => $this->feedbackLink($seminar, 'teachers'),
             'feedback_link_team' => $this->feedbackLink($seminar, 'team'),
         ];

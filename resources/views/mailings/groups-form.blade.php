@@ -48,7 +48,7 @@
             <x-vdbs.forms.input name="subject" label="Betreff" :required="true" maxlength="150" :value="$prefill['subject'] ?? null" hint="Platzhalter sind erlaubt, zum Beispiel: Einladung zur {versammlung} am {datum}" />
             @if ($snippets->isNotEmpty())
                 <div data-snippet-picker data-snippets="{{ json_encode($snippets->pluck('body', 'id')->all(), JSON_UNESCAPED_UNICODE) }}" style="display:none">
-                    <x-vdbs.forms.multi-select name="snippet_pick" label="Textbausteine einfügen" :optional="true" :searchable="true" placeholder="Bausteine wählen oder suchen" search-label="Bausteine filtern" :options="$snippets->pluck('name', 'id')->all()" :value="[]" hint="Wählen Sie einen oder mehrere Bausteine. „Einfügen“ setzt sie in dieser Reihenfolge an die Cursorposition im Text." />
+                    <x-vdbs.forms.multi-select name="snippet_pick" label="Textbausteine einfügen" :optional="true" :searchable="true" placeholder="Bausteine wählen oder suchen" search-label="Bausteine filtern" :options="$snippets->mapWithKeys(fn ($snippet) => [$snippet->id => ($snippet->category ? \App\Modules\Mailings\Support\MailCategories::snippetLabel($snippet->category).': ' : '').$snippet->name])->all()" :value="[]" hint="Wählen Sie einen oder mehrere Bausteine. „Einfügen“ setzt sie in dieser Reihenfolge an die Cursorposition im Text." />
                     <x-vdbs.actions.button type="button" size="s" variant="secondary" data-snippet-insert="1">Ausgewählte einfügen</x-vdbs.actions.button>
                 </div>
             @endif

@@ -7,12 +7,14 @@ use App\Modules\Access\Models\User;
 use App\Modules\Mailings\Models\MailTemplate;
 use App\Modules\Mailings\Models\MailTemplateVersion;
 use App\Modules\Mailings\Services\MailTemplates;
+use App\Modules\Mailings\Support\MailCategories;
 use App\Modules\Mailings\Support\MailPlaceholders;
 use App\Support\Html\RichText;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -23,10 +25,12 @@ class MailTemplateController extends Controller
 {
     public function __construct(private readonly MailTemplates $templates) {}
 
-    public function index(): View
+    public function index(Request $request): View
     {
         return view('mailings.template-index', [
-            'templates' => $this->templates->general(),
+            'templates' => $this->templates->general($request->query('q'), $request->query('kategorie')),
+            'search' => (string) $request->query('q', ''),
+            'category' => (string) $request->query('kategorie', ''),
             'team' => $this->templates->get(MailTemplates::TEAM_SEMINAR),
             'teamCustomized' => $this->templates->isCustomized(MailTemplates::TEAM_SEMINAR),
         ]);
@@ -34,13 +38,14 @@ class MailTemplateController extends Controller
 
     public function create(): View
     {
-        return view('mailings.template-form', ['template' => null, 'body' => null, 'placeholders' => MailPlaceholders::definitions('general')]);
+        return view('mailings.template-form', ['categories' => MailCategories::TEMPLATES, 'audiences' => MailCategories::AUDIENCES, 'template' => null, 'body' => null, 'placeholders' => MailPlaceholders::definitions('general')]);
     }
 
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validated($request, 'general');
-        $template = $this->templates->createGeneral($data['name'], $data['description'] ?? null, $data['subject'], $data['body'], $this->user());
+        $this->assertUniqueName($data['name'], null);
+        $template = $this->templates->createGeneral($data['name'], $data['description'] ?? null, $data['subject'], $data['body'], $this->user(), $data['category'] ?? null, $data['audience'] ?? null);
 
         return redirect()->route('mailings.templates.index')->with('success', 'Die Vorlage „'.$template->name.'“ wurde gespeichert.');
     }
@@ -49,7 +54,7 @@ class MailTemplateController extends Controller
     {
         abort_unless($template->kind === MailTemplate::KIND_GENERAL, 404);
 
-        return view('mailings.template-form', ['template' => $template, 'body' => RichText::forEditor($template->body), 'placeholders' => MailPlaceholders::definitions('general'), 'versions' => $template->versions()->with('savedBy.person')->get()]);
+        return view('mailings.template-form', ['categories' => MailCategories::TEMPLATES, 'audiences' => MailCategories::AUDIENCES, 'template' => $template, 'body' => RichText::forEditor($template->body), 'placeholders' => MailPlaceholders::definitions('general'), 'versions' => $template->versions()->with('savedBy.person')->get()]);
     }
 
     public function update(Request $request, MailTemplate $template): RedirectResponse
@@ -57,7 +62,8 @@ class MailTemplateController extends Controller
         abort_unless($template->kind === MailTemplate::KIND_GENERAL, 404);
 
         $data = $this->validated($request, 'general');
-        $this->templates->updateGeneral($template, $data['name'], $data['description'] ?? null, $data['subject'], $data['body'], $this->user());
+        $this->assertUniqueName($data['name'], $template->id);
+        $this->templates->updateGeneral($template, $data['name'], $data['description'] ?? null, $data['subject'], $data['body'], $this->user(), $data['category'] ?? null, $data['audience'] ?? null);
 
         return redirect()->route('mailings.templates.index')->with('success', 'Die Vorlage wurde gespeichert.');
     }
@@ -116,7 +122,7 @@ class MailTemplateController extends Controller
         $messages = ['subject.required' => 'Bitte geben Sie einen Betreff ein.', 'body.required' => 'Bitte schreiben Sie den Text.', 'body.max' => 'Der Text ist zu lang.'];
 
         if ($withName) {
-            $rules += ['name' => ['required', 'string', 'max:120'], 'description' => ['nullable', 'string', 'max:250']];
+            $rules += ['name' => ['required', 'string', 'max:120'], 'description' => ['nullable', 'string', 'max:250'], 'category' => ['nullable', Rule::in(array_keys(MailCategories::TEMPLATES))], 'audience' => ['nullable', Rule::in(array_keys(MailCategories::AUDIENCES))]];
             $messages += ['name.required' => 'Bitte geben Sie der Vorlage einen Namen.'];
         }
 
@@ -136,6 +142,22 @@ class MailTemplateController extends Controller
         }
 
         return $data;
+    }
+
+    /** Mehrfachauswahl: löscht die angehakten Vorlagen für Rundschreiben. */
+    public function destroyMany(Request $request): RedirectResponse
+    {
+        $ids = array_filter(array_map('intval', (array) $request->input('ids', [])));
+        $count = $ids === [] ? 0 : MailTemplate::query()->where('kind', MailTemplate::KIND_GENERAL)->whereIn('id', $ids)->delete();
+
+        return redirect()->route('mailings.templates.index')->with($count > 0 ? 'success' : 'error', $count > 0 ? $count.' Vorlage(n) gelöscht.' : 'Bitte wählen Sie mindestens eine Vorlage.');
+    }
+
+    private function assertUniqueName(string $name, ?int $ignoreId): void
+    {
+        if ($this->templates->nameTaken($name, $ignoreId)) {
+            throw ValidationException::withMessages(['name' => 'Es gibt schon eine Vorlage mit diesem Namen.']);
+        }
     }
 
     private function user(): User

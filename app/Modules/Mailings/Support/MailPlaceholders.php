@@ -33,6 +33,9 @@ final class MailPlaceholders
         'frist' => 'Anmelde- oder Antragsfrist',
         'wochentag' => 'Wochentag der Versammlung',
         'tage_bis' => 'Anzahl der Tage vom Versand bis zur Versammlung',
+        'stichtag' => 'Stichtag (entspricht der Frist)',
+        'bewerbungslink' => 'Link zur Seite „Seminare“ im Portal, auf der sich Teamende bewerben',
+        'antraglink' => 'Link zum Portal; die Anträge zur Kostenerstattung finden Sie dort in Ihrem Bereich',
     ];
 
     /** Zusätzlich bei Mitteilungen zu Seminaren. @var array<string, string> */
@@ -45,6 +48,8 @@ final class MailPlaceholders
         'ort' => 'Ort des ersten Termins',
         'stichtag' => 'Stichtag für Interessenbekundungen',
         'link' => 'Link zur Seite „Seminare“ im Portal',
+        'bewerbungslink' => 'Link zur Seite „Seminare“ im Portal, auf der sich Teamende bewerben',
+        'antraglink' => 'Link zum Portal; die Anträge zur Kostenerstattung finden Sie dort in Ihrem Bereich',
         'feedback_link_lehrkraft' => 'Feedbacklink für Lehrkräfte (leer, wenn keiner offen ist)',
         'feedback_link_team' => 'Feedbacklink für Teamende (leer, wenn keiner offen ist)',
         'eigener_text' => 'Der Textabschnitt der Koordination (nur in der Vorlage)',

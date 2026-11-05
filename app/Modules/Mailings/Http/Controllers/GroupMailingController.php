@@ -100,11 +100,11 @@ class GroupMailingController extends Controller
             'mandatoryChecked' => $mandatory,
             'needsApproval' => $this->mailings->needsApproval($user, $total),
             'placeholders' => MailPlaceholders::definitions('general'),
-            'templates' => $this->templates->general()->mapWithKeys(fn (MailTemplate $t): array => [$t->id => $t->name])->all(),
+            'templates' => $this->templates->general()->mapWithKeys(fn (MailTemplate $t): array => [$t->id => ($t->category ? \App\Modules\Mailings\Support\MailCategories::templateLabel($t->category).': ' : '').$t->name])->all(),
             'template' => $template,
             'draft' => $draft,
             'prefill' => $prefill,
-            'snippets' => MailSnippet::query()->orderBy('name')->get(['id', 'name', 'body']),
+            'snippets' => MailSnippet::query()->orderBy('category')->orderBy('sort')->orderBy('name')->get(['id', 'name', 'category', 'body']),
             'attachments' => $draft?->attachments ?? collect(),
             'attachmentLimitMb' => round(app(MailAttachments::class)->maxKb() / 1024, 1),
         ]);

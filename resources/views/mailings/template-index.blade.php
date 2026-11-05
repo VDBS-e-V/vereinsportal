@@ -13,21 +13,33 @@
     <section aria-labelledby="general-title">
         <h2 id="general-title" style="font-size:var(--font-size-h3)">Vorlagen für Rundschreiben</h2>
 
+        <form method="get" action="{{ route('mailings.templates.index') }}" style="display:flex;gap:var(--space-3);align-items:flex-end;flex-wrap:wrap;margin-bottom:var(--space-4)">
+            <x-vdbs.forms.input name="q" label="Suchen" :value="$search" />
+            <x-vdbs.forms.select name="kategorie" label="Kategorie" placeholder="Alle Kategorien" :options="\App\Modules\Mailings\Support\MailCategories::TEMPLATES" :value="$category" />
+            <x-vdbs.actions.button type="submit" variant="secondary" size="s">Filtern</x-vdbs.actions.button>
+        </form>
+
         @if ($templates->isEmpty())
             <x-vdbs.feedback.empty-state title="Noch keine Vorlagen" icon="clipboard-list">
                 <p>Legen Sie Vorlagen an, zum Beispiel für die Einladung zur Mitgliederversammlung. Beim Schreiben lassen sie sich übernehmen und anpassen.</p>
                 <x-slot:actions><x-vdbs.actions.button :href="route('mailings.templates.create')">Neue Vorlage</x-vdbs.actions.button></x-slot:actions>
             </x-vdbs.feedback.empty-state>
         @else
-            <x-vdbs.data.table caption="Vorlagen für Rundschreiben" :columns="[['key' => 'name', 'label' => 'Name'], ['key' => 'subject', 'label' => 'Betreff'], ['key' => 'changed', 'label' => 'Geändert']]">
+            <form method="post" action="{{ route('mailings.templates.destroy-many') }}">
+            @csrf
+            <x-vdbs.data.table caption="Vorlagen für Rundschreiben" :columns="[['key' => 'sel', 'label' => 'Auswahl'], ['key' => 'name', 'label' => 'Name'], ['key' => 'category', 'label' => 'Kategorie'], ['key' => 'subject', 'label' => 'Betreff'], ['key' => 'changed', 'label' => 'Geändert']]">
                 @foreach ($templates as $template)
                     <tr class="vdbs-table__row--link">
+                        <td><input type="checkbox" name="ids[]" value="{{ $template->id }}" aria-label="{{ $template->name }} auswählen"></td>
                         <td><a class="vdbs-table__row-link" href="{{ route('mailings.templates.edit', $template) }}">{{ $template->name }}</a>@if (filled($template->description))<br><small>{{ $template->description }}</small>@endif</td>
+                        <td>{{ \App\Modules\Mailings\Support\MailCategories::templateLabel($template->category) }}</td>
                         <td>{{ $template->subject }}</td>
                         <td>{{ $template->updated_at?->format('d.m.Y') }}</td>
                     </tr>
                 @endforeach
             </x-vdbs.data.table>
+            <x-vdbs.actions.button type="submit" variant="danger-text" size="s" onclick="return confirm('Die ausgewählten Vorlagen löschen?')">Ausgewählte löschen</x-vdbs.actions.button>
+            </form>
         @endif
     </section>
 

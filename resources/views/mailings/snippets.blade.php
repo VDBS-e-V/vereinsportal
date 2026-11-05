@@ -8,20 +8,31 @@
 
     <section aria-labelledby="list-title">
         <h2 id="list-title" style="font-size:var(--font-size-h3)">Vorhandene Bausteine</h2>
+        <form method="get" action="{{ route('mailings.templates.snippets') }}" style="display:flex;gap:var(--space-3);align-items:flex-end;flex-wrap:wrap;margin-bottom:var(--space-4)">
+            <x-vdbs.forms.input name="q" label="Suchen" :value="$search" />
+            <x-vdbs.forms.select name="kategorie" label="Kategorie" placeholder="Alle Kategorien" :options="$categories" :value="$category" />
+            <x-vdbs.actions.button type="submit" variant="secondary" size="s">Filtern</x-vdbs.actions.button>
+        </form>
+
         @if ($snippets->isEmpty())
-            <p>Noch keine Textbausteine.</p>
+            <p>Keine Textbausteine gefunden.</p>
         @else
-            <x-vdbs.data.table caption="Textbausteine" :columns="[['key' => 'name', 'label' => 'Name'], ['key' => 'actions', 'label' => 'Aktionen']]">
+            <form method="post" action="{{ route('mailings.templates.snippets.destroy-many') }}">
+            @csrf
+            <x-vdbs.data.table caption="Textbausteine" :columns="[['key' => 'sel', 'label' => 'Auswahl'], ['key' => 'name', 'label' => 'Name'], ['key' => 'category', 'label' => 'Kategorie'], ['key' => 'actions', 'label' => 'Aktionen']]">
                 @foreach ($snippets as $snippet)
                     <tr>
+                        <td><input type="checkbox" name="ids[]" value="{{ $snippet->id }}" aria-label="{{ $snippet->name }} auswählen"></td>
                         <td>{{ $snippet->name }}</td>
+                        <td>{{ \App\Modules\Mailings\Support\MailCategories::snippetLabel($snippet->category) }}</td>
                         <td>
                             <x-vdbs.actions.button size="s" variant="text" :href="route('mailings.templates.snippets', ['bearbeiten' => $snippet->id])">Bearbeiten</x-vdbs.actions.button>
-                            <form method="post" action="{{ route('mailings.templates.snippets.destroy', $snippet) }}" style="display:inline">@csrf @method('delete')<x-vdbs.actions.button size="s" variant="danger-text" type="submit">Löschen</x-vdbs.actions.button></form>
                         </td>
                     </tr>
                 @endforeach
             </x-vdbs.data.table>
+            <x-vdbs.actions.button type="submit" variant="danger-text" size="s" onclick="return confirm('Die ausgewählten Bausteine löschen?')">Ausgewählte löschen</x-vdbs.actions.button>
+            </form>
         @endif
     </section>
 
@@ -29,6 +40,8 @@
         <input type="hidden" name="snippet_id" value="{{ $edit?->id }}">
         <x-vdbs.forms.form-section :title="$editing ? 'Baustein bearbeiten' : 'Neuer Baustein'">
             <x-vdbs.forms.input name="name" label="Name" :required="true" maxlength="120" :value="$edit?->name" />
+            <x-vdbs.forms.select name="category" label="Kategorie" :optional="true" placeholder="Ohne Kategorie" :options="$categories" :value="$edit?->category" />
+            <x-vdbs.forms.input name="sort" label="Reihenfolge" :optional="true" type="number" :value="$edit?->sort ?? 0" hint="Kleinere Zahlen stehen weiter oben." />
             <x-vdbs.forms.textarea name="body" label="Text" :required="true" maxlength="5000" :rows="8" :rich="true" :value="$body" />
             <x-mailings.placeholders :placeholders="$placeholders" />
         </x-vdbs.forms.form-section>

@@ -62,6 +62,7 @@ Route::middleware(['web', 'auth', 'can:mail_templates.manage'])->prefix('geschae
     Route::post('/', [MailTemplateController::class, 'store'])->name('store');
     Route::get('/bausteine', [MailSnippetController::class, 'index'])->name('snippets');
     Route::post('/bausteine', [MailSnippetController::class, 'store'])->name('snippets.store');
+    Route::post('/bausteine/loeschen', [MailSnippetController::class, 'destroyMany'])->name('snippets.destroy-many');
     Route::delete('/bausteine/{snippet}', [MailSnippetController::class, 'destroy'])->whereNumber('snippet')->name('snippets.destroy');
     Route::get('/seminar', [MailTemplateController::class, 'team'])->name('team');
     Route::put('/seminar', [MailTemplateController::class, 'updateTeam'])->name('team.update');
@@ -69,6 +70,7 @@ Route::middleware(['web', 'auth', 'can:mail_templates.manage'])->prefix('geschae
     Route::get('/{template}/bearbeiten', [MailTemplateController::class, 'edit'])->whereNumber('template')->name('edit');
     Route::put('/{template}', [MailTemplateController::class, 'update'])->whereNumber('template')->name('update');
     Route::post('/{template}/versionen/{version}', [MailTemplateController::class, 'restore'])->whereNumber(['template', 'version'])->name('restore');
+    Route::post('/loeschen', [MailTemplateController::class, 'destroyMany'])->name('destroy-many');
     Route::delete('/{template}', [MailTemplateController::class, 'destroy'])->whereNumber('template')->name('destroy');
 });
 
