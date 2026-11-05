@@ -64,13 +64,13 @@ it('filters by several years, services and schools at once', function () {
     $schoolB = Partner::factory()->create(['name' => 'Schule Beta']);
     ssClosed(['title' => 'Alt Alpha', 'partner_id' => $schoolA->id, 'type' => SeminarType::SvDays], '2025-05-05');
     ssClosed(['title' => 'Neu Beta', 'partner_id' => $schoolB->id, 'type' => SeminarType::SvDays], '2026-05-05');
-    ssClosed(['title' => 'Neu Alpha', 'partner_id' => $schoolA->id, 'type' => SeminarType::SvCoaching], '2026-06-06');
+    ssClosed(['title' => 'Neu Alpha', 'partner_id' => $schoolA->id, 'type' => SeminarType::Coaching], '2026-06-06');
     $this->actingAs(ssUser());
 
     $this->get(route('seminar-stats.index', ['jahr' => ['2025', '2026']]))->assertSee('Alt Alpha')->assertSee('Neu Beta')->assertSee('Neu Alpha');
     $this->get(route('seminar-stats.index', ['jahr' => ['2026']]))->assertDontSee('Alt Alpha')->assertSee('Neu Beta')->assertSee('Neu Alpha');
     $this->get(route('seminar-stats.index', ['schule' => [$schoolA->id]]))->assertSee('Alt Alpha')->assertSee('Neu Alpha')->assertDontSee('Neu Beta');
-    $this->get(route('seminar-stats.index', ['leistung' => ['sv_coaching'], 'schule' => [$schoolA->id, $schoolB->id]]))->assertSee('Neu Alpha')->assertDontSee('Alt Alpha')->assertDontSee('Neu Beta');
+    $this->get(route('seminar-stats.index', ['leistung' => ['coaching'], 'schule' => [$schoolA->id, $schoolB->id]]))->assertSee('Neu Alpha')->assertDontSee('Alt Alpha')->assertDontSee('Neu Beta');
 });
 
 it('ignores a closure that was reopened', function () {
@@ -87,17 +87,17 @@ it('exports the statistics as csv with formula protection and a sum row', functi
     $response = $this->actingAs(ssUser())->get(route('seminar-stats.export'))->assertOk();
     $csv = $response->streamedContent();
 
-    expect($response->headers->get('content-type'))->toContain('text/csv')->and($csv)->toContain("'=HYPERLINK")->and($csv)->toContain('Normal')->and($csv)->toContain('Summe;2 Seminare');
+    expect($response->headers->get('content-type'))->toContain('text/csv')->and($csv)->toContain("'=HYPERLINK")->and($csv)->toContain('Normal')->and($csv)->toContain('Summe;"2 Seminare"');
 });
 
 it('keeps the statistics for those who may see seminars', function () {
     $this->get(route('seminar-stats.index'))->assertRedirect(route('login'));
 
-    foreach ([RoleKey::Team, RoleKey::School, RoleKey::Member, RoleKey::EducationCoordination, null] as $role) {
+    foreach ([RoleKey::Team, RoleKey::School, RoleKey::Member, null] as $role) {
         $this->actingAs(ssUser($role))->get(route('seminar-stats.index'))->assertForbidden();
     }
 
-    foreach ([RoleKey::Coordination, RoleKey::AdministrationStaff, RoleKey::BoardMember] as $role) {
+    foreach ([RoleKey::Coordination, RoleKey::AdministrationStaff, RoleKey::BoardMember, RoleKey::EducationCoordination] as $role) {
         $this->actingAs(ssUser($role))->get(route('seminar-stats.index'))->assertOk();
     }
 });

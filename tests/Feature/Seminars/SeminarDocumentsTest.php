@@ -291,7 +291,7 @@ it('builds the folder as a zip with every document, a content list with checksum
     }
     $content = $zip->getFromName(collect($names)->first(fn ($n) => str_ends_with($n, 'INHALT.txt')));
 
-    expect($names)->toHaveCount(5)->and(collect($names)->filter(fn ($n) => str_contains($n, '/invoice/'))->count())->toBe(2)
+    expect($names)->toHaveCount(7)->and(collect($names)->filter(fn ($n) => str_contains($n, '/invoice/'))->count())->toBe(2)
         ->and(collect($names)->contains(fn ($n) => str_ends_with($n, 'Abschluss-Schnappschuss.html')))->toBeTrue()
         ->and($content)->toContain(hash('sha256', Storage::disk('local')->get(SeminarDocument::query()->where('kind', 'participants')->value('path'))))->and($content)->toContain($seminar->title);
     $zip->close();
