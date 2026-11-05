@@ -44,6 +44,13 @@ class SsoServiceProvider extends ServiceProvider
         Passport::refreshTokensExpireIn(now()->addDays(30));
         Passport::personalAccessTokensExpireIn(now()->addMonths(6));
 
+        Passport::tokensCan(\App\Modules\Sso\Services\OidcClaims::SCOPES);
+        Passport::setDefaultScope(['openid']);
+        Passport::useClientModel(\App\Modules\Sso\Models\OAuthClient::class);
+        Passport::useAuthorizationServerResponseType(new \App\Modules\Sso\Support\IdTokenResponse);
+
+        $this->app['router']->pushMiddlewareToGroup('web', \App\Modules\Sso\Http\Middleware\GuardAuthorization::class);
+
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
 
         if ($this->app->runningInConsole()) {

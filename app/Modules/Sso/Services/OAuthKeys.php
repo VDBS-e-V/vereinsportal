@@ -39,6 +39,31 @@ final class OAuthKeys
         return ['exists' => true, 'fingerprint' => implode(':', str_split(substr($hash, 0, 24), 4)), 'created_at' => \Illuminate\Support\Carbon::createFromTimestamp((int) filemtime($this->publicPath()))];
     }
 
+    /** Kennung des öffentlichen Schlüssels (kid in JWKS und ID-Token). */
+    public function keyId(): ?string
+    {
+        return $this->exists() ? substr(hash('sha256', (string) file_get_contents($this->publicPath())), 0, 16) : null;
+    }
+
+    /** Öffentlicher Schlüssel als JWK (RS256) oder null, wenn keiner da ist. @return array<string, string>|null */
+    public function jwk(): ?array
+    {
+        if (! $this->exists()) {
+            return null;
+        }
+
+        $key = openssl_pkey_get_public((string) file_get_contents($this->publicPath()));
+        $details = $key ? openssl_pkey_get_details($key) : false;
+
+        if (! $details || ! isset($details['rsa']['n'], $details['rsa']['e'])) {
+            return null;
+        }
+
+        $b64 = static fn (string $bytes): string => rtrim(strtr(base64_encode($bytes), '+/', '-_'), '=');
+
+        return ['kty' => 'RSA', 'use' => 'sig', 'alg' => 'RS256', 'kid' => (string) $this->keyId(), 'n' => $b64($details['rsa']['n']), 'e' => $b64($details['rsa']['e'])];
+    }
+
     /** Erzeugt die Schlüssel, wenn sie fehlen. @return bool true, wenn neu erzeugt */
     public function ensure(): bool
     {
