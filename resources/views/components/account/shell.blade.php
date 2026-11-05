@@ -2,7 +2,7 @@
 
 {{--
     Rahmen der Konto-Seiten: Seitenkopf mit Brotkrumen. Die Seiten des Bereichs Konto (Profil, E-Mail, Passwort, Sicherheit, Sitzungen) stehen in Zeile 2 des Kopfbereichs.
-    current: profile | email | password | security | sessions
+    current: profile | email | password | security | sessions | apps
     Slots: Standard (Inhalt), meta (z. B. Badge neben dem Titel)
 --}}
 

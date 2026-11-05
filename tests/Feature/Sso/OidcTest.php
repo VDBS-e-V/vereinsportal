@@ -203,3 +203,24 @@ it('maps every role to a stable group name', function () {
         ->and(\App\Modules\Sso\Services\OidcClaims::GROUPS['coordination'])->toBe('vdbs-koordination')
         ->and(\App\Modules\Sso\Services\OidcClaims::GROUPS['board_member'])->toBe('vdbs-vorstand');
 });
+
+it('lists connected applications in the account and lets the person revoke one', function () {
+    $client = odClient();
+    $user = odUser();
+    $body = odFlow($this, $user, $client)['token']->json();
+
+    $this->actingAs($user)->get(route('account.apps'))->assertOk()->assertSee('Nextcloud');
+
+    $this->actingAs($user)->delete(route('account.apps.destroy', $client->getKey()))->assertRedirect(route('account.apps'));
+    app('auth')->forgetGuards();
+    $this->withHeader('Authorization', 'Bearer '.$body['access_token'])->getJson('/oauth/userinfo')->assertUnauthorized();
+    $this->actingAs($user)->get(route('account.apps'))->assertOk()->assertDontSee('Nextcloud');
+});
+
+it('shows only the own applications and schedules the token cleanup', function () {
+    $client = odClient();
+    odFlow($this, odUser(), $client);
+
+    $this->actingAs(odUser(null))->get(route('account.apps'))->assertOk()->assertDontSee('Nextcloud');
+    expect(file_get_contents(base_path('routes/console.php')))->toContain("Schedule::command('passport:purge')->daily()");
+});

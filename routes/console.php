@@ -32,6 +32,9 @@ Schedule::command('seminars:prune-applicants')->daily();
 Schedule::command('seminars:prune-documents')->daily();
 Schedule::command('feedback:prune')->daily();
 
+// Abgelaufene und widerrufene Tokens der Anbindungen (SSO) entfernen.
+Schedule::command('passport:purge')->daily();
+
 // Teamende mit offener Einarbeitung erinnern (nach 14 Tagen, dann alle 14 Tage, höchstens dreimal).
 Schedule::command('onboarding:remind-team')->daily();
 
