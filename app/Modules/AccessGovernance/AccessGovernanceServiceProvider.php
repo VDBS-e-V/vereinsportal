@@ -17,5 +17,9 @@ class AccessGovernanceServiceProvider extends ServiceProvider
         }
 
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([\App\Modules\AccessGovernance\Console\DemoUsers::class]);
+        }
     }
 }

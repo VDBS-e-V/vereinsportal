@@ -124,4 +124,16 @@ enum Capability: string
 
     /** Anbindungen (OAuth-Clients) für Nextcloud, Moodle und andere Systeme verwalten, Schlüssel erneuern (nur Administration). */
     case OauthManage = 'oauth.manage';
+
+    /** Anträge und Formulare der Geschäftsstelle einreichen (Mitarbeitende, Geschäftsführung, Kassenführung). */
+    case FormsSubmit = 'forms.submit';
+
+    /** Anträge prüfen, Ausnahmen, Export und Kostenstellen (Kassenführung). */
+    case FormsManage = 'forms.manage';
+
+    /** Anträge ab dem Schwellenwert freigeben (Geschäftsführung; nie den eigenen Antrag). */
+    case FormsApprove = 'forms.approve';
+
+    /** Den Bereich Mitarbeitende sehen. */
+    case EmployeeArea = 'employee.area';
 }

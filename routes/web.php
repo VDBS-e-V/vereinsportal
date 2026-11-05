@@ -33,6 +33,7 @@ Route::middleware(['web', 'auth'])->group(function (): void {
     Route::get('/vorstand/berichte', [ReportController::class, 'index'])->middleware('can:reports.view')->name('board.reports');
     Route::get('/vorstand/berichte/export', [ReportController::class, 'export'])->middleware('can:reports.view')->name('board.reports.export');
     Route::get('/teamende', [PortalAreaController::class, 'area'])->defaults('area', 'teamende')->name('team.home');
+    Route::get('/mitarbeitende', [PortalAreaController::class, 'employee'])->middleware('can:employee.area')->name('employee.home');
     Route::get('/koordination', [PortalAreaController::class, 'area'])->defaults('area', 'koordination')->name('coordination.home');
     Route::get('/geschaeftsstelle', [PortalAreaController::class, 'area'])->defaults('area', 'geschaeftsstelle')->name('office.home');
     Route::get('/admins', [PortalAreaController::class, 'area'])->defaults('area', 'admins')->name('admins.home');

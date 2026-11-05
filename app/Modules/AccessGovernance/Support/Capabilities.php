@@ -21,8 +21,14 @@ final class Capabilities
         'team' => [Capability::TeamOnboardingOwn, Capability::SeminarsApply],
         'member' => [Capability::MemberArea],
         'school' => [Capability::SchoolArea],
+        'employee' => [Capability::EmployeeArea, Capability::FormsSubmit],
+        'managing_director' => [Capability::EmployeeArea, Capability::FormsSubmit, Capability::FormsApprove],
+        'treasury' => [Capability::EmployeeArea, Capability::FormsSubmit, Capability::FormsManage],
         'education_coordination' => [Capability::EducationView, Capability::SeminarsView, Capability::EventsView],
     ];
+
+    /** Rollen, die nur der Vorstand vergeben und beenden darf. @var list<RoleKey> */
+    public const BOARD_ONLY = [RoleKey::ManagingDirector, RoleKey::Treasury];
 
     public static function has(User $user, Capability $capability): bool
     {
@@ -48,7 +54,7 @@ final class Capabilities
             ->all();
     }
 
-    /** Darf der Nutzer die Rolle vergeben? Administration vergibt nur Administration. */
+    /** Darf der Nutzer die Rolle vergeben? Administration vergibt nur Administration; Geschäftsführung und Kassenführung nur der Vorstand. */
     public static function canAssign(User $user, RoleKey $role): bool
     {
         if (! self::has($user, Capability::RolesAssign)) {
@@ -57,6 +63,11 @@ final class Capabilities
 
         if ($role === RoleKey::Administration) {
             return in_array(RoleKey::Administration->value, self::activeRoleKeys($user), true);
+        }
+
+        // Geschäftsführung und Kassenführung benennt und entzieht nur der Vorstand.
+        if (in_array($role, self::BOARD_ONLY, true)) {
+            return in_array(RoleKey::BoardMember->value, self::activeRoleKeys($user), true);
         }
 
         return true;

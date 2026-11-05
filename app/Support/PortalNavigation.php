@@ -105,6 +105,13 @@ final class PortalNavigation
                     ['description' => 'Ihre Schritte der Einarbeitung.', 'label' => 'Einarbeitung', 'route' => 'team-self.index', 'match' => 'team-self.*', 'can' => 'team.onboarding'],
                 ],
             ],
+            PortalAreas::Mitarbeitende->value => [
+                'home' => 'employee.home',
+                'roles' => [RoleKey::Employee, RoleKey::ManagingDirector, RoleKey::Treasury],
+                'pages' => [
+                    ['label' => 'Übersicht', 'route' => 'employee.home', 'match' => 'employee.home', 'can' => 'employee.area'],
+                ],
+            ],
             PortalAreas::Schulen->value => [
                 'home' => 'school.home',
                 'roles' => [RoleKey::School],

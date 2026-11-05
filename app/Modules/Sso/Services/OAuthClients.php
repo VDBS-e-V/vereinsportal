@@ -25,7 +25,7 @@ final class OAuthClients
     /** Rollen, die sich standardmäßig anmelden dürfen (Mitarbeitende, Koordination, Bildungsreferenten, Geschäftsstelle, Vorstand). @return list<string> */
     public static function defaultRoles(): array
     {
-        return [RoleKey::Administration->value, RoleKey::AdministrationStaff->value, RoleKey::Coordination->value, RoleKey::EducationCoordination->value, RoleKey::BoardMember->value];
+        return [RoleKey::Administration->value, RoleKey::AdministrationStaff->value, RoleKey::Coordination->value, RoleKey::EducationCoordination->value, RoleKey::BoardMember->value, RoleKey::Employee->value, RoleKey::ManagingDirector->value];
     }
 
     /** @return array<string, string> Rollenschlüssel => Bezeichnung */

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Modules\AccessGovernance\Enums\RoleKey;
+use App\Modules\AccessGovernance\Support\Capabilities;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\AccessRequests\Enums\AccessRequestStatus;
 use App\Modules\AccessRequests\Models\AccessRequest;
@@ -106,6 +107,18 @@ class PortalAreaController extends Controller
             'area' => $area,
             'pages' => $pages,
             'tasks' => array_values(array_filter(TaskOverview::for($user), fn (array $task): bool => in_array(strtok($task['href'], '?'), array_map(fn (string $href): string => strtok($href, '?'), $hrefs), true))),
+        ]);
+    }
+
+    /** Mitarbeitende: Hinweise, Anträge (folgen) und der Weg zu Nextcloud. */
+    public function employee(Request $request): View
+    {
+        $user = $request->user();
+
+        return view('portal.employee', [
+            'name' => $user->person?->fullName() ?: $user->email,
+            'roles' => collect(Capabilities::activeRoleKeys($user))->map(fn (string $key): ?string => RoleKey::tryFrom($key)?->label())->filter()->values()->all(),
+            'nextcloud' => (string) config('portal.systems.0.url'),
         ]);
     }
 

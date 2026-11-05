@@ -13,6 +13,9 @@ enum RoleKey: string
     case Coordination = 'coordination';
     case Administration = 'administration';
     case School = 'school';
+    case Employee = 'employee';
+    case ManagingDirector = 'managing_director';
+    case Treasury = 'treasury';
 
     public function label(): string
     {
@@ -26,6 +29,9 @@ enum RoleKey: string
             self::Coordination => 'Koordination',
             self::Administration => 'Administration',
             self::School => 'Schule',
+            self::Employee => 'Mitarbeitende',
+            self::ManagingDirector => 'Geschäftsführung',
+            self::Treasury => 'Kassenführung',
         };
     }
 }

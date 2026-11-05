@@ -34,6 +34,7 @@ bestimmt nur die Darstellung, er ersetzt keine Berechtigungsprüfung. Ein Bereic
 | Vorstand | Vorstandsmitglied | Mitgliedschaften |
 | Mitglieder | Vereinsmitglied | – |
 | Teamende | Teamende | – |
+| Mitarbeitende | Mitarbeitende, Geschäftsführung, Kassenführung | Übersicht (`employee.area`), Link zu Nextcloud |
 | Schulen | – | – |
 | Koordination | Koordination, Geschäftsstelle | Schulen |
 | Geschäftsstelle | Geschäftsstelle, Administration | Nutzer, Personen |

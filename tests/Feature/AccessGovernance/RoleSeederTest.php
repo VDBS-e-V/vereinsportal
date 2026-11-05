@@ -4,7 +4,7 @@ use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use Database\Seeders\RoleSeeder;
 
-it('seeds exactly the nine known system roles', function () {
+it('seeds exactly the twelve known system roles', function () {
     $this->seed(RoleSeeder::class);
 
     $keys = Role::query()->pluck('key')->sort()->values()->all();
@@ -15,12 +15,12 @@ it('seeds exactly the nine known system roles', function () {
         ->values()
         ->all());
 
-    expect(Role::query()->where('is_system', true)->count())->toBe(9);
+    expect(Role::query()->where('is_system', true)->count())->toBe(12);
 });
 
 it('is idempotent when run twice', function () {
     $this->seed(RoleSeeder::class);
     $this->seed(RoleSeeder::class);
 
-    expect(Role::query()->count())->toBe(9);
+    expect(Role::query()->count())->toBe(12);
 });

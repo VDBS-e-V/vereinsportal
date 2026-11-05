@@ -30,6 +30,9 @@ final class OidcClaims
         'team' => 'vdbs-teamende',
         'member' => 'vdbs-mitglieder',
         'school' => 'vdbs-schulen',
+        'employee' => 'vdbs-mitarbeitende',
+        'managing_director' => 'vdbs-geschaeftsfuehrung',
+        'treasury' => 'vdbs-kasse',
     ];
 
     /** Darf dieses Konto sich über das Portal bei anderen Systemen anmelden? */

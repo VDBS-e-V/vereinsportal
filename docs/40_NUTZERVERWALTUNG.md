@@ -11,7 +11,7 @@ enthält. Die Zuordnung steht an einer Stelle: `app/Modules/AccessGovernance/Sup
 |---|---|---|
 | `users.view` | Liste und Details ansehen | Administration, Geschäftsstelle, Vorstand |
 | `users.manage` | anlegen, einladen, sperren, Zwei-Faktor zurücksetzen, Passwort-Link senden | Administration, Geschäftsstelle, Vorstand |
-| `roles.assign` | Rollen vergeben und beenden | Administration, Geschäftsstelle, Vorstand; die Rolle **Administration** vergibt nur die Administration |
+| `roles.assign` | Rollen vergeben und beenden | Administration, Geschäftsstelle, Vorstand; die Rolle **Administration** vergibt nur die Administration; **Geschäftsführung** und **Kassenführung** vergibt und beendet nur der Vorstand |
 
 Die Berechtigungen sind als Gates registriert (`can:users.view` usw.), `AccessGovernanceServiceProvider`.
 
