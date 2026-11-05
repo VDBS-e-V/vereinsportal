@@ -172,7 +172,7 @@ it('shows applicants with a personal access in the review of the coordination an
 it('takes applicants with a personal access into the team suggestion', function () {
     $seminar = caSeminar(['application_deadline' => now()->subDay()->toDateString(), 'team_needed' => 1, 'team_competences' => ['moderation']]);
     $contact = TeamContact::query()->create(['email' => 'vorschlag@example.org']);
-    SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'contact_id' => $contact->id, 'status' => 'applied', 'guest_name' => 'Vera Vorschlag', 'guest_competences' => ['moderation']]);
+    SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'contact_id' => $contact->id, 'status' => 'applied', 'guest_name' => 'Vera Vorschlag', 'guest_competences' => ['moderation'], 'confirmed_at' => now()]);
 
     $suggestion = app(TeamApplications::class)->suggest($seminar->fresh('applications'));
 

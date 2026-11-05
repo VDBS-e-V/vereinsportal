@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class TeamContact extends Model
 {
-    protected $fillable = ['email', 'first_name', 'last_name', 'phone', 'street', 'house_number', 'postal_code', 'city', 'competences', 'profile_saved', 'import_batch_id', 'consent_confirmed_at', 'person_id'];
+    protected $fillable = ['email', 'origin', 'first_name', 'last_name', 'phone', 'street', 'house_number', 'postal_code', 'city', 'competences', 'profile_saved', 'import_batch_id', 'consent_confirmed_at', 'person_id'];
 
     protected function casts(): array
     {
