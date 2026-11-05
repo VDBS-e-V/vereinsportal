@@ -18,7 +18,7 @@
             </x-vdbs.forms.form-grid>
             <x-vdbs.forms.checkbox :id="'item-'.$i.'-round'" :name="'items['.$i.'][round_trip]'" label="Hin- und Rückfahrt (Strecke zählt doppelt)" :checked="(bool) old('items.'.$i.'.round_trip', $extra['round_trip'] ?? false)" />
             @if ($item && $item->files->isNotEmpty())
-                <p style="margin:var(--space-2) 0">Beleg: @foreach ($item->files as $file)<a href="{{ route('forms.file', [$application, $file]) }}">{{ $file->original_name }}</a>@if (! $loop->last), @endif @endforeach</p>
+                <p style="margin:var(--space-2) 0">Beleg: @foreach ($item->files as $file)<a href="{{ route($audience.'-forms.file', [$application, $file]) }}">{{ $file->original_name }}</a>@if (! $loop->last), @endif @endforeach</p>
             @endif
             <label for="file-{{ $i }}" style="display:block;font-weight:600">Beleg für Fahrkarte oder Parkgebühr</label>
             <input id="file-{{ $i }}" type="file" name="files[{{ $i }}]" accept="application/pdf,image/jpeg,image/png">

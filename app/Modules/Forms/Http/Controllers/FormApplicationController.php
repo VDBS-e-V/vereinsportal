@@ -25,11 +25,21 @@ class FormApplicationController extends Controller
 {
     public function __construct(private readonly FormApplications $applications) {}
 
+    /** Der Bereich (team, employee, member) ergibt sich aus dem Namen der Route, zum Beispiel team-forms.index. */
+    private function audience(Request $request): string
+    {
+        return explode('-forms.', (string) $request->route()?->getName())[0];
+    }
+
     public function index(Request $request): View
     {
+        $audience = $this->audience($request);
+
         return view('forms.index', [
-            'applications' => FormApplication::query()->where('applicant_user_id', $request->user()->id)->orderByDesc('id')->get(),
-            'types' => collect(FormTypes::enabled())->mapWithKeys(fn (string $type): array => [$type => FormTypes::TYPES[$type]])->all(),
+            'audience' => $audience,
+            'config' => FormTypes::audience($audience),
+            'applications' => FormApplication::query()->where('applicant_user_id', $request->user()->id)->where('data->audience', $audience)->orderByDesc('id')->get(),
+            'types' => collect(FormTypes::typesFor($audience))->mapWithKeys(fn (string $type): array => [$type => FormTypes::TYPES[$type]])->all(),
         ]);
     }
 
@@ -38,12 +48,12 @@ class FormApplicationController extends Controller
         $type = (string) $request->input('type', 'expense');
 
         try {
-            $application = $this->applications->create($request->user(), $type);
+            $application = $this->applications->create($request->user(), $type, $this->audience($request));
         } catch (DomainException $exception) {
             return back()->withErrors(['form' => $exception->getMessage()]);
         }
 
-        return redirect()->route('forms.edit', $application);
+        return redirect()->route($this->audience($request).'-forms.edit', $application);
     }
 
     public function edit(Request $request, FormApplication $application): View|RedirectResponse
@@ -51,14 +61,18 @@ class FormApplicationController extends Controller
         $this->own($request, $application);
 
         if (! $application->isEditable()) {
-            return redirect()->route('forms.show', $application);
+            return redirect()->route($this->audience($request).'-forms.show', $application);
         }
 
         $application->load(['items.files']);
         $rows = max(3, $application->items->count() + 1, (int) $request->query('rows', 0));
 
+        $audience = $this->audience($request);
+
         return view('forms.edit', [
             'application' => $application,
+            'audience' => $audience,
+            'config' => FormTypes::audience($audience),
             'rows' => min($rows, 30),
             'seminars' => Seminar::query()->orderByDesc('id')->limit(300)->get()->mapWithKeys(fn (Seminar $seminar): array => [$seminar->id => trim(($seminar->number ? $seminar->number.' ' : '').$seminar->title)])->all(),
             'costCenters' => CostCenter::query()->where('active', true)->orderBy('code')->get()->mapWithKeys(fn (CostCenter $center): array => [$center->code => $center->label()])->all(),
@@ -82,7 +96,7 @@ class FormApplicationController extends Controller
                 return back()->withErrors(['form' => $exception->getMessage()]);
             }
 
-            return redirect()->route('forms.index')->with('status', 'Der Entwurf wurde gelöscht.');
+            return redirect()->route($this->audience($request).'-forms.index')->with('status', 'Der Entwurf wurde gelöscht.');
         }
 
         $count = count((array) $request->input('items', []));
@@ -93,13 +107,13 @@ class FormApplicationController extends Controller
             if ($action === 'submit') {
                 $this->applications->submit($application->refresh(), $request->user());
 
-                return redirect()->route('forms.show', $application)->with('status', 'Ihr Antrag wurde eingereicht. Sie hören von der Geschäftsstelle.');
+                return redirect()->route($this->audience($request).'-forms.show', $application)->with('status', 'Ihr Antrag wurde eingereicht. Sie hören von der Geschäftsstelle.');
             }
         } catch (DomainException $exception) {
-            return redirect()->route('forms.edit', ['application' => $application, 'rows' => $count, 'check' => 1])->withInput($request->except('files'))->withErrors(['form' => $exception->getMessage()]);
+            return redirect()->route($this->audience($request).'-forms.edit', ['application' => $application, 'rows' => $count, 'check' => 1])->withInput($request->except('files'))->withErrors(['form' => $exception->getMessage()]);
         }
 
-        return redirect()->route('forms.edit', ['application' => $application, 'rows' => $action === 'add_row' ? $count + 1 : $count])->with('status', $action === 'add_row' ? null : 'Der Entwurf wurde gespeichert.');
+        return redirect()->route($this->audience($request).'-forms.edit', ['application' => $application, 'rows' => $action === 'add_row' ? $count + 1 : $count])->with('status', $action === 'add_row' ? null : 'Der Entwurf wurde gespeichert.');
     }
 
     public function show(Request $request, FormApplication $application): View
@@ -107,7 +121,7 @@ class FormApplicationController extends Controller
         $this->readable($request, $application);
         $application->load(['items.files', 'events', 'seminar']);
 
-        return view('forms.show', ['application' => $application, 'office' => false, 'iban' => null]);
+        return view('forms.show', ['application' => $application, 'office' => false, 'iban' => null, 'audience' => $this->audience($request)]);
     }
 
     public function file(Request $request, FormApplication $application, FormFile $file): StreamedResponse
@@ -120,12 +134,13 @@ class FormApplicationController extends Controller
 
     private function own(Request $request, FormApplication $application): void
     {
-        abort_unless($application->applicant_user_id === $request->user()->id, 404);
+        abort_unless($application->applicant_user_id === $request->user()->id && (((array) $application->data)['audience'] ?? 'employee') === $this->audience($request), 404);
     }
 
     private function readable(Request $request, FormApplication $application): void
     {
         $user = $request->user();
-        abort_unless($application->applicant_user_id === $user->id || Capabilities::has($user, Capability::FormsView), 404);
+        $own = $application->applicant_user_id === $user->id && (((array) $application->data)['audience'] ?? 'employee') === $this->audience($request);
+        abort_unless($own || Capabilities::has($user, Capability::FormsView), 404);
     }
 }

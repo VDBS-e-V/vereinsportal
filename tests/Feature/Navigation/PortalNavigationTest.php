@@ -124,10 +124,10 @@ it('knows no area for pages outside the portal areas', function () {
 it('shows areas by role and only when the user may see a page in them', function () {
     expect(pnAreaLabels(pnUser()))->toBe([])
         ->and(pnAreaLabels(pnUser(RoleKey::Member)))->toBe(['Mitglieder'])
-        ->and(pnAreaLabels(pnUser(RoleKey::AdministrationStaff)))->toBe(['Anträge', 'Koordination', 'Geschäftsstelle'])
+        ->and(pnAreaLabels(pnUser(RoleKey::AdministrationStaff)))->toBe(['Koordination', 'Geschäftsstelle'])
         ->and(pnAreaLabels(pnUser(RoleKey::Administration)))->toBe(['Geschäftsstelle', 'Admins'])
-        ->and(pnAreaLabels(pnUser(RoleKey::Coordination)))->toBe(['Anträge', 'Koordination'])
-        ->and(pnAreaLabels(pnUser(RoleKey::BoardMember)))->toBe(['Vorstand', 'Anträge', 'Koordination', 'Geschäftsstelle', 'Admins']);
+        ->and(pnAreaLabels(pnUser(RoleKey::Coordination)))->toBe(['Koordination'])
+        ->and(pnAreaLabels(pnUser(RoleKey::BoardMember)))->toBe(['Vorstand', 'Koordination', 'Geschäftsstelle', 'Admins']);
 });
 
 it('ignores roles that have ended', function () {
@@ -147,7 +147,7 @@ it('lists the pages of an area by capability and marks the current one', functio
     $staff = pnUser(RoleKey::AdministrationStaff);
     $admin = pnUser(RoleKey::Administration);
 
-    expect(array_column(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff), 'label'))->toBe(['Übersicht', 'Personen & Zugang', 'Inhalte', 'Preise & Angebote'])
+    expect(array_column(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff), 'label'))->toBe(['Übersicht', 'Personen & Zugang', 'Anträge', 'Inhalte', 'Preise & Angebote'])
         ->and(array_column(PortalNavigation::pages(PortalAreas::Admins, $staff), 'label'))->toBe(['Übersicht'])
         ->and(array_column(PortalNavigation::pages(PortalAreas::Admins, $admin), 'label'))->toBe(['Übersicht', 'Protokoll', 'System', 'Anbindungen', 'Design-Bibliothek'])
         ->and(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff, 'admin.people.show')[1]['children'][2]['current'])->toBeTrue()

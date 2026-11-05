@@ -34,19 +34,18 @@ it('returns 404 for unknown entries', function () {
         ->assertNotFound();
 });
 
-it('assigns group marks cyclically to the ten role areas', function () {
+it('assigns group marks cyclically to the nine role areas', function () {
     expect(PortalAreas::Start->groupMark())->toBeNull()
         ->and(PortalAreas::Konto->groupMark())->toBeNull()
         ->and(PortalAreas::Vorstand->groupMark())->toBe(1)
         ->and(PortalAreas::Mitglieder->groupMark())->toBe(2)
         ->and(PortalAreas::Teamende->groupMark())->toBe(3)
         ->and(PortalAreas::Mitarbeitende->groupMark())->toBe(4)
-        ->and(PortalAreas::Antraege->groupMark())->toBe(5)
-        ->and(PortalAreas::Schulen->groupMark())->toBe(6)
-        ->and(PortalAreas::Koordination->groupMark())->toBe(1)
-        ->and(PortalAreas::Geschaeftsstelle->groupMark())->toBe(2)
-        ->and(PortalAreas::Bildungsreferenten->groupMark())->toBe(3)
-        ->and(PortalAreas::Admins->groupMark())->toBe(4);
+        ->and(PortalAreas::Schulen->groupMark())->toBe(5)
+        ->and(PortalAreas::Koordination->groupMark())->toBe(6)
+        ->and(PortalAreas::Geschaeftsstelle->groupMark())->toBe(1)
+        ->and(PortalAreas::Bildungsreferenten->groupMark())->toBe(2)
+        ->and(PortalAreas::Admins->groupMark())->toBe(3);
 });
 
 it('renders the error pages with the new components', function () {

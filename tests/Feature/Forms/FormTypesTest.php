@@ -37,10 +37,10 @@ function ftPdf(string $name = 'beleg.pdf'): UploadedFile
     return UploadedFile::fake()->createWithContent($name, "%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF\n");
 }
 
-function ftTravel(User $user, array $trip, ?UploadedFile $file = null, array $over = []): FormApplication
+function ftTravel(User $user, array $trip, ?UploadedFile $file = null, array $over = [], string $audience = 'team'): FormApplication
 {
     $service = app(FormApplications::class);
-    $application = $service->create($user, 'travel');
+    $application = $service->create($user, 'travel', $audience);
 
     return $service->saveDraft($application, array_merge(['purpose' => 'Seminarfahrt', 'items' => [array_merge(['date' => now()->subDays(2)->toDateString(), 'mode' => 'car', 'from' => 'Berlin', 'to' => 'Potsdam'], $trip)], 'account_holder' => 'Max Muster', 'iban' => 'DE89 3704 0044 0532 0130 00', 'declaration' => '1'], $over), $file ? [0 => $file] : []);
 }
@@ -87,7 +87,7 @@ it('warns about very long trips without blocking them', function () {
     $long = ftTravel($user, ['km' => '700', 'round_trip' => '1']);
 
     expect($service->warnings($long))->not->toBe([])->and($service->problems($long))->toBe([]);
-    $this->actingAs($user)->get(route('forms.edit', $long))->assertOk()->assertSee('sehr viel');
+    $this->actingAs($user)->get(route('team-forms.edit', $long))->assertOk()->assertSee('sehr viel');
 });
 
 it('needs start, destination and kilometers for car trips', function () {
@@ -121,7 +121,7 @@ function ftPurchase(User $user, array $item = [], array $over = []): FormApplica
 {
     $service = app(FormApplications::class);
 
-    return $service->saveDraft($service->create($user, 'purchase'), array_merge(['purpose' => 'Moderationsmaterial', 'items' => [array_merge(['description' => 'Moderationskoffer', 'quantity' => '2', 'unit' => '159,00', 'supplier' => 'Shop'], $item)], 'delivery' => 'office', 'declaration' => '1'], $over));
+    return $service->saveDraft($service->create($user, 'purchase', 'employee'), array_merge(['purpose' => 'Moderationsmaterial', 'items' => [array_merge(['description' => 'Moderationskoffer', 'quantity' => '2', 'unit' => '159,00', 'supplier' => 'Shop'], $item)], 'delivery' => 'office', 'declaration' => '1'], $over));
 }
 
 it('calculates purchase positions as quantity times unit price and needs no bank details or receipts', function () {
@@ -199,7 +199,7 @@ it('exports booking lines per position and a summary per cost center', function 
     $service = app(FormApplications::class);
     \App\Modules\Forms\Models\CostCenter::query()->create(['code' => 'KS1', 'name' => 'Test', 'active' => true]);
 
-    $trip = ftTravel($user, ['km' => '100'], null, ['cost_center' => 'KS1']);
+    $trip = ftTravel($user, ['km' => '100'], null, ['cost_center' => 'KS1'], 'employee');
     $service->submit($trip, $user);
     $service->approve($trip, $staff);
     $other = ftTravel($user, ['km' => '10']);
@@ -265,15 +265,21 @@ it('schedules the cleanup daily and offers it in the system tasks', function () 
         ->and(app(\App\Modules\System\Services\SystemTasks::class)->find('antraege-aufraeumen')['command'])->toBe('forms:prune');
 });
 
-it('offers all three types when starting a new application', function () {
-    $user = ftUser();
+it('offers all three types to employees and lets them start each', function () {
+    $user = ftUser(RoleKey::Employee);
 
-    $this->actingAs($user)->get(route('forms.index'))->assertOk()->assertSee('Kostenrückerstattung')->assertSee('Fahrtkostenabrechnung')->assertSee('Materialbestellung');
-    $this->post(route('forms.store'), ['type' => 'travel'])->assertRedirect();
-    $this->post(route('forms.store'), ['type' => 'purchase'])->assertRedirect();
-    $this->post(route('forms.store'), ['type' => 'nonsense'])->assertSessionHasErrors('form');
+    $this->actingAs($user)->get(route('employee-forms.index'))->assertOk()->assertSee('Kostenrückerstattung')->assertSee('Fahrtkostenabrechnung')->assertSee('Materialbestellung');
+    $this->post(route('employee-forms.store'), ['type' => 'travel'])->assertRedirect();
+    $this->post(route('employee-forms.store'), ['type' => 'purchase'])->assertRedirect();
+    $this->post(route('employee-forms.store'), ['type' => 'nonsense'])->assertSessionHasErrors('form');
 
     foreach (FormApplication::query()->get() as $application) {
-        $this->get(route('forms.edit', $application))->assertOk();
+        $this->get(route('employee-forms.edit', $application))->assertOk();
     }
+});
+
+it('does not let team members or members start a purchase', function () {
+    $this->actingAs(ftUser(RoleKey::Team))->post(route('team-forms.store'), ['type' => 'purchase'])->assertSessionHasErrors('form');
+    $this->actingAs(ftUser(RoleKey::Member))->post(route('member-forms.store'), ['type' => 'purchase'])->assertSessionHasErrors('form');
+    expect(FormApplication::query()->count())->toBe(0);
 });

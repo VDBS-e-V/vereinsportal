@@ -81,22 +81,72 @@ it('checks IBANs by their checksum', function () {
         ->and(Iban::pretty('de89370400440532013000'))->toBe('DE89 3704 0044 0532 0130 00');
 });
 
-it('lets team members, coordination and the office submit but not members', function () {
-    foreach ([RoleKey::Team, RoleKey::Coordination, RoleKey::AdministrationStaff, RoleKey::Employee, RoleKey::BoardMember] as $role) {
-        $this->actingAs(ffUser($role))->get(route('forms.index'))->assertOk();
+it('offers the applications in the area of the role: team, employees, members', function () {
+    $this->actingAs(ffUser(RoleKey::Team))->get(route('team-forms.index'))->assertOk()->assertSee('Kostenrückerstattung')->assertSee('Fahrtkostenabrechnung')->assertDontSee('Materialbestellung');
+    $this->actingAs(ffUser(RoleKey::Member))->get(route('member-forms.index'))->assertOk()->assertSee('Kostenrückerstattung')->assertDontSee('Materialbestellung');
+
+    foreach ([RoleKey::Employee, RoleKey::ManagingDirector, RoleKey::Treasury] as $role) {
+        $this->actingAs(ffUser($role))->get(route('employee-forms.index'))->assertOk()->assertSee('Materialbestellung');
     }
 
-    $this->actingAs(ffUser(RoleKey::Member))->get(route('forms.index'))->assertForbidden();
-    $this->actingAs(ffUser(null))->get(route('forms.index'))->assertForbidden();
+    // Jede Rolle nur in ihrem Bereich.
+    $this->actingAs(ffUser(RoleKey::Team))->get(route('employee-forms.index'))->assertForbidden();
+    $this->actingAs(ffUser(RoleKey::Team))->get(route('member-forms.index'))->assertForbidden();
+    $this->actingAs(ffUser(RoleKey::Employee))->get(route('team-forms.index'))->assertForbidden();
+    $this->actingAs(ffUser(RoleKey::Member))->get(route('team-forms.index'))->assertForbidden();
+
+    foreach ([RoleKey::Coordination, RoleKey::AdministrationStaff, RoleKey::BoardMember, RoleKey::School, null] as $role) {
+        $this->actingAs(ffUser($role))->get(route('team-forms.index'))->assertForbidden();
+        $this->actingAs(ffUser($role))->get(route('employee-forms.index'))->assertForbidden();
+    }
+});
+
+it('keeps the applications of one area out of the other areas', function () {
+    $person = Person::factory()->create();
+    $user = User::factory()->create(['person_id' => $person->id, 'email' => $person->email]);
+
+    foreach ([RoleKey::Team, RoleKey::Member] as $role) {
+        RoleAssignment::query()->create(['user_id' => $user->id, 'role_id' => Role::query()->where('key', $role->value)->value('id'), 'source' => RoleAssignmentSource::Manual, 'starts_at' => now()->subMinute()]);
+    }
+
+    $team = app(FormApplications::class)->create($user, 'expense', 'team');
+    $member = app(FormApplications::class)->create($user, 'expense', 'member');
+
+    $this->actingAs($user)->get(route('team-forms.index'))->assertSee($team->number)->assertDontSee($member->number);
+    $this->get(route('member-forms.index'))->assertSee($member->number)->assertDontSee($team->number);
+    $this->get(route('member-forms.edit', $team))->assertNotFound();
+    $this->get(route('team-forms.edit', $member))->assertNotFound();
+    expect(fn () => app(FormApplications::class)->create($user, 'purchase', 'member'))->toThrow(DomainException::class);
+});
+
+it('adapts the form: no seminar and cost center for members, seminar for team, both for employees', function () {
+    $center = CostCenter::query()->create(['code' => 'KS9', 'name' => 'Test', 'active' => true]);
+    $service = app(FormApplications::class);
+
+    $team = $service->create(ffUser(RoleKey::Team), 'expense', 'team');
+    $member = $service->create(ffUser(RoleKey::Member), 'expense', 'member');
+    $employee = $service->create(ffUser(RoleKey::Employee), 'expense', 'employee');
+    $seminar = \App\Modules\Seminars\Models\Seminar::factory()->create();
+
+    foreach ([$team, $member, $employee] as $application) {
+        $service->saveDraft($application, ['seminar_id' => $seminar->id, 'cost_center' => 'KS9']);
+    }
+
+    expect($team->fresh()->seminar_id)->toBe($seminar->id)->and($team->fresh()->cost_center)->toBeNull()
+        ->and($member->fresh()->seminar_id)->toBeNull()->and($member->fresh()->cost_center)->toBeNull()
+        ->and($employee->fresh()->seminar_id)->toBe($seminar->id)->and($employee->fresh()->cost_center)->toBe('KS9');
+
+    $this->actingAs($member->applicant)->get(route('member-forms.edit', $member))->assertOk()->assertDontSee('Kostenstelle (freiwillig)')->assertDontSee('Seminar (freiwillig)');
+    $this->actingAs($employee->applicant)->get(route('employee-forms.edit', $employee))->assertOk()->assertSee('Kostenstelle (freiwillig)')->assertSee('Seminar (freiwillig)');
 });
 
 it('creates a draft, saves positions with the sum calculated on the server and keeps it private', function () {
     $user = ffUser();
 
-    $this->actingAs($user)->post(route('forms.store'), ['type' => 'expense'])->assertRedirect();
+    $this->actingAs($user)->post(route('team-forms.store'), ['type' => 'expense'])->assertRedirect();
     $application = FormApplication::query()->firstOrFail();
 
-    $this->put(route('forms.update', $application), [
+    $this->put(route('team-forms.update', $application), [
         'action' => 'save', 'purpose' => 'Material',
         'items' => [['date' => now()->subDay()->toDateString(), 'kind' => 'material', 'description' => 'A', 'amount' => '12,50'], ['date' => now()->subDay()->toDateString(), 'kind' => 'meals', 'description' => 'B', 'amount' => '7,5']],
         'files' => [0 => ffReceipt(), 1 => ffReceipt('zwei.pdf')],
@@ -105,18 +155,18 @@ it('creates a draft, saves positions with the sum calculated on the server and k
     $application->refresh();
     expect($application->total_cents)->toBe(2000)->and($application->items)->toHaveCount(2)->and($application->files)->toHaveCount(2);
 
-    $this->actingAs(ffUser())->get(route('forms.edit', $application))->assertNotFound();
-    $this->get(route('forms.show', $application))->assertNotFound();
-    $this->actingAs($user)->get(route('forms.edit', $application))->assertOk()->assertSee('Position 1')->assertSee('Weitere Position');
+    $this->actingAs(ffUser())->get(route('team-forms.edit', $application))->assertNotFound();
+    $this->get(route('team-forms.show', $application))->assertNotFound();
+    $this->actingAs($user)->get(route('team-forms.edit', $application))->assertOk()->assertSee('Position 1')->assertSee('Weitere Position');
 });
 
 it('refuses wrong formats when saving and files that are not receipts', function () {
     $user = ffUser();
     $application = app(FormApplications::class)->create($user, 'expense');
 
-    $this->actingAs($user)->put(route('forms.update', $application), ['action' => 'save', 'items' => [['date' => now()->toDateString(), 'description' => 'A', 'amount' => 'abc']]])->assertSessionHasErrors('form');
-    $this->put(route('forms.update', $application), ['action' => 'save', 'iban' => 'DE00 1234'])->assertSessionHasErrors('form');
-    $this->put(route('forms.update', $application), ['action' => 'save', 'items' => [['date' => now()->toDateString(), 'description' => 'A', 'amount' => '5']], 'files' => [0 => UploadedFile::fake()->create('virus.exe', 10)]])->assertSessionHasErrors('form');
+    $this->actingAs($user)->put(route('team-forms.update', $application), ['action' => 'save', 'items' => [['date' => now()->toDateString(), 'description' => 'A', 'amount' => 'abc']]])->assertSessionHasErrors('form');
+    $this->put(route('team-forms.update', $application), ['action' => 'save', 'iban' => 'DE00 1234'])->assertSessionHasErrors('form');
+    $this->put(route('team-forms.update', $application), ['action' => 'save', 'items' => [['date' => now()->toDateString(), 'description' => 'A', 'amount' => '5']], 'files' => [0 => UploadedFile::fake()->create('virus.exe', 10)]])->assertSessionHasErrors('form');
 
     expect($application->fresh()->files()->count())->toBe(0);
 });
@@ -234,7 +284,7 @@ it('returns an application with a note and lets the applicant correct and resubm
     $service->returnToApplicant($application, $staff, 'Beleg unleserlich');
     expect($application->fresh()->status)->toBe('returned');
 
-    $this->actingAs($user)->get(route('forms.edit', $application))->assertOk()->assertSee('Beleg unleserlich');
+    $this->actingAs($user)->get(route('team-forms.edit', $application))->assertOk()->assertSee('Beleg unleserlich');
     $service->submit($application->refresh(), $user);
     expect($application->fresh()->status)->toBe('submitted')->and($application->fresh()->events->pluck('type')->all())->toContain('returned', 'resubmitted');
 });
@@ -256,12 +306,12 @@ it('keeps amounts and the iban out of the log and the mails', function () {
     Mail::fake();
     $user = ffUser();
     $staff = ffUser(RoleKey::AdministrationStaff);
-    $application = ffSubmitted($user, 12345);
+    $application = ffSubmitted($user, 4545);
     app(FormApplications::class)->approve($application, $staff);
 
     $entry = AuditEntry::query()->where('event', 'form.status_changed')->latest('id')->firstOrFail();
-    expect(json_encode($entry->context))->toContain($application->number)->not->toContain('123')->not->toContain('DE89');
-    Mail::assertSent(FormStatusMail::class, fn ($mail) => ! str_contains($mail->text.$mail->mailSubject, '123,45') && ! str_contains($mail->text, 'DE89'));
+    expect(json_encode($entry->context))->toContain($application->number)->not->toContain('45')->not->toContain('DE89');
+    Mail::assertSent(FormStatusMail::class, fn ($mail) => ! str_contains($mail->text.$mail->mailSubject, '45,45') && ! str_contains($mail->text, 'DE89'));
 });
 
 it('shows the office only the applications that were submitted and the iban only to those who manage', function () {
@@ -315,9 +365,9 @@ it('manages cost centers and offers only active ones in the form', function () {
     $this->post(route('forms-office.cost-centers.store'), ['code' => 'SV-2027', 'name' => 'Doppelt'])->assertSessionHasErrors('code');
     $center = CostCenter::query()->firstOrFail();
 
-    $user = ffUser();
+    $user = ffUser(RoleKey::Employee);
     $application = app(FormApplications::class)->create($user, 'expense');
-    $this->actingAs($user)->get(route('forms.edit', $application))->assertSee('SV-2027');
+    $this->actingAs($user)->get(route('employee-forms.edit', $application))->assertSee('SV-2027');
     app(FormApplications::class)->saveDraft($application, ['cost_center' => 'SV-2027']);
     expect($application->fresh()->cost_center)->toBe('SV-2027');
 
@@ -343,9 +393,9 @@ it('delivers receipts only to the applicant and the office', function () {
     $application = ffSubmitted($user);
     $file = $application->files()->firstOrFail();
 
-    $this->actingAs($user)->get(route('forms.file', [$application, $file]))->assertOk();
+    $this->actingAs($user)->get(route('team-forms.file', [$application, $file]))->assertOk();
     $this->actingAs(ffUser(RoleKey::AdministrationStaff))->get(route('forms-office.file', [$application, $file]))->assertOk();
-    $this->actingAs(ffUser())->get(route('forms.file', [$application, $file]))->assertNotFound();
+    $this->actingAs(ffUser())->get(route('team-forms.file', [$application, $file]))->assertNotFound();
 });
 
 it('discards a draft with its receipts but nothing that was submitted', function () {
@@ -354,17 +404,19 @@ it('discards a draft with its receipts but nothing that was submitted', function
     $path = $draft->files()->firstOrFail()->path;
     Storage::disk('local')->assertExists($path);
 
-    $this->actingAs($user)->put(route('forms.update', $draft), ['action' => 'discard'])->assertRedirect(route('forms.index'));
+    $this->actingAs($user)->put(route('team-forms.update', $draft), ['action' => 'discard'])->assertRedirect(route('team-forms.index'));
     expect(FormApplication::query()->count())->toBe(0);
     Storage::disk('local')->assertMissing($path);
 
     $submitted = ffSubmitted($user);
-    $this->put(route('forms.update', $submitted), ['action' => 'discard'])->assertRedirect();
+    $this->put(route('team-forms.update', $submitted), ['action' => 'discard'])->assertRedirect();
     expect($submitted->fresh())->not->toBeNull();
 });
 
 it('lists the new areas in the navigation for the right roles', function () {
     $this->actingAs(ffUser(RoleKey::AdministrationStaff))->get(route('office.home'))->assertOk()->assertSee('Anträge');
-    $this->actingAs(ffUser(RoleKey::Team))->get(route('forms.index'))->assertOk()->assertSee('Meine Anträge');
+    $this->actingAs(ffUser(RoleKey::Team))->get(route('team-forms.index'))->assertOk()->assertSee('Meine Anträge');
+    $this->actingAs(ffUser(RoleKey::Employee))->get(route('employee.home'))->assertOk()->assertSee('Anträge');
+    $this->actingAs(ffUser(RoleKey::Member))->get(route('member.home'))->assertOk()->assertSee('Anträge');
     $this->actingAs(ffUser(RoleKey::ManagingDirector))->get(route('forms-office.index'))->assertOk();
 });

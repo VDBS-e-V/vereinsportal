@@ -1,6 +1,6 @@
-@php($crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Anträge']])
+@php($crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => $config['label']], ['label' => 'Anträge']])
 <x-layouts.app title="Meine Anträge" width="wide">
-    <x-vdbs.layout.page-header title="Meine Anträge" lead="Hier stellen Sie Anträge an die Geschäftsstelle und sehen, wie weit sie sind." :breadcrumb="$crumbs" />
+    <x-vdbs.layout.page-header title="Meine Anträge" :lead="$config['lead'].' Hier sehen Sie auch, wie weit Ihre Anträge sind.'" :breadcrumb="$crumbs" />
 
     @error('form') <x-vdbs.feedback.alert variant="error">{{ $message }}</x-vdbs.feedback.alert> @enderror
 
@@ -8,7 +8,7 @@
         <h2 id="new-heading" style="font-size:var(--font-size-h3)">Neuer Antrag</h2>
         <div style="display:flex;flex-wrap:wrap;gap:var(--space-4)">
             @foreach ($types as $key => $type)
-                <form method="post" action="{{ route('forms.store') }}">@csrf
+                <form method="post" action="{{ route($audience.'-forms.store') }}">@csrf
                     <input type="hidden" name="type" value="{{ $key }}">
                     <x-vdbs.actions.button type="submit" icon="plus">{{ $type['label'] }}</x-vdbs.actions.button>
                     <p class="vdbs-hint" style="max-width:22rem">{{ $type['hint'] }}</p>
@@ -25,7 +25,7 @@
             <x-vdbs.data.table caption="Meine Anträge" :columns="[['key' => 'number', 'label' => 'Nummer'], ['key' => 'type', 'label' => 'Art'], ['key' => 'purpose', 'label' => 'Zweck'], ['key' => 'total', 'label' => 'Summe'], ['key' => 'status', 'label' => 'Stand']]">
                 @foreach ($applications as $application)
                     <tr>
-                        <td style="white-space:nowrap"><a href="{{ $application->isEditable() ? route('forms.edit', $application) : route('forms.show', $application) }}">{{ $application->number }}</a></td>
+                        <td style="white-space:nowrap"><a href="{{ $application->isEditable() ? route($audience.'-forms.edit', $application) : route($audience.'-forms.show', $application) }}">{{ $application->number }}</a></td>
                         <td>{{ $application->typeLabel() }}</td>
                         <td>{{ $application->purpose ?: '–' }}</td>
                         <td style="white-space:nowrap">{{ $application->euro() }}</td>

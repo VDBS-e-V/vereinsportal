@@ -14,7 +14,7 @@
                 <x-vdbs.forms.input :id="'item-'.$i.'-link'" :name="'items['.$i.'][link]'" label="Link oder Artikelnummer" :optional="true" maxlength="300" :value="old('items.'.$i.'.link', $extra['link'] ?? null)" />
             </x-vdbs.forms.form-grid>
             @if ($item && $item->files->isNotEmpty())
-                <p style="margin:var(--space-2) 0">Angebot: @foreach ($item->files as $file)<a href="{{ route('forms.file', [$application, $file]) }}">{{ $file->original_name }}</a>@if (! $loop->last), @endif @endforeach</p>
+                <p style="margin:var(--space-2) 0">Angebot: @foreach ($item->files as $file)<a href="{{ route($audience.'-forms.file', [$application, $file]) }}">{{ $file->original_name }}</a>@if (! $loop->last), @endif @endforeach</p>
             @endif
             <label for="file-{{ $i }}" style="display:block;font-weight:600">Angebot anhängen (freiwillig)</label>
             <input id="file-{{ $i }}" type="file" name="files[{{ $i }}]" accept="application/pdf,image/jpeg,image/png">

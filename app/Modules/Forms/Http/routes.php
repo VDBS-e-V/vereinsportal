@@ -5,17 +5,20 @@ use App\Modules\Forms\Http\Controllers\FormOfficeController;
 use Illuminate\Support\Facades\Route;
 
 /*
- * Anträge: eigene Anträge unter /antraege (forms.submit), Bearbeitung unter /geschaeftsstelle/antraege (forms.view; Aktionen prüft der Dienst nach forms.manage/forms.approve).
+ * Anträge: eigene Anträge in den Bereichen Teamende, Mitarbeitende und Mitglieder, Bearbeitung unter /geschaeftsstelle/antraege (forms.view; Aktionen prüft der Dienst nach forms.manage/forms.approve).
  */
 Route::middleware(['web', 'auth'])->group(function (): void {
-    Route::prefix('antraege')->name('forms.')->middleware('can:forms.submit')->group(function (): void {
-        Route::get('/', [FormApplicationController::class, 'index'])->name('index');
-        Route::post('/', [FormApplicationController::class, 'store'])->middleware('throttle:30,10')->name('store');
-        Route::get('/{application}/bearbeiten', [FormApplicationController::class, 'edit'])->whereNumber('application')->name('edit');
-        Route::put('/{application}', [FormApplicationController::class, 'update'])->whereNumber('application')->middleware('throttle:60,10')->name('update');
-        Route::get('/{application}', [FormApplicationController::class, 'show'])->whereNumber('application')->name('show');
-        Route::get('/{application}/belege/{file}', [FormApplicationController::class, 'file'])->whereNumber(['application', 'file'])->name('file');
-    });
+    // Eigene Anträge: je Bereich eigene Seiten und passende Formulare (Teamende, Mitarbeitende, Mitglieder).
+    foreach (['team' => ['teamende/antraege', 'forms.submit_team'], 'employee' => ['mitarbeitende/antraege', 'forms.submit'], 'member' => ['mitglieder/antraege', 'forms.submit_member']] as $audience => [$path, $can]) {
+        Route::prefix($path)->name($audience.'-forms.')->middleware('can:'.$can)->group(function (): void {
+            Route::get('/', [FormApplicationController::class, 'index'])->name('index');
+            Route::post('/', [FormApplicationController::class, 'store'])->middleware('throttle:30,10')->name('store');
+            Route::get('/{application}/bearbeiten', [FormApplicationController::class, 'edit'])->whereNumber('application')->name('edit');
+            Route::put('/{application}', [FormApplicationController::class, 'update'])->whereNumber('application')->middleware('throttle:60,10')->name('update');
+            Route::get('/{application}', [FormApplicationController::class, 'show'])->whereNumber('application')->name('show');
+            Route::get('/{application}/belege/{file}', [FormApplicationController::class, 'file'])->whereNumber(['application', 'file'])->name('file');
+        });
+    }
 
     Route::prefix('geschaeftsstelle/antraege')->name('forms-office.')->middleware('can:forms.view')->group(function (): void {
         Route::get('/', [FormOfficeController::class, 'index'])->name('index');

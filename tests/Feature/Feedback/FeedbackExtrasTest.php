@@ -117,7 +117,7 @@ it('puts the figures into the closure only after the feedback was anonymized', f
 
     app(FeedbackEvaluation::class)->anonymize($link, $admin);
 
-    expect($closure->fresh()->snapshot['feedback'])->toBe(['students' => ['count' => 6, 'avg' => 4.0]])
+    expect($closure->fresh()->snapshot['feedback'])->toEqual(['students' => ['count' => 6, 'avg' => 4]])
         ->and(app(SeminarClosures::class)->snapshot($seminar)['feedback']['students']['count'])->toBe(6);
 });
 

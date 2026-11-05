@@ -92,6 +92,7 @@ final class PortalNavigation
                 'pages' => [
                     ['label' => 'Übersicht', 'route' => 'member.home', 'match' => 'member.home', 'can' => 'member.area'],
                     ['description' => 'Status, Beitritt und Austritt Ihrer Mitgliedschaft.', 'label' => 'Mitgliedschaft', 'route' => 'member.membership', 'match' => 'member.membership', 'can' => 'member.area'],
+                    ['description' => 'Auslagen und Fahrtkosten für Ihr Engagement erstatten lassen.', 'label' => 'Anträge', 'route' => 'member-forms.index', 'match' => 'member-forms.*', 'can' => 'forms.submit_member'],
                 ],
             ],
             PortalAreas::Teamende->value => [
@@ -103,6 +104,7 @@ final class PortalNavigation
                     ['description' => 'Seminare mit Stichtag, Ihr Interesse und Ihr Team.', 'label' => 'Seminare', 'route' => 'seminar-applications.index', 'match' => 'seminar-applications.*', 'can' => 'seminars.apply'],
                     ['description' => 'Ihre Angaben für die Teamzusammenstellung.', 'label' => 'Profil', 'route' => 'team-profile.edit', 'match' => 'team-profile.*', 'can' => 'seminars.apply'],
                     ['description' => 'Ihre Schritte der Einarbeitung.', 'label' => 'Einarbeitung', 'route' => 'team-self.index', 'match' => 'team-self.*', 'can' => 'team.onboarding'],
+                    ['description' => 'Auslagen und Fahrtkosten zu Ihren Seminaren erstatten lassen.', 'label' => 'Anträge', 'route' => 'team-forms.index', 'match' => 'team-forms.*', 'can' => 'forms.submit_team'],
                 ],
             ],
             PortalAreas::Mitarbeitende->value => [
@@ -110,14 +112,7 @@ final class PortalNavigation
                 'roles' => [RoleKey::Employee, RoleKey::ManagingDirector, RoleKey::Treasury],
                 'pages' => [
                     ['label' => 'Übersicht', 'route' => 'employee.home', 'match' => 'employee.home', 'can' => 'employee.area'],
-                ],
-            ],
-            PortalAreas::Antraege->value => [
-                'home' => 'forms.index',
-                'roles' => [RoleKey::Team, RoleKey::Coordination, RoleKey::EducationCoordination, RoleKey::AdministrationStaff, RoleKey::Employee, RoleKey::ManagingDirector, RoleKey::Treasury],
-                'routes' => ['forms.*'],
-                'pages' => [
-                    ['description' => 'Kostenrückerstattung und weitere Anträge an die Geschäftsstelle.', 'label' => 'Meine Anträge', 'route' => 'forms.index', 'match' => 'forms.*', 'can' => 'forms.submit'],
+                    ['description' => 'Kostenrückerstattung, Fahrtkosten und Bestellungen.', 'label' => 'Anträge', 'route' => 'employee-forms.index', 'match' => 'employee-forms.*', 'can' => 'forms.submit'],
                 ],
             ],
             PortalAreas::Schulen->value => [

@@ -38,10 +38,12 @@ final class FormApplications
         private readonly FormSettings $settings,
     ) {}
 
-    public function create(User $user, string $type): FormApplication
+    public function create(User $user, string $type, ?string $audience = null): FormApplication
     {
-        if (! in_array($type, FormTypes::enabled(), true)) {
-            throw new DomainException('Diese Art von Antrag gibt es noch nicht.');
+        $audience ??= FormTypes::audienceForRoles(Capabilities::activeRoleKeys($user));
+
+        if (! in_array($type, FormTypes::typesFor($audience), true)) {
+            throw new DomainException('Diese Art von Antrag gibt es hier nicht.');
         }
 
         $user->loadMissing('person');
@@ -53,7 +55,7 @@ final class FormApplications
             'applicant_name' => $user->person?->fullName() ?: (string) $user->email,
             'applicant_email' => $user->email,
             'status' => 'draft',
-            'data' => [],
+            'data' => ['audience' => $audience],
         ]);
 
         $this->event($application, 'created', $user);
@@ -77,13 +79,14 @@ final class FormApplications
             throw new DomainException('Dieser Antrag lässt sich nicht mehr ändern.');
         }
 
-        $seminarId = filled($input['seminar_id'] ?? null) ? (int) $input['seminar_id'] : null;
+        $config = FormTypes::audience((string) (((array) $application->data)['audience'] ?? 'employee'));
+        $seminarId = $config['seminar'] && filled($input['seminar_id'] ?? null) ? (int) $input['seminar_id'] : null;
 
         if ($seminarId !== null && ! Seminar::query()->whereKey($seminarId)->exists()) {
             throw new DomainException('Das gewählte Seminar gibt es nicht.');
         }
 
-        $costCenter = filled($input['cost_center'] ?? null) ? (string) $input['cost_center'] : null;
+        $costCenter = $config['cost_center'] && filled($input['cost_center'] ?? null) ? (string) $input['cost_center'] : null;
 
         if ($costCenter !== null && ! CostCenter::query()->where('code', $costCenter)->where('active', true)->exists()) {
             throw new DomainException('Die gewählte Kostenstelle gibt es nicht.');
@@ -129,7 +132,8 @@ final class FormApplications
             $data['declaration'] = ! empty($input['declaration']);
 
             if ($application->type === 'purchase') {
-                $data['urgency'] = in_array(($input['urgency'] ?? 'normal'), ['normal', 'urgent'], true) ? $input['urgency'] : 'normal';
+                $urgency = (string) ($input['urgency'] ?? 'normal');
+                $data['urgency'] = in_array($urgency, ['normal', 'urgent'], true) ? $urgency : 'normal';
                 $data['wanted_date'] = filled($input['wanted_date'] ?? null) ? $this->safeDate((string) $input['wanted_date']) : null;
                 $data['delivery'] = ($input['delivery'] ?? 'office') === 'other' ? 'other' : 'office';
                 $data['delivery_address'] = Str::limit(trim((string) ($input['delivery_address'] ?? '')), 300, '');

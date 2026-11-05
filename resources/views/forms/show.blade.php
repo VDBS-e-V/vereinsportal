@@ -1,8 +1,8 @@
 @php
     $crumbs = $office
         ? [['label' => 'Start', 'href' => route('home')], ['label' => 'Geschäftsstelle'], ['label' => 'Anträge', 'href' => route('forms-office.index')], ['label' => $application->number]]
-        : [['label' => 'Start', 'href' => route('home')], ['label' => 'Anträge', 'href' => route('forms.index')], ['label' => $application->number]];
-    $fileRoute = $office ? 'forms-office.file' : 'forms.file';
+        : [['label' => 'Start', 'href' => route('home')], ['label' => \App\Modules\Forms\Support\FormTypes::audience($audience)['label']], ['label' => 'Anträge', 'href' => route($audience.'-forms.index')], ['label' => $application->number]];
+    $fileRoute = $office ? 'forms-office.file' : $audience.'-forms.file';
 @endphp
 <x-layouts.app :title="$application->typeLabel().' '.$application->number" width="wide">
     <x-vdbs.layout.page-header :title="$application->typeLabel().' '.$application->number" :lead="$application->purpose" :breadcrumb="$crumbs" />

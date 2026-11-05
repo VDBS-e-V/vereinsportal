@@ -139,4 +139,10 @@ enum Capability: string
 
     /** Anträge in der Geschäftsstelle ansehen (Geschäftsstelle, Vorstand, Geschäftsführung, Kassenführung). */
     case FormsView = 'forms.view';
+
+    /** Anträge als Teamende stellen (Bereich Teamende). */
+    case FormsSubmitTeam = 'forms.submit_team';
+
+    /** Anträge als Vereinsmitglied stellen (Bereich Mitglieder). */
+    case FormsSubmitMember = 'forms.submit_member';
 }

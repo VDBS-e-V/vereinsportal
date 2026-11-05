@@ -12,7 +12,7 @@
                         <x-vdbs.forms.input :id="'item-'.$i.'-amount'" :name="'items['.$i.'][amount]'" label="Betrag in Euro" :optional="true" inputmode="decimal" :value="old('items.'.$i.'.amount', $item ? \App\Modules\Seminars\Support\Money::toInput($item->amount_cents) : null)" hint="z. B. 12,50" />
                     </x-vdbs.forms.form-grid>
                     @if ($item && $item->files->isNotEmpty())
-                        <p style="margin:var(--space-2) 0">Beleg: @foreach ($item->files as $file)<a href="{{ route('forms.file', [$application, $file]) }}">{{ $file->original_name }}</a>@if (! $loop->last), @endif @endforeach</p>
+                        <p style="margin:var(--space-2) 0">Beleg: @foreach ($item->files as $file)<a href="{{ route($audience.'-forms.file', [$application, $file]) }}">{{ $file->original_name }}</a>@if (! $loop->last), @endif @endforeach</p>
                     @endif
                     <label for="file-{{ $i }}" style="display:block;font-weight:600">{{ $item && $item->files->isNotEmpty() ? 'Weiteren Beleg hinzufügen' : 'Beleg hochladen' }}</label>
                     <input id="file-{{ $i }}" type="file" name="files[{{ $i }}]" accept="application/pdf,image/jpeg,image/png">

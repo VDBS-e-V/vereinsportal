@@ -1,10 +1,21 @@
 # Anträge (Paket G, Teil 1: Ablauf und Kostenrückerstattung)
 
-## Wer was darf
+## Wo Anträge gestellt werden
+Anträge sind kein eigener Bereich, sondern eine Seite „Anträge“ in dem Bereich, zu dem die Person gehört. Jeder Bereich hat angepasste Formulare:
+
+| Bereich | Wer | Formulare | Besonderheiten |
+|---|---|---|---|
+| **Teamende** | Rolle Teamende (`forms.submit_team`) | Kostenrückerstattung, Fahrtkostenabrechnung | Seminar wählbar, keine Kostenstelle |
+| **Mitarbeitende** | Mitarbeitende, Geschäftsführung, Kassenführung (`forms.submit`) | Kostenrückerstattung, Fahrtkostenabrechnung, Materialbestellung | Seminar und Kostenstelle wählbar |
+| **Mitglieder** | Vereinsmitglieder (`forms.submit_member`) | Kostenrückerstattung, Fahrtkostenabrechnung | ohne Seminar und Kostenstelle |
+
+Jeder Antrag merkt sich seinen Bereich; ein Antrag aus Teamende erscheint nicht unter Mitglieder. Wer mehrere Rollen hat (zum Beispiel Teamende und Mitglied), findet in jedem Bereich seine Anträge. Koordination, Bildungsreferenten, Geschäftsstelle und Vorstand haben keine eigene Antragsseite; wer Auslagen abrechnen will, braucht die Rolle Mitarbeitende oder Mitglied.
+
+Bearbeitung in der **Geschäftsstelle › Anträge**:
+
 | Recht | Rollen | Bedeutung |
 |---|---|---|
-| `forms.submit` | Teamende, Koordination, Bildungsreferenten, Geschäftsstelle, Vorstand, Mitarbeitende, Geschäftsführung, Kassenführung | eigene Anträge stellen (Bereich **Anträge**) |
-| `forms.view` | Geschäftsstelle, Vorstand, Geschäftsführung, Kassenführung | Eingang und Prüfseite sehen (Geschäftsstelle › Anträge) |
+| `forms.view` | Geschäftsstelle, Vorstand, Geschäftsführung, Kassenführung | Eingang und Prüfseite sehen |
 | `forms.manage` | Geschäftsstelle, Vorstand, Kassenführung | prüfen, Rückfrage, Ausnahme Belegfrist, Auszahlung vermerken, Sammelliste, Kostenstellen, Einstellungen |
 | `forms.approve` | Vorstand, Geschäftsführung | Freigabe über der Grenze |
 

@@ -21,6 +21,12 @@ Tipp: Zwei Browserprofile (oder ein privates Fenster) nutzen, um gleichzeitig al
 3. Als `employee@demo.test`: oben erscheint der Bereich **Mitarbeitende** mit Übersicht und (wenn `PORTAL_NEXTCLOUD_URL` gesetzt ist) dem Nextcloud-Link.
 4. Als `managing-director@demo.test`: Bereich Mitarbeitende sichtbar; bei `TWO_FACTOR_REQUIRED=true` Weiterleitung zur Zwei-Faktor-Einrichtung.
 
+## 2a Anträge ausprobieren
+- `team@demo.test` › Bereich Teamende › **Anträge**: Kostenrückerstattung oder Fahrtkosten.
+- `member@demo.test` › Bereich Mitglieder › **Anträge**: ohne Seminar und Kostenstelle.
+- `employee@demo.test` › Bereich Mitarbeitende › **Anträge**: auch Materialbestellung.
+- `administration-staff@demo.test` › Geschäftsstelle › **Anträge**: prüfen und freigeben (bis 50 €); darüber `managing-director@demo.test` oder `board-member@demo.test`.
+
 ## 3 Anmeldung bei anderen Systemen (Paket F) lokal prüfen
 Ohne eigene Nextcloud geht das mit dem Browser:
 1. Admins › Anbindungen › Schlüssel erzeugen, dann „Neue Anbindung“: Name „Test“, Umleitungsadresse `https://oidcdebugger.com/debug`, Zustimmungsseite **an**, Rollen z. B. Koordination. Client-ID notieren.
