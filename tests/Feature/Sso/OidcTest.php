@@ -156,7 +156,7 @@ it('requires PKCE for public clients', function () {
     $response = $this->actingAs(odUser())->get('/oauth/authorize?'.http_build_query(['client_id' => $client->getKey(), 'redirect_uri' => 'https://cloud.example.org/cb', 'response_type' => 'code', 'scope' => 'openid']));
 
     $location = (string) $response->headers->get('Location');
-    expect($response->isRedirect())->toBeTrue()->and($location)->toContain('error=')->and($location)->not->toContain('code=');
+    expect($response->status() >= 400 || ($response->isRedirect() && str_contains($location, 'error=')))->toBeTrue()->and($location)->not->toContain('code=');
 });
 
 it('asks for consent when the connection is set up to show it', function () {

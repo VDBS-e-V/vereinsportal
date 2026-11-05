@@ -46,6 +46,7 @@ class SsoServiceProvider extends ServiceProvider
 
         Passport::tokensCan(\App\Modules\Sso\Services\OidcClaims::SCOPES);
         Passport::setDefaultScope(['openid']);
+        Passport::authorizationView('sso.authorize');
         Passport::useClientModel(\App\Modules\Sso\Models\OAuthClient::class);
         Passport::useAuthorizationServerResponseType(new \App\Modules\Sso\Support\IdTokenResponse);
 

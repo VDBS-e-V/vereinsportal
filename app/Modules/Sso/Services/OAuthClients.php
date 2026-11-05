@@ -114,6 +114,7 @@ final class OAuthClients
         DB::transaction(function () use ($client, $id): void {
             $this->revokeTokens($client);
             $this->clients->delete($client);
+            $client->delete();
             OAuthClientSetting::query()->where('client_id', $id)->delete();
         });
 
