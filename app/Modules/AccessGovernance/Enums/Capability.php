@@ -121,4 +121,7 @@ enum Capability: string
 
     /** Protokoll ansehen und exportieren. */
     case AuditView = 'audit.view';
+
+    /** Anbindungen (OAuth-Clients) für Nextcloud, Moodle und andere Systeme verwalten, Schlüssel erneuern (nur Administration). */
+    case OauthManage = 'oauth.manage';
 }

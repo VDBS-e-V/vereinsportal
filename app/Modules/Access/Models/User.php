@@ -35,6 +35,15 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
+    protected static function booted(): void
+    {
+        static::creating(function (self $user): void {
+            if (blank($user->public_uuid)) {
+                $user->public_uuid = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
+
     protected $fillable = [
         'person_id',
         'email',

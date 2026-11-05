@@ -76,6 +76,7 @@ class PortalUpdateCommand extends Command
         }
 
         $this->callSilently('seminars:number-existing');
+        $this->callSilently('sso:ensure-keys');
 
         $this->components->info('5/5 Zwischenspeicher leeren und Wartungsmodus beenden');
         $this->callSilently('optimize:clear');

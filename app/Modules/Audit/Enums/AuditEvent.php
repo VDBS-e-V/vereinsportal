@@ -95,6 +95,11 @@ enum AuditEvent: string
     case FeedbackLinkClosed = 'feedback.link_closed';
     case FeedbackLinkAnonymized = 'feedback.link_anonymized';
 
+    case OauthClientCreated = 'oauth.client_created';
+    case OauthClientChanged = 'oauth.client_changed';
+    case OauthClientDeleted = 'oauth.client_deleted';
+    case OauthKeysRenewed = 'oauth.keys_renewed';
+
     public function label(): string
     {
         return match ($this) {
@@ -171,6 +176,10 @@ enum AuditEvent: string
             self::FeedbackLinkCreated => 'Feedbacklink angelegt',
             self::FeedbackLinkClosed => 'Feedbacklink beendet',
             self::FeedbackLinkAnonymized => 'Feedbacklink anonymisiert',
+            self::OauthClientCreated => 'Anbindung angelegt',
+            self::OauthClientChanged => 'Anbindung geändert',
+            self::OauthClientDeleted => 'Anbindung gelöscht',
+            self::OauthKeysRenewed => 'Anmeldeschlüssel erneuert',
         };
     }
 
@@ -195,6 +204,7 @@ enum AuditEvent: string
             self::MailingSent, self::MailSuppressionChanged, self::MailingWorkflow => 'mailings',
             self::ContactsImported => 'contacts',
             self::FeedbackFormSaved, self::FeedbackLinkCreated, self::FeedbackLinkClosed, self::FeedbackLinkAnonymized => 'feedback',
+            self::OauthClientCreated, self::OauthClientChanged, self::OauthClientDeleted, self::OauthKeysRenewed => 'sso',
         };
     }
 
@@ -220,6 +230,7 @@ enum AuditEvent: string
             'mailings' => 'Schreiben',
             'contacts' => 'Teamkontakte',
             'feedback' => 'Feedback',
+            'sso' => 'Anbindungen',
         ];
     }
 
@@ -227,7 +238,7 @@ enum AuditEvent: string
     public function tone(): string
     {
         return match ($this) {
-            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::EventDeleted => 'error',
+            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::EventDeleted, self::OauthClientDeleted => 'error',
             self::SystemTaskRun, self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
             self::Login, self::UserEnabled, self::TwoFactorEnabled, self::TeamOnboardingCompleted => 'success',
             default => 'neutral',

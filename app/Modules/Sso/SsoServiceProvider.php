@@ -43,5 +43,11 @@ class SsoServiceProvider extends ServiceProvider
         Passport::tokensExpireIn(now()->addHour());
         Passport::refreshTokensExpireIn(now()->addDays(30));
         Passport::personalAccessTokensExpireIn(now()->addMonths(6));
+
+        $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([\App\Modules\Sso\Console\EnsureOAuthKeys::class]);
+        }
     }
 }

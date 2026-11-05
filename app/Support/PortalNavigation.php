@@ -174,6 +174,7 @@ final class PortalNavigation
                         ['description' => 'Fehlgeschlagene Aufträge erneut versuchen oder verwerfen.', 'label' => 'Warteschlange', 'route' => 'system.queue', 'match' => 'system.queue*', 'can' => 'system.manage'],
                         ['description' => 'Fristen, E-Mail und Betrieb zum Nachlesen, Testmail senden.', 'label' => 'Einstellungen', 'route' => 'system.settings', 'match' => 'system.settings*', 'can' => 'system.manage'],
                     ]],
+                    ['description' => 'Nextcloud, Moodle und andere Systeme, die sich über das Portal anmelden.', 'label' => 'Anbindungen', 'route' => 'admin.oauth.index', 'match' => 'admin.oauth.*', 'can' => 'oauth.manage'],
                     ['description' => 'Komponenten und Muster des Designsystems.', 'label' => 'Design-Bibliothek', 'route' => 'design-library.index', 'match' => 'design-library.*', 'can' => 'design.view'],
                 ],
             ],
