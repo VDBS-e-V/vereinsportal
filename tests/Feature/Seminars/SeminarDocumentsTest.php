@@ -174,8 +174,11 @@ it('deletes several documents at once and removes their files', function () {
 
 it('shows the documents on the seminar page only to those who may see them', function () {
     $seminar = sdSeminar();
+    $this->actingAs(sdUser());
+    $this->get(route('seminars.show', $seminar))->assertOk()->assertSee('Keine Fotos von Teilnehmenden')->assertSee('Noch keine Dokumente abgelegt')->assertDontSee('data-vdbs-select-all="documents-form"', false);
 
-    $this->actingAs(sdUser())->get(route('seminars.show', $seminar))->assertOk()->assertSee('Keine Fotos von Teilnehmenden')->assertSee('data-vdbs-select-all="documents-form"', false);
+    sdUpload($this, $seminar, [sdPdf()]);
+    $this->get(route('seminars.show', $seminar))->assertOk()->assertSee('data-vdbs-select-all="documents-form"', false);
     $this->actingAs(sdUser(RoleKey::EducationCoordination))->get(route('seminars.show', $seminar))->assertOk()->assertDontSee('Keine Fotos von Teilnehmenden');
 });
 
