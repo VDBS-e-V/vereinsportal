@@ -104,6 +104,10 @@ enum AuditEvent: string
     case FormExported = 'form.exported';
     case FormSettingsChanged = 'form.settings_changed';
     case MailSegmentSaved = 'mailing.segment_saved';
+    case ContractsCreated = 'contract.created';
+    case ContractSigned = 'contract.signed';
+    case ContractSettingsChanged = 'contract.settings_changed';
+    case ContractTemplateSaved = 'contract.template_saved';
 
     public function label(): string
     {
@@ -189,6 +193,10 @@ enum AuditEvent: string
             self::FormExported => 'Sammelliste der Anträge erstellt',
             self::FormSettingsChanged => 'Einstellungen der Anträge geändert',
             self::MailSegmentSaved => 'Verteiler geändert',
+            self::ContractsCreated => 'Verträge erzeugt',
+            self::ContractSigned => 'Vertrag unterschrieben',
+            self::ContractSettingsChanged => 'Vereinsdaten für Verträge geändert',
+            self::ContractTemplateSaved => 'Vertragstext geändert',
         };
     }
 
@@ -215,6 +223,7 @@ enum AuditEvent: string
             self::FeedbackFormSaved, self::FeedbackLinkCreated, self::FeedbackLinkClosed, self::FeedbackLinkAnonymized => 'feedback',
             self::OauthClientCreated, self::OauthClientChanged, self::OauthClientDeleted, self::OauthKeysRenewed => 'sso',
             self::FormStatusChanged, self::FormExported, self::FormSettingsChanged => 'forms',
+            self::ContractsCreated, self::ContractSigned, self::ContractSettingsChanged, self::ContractTemplateSaved => 'contracts',
         };
     }
 
@@ -242,6 +251,7 @@ enum AuditEvent: string
             'feedback' => 'Feedback',
             'sso' => 'Anbindungen',
             'forms' => 'Anträge',
+            'contracts' => 'Verträge',
         ];
     }
 

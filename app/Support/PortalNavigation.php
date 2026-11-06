@@ -105,6 +105,7 @@ final class PortalNavigation
                     ['description' => 'Ihre Angaben für die Teamzusammenstellung.', 'label' => 'Profil', 'route' => 'team-profile.edit', 'match' => 'team-profile.*', 'can' => 'seminars.apply'],
                     ['description' => 'Ihre Schritte der Einarbeitung.', 'label' => 'Einarbeitung', 'route' => 'team-self.index', 'match' => 'team-self.*', 'can' => 'team.onboarding'],
                     ['description' => 'Auslagen und Fahrtkosten zu Ihren Seminaren erstatten lassen.', 'label' => 'Anträge', 'route' => 'team-forms.index', 'match' => 'team-forms.*', 'can' => 'forms.submit_team'],
+                    ['description' => 'Steuernummer, Umsatzsteuer und Bankverbindung für Ihre Verträge.', 'label' => 'Vertragsdaten', 'route' => 'contractor.edit', 'match' => 'contractor.*', 'can' => 'seminars.apply'],
                 ],
             ],
             PortalAreas::Mitarbeitende->value => [
@@ -128,6 +129,7 @@ final class PortalNavigation
             PortalAreas::Koordination->value => [
                 'home' => 'coordination.home',
                 'roles' => [RoleKey::Coordination, RoleKey::AdministrationStaff, RoleKey::EducationCoordination],
+                'routes' => ['contracts.show', 'contracts.edit', 'contracts.print'],
                 'pages' => [
                     ['label' => 'Übersicht', 'route' => 'coordination.home', 'match' => 'coordination.home'],
                     ['description' => 'Partnerschulen, Ansprechpersonen und Anfragen.', 'label' => 'Schulen', 'route' => 'partners.index', 'match' => 'partners.*', 'can' => 'partners.view'],
@@ -138,6 +140,7 @@ final class PortalNavigation
                     ['description' => 'Rückmeldungen zu Seminaren auswerten und vergleichen.', 'label' => 'Feedback-Auswertung', 'route' => 'feedback-eval.index', 'match' => 'feedback-eval.*', 'can' => 'feedback.view'],
                     ['description' => 'E-Mails an Teamende zu anstehenden Seminaren.', 'label' => 'Mitteilungen an Teamende', 'route' => 'mailings.team.index', 'match' => 'mailings.team.*', 'can' => 'mailings.team'],
                     ['description' => 'E-Mails an Teamende, Schulen, Koordination und Bildungsreferenten.', 'label' => 'Rundschreiben', 'route' => 'mailings.coordination.index', 'match' => 'mailings.coordination.*', 'can' => 'mailings.send_limited'],
+                    ['description' => 'Vertragstext, Vereinsdaten und Verträge der Seminare.', 'label' => 'Verträge', 'route' => 'contracts.admin.index', 'match' => 'contracts.admin.*', 'can' => 'contracts.manage'],
                     ['description' => 'Veranstaltungen, Anmeldungen und Nachrichten.', 'label' => 'Veranstaltungen', 'route' => 'events.admin.index', 'match' => 'events.admin.*', 'can' => 'events.view'],
                 ],
             ],

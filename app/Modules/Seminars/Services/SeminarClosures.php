@@ -29,13 +29,22 @@ final class SeminarClosures
     {
         $kinds = $seminar->documents()->pluck('kind')->unique()->all();
 
-        return [
+        $contractsSigned = class_exists(\App\Modules\Contracts\Services\Contracts::class) ? app(\App\Modules\Contracts\Services\Contracts::class)->allSigned($seminar) : null;
+
+        $items = [
             'quote' => ['label' => 'Kostenvoranschlag liegt vor', 'auto' => $seminar->quotes()->exists(), 'hint' => 'Wird erkannt, sobald ein Kostenvoranschlag zum Seminar existiert.'],
             'invoice' => ['label' => 'Abrechnung oder Rechnung ist abgelegt', 'auto' => in_array('invoice', $kinds, true), 'hint' => 'Wird erkannt, wenn ein Dokument der Art „Rechnung oder Abrechnung“ abgelegt ist.'],
             'team' => ['label' => 'Das Team ist eingetragen', 'auto' => $seminar->applications()->where('status', ApplicationStatus::Confirmed->value)->exists(), 'hint' => 'Wird erkannt, wenn mindestens eine Person im Team bestätigt ist.'],
             'evaluation' => ['label' => 'Auswertung oder Ergebnis ist abgelegt', 'auto' => count(array_intersect($kinds, ['evaluation', 'result', 'report', 'statistics'])) > 0, 'hint' => 'Wird erkannt, wenn eine Auswertung, ein Ergebnis, ein Bericht oder eine Statistik abgelegt ist.'],
             'payments' => ['label' => 'Honorare und Erstattungen sind erledigt', 'auto' => false, 'hint' => 'Bitte von Hand bestätigen.'],
         ];
+
+        // Der Punkt erscheint nur, wenn es für das Seminar Verträge gibt
+        if ($contractsSigned !== null) {
+            $items = ['contracts' => ['label' => 'Verträge sind unterschrieben', 'auto' => $contractsSigned, 'hint' => 'Wird erkannt, wenn für jede bestätigte Person ein unterschriebener Scan abgelegt ist.']] + $items;
+        }
+
+        return $items;
     }
 
     /**

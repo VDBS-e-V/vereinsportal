@@ -126,6 +126,10 @@
         @include('seminars._documents')
     @endcan
 
+    @can('contracts.manage')
+        @include('contracts._section')
+    @endcan
+
     @can('feedback.manage')
         @include('seminars._feedback')
     @endcan

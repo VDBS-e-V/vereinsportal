@@ -122,6 +122,12 @@ enum Capability: string
     /** Verteiler (gespeicherte Empfängerkreise) anlegen und ändern (Geschäftsstelle, Vorstand). */
     case MailSegmentsManage = 'mail_segments.manage';
 
+    /** Honorarverträge für bestätigte Teamende erzeugen, bearbeiten, drucken und ablegen (Koordination, Geschäftsstelle, Vorstand). */
+    case ContractsManage = 'contracts.manage';
+
+    /** Den Vertragstext ändern (neue Version anlegen), nur Vorstand. */
+    case ContractsTemplate = 'contracts.template';
+
     /** Systemsteuerung: Zustand ansehen und Aufgaben ausführen (nur Administration). */
     case SystemManage = 'system.manage';
 
