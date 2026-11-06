@@ -266,5 +266,6 @@ it('reminds the coordination once about missing scans three days after the last 
     \Illuminate\Support\Facades\Mail::assertSent(\App\Modules\Contracts\Mail\ContractScanReminderMail::class, fn ($mail) => $mail->hasTo($coordination->email) && $mail->open === 2);
 
     $this->artisan('contracts:remind')->assertSuccessful();
-    \Illuminate\Support\Facades\Mail::assertSentCount(1);
+    // zwei Personen mit der Rolle Koordination (eine legt das Hilfsmittel für den Termin an): je eine Mail, kein zweiter Durchgang
+    \Illuminate\Support\Facades\Mail::assertSentCount(2);
 });
