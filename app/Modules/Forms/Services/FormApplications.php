@@ -88,6 +88,12 @@ final class FormApplications
 
         $costCenter = $config['cost_center'] && filled($input['cost_center'] ?? null) ? (string) $input['cost_center'] : null;
 
+        // Ohne eigene Wahl gilt die Kostenstelle des Seminars (wenn es sie in der Liste gibt und sie aktiv ist)
+        if ($costCenter === null && $seminarId !== null) {
+            $fromSeminar = (string) Seminar::query()->whereKey($seminarId)->value('cost_center');
+            $costCenter = $fromSeminar !== '' && CostCenter::query()->where('code', $fromSeminar)->where('active', true)->exists() ? $fromSeminar : null;
+        }
+
         if ($costCenter !== null && ! CostCenter::query()->where('code', $costCenter)->where('active', true)->exists()) {
             throw new DomainException('Die gewählte Kostenstelle gibt es nicht.');
         }

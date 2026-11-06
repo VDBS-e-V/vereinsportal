@@ -30,7 +30,7 @@
             @endif
             <x-vdbs.forms.form-grid :columns="2">
                 <x-vdbs.forms.input name="classes_count" label="Anzahl Klassen oder Gruppen" type="number" min="1" max="200" :optional="true" :value="$values['classes_count'] ?? null" />
-                <x-vdbs.forms.input name="cost_center" label="Kostenstelle" :optional="true" maxlength="40" :value="$values['cost_center'] ?? null" hint="Für die Buchhaltung, z. B. aus der Kostenstellenliste" />
+                <x-vdbs.forms.select name="cost_center" label="Kostenstelle" :optional="true" placeholder="Keine" :options="$costCenterOptions" :value="$values['cost_center'] ?? null" hint="Aus der Kostenstellenliste der Anträge. Anträge zu diesem Seminar übernehmen sie, wenn niemand eine andere wählt." />
                 <x-vdbs.forms.select name="coordinator_user_id" label="Verantwortliche Koordination" placeholder="Nicht festgelegt" :optional="true" :options="$coordinatorOptions" :value="$values['coordinator_user_id'] ?? null" />
             </x-vdbs.forms.form-grid>
             <x-vdbs.forms.input name="location_notes" label="Räume und Hinweise zum Ort" :optional="true" maxlength="500" :value="$values['location_notes'] ?? null" hint="Anreise, Raum, Ansprechperson vor Ort" />

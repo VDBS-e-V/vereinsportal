@@ -420,3 +420,17 @@ it('lists the new areas in the navigation for the right roles', function () {
     $this->actingAs(ffUser(RoleKey::Member))->get(route('member.home'))->assertOk()->assertSee('Anträge');
     $this->actingAs(ffUser(RoleKey::ManagingDirector))->get(route('forms-office.index'))->assertOk();
 });
+
+it('takes the cost center of the seminar for applications when nobody chose another and offers the list in the seminar form', function () {
+    \App\Modules\Forms\Models\CostCenter::query()->create(['code' => 'KS-S1', 'name' => 'Seminarkosten Nord', 'active' => true]);
+    $seminar = \App\Modules\Seminars\Models\Seminar::factory()->create(['cost_center' => 'KS-S1']);
+    $team = ffUser(RoleKey::Team);
+
+    $application = ffDraft($team, 2500, ['seminar_id' => $seminar->id]);
+    expect($application->cost_center)->toBe('KS-S1');
+
+    $other = \App\Modules\Seminars\Models\Seminar::factory()->create(['cost_center' => 'FREITEXT']);
+    expect(ffDraft($team, 2500, ['seminar_id' => $other->id])->cost_center)->toBeNull();
+
+    $this->actingAs(ffUser(RoleKey::Coordination))->get(route('seminars.edit', $seminar))->assertOk()->assertSee('KS-S1 · Seminarkosten Nord');
+});

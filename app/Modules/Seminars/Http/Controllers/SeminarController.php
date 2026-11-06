@@ -56,6 +56,7 @@ class SeminarController extends Controller
             'active' => $active,
             'statusOptions' => SeminarStatus::options(),
             'typeOptions' => SeminarType::options(),
+            'costCenterOptions' => $this->costCenterOptions((string) ($values['cost_center'] ?? '')),
             'stats' => [
                 'total' => Seminar::query()->count(),
                 'open' => Seminar::query()->whereIn('status', [SeminarStatus::Request->value, SeminarStatus::Planning->value])->count(),
@@ -227,6 +228,18 @@ class SeminarController extends Controller
             'partnerOptions' => Partner::query()->where('type', PartnerType::School->value)->orderBy('name')->get()
                 ->mapWithKeys(fn (Partner $partner): array => [$partner->id => $partner->name.($partner->city ? ' ('.$partner->city.')' : '')])->all(),
         ];
+    }
+
+    /** Aktive Kostenstellen (Code => Code · Name); ein bisheriger Freitext bleibt wählbar. @return array<string, string> */
+    private function costCenterOptions(string $current): array
+    {
+        $options = \App\Modules\Forms\Models\CostCenter::query()->where('active', true)->orderBy('code')->get()->mapWithKeys(fn ($center): array => [$center->code => $center->code.' · '.$center->name])->all();
+
+        if ($current !== '' && ! array_key_exists($current, $options)) {
+            $options[$current] = $current;
+        }
+
+        return $options;
     }
 
     private function actor(Request $request): User
