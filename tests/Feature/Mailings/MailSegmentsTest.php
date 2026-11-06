@@ -120,7 +120,7 @@ it('offers only visible and permitted segments when writing and sends to the seg
 
     expect($resolver->usableBy($office)->pluck('id')->all())->toBe([$team->id])
         ->and($resolver->usableBy($coordination)->pluck('id')->all())->toBe([$team->id])
-        ->and($resolver->usableBy(sgUser(RoleKey::BoardMember))->pluck('id')->sort()->values()->all())->toBe(collect([$boardOnly->id, $members->id])->sort()->values()->all());
+        ->and($resolver->usableBy(sgUser(RoleKey::BoardMember))->pluck('id')->sort()->values()->all())->toBe(collect([$team->id, $boardOnly->id, $members->id])->sort()->values()->all());
 
     $this->actingAs($office)->get(route('mailings.office.create'))->assertOk()->assertSee('Alle Teamende')->assertSee('name="segments[]"', false)->assertDontSee('Nur Vorstand');
 
