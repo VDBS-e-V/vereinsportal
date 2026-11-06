@@ -130,6 +130,10 @@
         @include('contracts._section')
     @endcan
 
+    @can('forms.view')
+        @include('forms._seminar_sums')
+    @endcan
+
     @can('feedback.manage')
         @include('seminars._feedback')
     @endcan

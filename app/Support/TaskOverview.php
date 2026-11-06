@@ -86,6 +86,22 @@ final class TaskOverview
             $add('Mitgliedsanträge warten auf eine Entscheidung', Membership::query()->where('status', MembershipStatus::Requested->value)->count(), route('membership.index'));
         }
 
+        // Anträge (nur Zahlen) und Verträge
+        if ($can('forms.manage')) {
+            $add('Anträge warten auf Prüfung', \App\Modules\Forms\Models\FormApplication::query()->whereIn('status', ['submitted', 'in_review'])->count(), route('forms-office.index'));
+        }
+
+        if ($can('forms.approve')) {
+            $add('Anträge warten auf Freigabe durch den Vorstand', \App\Modules\Forms\Models\FormApplication::query()->where('status', 'in_review')->where('approval_level', 'board')->count(), route('forms-office.index'));
+        }
+
+        if ($can('contracts.manage')) {
+            $missing = \App\Modules\Contracts\Models\SeminarContract::query()->where('status', 'created')
+                ->whereHas('seminar.sessions', fn ($query) => $query->where('ends_at', '<', now()))
+                ->whereDoesntHave('seminar.sessions', fn ($query) => $query->where('ends_at', '>=', now()))->count();
+            $add('Verträge warten auf den unterschriebenen Scan', $missing, route('seminars.index'));
+        }
+
         return $tasks;
     }
 }
