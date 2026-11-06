@@ -56,7 +56,6 @@ class SeminarController extends Controller
             'active' => $active,
             'statusOptions' => SeminarStatus::options(),
             'typeOptions' => SeminarType::options(),
-            'costCenterOptions' => $this->costCenterOptions((string) ($values['cost_center'] ?? '')),
             'stats' => [
                 'total' => Seminar::query()->count(),
                 'open' => Seminar::query()->whereIn('status', [SeminarStatus::Request->value, SeminarStatus::Planning->value])->count(),
@@ -224,6 +223,7 @@ class SeminarController extends Controller
             'seminar' => $seminar,
             'values' => $values,
             'typeOptions' => SeminarType::options(),
+            'costCenterOptions' => $this->costCenterOptions((string) ($values['cost_center'] ?? '')),
             'coordinatorOptions' => CoordinationRecipients::users()->load('person')->mapWithKeys(fn (User $user): array => [$user->id => $user->person?->fullName() ?: $user->email])->all(),
             'partnerOptions' => Partner::query()->where('type', PartnerType::School->value)->orderBy('name')->get()
                 ->mapWithKeys(fn (Partner $partner): array => [$partner->id => $partner->name.($partner->city ? ' ('.$partner->city.')' : '')])->all(),
