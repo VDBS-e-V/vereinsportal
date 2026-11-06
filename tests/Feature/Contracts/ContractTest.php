@@ -251,3 +251,20 @@ it('offers the pdf only when the package exists and explains it otherwise', func
         $this->from(route('contracts.show', [$seminar, $contract]))->get(route('contracts.show', [$seminar, $contract, 'format' => 'pdf']))->assertRedirect()->assertSessionHas('error');
     }
 });
+
+it('reminds the coordination once about missing scans three days after the last session and shows the leader rate', function () {
+    \Illuminate\Support\Facades\Mail::fake();
+    [$seminar] = ctrSeminar(2);
+    $coordination = ctrUser(RoleKey::Coordination);
+    $this->actingAs($coordination)->post(route('contracts.store', $seminar), ['all' => 1]);
+
+    $this->artisan('contracts:remind')->assertSuccessful();
+    \Illuminate\Support\Facades\Mail::assertNothingSent();
+
+    \App\Modules\Seminars\Models\SeminarSession::query()->where('seminar_id', $seminar->id)->update(['starts_at' => now()->subDays(6)->setTime(9, 0), 'ends_at' => now()->subDays(6)->setTime(15, 0)]);
+    $this->artisan('contracts:remind')->assertSuccessful();
+    \Illuminate\Support\Facades\Mail::assertSent(\App\Modules\Contracts\Mail\ContractScanReminderMail::class, fn ($mail) => $mail->hasTo($coordination->email) && $mail->open === 2);
+
+    $this->artisan('contracts:remind')->assertSuccessful();
+    \Illuminate\Support\Facades\Mail::assertSentCount(1);
+});

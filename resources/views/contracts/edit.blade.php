@@ -17,7 +17,7 @@
 
             <x-vdbs.forms.form-section title="Leistung und Vergütung">
                 <x-vdbs.forms.textarea name="service_text" label="Leistung" :optional="true" maxlength="2000" :rows="5" :value="$data['service_text'] ?? null" />
-                <x-vdbs.forms.input name="amount" label="Vergütung (Euro)" :optional="true" maxlength="20" :value="$money($data['amount_cents'] ?? 0)" :hint="'Aus dem Kostenvoranschlag: '.$money($data['amount_original_cents'] ?? 0).' €. Bei einer Abweichung ist ein Vermerk nötig.'" />
+                <x-vdbs.forms.input name="amount" label="Vergütung (Euro)" :optional="true" maxlength="20" :value="$money($data['amount_cents'] ?? 0)" :hint="'Aus dem Kostenvoranschlag: '.$money($data['amount_original_cents'] ?? 0).' €.'.(($data['leader_hint_cents'] ?? 0) > 0 ? ' Für die Seminarleitung kommt laut Kostenvoranschlag '.$money($data['leader_hint_cents']).' € hinzu; rechnen Sie ihn bei Bedarf ein.' : '').' Bei einer Abweichung ist ein Vermerk nötig.'" />
                 <x-vdbs.forms.input name="amount_note" label="Vermerk zur Abweichung" :optional="true" maxlength="300" :value="$data['amount_note'] ?? null" />
             </x-vdbs.forms.form-section>
 

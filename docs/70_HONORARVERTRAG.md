@@ -21,5 +21,18 @@ Teamende › **Vertragsdaten**: Steuernummer, Umsatzsteuer-Art, Bankverbindung. 
 ## Datenschutz
 Der gesamte Vertragsinhalt (auch Steuernummer und IBAN) liegt verschlüsselt in der Datenbank. Er steht nie in Listen und nie im Protokoll; das Protokoll nennt nur Seminarnummer und Zahl. Aufbewahrung 10 Jahre nach dem letzten Termin; `contracts:prune` (täglich, auch als Aufgabe „Verträge aufräumen“) löscht danach.
 
+## Erinnerung und Seminarleitung
+- `contracts:remind` (täglich, auch als Aufgabe „An fehlende Vertragsscans erinnern“) schickt der Koordination drei Tage nach dem letzten Termin eine E-Mail, wenn Verträge noch keinen unterschriebenen Scan haben. Einmal je Vertrag; die Mail nennt nur Seminar und Zahl.
+- Der Satz der Seminarleitung steht als Hinweis am Vertrag (aus dem Kostenvoranschlag). Er wird nicht automatisch aufgeschlagen, weil das Portal nicht weiß, wer die Leitung hat. Bitte in der Vergütung von Hand einrechnen und den Vermerk eintragen.
+
+## Anleitung in einfacher Sprache
+1. Öffnen Sie das Seminar. Suchen Sie den Abschnitt „Verträge“.
+2. Klicken Sie auf „Alle Verträge erzeugen“. Für jede Person im Team entsteht ein Vertrag.
+3. Klicken Sie bei einer Person auf „Bearbeiten“. Prüfen Sie Name, Anschrift und Geld. Leere Felder dürfen leer bleiben. Die Person schreibt sie dann von Hand.
+4. Klicken Sie auf „Alle zum Drucken“ und drucken Sie die Verträge aus.
+5. Die Verträge werden an den Seminartagen unterschrieben.
+6. Scannen Sie jeden unterschriebenen Vertrag. Laden Sie den Scan bei der Person mit „Scan ablegen“ hoch.
+7. Wenn alle Scans da sind, ist im Abschluss des Seminars der Punkt „Verträge sind unterschrieben“ erledigt.
+
 ## Noch nicht umgesetzt
-PDF: Die Druckansicht bietet „Als PDF herunterladen“, sobald das Paket dompdf installiert ist (`composer require dompdf/dompdf --ignore-platform-req=ext-sodium`, danach Cache leeren); sonst „Als PDF speichern“ im Druckdialog. Erinnerung an fehlende Scans in der Aufgabenübersicht. Zuschlag für die Seminarleitung (in der Vergütung von Hand anpassen). Anleitung in einfacher Sprache.
+Automatischer Zuschlag für die Seminarleitung.

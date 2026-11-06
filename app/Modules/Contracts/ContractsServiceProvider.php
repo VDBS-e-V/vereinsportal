@@ -11,7 +11,7 @@ class ContractsServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
 
         if ($this->app->runningInConsole()) {
-            $this->commands([\App\Modules\Contracts\Console\PruneContracts::class]);
+            $this->commands([\App\Modules\Contracts\Console\PruneContracts::class, \App\Modules\Contracts\Console\RemindContractScans::class]);
         }
     }
 }

@@ -34,6 +34,7 @@ Schedule::command('feedback:prune')->daily();
 Schedule::command('feedback:remind')->daily();
 Schedule::command('forms:prune')->daily();
 Schedule::command('contracts:prune')->daily();
+Schedule::command('contracts:remind')->daily();
 
 // Abgelaufene und widerrufene Tokens der Anbindungen (SSO) entfernen.
 Schedule::command('passport:purge')->daily();

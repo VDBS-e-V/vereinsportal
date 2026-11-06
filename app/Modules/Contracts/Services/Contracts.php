@@ -71,6 +71,7 @@ final class Contracts
             'service_text' => $service,
             'amount_cents' => $amount,
             'amount_original_cents' => $amount,
+            'leader_hint_cents' => $this->leaderRate($seminar),
             'amount_note' => null,
             'place' => $this->settings->get('place'),
             'date' => now()->format('d.m.Y'),
@@ -86,6 +87,23 @@ final class Contracts
         foreach ((array) ($quote?->positions ?? []) as $position) {
             foreach ((array) ($position['lines'] ?? []) as $line) {
                 if (($line['key'] ?? null) === 'honorarium') {
+                    $sum += (int) round((int) $line['total_cents'] / max(1, (float) $line['quantity']));
+                }
+            }
+        }
+
+        return $sum;
+    }
+
+    /** Satz für die Seminarleitung je Person aus dem neuesten Kostenvoranschlag (nur als Hinweis; der Zuschlag wird von Hand in die Vergütung eingerechnet). */
+    public function leaderRate(Seminar $seminar): int
+    {
+        $quote = $seminar->quotes()->orderByDesc('id')->first();
+        $sum = 0;
+
+        foreach ((array) ($quote?->positions ?? []) as $position) {
+            foreach ((array) ($position['lines'] ?? []) as $line) {
+                if (($line['key'] ?? null) === 'leader') {
                     $sum += (int) round((int) $line['total_cents'] / max(1, (float) $line['quantity']));
                 }
             }
