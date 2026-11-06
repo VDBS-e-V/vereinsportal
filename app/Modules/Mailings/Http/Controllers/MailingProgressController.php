@@ -234,6 +234,8 @@ class MailingProgressController extends Controller
     {
         $team = $base === 'mailings.team';
 
+        abort_if($base === 'mailings.coordination' && $mailing->sender_area !== 'coordination', 404);
+
         abort_unless($team ? $mailing->kind === Mailing::KIND_TEAM : in_array($mailing->kind, [Mailing::KIND_GENERAL, Mailing::KIND_MEMBERS], true), 404);
     }
 

@@ -101,3 +101,15 @@ Stürzt ein Worker mitten in einer Mail ab, kann diese eine Mail doppelt zugeste
 - **Grundbestand:** 15 Mailvorlagen (Versammlung, Schulen, Team, Feedback, Allgemein) und 27 Textbausteine werden mit `php artisan mail:load-defaults` angelegt. Der Befehl läuft auch bei `portal:update` und als Aufgabe „Standardinhalte laden“ in der Systemsteuerung. Er ergänzt nur fehlende Einträge (nach Name) und überschreibt nie. Alle Texte sind Entwürfe zur Freigabe durch Vorstand oder Geschäftsstelle und danach frei änderbar.
 - **Kategorien:** Vorlagen (Versammlung & Mitglieder, Schulen & Seminare, Team, Feedback, Allgemein) und Bausteine (Anrede & Gruß, Termine & Orte, Anmeldung & Fristen, Datenschutz & Abmeldung, Kontakt, Seminare, Allgemein) haben eine feste Kategorie. Die Verwaltung hat Suche und Kategoriefilter, Bausteine eine Reihenfolge, gleiche Namen werden abgelehnt. Beim Schreiben erscheint die Kategorie vor dem Namen. Mehrere Einträge lassen sich per Auswahl gemeinsam löschen.
 - **Neue Platzhalter:** `{stichtag}`, `{bewerbungslink}`, `{antraglink}` (bei Schreiben an Gruppen und bei Seminarmitteilungen). `{seminar_nr}`, `{feedback_link_lehrkraft}`, `{feedback_link_team}` gelten bei Seminarmitteilungen der Koordination. `{team}` ist noch nicht umgesetzt.
+
+## Rechte-Matrix (Paket H1)
+| Empfängerkreis | Vorstand | Geschäftsstelle | Koordination |
+|---|---|---|---|
+| Mitglieder | ja | – | – |
+| Teamende, Schulen, Koordination, Bildungsreferenten | ja | ja | ja |
+| Vorstand, Geschäftsstelle | ja | ja | – |
+| Einzelpersonen: Konten | alle | alle | nur Teamende und Schulen (und Ansprechpersonen von Schulen) |
+| Einzelpersonen: Mitglieder | ja | – | – |
+| Freigabe nötig | nein (gibt frei) | ab 50 Empfängern | nein |
+
+Die Koordination hat dafür das Recht `mailings.send_limited` und die Seite **Koordination › Rundschreiben** (`/koordination/rundschreiben`). Sie sieht dort nur ihre eigenen Schreiben. Absender: `MAILINGS_FROM_NAME_COORDINATION`, `MAILINGS_REPLY_TO_COORDINATION`. Der Test `MailRightsMatrixTest` prüft die Zellen.

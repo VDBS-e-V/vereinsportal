@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
  *  - an Teamende zu Seminaren (Koordination): mailings.team
  *  - Mailvorlagen (Geschäftsstelle, Vorstand): mail_templates.manage
  */
-foreach (['board' => ['vorstand/mitteilungen', 'mailings.members'], 'office' => ['geschaeftsstelle/mitteilungen', 'mailings.send']] as $name => [$prefix, $ability]) {
+foreach (['board' => ['vorstand/mitteilungen', 'mailings.members'], 'office' => ['geschaeftsstelle/mitteilungen', 'mailings.send'], 'coordination' => ['koordination/rundschreiben', 'mailings.send_limited']] as $name => [$prefix, $ability]) {
     Route::middleware(['web', 'auth', 'can:'.$ability])->prefix($prefix)->name('mailings.'.$name.'.')->group(function (): void {
         Route::get('/', [GroupMailingController::class, 'index'])->name('index');
         Route::get('/neu', [GroupMailingController::class, 'create'])->name('create');

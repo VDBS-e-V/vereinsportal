@@ -190,7 +190,7 @@ final class Mailings
     {
         $config = (array) config('portal.mailings.approval', []);
 
-        if (! ($config['enabled'] ?? true) || $by->can('mailings.approve')) {
+        if (! ($config['enabled'] ?? true) || $by->can('mailings.approve') || ($by->can('mailings.send_limited') && ! $by->can('mailings.send'))) {
             return false;
         }
 

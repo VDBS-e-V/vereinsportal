@@ -107,6 +107,9 @@ enum Capability: string
     /** Zusätzlich die Gruppe Mitglieder anschreiben, z. B. Einladung zur Versammlung (Vorstand). */
     case MailingsMembers = 'mailings.members';
 
+    /** Rundschreiben an Teamende, Schulen, Koordination und Bildungsreferenten (Koordination, ohne Mitglieder und Vorstand). */
+    case MailingsSendLimited = 'mailings.send_limited';
+
     /** Mitteilungen an Teamende zu Seminaren senden (Koordination). */
     case MailingsTeam = 'mailings.team';
 

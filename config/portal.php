@@ -243,6 +243,7 @@ return [
         'senders' => [
             'board' => ['name' => env('MAILINGS_FROM_NAME_BOARD', 'VDBS Vorstand'), 'reply_to' => env('MAILINGS_REPLY_TO_BOARD')],
             'office' => ['name' => env('MAILINGS_FROM_NAME_OFFICE', 'VDBS Geschäftsstelle'), 'reply_to' => env('MAILINGS_REPLY_TO_OFFICE')],
+            'coordination' => ['name' => env('MAILINGS_FROM_NAME_COORDINATION', 'VDBS Koordination'), 'reply_to' => env('MAILINGS_REPLY_TO_COORDINATION')],
             'team' => ['name' => env('MAILINGS_FROM_NAME_TEAM', 'VDBS Koordination'), 'reply_to' => env('MAILINGS_REPLY_TO_TEAM')],
         ],
     ],

@@ -313,12 +313,30 @@ final class MailRecipients
                 continue;
             }
 
-            if ($match[1] === 'm' ? $by->can('mailings.members') : $by->can('mailings.send')) {
+            if ($match[1] === 'm' ? $by->can('mailings.members') : ($by->can('mailings.send') || $this->limitedMayAddress($by, $token))) {
                 $allowed[] = $token;
             }
         }
 
         return $allowed;
+    }
+
+    /** Die Koordination darf einzelne Konten nur anschreiben, wenn sie Teamende oder Schulen sind, und Ansprechpersonen von Schulen. */
+    private function limitedMayAddress(User $by, string $token): bool
+    {
+        if (! $by->can('mailings.send_limited')) {
+            return false;
+        }
+
+        if (str_starts_with($token, 'k:')) {
+            return true;
+        }
+
+        if (! preg_match('/^u:(\d+)$/', $token, $match)) {
+            return false;
+        }
+
+        return User::query()->whereKey((int) $match[1])->whereHas('activeRoleAssignments', fn ($assignments) => $assignments->whereHas('role', fn ($role) => $role->whereIn('key', ['team', 'school'])))->exists();
     }
 
     /**
@@ -347,8 +365,9 @@ final class MailRecipients
         $like = fn (string $word): string => '%'.addcslashes($word, '%_\\').'%';
         $result = [];
 
-        if ($by->can('mailings.send')) {
-            $users = User::query()->where('status', UserStatus::Active->value)->whereHas('person', function ($person) use ($words, $like): void {
+        if ($by->can('mailings.send') || $by->can('mailings.send_limited')) {
+            $limited = ! $by->can('mailings.send');
+            $users = User::query()->where('status', UserStatus::Active->value)->when($limited, fn ($query) => $query->whereHas('activeRoleAssignments', fn ($assignments) => $assignments->whereHas('role', fn ($role) => $role->whereIn('key', ['team', 'school']))))->whereHas('person', function ($person) use ($words, $like): void {
                 foreach ($words as $word) {
                     $person->where(fn ($inner) => $inner->where('first_name', 'like', $like($word))->orWhere('last_name', 'like', $like($word)));
                 }

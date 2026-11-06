@@ -23,6 +23,9 @@ final class MailGroups
         'office' => ['label' => 'Geschäftsstelle', 'description' => 'Konten mit der Rolle Geschäftsstelle', 'role' => 'administration_staff', 'optout' => null, 'fallback' => 'Kolleg:in', 'ability' => 'mailings.send'],
     ];
 
+    /** Gruppen, die die Koordination anschreiben darf (Recht mailings.send_limited): keine Mitglieder, kein Vorstand, keine Geschäftsstelle. */
+    public const LIMITED = ['team', 'schools', 'coordination', 'education'];
+
     /** Themen der Abmeldung. Interne Gruppen (Koordination, Bildungsreferenten, Vorstand, Geschäftsstelle) haben keines: Organisationspost ist nicht abbestellbar. */
     public const TOPICS = [
         'member_info' => 'Mitteilungen des Vereins an Mitglieder',
@@ -46,7 +49,7 @@ final class MailGroups
         $groups = [];
 
         foreach (self::GROUPS as $key => $group) {
-            if ($user->can($group['ability'])) {
+            if ($user->can($group['ability']) || ($user->can('mailings.send_limited') && in_array($key, self::LIMITED, true))) {
                 $groups[$key] = ['label' => $group['label'], 'description' => $group['description']];
             }
         }

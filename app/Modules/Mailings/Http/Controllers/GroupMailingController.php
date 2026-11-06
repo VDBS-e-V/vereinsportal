@@ -43,9 +43,10 @@ class GroupMailingController extends Controller
         return view('mailings.groups-index', [
             'base' => $this->base($request),
             'area' => $this->area($request),
-            'mailings' => Mailing::query()->whereIn('kind', $kinds)->whereNotIn('status', $preparing)->with('sentBy.person')->orderByDesc('id')->paginate(15),
+            'mailings' => Mailing::query()->whereIn('kind', $kinds)->whereNotIn('status', $preparing)->when($this->base($request) === 'mailings.coordination', fn ($query) => $query->where('sender_area', 'coordination'))->with('sentBy.person')->orderByDesc('id')->paginate(15),
             // In Vorbereitung: die eigenen Entwürfe und Vorlagen zur Freigabe sowie, wer freigeben darf, alle vorgelegten und geplanten Schreiben
             'preparing' => Mailing::query()->whereIn('kind', $kinds)->whereIn('status', $preparing)
+                ->when($this->base($request) === 'mailings.coordination', fn ($query) => $query->where('sender_area', 'coordination'))
                 ->where(fn ($query) => $query->where('sent_by_user_id', $user->id)->orWhere(fn ($other) => $other->whereIn('status', [Mailing::STATUS_PENDING, Mailing::STATUS_SCHEDULED])->whereRaw('1 = ?', [$user->can('mailings.approve') ? 1 : 0])))
                 ->with('sentBy.person')->orderByDesc('id')->get(),
         ]);
@@ -300,7 +301,11 @@ class GroupMailingController extends Controller
 
     private function area(Request $request): string
     {
-        return $this->base($request) === 'mailings.board' ? 'Vorstand' : 'Geschäftsstelle';
+        return match ($this->base($request)) {
+            'mailings.board' => 'Vorstand',
+            'mailings.coordination' => 'Koordination',
+            default => 'Geschäftsstelle',
+        };
     }
 
     private function user(): User

@@ -137,6 +137,7 @@ final class PortalNavigation
                     ['description' => 'Fragebögen für Schulklassen, Lehrkräfte und Teamende bearbeiten.', 'label' => 'Feedbackformulare', 'route' => 'feedback-forms.index', 'match' => 'feedback-forms.*', 'can' => 'feedback.manage'],
                     ['description' => 'Rückmeldungen zu Seminaren auswerten und vergleichen.', 'label' => 'Feedback-Auswertung', 'route' => 'feedback-eval.index', 'match' => 'feedback-eval.*', 'can' => 'feedback.view'],
                     ['description' => 'E-Mails an Teamende zu anstehenden Seminaren.', 'label' => 'Mitteilungen an Teamende', 'route' => 'mailings.team.index', 'match' => 'mailings.team.*', 'can' => 'mailings.team'],
+                    ['description' => 'E-Mails an Teamende, Schulen, Koordination und Bildungsreferenten.', 'label' => 'Rundschreiben', 'route' => 'mailings.coordination.index', 'match' => 'mailings.coordination.*', 'can' => 'mailings.send_limited'],
                     ['description' => 'Veranstaltungen, Anmeldungen und Nachrichten.', 'label' => 'Veranstaltungen', 'route' => 'events.admin.index', 'match' => 'events.admin.*', 'can' => 'events.view'],
                 ],
             ],
