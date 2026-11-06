@@ -113,3 +113,13 @@ Stürzt ein Worker mitten in einer Mail ab, kann diese eine Mail doppelt zugeste
 | Freigabe nötig | nein (gibt frei) | ab 50 Empfängern | nein |
 
 Die Koordination hat dafür das Recht `mailings.send_limited` und die Seite **Koordination › Rundschreiben** (`/koordination/rundschreiben`). Sie sieht dort nur ihre eigenen Schreiben. Absender: `MAILINGS_FROM_NAME_COORDINATION`, `MAILINGS_REPLY_TO_COORDINATION`. Der Test `MailRightsMatrixTest` prüft die Zellen.
+
+## Verteiler (Paket H2)
+Ein **Verteiler** ist ein benannter, gespeicherter Empfängerkreis: Gruppen, „Außer“-Gruppen und Filter. Gespeichert wird die Regel, nicht die Adressen; beim Versand wird er neu berechnet (Abmeldungen und Sperren von jetzt, Neuzugänge sind dabei). Ein Verteiler erreicht höchstens 5 000 Personen.
+
+- **Wo:** Geschäftsstelle › Verteiler (`mail_segments.manage`: Geschäftsstelle, Vorstand). Liste mit „Erreichbar jetzt“, Bearbeiten mit Vorschau (Zahl, Abgemeldete, Gesperrte, die ersten zehn Namen) auch ohne zu speichern, Löschen einzeln oder per Mehrfachauswahl.
+- **Wer ändert:** Verteiler mit der Gruppe Mitglieder nur der Vorstand. Die Geschäftsstelle darf sie weder anlegen noch ändern.
+- **Wer nutzt:** je Verteiler „Nutzbar von“ (Vorstand, Geschäftsstelle, Koordination). Beim Schreiben erscheint die Mehrfachauswahl **Verteiler** nur mit Verteilern, die für den Bereich sichtbar sind und nur Gruppen enthalten, die die Person anschreiben darf. Die Koordination nutzt nur Verteiler aus Teamenden, Schulen, Koordination und Bildungsreferenten.
+- **Filter** (UND-verknüpft, Werte eines Filters ODER-verknüpft): Bundesland der Schule, Schulart, Seminar (beworben/bestätigt), Einarbeitung offen/abgeschlossen, Teamprofil vollständig/unvollständig, Bewerbung in den letzten 12 Monaten oder noch nie, Mitgliedsstatus, Mitglied seit Jahr (von/bis), Postleitzahl-Anfang, Altersgruppe (18–29, 30–49, 50–64, 65+).
+- **Im Entwurf** steht nur der Verweis auf den Verteiler. Wird er gelöscht, bleibt der Entwurf gültig und ignoriert ihn.
+- **Noch nicht umgesetzt:** Filter für importierte Kontakte (Zugang gesendet/benutzt), Kompetenzen und „mindestens n durchgeführte Seminare“.

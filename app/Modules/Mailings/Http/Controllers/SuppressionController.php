@@ -20,6 +20,8 @@ class SuppressionController extends Controller
 
     public function index(Request $request): View
     {
+        abort_if($this->base($request) === 'mailings.coordination', 403);
+
         $base = $this->base($request);
 
         return view('mailings.suppressions', [

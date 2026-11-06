@@ -119,6 +119,9 @@ enum Capability: string
     /** Mailvorlagen für Mitteilungen bearbeiten (Geschäftsstelle). */
     case MailTemplatesManage = 'mail_templates.manage';
 
+    /** Verteiler (gespeicherte Empfängerkreise) anlegen und ändern (Geschäftsstelle, Vorstand). */
+    case MailSegmentsManage = 'mail_segments.manage';
+
     /** Systemsteuerung: Zustand ansehen und Aufgaben ausführen (nur Administration). */
     case SystemManage = 'system.manage';
 

@@ -10,6 +10,7 @@ use App\Modules\Mailings\Models\Mailing;
 use App\Modules\Mailings\Services\MailAttachments;
 use App\Modules\Mailings\Services\MailRecipients;
 use App\Modules\Mailings\Services\Mailings;
+use App\Modules\Mailings\Services\SegmentResolver;
 use App\Modules\Mailings\Services\MailTemplates;
 use App\Modules\Mailings\Support\MailAccessibilityCheck;
 use App\Modules\Mailings\Support\MailGroups;
@@ -81,7 +82,9 @@ class GroupMailingController extends Controller
 
         $canMandatory = $user->can('mailings.members');
         $mandatory = $canMandatory && (bool) old('mandatory', $prefill['mandatory'] ?? false);
-        $stats = $selected === [] && $chips === [] ? ['kept' => [], 'unsubscribed' => 0, 'suppressed' => 0, 'excluded' => 0] : $this->recipients->groupsWithStats($selected, $mandatory, $excluded, array_column($chips, 'token'));
+        $usableSegments = app(SegmentResolver::class)->usableBy($user);
+        $selectedSegments = array_values(array_intersect(array_map('intval', (array) old('segments', $prefill['segments'] ?? [])), $usableSegments->pluck('id')->all()));
+        $stats = app(SegmentResolver::class)->combined($selected, $mandatory, $excluded, array_column($chips, 'token'), $selectedSegments);
         $total = count($stats['kept']);
 
         return view('mailings.groups-form', [
@@ -90,6 +93,8 @@ class GroupMailingController extends Controller
             'groupOptions' => $options,
             'selected' => $selected,
             'excludedGroups' => $excluded,
+            'segmentOptions' => $usableSegments->pluck('name', 'id')->all(),
+            'selectedSegments' => $selectedSegments,
             'excludeOptions' => array_map(fn (array $group): string => $group['label'], $allowed),
             'chips' => $chips,
             'peopleOptions' => array_column($chips, 'label', 'token'),
@@ -138,7 +143,7 @@ class GroupMailingController extends Controller
             $meeting = (array) (($draft->payload ?? [])['meeting'] ?? []);
 
             return [
-                'subject' => $draft->subject, 'body' => RichText::forEditor($draft->body), 'groups' => (array) $draft->groups, 'exclude' => $draft->excludedGroups(), 'people' => $draft->chosenPeople(), 'mandatory' => (bool) $draft->mandatory,
+                'subject' => $draft->subject, 'body' => RichText::forEditor($draft->body), 'groups' => (array) $draft->groups, 'exclude' => $draft->excludedGroups(), 'people' => $draft->chosenPeople(), 'segments' => $draft->chosenSegments(), 'mandatory' => (bool) $draft->mandatory,
                 'send_at' => $draft->send_at?->format('Y-m-d\TH:i'),
                 'meeting_title' => $meeting['title'] ?? null, 'meeting_date' => $meeting['date'] ?? null, 'meeting_time' => $meeting['time'] ?? null,
                 'meeting_place' => $meeting['place'] ?? null, 'meeting_link' => $meeting['link'] ?? null, 'meeting_deadline' => $meeting['deadline'] ?? null,
@@ -171,7 +176,7 @@ class GroupMailingController extends Controller
     public function draft(Request $request): RedirectResponse
     {
         $data = $this->validated($request);
-        $mailing = $this->mailings->saveDraft(['groups' => array_values($data['groups']), 'subject' => $data['subject'], 'body' => $data['body'], 'meeting' => $this->meeting($data), 'mandatory' => $data['mandatory'], 'send_at' => $this->sendAt($data), 'exclude' => $data['exclude'], 'people' => $data['people']], $this->user(), $this->areaKey($request), $this->ownDraft($request));
+        $mailing = $this->mailings->saveDraft(['groups' => array_values($data['groups']), 'subject' => $data['subject'], 'body' => $data['body'], 'meeting' => $this->meeting($data), 'mandatory' => $data['mandatory'], 'send_at' => $this->sendAt($data), 'exclude' => $data['exclude'], 'people' => $data['people'], 'segments' => $data['segments']], $this->user(), $this->areaKey($request), $this->ownDraft($request));
 
         return redirect()->route($this->base($request).'.create', ['entwurf' => $mailing->id])->with('success', $this->mailings->flashMessage($mailing));
     }
@@ -181,7 +186,7 @@ class GroupMailingController extends Controller
         $data = $this->validated($request);
 
         try {
-            $mailing = $this->mailings->sendGroups(array_values($data['groups']), $data['subject'], $data['body'], $this->meeting($data), $this->user(), $data['mandatory'], $this->sendAt($data), $this->areaKey($request), $this->ownDraft($request), $data['exclude'], $data['people']);
+            $mailing = $this->mailings->sendGroups(array_values($data['groups']), $data['subject'], $data['body'], $this->meeting($data), $this->user(), $data['mandatory'], $this->sendAt($data), $this->areaKey($request), $this->ownDraft($request), $data['exclude'], $data['people'], $data['segments']);
         } catch (DomainException $exception) {
             return redirect()->route($this->base($request).'.create')->withInput($request->all())->with('error', $exception->getMessage());
         }
@@ -200,6 +205,8 @@ class GroupMailingController extends Controller
             'groups.*' => ['string', Rule::in($allowed)],
             'exclude' => ['nullable', 'array'],
             'exclude.*' => ['string', Rule::in($allowed)],
+            'segments' => ['nullable', 'array', 'max:20'],
+            'segments.*' => ['integer'],
             'people' => ['nullable', 'array', 'max:200'],
             'people.*' => ['string', 'regex:/^([umk]:\d+|e:[^\s@]+@[^\s@]+)$/'],
             'subject' => ['required', 'string', 'max:150'],
@@ -232,8 +239,10 @@ class GroupMailingController extends Controller
         $data['exclude'] = array_values($data['exclude'] ?? []);
         $data['people'] = array_column($this->recipients->describe($this->recipients->allowedTokens($data['people'] ?? [], $this->user())), 'token');
 
-        if ($data['groups'] === [] && $data['people'] === []) {
-            throw ValidationException::withMessages(['groups' => 'Bitte wählen Sie mindestens eine Gruppe oder eine Person.']);
+        $data['segments'] = array_values(array_intersect(array_map('intval', $data['segments'] ?? []), app(SegmentResolver::class)->usableBy($this->user())->pluck('id')->all()));
+
+        if ($data['groups'] === [] && $data['people'] === [] && $data['segments'] === []) {
+            throw ValidationException::withMessages(['groups' => 'Bitte wählen Sie mindestens eine Gruppe, einen Verteiler oder eine Person.']);
         }
 
         // Pflichtmitteilungen (nicht abbestellbar) darf nur schreiben, wer auch die Mitglieder anschreiben darf

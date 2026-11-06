@@ -28,12 +28,15 @@
 
         <x-vdbs.forms.form-section title="Empfänger">
             <x-vdbs.forms.multi-select name="groups" label="Gruppen" :searchable="true" placeholder="Gruppen wählen oder suchen" search-label="Gruppen filtern" :options="$groupOptions" :value="$selected" hint="Mehrere Gruppen sind möglich. Die Zahl in Klammern nennt die erreichbaren Personen (ohne Abbestellte und Gesperrte). Wählen Sie mindestens eine Gruppe oder eine einzelne Person." />
+            @if ($segmentOptions !== [])
+                <x-vdbs.forms.multi-select name="segments" label="Verteiler" :optional="true" :searchable="true" placeholder="Verteiler wählen oder suchen" search-label="Verteiler filtern" :options="$segmentOptions" :value="$selectedSegments" hint="Gespeicherte Empfängerkreise. Sie werden erst beim Versand neu berechnet, Neuzugänge sind also dabei." />
+            @endif
             <x-vdbs.forms.multi-select name="exclude" label="Außer" :optional="true" :searchable="true" placeholder="Gruppen ausnehmen" search-label="Gruppen filtern" :options="$excludeOptions" :value="$excludedGroups" hint="Wer in einer dieser Gruppen ist, wird nicht angeschrieben, auch wenn die Person zu einer gewählten Gruppe gehört." />
             <div data-people-url="{{ route($base.'.people') }}">
                 <x-vdbs.forms.multi-select name="people" label="Einzelne Personen" :optional="true" :searchable="true" placeholder="Person suchen (mindestens zwei Buchstaben)" search-label="Name suchen" :options="$peopleOptions" :value="array_keys($peopleOptions)" hint="Tippen Sie einen Namen, die Treffer erscheinen in der Liste. Direkt gewählte Personen bekommen das Schreiben auch dann, wenn sie keine Sammelmitteilungen wollen, gesperrte Adressen nie." />
             </div>
 
-            @if ($selected !== [] || $chips !== [])
+            @if ($selected !== [] || $chips !== [] || $selectedSegments !== [])
                 <p style="margin:0;color:var(--text-muted)">Erreichbar: {{ $total }} Personen. Nicht angeschrieben: {{ $excludedCount }} durch „Außer“, {{ $unsubscribedCount }} Abgemeldete, {{ $suppressedCount }} gesperrte Adressen.</p>
             @endif
             @if ($needsApproval)

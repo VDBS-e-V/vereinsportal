@@ -5,7 +5,9 @@
 <x-layouts.app title="Rundschreiben" width="wide">
     <x-vdbs.layout.page-header title="Rundschreiben" lead="E-Mails an Gruppen: Mitglieder (nur Vorstand), Teamende, Schulen, Koordination, Vorstand und Geschäftsstelle. Frei formuliert oder auf Basis einer Vorlage, mit Platzhaltern." :breadcrumb="$crumbs">
         <x-slot:actions>
-            <x-vdbs.actions.button variant="text" :href="route($base.'.suppressions')">Gesperrte Adressen</x-vdbs.actions.button>
+            @if ($base !== 'mailings.coordination')
+                <x-vdbs.actions.button variant="text" :href="route($base.'.suppressions')">Gesperrte Adressen</x-vdbs.actions.button>
+            @endif
             @can('mail_templates.manage')
                 <x-vdbs.actions.button variant="secondary" :href="route('mailings.templates.index')" icon="clipboard-list">Vorlagen</x-vdbs.actions.button>
             @endcan

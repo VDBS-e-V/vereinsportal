@@ -113,6 +113,12 @@ class Mailing extends Model
         return array_values(array_map('strval', (array) (($this->payload ?? [])['exclude'] ?? [])));
     }
 
+    /** Gewählte Verteiler (Verweise, werden beim Versand neu berechnet). @return list<int> */
+    public function chosenSegments(): array
+    {
+        return array_values(array_map('intval', (array) (($this->payload ?? [])['segments'] ?? [])));
+    }
+
     /** Einzeln gewählte Personen (Marken). @return list<string> */
     public function chosenPeople(): array
     {

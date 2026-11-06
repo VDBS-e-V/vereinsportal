@@ -4,6 +4,7 @@ use App\Modules\Mailings\Http\Controllers\DeliveryQualityController;
 use App\Modules\Mailings\Http\Controllers\GroupMailingController;
 use App\Modules\Mailings\Http\Controllers\MailingAttachmentController;
 use App\Modules\Mailings\Http\Controllers\MailingProgressController;
+use App\Modules\Mailings\Http\Controllers\MailSegmentController;
 use App\Modules\Mailings\Http\Controllers\MailSnippetController;
 use App\Modules\Mailings\Http\Controllers\MailWebhookController;
 use App\Modules\Mailings\Http\Controllers\MailTemplateController;
@@ -54,6 +55,18 @@ Route::middleware(['web', 'auth', 'can:mailings.team'])->prefix('koordination/mi
     Route::get('/{mailing}', [MailingProgressController::class, 'show'])->whereNumber('mailing')->name('show');
     Route::post('/{mailing}/abbrechen', [MailingProgressController::class, 'cancel'])->whereNumber('mailing')->name('cancel');
     Route::post('/{mailing}/wiederholen', [MailingProgressController::class, 'retry'])->whereNumber('mailing')->name('retry');
+});
+
+Route::middleware(['web', 'auth', 'can:mail_segments.manage'])->prefix('geschaeftsstelle/verteiler')->name('mailings.segments.')->group(function (): void {
+    Route::get('/', [MailSegmentController::class, 'index'])->name('index');
+    Route::get('/neu', [MailSegmentController::class, 'create'])->name('create');
+    Route::post('/', [MailSegmentController::class, 'store'])->name('store');
+    Route::post('/vorschau', [MailSegmentController::class, 'preview'])->name('preview');
+    Route::post('/loeschen', [MailSegmentController::class, 'destroyMany'])->name('destroy-many');
+    Route::get('/{segment}/bearbeiten', [MailSegmentController::class, 'edit'])->whereNumber('segment')->name('edit');
+    Route::post('/{segment}/vorschau', [MailSegmentController::class, 'preview'])->whereNumber('segment')->name('preview-existing');
+    Route::put('/{segment}', [MailSegmentController::class, 'update'])->whereNumber('segment')->name('update');
+    Route::delete('/{segment}', [MailSegmentController::class, 'destroy'])->whereNumber('segment')->name('destroy');
 });
 
 Route::middleware(['web', 'auth', 'can:mail_templates.manage'])->prefix('geschaeftsstelle/vorlagen')->name('mailings.templates.')->group(function (): void {

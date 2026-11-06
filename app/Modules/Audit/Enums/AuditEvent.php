@@ -103,6 +103,7 @@ enum AuditEvent: string
     case FormStatusChanged = 'form.status_changed';
     case FormExported = 'form.exported';
     case FormSettingsChanged = 'form.settings_changed';
+    case MailSegmentSaved = 'mailing.segment_saved';
 
     public function label(): string
     {
@@ -187,6 +188,7 @@ enum AuditEvent: string
             self::FormStatusChanged => 'Antrag bearbeitet',
             self::FormExported => 'Sammelliste der Anträge erstellt',
             self::FormSettingsChanged => 'Einstellungen der Anträge geändert',
+            self::MailSegmentSaved => 'Verteiler geändert',
         };
     }
 
@@ -208,7 +210,7 @@ enum AuditEvent: string
             self::OnboardingDocumentUploaded, self::TeamOnboardingStarted, self::TeamOnboardingCompleted => 'onboarding',
             self::AuditExported => 'audit',
             self::SystemTaskRun => 'system',
-            self::MailingSent, self::MailSuppressionChanged, self::MailingWorkflow => 'mailings',
+            self::MailingSent, self::MailSuppressionChanged, self::MailingWorkflow, self::MailSegmentSaved => 'mailings',
             self::ContactsImported => 'contacts',
             self::FeedbackFormSaved, self::FeedbackLinkCreated, self::FeedbackLinkClosed, self::FeedbackLinkAnonymized => 'feedback',
             self::OauthClientCreated, self::OauthClientChanged, self::OauthClientDeleted, self::OauthKeysRenewed => 'sso',
