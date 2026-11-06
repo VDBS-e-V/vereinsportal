@@ -62,22 +62,22 @@ class ContractController extends Controller
     }
 
     /** Druckansicht eines Vertrags. */
-    public function show(Seminar $seminar, SeminarContract $contract): View
+    public function show(Seminar $seminar, SeminarContract $contract)
     {
         $this->belongs($seminar, $contract);
 
-        return $this->printView($seminar, collect([$contract]));
+        return $this->printView($seminar, collect([$contract]), $contract->number);
     }
 
     /** Sammel-Druckansicht: eine Seite je Vertrag (alle gültigen oder die gewählten). */
-    public function printAll(Request $request, Seminar $seminar): View
+    public function printAll(Request $request, Seminar $seminar)
     {
         $ids = array_values(array_filter(array_map('intval', (array) $request->query('ids', []))));
         $contracts = SeminarContract::query()->where('seminar_id', $seminar->id)->where('status', '!=', 'cancelled')->when($ids !== [], fn ($query) => $query->whereIn('id', $ids))->orderBy('id')->get();
 
         abort_if($contracts->isEmpty(), 404);
 
-        return $this->printView($seminar, $contracts);
+        return $this->printView($seminar, $contracts, 'Vertraege_'.($seminar->number ?: $seminar->id));
     }
 
     public function scan(Request $request, Seminar $seminar, SeminarContract $contract): RedirectResponse
@@ -108,7 +108,7 @@ class ContractController extends Controller
     }
 
     /** @param  \Illuminate\Support\Collection<int, SeminarContract>  $contracts */
-    private function printView(Seminar $seminar, $contracts): View
+    private function printView(Seminar $seminar, $contracts, string $name = 'Vertrag')
     {
         $club = $this->settings->all();
         $pages = $contracts->map(function (SeminarContract $contract) use ($club): array {
@@ -117,7 +117,31 @@ class ContractController extends Controller
             return ['contract' => $contract, 'title' => $template->title, 'html' => $this->texts->render($template, (array) $contract->data, $club), 'club' => $club];
         });
 
-        return view('contracts.print', ['seminar' => $seminar, 'pages' => $pages, 'club' => $club]);
+        $data = ['seminar' => $seminar, 'pages' => $pages, 'club' => $club, 'pdfAvailable' => class_exists(\Dompdf\Dompdf::class), 'pdf' => false];
+
+        if (request()->query('format') === 'pdf') {
+            if (! $data['pdfAvailable']) {
+                return redirect()->back()->with('error', 'Die PDF-Erzeugung ist auf diesem Server nicht eingerichtet. Nutzen Sie die Druckansicht und speichern Sie sie als PDF.');
+            }
+
+            try {
+                $options = new \Dompdf\Options;
+                $options->set('isRemoteEnabled', false);
+                $pdf = new \Dompdf\Dompdf($options);
+                $pdf->loadHtml(view('contracts.print', ['pdf' => true] + $data)->render(), 'UTF-8');
+                $pdf->setPaper('A4');
+                $pdf->render();
+                $output = (string) $pdf->output();
+            } catch (\Throwable $exception) {
+                report($exception);
+
+                return redirect()->back()->with('error', 'Das PDF konnte nicht erzeugt werden. Nutzen Sie die Druckansicht und speichern Sie sie als PDF.');
+            }
+
+            return response($output, 200, ['Content-Type' => 'application/pdf', 'Content-Disposition' => 'attachment; filename="Dienstleistungsvertrag_'.Str::slug($name).'.pdf"', 'Cache-Control' => 'private, no-store']);
+        }
+
+        return view('contracts.print', $data);
     }
 
     private function belongs(Seminar $seminar, SeminarContract $contract): void

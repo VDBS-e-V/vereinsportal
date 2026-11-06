@@ -22,4 +22,4 @@ Teamende › **Vertragsdaten**: Steuernummer, Umsatzsteuer-Art, Bankverbindung. 
 Der gesamte Vertragsinhalt (auch Steuernummer und IBAN) liegt verschlüsselt in der Datenbank. Er steht nie in Listen und nie im Protokoll; das Protokoll nennt nur Seminarnummer und Zahl. Aufbewahrung 10 Jahre nach dem letzten Termin; `contracts:prune` (täglich, auch als Aufgabe „Verträge aufräumen“) löscht danach.
 
 ## Noch nicht umgesetzt
-PDF-Erzeugung (dompdf) und Sammel-PDF: Es gibt die Druckansicht im Browser („Als PDF speichern“ im Druckdialog). Erinnerung an fehlende Scans in der Aufgabenübersicht. Zuschlag für die Seminarleitung (in der Vergütung von Hand anpassen). Anleitung in einfacher Sprache.
+PDF: Die Druckansicht bietet „Als PDF herunterladen“, sobald das Paket dompdf installiert ist (`composer require dompdf/dompdf --ignore-platform-req=ext-sodium`, danach Cache leeren); sonst „Als PDF speichern“ im Druckdialog. Erinnerung an fehlende Scans in der Aufgabenübersicht. Zuschlag für die Seminarleitung (in der Vergütung von Hand anpassen). Anleitung in einfacher Sprache.

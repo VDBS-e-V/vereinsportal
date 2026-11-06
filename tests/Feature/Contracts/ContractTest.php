@@ -235,3 +235,19 @@ it('shows the contracts page in the navigation of the coordination and the teams
     $this->actingAs(ctrUser(RoleKey::AdministrationStaff))->get(route('contracts.admin.index'))->assertOk()->assertSee('Vereinsdaten');
     $this->actingAs(ctrUser(RoleKey::Team))->get(route('team.home'))->assertOk()->assertSee('Vertragsdaten');
 });
+
+it('offers the pdf only when the package exists and explains it otherwise', function () {
+    [$seminar] = ctrSeminar(1);
+    $this->actingAs(ctrUser(RoleKey::Coordination))->post(route('contracts.store', $seminar), ['all' => 1]);
+    $contract = SeminarContract::query()->firstOrFail();
+
+    $page = $this->get(route('contracts.show', [$seminar, $contract]))->assertOk();
+
+    if (class_exists(\Dompdf\Dompdf::class)) {
+        $page->assertSee('Als PDF herunterladen');
+        $this->get(route('contracts.show', [$seminar, $contract, 'format' => 'pdf']))->assertOk()->assertHeader('Content-Type', 'application/pdf');
+    } else {
+        $page->assertDontSee('Als PDF herunterladen');
+        $this->from(route('contracts.show', [$seminar, $contract]))->get(route('contracts.show', [$seminar, $contract, 'format' => 'pdf']))->assertRedirect()->assertSessionHas('error');
+    }
+});
