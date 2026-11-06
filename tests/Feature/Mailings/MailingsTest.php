@@ -147,7 +147,7 @@ it('collects the groups by role, once per address, without opted out accounts, a
 
     expect(array_keys(MailGroups::allowedFor($board)))->toContain('members', 'team', 'schools')
         ->and(array_keys(MailGroups::allowedFor(mlUser(RoleKey::AdministrationStaff))))->toContain('team', 'schools')->not->toContain('members')
-        ->and(MailGroups::allowedFor($coordination))->toBe([]);
+        ->and(array_keys(MailGroups::allowedFor($coordination)))->toBe(['team', 'schools', 'coordination', 'education']);
 });
 
 it('sends a personal letter to the chosen groups, free in wording, with the details of the meeting', function () {
