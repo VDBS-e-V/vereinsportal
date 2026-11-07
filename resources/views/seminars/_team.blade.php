@@ -109,12 +109,15 @@
                             <br><small>Notiz: {{ $application->internal_note }}</small>
                         @endif
                     </td>
-                    <td><x-vdbs.data.badge :tone="$application->status->tone()">{{ $application->status->label() }}</x-vdbs.data.badge></td>
+                    <td><x-vdbs.data.badge :tone="$application->status->tone()">{{ $application->status->label() }}</x-vdbs.data.badge>@if ($application->is_lead) <x-vdbs.data.badge tone="info">Leitung</x-vdbs.data.badge>@endif</td>
                     <td>
                         @if ($canManage)
                             <div class="vdbs-btn-group">
                                 @if ($application->status !== \App\Modules\Seminars\Enums\ApplicationStatus::Confirmed)
                                     <form method="post" action="{{ route('seminars.team.decide', [$seminar, $application, 'bestaetigen']) }}">@csrf<x-vdbs.actions.button type="submit" size="s" icon="check">Ins Team</x-vdbs.actions.button></form>
+                                @endif
+                                @if ($application->status === \App\Modules\Seminars\Enums\ApplicationStatus::Confirmed)
+                                    <form method="post" action="{{ route('seminars.team.lead', [$seminar, $application]) }}">@csrf<x-vdbs.actions.button type="submit" size="s" variant="secondary" icon="star">{{ $application->is_lead ? 'Leitung abgeben' : 'Als Leitung' }}</x-vdbs.actions.button></form>
                                 @endif
                                 @if ($application->status !== \App\Modules\Seminars\Enums\ApplicationStatus::Declined)
                                     <form method="post" action="{{ route('seminars.team.decide', [$seminar, $application, 'ablehnen']) }}">@csrf<x-vdbs.actions.button type="submit" size="s" variant="tertiary">Nicht berücksichtigen</x-vdbs.actions.button></form>

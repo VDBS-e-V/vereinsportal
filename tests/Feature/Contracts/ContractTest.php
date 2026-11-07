@@ -269,3 +269,26 @@ it('reminds the coordination once about missing scans three days after the last 
     // zwei Personen mit der Rolle Koordination (eine legt das Hilfsmittel für den Termin an): je eine Mail, kein zweiter Durchgang
     \Illuminate\Support\Facades\Mail::assertSentCount(2);
 });
+
+it('lets the coordination mark the seminar lead and adds the leader rate to that contract only', function () {
+    [$seminar, $applications] = ctrSeminar(2);
+    $quote = SeminarQuote::query()->where('seminar_id', $seminar->id)->firstOrFail();
+    $positions = $quote->positions;
+    $positions[0]['lines'][] = ['key' => 'leader', 'label' => 'Satz Seminarleitung', 'quantity' => 1.0, 'unit' => 'Seminarleitung', 'unit_cents' => 5000, 'per_day' => true, 'total_cents' => 5000];
+    $quote->forceFill(['positions' => $positions])->save();
+
+    $this->actingAs(ctrUser(RoleKey::Coordination));
+    $this->post(route('seminars.team.lead', [$seminar, $applications[0]]))->assertRedirect()->assertSessionHas('success');
+    expect($applications[0]->fresh()->is_lead)->toBeTrue();
+
+    $this->post(route('contracts.store', $seminar), ['all' => 1]);
+    $byApplication = SeminarContract::query()->get()->keyBy('application_id');
+
+    expect($byApplication[$applications[0]->id]->data['amount_cents'])->toBe(20000)->and($byApplication[$applications[1]->id]->data['amount_cents'])->toBe(15000);
+
+    $this->post(route('seminars.team.lead', [$seminar, $applications[0]]));
+    expect($applications[0]->fresh()->is_lead)->toBeFalse();
+
+    $declined = SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => ctrUser(RoleKey::Team)->id, 'status' => 'declined']);
+    $this->post(route('seminars.team.lead', [$seminar, $declined]))->assertSessionHas('error');
+});

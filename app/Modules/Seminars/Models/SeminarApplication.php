@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /** Modul: Seminars. Bewerbung eines Teamenden-Kontos auf ein Seminar. */
 class SeminarApplication extends Model
 {
-    protected $fillable = ['seminar_id', 'user_id', 'contact_id', 'guest_name', 'guest_phone', 'guest_birth_year', 'guest_competences', 'guest_experience', 'guest_consent_contact', 'confirmed_at', 'status', 'note', 'wants_lead', 'internal_note', 'decided_by_user_id', 'decided_at'];
+    protected $fillable = ['seminar_id', 'user_id', 'contact_id', 'guest_name', 'guest_phone', 'guest_birth_year', 'guest_competences', 'guest_experience', 'guest_consent_contact', 'confirmed_at', 'status', 'note', 'wants_lead', 'is_lead', 'internal_note', 'decided_by_user_id', 'decided_at'];
 
     protected function casts(): array
     {

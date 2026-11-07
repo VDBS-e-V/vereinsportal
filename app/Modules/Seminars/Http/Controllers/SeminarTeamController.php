@@ -82,6 +82,20 @@ class SeminarTeamController extends Controller
         return redirect()->route('seminars.show', $seminar)->with('success', 'Die Notiz wurde gespeichert.');
     }
 
+    /** Setzt oder nimmt die Seminarleitung für eine bestätigte Person (Grundlage für den Zuschlag im Vertrag). */
+    public function lead(Seminar $seminar, SeminarApplication $application): RedirectResponse
+    {
+        abort_unless($application->seminar_id === $seminar->id, 404);
+
+        if ($application->status !== \App\Modules\Seminars\Enums\ApplicationStatus::Confirmed) {
+            return redirect()->route('seminars.show', $seminar)->with('error', 'Die Seminarleitung kann nur eine Person im Team übernehmen.');
+        }
+
+        $application->forceFill(['is_lead' => ! $application->is_lead])->save();
+
+        return redirect()->route('seminars.show', $seminar)->with('success', $application->is_lead ? 'Die Person leitet das Seminar.' : 'Die Person leitet das Seminar nicht mehr.');
+    }
+
     public function decide(Request $request, Seminar $seminar, SeminarApplication $application, string $decision): RedirectResponse
     {
         abort_unless($application->seminar_id === $seminar->id && in_array($decision, ['bestaetigen', 'ablehnen'], true), 404);

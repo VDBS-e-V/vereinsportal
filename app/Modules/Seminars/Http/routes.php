@@ -31,6 +31,7 @@ Route::middleware(['web', 'auth'])->group(function (): void {
             Route::post('/{seminar}/team/information', [\App\Modules\Seminars\Http\Controllers\TeamInfoController::class, 'send'])->whereNumber('seminar')->middleware('throttle:10,10')->name('team.info.send');
             Route::post('/{seminar}/team/vorschlag', [SeminarTeamController::class, 'suggestion'])->whereNumber('seminar')->name('team.suggestion');
             Route::put('/{seminar}/bewerbungen/{application}/notiz', [SeminarTeamController::class, 'note'])->whereNumber(['seminar', 'application'])->name('team.note');
+            Route::post('/{seminar}/bewerbungen/{application}/leitung', [SeminarTeamController::class, 'lead'])->whereNumber(['seminar', 'application'])->name('team.lead');
             Route::post('/{seminar}/bewerbungen/{application}/{decision}', [SeminarTeamController::class, 'decide'])->whereNumber(['seminar', 'application'])->where('decision', 'bestaetigen|ablehnen')->name('team.decide');
             Route::delete('/{seminar}/termine/{session}', [SeminarController::class, 'destroySession'])->whereNumber(['seminar', 'session'])->name('sessions.destroy');
         });

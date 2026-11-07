@@ -23,7 +23,7 @@ Der gesamte Vertragsinhalt (auch Steuernummer und IBAN) liegt verschlüsselt in 
 
 ## Erinnerung und Seminarleitung
 - `contracts:remind` (täglich, auch als Aufgabe „An fehlende Vertragsscans erinnern“) schickt der Koordination drei Tage nach dem letzten Termin eine E-Mail, wenn Verträge noch keinen unterschriebenen Scan haben. Einmal je Vertrag; die Mail nennt nur Seminar und Zahl.
-- Der Satz der Seminarleitung steht als Hinweis am Vertrag (aus dem Kostenvoranschlag). Er wird nicht automatisch aufgeschlagen, weil das Portal nicht weiß, wer die Leitung hat. Bitte in der Vergütung von Hand einrechnen und den Vermerk eintragen.
+- **Seminarleitung:** Im Team des Seminars gibt es für bestätigte Personen den Knopf „Als Leitung“. Für die Leitung rechnet das Portal den Satz aus dem Kostenvoranschlag zum Honorar dazu (ohne Vermerk, weil es der Kostenvoranschlag so vorsieht). Gilt für Verträge, die danach erzeugt werden; bestehende Verträge ändern Sie von Hand. Ohne Markierung steht der Satz nur als Hinweis am Vertrag.
 
 ## Anleitung in einfacher Sprache
 1. Öffnen Sie das Seminar. Suchen Sie den Abschnitt „Verträge“.
@@ -34,5 +34,3 @@ Der gesamte Vertragsinhalt (auch Steuernummer und IBAN) liegt verschlüsselt in 
 6. Scannen Sie jeden unterschriebenen Vertrag. Laden Sie den Scan bei der Person mit „Scan ablegen“ hoch.
 7. Wenn alle Scans da sind, ist im Abschluss des Seminars der Punkt „Verträge sind unterschrieben“ erledigt.
 
-## Noch nicht umgesetzt
-Automatischer Zuschlag für die Seminarleitung.

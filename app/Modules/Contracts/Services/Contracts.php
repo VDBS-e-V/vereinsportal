@@ -58,7 +58,7 @@ final class Contracts
             .($dates !== '' ? ', Termine: '.$dates : '')
             .($hours > 0 ? ', insgesamt '.str_replace('.', ',', (string) $hours).' Stunden' : '').'.');
 
-        $amount = $this->honorarium($seminar);
+        $amount = $this->honorarium($seminar) + ($application->is_lead ? $this->leaderRate($seminar) : 0);
 
         return [
             'name' => $person ? trim($person->last_name.', '.$person->first_name) : trim(((string) $contact?->last_name).', '.((string) $contact?->first_name), ', '),
