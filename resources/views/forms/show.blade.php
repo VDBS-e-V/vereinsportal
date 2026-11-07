@@ -40,6 +40,19 @@
         @endforeach
     </x-vdbs.data.table>
 
+    @if (! $office && $application->type === 'purchase')
+        @if (! empty($application->data['reimbursement']))
+            <p>Erstattung zu dieser Bestellung: <strong>{{ $application->data['reimbursement'] }}</strong></p>
+        @elseif (in_array($application->status, ['approved', 'ordered', 'delivered', 'closed'], true))
+            <form method="post" action="{{ route($audience.'-forms.reimburse', $application) }}" style="margin-bottom:var(--space-4)">@csrf
+                <x-vdbs.actions.button type="submit" variant="secondary" icon="file-text">Aus eigener Tasche bezahlt: Erstattung beantragen</x-vdbs.actions.button>
+                <p class="vdbs-hint">Legt einen Erstattungsantrag mit den Positionen dieser Bestellung an. Belege und Bankverbindung ergänzen Sie dort.</p>
+            </form>
+        @endif
+    @endif
+    @if (! $office && ! empty($application->data['from_purchase']))
+        <p>Erstattung zur Bestellung <strong>{{ $application->data['from_purchase'] }}</strong>.</p>
+    @endif
     @if ($office)
         <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-6)">Bearbeiten</h2>
         @if (session('warning')) <x-vdbs.feedback.alert variant="warning">{{ session('warning') }}</x-vdbs.feedback.alert> @endif

@@ -32,8 +32,8 @@ it('follows the rights matrix for the groups of each role', function () {
     $office = array_keys(MailGroups::allowedFor(rmUser(RoleKey::AdministrationStaff)));
     $coordination = array_keys(MailGroups::allowedFor(rmUser(RoleKey::Coordination)));
 
-    expect($board)->toEqualCanonicalizing(['members', 'team', 'schools', 'coordination', 'education', 'board', 'office'])
-        ->and($office)->toEqualCanonicalizing(['team', 'schools', 'coordination', 'education', 'board', 'office'])
+    expect($board)->toEqualCanonicalizing(['members', 'team', 'schools', 'coordination', 'education', 'board', 'office', 'contacts'])
+        ->and($office)->toEqualCanonicalizing(['team', 'schools', 'coordination', 'education', 'board', 'office', 'contacts'])
         ->and($coordination)->toEqualCanonicalizing(['team', 'schools', 'coordination', 'education']);
 
     foreach ([RoleKey::Member, RoleKey::Team, RoleKey::Administration] as $role) {

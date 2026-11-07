@@ -34,6 +34,7 @@ final class SegmentFilters
             'age_group' => 'Altersgruppe',
             'profile' => 'Teamprofil',
             'applied' => 'Bewerbung in den letzten 12 Monaten',
+            'contact_access' => 'Zugang der importierten Kontakte',
             'competence' => 'Kompetenzen im Teamprofil',
             'seminars_done' => 'Mindestens so viele durchgeführte Seminare',
         ];
@@ -78,6 +79,10 @@ final class SegmentFilters
 
         if ($competences !== []) {
             $clean['competence'] = $competences;
+        }
+
+        if (in_array($input['contact_access'] ?? '', ['not_sent', 'sent_unused', 'used'], true)) {
+            $clean['contact_access'] = $input['contact_access'];
         }
 
         if (filled($input['seminars_done'] ?? null) && (int) $input['seminars_done'] > 0) {
@@ -140,6 +145,7 @@ final class SegmentFilters
             'profile' => self::profile((string) $value),
             'applied' => self::applied((string) $value),
             'competence' => self::competence((array) $value),
+            'contact_access' => self::contactAccess((string) $value),
             'seminars_done' => self::seminarsDone((int) $value),
             default => [],
         };
@@ -226,6 +232,22 @@ final class SegmentFilters
         $ever = SeminarApplication::query()->whereNotNull('user_id')->pluck('user_id')->unique()->all();
 
         return self::userEmails(self::teamUserIds(), $ever);
+    }
+
+    /** Importierte Kontakte nach Stand des persönlichen Zugangs: noch nichts gesendet, gesendet aber nie benutzt, benutzt. @return list<string> */
+    private static function contactAccess(string $state): array
+    {
+        $credentials = DB::table('access_credentials')->whereNull('revoked_at');
+        $sent = (clone $credentials)->whereNotNull('sent_at')->pluck('contact_id')->unique()->all();
+        $used = (clone $credentials)->whereNotNull('last_used_at')->pluck('contact_id')->unique()->all();
+
+        $ids = match ($state) {
+            'used' => $used,
+            'sent_unused' => array_diff($sent, $used),
+            default => DB::table('team_contacts')->whereNotIn('id', $sent ?: [0])->pluck('id')->all(),
+        };
+
+        return $ids === [] ? [] : DB::table('team_contacts')->whereIn('id', $ids)->pluck('email')->all();
     }
 
     /** Teamende, die mindestens eine der gewählten Kompetenzen angegeben haben. @param  list<string>  $wanted @return list<string> */

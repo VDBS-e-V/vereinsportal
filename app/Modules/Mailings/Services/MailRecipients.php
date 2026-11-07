@@ -108,6 +108,25 @@ final class MailRecipients
         return $this->unique($list);
     }
 
+    /** Importierte Kontakte mit Adresse (ohne die, die inzwischen ein aktives Konto haben; die erreicht die Gruppe ihrer Rolle). @return list<array<string, string>> */
+    public function contacts(): array
+    {
+        $accounts = User::query()->where('status', UserStatus::Active->value)->pluck('email')->map(fn ($email): string => mb_strtolower((string) $email))->flip()->all();
+        $list = [];
+
+        foreach (\App\Modules\Contacts\Models\TeamContact::query()->whereNotNull('email')->orderBy('id')->get() as $contact) {
+            $email = trim((string) $contact->email);
+
+            if ($email === '' || isset($accounts[mb_strtolower($email)])) {
+                continue;
+            }
+
+            $list[] = ['email' => $email, 'first' => (string) $contact->first_name, 'last' => (string) $contact->last_name, 'fallback' => 'Teamer:in', 'group' => 'contacts'];
+        }
+
+        return $this->unique($list);
+    }
+
     /** @return list<array{email: string, first: string, last: string}> */
     public function team(?Seminar $seminar, string $audience): array
     {
@@ -251,6 +270,12 @@ final class MailRecipients
 
             if ($key === 'members') {
                 array_push($list, ...$this->members());
+
+                continue;
+            }
+
+            if ($key === 'contacts') {
+                array_push($list, ...$this->contacts());
 
                 continue;
             }

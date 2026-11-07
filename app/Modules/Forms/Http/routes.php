@@ -15,6 +15,7 @@ Route::middleware(['web', 'auth'])->group(function (): void {
             Route::post('/', [FormApplicationController::class, 'store'])->middleware('throttle:30,10')->name('store');
             Route::get('/{application}/bearbeiten', [FormApplicationController::class, 'edit'])->whereNumber('application')->name('edit');
             Route::put('/{application}', [FormApplicationController::class, 'update'])->whereNumber('application')->middleware('throttle:60,10')->name('update');
+            Route::post('/{application}/erstattung', [FormApplicationController::class, 'reimburse'])->whereNumber('application')->middleware('throttle:20,10')->name('reimburse');
             Route::get('/{application}', [FormApplicationController::class, 'show'])->whereNumber('application')->name('show');
             Route::get('/{application}/belege/{file}', [FormApplicationController::class, 'file'])->whereNumber(['application', 'file'])->name('file');
         });

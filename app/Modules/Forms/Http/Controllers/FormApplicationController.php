@@ -56,6 +56,20 @@ class FormApplicationController extends Controller
         return redirect()->route($this->audience($request).'-forms.edit', $application);
     }
 
+    /** Erstattung zu einer eigenen Bestellung anlegen (Entwurf mit den Positionen der Bestellung). */
+    public function reimburse(Request $request, FormApplication $application): RedirectResponse
+    {
+        $this->own($request, $application);
+
+        try {
+            $expense = $this->applications->reimbursementFrom($application, $request->user());
+        } catch (DomainException $exception) {
+            return back()->with('error', $exception->getMessage());
+        }
+
+        return redirect()->route($this->audience($request).'-forms.edit', $expense)->with('success', 'Der Erstattungsantrag ist als Entwurf angelegt. Bitte ergänzen Sie Belege und Bankverbindung.');
+    }
+
     public function edit(Request $request, FormApplication $application): View|RedirectResponse
     {
         $this->own($request, $application);

@@ -48,3 +48,9 @@ Fahrtkostenabrechnung (G3), Materialbestellung (G4), Buchungsliste und Jahresüb
 - `FORMS_ENABLED_TYPES` (Standard `expense,travel,purchase`) schaltet Arten frei.
 
 Noch offen: Aufgabenübersicht („X Anträge warten“), Abschnitt in der Datenschutzerklärung, Seminarseite mit Summen der Anträge, Weiterführung Bestellung → Erstattung.
+
+## Bestellung → Erstattung
+Bei einer eigenen, freigegebenen Bestellung (Status freigegeben, bestellt, geliefert oder abgeschlossen) gibt es auf der Antragsseite den Knopf **Aus eigener Tasche bezahlt: Erstattung beantragen**. Er legt einen Erstattungsantrag als Entwurf an: Positionen und Beträge, Zweck („Erstattung zur Bestellung M-…“), Seminar und Kostenstelle werden übernommen. Belege und Bankverbindung ergänzt die Person im Entwurf selbst. Pro Bestellung gibt es höchstens einen Erstattungsantrag; beide Anträge verweisen mit der Nummer aufeinander. Der Verlauf der Bestellung zeigt „Erstattung angelegt“.
+
+## Kostenstelle am Seminar
+Die Kostenstelle eines Seminars ist eine Auswahl der aktiven Kostenstellen. Anträge zu diesem Seminar übernehmen sie, wenn niemand eine andere wählt.

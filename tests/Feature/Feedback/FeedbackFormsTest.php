@@ -156,7 +156,7 @@ it('closes several links at once', function () {
 it('prints a poster with the link', function () {
     $link = fbLink();
 
-    $this->actingAs(fbUser())->get(route('seminars.feedback.print', [$link->seminar, $link]))->assertOk()->assertSee($link->url());
+    $this->actingAs(fbUser())->get(route('seminars.feedback.print', [$link->seminar, $link]))->assertOk()->assertSee($link->url())->assertSee('vendor/qrcode/qrcode.js', false)->assertSee('id="qr"', false);
 });
 
 it('accepts an anonymous answer without any identifying data', function () {

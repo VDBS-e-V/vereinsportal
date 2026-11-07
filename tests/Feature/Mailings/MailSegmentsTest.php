@@ -192,3 +192,30 @@ it('fills the team placeholder with the names of the confirmed team', function (
         ->and(\App\Modules\Mailings\Support\MailPlaceholders::unknown('Team: {team}', 'team'))->toBe([])
         ->and(\App\Modules\Mailings\Support\MailPlaceholders::unknown('Team: {team}', 'general'))->toBe(['team']);
 });
+
+it('offers imported contacts as a group with unsubscribe and filters them by the state of the personal access', function () {
+    $office = sgUser(RoleKey::AdministrationStaff);
+    $sent = \App\Modules\Contacts\Models\TeamContact::query()->create(['email' => 'gesendet@beispiel.example', 'first_name' => 'Gina', 'last_name' => 'Gesendet']);
+    $used = \App\Modules\Contacts\Models\TeamContact::query()->create(['email' => 'benutzt@beispiel.example', 'first_name' => 'Ben', 'last_name' => 'Benutzt']);
+    $none = \App\Modules\Contacts\Models\TeamContact::query()->create(['email' => 'neu@beispiel.example', 'first_name' => 'Nina', 'last_name' => 'Neu']);
+    $account = sgUser(RoleKey::Team);
+    \App\Modules\Contacts\Models\TeamContact::query()->create(['email' => $account->email, 'first_name' => 'Doppelt', 'last_name' => 'Konto']);
+
+    foreach ([[$sent, null], [$used, now()]] as [$contact, $lastUsed]) {
+        \App\Modules\Contacts\Models\AccessCredential::query()->create(['contact_id' => $contact->id, 'token_hash' => hash('sha256', 'a'.$contact->id), 'code_hash' => hash('sha256', 'b'), 'code_hint' => '12', 'sent_at' => now()->subDay(), 'last_used_at' => $lastUsed, 'expires_at' => now()->addMonth()]);
+    }
+
+    $resolver = app(SegmentResolver::class);
+    $emails = fn (array $filters, string $name) => collect($resolver->recipients(sgSegment(['groups' => ['contacts'], 'filters' => $filters], ['office'], $name))['kept'])->pluck('email')->sort()->values()->all();
+
+    expect($emails([], 'Alle'))->toBe(['benutzt@beispiel.example', 'gesendet@beispiel.example', 'neu@beispiel.example'])
+        ->and($emails(['contact_access' => 'not_sent'], 'Neu'))->toBe(['neu@beispiel.example'])
+        ->and($emails(['contact_access' => 'sent_unused'], 'Gesendet'))->toBe(['gesendet@beispiel.example'])
+        ->and($emails(['contact_access' => 'used'], 'Benutzt'))->toBe(['benutzt@beispiel.example']);
+
+    expect(array_keys(\App\Modules\Mailings\Support\MailGroups::allowedFor($office)))->toContain('contacts')
+        ->and(array_keys(\App\Modules\Mailings\Support\MailGroups::allowedFor(sgUser(RoleKey::Coordination))))->not->toContain('contacts');
+
+    app(\App\Modules\Mailings\Services\MailUnsubscribes::class)->unsubscribe('neu@beispiel.example', 'contact_mailings');
+    expect(collect(app(\App\Modules\Mailings\Services\MailRecipients::class)->groups(['contacts']))->pluck('email')->all())->not->toContain('neu@beispiel.example');
+});

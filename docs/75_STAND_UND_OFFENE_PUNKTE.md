@@ -20,7 +20,6 @@ Stand: alle Pakete des Projektplans (`67_PROJEKTPLAN_LUECKEN.md`) sind umgesetzt
 6. **Vor dem Go-live:** Dependabot-Hinweise und `npm audit` prüfen, Probelauf auf dem Strato-Hosting.
 
 ## Optional und nicht umgesetzt
-- „Bestellung → Erstattung“ (Verknüpfung einer Bestellung mit einem Erstattungsantrag): Die gewünschte Richtung ist noch zu klären.
-- Filter für importierte Kontakte (Zugang gesendet/benutzt) in den Verteilern.
-- QR-Code für Feedbackplakate; PDF der Verträge ohne dompdf (Paket installieren: `composer require dompdf/dompdf --ignore-platform-req=ext-sodium`).
+(Bestellung → Erstattung, Gruppe Importierte Kontakte, QR-Code auf dem Feedbackplakat sind umgesetzt.)
+- PDF der Verträge ohne dompdf (Paket installieren: `composer require dompdf/dompdf --ignore-platform-req=ext-sodium`).
 - Arbeitszeiterfassung (Paket J) ist nur ein Ausblick.

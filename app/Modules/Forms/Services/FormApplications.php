@@ -290,6 +290,52 @@ final class FormApplications
         ];
     }
 
+    // ---------- Bestellung → Erstattung ----------
+
+    /**
+     * Macht aus einer eigenen, freigegebenen Bestellung, die aus eigener Tasche bezahlt wurde, einen Erstattungsantrag (Entwurf).
+     * Positionen, Betrag, Zweck, Seminar und Kostenstelle werden übernommen; Belege und Bankverbindung ergänzt die Person selbst.
+     * Pro Bestellung gibt es höchstens einen Erstattungsantrag.
+     *
+     * @throws DomainException
+     */
+    public function reimbursementFrom(FormApplication $purchase, User $by): FormApplication
+    {
+        if ($purchase->type !== 'purchase' || $purchase->applicant_user_id !== $by->id) {
+            throw new DomainException('Nur eigene Bestellungen lassen sich in eine Erstattung überführen.');
+        }
+
+        if (! in_array($purchase->status, ['approved', 'ordered', 'delivered', 'closed'], true)) {
+            throw new DomainException('Die Bestellung muss zuerst freigegeben sein.');
+        }
+
+        $data = (array) $purchase->data;
+
+        if (! empty($data['reimbursement'])) {
+            throw new DomainException('Zu dieser Bestellung gibt es schon einen Erstattungsantrag ('.$data['reimbursement'].').');
+        }
+
+        $audience = (string) ($data['audience'] ?? 'employee');
+        $expense = $this->create($by, 'expense', $audience);
+
+        $items = [];
+
+        foreach ($purchase->items()->orderBy('position')->get() as $index => $item) {
+            $items[$index] = ['date' => now()->toDateString(), 'kind' => 'material', 'description' => $item->description, 'amount' => number_format($item->amount_cents / 100, 2, ',', '')];
+        }
+
+        $this->saveDraft($expense, [
+            'purpose' => Str::limit('Erstattung zur Bestellung '.$purchase->number.': '.$purchase->purpose, 300, ''),
+            'seminar_id' => $purchase->seminar_id, 'cost_center' => $purchase->cost_center, 'items' => $items,
+        ]);
+
+        $expense->forceFill(['data' => array_merge((array) $expense->fresh()->data, ['from_purchase' => $purchase->number])])->save();
+        $purchase->forceFill(['data' => array_merge($data, ['reimbursement' => $expense->number])])->save();
+        $this->event($purchase, 'reimbursement_started', $by, $expense->number);
+
+        return $expense->fresh();
+    }
+
     // ---------- Einreichen ----------
 
     /** Letzter Tag, an dem ein Beleg mit diesem Datum noch eingereicht werden kann: Ende Februar des Folgejahres. */

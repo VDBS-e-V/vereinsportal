@@ -21,6 +21,7 @@ final class MailGroups
         'education' => ['label' => 'Bildungsreferenten', 'description' => 'Konten mit der Rolle Bildungsreferenten', 'role' => 'education_coordination', 'optout' => null, 'fallback' => 'Kolleg:in', 'ability' => 'mailings.send'],
         'board' => ['label' => 'Vorstand', 'description' => 'Konten mit der Rolle Vorstand', 'role' => 'board_member', 'optout' => null, 'fallback' => 'Kolleg:in', 'ability' => 'mailings.send'],
         'office' => ['label' => 'Geschäftsstelle', 'description' => 'Konten mit der Rolle Geschäftsstelle', 'role' => 'administration_staff', 'optout' => null, 'fallback' => 'Kolleg:in', 'ability' => 'mailings.send'],
+        'contacts' => ['label' => 'Importierte Kontakte', 'description' => 'Teamkontakte ohne Konto, die über den persönlichen Zugang geführt werden (abbestellbar)', 'role' => null, 'optout' => null, 'fallback' => 'Teamer:in', 'ability' => 'contacts.manage'],
     ];
 
     /** Gruppen, die die Koordination anschreiben darf (Recht mailings.send_limited): keine Mitglieder, kein Vorstand, keine Geschäftsstelle. */
@@ -31,6 +32,7 @@ final class MailGroups
         'member_info' => 'Mitteilungen des Vereins an Mitglieder',
         'team_mailings' => 'Mitteilungen an Teamende',
         'school_mailings' => 'Mitteilungen an Schulen',
+        'contact_mailings' => 'Mitteilungen an Kontakte aus dem Teamzugang',
     ];
 
     public static function topicFor(?string $group): ?string
@@ -39,6 +41,7 @@ final class MailGroups
             'members' => 'member_info',
             'team' => 'team_mailings',
             'schools' => 'school_mailings',
+            'contacts' => 'contact_mailings',
             default => null,
         };
     }

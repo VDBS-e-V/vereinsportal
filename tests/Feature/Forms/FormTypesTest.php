@@ -283,3 +283,31 @@ it('does not let team members or members start a purchase', function () {
     $this->actingAs(ftUser(RoleKey::Member))->post(route('member-forms.store'), ['type' => 'purchase'])->assertSessionHasErrors('form');
     expect(FormApplication::query()->count())->toBe(0);
 });
+
+it('turns an approved purchase into a reimbursement draft once, with the positions of the purchase', function () {
+    Mail::fake();
+    $user = ftUser(RoleKey::Employee);
+    $staff = ftUser(RoleKey::AdministrationStaff);
+    $director = ftUser(RoleKey::ManagingDirector);
+    $service = app(FormApplications::class);
+
+    $purchase = $service->submit(ftPurchase($user), $user);
+    expect(fn () => $service->reimbursementFrom($purchase->refresh(), $user))->toThrow(DomainException::class, 'freigegeben');
+
+    $service->check($purchase->refresh(), $staff);
+    $service->approve($purchase->refresh(), $director);
+
+    expect(fn () => $service->reimbursementFrom($purchase->refresh(), $staff))->toThrow(DomainException::class, 'eigene');
+
+    $this->actingAs($user)->get(route('employee-forms.show', $purchase))->assertOk()->assertSee('Erstattung beantragen');
+    $this->post(route('employee-forms.reimburse', $purchase))->assertRedirect();
+
+    $expense = FormApplication::query()->where('type', 'expense')->firstOrFail();
+    expect($expense->status)->toBe('draft')->and($expense->purpose)->toContain($purchase->number)->and($expense->items()->count())->toBe(1)
+        ->and($expense->items()->first()->amount_cents)->toBe(31800)->and($expense->data['from_purchase'])->toBe($purchase->number)
+        ->and($purchase->fresh()->data['reimbursement'])->toBe($expense->number);
+
+    expect(fn () => $service->reimbursementFrom($purchase->refresh(), $user))->toThrow(DomainException::class, $expense->number);
+    $this->get(route('employee-forms.show', $purchase))->assertOk()->assertSee($expense->number)->assertDontSee('Erstattung beantragen');
+    $this->get(route('employee-forms.show', $expense))->assertOk()->assertSee('Erstattung zur Bestellung');
+});

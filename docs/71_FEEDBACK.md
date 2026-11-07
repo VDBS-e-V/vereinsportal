@@ -31,3 +31,6 @@ Noch nicht gebaut: Erinnerungen an Lehrkräfte/Teamende, Kennzahlen im Seminarab
 - **Erinnerung** (`feedback:remind`, täglich): Eine Woche nach dem letzten Termin (`FEEDBACK_REMIND_AFTER_DAYS`) erhalten Lehrkräfte (Hauptansprechperson der Schule, sonst alle Ansprechpersonen mit E-Mail) eine Erinnerung, wenn noch niemand geantwortet hat; das bestätigte Team, wenn weniger als die Hälfte geantwortet hat. Einmal je Link, die Mail enthält nur Seminar und Link.
 - **Seminarabschluss:** Der Schnappschuss enthält `feedback` (Antworten und Durchschnitt je Gruppe), aber nur aus **anonymisierten** Links. Beim Anonymisieren wird der geltende Abschluss ergänzt.
 - **Schulen:** Das Freitextfeld heißt jetzt „Nachricht an die Koordination“. Solange ein Lehrkräfte-Link offen ist, steht der Link zum Fragebogen auf der Seite der Schule.
+
+## QR-Code auf dem Plakat
+Das Plakat (Druckansicht des Links) zeigt einen QR-Code mit der Adresse des Fragebogens. Er wird im Browser erzeugt (MIT-lizenzierte Bibliothek „qrcode-generator“ von Kazuhiko Arase, `public/vendor/qrcode/qrcode.js`), es werden keine Daten an Dritte gesendet. Ohne JavaScript bleibt die Adresse als Text.
