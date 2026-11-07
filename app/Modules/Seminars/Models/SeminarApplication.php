@@ -14,7 +14,7 @@ class SeminarApplication extends Model
 
     protected function casts(): array
     {
-        return ['status' => ApplicationStatus::class, 'decided_at' => 'datetime', 'wants_lead' => 'boolean', 'guest_competences' => 'array', 'guest_consent_contact' => 'boolean', 'confirmed_at' => 'datetime'];
+        return ['status' => ApplicationStatus::class, 'decided_at' => 'datetime', 'wants_lead' => 'boolean', 'is_lead' => 'boolean', 'guest_competences' => 'array', 'guest_consent_contact' => 'boolean', 'confirmed_at' => 'datetime'];
     }
 
     /** @return BelongsTo<Seminar, $this> */
