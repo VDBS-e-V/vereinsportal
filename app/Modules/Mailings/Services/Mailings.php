@@ -14,6 +14,7 @@ use App\Modules\Mailings\Models\Mailing;
 use App\Modules\Mailings\Models\MailingDelivery;
 use App\Modules\Mailings\Support\MailGroups;
 use App\Modules\Mailings\Support\MailPlaceholders;
+use App\Modules\Seminars\Enums\ApplicationStatus;
 use App\Modules\Seminars\Models\Seminar;
 use App\Support\Html\RichText;
 use DomainException;
@@ -417,6 +418,7 @@ final class Mailings
         return [
             'seminar' => (string) $seminar->title,
             'seminar_nr' => (string) ($seminar->number ?? ''),
+            'team' => $seminar->applications()->where('status', ApplicationStatus::Confirmed->value)->with(['user.person', 'contact'])->orderBy('id')->get()->map(fn ($application): string => $application->applicantName())->filter()->implode(', '),
             'schule' => (string) ($seminar->partner?->name ?? ''),
             'termine' => $lines !== [] ? implode('<br>', $lines) : 'Die Termine folgen.',
             'erster_termin' => $first?->period() ?? '',

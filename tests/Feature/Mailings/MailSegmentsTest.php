@@ -151,3 +151,44 @@ it('lists the segments page in the navigation of the office and the board', func
     $this->actingAs(sgUser(RoleKey::AdministrationStaff))->get(route('office.home'))->assertOk()->assertSee('Verteiler');
     $this->actingAs(sgUser(RoleKey::BoardMember))->get(route('office.home'))->assertOk()->assertSee('Verteiler');
 });
+
+it('filters by competences and by the number of conducted seminars', function () {
+    $keys = array_keys((array) config('portal.team.competences', []));
+    $skilled = sgUser(RoleKey::Team);
+    $other = sgUser(RoleKey::Team);
+    \App\Modules\Seminars\Models\TeamProfile::query()->create(['user_id' => $skilled->id, 'competences' => [$keys[0]], 'experience' => 'x']);
+    \App\Modules\Seminars\Models\TeamProfile::query()->create(['user_id' => $other->id, 'competences' => [], 'experience' => 'y']);
+
+    foreach ([\App\Modules\Seminars\Enums\SeminarStatus::Done, \App\Modules\Seminars\Enums\SeminarStatus::Done] as $status) {
+        $seminar = \App\Modules\Seminars\Models\Seminar::factory()->create(['status' => $status]);
+        \App\Modules\Seminars\Models\SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $skilled->id, 'status' => 'confirmed']);
+    }
+
+    $upcoming = \App\Modules\Seminars\Models\Seminar::factory()->create(['status' => \App\Modules\Seminars\Enums\SeminarStatus::Scheduled]);
+    \App\Modules\Seminars\Models\SeminarApplication::query()->create(['seminar_id' => $upcoming->id, 'user_id' => $other->id, 'status' => 'confirmed']);
+
+    $resolver = app(SegmentResolver::class);
+    $emails = fn (array $filters) => collect($resolver->recipients(sgSegment(['groups' => ['team'], 'filters' => $filters], ['office'], 'F'.md5(json_encode($filters))))['kept'])->pluck('email')->all();
+
+    expect($emails(['competence' => [$keys[0]]]))->toBe([$skilled->email])
+        ->and($emails(['seminars_done' => 2]))->toBe([$skilled->email])
+        ->and($emails(['seminars_done' => 3]))->toBe([])
+        ->and(\App\Modules\Mailings\Support\SegmentFilters::normalize(['seminars_done' => '5', 'competence' => ['gibtsnicht']]))->toBe(['seminars_done' => 5]);
+});
+
+it('fills the team placeholder with the names of the confirmed team', function () {
+    $seminar = \App\Modules\Seminars\Models\Seminar::factory()->create(['status' => \App\Modules\Seminars\Enums\SeminarStatus::Scheduled]);
+    $anna = sgUser(RoleKey::Team, ['first_name' => 'Anna', 'last_name' => 'Alt']);
+    $ben = sgUser(RoleKey::Team, ['first_name' => 'Ben', 'last_name' => 'Bunt']);
+    $declined = sgUser(RoleKey::Team, ['first_name' => 'Cora', 'last_name' => 'Cäsar']);
+
+    foreach ([[$anna, 'confirmed'], [$ben, 'confirmed'], [$declined, 'declined']] as [$user, $status]) {
+        \App\Modules\Seminars\Models\SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $user->id, 'status' => $status]);
+    }
+
+    $values = app(\App\Modules\Mailings\Services\Mailings::class)->seminarValues($seminar);
+
+    expect($values['team'])->toContain('Anna Alt')->toContain('Ben Bunt')->not->toContain('Cora')
+        ->and(\App\Modules\Mailings\Support\MailPlaceholders::unknown('Team: {team}', 'team'))->toBe([])
+        ->and(\App\Modules\Mailings\Support\MailPlaceholders::unknown('Team: {team}', 'general'))->toBe(['team']);
+});

@@ -44,6 +44,7 @@ final class MailPlaceholders
         'seminar_nr' => 'Nummer des Seminars, z. B. S-2027-0042',
         'schule' => 'Name der Schule',
         'termine' => 'Alle Termine des Seminars mit Ort',
+        'team' => 'Namen der bestätigten Teamenden des Seminars',
         'erster_termin' => 'Der erste Termin des Seminars',
         'ort' => 'Ort des ersten Termins',
         'stichtag' => 'Stichtag für Interessenbekundungen',

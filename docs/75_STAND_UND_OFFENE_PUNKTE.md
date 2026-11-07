@@ -21,8 +21,7 @@ Stand: alle Pakete des Projektplans (`67_PROJEKTPLAN_LUECKEN.md`) sind umgesetzt
 
 ## Optional und nicht umgesetzt
 - „Bestellung → Erstattung“ (Verknüpfung einer Bestellung mit einem Erstattungsantrag): Die gewünschte Richtung ist noch zu klären.
-- Filter für importierte Kontakte, Kompetenzen und „mindestens n durchgeführte Seminare“ in den Verteilern.
+- Filter für importierte Kontakte (Zugang gesendet/benutzt) in den Verteilern.
 - Automatischer Zuschlag für die Seminarleitung im Vertrag.
-- Platzhalter `{team}` in Rundschreiben.
 - QR-Code für Feedbackplakate; PDF der Verträge ohne dompdf (Paket installieren: `composer require dompdf/dompdf --ignore-platform-req=ext-sodium`).
 - Arbeitszeiterfassung (Paket J) ist nur ein Ausblick.

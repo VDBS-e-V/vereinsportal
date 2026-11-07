@@ -34,6 +34,8 @@ final class SegmentFilters
             'age_group' => 'Altersgruppe',
             'profile' => 'Teamprofil',
             'applied' => 'Bewerbung in den letzten 12 Monaten',
+            'competence' => 'Kompetenzen im Teamprofil',
+            'seminars_done' => 'Mindestens so viele durchgeführte Seminare',
         ];
     }
 
@@ -70,6 +72,16 @@ final class SegmentFilters
         if (filled($input['seminar_id'] ?? null)) {
             $clean['seminar_id'] = (int) $input['seminar_id'];
             $clean['seminar_status'] = in_array($input['seminar_status'] ?? '', ['applied', 'confirmed'], true) ? $input['seminar_status'] : 'any';
+        }
+
+        $competences = array_values(array_intersect(array_map('strval', (array) ($input['competence'] ?? [])), array_keys((array) config('portal.team.competences', []))));
+
+        if ($competences !== []) {
+            $clean['competence'] = $competences;
+        }
+
+        if (filled($input['seminars_done'] ?? null) && (int) $input['seminars_done'] > 0) {
+            $clean['seminars_done'] = min(99, (int) $input['seminars_done']);
         }
 
         foreach (['onboarding' => ['open', 'done'], 'profile' => ['complete', 'incomplete'], 'applied' => ['recent', 'never']] as $key => $allowed) {
@@ -127,6 +139,8 @@ final class SegmentFilters
             })),
             'profile' => self::profile((string) $value),
             'applied' => self::applied((string) $value),
+            'competence' => self::competence((array) $value),
+            'seminars_done' => self::seminarsDone((int) $value),
             default => [],
         };
 
@@ -212,6 +226,24 @@ final class SegmentFilters
         $ever = SeminarApplication::query()->whereNotNull('user_id')->pluck('user_id')->unique()->all();
 
         return self::userEmails(self::teamUserIds(), $ever);
+    }
+
+    /** Teamende, die mindestens eine der gewählten Kompetenzen angegeben haben. @param  list<string>  $wanted @return list<string> */
+    private static function competence(array $wanted): array
+    {
+        $ids = TeamProfile::query()->get()->filter(fn (TeamProfile $profile): bool => array_intersect($wanted, (array) $profile->competences) !== [])->pluck('user_id')->all();
+
+        return self::userEmails($ids);
+    }
+
+    /** Teamende mit mindestens n bestätigten Einsätzen in durchgeführten oder abgeschlossenen Seminaren. @return list<string> */
+    private static function seminarsDone(int $minimum): array
+    {
+        $ids = SeminarApplication::query()->whereNotNull('user_id')->where('status', 'confirmed')
+            ->whereHas('seminar', fn ($query) => $query->whereIn('status', ['done', 'completed']))
+            ->selectRaw('user_id, count(*) as total')->groupBy('user_id')->havingRaw('count(*) >= ?', [max(1, $minimum)])->pluck('user_id')->all();
+
+        return self::userEmails($ids);
     }
 
     /** @return list<int> */
