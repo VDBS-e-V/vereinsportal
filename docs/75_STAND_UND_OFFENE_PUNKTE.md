@@ -23,3 +23,8 @@ Stand: alle Pakete des Projektplans (`67_PROJEKTPLAN_LUECKEN.md`) sind umgesetzt
 (Bestellung → Erstattung, Gruppe Importierte Kontakte, QR-Code auf dem Feedbackplakat sind umgesetzt.)
 - PDF der Verträge ohne dompdf (Paket installieren: `composer require dompdf/dompdf --ignore-platform-req=ext-sodium`).
 - Arbeitszeiterfassung (Paket J) ist nur ein Ausblick.
+
+## Sicherheitsprüfung der Abhängigkeiten (Stand 08.11.2026)
+- `composer audit`: 15 Hinweise in 8 Paketen (laravel/framework, league/commonmark, livewire, symfony/html-sanitizer, http-foundation, http-kernel, mime, routing) durch Patch-Updates innerhalb der erlaubten Versionen behoben (`composer.lock`). Danach: keine Hinweise.
+- `npm audit`: 5 von 6 Hinweisen behoben (follow-redirects, shell-quote/concurrently, source-map-js, vite). Offen: **tinymce 7.9.3** (XSS über das Plugin `media`). Behoben erst in TinyMCE 8 (Hauptversion mit anderer Lizenz). Das Portal lädt nur die Plugins `lists link autolink`, das betroffene Plugin ist **nicht aktiv**; bewusst nicht aktualisiert. Beim nächsten Wechsel auf TinyMCE 8 Lizenz und Texteditor-Tests prüfen.
+- Nach dem Einspielen: `composer install`, `npm ci`, `npm run build`, `php artisan portal:update`, Tests.
