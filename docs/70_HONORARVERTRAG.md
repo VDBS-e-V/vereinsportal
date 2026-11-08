@@ -13,7 +13,7 @@ Für bestätigte Teamende erzeugt das Portal den **Dienstleistungsvertrag** des 
 ## Vertragstext und Vereinsdaten
 Koordination › **Verträge**: Vereinsdaten (Name, Vorsitz, Anschrift, Ort) ändert jede Person mit `contracts.manage`, den **Vertragstext** nur der Vorstand (`contracts.template`). Jede Änderung ist eine neue Version; bestehende Verträge behalten ihre Fassung. Platzhalter: `{auftragnehmer_name}`, `{auftragnehmer_anschrift}`, `{steuernummer}`, `{leistung}`, `{verguetung}`, `{umsatzsteuer_auswahl}`, `{bank}`, `{bic}`, `{iban}`, `{ort}`, `{datum}`, `{verein_name}`, `{verein_vorsitz}`, `{verein_anschrift}`.
 
-**Wichtig:** Die Vorlage `Vertragsvorlage_-1.pdf` lag dem Projekt nicht bei. Version 1 ist ein **Entwurf nach der Klauselliste** (Selbstständigkeit, Steuern und Sozialabgaben, Fahrtkosten nach Bundesreisekostengesetz, keine Ausfallvergütung). Der Vorstand spielt den Wortlaut der Vorlage als Version 2 ein; er sollte rechtlich geprüft werden (Scheinselbstständigkeit, Reisekostensatz, Q12).
+**Wortlaut:** Version 1 (bei neuen Installationen) bzw. Version 2 (bei bestehenden, per Migration) entspricht der Vertragsvorlage „Dienstleistungsvertrag“ vom 08.07.2024; Kopf, Unterschriften und Fußzeile mit Vorsitz und Anschrift kommen aus den Vereinsdaten. Änderungen am Text als neue Version einspielen und rechtlich prüfen lassen (Scheinselbstständigkeit).
 
 ## Vertragsdaten der Teamenden
 Teamende › **Vertragsdaten**: Steuernummer, Umsatzsteuer-Art, Bankverbindung. Freiwillig, verschlüsselt, jederzeit löschbar. Die IBAN wird geprüft. Am Vertrag kann die Koordination die Daten für künftige Verträge ins Teamkonto übernehmen. Ohne Teamkonto trägt die Koordination die Daten am Vertrag ein oder druckt Linien.

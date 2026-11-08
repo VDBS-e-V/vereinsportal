@@ -11,6 +11,7 @@ use App\Modules\Forms\Services\FormSettings;
 use App\Modules\People\Models\Person;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
@@ -18,6 +19,8 @@ beforeEach(function () {
     $this->withoutVite();
     $this->seed(RoleSeeder::class);
     Storage::fake('local');
+    // Die bestehenden Rechenfälle gehen von 30 Cent aus; der Standard (BRKG: 20 Cent, höchstens 130 Euro) wird unten eigens geprüft
+    DB::table('form_settings')->insert([['key' => 'km_rate_cents', 'value' => '30', 'updated_at' => now()], ['key' => 'car_max_cents', 'value' => '0', 'updated_at' => now()]]);
 });
 
 function ftUser(?RoleKey $role = RoleKey::Team): User
@@ -310,4 +313,18 @@ it('turns an approved purchase into a reimbursement draft once, with the positio
     expect(fn () => $service->reimbursementFrom($purchase->refresh(), $user))->toThrow(DomainException::class, $expense->number);
     $this->get(route('employee-forms.show', $purchase))->assertOk()->assertSee($expense->number)->assertDontSee('Erstattung beantragen');
     $this->get(route('employee-forms.show', $expense))->assertOk()->assertSee('Erstattung zur Bestellung');
+});
+
+it('uses the Bundesreisekostengesetz as default: 20 cent per km, at most 130 euro per car trip', function () {
+    DB::table('form_settings')->whereIn('key', ['km_rate_cents', 'car_max_cents'])->delete();
+    $user = ftUser();
+
+    $short = ftTravel($user, ['km' => '100']);
+    $long = ftTravel($user, ['km' => '1000']);
+
+    expect($short->total_cents)->toBe(2000)->and($short->items->first()->extra['rate_cents'])->toBe(20)
+        ->and($long->total_cents)->toBe(13000);
+
+    DB::table('form_settings')->insert(['key' => 'car_max_cents', 'value' => '0', 'updated_at' => now()]);
+    expect(ftTravel($user, ['km' => '1000'])->total_cents)->toBe(20000);
 });

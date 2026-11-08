@@ -43,10 +43,10 @@
             <h1>{{ $page['title'] }}</h1>
             {!! $page['html'] !!}
             <table class="signatures"><tr>
-                <td>{{ $page['club']['club_name'] }}</td>
+                <td>{{ $page['club']['club_short'] }}</td>
                 <td>Auftragnehmer:in</td>
             </tr></table>
-            <p class="footer">{{ $page['club']['club_name'] }} · Vorsitz: {{ $page['club']['chair'] }} · {{ $page['club']['address'] }}</p>
+            <p class="footer">{{ $page['club']['club_name'] }} · Vorsitzender: {{ $page['club']['chair'] }} · {{ $page['club']['address'] }}</p>
         </div>
     @endforeach
 </body>

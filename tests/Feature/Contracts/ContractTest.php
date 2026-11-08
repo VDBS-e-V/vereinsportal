@@ -146,7 +146,7 @@ it('versions the text: a new version keeps old contracts on version one and only
 
     expect(app(ContractTexts::class)->versions()->pluck('version')->all())->toBe([2, 1])->and($old->fresh()->template_version)->toBe(1);
 
-    $this->actingAs($coordination)->get(route('contracts.show', [$seminar, $old]))->assertOk()->assertDontSee('Neuer Text', false)->assertSee('Selbstständigkeit', false);
+    $this->actingAs($coordination)->get(route('contracts.show', [$seminar, $old]))->assertOk()->assertDontSee('Neuer Text', false)->assertSee('Weisungs- und Direktionsrecht', false);
 
     [$other] = ctrSeminar(1);
     $this->post(route('contracts.store', $other), ['all' => 1]);

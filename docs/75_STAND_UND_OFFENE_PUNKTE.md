@@ -12,8 +12,8 @@ Stand: alle Pakete des Projektplans (`67_PROJEKTPLAN_LUECKEN.md`) sind umgesetzt
 | K | Honorarvertrag: Vertragstext (versioniert), Vertragsdaten, Druckansicht, optional PDF, Scan, Abschlussliste, Erinnerung | 70 |
 
 ## Offen und braucht eine Entscheidung oder Prüfung durch den Verein
-1. **Vertragstext:** Version 1 ist ein Entwurf nach der Klauselliste. Der Wortlaut von `Vertragsvorlage_-1.pdf` muss als neue Version eingespielt und rechtlich geprüft werden (Scheinselbstständigkeit).
-2. **Reisekostensatz (Q12):** Der Vertrag verweist auf das Bundesreisekostengesetz, die Fahrtkostenabrechnung rechnet 30 Cent je km (Einstellung änderbar). Mit der Steuerberatung klären.
+1. **Vertragstext:** Der Wortlaut der Vertragsvorlage ist eingespielt. Rechtlich prüfen lassen (Scheinselbstständigkeit).
+2. **Reisekostensatz:** Umgestellt auf das Bundesreisekostengesetz (20 Cent je km, höchstens 130 Euro je Fahrt, Einstellung änderbar).
 3. **Datenschutzerklärung:** Die Abschnitte sind Entwürfe; Datenschutzbeauftragte prüfen. Aufbewahrungsfristen (10/3 Jahre, 12 Monate Feedback, 30 Tage IBAN) sind Annahmen.
 4. **Textentwürfe:** Der Grundbestand an Mailvorlagen und Bausteinen ist ein Entwurf zur Freigabe.
 5. **Abnahme mit echten Systemen:** Nextcloud/Moodle-Anmeldung über OIDC (bisher nur durch Tests belegt), Verträge und Anträge mit echten Daten.

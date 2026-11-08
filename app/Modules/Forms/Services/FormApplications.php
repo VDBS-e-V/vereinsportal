@@ -265,6 +265,11 @@ final class FormApplications
         $rate = $this->settings->int('km_rate_cents');
         $distance = $km * ($round ? 2 : 1);
         $fare = $mode === 'car' ? (int) round($distance * $rate) : $ticket;
+        $cap = $this->settings->int('car_max_cents');
+
+        if ($mode === 'car' && $cap > 0) {
+            $fare = min($fare, $cap);
+        }
         $from = Str::limit(trim((string) ($item['from'] ?? '')), 100, '');
         $to = Str::limit(trim((string) ($item['to'] ?? '')), 100, '');
         $modeLabels = ['car' => 'PKW', 'train' => 'Bahn', 'public' => 'Nahverkehr', 'ride' => 'Mitfahrt'];

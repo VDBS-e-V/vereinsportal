@@ -16,9 +16,7 @@
 
     <section aria-labelledby="text-title" style="margin-top:var(--space-8)">
         <h2 id="text-title" style="font-size:var(--font-size-h3)">Vertragstext, Version {{ $shown->version }}@if ($shown->id === $active->id) (gültig)@endif</h2>
-        @if ($active->version === 1 && $versions->count() === 1)
-            <x-vdbs.feedback.alert variant="warning">Version 1 ist ein Entwurf nach den Klauseln der Vorlage (Selbstständigkeit, Steuern und Sozialabgaben, Fahrtkosten, keine Ausfallvergütung). Bitte spielen Sie den Wortlaut Ihrer Vertragsvorlage als neue Version ein und lassen Sie ihn rechtlich prüfen.</x-vdbs.feedback.alert>
-        @endif
+        <x-vdbs.feedback.alert variant="info">Der Standardtext entspricht der Vertragsvorlage „Dienstleistungsvertrag“ (Stand 08.07.2024). Änderungen am Wortlaut sollten rechtlich geprüft werden.</x-vdbs.feedback.alert>
 
         @if ($canTemplate)
             <x-vdbs.forms.form :action="route('contracts.admin.version')" method="post">

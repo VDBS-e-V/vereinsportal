@@ -8,6 +8,7 @@
         </x-vdbs.forms.form-section>
         <x-vdbs.forms.form-section title="Fahrtkosten">
             <x-vdbs.forms.input name="km_rate" label="Kilometersatz (Euro je km)" :required="true" inputmode="decimal" :value="old('km_rate', \App\Modules\Seminars\Support\Money::toInput($values['km_rate_cents']))" />
+            <x-vdbs.forms.input name="car_max" label="Höchstbetrag je Fahrt mit dem eigenen Auto (Euro, 0 = ohne Grenze)" :optional="true" inputmode="decimal" :value="old('car_max', \App\Modules\Seminars\Support\Money::toInput($values['car_max_cents']))" hint="Bundesreisekostengesetz § 5: 20 Cent je Kilometer, höchstens 130 Euro je Fahrt." />
             <x-vdbs.forms.input name="max_km_per_trip" type="number" label="Warnung ab Kilometern je Fahrt" :required="true" min="1" :value="old('max_km_per_trip', $values['max_km_per_trip'])" />
         </x-vdbs.forms.form-section>
         <x-slot:actions><x-vdbs.actions.button type="submit" icon="check">Speichern</x-vdbs.actions.button></x-slot:actions>

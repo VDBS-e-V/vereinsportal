@@ -38,7 +38,7 @@ class ContractAdminController extends Controller
 
     public function updateSettings(Request $request): RedirectResponse
     {
-        $data = $request->validate(['club_name' => ['required', 'string', 'max:150'], 'chair' => ['required', 'string', 'max:150'], 'address' => ['required', 'string', 'max:300'], 'place' => ['required', 'string', 'max:100']]);
+        $data = $request->validate(['club_name' => ['required', 'string', 'max:150'], 'club_short' => ['required', 'string', 'max:60'], 'chair' => ['required', 'string', 'max:150'], 'address' => ['required', 'string', 'max:300'], 'place' => ['required', 'string', 'max:100']]);
         $this->settings->save($data, $this->user());
 
         return redirect()->route('contracts.admin.index')->with('success', 'Die Vereinsdaten wurden gespeichert.');

@@ -54,3 +54,6 @@ Bei einer eigenen, freigegebenen Bestellung (Status freigegeben, bestellt, gelie
 
 ## Kostenstelle am Seminar
 Die Kostenstelle eines Seminars ist eine Auswahl der aktiven Kostenstellen. Anträge zu diesem Seminar übernehmen sie, wenn niemand eine andere wählt.
+
+## Fahrtkosten nach Bundesreisekostengesetz
+Standard ist die Wegstreckenentschädigung nach § 5 BRKG: **20 Cent je Kilometer, höchstens 130 Euro je Fahrt** mit dem eigenen Auto. Beides ändert die Geschäftsstelle unter Anträge › Einstellungen (Höchstbetrag 0 = ohne Grenze). Gespeicherte Anträge behalten ihren Satz. Wurde der Satz früher in den Einstellungen gespeichert (z. B. 30 Cent), gilt dieser weiter, bis Sie ihn dort auf 0,20 ändern.

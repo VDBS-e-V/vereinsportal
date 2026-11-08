@@ -1,6 +1,6 @@
 @php($modes = ['car' => 'PKW (eigenes Auto)', 'train' => 'Bahn', 'public' => 'Nahverkehr', 'ride' => 'Mitfahrt'])
 <x-vdbs.forms.form-section title="Fahrten">
-    <p class="vdbs-hint">Bei Fahrten mit dem PKW rechnet das Portal Kilometer mal {{ number_format($settings->int('km_rate_cents') / 100, 2, ',', '') }} € je km. Bitte geben Sie die kürzeste übliche Strecke an. Fahrkarten und Parkgebühren brauchen einen Beleg, die Kilometerpauschale nicht.</p>
+    <p class="vdbs-hint">Bei Fahrten mit dem PKW rechnet das Portal Kilometer mal {{ number_format($settings->int('km_rate_cents') / 100, 2, ',', '') }} € je km{{ $settings->int('car_max_cents') > 0 ? ', höchstens '.number_format($settings->int('car_max_cents') / 100, 2, ',', '').' € je Fahrt' : '' }} (Bundesreisekostengesetz). Bitte geben Sie die kürzeste übliche Strecke an. Fahrkarten und Parkgebühren brauchen einen Beleg, die Kilometerpauschale nicht.</p>
     @for ($i = 0; $i < $rows; $i++)
         @php($item = $items[$i] ?? null)
         @php($extra = $item ? (array) $item->extra : [])

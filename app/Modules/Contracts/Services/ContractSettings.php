@@ -11,14 +11,16 @@ use Illuminate\Support\Facades\DB;
 final class ContractSettings
 {
     public const DEFAULTS = [
-        'club_name' => 'VDBS e. V.',
+        'club_name' => 'Verband für Demokratiebildung und Bibliotheken an Schulen e.V.',
+        'club_short' => 'VDBS e.V.',
         'chair' => 'Jan Ole Schmiedecke',
         'address' => 'Fritz-Karsen-Schule, Onkel-Bräsig-Straße 76, 12359 Berlin',
         'place' => 'Berlin',
     ];
 
     public const LABELS = [
-        'club_name' => 'Name des Vereins (Auftraggeber)',
+        'club_name' => 'Name des Vereins (Auftraggeber, ausgeschrieben)',
+        'club_short' => 'Kurzname (für die Unterschrift)',
         'chair' => 'Vorsitz',
         'address' => 'Anschrift des Vereins',
         'place' => 'Ort für die Vertragsunterschrift',

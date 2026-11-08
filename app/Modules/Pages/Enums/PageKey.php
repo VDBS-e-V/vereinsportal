@@ -14,7 +14,7 @@ enum PageKey: string
     {
         return match ($this) {
             self::Imprint => 'Impressum',
-            self::Privacy => 'Datenschutzerklärung',
+            self::Privacy => $this->privacy($note),
             self::Accessibility => 'Barrierefreiheit',
             self::Terms => 'Nutzungsbedingungen',
         };
@@ -47,6 +47,60 @@ enum PageKey: string
             self::Accessibility => "{$note}\n\n## Stand der Barrierefreiheit\n\n(wird ergänzt)\n\n## Barrieren melden\n\nWenn Ihnen eine Barriere auffällt, schreiben Sie uns über das Kontaktformular.",
             self::Terms => "{$note}\n\n## Geltungsbereich\n\n(wird ergänzt)\n\n## Pflichten der Nutzenden\n\n(wird ergänzt)",
         };
+    }
+
+    /** Entwurf der Datenschutzerklärung nach den tatsächlichen Verarbeitungen des Portals. Muss vom Verein ergänzt und rechtlich geprüft werden. */
+    private function privacy(string $note): string
+    {
+        return $note."
+
+## Verantwortlicher
+
+Verband für Demokratiebildung und Bibliotheken an Schulen e. V. (Anschrift und Kontakt siehe Impressum). Kontakt für Fragen zum Datenschutz: [E-Mail-Adresse eintragen].
+
+## Grundsätze
+
+Wir verarbeiten personenbezogene Daten nur, soweit es für die Arbeit des Vereins und den Betrieb dieses Portals nötig ist. Wir geben Daten nicht zu Werbezwecken weiter. Das Portal läuft bei [Hoster eintragen] in Deutschland. Es setzt nur Cookies, die für die Anmeldung und die Sicherheit nötig sind (Sitzung, Schutz vor Missbrauch); es gibt keine Werbe- oder Analyse-Cookies.
+
+## Konto und Anmeldung
+
+Für ein Konto speichern wir Name, E-Mail-Adresse, Geburtsdatum und Anschrift, Ihr Passwort (nur als Prüfwert), Angaben zur Zwei-Faktor-Anmeldung und Ihre Rollen. Das Portal protokolliert wichtige Vorgänge (zum Beispiel Anmeldungen und Änderungen an Rollen) ohne Inhalte und ohne Passwörter. Rechtsgrundlage ist die Durchführung der Mitgliedschaft oder Zusammenarbeit (Art. 6 Abs. 1 lit. b DSGVO) und unser Interesse an einem sicheren Betrieb (lit. f). Sie können Ihr Konto selbst zur Löschung vorschlagen; nach einer Wartefrist wird es anonymisiert.
+
+## Mitgliedschaft
+
+Für Mitgliedschaftsanträge und Mitglieder speichern wir die Angaben des Antrags, Zeitpunkte, Einwilligungen mit Version und Zeit sowie hochgeladene Unterlagen. Die Daten sind nur für den Vorstand sichtbar. Nach dem Ende der Mitgliedschaft löschen wir sie nach den eingestellten Fristen.
+
+## Seminare, Schulen und Teamende
+
+Für Seminare verarbeiten wir Angaben zu Schulen und Ansprechpersonen, Termine, Kostenvoranschläge und Dokumente. Teamende können freiwillig ein Profil mit Kompetenzen und Erfahrung speichern und sich auf Seminare bewerben; die Koordination nutzt diese Angaben für die Zusammenstellung der Teams. Kontaktdaten anderer Teammitglieder sehen Sie nur, wenn diese zugestimmt haben. Fotos von Teilnehmenden nehmen wir nicht an. Seminardokumente löschen wir nach der Aufbewahrungsfrist.
+
+## Rückmeldungen zu Seminaren
+
+Rückmeldungen über Fragebogen-Links sind anonym: Wir speichern keine IP-Adressen und keine Zugangsdaten zur Antwort. Ergebnisse zeigen wir erst ab einer Mindestzahl von Antworten. Nach der Aufbewahrungsfrist werden Einzelantworten und Freitexte gelöscht; nur Zahlen bleiben.
+
+## Kostenerstattung und Beschaffung
+
+Für Anträge auf Erstattung von Auslagen und Fahrtkosten sowie für Bestellungen verarbeiten wir Name, Angaben zum Antrag, Belege und für Erstattungen die Bankverbindung (IBAN). Die Bankverbindung wird verschlüsselt gespeichert und 30 Tage nach der Auszahlung gelöscht. Anträge und Belege bewahren wir 10 Jahre auf, weil sie Buchungsunterlagen sind (gesetzliche Aufbewahrungspflicht, Art. 6 Abs. 1 lit. c DSGVO).
+
+## Honorarverträge
+
+Für Dienstleistungsverträge mit Teamenden verarbeiten wir Name, Anschrift, Steuernummer und Bankverbindung. Die Angaben sind freiwillig im Konto gespeichert oder werden für den einzelnen Vertrag erfasst, liegen verschlüsselt und werden 10 Jahre nach dem letzten Seminartermin gelöscht (Aufbewahrungspflicht für Abrechnungsunterlagen).
+
+## E-Mails und Rundschreiben
+
+Wir schreiben Ihnen E-Mails, die für Ihre Rolle nötig sind (zum Beispiel Einladungen zur Mitgliederversammlung, Hinweise zu Seminaren). Mitteilungen an Teamende, Schulen und Kontakte können Sie über den Link in der E-Mail oder in Ihren Einstellungen abbestellen. Vereinspost an Mitglieder (zum Beispiel die Einladung zur Versammlung) ist von der Abmeldung ausgenommen, weil der Verein dazu verpflichtet ist. Die Zustelllisten (Adressen und Zustellstatus) löschen wir nach 90 Tagen; Texte und Zahlen der Schreiben bleiben ohne Empfängerliste erhalten.
+
+## Anmeldung bei anderen Systemen
+
+Wenn Sie sich über das Portal bei Nextcloud, Moodle oder anderen angebundenen Systemen anmelden, übermitteln wir nur Name, E-Mail-Adresse, eine feste Kennung und Ihre Gruppen (Rollen), niemals Anschrift, Geburtsdatum oder Telefonnummer. Welche Anwendungen Zugriff haben, sehen Sie in Ihrem Konto unter „Verbundene Anwendungen“ und können es dort beenden.
+
+## Empfänger
+
+Ihre Daten sehen nur Personen, die sie für ihre Aufgabe brauchen (Vorstand, Geschäftsstelle, Koordination, Kassenführung, Geschäftsführung), gestuft nach Rollen. Auftragsverarbeiter ist der Hosting-Anbieter [Hoster eintragen] mit Vertrag zur Auftragsverarbeitung. Eine Übermittlung in Drittländer findet nicht statt.
+
+## Ihre Rechte
+
+Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch sowie das Recht auf Beschwerde bei einer Aufsichtsbehörde (zuständig ist die Berliner Beauftragte für Datenschutz und Informationsfreiheit). Einwilligungen können Sie jederzeit mit Wirkung für die Zukunft widerrufen.";
     }
 
     private function imprint(): string

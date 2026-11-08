@@ -252,15 +252,21 @@ class FormOfficeController extends Controller
 
     public function updateSettings(Request $request): RedirectResponse
     {
-        $data = $request->validate(['approval_limit' => ['required', 'string'], 'km_rate' => ['required', 'string'], 'max_km_per_trip' => ['required', 'integer', 'min:1', 'max:100000']], ['approval_limit.required' => 'Bitte geben Sie die Grenze an.', 'km_rate.required' => 'Bitte geben Sie den Kilometersatz an.']);
+        $data = $request->validate(['approval_limit' => ['required', 'string'], 'km_rate' => ['required', 'string'], 'max_km_per_trip' => ['required', 'integer', 'min:1', 'max:100000'], 'car_max' => ['nullable', 'string']], ['approval_limit.required' => 'Bitte geben Sie die Grenze an.', 'km_rate.required' => 'Bitte geben Sie den Kilometersatz an.']);
         $limit = \App\Modules\Seminars\Support\Money::parseEuro($data['approval_limit']);
         $rate = \App\Modules\Seminars\Support\Money::parseEuro($data['km_rate']);
 
         if ($limit === null || $rate === null) {
-            return back()->withInput()->withErrors(['approval_limit' => 'Bitte geben Sie Beträge in Euro an, zum Beispiel 50,00 und 0,30.']);
+            return back()->withInput()->withErrors(['approval_limit' => 'Bitte geben Sie Beträge in Euro an, zum Beispiel 50,00 und 0,20.']);
         }
 
-        $this->settings->save(['approval_limit_cents' => $limit, 'km_rate_cents' => $rate, 'max_km_per_trip' => (int) $data['max_km_per_trip']], $request->user());
+        $cap = filled($data['car_max'] ?? null) ? \App\Modules\Seminars\Support\Money::parseEuro($data['car_max']) : $this->settings->int('car_max_cents');
+
+        if ($cap === null) {
+            return back()->withInput()->withErrors(['car_max' => 'Bitte geben Sie den Höchstbetrag in Euro an, zum Beispiel 130,00 (0 = ohne Grenze).']);
+        }
+
+        $this->settings->save(['approval_limit_cents' => $limit, 'km_rate_cents' => $rate, 'car_max_cents' => $cap, 'max_km_per_trip' => (int) $data['max_km_per_trip']], $request->user());
 
         return redirect()->route('forms-office.settings')->with('status', 'Die Einstellungen wurden gespeichert.');
     }

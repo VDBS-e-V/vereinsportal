@@ -27,23 +27,28 @@ final class ContractTexts
         'iban' => 'IBAN',
         'ort' => 'Ort der Unterschrift',
         'datum' => 'Datum',
-        'verein_name' => 'Name des Vereins',
+        'verein_name' => 'Name des Vereins (ausgeschrieben)',
+        'verein_kurz' => 'Kurzname des Vereins (für die Unterschrift)',
         'verein_vorsitz' => 'Vorsitz',
         'verein_anschrift' => 'Anschrift des Vereins',
     ];
 
-    /** Fassung 1: Entwurf nach den Klauseln der Vorlage. Der genaue Wortlaut der Vorlage wird vom Vorstand als neue Version eingespielt. */
+    /** Fassung 1: der Wortlaut der Vertragsvorlage „Dienstleistungsvertrag“ (Stand 08.07.2024), Platzhalter statt der ausgefüllten Stellen. */
     public static function defaultBody(): string
     {
-        return '<p><strong>Auftraggeber:</strong> {verein_name}, {verein_anschrift}</p>'
-            .'<p><strong>Auftragnehmer:in:</strong> {auftragnehmer_name}<br>{auftragnehmer_anschrift}<br>Steuernummer: {steuernummer}</p>'
-            .'<h2>§ 1 Leistung</h2><p>{leistung}</p>'
-            .'<h2>§ 2 Vergütung</h2><p>Die Vergütung beträgt {verguetung}. Umsatzsteuer: {umsatzsteuer_auswahl}</p>'
-            .'<h2>§ 3 Selbstständigkeit</h2><p>Die Auftragnehmerin oder der Auftragnehmer ist selbstständig tätig und unterliegt bei der Durchführung keinen Weisungen des Auftraggebers hinsichtlich Zeit, Ort und Art der Leistung, soweit diese nicht durch den Zweck des Seminars vorgegeben sind.</p>'
-            .'<h2>§ 4 Steuern und Sozialabgaben</h2><p>Die Auftragnehmerin oder der Auftragnehmer ist für die Abführung von Steuern und Sozialabgaben selbst verantwortlich.</p>'
-            .'<h2>§ 5 Fahrtkosten</h2><p>Fahrtkosten werden nach dem Bundesreisekostengesetz erstattet.</p>'
-            .'<h2>§ 6 Absage</h2><p>Bei Absage des Seminars besteht kein Anspruch auf eine Ausfallvergütung.</p>'
-            .'<h2>§ 7 Bankverbindung</h2><p>Bankinstitut: {bank}<br>BIC: {bic}<br>IBAN: {iban}</p>'
+        return '<p>Zwischen dem {verein_name}<br>- nachfolgend Auftraggeber genannt -</p>'
+            .'<p>und Herr/Frau/Firma</p>'
+            .'<p>Name, Vorname: {auftragnehmer_name}<br>Straße/ Hausnummer/ PLZ: {auftragnehmer_anschrift}<br>Steuernummer: {steuernummer}</p>'
+            .'<p>- nachfolgend Auftragnehmer:in -</p>'
+            .'<p>Der/die Auftragnehmer:in wird mit der Erbringung folgender Leistung:</p>'
+            .'<p>{leistung}</p>'
+            .'<p>beauftragt.</p>'
+            .'<p>Der/die Auftragnehmer:in unterliegt keinem Weisungs- und Direktionsrecht seitens des Auftraggebers. Er/Sie hat jedoch, den ihm/ihr erteilten Auftrag ordnungsgemäß und unter Beachtung der fachlichen Vorgaben zu erfüllen. Der/die Auftragnehmer/in bestätigt, dass er/sie außer für den Auftraggeber auch für Dritte tätig ist bzw. seine/ihre Tätigkeit nicht überwiegend und nicht regelmäßig für den Auftraggeber erfolgt sowie kein Beschäftigungsverhältnis mit dem Auftraggeber unterhält.</p>'
+            .'<p>Der/die Auftragnehmer/in erhält für die oben genannten Leistungen eine Vergütung in Höhe von {verguetung}.</p>'
+            .'<p>Zuzüglich {umsatzsteuer_auswahl} (bitte zutreffend ankreuzen)</p>'
+            .'<p>Der/die Auftragnehmer:in versichert, dass er sie - bezogen auf den ihr/ihm erteilten Auftrag - selbständig ist. Steuern und Sozialabgaben sind von dem/der Auftragnehmer:in zu entrichten. Evtl. zusätzlich anfallende Umsatzsteuer ist durch Rechnungsstellung nachzuweisen.</p>'
+            .'<p>Die Erstattung von Fahrtkosten erfolgt auf der Basis des Bundesreisekostengesetzes. Bei Absage der Veranstaltung - auch kurzfristig - wird keine Ausfallvergütung gezahlt. Der Ersatz von nachgewiesenen Aufwendungen bleibt davon unberührt.</p>'
+            .'<p>Bankinstitut: {bank}<br>BIC: {bic}<br>IBAN: {iban}</p>'
             .'<p>{ort}, den {datum}</p>';
     }
 
@@ -107,13 +112,14 @@ final class ContractTexts
             'steuernummer' => $text($data['tax_number'] ?? null),
             'leistung' => filled($data['service_text'] ?? null) ? nl2br(e(trim((string) $data['service_text']))) : $blank,
             'verguetung' => $amount,
-            'umsatzsteuer_auswahl' => $box('19', '19 %').' &nbsp; '.$box('7', '7 %').' &nbsp; '.$box('none', 'ohne Umsatzsteuer'),
+            'umsatzsteuer_auswahl' => $box('19', '19 %').' &nbsp; '.$box('7', '7 % Umsatzsteuer').' &nbsp; '.$box('none', 'ohne Umsatzsteuer'),
             'bank' => $text($data['bank_name'] ?? null),
             'bic' => $text($data['bic'] ?? null),
             'iban' => $text($data['iban'] ?? null),
             'ort' => $text($data['place'] ?? ($club['place'] ?? null)),
             'datum' => $text($data['date'] ?? null),
             'verein_name' => $text($club['club_name'] ?? null),
+            'verein_kurz' => $text($club['club_short'] ?? null),
             'verein_vorsitz' => $text($club['chair'] ?? null),
             'verein_anschrift' => $text($club['address'] ?? null),
         ];

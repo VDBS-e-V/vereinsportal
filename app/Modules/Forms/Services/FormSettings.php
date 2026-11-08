@@ -12,13 +12,15 @@ final class FormSettings
 {
     public const DEFAULTS = [
         'approval_limit_cents' => 5000,   // bis zu diesem Betrag gibt die Geschäftsstelle allein frei
-        'km_rate_cents' => 30,             // Kilometersatz für Fahrten mit dem eigenen Auto
+        'km_rate_cents' => 20,             // Kilometersatz für Fahrten mit dem eigenen Auto (Bundesreisekostengesetz § 5: 20 Cent je km)
+        'car_max_cents' => 13000,          // Höchstbetrag der Wegstreckenentschädigung je Fahrt (BRKG § 5: 130 Euro, 0 = ohne Grenze)
         'max_km_per_trip' => 1000,         // Plausibilitätsgrenze je Fahrt
     ];
 
     public const LABELS = [
         'approval_limit_cents' => 'Freigabe allein durch die Geschäftsstelle bis (Euro)',
         'km_rate_cents' => 'Kilometersatz (Euro je km)',
+        'car_max_cents' => 'Höchstbetrag je Fahrt mit dem eigenen Auto (Euro, 0 = ohne Grenze)',
         'max_km_per_trip' => 'Warnung ab Kilometern je Fahrt',
     ];
 
