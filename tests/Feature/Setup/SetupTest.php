@@ -100,3 +100,19 @@ it('never writes the password into the audit log', function () {
 
     expect(json_encode(AuditEntry::query()->get()->toArray()))->not->toContain('Sehr-Sicher-2026');
 });
+
+it('limits calls to the setup per address without session, account lookup or database cache', function () {
+    config(['cache.default' => 'array']);
+
+    foreach (range(1, \App\Modules\Setup\Http\Middleware\SetupThrottle::MAX) as $i) {
+        $this->get(route('setup.show'))->assertOk();
+    }
+
+    $this->get(route('setup.show'))->assertStatus(429);
+});
+
+it('keeps sessions unencrypted while there is no app key so that the setup and the error pages work', function () {
+    $config = require base_path('config/session.php');
+
+    expect($config['encrypt'])->toBe((bool) env('SESSION_ENCRYPT', false) && filled(env('APP_KEY')));
+});

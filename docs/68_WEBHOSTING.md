@@ -60,6 +60,7 @@ Der Planer (Erinnerungen, geplante Rundschreiben, Aufräumen) und die Warteschla
 | Beobachtung | Ursache und Abhilfe |
 |---|---|
 | Weiße Seite oder 500 | `storage/logs/` per FTP öffnen, neueste Datei lesen. Häufig: Schreibrechte von `storage/` oder `bootstrap/cache/`, fehlender `APP_KEY`, falsche Datenbankdaten. |
+| Einrichtung zeigt 500 und im Log „No application encryption key“ | Der `APP_KEY` fehlt noch. Seit Version vom 10.11.2026 läuft `/einrichtung` auch ohne Schlüssel und ohne Datenbanktabellen (Sitzungen sind ohne Schlüssel unverschlüsselt, die Begrenzung nutzt den Datei-Zwischenspeicher). Schlüssel auf der Einrichtungsseite ablesen und in die `.env` eintragen. |
 | „No application encryption key“ | `APP_KEY` in `.env` eintragen, dann Admins › System › „Alle Zwischenspeicher leeren“ (oder `bootstrap/cache/config.php` per FTP löschen). |
 | Änderungen an `.env` wirken nicht | Konfigurations-Cache: Aufgabe „Konfiguration leeren“ oder `bootstrap/cache/config.php` löschen. |
 | Cron läuft nicht | Zustand zeigt „noch nie aufgerufen“: Adresse und Schlüssel beim Dienst prüfen, HTTPS-Weiterleitung beachten (kein Redirect auf eine andere Adresse). |
