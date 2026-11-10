@@ -13,8 +13,7 @@ class EventsServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
 
-        if ($this->app->runningInConsole()) {
-            $this->commands([PruneEvents::class, RemindEvents::class, RemindSchools::class]);
-        }
+        // Auch bei Aufrufen über den Browser (Systemsteuerung, Einrichtung) müssen die Befehle bekannt sein, nicht nur auf der Konsole
+        $this->commands([PruneEvents::class, RemindEvents::class, RemindSchools::class]);
     }
 }

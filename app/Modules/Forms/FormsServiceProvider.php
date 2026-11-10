@@ -11,8 +11,7 @@ class FormsServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
         \Illuminate\Support\Facades\Event::listen(\App\Modules\Access\Events\AccountAnonymizing::class, \App\Modules\Forms\Listeners\AnonymizeFormsOnAccountDeletion::class);
 
-        if ($this->app->runningInConsole()) {
-            $this->commands([\App\Modules\Forms\Console\PruneForms::class]);
-        }
+        // Auch bei Aufrufen über den Browser (Systemsteuerung, Einrichtung) müssen die Befehle bekannt sein, nicht nur auf der Konsole
+        $this->commands([\App\Modules\Forms\Console\PruneForms::class]);
     }
 }

@@ -146,7 +146,7 @@ class Setup
         }
 
         try {
-            Artisan::call('passport:keys', ['--force' => false, '--no-interaction' => true]);
+            app(\App\Modules\Sso\Services\OAuthKeys::class)->ensure();
 
             return ['ok' => true, 'message' => 'Die Schlüssel für Anbindungen (SSO) wurden erzeugt.'];
         } catch (Throwable $exception) {

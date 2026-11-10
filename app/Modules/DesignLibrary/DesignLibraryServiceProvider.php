@@ -15,8 +15,7 @@ class DesignLibraryServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
 
-        if ($this->app->runningInConsole()) {
-            $this->commands([DesignPackageCommand::class, DesignComponentCommand::class, DesignCheckCommand::class, DesignAdoptCommand::class, DesignStatusCommand::class]);
-        }
+        // Auch bei Aufrufen über den Browser (Systemsteuerung, Einrichtung) müssen die Befehle bekannt sein, nicht nur auf der Konsole
+        $this->commands([DesignPackageCommand::class, DesignComponentCommand::class, DesignCheckCommand::class, DesignAdoptCommand::class, DesignStatusCommand::class]);
     }
 }

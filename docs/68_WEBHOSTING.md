@@ -68,6 +68,9 @@ Der Planer (Erinnerungen, geplante Rundschreiben, Aufräumen) und die Warteschla
 | Seite zeigt die Standardseite des Hosters | Document-Root zeigt nicht auf `public/`. |
 | `/.env` oder `/storage` im Browser erreichbar | **Sofort** Document-Root korrigieren: er muss auf `public/` zeigen, nicht auf den Hauptordner. |
 
+## Hinweis: Befehle im Browser
+Alle Befehle des Portals (`feedback:prune`, `contracts:remind`, `sso:ensure-keys` …) sind auch bei Aufrufen über den Browser registriert (Systemsteuerung › Aufgaben, Update ausführen, Einrichtung). Die Anbindungsschlüssel erzeugt das Portal selbst mit OpenSSL; die Passport-Befehle gibt es im Browser nicht. Fehlen die Schlüssel nach der Einrichtung, erzeugt sie Admins › Anbindungen (oder „Update ausführen“).
+
 ## 10 Was noch fehlt in Paket A
 Wochenende-Probelauf auf dem echten Hosting, Test der PDF-Erzeugung (kommt mit Paket D), Anleitung in einfacher Sprache, Checkliste siehe `docs/76_STRATO_PROBELAUF_CHECKLISTE.md`; Anpassung von `docs/05`, `27`, `28`, `30`, `31`.
 

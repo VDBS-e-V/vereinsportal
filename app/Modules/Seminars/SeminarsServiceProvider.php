@@ -14,8 +14,7 @@ class SeminarsServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
 
-        if ($this->app->runningInConsole()) {
-            $this->commands([NotifyTeamDeadlines::class, NumberExistingSeminars::class, PruneApplicants::class, PruneDocuments::class]);
-        }
+        // Auch bei Aufrufen über den Browser (Systemsteuerung, Einrichtung) müssen die Befehle bekannt sein, nicht nur auf der Konsole
+        $this->commands([NotifyTeamDeadlines::class, NumberExistingSeminars::class, PruneApplicants::class, PruneDocuments::class]);
     }
 }

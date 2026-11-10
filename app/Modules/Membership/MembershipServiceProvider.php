@@ -17,8 +17,7 @@ class MembershipServiceProvider extends ServiceProvider
 
         Event::listen(AccountAnonymizing::class, CleanUpMembershipsOnAccountDeletion::class);
 
-        if ($this->app->runningInConsole()) {
-            $this->commands([SyncMemberships::class, PruneMemberships::class]);
-        }
+        // Auch bei Aufrufen über den Browser (Systemsteuerung, Einrichtung) müssen die Befehle bekannt sein, nicht nur auf der Konsole
+        $this->commands([SyncMemberships::class, PruneMemberships::class]);
     }
 }

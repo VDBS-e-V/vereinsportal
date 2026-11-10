@@ -10,8 +10,7 @@ class ContractsServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
 
-        if ($this->app->runningInConsole()) {
-            $this->commands([\App\Modules\Contracts\Console\PruneContracts::class, \App\Modules\Contracts\Console\RemindContractScans::class]);
-        }
+        // Auch bei Aufrufen über den Browser (Systemsteuerung, Einrichtung) müssen die Befehle bekannt sein, nicht nur auf der Konsole
+        $this->commands([\App\Modules\Contracts\Console\PruneContracts::class, \App\Modules\Contracts\Console\RemindContractScans::class]);
     }
 }

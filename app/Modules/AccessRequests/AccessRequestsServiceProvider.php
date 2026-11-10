@@ -16,8 +16,7 @@ class AccessRequestsServiceProvider extends ServiceProvider
 
         Event::listen(AccountAnonymizing::class, RemoveAccessRequestsOnAccountDeletion::class);
 
-        if ($this->app->runningInConsole()) {
-            $this->commands([PruneAccessRequests::class]);
-        }
+        // Auch bei Aufrufen über den Browser (Systemsteuerung, Einrichtung) müssen die Befehle bekannt sein, nicht nur auf der Konsole
+        $this->commands([PruneAccessRequests::class]);
     }
 }

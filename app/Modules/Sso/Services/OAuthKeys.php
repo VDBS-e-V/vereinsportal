@@ -85,7 +85,10 @@ final class OAuthKeys
 
     private function generate(): void
     {
-        Artisan::call('passport:keys', ['--force' => true]);
+        // Zuerst direkt mit OpenSSL (läuft auch bei Aufrufen über den Browser, wo die Passport-Befehle nicht bekannt sind), sonst über den Befehl
+        if (! $this->generateWithOpenSsl()) {
+            Artisan::call('passport:keys', ['--force' => true]);
+        }
 
         if (! $this->exists()) {
             throw new DomainException('Die Schlüssel konnten nicht erzeugt werden. Prüfen Sie, ob der Ordner storage beschreibbar ist.');
@@ -93,5 +96,29 @@ final class OAuthKeys
 
         @chmod($this->privatePath(), 0600);
         @chmod($this->publicPath(), 0660);
+    }
+
+    /** Erzeugt das RSA-Schlüsselpaar ohne Artisan. @return bool false, wenn OpenSSL es nicht kann oder die Dateien nicht geschrieben werden konnten */
+    private function generateWithOpenSsl(): bool
+    {
+        $key = @openssl_pkey_new(['private_key_bits' => app()->environment('testing') ? 2048 : 4096, 'private_key_type' => OPENSSL_KEYTYPE_RSA]);
+
+        if ($key === false || ! @openssl_pkey_export($key, $private)) {
+            return false;
+        }
+
+        $details = openssl_pkey_get_details($key);
+
+        if (! is_array($details) || ! isset($details['key'])) {
+            return false;
+        }
+
+        $directory = dirname($this->privatePath());
+
+        if (! is_dir($directory) || ! is_writable($directory)) {
+            return false;
+        }
+
+        return @file_put_contents($this->privatePath(), $private, LOCK_EX) !== false && @file_put_contents($this->publicPath(), $details['key'], LOCK_EX) !== false;
     }
 }
