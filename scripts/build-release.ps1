@@ -26,9 +26,12 @@ npm run build
 
 Write-Host '2/5 Dateien kopieren ...'
 robocopy $root $target /E /NFL /NDL /NJH /NJS /NP `
-    /XD '.git' '.github' 'node_modules' 'tests' 'docs' 'build' '.idea' '.vscode' `
+    /XD (Join-Path $root '.git') (Join-Path $root '.github') (Join-Path $root 'node_modules') (Join-Path $root 'tests') (Join-Path $root 'docs') (Join-Path $root 'build') (Join-Path $root '.idea') (Join-Path $root '.vscode') `
     /XF '.env' '.env.*' '*.log' 'phpunit.xml' 'database.sqlite' | Out-Null
 if ($LASTEXITCODE -ge 8) { throw "robocopy ist fehlgeschlagen ($LASTEXITCODE)" }
+
+# Wichtig: Ausgeschlossen werden nur Ordner im Hauptordner (volle Pfade). Der Name 'build' allein würde auch public\build mit CSS und JavaScript ausschließen.
+if (-not (Test-Path (Join-Path $target 'public\build\manifest.json'))) { throw 'public\build\manifest.json fehlt im Paket (Frontend nicht gebaut?)' }
 
 # Leere Laufzeitordner anlegen (storage), ohne Inhalte
 foreach ($dir in 'storage\logs','storage\framework\cache\data','storage\framework\sessions','storage\framework\views','storage\app\private','storage\app\public','bootstrap\cache') {
@@ -38,7 +41,8 @@ Get-ChildItem (Join-Path $target 'storage') -Recurse -File | Where-Object { $_.N
 Get-ChildItem (Join-Path $target 'bootstrap\cache') -File | Where-Object { $_.Name -ne '.gitignore' } | Remove-Item -Force
 
 Write-Host '3/5 Abhängigkeiten ohne Entwicklungspakete installieren ...'
-composer install --no-dev --optimize-autoloader --no-interaction --working-dir=$target
+# ext-sodium wird auf dem Hosting geprüft (hostcheck); lokal fehlt sie häufig, deshalb hier nicht verlangen
+composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-req=ext-sodium --working-dir=$target
 
 Write-Host '4/5 Prüfsummen schreiben ...'
 php (Join-Path $root 'scripts\release-manifest.php') $target $Version

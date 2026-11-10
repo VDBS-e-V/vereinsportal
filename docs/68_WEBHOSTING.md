@@ -65,6 +65,7 @@ Der Planer (Erinnerungen, geplante Rundschreiben, Aufräumen) und die Warteschla
 | Änderungen an `.env` wirken nicht | Konfigurations-Cache: Aufgabe „Konfiguration leeren“ oder `bootstrap/cache/config.php` löschen. |
 | Cron läuft nicht | Zustand zeigt „noch nie aufgerufen“: Adresse und Schlüssel beim Dienst prüfen, HTTPS-Weiterleitung beachten (kein Redirect auf eine andere Adresse). |
 | Mails kommen nicht an | Testmail (Admins › System › Einstellungen), SMTP-Daten, Absenderadresse und SPF prüfen (Rundschreiben › Zustellqualität › Absenderprüfung). |
+| Seite läuft, sieht aber aus wie reiner Text ohne Gestaltung (Bilder da, keine Farben, Menü als Liste) | `public/build/` fehlt auf dem Server (CSS und JavaScript). Früher schloss das Paketskript es versehentlich aus. Prüfen: `https://DOMAIN/build/manifest.json` muss eine JSON-Datei liefern. Abhilfe: Ordner `public/build` vom Rechner (nach `npm run build`) per FTP nach `public/build` hochladen. |
 | Seite zeigt die Standardseite des Hosters | Document-Root zeigt nicht auf `public/`. |
 | `/.env` oder `/storage` im Browser erreichbar | **Sofort** Document-Root korrigieren: er muss auf `public/` zeigen, nicht auf den Hauptordner. |
 
