@@ -21,7 +21,7 @@ Stand: alle Pakete des Projektplans (`67_PROJEKTPLAN_LUECKEN.md`) sind umgesetzt
 
 ## Optional und nicht umgesetzt
 (Bestellung → Erstattung, Gruppe Importierte Kontakte, QR-Code auf dem Feedbackplakat sind umgesetzt.)
-- PDF der Verträge ohne dompdf (Paket installieren: `composer require dompdf/dompdf --ignore-platform-req=ext-sodium`).
+- PDF-Optik der Verträge und Seminardokumente prüfen (dompdf ist jetzt in `composer.json`).
 - Arbeitszeiterfassung (Paket J) ist nur ein Ausblick.
 
 ## Sicherheitsprüfung der Abhängigkeiten (Stand 08.11.2026)
