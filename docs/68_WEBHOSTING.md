@@ -68,7 +68,7 @@ Der Planer (Erinnerungen, geplante Rundschreiben, Aufräumen) und die Warteschla
 | `/.env` oder `/storage` im Browser erreichbar | **Sofort** Document-Root korrigieren: er muss auf `public/` zeigen, nicht auf den Hauptordner. |
 
 ## 10 Was noch fehlt in Paket A
-Wochenende-Probelauf auf dem echten Hosting, Test der PDF-Erzeugung (kommt mit Paket D), Anleitung in einfacher Sprache, Anpassung von `docs/05`, `27`, `28`, `30`, `31`.
+Wochenende-Probelauf auf dem echten Hosting, Test der PDF-Erzeugung (kommt mit Paket D), Anleitung in einfacher Sprache, Checkliste siehe `docs/76_STRATO_PROBELAUF_CHECKLISTE.md`; Anpassung von `docs/05`, `27`, `28`, `30`, `31`.
 
 
 ## Update einspielen (`portal:update`)
