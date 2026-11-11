@@ -10,6 +10,7 @@ use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Board\Models\BoardMeeting;
 use App\Modules\Board\Models\BoardMeetingDocument;
+use App\Modules\Board\Models\BoardMeetingGuest;
 use App\Modules\Board\Services\BoardCalendar;
 use App\Modules\Board\Services\BoardInvitations;
 use App\Modules\Board\Services\BoardMeetingDocuments;
@@ -63,7 +64,7 @@ class BoardMeetingController extends Controller
 
     public function show(BoardMeeting $meeting): View
     {
-        $meeting->load(['attendees.person', 'documents.uploadedBy.person']);
+        $meeting->load(['attendees.person', 'documents.uploadedBy.person', 'guests']);
 
         return view('board.meetings.show', [
             'meeting' => $meeting, 'invitations' => $this->calendar->invitationsEnabled(),
@@ -171,6 +172,55 @@ class BoardMeetingController extends Controller
         $message = $result['sent'] === 1 ? 'Die Einladung wurde an 1 Vorstandsmitglied gesendet.' : 'Die Einladung wurde an '.$result['sent'].' Vorstandsmitglieder gesendet.';
 
         return back()->with($result['failed'] > 0 ? 'error' : 'success', $result['failed'] > 0 ? $message.' '.$result['failed'].' E-Mails konnten nicht zugestellt werden.' : $message);
+    }
+
+    public function storeGuest(Request $request, BoardMeeting $meeting): RedirectResponse
+    {
+        $request->merge(['email' => mb_strtolower(trim((string) $request->input('email')))]);
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:150'],
+            'email' => ['required', 'email:rfc', 'max:190', Rule::unique('board_meeting_guests', 'email')->where('board_meeting_id', $meeting->id)],
+            'organization' => ['nullable', 'string', 'max:150'],
+        ], ['name.required' => 'Bitte geben Sie den Namen des Gastes an.', 'email.required' => 'Bitte geben Sie die E-Mail-Adresse des Gastes an.', 'email.email' => 'Bitte geben Sie eine gültige E-Mail-Adresse an.', 'email.unique' => 'Dieser Gast ist schon eingetragen.']);
+
+        if ($meeting->guests()->count() >= 50) {
+            return back()->withInput()->withErrors(['email' => 'Eine Sitzung kann höchstens 50 Gäste haben.']);
+        }
+
+        $guest = $meeting->guests()->create($data);
+        AuditLog::record(AuditEvent::BoardGuestsChanged, $this->user(), null, ['sitzung' => $meeting->title.' am '.$meeting->starts_at->format('d.m.Y'), 'aktion' => 'Gast hinzugefügt', 'gast' => $guest->name]);
+
+        return redirect()->to(route('board.meetings.show', $meeting).'#guests-heading')->with('success', 'Der Gast wurde eingetragen.');
+    }
+
+    public function destroyGuests(Request $request, BoardMeeting $meeting): RedirectResponse
+    {
+        $ids = $request->validate(['ids' => ['required', 'array', 'min:1'], 'ids.*' => ['integer']], ['ids.required' => 'Bitte wählen Sie mindestens einen Gast aus.'])['ids'];
+        $guests = $meeting->guests()->whereIn('id', $ids)->get();
+
+        foreach ($guests as $guest) {
+            $guest->delete();
+        }
+
+        AuditLog::record(AuditEvent::BoardGuestsChanged, $this->user(), null, ['sitzung' => $meeting->title.' am '.$meeting->starts_at->format('d.m.Y'), 'aktion' => 'Gäste entfernt', 'anzahl' => $guests->count()]);
+
+        return redirect()->to(route('board.meetings.show', $meeting).'#guests-heading')->with('success', $guests->count() === 1 ? 'Der Gast wurde entfernt.' : $guests->count().' Gäste wurden entfernt.');
+    }
+
+    /** Lädt Gäste per E-Mail mit Kalenderdatei ein. Ohne Auswahl bekommen alle Gäste die Einladung. */
+    public function inviteGuests(Request $request, BoardMeeting $meeting): RedirectResponse
+    {
+        $data = $request->validate(['ids' => ['nullable', 'array'], 'ids.*' => ['integer'], 'note' => ['nullable', 'string', 'max:2000'], 'with_agenda' => ['nullable', 'boolean']]);
+
+        try {
+            $result = $this->invitations->sendToGuests($meeting, $this->user(), array_map('intval', $data['ids'] ?? []) ?: null, $data['note'] ?? null, $request->boolean('with_agenda'));
+        } catch (DomainException $exception) {
+            return redirect()->to(route('board.meetings.show', $meeting).'#guests-heading')->with('error', $exception->getMessage());
+        }
+
+        $message = $result['sent'] === 1 ? 'Die Einladung wurde an 1 Gast gesendet.' : 'Die Einladung wurde an '.$result['sent'].' Gäste gesendet.';
+
+        return redirect()->to(route('board.meetings.show', $meeting).'#guests-heading')->with($result['failed'] > 0 ? 'error' : 'success', $result['failed'] > 0 ? $message.' '.$result['failed'].' E-Mails konnten nicht zugestellt werden.' : $message);
     }
 
     public function storeDocuments(Request $request, BoardMeeting $meeting): RedirectResponse

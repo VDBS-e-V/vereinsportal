@@ -33,6 +33,12 @@ class BoardMeeting extends Model
         return $this->hasMany(BoardMeetingDocument::class, 'board_meeting_id')->orderBy('created_at');
     }
 
+    /** @return HasMany<BoardMeetingGuest, $this> */
+    public function guests(): HasMany
+    {
+        return $this->hasMany(BoardMeetingGuest::class, 'board_meeting_id')->orderBy('name');
+    }
+
     /** Der Termin wurde nach der letzten Einladung noch geändert. */
     public function changedSinceInvitation(): bool
     {

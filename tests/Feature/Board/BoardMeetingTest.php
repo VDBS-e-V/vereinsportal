@@ -10,7 +10,9 @@ use App\Modules\Board\Models\BoardMeeting;
 use App\Modules\Board\Services\BoardCalendar;
 use App\Modules\Board\Support\IcsFeed;
 use App\Modules\People\Models\Person;
+use App\Modules\Board\Mail\BoardGuestInvitationMail;
 use App\Modules\Board\Mail\BoardMeetingInvitationMail;
+use App\Modules\Board\Models\BoardMeetingGuest;
 use App\Modules\Board\Models\BoardMeetingDocument;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\UploadedFile;
@@ -287,4 +289,76 @@ it('invites on saving when asked and refuses cancelled meetings', function () {
 
     $this->put(route('board.meetings.invitations.toggle'), [])->assertRedirect();
     expect(app(BoardCalendar::class)->invitationsEnabled())->toBeFalse();
+});
+
+it('adds, lists and removes external guests', function () {
+    $this->actingAs(bmUser(RoleKey::BoardMember));
+    $meeting = bmMeeting();
+
+    $this->post(route('board.meetings.guests.store', $meeting), ['name' => 'Gerda Gast', 'email' => '  Gerda@Beispiel.Example ', 'organization' => 'Beratung eG'])->assertRedirect()->assertSessionHas('success');
+    $this->post(route('board.meetings.guests.store', $meeting), ['name' => 'Doppelt', 'email' => 'gerda@beispiel.example'])->assertSessionHasErrors('email');
+    $this->post(route('board.meetings.guests.store', $meeting), ['name' => '', 'email' => 'kaputt'])->assertSessionHasErrors(['name', 'email']);
+
+    $guest = BoardMeetingGuest::query()->firstOrFail();
+    expect($guest->email)->toBe('gerda@beispiel.example')->and(BoardMeetingGuest::query()->count())->toBe(1);
+    $this->get(route('board.meetings.show', $meeting))->assertOk()->assertSee('Gerda Gast (Beratung eG)')->assertSee('gerda@beispiel.example');
+
+    $this->post(route('board.meetings.guests.store', bmMeeting(['title' => 'Andere'])), ['name' => 'Gerda Gast', 'email' => 'gerda@beispiel.example'])->assertSessionHasNoErrors();
+
+    $this->post(route('board.meetings.guests.destroy', $meeting), ['ids' => [$guest->id]])->assertRedirect();
+    expect($meeting->guests()->count())->toBe(0)->and(AuditEntry::query()->where('event', 'board.guests_changed')->count())->toBe(3);
+});
+
+it('invites guests with a calendar file only when invitations are on', function () {
+    Mail::fake();
+    $this->actingAs(bmUser(RoleKey::BoardMember));
+    $meeting = bmMeeting(['title' => 'Strategietag', 'agenda' => '<p>TOP intern</p>', 'location' => 'Büro']);
+    $one = $meeting->guests()->create(['name' => 'Gerda Gast', 'email' => 'gerda@beispiel.example']);
+    $two = $meeting->guests()->create(['name' => 'Hans Gast', 'email' => 'hans@beispiel.example']);
+
+    $this->post(route('board.meetings.guests.invite', $meeting))->assertSessionHas('error');
+    Mail::assertNothingSent();
+
+    $this->put(route('board.meetings.invitations.toggle'), ['enabled' => 1]);
+
+    $this->post(route('board.meetings.guests.invite', $meeting), ['ids' => [$one->id], 'note' => 'Bitte Unterlagen mitbringen.'])->assertSessionHas('success');
+    Mail::assertSent(BoardGuestInvitationMail::class, 1);
+    Mail::assertSent(BoardGuestInvitationMail::class, fn ($mail) => $mail->hasTo('gerda@beispiel.example') && str_contains($mail->ics, 'BEGIN:VEVENT') && $mail->agenda === '' && $mail->note === 'Bitte Unterlagen mitbringen.' && ! str_contains(view('mail.board.guest-invitation', ['meeting' => $mail->meeting, 'guest' => $mail->guest, 'club' => $mail->club, 'agenda' => $mail->agenda, 'note' => $mail->note])->render(), '/vorstand/'));
+    expect($one->fresh()->invited_at)->not->toBeNull()->and($two->fresh()->invited_at)->toBeNull();
+
+    $this->post(route('board.meetings.guests.invite', $meeting), ['with_agenda' => '1'])->assertSessionHas('success');
+    Mail::assertSent(BoardGuestInvitationMail::class, 3);
+    Mail::assertSent(BoardGuestInvitationMail::class, fn ($mail) => $mail->hasTo('hans@beispiel.example') && str_contains($mail->agenda, 'TOP intern'));
+    Mail::assertNotSent(BoardMeetingInvitationMail::class);
+    expect(AuditEntry::query()->where('event', 'board.invitation_sent')->count())->toBe(2);
+});
+
+it('does not invite guests to a cancelled meeting or without guests', function () {
+    Mail::fake();
+    $this->actingAs(bmUser(RoleKey::BoardMember));
+    $this->put(route('board.meetings.invitations.toggle'), ['enabled' => 1]);
+
+    $empty = bmMeeting();
+    $this->post(route('board.meetings.guests.invite', $empty))->assertSessionHas('error');
+
+    $cancelled = bmMeeting(['status' => 'cancelled']);
+    $cancelled->guests()->create(['name' => 'Gerda Gast', 'email' => 'gerda@beispiel.example']);
+    $this->post(route('board.meetings.guests.invite', $cancelled))->assertSessionHas('error');
+
+    Mail::assertNothingSent();
+});
+
+it('keeps the guest list from everyone but the board and removes guests with the meeting', function () {
+    $meeting = bmMeeting();
+    $meeting->guests()->create(['name' => 'Gerda Gast', 'email' => 'gerda@beispiel.example']);
+
+    foreach ([RoleKey::AdministrationStaff, RoleKey::Coordination, RoleKey::Member] as $role) {
+        $this->actingAs(bmUser($role));
+        $this->post(route('board.meetings.guests.store', $meeting), ['name' => 'X', 'email' => 'x@beispiel.example'])->assertForbidden();
+        $this->post(route('board.meetings.guests.invite', $meeting))->assertForbidden();
+        $this->post(route('board.meetings.guests.destroy', $meeting), ['ids' => [1]])->assertForbidden();
+    }
+
+    $this->actingAs(bmUser(RoleKey::BoardMember))->delete(route('board.meetings.destroy', $meeting));
+    expect(BoardMeetingGuest::query()->count())->toBe(0);
 });

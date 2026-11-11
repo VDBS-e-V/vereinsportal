@@ -21,6 +21,9 @@ Route::middleware(['web', 'auth', 'can:board.meetings'])->prefix('vorstand/sitzu
     Route::put('/{meeting}', [BoardMeetingController::class, 'update'])->whereNumber('meeting')->name('update');
     Route::put('/einladungen', [BoardMeetingController::class, 'updateInvitations'])->name('invitations.toggle');
     Route::post('/{meeting}/einladen', [BoardMeetingController::class, 'invite'])->whereNumber('meeting')->middleware('throttle:10,10')->name('invite');
+    Route::post('/{meeting}/gaeste', [BoardMeetingController::class, 'storeGuest'])->whereNumber('meeting')->middleware('throttle:30,10')->name('guests.store');
+    Route::post('/{meeting}/gaeste/loeschen', [BoardMeetingController::class, 'destroyGuests'])->whereNumber('meeting')->name('guests.destroy');
+    Route::post('/{meeting}/gaeste/einladen', [BoardMeetingController::class, 'inviteGuests'])->whereNumber('meeting')->middleware('throttle:10,10')->name('guests.invite');
     Route::post('/{meeting}/dokumente', [BoardMeetingController::class, 'storeDocuments'])->whereNumber('meeting')->middleware('throttle:30,10')->name('documents.store');
     Route::post('/{meeting}/dokumente/loeschen', [BoardMeetingController::class, 'destroyDocuments'])->whereNumber('meeting')->name('documents.destroy');
     Route::get('/{meeting}/dokumente/{document}', [BoardMeetingController::class, 'download'])->whereNumber(['meeting', 'document'])->name('documents.download');

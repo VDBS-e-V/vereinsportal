@@ -117,6 +117,7 @@ enum AuditEvent: string
     case BoardDocumentAdded = 'board.document_added';
     case BoardDocumentRemoved = 'board.document_removed';
     case BoardInvitationSent = 'board.invitation_sent';
+    case BoardGuestsChanged = 'board.guests_changed';
 
     public function label(): string
     {
@@ -215,6 +216,7 @@ enum AuditEvent: string
             self::BoardDocumentAdded => 'Anhang zur Vorstandssitzung abgelegt',
             self::BoardDocumentRemoved => 'Anhang zur Vorstandssitzung gelöscht',
             self::BoardInvitationSent => 'Einladung zur Vorstandssitzung gesendet',
+            self::BoardGuestsChanged => 'Gäste einer Vorstandssitzung geändert',
         };
     }
 
@@ -243,7 +245,7 @@ enum AuditEvent: string
             self::FormStatusChanged, self::FormExported, self::FormSettingsChanged => 'forms',
             self::ContractsCreated, self::ContractSigned, self::ContractSettingsChanged, self::ContractTemplateSaved => 'contracts',
             self::LetterTemplateSaved, self::LettersGenerated => 'letters',
-            self::BoardCalendarChanged, self::BoardMeetingSaved, self::BoardMeetingDeleted, self::BoardMinutesApproved, self::BoardDocumentAdded, self::BoardDocumentRemoved, self::BoardInvitationSent => 'board',
+            self::BoardCalendarChanged, self::BoardMeetingSaved, self::BoardMeetingDeleted, self::BoardMinutesApproved, self::BoardDocumentAdded, self::BoardDocumentRemoved, self::BoardInvitationSent, self::BoardGuestsChanged => 'board',
         };
     }
 

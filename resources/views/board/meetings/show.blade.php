@@ -42,6 +42,44 @@
         @endif
     </section>
 
+    <section aria-labelledby="guests-heading" style="margin-top:var(--space-6)">
+        <h2 id="guests-heading" style="font-size:var(--font-size-h3)">Externe Gäste</h2>
+        <p>Gäste ohne Portalkonto, zum Beispiel Beratende oder Partner. Sie erhalten nur die Einladung per E-Mail, keinen Zugang zum Portal.</p>
+        @if ($meeting->guests->isEmpty())
+            <p>Noch keine Gäste eingetragen.</p>
+        @else
+            <x-vdbs.data.table caption="Gäste der Sitzung" :columns="[['key' => 'select', 'label' => 'Auswahl', 'selectAll' => 'board-guests-form'], ['key' => 'name', 'label' => 'Name'], ['key' => 'email', 'label' => 'E-Mail'], ['key' => 'invited', 'label' => 'Eingeladen']]">
+                @foreach ($meeting->guests as $guest)
+                    <tr>
+                        <td class="vdbs-table__select"><span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="ids[]" value="{{ $guest->id }}" form="board-guests-form" aria-label="{{ $guest->name }} auswählen"></span></td>
+                        <td>{{ $guest->label() }}</td>
+                        <td>{{ $guest->email }}</td>
+                        <td>{{ $guest->invited_at ? $guest->invited_at->format('d.m.Y, H:i').' Uhr' : '–' }}</td>
+                    </tr>
+                @endforeach
+            </x-vdbs.data.table>
+            <form id="board-guests-form" method="post" action="{{ route('board.meetings.guests.destroy', $meeting) }}" style="margin-top:var(--space-3)">@csrf
+                <p class="vdbs-table__select-count" role="status" data-vdbs-select-count="board-guests-form">Nichts ausgewählt.</p>
+                <x-vdbs.actions.button type="submit" variant="danger" icon="trash-2" onclick="return confirm('Die ausgewählten Gäste entfernen?')">Auswahl entfernen</x-vdbs.actions.button>
+                @if ($invitations && $meeting->status !== 'cancelled')
+                    <x-vdbs.forms.textarea name="note" label="Nachricht an die Gäste" :optional="true" maxlength="2000" :rows="3" hint="Erscheint in der E-Mail, zum Beispiel mit einem Hinweis zum Anlass der Einladung." />
+                    <x-vdbs.forms.checkbox name="with_agenda" label="Tagesordnung in die E-Mail aufnehmen" value="1" hint="Nur ankreuzen, wenn die Tagesordnung für Externe bestimmt ist." />
+                    <x-vdbs.actions.button type="submit" icon="mail" formaction="{{ route('board.meetings.guests.invite', $meeting) }}" onclick="return confirm('Die Einladung jetzt per E-Mail senden? Ohne Auswahl bekommen alle Gäste sie.')">Auswahl einladen (ohne Auswahl: alle)</x-vdbs.actions.button>
+                @endif
+            </form>
+            @unless ($invitations)
+                <p class="vdbs-hint">Einladungen per E-Mail sind ausgeschaltet. Sie schalten sie auf der Seite „Sitzungen“ ein.</p>
+            @endunless
+        @endif
+
+        <x-vdbs.forms.form :action="route('board.meetings.guests.store', $meeting)" method="post" :summary="false">
+            <x-vdbs.forms.input name="name" label="Name des Gastes" :required="true" maxlength="150" />
+            <x-vdbs.forms.input name="email" label="E-Mail-Adresse" type="email" :required="true" maxlength="190" />
+            <x-vdbs.forms.input name="organization" label="Organisation" :optional="true" maxlength="150" hint="Zum Beispiel Verein, Schule oder Behörde." />
+            <x-slot:actions><x-vdbs.actions.button type="submit" icon="plus">Gast eintragen</x-vdbs.actions.button></x-slot:actions>
+        </x-vdbs.forms.form>
+    </section>
+
     <section aria-labelledby="documents-heading" style="margin-top:var(--space-6)">
         <h2 id="documents-heading" style="font-size:var(--font-size-h3)">Anhänge</h2>
         @error('documents')<x-vdbs.feedback.alert variant="error">{{ $message }}</x-vdbs.feedback.alert>@enderror

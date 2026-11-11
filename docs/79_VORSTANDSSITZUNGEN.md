@@ -6,6 +6,7 @@ Unter **Vorstand › Sitzungen** (`/vorstand/sitzungen`) verwaltet der Vorstand 
 - **Tagesordnung** und **Protokoll:** Textfelder mit Formatierung. Das Protokoll lässt sich mit „Als genehmigt vermerken“ (meist in der nächsten Sitzung) als genehmigt kennzeichnen. Ändert jemand ein genehmigtes Protokoll, gilt es wieder als nicht genehmigt.
 - **Anwesenheit:** Mehrfachauswahl der Vorstandsmitglieder für „Anwesend“ und „Entschuldigt“.
 - **Anhänge:** Auf der Sitzungsseite lassen sich bis zu 20 Dateien auf einmal hochladen (PDF, Word, Excel, CSV, OpenDocument, ZIP, Text; keine Bilder), zum Beispiel das unterschriebene Protokoll als PDF. Sie liegen privat im Portal, es gelten die Größengrenzen der Seminardokumente. Löschen geht einzeln oder mit Mehrfachauswahl; beim Löschen einer Sitzung verschwinden auch ihre Dateien.
+- **Externe Gäste:** Auf der Sitzungsseite lassen sich Gäste ohne Portalkonto eintragen (Name, E-Mail-Adresse, Organisation), zum Beispiel Beratende oder Partner. Sie sehen nichts im Portal; sie bekommen nur die Einladung. Entfernen geht einzeln oder mit Mehrfachauswahl. Gäste werden mit der Sitzung gelöscht; tragen Sie nur ein, wer eingeladen werden soll.
 - **Drucken:** Auf der Sitzungsseite druckt oder speichert „Drucken“ Tagesordnung und Protokoll als PDF.
 - **Löschen:** einzeln oder mit Mehrfachauswahl in der Liste.
 - **Protokoll der Änderungen:** Speichern, Löschen, Genehmigen und Erneuern der Abo-Adresse stehen im Portalprotokoll (Gruppe „Vorstand“).
@@ -28,4 +29,8 @@ Auf der Seite „Sitzungen“ steht der Schalter **Einladungen per E-Mail**. Er 
 - Abgesagte Sitzungen werden nicht eingeladen. Wird der Termin nach der Einladung geändert, zeigt die Sitzungsseite „Seitdem geändert“; „Erneut einladen“ schickt eine neue Einladung.
 - Jede Einladung steht im Portalprotokoll (Anzahl der Empfänger), ebenso das Ein- und Ausschalten.
 
-Neue Tabellen `board_settings`, `board_meetings`, `board_meeting_user`, `board_meeting_documents`: nach dem Einspielen `php artisan portal:update` ausführen.
+### Einladung für Gäste
+
+Mit eingeschalteten Einladungen steht unter der Gästeliste „Auswahl einladen“ (ohne Auswahl: alle Gäste). Die Mail enthält Termin, Ort, Videolink, optional eine Nachricht und die Kalenderdatei (`.ics`). Es steht **kein Portallink** darin, und die **Tagesordnung nur, wenn Sie „Tagesordnung in die E-Mail aufnehmen“ ankreuzen**. Es gilt derselbe Schalter wie für den Vorstand; ausgeschaltet verschickt das Portal nichts. In der Liste steht, wann ein Gast eingeladen wurde. Im Protokoll steht die Anzahl, nicht die Adressen.
+
+Neue Tabellen `board_settings`, `board_meetings`, `board_meeting_user`, `board_meeting_documents`, `board_meeting_guests`: nach dem Einspielen `php artisan portal:update` ausführen.

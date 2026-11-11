@@ -8,7 +8,10 @@ use App\Modules\Access\Services\NotificationPreferences;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
+use App\Modules\Board\Mail\BoardGuestInvitationMail;
 use App\Modules\Board\Mail\BoardMeetingInvitationMail;
+use App\Modules\Board\Models\BoardMeetingGuest;
+use App\Modules\Contracts\Services\ContractSettings;
 use App\Modules\Board\Models\BoardMeeting;
 use App\Modules\Board\Support\IcsFeed;
 use App\Support\Html\RichText;
@@ -63,6 +66,53 @@ final class BoardInvitations
         if ($sent > 0) {
             $meeting->forceFill(['invited_at' => now()])->saveQuietly();
             AuditLog::record(AuditEvent::BoardInvitationSent, $by, null, ['sitzung' => $meeting->title.' am '.$meeting->starts_at->format('d.m.Y'), 'empfaenger' => $sent]);
+        }
+
+        return ['sent' => $sent, 'failed' => $failed];
+    }
+
+    /**
+     * Lädt externe Gäste ein, mit Kalenderdatei. Ohne Auswahl bekommen alle Gäste der Sitzung die Einladung.
+     *
+     * @param  list<int>|null  $guestIds
+     * @return array{sent: int, failed: int}
+     *
+     * @throws DomainException
+     */
+    public function sendToGuests(BoardMeeting $meeting, User $by, ?array $guestIds = null, ?string $note = null, bool $withAgenda = false): array
+    {
+        if (! $this->calendar->invitationsEnabled()) {
+            throw new DomainException('Einladungen per E-Mail sind ausgeschaltet. Sie können sie auf der Seite „Sitzungen“ einschalten.');
+        }
+
+        if ($meeting->status === 'cancelled') {
+            throw new DomainException('Zu einer abgesagten Sitzung wird nicht eingeladen.');
+        }
+
+        $guests = $meeting->guests()->when($guestIds !== null && $guestIds !== [], fn ($query) => $query->whereIn('id', $guestIds))->get();
+
+        if ($guests->isEmpty()) {
+            throw new DomainException('Es gibt keine Gäste, die eingeladen werden könnten.');
+        }
+
+        $agenda = $withAgenda && ! RichText::isEmpty($meeting->agenda) ? RichText::toPlain((string) $meeting->agenda) : '';
+        $ics = IcsFeed::build(collect([$meeting]), parse_url((string) config('app.url'), PHP_URL_HOST) ?: 'portal', 'Sitzung');
+        $club = app(ContractSettings::class)->get('club_name');
+        $sent = $failed = 0;
+
+        foreach ($guests as $guest) {
+            try {
+                Mail::to($guest->email)->send(new BoardGuestInvitationMail($meeting, $guest, $club, $agenda, trim((string) $note), $ics));
+                $guest->forceFill(['invited_at' => now()])->save();
+                $sent++;
+            } catch (Throwable $exception) {
+                report($exception);
+                $failed++;
+            }
+        }
+
+        if ($sent > 0) {
+            AuditLog::record(AuditEvent::BoardInvitationSent, $by, null, ['sitzung' => $meeting->title.' am '.$meeting->starts_at->format('d.m.Y'), 'gaeste' => $sent]);
         }
 
         return ['sent' => $sent, 'failed' => $failed];
