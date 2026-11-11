@@ -9,19 +9,25 @@ use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Board\Models\BoardMeeting;
+use App\Modules\Board\Models\BoardMeetingDocument;
 use App\Modules\Board\Services\BoardCalendar;
+use App\Modules\Board\Services\BoardInvitations;
+use App\Modules\Board\Services\BoardMeetingDocuments;
 use App\Support\Html\RichText;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use DomainException;
 
 /** Vorstandssitzungen im Portal: planen, Tagesordnung, Anwesenheit und Protokoll. Nur für den Vorstand. */
 class BoardMeetingController extends Controller
 {
-    public function __construct(private readonly BoardCalendar $calendar) {}
+    public function __construct(private readonly BoardCalendar $calendar, private readonly BoardInvitations $invitations, private readonly BoardMeetingDocuments $documents) {}
 
     public function index(): View
     {
@@ -33,12 +39,14 @@ class BoardMeetingController extends Controller
             'feed' => $feed,
             'webcal' => BoardCalendar::webcal($feed),
             'externalUrl' => $this->calendar->externalUrl(),
+            'invitations' => $this->calendar->invitationsEnabled(),
+            'recipientCount' => count($this->invitations->recipients()),
         ]);
     }
 
     public function create(): View
     {
-        return view('board.meetings.form', ['meeting' => null, 'members' => $this->members(), 'statuses' => BoardMeeting::STATUSES, 'present' => [], 'excused' => [], 'agenda' => '', 'minutes' => '']);
+        return view('board.meetings.form', ['meeting' => null, 'members' => $this->members(), 'statuses' => BoardMeeting::STATUSES, 'present' => [], 'excused' => [], 'agenda' => '', 'minutes' => '', 'invitations' => $this->calendar->invitationsEnabled()]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -50,15 +58,15 @@ class BoardMeetingController extends Controller
 
         AuditLog::record(AuditEvent::BoardMeetingSaved, $this->user(), null, ['sitzung' => $meeting->title.' am '.$meeting->starts_at->format('d.m.Y')]);
 
-        return redirect()->route('board.meetings.show', $meeting)->with('success', 'Die Sitzung wurde angelegt. Im Kalender-Abo erscheint sie automatisch.');
+        return $this->afterSave($request, $meeting, 'Die Sitzung wurde angelegt. Im Kalender-Abo erscheint sie automatisch.');
     }
 
     public function show(BoardMeeting $meeting): View
     {
-        $meeting->load('attendees.person');
+        $meeting->load(['attendees.person', 'documents.uploadedBy.person']);
 
         return view('board.meetings.show', [
-            'meeting' => $meeting,
+            'meeting' => $meeting, 'invitations' => $this->calendar->invitationsEnabled(),
             'present' => $meeting->attendees->filter(fn (User $user): bool => $user->pivot->status === 'present'),
             'excused' => $meeting->attendees->filter(fn (User $user): bool => $user->pivot->status === 'excused'),
         ]);
@@ -72,7 +80,7 @@ class BoardMeetingController extends Controller
             'meeting' => $meeting, 'members' => $this->members($meeting), 'statuses' => BoardMeeting::STATUSES,
             'present' => $meeting->attendees->filter(fn (User $user): bool => $user->pivot->status === 'present')->pluck('id')->all(),
             'excused' => $meeting->attendees->filter(fn (User $user): bool => $user->pivot->status === 'excused')->pluck('id')->all(),
-            'agenda' => RichText::forEditor($meeting->agenda), 'minutes' => RichText::forEditor($meeting->minutes),
+            'agenda' => RichText::forEditor($meeting->agenda), 'minutes' => RichText::forEditor($meeting->minutes), 'invitations' => $this->calendar->invitationsEnabled(),
         ]);
     }
 
@@ -93,7 +101,7 @@ class BoardMeetingController extends Controller
 
         AuditLog::record(AuditEvent::BoardMeetingSaved, $this->user(), null, ['sitzung' => $meeting->title.' am '.$meeting->starts_at->format('d.m.Y')]);
 
-        return redirect()->route('board.meetings.show', $meeting)->with('success', 'Die Sitzung wurde gespeichert.'.$note);
+        return $this->afterSave($request, $meeting, 'Die Sitzung wurde gespeichert.'.$note);
     }
 
     /** Das Protokoll gilt als genehmigt, meist in der nächsten Sitzung. */
@@ -140,6 +148,95 @@ class BoardMeetingController extends Controller
         return redirect()->route('board.meetings.index')->with('success', 'Die Abo-Adresse wurde erneuert. Die alte Adresse funktioniert nicht mehr; abonnieren Sie den Kalender mit der neuen Adresse.');
     }
 
+    /** Schaltet die Einladungen per E-Mail ein oder aus. */
+    public function updateInvitations(Request $request): RedirectResponse
+    {
+        $enabled = $request->boolean('enabled');
+        $this->calendar->setInvitations($enabled, $this->user());
+
+        return redirect()->route('board.meetings.index')->with('success', $enabled ? 'Einladungen per E-Mail sind eingeschaltet.' : 'Einladungen per E-Mail sind ausgeschaltet.');
+    }
+
+    /** Verschickt die Einladung mit Kalenderdatei an die Vorstandsmitglieder. */
+    public function invite(Request $request, BoardMeeting $meeting): RedirectResponse
+    {
+        $data = $request->validate(['note' => ['nullable', 'string', 'max:2000']]);
+
+        try {
+            $result = $this->invitations->send($meeting, $this->user(), $data['note'] ?? null);
+        } catch (DomainException $exception) {
+            return back()->with('error', $exception->getMessage());
+        }
+
+        $message = $result['sent'] === 1 ? 'Die Einladung wurde an 1 Vorstandsmitglied gesendet.' : 'Die Einladung wurde an '.$result['sent'].' Vorstandsmitglieder gesendet.';
+
+        return back()->with($result['failed'] > 0 ? 'error' : 'success', $result['failed'] > 0 ? $message.' '.$result['failed'].' E-Mails konnten nicht zugestellt werden.' : $message);
+    }
+
+    public function storeDocuments(Request $request, BoardMeeting $meeting): RedirectResponse
+    {
+        $data = $request->validate([
+            'title' => ['nullable', 'string', 'max:200'], 'files' => ['required', 'array', 'min:1', 'max:20'], 'files.*' => ['file'],
+        ], ['files.required' => 'Bitte wählen Sie mindestens eine Datei.', 'files.max' => 'Bitte laden Sie höchstens 20 Dateien auf einmal hoch.', 'files.*.file' => 'Die Datei konnte nicht gelesen werden.']);
+
+        $done = 0;
+        $problems = [];
+
+        foreach ($request->file('files', []) as $file) {
+            try {
+                $this->documents->add($meeting, $file, $data['title'] ?? null, $this->user());
+                $done++;
+            } catch (DomainException $exception) {
+                $problems[] = $file->getClientOriginalName().': '.$exception->getMessage();
+            }
+        }
+
+        $redirect = redirect()->to(route('board.meetings.show', $meeting).'#documents-heading');
+
+        if ($problems !== []) {
+            $redirect = $redirect->withErrors(['documents' => implode(' ', $problems)]);
+        }
+
+        return $done > 0 ? $redirect->with('success', $done === 1 ? 'Der Anhang wurde abgelegt.' : $done.' Anhänge wurden abgelegt.') : $redirect;
+    }
+
+    public function destroyDocuments(Request $request, BoardMeeting $meeting): RedirectResponse
+    {
+        $ids = $request->validate(['ids' => ['required', 'array', 'min:1'], 'ids.*' => ['integer']], ['ids.required' => 'Bitte wählen Sie mindestens einen Anhang aus.'])['ids'];
+        $documents = $meeting->documents()->whereIn('id', $ids)->get();
+
+        foreach ($documents as $document) {
+            $this->documents->remove($document, $this->user());
+        }
+
+        return redirect()->to(route('board.meetings.show', $meeting).'#documents-heading')->with('success', $documents->count() === 1 ? 'Der Anhang wurde gelöscht.' : $documents->count().' Anhänge wurden gelöscht.');
+    }
+
+    public function download(BoardMeeting $meeting, BoardMeetingDocument $document): StreamedResponse
+    {
+        abort_unless($document->board_meeting_id === $meeting->id && Storage::disk(BoardMeetingDocument::DISK)->exists($document->path), 404);
+
+        return Storage::disk(BoardMeetingDocument::DISK)->download($document->path, $document->original_name, ['Content-Type' => $document->mime, 'X-Content-Type-Options' => 'nosniff']);
+    }
+
+    /** Nach dem Speichern: auf Wunsch gleich einladen (nur wenn Einladungen eingeschaltet sind). */
+    private function afterSave(Request $request, BoardMeeting $meeting, string $message): RedirectResponse
+    {
+        $redirect = redirect()->route('board.meetings.show', $meeting);
+
+        if (! $request->boolean('send_invitation') || ! $this->calendar->invitationsEnabled()) {
+            return $redirect->with('success', $message);
+        }
+
+        try {
+            $result = $this->invitations->send($meeting, $this->user());
+        } catch (DomainException $exception) {
+            return $redirect->with('success', $message)->with('error', $exception->getMessage());
+        }
+
+        return $redirect->with('success', $message.' Die Einladung ging an '.$result['sent'].' Vorstandsmitglied'.($result['sent'] === 1 ? '' : 'er').'.');
+    }
+
     /** @param  \Illuminate\Support\Collection<int, BoardMeeting>  $meetings */
     private function delete($meetings): void
     {
@@ -164,6 +261,7 @@ class BoardMeetingController extends Controller
             'status' => ['required', Rule::in(array_keys(BoardMeeting::STATUSES))],
             'agenda' => ['nullable', 'string', 'max:60000'],
             'minutes' => ['nullable', 'string', 'max:100000'],
+            'send_invitation' => ['nullable', 'boolean'],
             'present' => ['nullable', 'array'], 'present.*' => ['integer'],
             'excused' => ['nullable', 'array'], 'excused.*' => ['integer'],
         ], [

@@ -10,11 +10,18 @@ use App\Modules\Board\Models\BoardMeeting;
 use App\Modules\Board\Services\BoardCalendar;
 use App\Modules\Board\Support\IcsFeed;
 use App\Modules\People\Models\Person;
+use App\Modules\Board\Mail\BoardMeetingInvitationMail;
+use App\Modules\Board\Models\BoardMeetingDocument;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->withoutVite();
     $this->seed(RoleSeeder::class);
+    Storage::fake('local');
 });
 
 function bmUser(RoleKey $role, array $person = []): User
@@ -154,4 +161,130 @@ it('keeps the meetings from everyone but the board', function () {
 
 it('lists the meetings in the board navigation', function () {
     $this->actingAs(bmUser(RoleKey::BoardMember))->get(route('board.overview'))->assertOk()->assertSee(route('board.meetings.index'), false);
+});
+
+function bmFile(string $name, string $content): UploadedFile
+{
+    $path = tempnam(sys_get_temp_dir(), 'bm');
+    file_put_contents($path, $content);
+
+    return new UploadedFile($path, $name, null, null, true);
+}
+
+function bmMeeting(array $override = []): BoardMeeting
+{
+    return BoardMeeting::query()->create($override + ['title' => 'Sitzung', 'starts_at' => now()->addDays(5)->setTime(19, 0), 'ends_at' => now()->addDays(5)->setTime(21, 0)]);
+}
+
+const BM_PDF = "%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n";
+
+it('stores, downloads and deletes attachments of a meeting', function () {
+    $this->actingAs(bmUser(RoleKey::BoardMember));
+    $meeting = bmMeeting();
+
+    $this->post(route('board.meetings.documents.store', $meeting), ['title' => 'Protokoll Oktober', 'files' => [bmFile('protokoll.pdf', BM_PDF), bmFile('anlage.txt', 'Zahlen')]])->assertRedirect()->assertSessionHas('success');
+
+    $documents = $meeting->documents()->get();
+    expect($documents)->toHaveCount(2)->and(AuditEntry::query()->where('event', 'board.document_added')->count())->toBe(2);
+    Storage::disk('local')->assertExists($documents[0]->path);
+
+    $this->get(route('board.meetings.show', $meeting))->assertOk()->assertSee('Protokoll Oktober');
+    $this->get(route('board.meetings.documents.download', [$meeting, $documents[0]]))->assertOk()->assertHeader('X-Content-Type-Options', 'nosniff');
+
+    $other = bmMeeting(['title' => 'Andere']);
+    $this->get(route('board.meetings.documents.download', [$other, $documents[0]]))->assertNotFound();
+
+    $this->post(route('board.meetings.documents.destroy', $meeting), ['ids' => [$documents[0]->id, $documents[1]->id]])->assertRedirect();
+    expect(BoardMeetingDocument::query()->count())->toBe(0);
+    Storage::disk('local')->assertMissing($documents[0]->path);
+});
+
+it('rejects images and files that do not match their extension', function () {
+    $this->actingAs(bmUser(RoleKey::BoardMember));
+    $meeting = bmMeeting();
+    $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
+
+    $this->post(route('board.meetings.documents.store', $meeting), ['files' => [bmFile('foto.png', $png)]])->assertSessionHasErrors('documents');
+    $this->post(route('board.meetings.documents.store', $meeting), ['files' => [bmFile('falsch.pdf', 'kein pdf')]])->assertSessionHasErrors('documents');
+    $this->post(route('board.meetings.documents.store', $meeting), ['files' => [bmFile('skript.php', '<?php echo 1;')]])->assertSessionHasErrors('documents');
+    $this->post(route('board.meetings.documents.store', $meeting), [])->assertSessionHasErrors('files');
+
+    expect(BoardMeetingDocument::query()->count())->toBe(0);
+});
+
+it('removes the files when a meeting is deleted', function () {
+    $this->actingAs(bmUser(RoleKey::BoardMember));
+    $meeting = bmMeeting();
+    $this->post(route('board.meetings.documents.store', $meeting), ['files' => [bmFile('protokoll.pdf', BM_PDF)]]);
+    $path = $meeting->documents()->firstOrFail()->path;
+
+    $this->delete(route('board.meetings.destroy', $meeting))->assertRedirect();
+
+    Storage::disk('local')->assertMissing($path);
+    expect(BoardMeetingDocument::query()->count())->toBe(0);
+});
+
+it('keeps the attachments from everyone but the board', function () {
+    $meeting = bmMeeting();
+    $document = $meeting->documents()->create(['title' => 'X', 'original_name' => 'x.pdf', 'path' => 'board/1/x.pdf', 'mime' => 'application/pdf', 'size' => 10]);
+
+    foreach ([RoleKey::AdministrationStaff, RoleKey::Coordination, RoleKey::Team, RoleKey::Member] as $role) {
+        $this->actingAs(bmUser($role));
+        $this->get(route('board.meetings.documents.download', [$meeting, $document]))->assertForbidden();
+        $this->post(route('board.meetings.documents.store', $meeting), ['files' => [bmFile('a.txt', 'a')]])->assertForbidden();
+        $this->post(route('board.meetings.invite', $meeting))->assertForbidden();
+        $this->put(route('board.meetings.invitations.toggle'), ['enabled' => 1])->assertForbidden();
+    }
+});
+
+it('keeps invitations switched off until the board enables them', function () {
+    Mail::fake();
+    $this->actingAs(bmUser(RoleKey::BoardMember));
+    $meeting = bmMeeting();
+
+    expect(app(BoardCalendar::class)->invitationsEnabled())->toBeFalse();
+    $this->get(route('board.meetings.show', $meeting))->assertOk()->assertDontSee('Einladung senden');
+    $this->post(route('board.meetings.invite', $meeting))->assertSessionHas('error');
+    $this->post(route('board.meetings.store'), bmData(['send_invitation' => '1']))->assertRedirect();
+
+    Mail::assertNothingSent();
+});
+
+it('invites the board with a calendar file and respects switches and preferences', function () {
+    Mail::fake();
+    $a = bmUser(RoleKey::BoardMember);
+    $b = bmUser(RoleKey::BoardMember);
+    $off = bmUser(RoleKey::BoardMember);
+    $notBoard = bmUser(RoleKey::Coordination);
+    DB::table('notification_preferences')->insert(['user_id' => $off->id, 'key' => 'board_meetings', 'enabled' => false, 'created_at' => now(), 'updated_at' => now()]);
+
+    $this->actingAs($a)->put(route('board.meetings.invitations.toggle'), ['enabled' => 1])->assertRedirect();
+    expect(AuditEntry::query()->where('event', 'board.calendar_changed')->count())->toBe(1);
+
+    $meeting = bmMeeting(['title' => 'Jahresplanung', 'agenda' => '<p>TOP 1 Haushalt</p>', 'location' => 'Büro']);
+    $this->get(route('board.meetings.show', $meeting))->assertSee('Einladung senden');
+    $this->post(route('board.meetings.invite', $meeting), ['note' => 'Bitte pünktlich.'])->assertSessionHas('success');
+
+    Mail::assertSent(BoardMeetingInvitationMail::class, 2);
+    Mail::assertSent(BoardMeetingInvitationMail::class, fn ($mail) => $mail->hasTo($a->email) && str_contains($mail->ics, 'BEGIN:VEVENT') && $mail->note === 'Bitte pünktlich.' && str_contains($mail->agenda, 'TOP 1 Haushalt') && $mail->envelope()->subject === 'Einladung: Jahresplanung am '.$meeting->starts_at->format('d.m.Y'));
+    Mail::assertNotSent(BoardMeetingInvitationMail::class, fn ($mail) => $mail->hasTo($off->email) || $mail->hasTo($notBoard->email));
+    expect($meeting->fresh()->invited_at)->not->toBeNull()->and(AuditEntry::query()->where('event', 'board.invitation_sent')->count())->toBe(1);
+
+    $this->get(route('board.meetings.show', $meeting))->assertSee('Zuletzt eingeladen');
+});
+
+it('invites on saving when asked and refuses cancelled meetings', function () {
+    Mail::fake();
+    $this->actingAs(bmUser(RoleKey::BoardMember));
+    $this->put(route('board.meetings.invitations.toggle'), ['enabled' => 1]);
+
+    $this->post(route('board.meetings.store'), bmData(['send_invitation' => '1']))->assertRedirect();
+    Mail::assertSent(BoardMeetingInvitationMail::class, 1);
+
+    $cancelled = bmMeeting(['status' => 'cancelled']);
+    $this->post(route('board.meetings.invite', $cancelled))->assertSessionHas('error');
+    Mail::assertSent(BoardMeetingInvitationMail::class, 1);
+
+    $this->put(route('board.meetings.invitations.toggle'), [])->assertRedirect();
+    expect(app(BoardCalendar::class)->invitationsEnabled())->toBeFalse();
 });

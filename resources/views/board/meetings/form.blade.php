@@ -17,6 +17,9 @@
         <x-vdbs.forms.multi-select name="present" label="Anwesend" :optional="true" :searchable="true" placeholder="Niemand ausgewählt" search-label="Personen filtern" :options="$members" :value="old('present', $present)" />
         <x-vdbs.forms.multi-select name="excused" label="Entschuldigt" :optional="true" :searchable="true" placeholder="Niemand ausgewählt" search-label="Personen filtern" :options="$members" :value="old('excused', $excused)" />
         <x-vdbs.forms.textarea name="minutes" label="Protokoll" :optional="true" maxlength="100000" :rows="16" :rich="true" :value="old('minutes', $minutes)" hint="Beschlüsse, Ergebnisse und Aufgaben. Wird das Protokoll nach der Genehmigung geändert, ist es wieder nicht genehmigt." />
+        @if ($invitations)
+            <x-vdbs.forms.checkbox name="send_invitation" label="Nach dem Speichern per E-Mail an den Vorstand einladen" value="1" :checked="old('send_invitation', false)" hint="Die Einladung enthält Termin, Ort, Tagesordnung und eine Kalenderdatei. Auf der Sitzungsseite können Sie sie auch später senden." />
+        @endif
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="save">Speichern</x-vdbs.actions.button>
             <x-vdbs.actions.button variant="secondary" :href="$meeting ? route('board.meetings.show', $meeting) : route('board.meetings.index')">Abbrechen</x-vdbs.actions.button>

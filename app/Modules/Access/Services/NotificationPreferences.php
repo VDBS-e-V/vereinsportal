@@ -28,6 +28,7 @@ final class NotificationPreferences
             'school_requests' => ['label' => 'Nachrichten von Schulen', 'description' => 'Anfragen, Bestätigungen und Hinweise von Schulkonten zu Seminaren.', 'group' => 'Koordination', 'ability' => 'seminars.manage'],
             'mailing_approvals' => ['label' => 'Schreiben zur Freigabe', 'description' => 'Wenn die Geschäftsstelle ein Schreiben an viele Personen zur Freigabe vorlegt.', 'group' => 'Vorstand', 'ability' => 'mailings.approve'],
             'new_applications' => ['label' => 'Neue Mitgliedsanträge', 'description' => 'Wenn jemand seine E-Mail-Adresse bestätigt hat und über den Antrag zu entscheiden ist.', 'group' => 'Vorstand', 'ability' => 'memberships.manage'],
+            'board_meetings' => ['label' => 'Einladungen zu Vorstandssitzungen', 'description' => 'Wenn der Vorstand eine Einladung zu einer Sitzung per E-Mail verschickt, mit Kalenderdatei im Anhang.', 'group' => 'Vorstand', 'ability' => 'board.meetings'],
             'new_access_requests' => ['label' => 'Neue Zugangsanträge', 'description' => 'Wenn ein neuer Antrag auf Zugang zum Portal eingeht.', 'group' => 'Geschäftsstelle', 'ability' => 'access_requests.manage'],
             'school_event_reminders' => ['label' => 'Erinnerung an Anmeldefristen von Veranstaltungen', 'description' => 'Wenn die Anmeldefrist einer Veranstaltung bald endet.', 'group' => 'Schulen', 'ability' => 'school.area'],
         ];

@@ -184,7 +184,7 @@ final class SeminarDocuments
      *
      * @throws DomainException
      */
-    private function validate(UploadedFile $file): string
+    public function validate(UploadedFile $file): string
     {
         $extension = strtolower((string) $file->getClientOriginalExtension());
         $mime = (new finfo(FILEINFO_MIME_TYPE))->file((string) $file->getRealPath()) ?: '';

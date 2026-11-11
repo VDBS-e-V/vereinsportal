@@ -35,6 +35,18 @@ final class BoardCalendar
         AuditLog::record(AuditEvent::BoardCalendarChanged, $by);
     }
 
+    /** Einladungen per E-Mail sind abschaltbar und standardmäßig aus: Der Vorstand schaltet sie bewusst ein. */
+    public function invitationsEnabled(): bool
+    {
+        return $this->get('invitations_enabled') === '1';
+    }
+
+    public function setInvitations(bool $enabled, User $by): void
+    {
+        $this->put('invitations_enabled', $enabled ? '1' : '0');
+        AuditLog::record(AuditEvent::BoardCalendarChanged, $by, null, ['aktion' => $enabled ? 'Einladungen eingeschaltet' : 'Einladungen ausgeschaltet']);
+    }
+
     /** Der Schlüssel wird beim ersten Bedarf erzeugt. */
     public function feedToken(): string
     {

@@ -46,6 +46,16 @@
         </form>
     </x-vdbs.layout.section>
 
+    <x-vdbs.layout.section title="Einladungen per E-Mail">
+        <p>Mit eingeschalteten Einladungen kann der Vorstand eine Sitzung per E-Mail ankündigen, mit Termin, Tagesordnung und Kalenderdatei im Anhang. Die Einladung geht nur auf Knopfdruck hinaus, nie von selbst. @if ($invitations)Zurzeit erhalten {{ $recipientCount }} Vorstandsmitglieder sie.@endif</p>
+        <form method="post" action="{{ route('board.meetings.invitations.toggle') }}">
+            @csrf @method('put')
+            <x-vdbs.forms.switch name="enabled" label="Einladungen per E-Mail" :checked="$invitations" hint="Ausgeschaltet gibt es auf den Sitzungsseiten keinen Knopf zum Einladen." />
+            <x-vdbs.actions.button type="submit" variant="secondary" size="s" icon="save">Übernehmen</x-vdbs.actions.button>
+        </form>
+        <p class="vdbs-hint">Einzelne Vorstandsmitglieder können die Einladungen in ihren Benachrichtigungen (Konto) abstellen.</p>
+    </x-vdbs.layout.section>
+
     <x-vdbs.layout.section title="Externer Kalender (optional)">
         @if ($externalUrl !== '')
             <p><x-vdbs.actions.button variant="secondary" :href="$externalUrl" icon="calendar" :external="true">Externen Kalender öffnen</x-vdbs.actions.button></p>

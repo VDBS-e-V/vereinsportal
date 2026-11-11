@@ -5,6 +5,7 @@ Unter **Vorstand › Sitzungen** (`/vorstand/sitzungen`) verwaltet der Vorstand 
 - **Sitzung:** Titel, Datum, Beginn und Ende, Ort, Link zur Videokonferenz (`https://`), Stand (geplant, stattgefunden, abgesagt).
 - **Tagesordnung** und **Protokoll:** Textfelder mit Formatierung. Das Protokoll lässt sich mit „Als genehmigt vermerken“ (meist in der nächsten Sitzung) als genehmigt kennzeichnen. Ändert jemand ein genehmigtes Protokoll, gilt es wieder als nicht genehmigt.
 - **Anwesenheit:** Mehrfachauswahl der Vorstandsmitglieder für „Anwesend“ und „Entschuldigt“.
+- **Anhänge:** Auf der Sitzungsseite lassen sich bis zu 20 Dateien auf einmal hochladen (PDF, Word, Excel, CSV, OpenDocument, ZIP, Text; keine Bilder), zum Beispiel das unterschriebene Protokoll als PDF. Sie liegen privat im Portal, es gelten die Größengrenzen der Seminardokumente. Löschen geht einzeln oder mit Mehrfachauswahl; beim Löschen einer Sitzung verschwinden auch ihre Dateien.
 - **Drucken:** Auf der Sitzungsseite druckt oder speichert „Drucken“ Tagesordnung und Protokoll als PDF.
 - **Löschen:** einzeln oder mit Mehrfachauswahl in der Liste.
 - **Protokoll der Änderungen:** Speichern, Löschen, Genehmigen und Erneuern der Abo-Adresse stehen im Portalprotokoll (Gruppe „Vorstand“).
@@ -17,4 +18,14 @@ Kalenderprogramme melden sich nicht im Portal an, deshalb ist die Adresse ohne A
 
 Zusätzlich lässt sich ein **externer Kalenderlink** (`https://`) hinterlegen, falls der Vorstand außerhalb des Portals einen weiteren Kalender nutzt.
 
-Neue Tabellen `board_settings`, `board_meetings`, `board_meeting_user`: nach dem Einspielen `php artisan portal:update` ausführen.
+## Einladungen per E-Mail (abschaltbar)
+
+Auf der Seite „Sitzungen“ steht der Schalter **Einladungen per E-Mail**. Er ist **zunächst aus**; solange er aus ist, gibt es nirgends einen Einladungsknopf und es wird nichts verschickt.
+
+- Eingeschaltet erscheint auf jeder Sitzungsseite „Einladung senden“ (mit optionaler Nachricht, zum Beispiel bei einer Terminänderung) und im Formular das Häkchen „Nach dem Speichern einladen“. Es wird nie von selbst eingeladen.
+- Die E-Mail enthält Termin, Ort, Videolink, Tagesordnung als Text, den Link zur Sitzung im Portal und den Termin als Kalenderdatei (`.ics`) im Anhang. Protokoll und Anhänge stehen nicht in der Mail.
+- Empfänger sind aktive Konten mit Rolle Vorstand. Wer die Benachrichtigung „Einladungen zu Vorstandssitzungen“ im Konto abstellt, bekommt keine.
+- Abgesagte Sitzungen werden nicht eingeladen. Wird der Termin nach der Einladung geändert, zeigt die Sitzungsseite „Seitdem geändert“; „Erneut einladen“ schickt eine neue Einladung.
+- Jede Einladung steht im Portalprotokoll (Anzahl der Empfänger), ebenso das Ein- und Ausschalten.
+
+Neue Tabellen `board_settings`, `board_meetings`, `board_meeting_user`, `board_meeting_documents`: nach dem Einspielen `php artisan portal:update` ausführen.

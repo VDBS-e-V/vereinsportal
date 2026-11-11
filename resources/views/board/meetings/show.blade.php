@@ -42,6 +42,55 @@
         @endif
     </section>
 
+    <section aria-labelledby="documents-heading" style="margin-top:var(--space-6)">
+        <h2 id="documents-heading" style="font-size:var(--font-size-h3)">Anhänge</h2>
+        @error('documents')<x-vdbs.feedback.alert variant="error">{{ $message }}</x-vdbs.feedback.alert>@enderror
+        @if ($meeting->documents->isEmpty())
+            <p>Noch keine Anhänge.</p>
+        @else
+            <x-vdbs.data.table caption="Anhänge der Sitzung" :columns="[['key' => 'select', 'label' => 'Auswahl', 'selectAll' => 'board-documents-form'], ['key' => 'title', 'label' => 'Titel'], ['key' => 'date', 'label' => 'Abgelegt'], ['key' => 'by', 'label' => 'Von'], ['key' => 'size', 'label' => 'Größe']]">
+                @foreach ($meeting->documents as $document)
+                    <tr>
+                        <td class="vdbs-table__select"><span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="ids[]" value="{{ $document->id }}" form="board-documents-form" aria-label="{{ $document->title }} auswählen"></span></td>
+                        <td><a href="{{ route('board.meetings.documents.download', [$meeting, $document]) }}">{{ $document->title }}</a><br><span class="vdbs-hint">{{ $document->original_name }}</span></td>
+                        <td>{{ $document->created_at->format('d.m.Y') }}</td>
+                        <td>{{ $document->uploadedBy?->person?->fullName() ?: '–' }}</td>
+                        <td>{{ $document->sizeLabel() }}</td>
+                    </tr>
+                @endforeach
+            </x-vdbs.data.table>
+            <form id="board-documents-form" method="post" action="{{ route('board.meetings.documents.destroy', $meeting) }}" style="margin-top:var(--space-3)">@csrf
+                <p class="vdbs-table__select-count" role="status" data-vdbs-select-count="board-documents-form">Nichts ausgewählt.</p>
+                <x-vdbs.actions.button type="submit" variant="danger" icon="trash-2" onclick="return confirm('Die ausgewählten Anhänge löschen?')">Auswahl löschen</x-vdbs.actions.button>
+            </form>
+        @endif
+
+        <x-vdbs.forms.form :action="route('board.meetings.documents.store', $meeting)" method="post" :files="true" :summary="false">
+            <x-vdbs.forms.file name="files" label="Dateien hinzufügen" :multiple="true" :required="true" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.odt,.ods,.zip" hint="PDF, Word, Excel, CSV, OpenDocument, ZIP oder Text. Bilder sind nicht erlaubt. Bis zu 20 Dateien auf einmal." />
+            <x-vdbs.forms.input name="title" label="Titel" :optional="true" maxlength="200" hint="Ohne Titel gilt der Dateiname." />
+            <x-slot:actions><x-vdbs.actions.button type="submit" icon="upload">Hochladen</x-vdbs.actions.button></x-slot:actions>
+        </x-vdbs.forms.form>
+    </section>
+
+    @if ($invitations)
+        <section aria-labelledby="invite-heading" style="margin-top:var(--space-6)">
+            <h2 id="invite-heading" style="font-size:var(--font-size-h3)">Einladung</h2>
+            @if ($meeting->status === 'cancelled')
+                <p>Zu einer abgesagten Sitzung wird nicht eingeladen.</p>
+            @else
+                @if ($meeting->invited_at)
+                    <p>Zuletzt eingeladen am {{ $meeting->invited_at->format('d.m.Y, H:i') }} Uhr.@if ($meeting->changedSinceInvitation()) <x-vdbs.data.badge tone="warning">Seitdem geändert</x-vdbs.data.badge>@endif</p>
+                @else
+                    <p>Noch nicht eingeladen.</p>
+                @endif
+                <x-vdbs.forms.form :action="route('board.meetings.invite', $meeting)" method="post" :summary="false">
+                    <x-vdbs.forms.textarea name="note" label="Nachricht an den Vorstand" :optional="true" maxlength="2000" :rows="3" hint="Erscheint in der E-Mail über Termin und Tagesordnung, zum Beispiel bei einer Terminänderung." />
+                    <x-slot:actions><x-vdbs.actions.button type="submit" icon="mail" onclick="return confirm('Die Einladung jetzt per E-Mail an den Vorstand senden?')">{{ $meeting->invited_at ? 'Erneut einladen' : 'Einladung senden' }}</x-vdbs.actions.button></x-slot:actions>
+                </x-vdbs.forms.form>
+            @endif
+        </section>
+    @endif
+
     <form method="post" action="{{ route('board.meetings.destroy', $meeting) }}" style="margin-top:var(--space-8)">
         @csrf @method('delete')
         <x-vdbs.actions.button type="submit" variant="danger-text" size="s" onclick="return confirm('Diese Sitzung samt Protokoll löschen?')">Sitzung löschen</x-vdbs.actions.button>

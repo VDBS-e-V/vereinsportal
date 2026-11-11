@@ -11,9 +11,9 @@ final class IcsFeed
     private const TZ = 'Europe/Berlin';
 
     /** @param  Collection<int, BoardMeeting>  $meetings */
-    public static function build(Collection $meetings, string $host): string
+    public static function build(Collection $meetings, string $host, string $name = 'Vorstandssitzungen'): string
     {
-        $lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//VDBS//Vereinsportal//DE', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:Vorstandssitzungen', 'X-WR-TIMEZONE:'.self::TZ, 'REFRESH-INTERVAL;VALUE=DURATION:PT6H', 'X-PUBLISHED-TTL:PT6H', ...self::timezone()];
+        $lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//VDBS//Vereinsportal//DE', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:'.self::escape($name), 'X-WR-TIMEZONE:'.self::TZ, 'REFRESH-INTERVAL;VALUE=DURATION:PT6H', 'X-PUBLISHED-TTL:PT6H', ...self::timezone()];
 
         foreach ($meetings as $meeting) {
             $description = array_filter([$meeting->online_link ? 'Online: '.$meeting->online_link : null]);
