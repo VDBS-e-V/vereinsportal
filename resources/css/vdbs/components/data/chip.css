@@ -28,7 +28,7 @@
 /* Hover: Hintergrund färbt sich leicht in der Gruppenfarbe, die Schrift wird Ink (im Darkmode hell, da der Hintergrund dunkel bleibt) */
 .vdbs-chip[class*="vdbs-chip--group-"] { --chip-hover-text: var(--text-on-group-light); }
 .vdbs-chip[class*="vdbs-chip--group-"] .vdbs-chip__link:hover {
-    background: color-mix(in srgb, var(--chip-group) 30%, var(--bg-page));
+    background: color-mix(in srgb, var(--chip-group) 15%, var(--bg-page));
     color: var(--chip-hover-text);
     text-decoration: underline;
 }
