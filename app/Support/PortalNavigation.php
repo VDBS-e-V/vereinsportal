@@ -82,6 +82,7 @@ final class PortalNavigation
                         ['label' => 'Willkommenspaket', 'route' => 'onboarding.member', 'match' => 'onboarding.member*', 'can' => 'memberships.view'],
                     ]],
                     ['description' => 'E-Mails an Mitglieder und andere Gruppen, frei oder mit Vorlage.', 'label' => 'Rundschreiben', 'route' => 'mailings.board.index', 'match' => 'mailings.board.*', 'can' => 'mailings.members'],
+                    ['description' => 'Gemeinsamer Kalenderlink für die Vorstandssitzungen.', 'label' => 'Kalender', 'route' => 'board.calendar.show', 'match' => 'board.calendar.*', 'can' => 'board.calendar'],
                     ['label' => 'Berichte', 'route' => 'board.reports', 'match' => 'board.reports*', 'can' => 'reports.view'],
                 ],
             ],

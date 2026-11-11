@@ -110,6 +110,7 @@ enum AuditEvent: string
     case ContractTemplateSaved = 'contract.template_saved';
     case LetterTemplateSaved = 'letter.template_saved';
     case LettersGenerated = 'letter.generated';
+    case BoardCalendarChanged = 'board.calendar_changed';
 
     public function label(): string
     {
@@ -201,6 +202,7 @@ enum AuditEvent: string
             self::ContractTemplateSaved => 'Vertragstext geändert',
             self::LetterTemplateSaved => 'Briefvorlage geändert',
             self::LettersGenerated => 'Schreiben erzeugt',
+            self::BoardCalendarChanged => 'Kalender des Vorstands geändert',
         };
     }
 
@@ -229,6 +231,7 @@ enum AuditEvent: string
             self::FormStatusChanged, self::FormExported, self::FormSettingsChanged => 'forms',
             self::ContractsCreated, self::ContractSigned, self::ContractSettingsChanged, self::ContractTemplateSaved => 'contracts',
             self::LetterTemplateSaved, self::LettersGenerated => 'letters',
+            self::BoardCalendarChanged => 'board',
         };
     }
 
@@ -258,6 +261,7 @@ enum AuditEvent: string
             'forms' => 'Anträge',
             'contracts' => 'Verträge',
             'letters' => 'Briefvorlagen',
+            'board' => 'Vorstand',
         ];
     }
 

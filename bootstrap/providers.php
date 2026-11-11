@@ -38,6 +38,7 @@ return [
     \App\Modules\Forms\FormsServiceProvider::class,
     \App\Modules\Contracts\ContractsServiceProvider::class,
     \App\Modules\Letters\LettersServiceProvider::class,
+    \App\Modules\Board\BoardServiceProvider::class,
     PeopleServiceProvider::class,
     MembershipServiceProvider::class,
     OnboardingServiceProvider::class,

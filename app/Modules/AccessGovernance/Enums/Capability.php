@@ -128,6 +128,9 @@ enum Capability: string
     /** Den Vertragstext ändern (neue Version anlegen), nur Vorstand. */
     case ContractsTemplate = 'contracts.template';
 
+    /** Den gemeinsamen Kalenderlink für die Vorstandssitzungen sehen und ändern (nur Vorstand). */
+    case BoardCalendar = 'board.calendar';
+
     /** Schreiben aus Word-Vorlagen erzeugen und die Vorlagen ansehen (Koordination, Geschäftsstelle, Vorstand). */
     case LettersUse = 'letters.use';
 
