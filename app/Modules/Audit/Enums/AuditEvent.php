@@ -111,6 +111,9 @@ enum AuditEvent: string
     case LetterTemplateSaved = 'letter.template_saved';
     case LettersGenerated = 'letter.generated';
     case BoardCalendarChanged = 'board.calendar_changed';
+    case BoardMeetingSaved = 'board.meeting_saved';
+    case BoardMeetingDeleted = 'board.meeting_deleted';
+    case BoardMinutesApproved = 'board.minutes_approved';
 
     public function label(): string
     {
@@ -203,6 +206,9 @@ enum AuditEvent: string
             self::LetterTemplateSaved => 'Briefvorlage geändert',
             self::LettersGenerated => 'Schreiben erzeugt',
             self::BoardCalendarChanged => 'Kalender des Vorstands geändert',
+            self::BoardMeetingSaved => 'Vorstandssitzung gespeichert',
+            self::BoardMeetingDeleted => 'Vorstandssitzung gelöscht',
+            self::BoardMinutesApproved => 'Sitzungsprotokoll genehmigt',
         };
     }
 
@@ -231,7 +237,7 @@ enum AuditEvent: string
             self::FormStatusChanged, self::FormExported, self::FormSettingsChanged => 'forms',
             self::ContractsCreated, self::ContractSigned, self::ContractSettingsChanged, self::ContractTemplateSaved => 'contracts',
             self::LetterTemplateSaved, self::LettersGenerated => 'letters',
-            self::BoardCalendarChanged => 'board',
+            self::BoardCalendarChanged, self::BoardMeetingSaved, self::BoardMeetingDeleted, self::BoardMinutesApproved => 'board',
         };
     }
 
@@ -269,7 +275,7 @@ enum AuditEvent: string
     public function tone(): string
     {
         return match ($this) {
-            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::EventDeleted, self::OauthClientDeleted => 'error',
+            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::EventDeleted, self::OauthClientDeleted, self::BoardMeetingDeleted => 'error',
             self::SystemTaskRun, self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
             self::Login, self::UserEnabled, self::TwoFactorEnabled, self::TeamOnboardingCompleted => 'success',
             default => 'neutral',
