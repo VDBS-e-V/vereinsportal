@@ -14,6 +14,10 @@ enum AuditEvent: string
     case EmailChanged = 'account.email_changed';
     case SessionsEnded = 'account.sessions_ended';
     case ProfileUpdated = 'account.profile_updated';
+    case ProfileEdited = 'account.profile_edited';
+    case ProfileVisibilityChanged = 'account.profile_visibility_changed';
+    case ProfilePhotoChanged = 'account.profile_photo_changed';
+    case NotificationsChanged = 'account.notifications_changed';
     case AccountDeletionRequested = 'account.deletion_requested';
     case AccountDeletionCancelled = 'account.deletion_cancelled';
     case AccountAnonymized = 'account.anonymized';
@@ -50,10 +54,18 @@ enum AuditEvent: string
     case SeminarQuoteDeleted = 'seminar.quote_deleted';
     case SeminarPricesChanged = 'seminar.prices_changed';
     case SeminarTextsChanged = 'seminar.texts_changed';
+    case SeminarTeamDecided = 'seminar.team_decided';
 
     case ArticleCreated = 'article.created';
     case ArticleUpdated = 'article.updated';
     case ArticleDeleted = 'article.deleted';
+    case PageUpdated = 'page.updated';
+    case EventCreated = 'event.created';
+    case EventUpdated = 'event.updated';
+    case EventDeleted = 'event.deleted';
+    case EventRegistrationsImported = 'event.registrations_imported';
+    case EventRegistrationRemoved = 'event.registration_removed';
+    case EventMessageSent = 'event.message_sent';
 
     case AccessRequestApproved = 'access_request.approved';
     case AccessRequestRejected = 'access_request.rejected';
@@ -63,6 +75,41 @@ enum AuditEvent: string
     case TeamOnboardingCompleted = 'onboarding.team_completed';
 
     case AuditExported = 'audit.exported';
+
+    case SystemTaskRun = 'system.task_run';
+
+    case MailingSent = 'mailing.sent';
+    case MailSuppressionChanged = 'mailing.suppression_changed';
+    case MailingWorkflow = 'mailing.workflow';
+
+    case ContactsImported = 'contacts.imported';
+
+    case SeminarDocumentAdded = 'seminar.document_added';
+    case SeminarDocumentRemoved = 'seminar.document_removed';
+    case SeminarClosed = 'seminar.closed';
+    case SeminarReopened = 'seminar.reopened';
+    case SeminarFolderDownloaded = 'seminar.folder_downloaded';
+
+    case FeedbackFormSaved = 'feedback.form_saved';
+    case FeedbackLinkCreated = 'feedback.link_created';
+    case FeedbackLinkClosed = 'feedback.link_closed';
+    case FeedbackLinkAnonymized = 'feedback.link_anonymized';
+
+    case OauthClientCreated = 'oauth.client_created';
+    case OauthClientChanged = 'oauth.client_changed';
+    case OauthClientDeleted = 'oauth.client_deleted';
+    case OauthKeysRenewed = 'oauth.keys_renewed';
+
+    case FormStatusChanged = 'form.status_changed';
+    case FormExported = 'form.exported';
+    case FormSettingsChanged = 'form.settings_changed';
+    case MailSegmentSaved = 'mailing.segment_saved';
+    case ContractsCreated = 'contract.created';
+    case ContractSigned = 'contract.signed';
+    case ContractSettingsChanged = 'contract.settings_changed';
+    case ContractTemplateSaved = 'contract.template_saved';
+    case LetterTemplateSaved = 'letter.template_saved';
+    case LettersGenerated = 'letter.generated';
 
     public function label(): string
     {
@@ -74,7 +121,11 @@ enum AuditEvent: string
             self::PasswordSet => 'Passwort festgelegt oder zurückgesetzt',
             self::EmailChanged => 'E-Mail-Adresse geändert',
             self::SessionsEnded => 'Andere Sitzungen beendet',
-            self::ProfileUpdated => 'Profil geändert',
+            self::ProfileUpdated => 'Stammdaten geändert',
+            self::ProfileEdited => 'Profil bearbeitet',
+            self::ProfileVisibilityChanged => 'Sichtbarkeit des Profils geändert',
+            self::ProfilePhotoChanged => 'Profilfoto geändert',
+            self::NotificationsChanged => 'Benachrichtigungen geändert',
             self::AccountDeletionRequested => 'Kontolöschung beantragt',
             self::AccountDeletionCancelled => 'Kontolöschung abgebrochen',
             self::AccountAnonymized => 'Konto gelöscht (anonymisiert)',
@@ -105,15 +156,51 @@ enum AuditEvent: string
             self::SeminarQuoteDeleted => 'Kostenvoranschlag gelöscht',
             self::SeminarPricesChanged => 'Preisliste der Seminare geändert',
             self::SeminarTextsChanged => 'Texte der Seminarprodukte geändert',
+            self::SeminarTeamDecided => 'Bewerbung auf Seminar entschieden',
             self::ArticleCreated => 'Artikel angelegt',
             self::ArticleUpdated => 'Artikel geändert',
             self::ArticleDeleted => 'Artikel gelöscht',
+            self::PageUpdated => 'Seite geändert',
+            self::EventCreated => 'Veranstaltung angelegt',
+            self::EventUpdated => 'Veranstaltung geändert',
+            self::EventDeleted => 'Veranstaltung gelöscht',
+            self::EventRegistrationsImported => 'Anmeldungen importiert',
+            self::EventRegistrationRemoved => 'Anmeldung entfernt',
+            self::EventMessageSent => 'Mitteilung an Angemeldete gesendet',
             self::AccessRequestApproved => 'Zugangsantrag angenommen',
             self::AccessRequestRejected => 'Zugangsantrag abgelehnt',
             self::OnboardingDocumentUploaded => 'Onboarding-Dokument hochgeladen',
             self::TeamOnboardingStarted => 'Einarbeitung der Teamenden begonnen',
             self::TeamOnboardingCompleted => 'Einarbeitung der Teamenden abgeschlossen',
             self::AuditExported => 'Protokoll exportiert',
+            self::SystemTaskRun => 'Systemaufgabe ausgeführt',
+            self::MailingSent => 'Schreiben versendet',
+            self::MailSuppressionChanged => 'Adresssperre geändert',
+            self::MailingWorkflow => 'Schreiben: Freigabe und Planung',
+            self::ContactsImported => 'Mailingliste importiert',
+            self::SeminarDocumentAdded => 'Seminardokument hinzugefügt',
+            self::SeminarDocumentRemoved => 'Seminardokument entfernt',
+            self::SeminarClosed => 'Seminar abgeschlossen',
+            self::SeminarReopened => 'Seminarabschluss wieder geöffnet',
+            self::SeminarFolderDownloaded => 'Seminarmappe heruntergeladen',
+            self::FeedbackFormSaved => 'Feedbackformular gespeichert',
+            self::FeedbackLinkCreated => 'Feedbacklink angelegt',
+            self::FeedbackLinkClosed => 'Feedbacklink beendet',
+            self::FeedbackLinkAnonymized => 'Feedbacklink anonymisiert',
+            self::OauthClientCreated => 'Anbindung angelegt',
+            self::OauthClientChanged => 'Anbindung geändert',
+            self::OauthClientDeleted => 'Anbindung gelöscht',
+            self::OauthKeysRenewed => 'Anmeldeschlüssel erneuert',
+            self::FormStatusChanged => 'Antrag bearbeitet',
+            self::FormExported => 'Sammelliste der Anträge erstellt',
+            self::FormSettingsChanged => 'Einstellungen der Anträge geändert',
+            self::MailSegmentSaved => 'Verteiler geändert',
+            self::ContractsCreated => 'Verträge erzeugt',
+            self::ContractSigned => 'Vertrag unterschrieben',
+            self::ContractSettingsChanged => 'Vereinsdaten für Verträge geändert',
+            self::ContractTemplateSaved => 'Vertragstext geändert',
+            self::LetterTemplateSaved => 'Briefvorlage geändert',
+            self::LettersGenerated => 'Schreiben erzeugt',
         };
     }
 
@@ -121,17 +208,27 @@ enum AuditEvent: string
     {
         return match ($this) {
             self::Login, self::LoginFailed, self::TwoFactorFailed => 'auth',
-            self::PasswordChanged, self::PasswordSet, self::EmailChanged, self::SessionsEnded, self::ProfileUpdated, self::AccountDeletionRequested, self::AccountDeletionCancelled, self::AccountAnonymized => 'account',
+            self::PasswordChanged, self::PasswordSet, self::EmailChanged, self::SessionsEnded, self::ProfileUpdated, self::ProfileEdited, self::ProfileVisibilityChanged, self::ProfilePhotoChanged, self::NotificationsChanged, self::AccountDeletionRequested, self::AccountDeletionCancelled, self::AccountAnonymized => 'account',
             self::TwoFactorEnabled, self::TwoFactorDisabled, self::RecoveryCodesRenewed => 'two_factor',
             self::UserCreated, self::UserInvited, self::UserDisabled, self::UserEnabled, self::UserTwoFactorReset, self::UserPasswordLinkSent => 'users',
             self::RoleAssigned, self::RoleEnded => 'roles',
             self::PersonCreated, self::PersonUpdated, self::PersonDeleted => 'people',
             self::PartnerCreated, self::PartnerUpdated, self::PartnerDeleted, self::PartnersImported => 'partners',
-            self::SeminarCreated, self::SeminarUpdated, self::SeminarDeleted, self::SeminarStatusChanged, self::SeminarQuoteCreated, self::SeminarQuoteUpdated, self::SeminarQuoteDeleted, self::SeminarPricesChanged, self::SeminarTextsChanged => 'seminars',
+            self::SeminarCreated, self::SeminarUpdated, self::SeminarDeleted, self::SeminarStatusChanged, self::SeminarQuoteCreated, self::SeminarQuoteUpdated, self::SeminarQuoteDeleted, self::SeminarPricesChanged, self::SeminarTextsChanged, self::SeminarTeamDecided, self::SeminarDocumentAdded, self::SeminarDocumentRemoved, self::SeminarClosed, self::SeminarReopened, self::SeminarFolderDownloaded => 'seminars',
             self::ArticleCreated, self::ArticleUpdated, self::ArticleDeleted => 'articles',
+            self::PageUpdated => 'pages',
+            self::EventCreated, self::EventUpdated, self::EventDeleted, self::EventRegistrationsImported, self::EventRegistrationRemoved, self::EventMessageSent => 'events',
             self::AccessRequestApproved, self::AccessRequestRejected => 'access_requests',
             self::OnboardingDocumentUploaded, self::TeamOnboardingStarted, self::TeamOnboardingCompleted => 'onboarding',
             self::AuditExported => 'audit',
+            self::SystemTaskRun => 'system',
+            self::MailingSent, self::MailSuppressionChanged, self::MailingWorkflow, self::MailSegmentSaved => 'mailings',
+            self::ContactsImported => 'contacts',
+            self::FeedbackFormSaved, self::FeedbackLinkCreated, self::FeedbackLinkClosed, self::FeedbackLinkAnonymized => 'feedback',
+            self::OauthClientCreated, self::OauthClientChanged, self::OauthClientDeleted, self::OauthKeysRenewed => 'sso',
+            self::FormStatusChanged, self::FormExported, self::FormSettingsChanged => 'forms',
+            self::ContractsCreated, self::ContractSigned, self::ContractSettingsChanged, self::ContractTemplateSaved => 'contracts',
+            self::LetterTemplateSaved, self::LettersGenerated => 'letters',
         };
     }
 
@@ -150,7 +247,17 @@ enum AuditEvent: string
             'onboarding' => 'Onboarding',
             'access_requests' => 'Zugangsanträge',
             'articles' => 'Artikel',
+            'pages' => 'Seiten',
+            'events' => 'Veranstaltungen',
             'audit' => 'Protokoll',
+            'system' => 'System',
+            'mailings' => 'Schreiben',
+            'contacts' => 'Teamkontakte',
+            'feedback' => 'Feedback',
+            'sso' => 'Anbindungen',
+            'forms' => 'Anträge',
+            'contracts' => 'Verträge',
+            'letters' => 'Briefvorlagen',
         ];
     }
 
@@ -158,8 +265,8 @@ enum AuditEvent: string
     public function tone(): string
     {
         return match ($this) {
-            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted => 'error',
-            self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
+            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::EventDeleted, self::OauthClientDeleted => 'error',
+            self::SystemTaskRun, self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
             self::Login, self::UserEnabled, self::TwoFactorEnabled, self::TeamOnboardingCompleted => 'success',
             default => 'neutral',
         };

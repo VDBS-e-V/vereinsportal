@@ -10,6 +10,18 @@
 
 .vdbs-field__flag { margin-left: var(--space-1); color: var(--text-muted); font-weight: var(--font-weight-regular); }
 
+/* Pflichtfeld: rotes Sternchen (für Screenreader steht daneben der Text "Pflichtfeld") */
+.vdbs-field__flag--required { color: var(--text-error); font-weight: var(--font-weight-bold); }
+
+.vdbs-form__required-note { margin: 0 0 var(--space-4); color: var(--text-muted); font-size: var(--font-size-small); }
+
+/* Breite nach erwartetem Inhalt (Zeichen): 4 (Hausnummer), 5 (PLZ), 10, 20 (Telefon), 30 (Name) */
+.vdbs-field--w-4 { max-width: calc(4ch + 2 * var(--space-3) + 6px); }
+.vdbs-field--w-5 { max-width: calc(5ch + 2 * var(--space-3) + 6px); }
+.vdbs-field--w-10 { max-width: calc(10ch + 2 * var(--space-3) + 6px); }
+.vdbs-field--w-20 { max-width: calc(20ch + 2 * var(--space-3) + 6px); }
+.vdbs-field--w-30 { max-width: calc(30ch + 2 * var(--space-3) + 6px); }
+
 .vdbs-field__hint { margin: 0; color: var(--text-muted); font-size: var(--font-size-small); }
 
 .vdbs-field__message {

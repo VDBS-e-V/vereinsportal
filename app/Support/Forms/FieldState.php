@@ -13,6 +13,23 @@ use Illuminate\Support\Str;
  */
 final class FieldState
 {
+    /** Wurde auf der Seite ein Pflichtfeld ausgegeben? Das Formular zeigt dann den Hinweis „* Pflichtfeld“. */
+    private static bool $requiredSeen = false;
+
+    public static function markRequired(): void
+    {
+        self::$requiredSeen = true;
+    }
+
+    /** Gibt zurück, ob Pflichtfelder ausgegeben wurden, und setzt den Merker zurück. */
+    public static function pullRequiredSeen(): bool
+    {
+        $seen = self::$requiredSeen;
+        self::$requiredSeen = false;
+
+        return $seen;
+    }
+
     private function __construct(
         public readonly string $name,
         public readonly string $id,

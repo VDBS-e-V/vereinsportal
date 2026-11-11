@@ -43,5 +43,18 @@ class SsoServiceProvider extends ServiceProvider
         Passport::tokensExpireIn(now()->addHour());
         Passport::refreshTokensExpireIn(now()->addDays(30));
         Passport::personalAccessTokensExpireIn(now()->addMonths(6));
+
+        Passport::tokensCan(\App\Modules\Sso\Services\OidcClaims::SCOPES);
+        Passport::setDefaultScope(['openid']);
+        Passport::authorizationView('sso.authorize');
+        Passport::useClientModel(\App\Modules\Sso\Models\OAuthClient::class);
+        Passport::useAuthorizationServerResponseType(new \App\Modules\Sso\Support\IdTokenResponse);
+
+        $this->app['router']->pushMiddlewareToGroup('web', \App\Modules\Sso\Http\Middleware\GuardAuthorization::class);
+
+        $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
+
+        // Auch bei Aufrufen über den Browser (Systemsteuerung, Einrichtung) müssen die Befehle bekannt sein, nicht nur auf der Konsole
+        $this->commands([\App\Modules\Sso\Console\EnsureOAuthKeys::class]);
     }
 }

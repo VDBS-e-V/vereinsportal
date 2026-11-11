@@ -3,7 +3,7 @@
 <h2>Abschnitt</h2>
 <x-vdbs.layout.section title="Das VDBS Serviceportal" lead="Die zentrale Anlaufstelle für alle Informationen." align="center">
     <p>Inhalt des Abschnitts.</p>
-    <x-slot:actions><x-vdbs.actions.link-button href="#">Mehr erfahren</x-vdbs.actions.link-button></x-slot:actions>
+    <x-slot:actions><x-vdbs.actions.button href="#" variant="primary" icon="arrow-right" icon-position="end">Mehr erfahren</x-vdbs.actions.button></x-slot:actions>
 </x-vdbs.layout.section>
 
 <h2>Abschnitt als Band</h2>

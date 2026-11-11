@@ -47,7 +47,8 @@ return [
     |
     */
 
-    'encrypt' => env('SESSION_ENCRYPT', false),
+    // Verschlüsselte Sitzungen brauchen den APP_KEY. Ohne Schlüssel (vor der Einrichtung im Browser) bleibt sie aus, sonst scheitert schon die Fehlerseite.
+    'encrypt' => (bool) env('SESSION_ENCRYPT', false) && filled(env('APP_KEY')),
 
     /*
     |--------------------------------------------------------------------------

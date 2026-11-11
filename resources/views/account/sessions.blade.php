@@ -21,7 +21,7 @@
     @endunless
 
     <p style="margin-top:var(--space-5)">
-        <x-vdbs.actions.button variant="danger" shape="outline" icon="log-out" data-vdbs-dialog-open="logout-others">Alle anderen Sitzungen abmelden</x-vdbs.actions.button>
+        <x-vdbs.actions.button variant="danger" icon="log-out" data-vdbs-dialog-open="logout-others">Alle anderen Sitzungen abmelden</x-vdbs.actions.button>
     </p>
 
     <x-vdbs.overlays.confirm-dialog id="logout-others" title="Alle anderen Sitzungen abmelden?" variant="danger" :action="route('account.sessions.destroy')" method="delete" confirm-label="Abmelden">

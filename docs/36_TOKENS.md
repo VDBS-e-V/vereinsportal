@@ -28,7 +28,7 @@ Die beiden Blöcke müssen identisch bleiben.
 - **Ebenen:** `--z-raised`, `--z-overlay`, `--z-link`, `--z-dropdown`, `--z-sticky`.
 - **Breiten:** Container `narrow/medium/default/wide`, `--gutter`; Breakpoints als Zahlen in `--bp-*` (in Media Queries
   nicht verwendbar, dort steht der Wert, z. B. 1100 px für die Navigation).
-- **Dark Mode:** Rahmen `--border-input` ist `--color-mauve-500` (mind. 3:1, Abweichung vom Styleguide).
+- **Dark Mode:** neutrales Graphit (`--color-graphit-*`: Seite 950, Karte 900, erhöht 800) ohne Lila-Stich; Lila und Grün sind nur Akzente (`--color-gruen-nacht*`, `--color-lila-nacht*`). Rahmen `--border-input` ist `--color-graphit-500` (mind. 3:1 gegen alle dunklen Flächen, Abweichung vom Styleguide). Entwurf und Werte: `docs/60_BUTTONS_KRITERIEN.md`.
 
 ## Neue Farbe hinzufügen
 

@@ -35,8 +35,7 @@
             {{ $attributes->except('class') }}>
         <label class="vdbs-choice__label" for="{{ $state->id }}">
             {{ $label }}
-            @if ($state->required) <span class="vdbs-field__flag">(Pflichtfeld)</span>
-            @elseif ($state->optional) <span class="vdbs-field__flag">(optional)</span> @endif
+            <x-vdbs.forms.flag :state="$state" />
         </label>
     </div>
 

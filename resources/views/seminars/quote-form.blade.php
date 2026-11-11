@@ -2,8 +2,8 @@
     $editing = $quote !== null;
     $heading = $editing ? 'Kostenvoranschlag ändern' : 'Kostenvoranschlag berechnen';
     $crumbs = $editing
-        ? [['label' => 'Start', 'href' => route('home')], ['label' => 'Koordination'], ['label' => 'Kostenvoranschläge', 'href' => route('seminar-quotes.index')], ['label' => $quote->partner->name, 'href' => route('seminar-quotes.show', $quote)], ['label' => 'Ändern']]
-        : [['label' => 'Start', 'href' => route('home')], ['label' => 'Koordination'], ['label' => 'Kostenvoranschläge', 'href' => route('seminar-quotes.index')], ['label' => 'Neu']];
+        ? [['label' => 'Start', 'href' => route('home')], ['label' => 'Geschäftsstelle'], ['label' => 'Kostenvoranschläge', 'href' => route('seminar-quotes.index')], ['label' => $quote->partner->name, 'href' => route('seminar-quotes.show', $quote)], ['label' => 'Ändern']]
+        : [['label' => 'Start', 'href' => route('home')], ['label' => 'Geschäftsstelle'], ['label' => 'Kostenvoranschläge', 'href' => route('seminar-quotes.index')], ['label' => 'Neu']];
     $templateDefaults = $defaults['sv_days'];
     $filled = count(array_filter($rows));
 @endphp
@@ -40,9 +40,7 @@
                         <x-seminars.position-row i="__INDEX__" :products="$products" :units="$units" :open="true" :defaults="$templateDefaults" />
                     </template>
 
-                    <button type="button" class="vdbs-btn vdbs-btn--secondary vdbs-btn--shape-outline vdbs-btn--size-m vdbs-js-only" data-vdbs-repeater-add>
-                        <x-vdbs.icon name="plus" :size="18" /> Weitere Position hinzufügen
-                    </button>
+                    <x-vdbs.actions.button type="button" variant="secondary" size="m" class="vdbs-js-only" data-vdbs-repeater-add icon="plus">Weitere Position hinzufügen</x-vdbs.actions.button>
                 </div>
             </x-vdbs.forms.form-section>
 
@@ -55,7 +53,7 @@
             <x-slot:actions>
                 <x-vdbs.actions.button type="submit" name="action" value="preview" variant="secondary" icon="refresh-cw">Berechnen</x-vdbs.actions.button>
                 <x-vdbs.actions.button type="submit" name="action" value="save" icon="save">{{ $editing ? 'Änderung speichern' : 'Kostenvoranschlag speichern' }}</x-vdbs.actions.button>
-                <x-vdbs.actions.button variant="tertiary" :href="$editing ? route('seminar-quotes.show', $quote) : route('seminar-quotes.index')">Abbrechen</x-vdbs.actions.button>
+                <x-vdbs.actions.button variant="text" :href="$editing ? route('seminar-quotes.show', $quote) : route('seminar-quotes.index')">Abbrechen</x-vdbs.actions.button>
             </x-slot:actions>
         </x-vdbs.forms.form>
 

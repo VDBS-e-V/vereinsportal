@@ -1,7 +1,12 @@
 {{--
-    Gemeinsamer Rahmen der Fehlerseiten. Nutzt Kopf- und Fußbereich des Portals im "safe"-Modus: Die Seiten lesen
-    weder Sitzung noch Datenbank, damit sie auch bei einem technischen Fehler (500, 503) ausgeliefert werden.
+    Gemeinsamer Rahmen der Fehlerseiten. Bei Anwendungsfehlern (403, 404, 419 u. Ä.) zeigt er Kopf und Fuß wie sonst:
+    angemeldete Personen sehen ihre Bereiche, Gäste den Login. Nur bei technischen Fehlern (ab 500, auch 503) läuft er im
+    "safe"-Modus: Dann werden weder Sitzung noch Datenbank gelesen, damit die Seite sicher ausgeliefert wird.
 --}}
+@php
+    $errorStatus = isset($exception) && method_exists($exception, 'getStatusCode') ? (int) $exception->getStatusCode() : 500;
+    $safeMode = $errorStatus >= 500;
+@endphp
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -19,7 +24,7 @@
 <body id="top">
     <a class="vdbs-skip-link" href="#error-content">Zum Inhalt springen</a>
 
-    <x-vdbs.navigation.portal-header title="Fehler" :safe="true" />
+    <x-vdbs.navigation.portal-header title="Fehler" :safe="$safeMode" />
 
     <main class="vdbs-main" id="error-content">
         <div class="vdbs-container">
@@ -27,6 +32,6 @@
         </div>
     </main>
 
-    <x-vdbs.navigation.portal-footer :safe="true" />
+    <x-vdbs.navigation.portal-footer :safe="$safeMode" />
 </body>
 </html>

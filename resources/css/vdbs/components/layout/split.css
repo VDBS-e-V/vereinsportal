@@ -1,4 +1,4 @@
-/* Split: Text neben Bild */
+/* Split: Text neben Bild (Verhältnis wie FU: Text 1fr, Bild 2fr) */
 
 .vdbs-split { display: grid; gap: var(--space-5); align-items: center; }
 
@@ -14,6 +14,7 @@
 .vdbs-split__actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-5); }
 
 @media (min-width: 768px) {
-    .vdbs-split { grid-template-columns: 1fr 1fr; gap: var(--space-8); }
+    .vdbs-split { grid-template-columns: 1fr 2fr; gap: var(--space-8); }
+    .vdbs-split--reverse { grid-template-columns: 2fr 1fr; }
     .vdbs-split--reverse .vdbs-split__media { order: -1; }
 }

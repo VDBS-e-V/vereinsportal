@@ -45,11 +45,11 @@ it('renders contact lines as a description list', function () {
     expect($html)->toContain('<dl class="vdbs-contact-block__lines">')->toContain('mailto:a@b.de');
 });
 
-it('renders chips, figure, link buttons and back to top', function () {
+it('renders chips, figure, external buttons and back to top', function () {
     $html = Blade::render(<<<'BLADE'
         <x-vdbs.data.chip-list label="Bereiche"><x-vdbs.data.chip label="Schulen" href="/s" :mark="4" icon="school" /></x-vdbs.data.chip-list>
         <x-vdbs.media.figure src="/x.svg" alt="" caption="Unterschrift" credit="Bild: X" />
-        <x-vdbs.actions.link-button href="https://x.org" variant="line" :external="true">Extern</x-vdbs.actions.link-button>
+        <x-vdbs.actions.button href="https://x.org" variant="secondary" :external="true">Extern</x-vdbs.actions.button>
         <x-vdbs.actions.back-to-top />
         BLADE);
 
@@ -57,7 +57,7 @@ it('renders chips, figure, link buttons and back to top', function () {
         ->toContain('aria-label="Bereiche"')
         ->toContain('vdbs-chip__label')
         ->toContain('vdbs-image-credit--below')
-        ->toContain('vdbs-btn--shape-line')
+        ->toContain('vdbs-btn--secondary')
         ->toContain('rel="noopener noreferrer"')
         ->toContain('öffnet in neuem Tab')
         ->toContain('href="#top"');
@@ -308,10 +308,10 @@ it('renders a timeline with time, actor, description and tone', function () {
 });
 
 it('renders the page header with breadcrumb, meta, actions and tabs', function () {
-    $html = Blade::render('<x-vdbs.layout.page-header title="Erika" eyebrow="Nutzer" lead="Lead" :breadcrumb="[[\'label\' => \'Start\', \'href\' => \'/\'], [\'label\' => \'Erika\']]"><x-slot:meta>Aktiv</x-slot:meta><x-slot:actions>Bearbeiten</x-slot:actions><x-slot:tabs>Tabs</x-slot:tabs></x-vdbs.layout.page-header>');
+    $html = Blade::render('<x-vdbs.layout.page-header title="Erika" eyebrow="Nutzer" lead="Lead" :breadcrumb="[[\'label\' => \'Start\', \'href\' => \'/\'], [\'label\' => \'Erika\']]"><x-slot:meta>Aktiv</x-slot:meta><x-slot:actions>Bearbeiten</x-slot:actions><x-slot:tabs>Tabs</x-slot:tabs></x-vdbs.layout.page-header>@stack(\'vdbs-breadcrumb\')');
 
     expect($html)
-        ->toContain('<h1 class="vdbs-page-header__title" id="page-erika-title">Erika</h1>')
+                ->toContain('<h1 class="vdbs-page-header__title" id="page-erika-title">Erika</h1>')
         ->toContain('aria-labelledby="page-erika-title"')
         ->toContain('vdbs-breadcrumb')
         ->toContain('vdbs-page-header__meta')

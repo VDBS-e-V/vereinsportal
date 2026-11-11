@@ -8,12 +8,48 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+// Herzschlag des Planers: Die Systemsteuerung zeigt daran, ob der Cron-Eintrag läuft.
+Schedule::call(fn () => \Illuminate\Support\Facades\Cache::forever(\App\Modules\System\Services\SystemChecks::HEARTBEAT_KEY, time()))->name('system-heartbeat')->everyMinute();
+
+// Geplante Schreiben an Gruppen starten, wenn ihr Zeitpunkt erreicht ist.
+Schedule::command('mailings:dispatch-due')->everyMinute();
+
+// Zustelllisten der Schreiben an Gruppen nach der Aufbewahrungsfrist löschen (Adressen und Fehlergründe).
+Schedule::command('mailings:prune')->daily();
+
 // Mitgliedschaften mit abgelaufenem Austrittsdatum beenden, Rolle Vereinsmitglied abgleichen.
 Schedule::command('membership:sync')->daily();
 
 // Aufbewahrungsfristen: unbestätigte Online-Anträge, abgelehnte und (falls konfiguriert) beendete Mitgliedschaften löschen.
 Schedule::command('membership:prune')->daily();
 Schedule::command('access-requests:prune')->daily();
+
+// Koordination informieren, wenn der Stichtag für Interessenbekundungen auf ein Seminar vorbei ist.
+Schedule::command('seminars:team-deadlines')->daily();
+
+// Bewerbungen ohne Konto: Fristen der Aufbewahrung
+Schedule::command('seminars:prune-applicants')->daily();
+Schedule::command('seminars:prune-documents')->daily();
+Schedule::command('feedback:prune')->daily();
+Schedule::command('feedback:remind')->daily();
+Schedule::command('forms:prune')->daily();
+Schedule::command('contracts:prune')->daily();
+Schedule::command('contracts:remind')->daily();
+
+// Abgelaufene und widerrufene Tokens der Anbindungen (SSO) entfernen.
+Schedule::command('passport:purge')->daily();
+
+// Teamende mit offener Einarbeitung erinnern (nach 14 Tagen, dann alle 14 Tage, höchstens dreimal).
+Schedule::command('onboarding:remind-team')->daily();
+
+// Angemeldete einen Tag vor der Großveranstaltung erinnern.
+Schedule::command('events:remind')->daily();
+
+// Schulkonten kurz vor dem Anmeldeschluss einer Großveranstaltung erinnern.
+Schedule::command('events:remind-schools')->daily();
+
+// Unbestätigte Anmeldungen zu Großveranstaltungen und Anmeldungen nach der Aufbewahrungszeit löschen.
+Schedule::command('events:prune')->daily();
 
 // Konten anonymisieren, deren Löschung beantragt wurde und deren Wartefrist abgelaufen ist.
 Schedule::command('account:purge')->daily();

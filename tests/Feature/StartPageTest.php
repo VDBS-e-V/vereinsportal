@@ -8,10 +8,10 @@ it('renders the start page for guests with the structure of the design system', 
     $html = $this->get('/')->assertOk()->getContent();
 
     expect($html)
-        ->toContain('vdbs-hero--compact')
+        ->toContain('vdbs-hero--image')
         ->toContain('vdbs-main--full')
         ->toContain('Schnellzugriff')
-        ->toContain('Die Bereiche des Portals')
+        ->toContain('Das VDBS Serviceportal')
         ->toContain('Zugang zum Portal')
         ->toContain('vdbs-back-to-top')
         ->and(substr_count($html, '<h1'))->toBe(1);
@@ -37,12 +37,25 @@ it('shows the logged-in variant with account actions instead of the login', func
         ->not->toContain('Zur Anmeldung');
 });
 
-it('shows contact lines only when they are configured', function () {
+it('shows the contact block with image and addresses, and falls back without lines', function () {
+    $this->get('/')->assertSee('vdbs-contact-block--surface', false)->assertSee('support@portal.vdb.schule')->assertSee('images/portal/kontakt.jpg', false);
+
+    config(['portal.home.contact.lines' => []]);
+
     $this->get('/')->assertDontSee('vdbs-contact-block', false);
+});
 
-    config(['portal.home.contact.lines' => [['label' => 'Support', 'value' => 'support@example.org', 'href' => 'mailto:support@example.org']]]);
+it('shows the hero image with centered title and solid quick links below', function () {
+    $html = $this->get('/')->assertOk()->getContent();
 
-    $this->get('/')->assertSee('vdbs-contact-block', false)->assertSee('support@example.org');
+    expect($html)->toContain('vdbs-hero--image')->toContain('images/portal/hero-bibliothek.jpg')->toContain('vdbs-quick-links--solid')
+        ->toContain('vdbs-quick-link--tone-5')->toContain('Über das Portal')->toContain('Hilfe');
+
+    expect(is_file(public_path('images/portal/hero-bibliothek.jpg')) && is_file(public_path('images/portal/kontakt.jpg')))->toBeTrue();
+});
+
+it('offers print, theme switch and back to top under "Diese Seite" in the footer', function () {
+    $this->get('/')->assertSee('Diese Seite')->assertSee('Drucken')->assertSee('Darstellung wechseln')->assertSee('<a href="#top">Zum Seitenanfang</a>', false);
 });
 
 it('does not use placeholder images on the real start page', function () {

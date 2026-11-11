@@ -17,7 +17,7 @@
                     </x-vdbs.forms.form>
                 @endif
                 <x-vdbs.actions.button icon="check" data-vdbs-dialog-open="approve">Annehmen</x-vdbs.actions.button>
-                <x-vdbs.actions.button variant="danger" shape="outline" icon="x" data-vdbs-dialog-open="reject">Ablehnen</x-vdbs.actions.button>
+                <x-vdbs.actions.button variant="danger" icon="x" data-vdbs-dialog-open="reject">Ablehnen</x-vdbs.actions.button>
             </x-slot:actions>
         @endif
     </x-vdbs.layout.page-header>

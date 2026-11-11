@@ -19,6 +19,10 @@ class RoleSeeder extends Seeder
             RoleKey::EducationCoordination->value => 'Bildungsreferenten',
             RoleKey::Coordination->value => 'Koordination',
             RoleKey::Administration->value => 'Administration',
+            RoleKey::School->value => 'Schule',
+            RoleKey::Employee->value => 'Mitarbeitende',
+            RoleKey::ManagingDirector->value => 'Geschaeftsfuehrung',
+            RoleKey::Treasury->value => 'Kassenfuehrung',
         ];
 
         foreach ($roles as $key => $name) {

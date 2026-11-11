@@ -13,6 +13,7 @@ enum MembershipEventType: string
     case Ended = 'ended';
     case RegistrationLinkSent = 'registration_link_sent';
     case Registered = 'registered';
+    case AccountLinked = 'account_linked';
     case DocumentAdded = 'document_added';
     case DocumentRemoved = 'document_removed';
     case WelcomeSent = 'welcome_sent';
@@ -30,6 +31,7 @@ enum MembershipEventType: string
             self::Ended => 'Mitgliedschaft beendet',
             self::RegistrationLinkSent => 'Registrierungslink gesendet',
             self::Registered => 'Online-Konto registriert',
+            self::AccountLinked => 'Bestehendes Konto verknüpft',
             self::DocumentAdded => 'Dokument hochgeladen',
             self::DocumentRemoved => 'Dokument entfernt',
             self::WelcomeSent => 'Willkommenspaket gesendet',

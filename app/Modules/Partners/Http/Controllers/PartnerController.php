@@ -11,7 +11,11 @@ use App\Modules\Partners\Enums\PartnerType;
 use App\Modules\Partners\Enums\SchoolType;
 use App\Modules\Partners\Models\Partner;
 use App\Modules\Partners\Services\PartnerAdministration;
+use App\Modules\Partners\Models\PartnerContact;
+use App\Modules\Partners\Models\PartnerUser;
 use App\Modules\Partners\Services\PartnerImporter;
+use App\Modules\Partners\Services\SchoolAccounts;
+use DomainException;
 use App\Modules\Partners\Support\PartnerData;
 use App\Support\CsvCell;
 use Illuminate\Contracts\View\View;
@@ -90,7 +94,7 @@ class PartnerController extends Controller
     {
         abort_unless($partner->type === PartnerType::School, 404);
 
-        $partner->load(['createdBy.person', 'updatedBy.person', 'contacts']);
+        $partner->load(['createdBy.person', 'updatedBy.person', 'contacts', 'accounts.user']);
 
         $attributes = $partner->getAttribute('attributes') ?? [];
 
@@ -143,6 +147,10 @@ class PartnerController extends Controller
     {
         abort_unless($partner->type === PartnerType::School, 404);
 
+        if ($partner->accounts()->exists()) {
+            return redirect()->route('partners.show', $partner)->with('warning', 'Zu dieser Schule gibt es Konten. Sperren Sie die Konten in der Nutzerverwaltung und setzen Sie den Status der Schule stattdessen auf „Pausiert“ oder „Vergangen“.');
+        }
+
         if (DB::table('seminars')->where('partner_id', $partner->id)->exists() || DB::table('seminar_quotes')->where('partner_id', $partner->id)->exists()) {
             return redirect()->route('partners.show', $partner)->with('warning', 'Zu dieser Schule gibt es Seminare oder Kostenvoranschläge. Setzen Sie den Status stattdessen auf „Pausiert“ oder „Vergangen“.');
         }
@@ -192,12 +200,54 @@ class PartnerController extends Controller
                 ], $contactCells, [
                     $attributes['student_count'] ?? '',
                     $partner->status->label(),
-                    $partner->notes,
+                    \App\Support\Html\RichText::toPlain((string) $partner->notes),
                 ])), ';', '"', '\\');
             }
 
             fclose($out);
         }, 'schulen-'.now()->format('Y-m-d').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /** Konto für eine Ansprechperson anlegen und einladen (Rolle Schule). */
+    public function inviteAccount(Request $request, Partner $partner, PartnerContact $contact): RedirectResponse
+    {
+        abort_unless($partner->type === PartnerType::School, 404);
+
+        try {
+            app(SchoolAccounts::class)->invite($partner, $contact, $this->actor($request));
+        } catch (DomainException $exception) {
+            return redirect()->route('partners.show', $partner)->withErrors(['account' => $exception->getMessage()]);
+        }
+
+        return redirect()->route('partners.show', $partner)->with('success', 'Die Einladung wurde an '.$contact->email.' gesendet.');
+    }
+
+    public function resendAccountInvitation(Request $request, Partner $partner, PartnerUser $account): RedirectResponse
+    {
+        abort_unless($account->partner_id === $partner->id, 404);
+
+        try {
+            app(SchoolAccounts::class)->resend($account, $this->actor($request));
+        } catch (DomainException $exception) {
+            return redirect()->route('partners.show', $partner)->withErrors(['account' => $exception->getMessage()]);
+        }
+
+        return redirect()->route('partners.show', $partner)->with('success', 'Die Einladung wurde erneut gesendet.');
+    }
+
+    public function toggleAccount(Request $request, Partner $partner, PartnerUser $account): RedirectResponse
+    {
+        abort_unless($account->partner_id === $partner->id, 404);
+
+        try {
+            $account->user->status === \App\Modules\Access\Enums\UserStatus::Disabled
+                ? app(SchoolAccounts::class)->enable($account, $this->actor($request))
+                : app(SchoolAccounts::class)->disable($account, $this->actor($request));
+        } catch (DomainException $exception) {
+            return redirect()->route('partners.show', $partner)->withErrors(['account' => $exception->getMessage()]);
+        }
+
+        return redirect()->route('partners.show', $partner)->with('success', $account->user->fresh()->status === \App\Modules\Access\Enums\UserStatus::Disabled ? 'Das Konto wurde gesperrt.' : 'Das Konto wurde entsperrt.');
     }
 
     public function importForm(): View
@@ -283,6 +333,7 @@ class PartnerController extends Controller
     /** @return array<string, mixed> */
     private function validated(Request $request, ?Partner $partner): array
     {
+        $request->merge(['notes' => \App\Support\Html\RichText::clean($request->input('notes'))]);
         $data = $request->validate(PartnerData::rules(), PartnerData::messages());
 
         if ($this->partners->exists($data['name'], $data['city'] ?? null, $partner?->id)) {

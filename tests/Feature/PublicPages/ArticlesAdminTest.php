@@ -154,3 +154,93 @@ it('searches the article list', function () {
 
     $this->get(route('articles.admin.index', ['q' => 'Alpha']))->assertSee('Alpha Artikel')->assertDontSee('Beta Artikel');
 });
+
+it('shows subtitle, dates on top, tags, optional author, boxes and buttons and filters by category and tag', function () {
+    $author = Person::factory()->create(['first_name' => 'Anna', 'last_name' => 'Autorin']);
+    $user = User::factory()->create(['person_id' => $author->id]);
+    $base = ['slug' => 'untertitel-test', 'title' => 'Titel', 'subtitle' => 'Ein Untertitel', 'teaser' => 'Anreißer', 'body' => '<p>Text</p>', 'category' => 'Presse', 'tags' => ['Demokratie', 'Berlin'], 'status' => 'published', 'published_at' => now()->subDays(3), 'created_by_user_id' => $user->id];
+    $article = Article::query()->create($base);
+    Article::query()->create(['slug' => 'andere', 'title' => 'Andere Kategorie', 'body' => 'x', 'category' => 'Verein', 'status' => 'published', 'published_at' => now()->subDay()]);
+
+    $this->get(route('articles.public.show', $article->slug))->assertOk()
+        ->assertSee('Ein Untertitel')->assertSee('Veröffentlicht am')->assertSee('Schlagwörter')->assertSee('Demokratie')
+        ->assertDontSee('Anna Autorin')->assertDontSee('Über die Autor:in')->assertDontSee('Weitere Informationen')
+        ->assertSee('Alle Artikel ansehen')->assertSee('Zur Kategorie');
+
+    $article->update(['show_author' => true, 'author_box' => true, 'author_text' => '<p>Biografie</p>', 'more_info' => '<p>Mehr dazu</p>']);
+
+    $this->get(route('articles.public.show', $article->slug))->assertOk()
+        ->assertSee('Von Anna Autorin')->assertSee('Über die Autor:in')->assertSee('Biografie')->assertSee('Weitere Informationen')->assertSee('Mehr dazu');
+
+    $this->get(route('articles.public.index', ['kategorie' => 'Presse']))->assertOk()->assertSee('Titel')->assertDontSee('Andere Kategorie');
+    $this->get(route('articles.public.index', ['schlagwort' => 'Berlin']))->assertOk()->assertSee('Titel')->assertDontSee('Andere Kategorie');
+});
+
+it('takes author name, text and photo release from the profile of the creating account unless the article overrides them', function () {
+    $person = Person::factory()->create(['first_name' => 'Berta', 'last_name' => 'Beispiel']);
+    $user = User::factory()->create(['person_id' => $person->id, 'avatar_path' => 'profile-photos/x.jpg']);
+    $user->profile()->create(['author_name' => 'B. Beispiel', 'author_text' => '<p>Aus dem Profil</p>', 'author_use_photo' => true, 'author_photo_credit' => 'Eigenes Foto']);
+    $article = Article::query()->create(['slug' => 'profil-autor', 'title' => 'T', 'body' => 'x', 'category' => 'Presse', 'status' => 'published', 'published_at' => now()->subDay(), 'created_by_user_id' => $user->id, 'show_author' => true, 'author_box' => true]);
+
+    expect($article->authorName())->toBe('B. Beispiel')
+        ->and($article->authorTextHtml())->toContain('Aus dem Profil')
+        ->and($article->authorImagePath())->toBe('profile-photos/x.jpg')
+        ->and($article->authorImageCredit())->toBe('Eigenes Foto');
+
+    $article->update(['author_name' => 'Gastautor', 'author_text' => '<p>Eigener Text</p>']);
+
+    expect($article->fresh()->authorName())->toBe('Gastautor')->and($article->fresh()->authorTextHtml())->toContain('Eigener Text');
+
+    $user->profile->update(['author_use_photo' => false]);
+
+    expect($article->fresh()->authorImagePath())->toBeNull();
+});
+
+it('offers three ways to create an article and leads to the article, the list or a new form', function () {
+    $staff = aaUser(RoleKey::AdministrationStaff);
+    $this->actingAs($staff)->get(route('articles.admin.create'))->assertOk()->assertSee('Erstellen und zur Liste')->assertSee('Erstellen und weiteren erstellen');
+
+    $this->post(route('articles.admin.store'), aaForm(['title' => 'Eins']))->assertRedirect(route('articles.public.show', Article::query()->where('title', 'Eins')->value('slug')));
+    $this->post(route('articles.admin.store'), aaForm(['title' => 'Zwei', 'after' => 'list']))->assertRedirect(route('articles.admin.index'));
+    $this->post(route('articles.admin.store'), aaForm(['title' => 'Drei', 'after' => 'new']))->assertRedirect(route('articles.admin.create'));
+});
+
+it('searches and filters the public and the admin list by category, tag and year', function () {
+    $staff = aaUser(RoleKey::AdministrationStaff);
+    Article::query()->create(['slug' => 'a1', 'title' => 'Alpha Exkursion', 'subtitle' => 'Nach Berlin', 'body' => 'x', 'category' => 'Presse', 'tags' => ['Demokratie'], 'status' => 'published', 'published_at' => now()->subYear(), 'featured' => true]);
+    Article::query()->create(['slug' => 'b1', 'title' => 'Beta Bericht', 'body' => 'x', 'category' => 'Verein', 'tags' => ['Finanzen'], 'status' => 'published', 'published_at' => now()->subDay()]);
+    Article::query()->create(['slug' => 'c1', 'title' => 'Gamma Entwurf', 'body' => 'x', 'category' => 'Verein', 'status' => 'draft']);
+
+    $this->get(route('articles.public.index', ['q' => 'Berlin']))->assertOk()->assertSee('Alpha Exkursion')->assertDontSee('Beta Bericht');
+    $this->get(route('articles.public.index', ['q' => 'Finanzen']))->assertSee('Beta Bericht')->assertDontSee('Alpha Exkursion');
+    $this->get(route('articles.public.index', ['kategorie' => 'Verein']))->assertSee('Beta Bericht')->assertDontSee('Gamma Entwurf')->assertDontSee('Alpha Exkursion');
+    $this->get(route('articles.public.index', ['jahr' => now()->subYear()->format('Y')]))->assertSee('Alpha Exkursion')->assertDontSee('Beta Bericht');
+    $this->get(route('articles.public.index', ['q' => 'gibtesnicht']))->assertSee('Keine passenden Artikel');
+
+    $this->actingAs($staff)->get(route('articles.admin.index', ['status' => 'draft']))->assertSee('Gamma Entwurf')->assertDontSee('Beta Bericht');
+    $this->get(route('articles.admin.index', ['schlagwort' => 'Demokratie']))->assertSee('Alpha Exkursion')->assertDontSee('Beta Bericht');
+    $this->get(route('articles.admin.index', ['empfohlen' => '1']))->assertSee('Alpha Exkursion')->assertDontSee('Gamma Entwurf');
+    $this->get(route('articles.admin.index', ['q' => 'Berlin']))->assertSee('Alpha Exkursion');
+});
+
+it('leads to the article, the list or a new form after saving changes', function () {
+    $staff = aaUser(RoleKey::AdministrationStaff);
+    $this->actingAs($staff)->post(route('articles.admin.store'), aaForm(['title' => 'Bearbeiten']));
+    $article = Article::query()->where('title', 'Bearbeiten')->firstOrFail();
+
+    $this->put(route('articles.admin.update', $article), aaForm(['title' => 'Bearbeiten']))->assertRedirect(route('articles.public.show', $article->slug));
+    $this->put(route('articles.admin.update', $article), aaForm(['title' => 'Bearbeiten', 'after' => 'list']))->assertRedirect(route('articles.admin.index'));
+    $this->put(route('articles.admin.update', $article), aaForm(['title' => 'Bearbeiten', 'after' => 'new']))->assertRedirect(route('articles.admin.create'));
+});
+
+it('filters by several tags chosen in a searchable multi select', function () {
+    $staff = aaUser(RoleKey::AdministrationStaff);
+    Article::query()->create(['slug' => 'm1', 'title' => 'Mit Demokratie', 'body' => 'x', 'category' => 'Presse', 'tags' => ['Demokratie'], 'status' => 'published', 'published_at' => now()->subDay()]);
+    Article::query()->create(['slug' => 'm2', 'title' => 'Mit Finanzen', 'body' => 'x', 'category' => 'Presse', 'tags' => ['Finanzen', 'Berlin'], 'status' => 'published', 'published_at' => now()->subDay()]);
+    Article::query()->create(['slug' => 'm3', 'title' => 'Ohne Schlagwort', 'body' => 'x', 'category' => 'Presse', 'status' => 'published', 'published_at' => now()->subDay()]);
+
+    $this->get(route('articles.public.index'))->assertOk()->assertSee('data-vdbs-multiselect', false)->assertSee('name="schlagwort[]"', false);
+    $this->get(route('articles.public.index', ['schlagwort' => ['Demokratie', 'Finanzen']]))->assertSee('Mit Demokratie')->assertSee('Mit Finanzen')->assertDontSee('Ohne Schlagwort');
+    $this->get(route('articles.public.index', ['schlagwort' => 'Berlin']))->assertSee('Mit Finanzen')->assertDontSee('Mit Demokratie');
+    $this->actingAs($staff)->get(route('articles.admin.index', ['schlagwort' => ['Demokratie', 'Berlin']]))->assertSee('Mit Demokratie')->assertSee('Mit Finanzen')->assertDontSee('Ohne Schlagwort');
+});

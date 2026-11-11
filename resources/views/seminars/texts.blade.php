@@ -1,5 +1,5 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Koordination'], ['label' => 'Texte']];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Geschäftsstelle'], ['label' => 'Texte']];
 @endphp
 
 <x-layouts.app title="Texte der Produkte" width="wide">

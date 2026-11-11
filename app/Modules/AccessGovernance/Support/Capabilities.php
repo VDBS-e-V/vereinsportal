@@ -14,12 +14,27 @@ final class Capabilities
 {
     /** @var array<string, list<Capability>> */
     private const MAP = [
-        'administration' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage, Capability::AuditView, Capability::DesignView],
-        'administration_staff' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage, Capability::PartnersView, Capability::PartnersManage, Capability::SeminarsView, Capability::SeminarsManage, Capability::TeamView, Capability::TeamManage, Capability::AccessRequestsView, Capability::AccessRequestsManage, Capability::ArticlesManage],
-        'board_member' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage, Capability::AuditView, Capability::DesignView, Capability::MembershipsView, Capability::MembershipsManage, Capability::PartnersView, Capability::PartnersManage, Capability::SeminarsView, Capability::SeminarsManage, Capability::SeminarPricesManage, Capability::TeamView, Capability::TeamManage, Capability::AccessRequestsView, Capability::AccessRequestsManage, Capability::ArticlesManage],
-        'coordination' => [Capability::PartnersView, Capability::PartnersManage, Capability::SeminarsView, Capability::SeminarsManage, Capability::SeminarPricesManage, Capability::TeamView, Capability::TeamManage],
-        'team' => [Capability::TeamOnboardingOwn],
+        'administration' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage, Capability::AuditView, Capability::DesignView, Capability::SystemManage, Capability::OauthManage],
+        'administration_staff' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage, Capability::PartnersView, Capability::PartnersManage, Capability::SeminarsView, Capability::SeminarsManage, Capability::TeamView, Capability::TeamManage, Capability::AccessRequestsView, Capability::AccessRequestsManage, Capability::ArticlesManage, Capability::PagesManage, Capability::EventsView, Capability::EventsManage, Capability::MailTemplatesManage, Capability::MailSegmentsManage, Capability::ContractsManage, Capability::LettersUse, Capability::LettersManage, Capability::MailingsSend, Capability::ContactsManage, Capability::SeminarsDocuments, Capability::FormsView, Capability::FormsManage],
+        'board_member' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage, Capability::AuditView, Capability::DesignView, Capability::MembershipsView, Capability::MembershipsManage, Capability::PartnersView, Capability::PartnersManage, Capability::SeminarsView, Capability::SeminarsManage, Capability::SeminarPricesManage, Capability::TeamView, Capability::TeamManage, Capability::AccessRequestsView, Capability::AccessRequestsManage, Capability::ArticlesManage, Capability::PagesManage, Capability::EventsView, Capability::EventsManage, Capability::ReportsView, Capability::MailingsSend, Capability::MailingsMembers, Capability::MailingsApprove, Capability::MailTemplatesManage, Capability::MailSegmentsManage, Capability::ContractsManage, Capability::ContractsTemplate, Capability::LettersUse, Capability::LettersManage, Capability::ContactsManage, Capability::SeminarsDocuments, Capability::SeminarsReopen, Capability::FormsView, Capability::FormsManage, Capability::FormsApprove],
+        'coordination' => [Capability::PartnersView, Capability::PartnersManage, Capability::SeminarsView, Capability::SeminarsManage, Capability::SeminarPricesManage, Capability::TeamView, Capability::TeamManage, Capability::EventsView, Capability::EventsManage, Capability::MailingsTeam, Capability::MailingsSendLimited, Capability::ContractsManage, Capability::LettersUse, Capability::SeminarsDocuments, Capability::FeedbackManage, Capability::FeedbackView],
+        'team' => [Capability::TeamOnboardingOwn, Capability::SeminarsApply, Capability::FormsSubmitTeam],
+        'member' => [Capability::MemberArea, Capability::FormsSubmitMember],
+        'school' => [Capability::SchoolArea],
+        'employee' => [Capability::EmployeeArea, Capability::FormsSubmit],
+        'managing_director' => [Capability::EmployeeArea, Capability::FormsSubmit, Capability::FormsApprove, Capability::FormsView],
+        'treasury' => [Capability::EmployeeArea, Capability::FormsSubmit, Capability::FormsManage, Capability::FormsView],
+        'education_coordination' => [Capability::EducationView, Capability::SeminarsView, Capability::EventsView],
     ];
+
+    /** Rollen, die nur der Vorstand vergeben und beenden darf. @var list<RoleKey> */
+    public const BOARD_ONLY = [RoleKey::ManagingDirector, RoleKey::Treasury];
+
+    /** Schlüssel der Rollen, die eine Berechtigung enthalten (für Benachrichtigungen). @return list<string> */
+    public static function roleKeysWith(Capability $capability): array
+    {
+        return array_keys(array_filter(self::MAP, fn (array $caps): bool => in_array($capability, $caps, true)));
+    }
 
     public static function has(User $user, Capability $capability): bool
     {
@@ -45,7 +60,7 @@ final class Capabilities
             ->all();
     }
 
-    /** Darf der Nutzer die Rolle vergeben? Administration vergibt nur Administration. */
+    /** Darf der Nutzer die Rolle vergeben? Administration vergibt nur Administration; Geschäftsführung und Kassenführung nur der Vorstand. */
     public static function canAssign(User $user, RoleKey $role): bool
     {
         if (! self::has($user, Capability::RolesAssign)) {
@@ -54,6 +69,11 @@ final class Capabilities
 
         if ($role === RoleKey::Administration) {
             return in_array(RoleKey::Administration->value, self::activeRoleKeys($user), true);
+        }
+
+        // Geschäftsführung und Kassenführung benennt und entzieht nur der Vorstand.
+        if (in_array($role, self::BOARD_ONLY, true)) {
+            return in_array(RoleKey::BoardMember->value, self::activeRoleKeys($user), true);
         }
 
         return true;

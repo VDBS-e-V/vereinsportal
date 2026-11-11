@@ -62,7 +62,7 @@ it('sends guests to the login and shows the page in the account navigation', fun
     $html = $this->actingAs(adUser())->get(route('account.deletion'))->assertOk()->assertSee('Was passiert')->assertSee('14 Tage')->getContent();
 
     preg_match('/<header class="vdbs-header".*?<\/header>/s', $html, $header);
-    expect($header[0])->toContain('Seiten im Bereich Konto')->toContain('>Konto löschen<');
+    expect($header[0])->toContain('Seiten im Bereich Konto')->toContain('>Daten &amp; Löschung<');
 });
 
 it('asks for the password and the confirmation text', function () {

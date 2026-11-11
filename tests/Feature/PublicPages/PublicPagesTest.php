@@ -42,7 +42,7 @@ it('shows the new start page with quick links, areas, access and contact', funct
         ->toContain('Über das Portal')
         ->toContain('Zugang zum Portal')
         ->toContain('Hilfe')
-        ->toContain('Die Bereiche des Portals')
+        ->toContain('Das VDBS Serviceportal')
         ->toContain('Zum Kontaktformular')
         ->toContain(route('portal.access'))
         ->not->toContain('Empfohlene Artikel');

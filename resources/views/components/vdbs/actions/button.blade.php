@@ -1,6 +1,6 @@
 @props([
     'variant' => 'primary',
-    'shape' => null,
+    'tone' => 'green',
     'size' => 'm',
     'on' => 'default',
     'href' => null,
@@ -18,48 +18,48 @@
 {{--
     Das Button-System (Paket "actions"): ein Baustein für Buttons und Links im Button-Stil.
 
-    variant  primary | secondary | tertiary | danger | quiet      Wichtigkeit der Aktion
-    shape    solid | outline | link | arrow | line                  Form (Standard je Variante)
-    size     s | m | l | xl
-    on       default | dark | brand                                 Fläche, auf der der Button steht
-             default = die normale Seitenfläche (folgt dem Theme, im Dark Mode also dunkel)
-             (Alternativ ein Container mit .vdbs-on-dark bzw. .vdbs-on-brand)
+    variant  primary | secondary | tertiary | text | danger | danger-text   Wichtigkeit der Aktion
+             primary    dunkle Fläche, weiße Schrift
+             secondary  helle Fläche, Ink-Schrift
+             tertiary   weiße Fläche, Schrift und Rahmen in Farbe
+             text       nur Schrift in Farbe (Fläche und Unterstrich erst bei Hover)
+             danger     Gefahr (rot, gefüllt): Hauptaktion eines Löschens, immer mit Text
+             danger-text  Gefahr als Text (rot, ohne Fläche): zurückhaltendes Entfernen, z. B. in Tabellenzeilen
+    tone     green | lila                                           Tonfarbe von primary, secondary, tertiary und text (Standard green = Aktion)
+    size     s | m | l                                              36, 44, 52 px Höhe
+    on       default | night | dark | brand                         Fläche, auf der der Button steht
+             night = Fläche des Dunkelmodus (Graphit), Töne des Dunkelmodus; dark = Lila/Ink/Bild (Heros); brand = helles Markengrün
+             (Alternativ ein Container mit .vdbs-on-night, .vdbs-on-dark bzw. .vdbs-on-brand)
     href     gesetzt = <a>, sonst <button>
-    icon     Lucide-Name; iconPosition start | end — in jeder Form möglich (ein Icon vor oder nach dem Text).
-             Pfeil-Form: zusätzlich immer der Pfeil am Ende. Linien-Form: ohne Icon ein Chevron am Anfang.
-    label    Pflicht für reine Icon-Buttons (leerer Slot): wird aria-label und title
+    icon     Lucide-Name; iconPosition start | end: mit und ohne Text, mit und ohne Icon in jeder Rolle
+    label    Pflicht für reine Icon-Buttons (leerer Slot): wird aria-label und title; Icon-Buttons sind 44 × 44 px
     loading  zeigt Spinner, setzt aria-busy und sperrt die Aktion
     full     volle Breite
     external öffnet in neuem Tab (Icon und Hinweis für Screenreader)
     pressed  true | false für Umschalter (aria-pressed)
     disabled deaktiviert (bei Links: aria-disabled, ohne href)
 
-    Standard-Form: primary=solid, secondary=outline, tertiary=link, danger=solid, quiet=link.
+    Jede Rolle bringt ihre Form mit (primary, secondary und danger gefüllt, tertiary mit Rahmen, text und danger-text ohne Rahmen). Weitere Formen gibt es nicht.
 --}}
 
 @php
-    $variant = in_array($variant, ['primary', 'secondary', 'tertiary', 'danger', 'quiet'], true) ? $variant : 'primary';
+    $variant = in_array($variant, ['primary', 'secondary', 'tertiary', 'text', 'danger', 'danger-text'], true) ? $variant : 'primary';
+    $tone = $tone === 'lila' ? 'lila' : 'green';
 
-    $defaultShape = ['primary' => 'solid', 'secondary' => 'outline', 'tertiary' => 'link', 'danger' => 'solid', 'quiet' => 'link'][$variant];
-    $shape = in_array($shape, ['solid', 'outline', 'link', 'arrow', 'line'], true) ? $shape : $defaultShape;
+    $form = ['primary' => 'solid', 'secondary' => 'solid', 'tertiary' => 'outline', 'text' => 'text', 'danger' => 'solid', 'danger-text' => 'text'][$variant];
 
-    $size = in_array($size, ['s', 'm', 'l', 'xl'], true) ? $size : 'm';
-    $on = in_array($on, ['default', 'dark', 'brand'], true) ? $on : 'default';
+    $size = in_array($size, ['s', 'm', 'l'], true) ? $size : 'm';
+    $on = in_array($on, ['default', 'night', 'dark', 'brand'], true) ? $on : 'default';
     $iconPosition = $iconPosition === 'end' ? 'end' : 'start';
 
     $iconOnly = $label !== null && $slot->isEmpty();
 
-    // Ein Icon vor oder nach dem Text ist in jeder Form möglich. Der Pfeil-Button hat zusätzlich
-    // immer den Pfeil am Ende; der Linien-Button zeigt ohne eigenes Icon einen Chevron am Anfang.
-    if ($external && ! $icon && $shape !== 'arrow') { $icon = 'external-link'; $iconPosition = 'end'; }
-    if ($shape === 'line' && ! $icon) { $icon = 'chevron-right'; $iconPosition = 'start'; }
+    if ($external && ! $icon) { $icon = 'external-link'; $iconPosition = 'end'; }
 
     $startIcon = $icon && $iconPosition === 'start' ? $icon : null;
     $endIcon = $icon && $iconPosition === 'end' ? $icon : null;
-    $arrowCell = $shape === 'arrow';
-    if ($arrowCell) { $endIcon = $endIcon ?? ($external ? 'external-link' : 'arrow-right'); }
 
-    $iconSize = ['s' => 16, 'm' => 18, 'l' => 20, 'xl' => 24][$size];
+    $iconSize = ['s' => 16, 'm' => 18, 'l' => 20][$size];
     $inactive = $disabled || $loading;
     $tag = $href !== null ? 'a' : 'button';
 @endphp
@@ -79,7 +79,8 @@
     {{ $attributes->class([
         'vdbs-btn',
         "vdbs-btn--{$variant}",
-        "vdbs-btn--shape-{$shape}",
+        'vdbs-btn--tone-lila' => $tone === 'lila',
+        "vdbs-btn--form-{$form}",
         "vdbs-btn--size-{$size}",
         "vdbs-btn--on-{$on}" => $on !== 'default',
         'vdbs-btn--full' => $full,
@@ -91,7 +92,7 @@
     @if ($loading)
         <span class="vdbs-btn__spinner" aria-hidden="true"></span>
     @elseif ($startIcon)
-        <x-vdbs.icon @class(['vdbs-btn__icon', 'vdbs-btn__icon--chevron' => $startIcon === 'chevron-right']) :name="$startIcon" :size="$iconSize" />
+        <x-vdbs.icon class="vdbs-btn__icon" :name="$startIcon" :size="$iconSize" />
     @endif
 
     @unless ($iconOnly)
@@ -99,11 +100,7 @@
     @endunless
 
     @if ($endIcon && ! $loading)
-        @if ($arrowCell)
-            <span class="vdbs-btn__arrow"><x-vdbs.icon class="vdbs-btn__icon" :name="$endIcon" :size="$iconSize" /></span>
-        @else
-            <x-vdbs.icon class="vdbs-btn__icon" :name="$endIcon" :size="$iconSize" />
-        @endif
+        <x-vdbs.icon class="vdbs-btn__icon" :name="$endIcon" :size="$iconSize" />
     @endif
 
     @if ($external)

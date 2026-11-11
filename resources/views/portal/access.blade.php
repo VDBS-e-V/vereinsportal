@@ -16,7 +16,7 @@
 
     <p style="margin-top:var(--space-4)">
         @auth
-            <x-vdbs.actions.button :href="route('account.profile')" icon="user">Zu Ihrem Konto</x-vdbs.actions.button>
+            <x-vdbs.actions.button :href="route('account.home')" icon="user">Zu Ihrem Konto</x-vdbs.actions.button>
         @else
             <x-vdbs.actions.button :href="route('login')" icon="log-in">Zur Anmeldung</x-vdbs.actions.button>
             <x-vdbs.actions.button variant="secondary" :href="route('password.request')">Passwort vergessen</x-vdbs.actions.button>
@@ -34,13 +34,14 @@
             <h2 id="request-heading" style="font-size:var(--font-size-h3)">Antrag auf Zugang</h2>
 
             <x-vdbs.forms.form :action="route('portal.access.store')" :files="true" :summary="false" data-vdbs-wizard>
+                <x-vdbs.forms.bot-guard />
                 {{-- Schritt 1: Einwilligung --}}
                 <div data-vdbs-step data-vdbs-step-title="Einwilligung">
                     <x-vdbs.navigation.stepper class="vdbs-js-block" :steps="$steps" :current="1" label="Schritte des Antrags" />
                     <x-vdbs.forms.form-section title="0. Einwilligung">
                         <x-vdbs.forms.checkbox name="consent" :required="true" label="Ich stimme zu, dass meine Daten zum Zweck der Bearbeitung gespeichert und verarbeitet werden." data-vdbs-review-label="Einwilligung" />
                     </x-vdbs.forms.form-section>
-                    <div class="vdbs-btn-group"><button type="button" class="vdbs-btn vdbs-btn--primary vdbs-btn--shape-solid vdbs-btn--size-m vdbs-js-only" data-vdbs-step-next>Weiter</button></div>
+                    <div class="vdbs-btn-group"><x-vdbs.actions.button type="button" variant="primary" size="m" class="vdbs-js-only" data-vdbs-step-next>Weiter</x-vdbs.actions.button></div>
                 </div>
 
                 {{-- Schritt 2: Verbindung zum Verein und Nachweise --}}
@@ -53,8 +54,8 @@
                         <x-vdbs.forms.file name="proofs[]" id="field-proofs" label="Nachweise" :optional="true" :multiple="true" accept=".pdf,.jpg,.jpeg,.png" hint="PDF oder Bilder, höchstens 5 Dateien mit je 5 MB. Die Nachweise werden nach der Entscheidung gelöscht." />
                     </x-vdbs.forms.form-section>
                     <div class="vdbs-btn-group">
-                        <button type="button" class="vdbs-btn vdbs-btn--secondary vdbs-btn--shape-outline vdbs-btn--size-m vdbs-js-only" data-vdbs-step-prev>Zurück</button>
-                        <button type="button" class="vdbs-btn vdbs-btn--primary vdbs-btn--shape-solid vdbs-btn--size-m vdbs-js-only" data-vdbs-step-next>Weiter</button>
+                        <x-vdbs.actions.button type="button" variant="secondary" size="m" class="vdbs-js-only" data-vdbs-step-prev>Zurück</x-vdbs.actions.button>
+                        <x-vdbs.actions.button type="button" variant="primary" size="m" class="vdbs-js-only" data-vdbs-step-next>Weiter</x-vdbs.actions.button>
                     </div>
                 </div>
 
@@ -67,12 +68,12 @@
                             <x-vdbs.forms.input name="last_name" label="Nachname" :required="true" placeholder="Mustermann" autocomplete="family-name" data-vdbs-review-label="Nachname" />
                             <x-vdbs.forms.input name="email" label="E-Mail-Adresse" type="email" :required="true" placeholder="max.mustermann@beispiel.example" autocomplete="email" hint="Dorthin senden wir Ihre Einladung." data-vdbs-review-label="E-Mail-Adresse" />
                             <x-vdbs.forms.input name="birth_date" label="Geburtsdatum" type="date" :required="true" autocomplete="bday" data-vdbs-review-label="Geburtsdatum" />
-                            <x-vdbs.forms.input name="phone" label="Telefon" :optional="true" maxlength="50" placeholder="Telefonnummer" autocomplete="tel" data-vdbs-review-label="Telefon" />
+                            <x-vdbs.forms.input name="phone" label="Telefon" type="tel" :optional="true" maxlength="50" placeholder="Telefonnummer" autocomplete="tel" data-vdbs-review-label="Telefon" />
                         </x-vdbs.forms.form-grid>
                     </x-vdbs.forms.form-section>
                     <div class="vdbs-btn-group">
-                        <button type="button" class="vdbs-btn vdbs-btn--secondary vdbs-btn--shape-outline vdbs-btn--size-m vdbs-js-only" data-vdbs-step-prev>Zurück</button>
-                        <button type="button" class="vdbs-btn vdbs-btn--primary vdbs-btn--shape-solid vdbs-btn--size-m vdbs-js-only" data-vdbs-step-next>Daten prüfen</button>
+                        <x-vdbs.actions.button type="button" variant="secondary" size="m" class="vdbs-js-only" data-vdbs-step-prev>Zurück</x-vdbs.actions.button>
+                        <x-vdbs.actions.button type="button" variant="primary" size="m" class="vdbs-js-only" data-vdbs-step-next>Daten prüfen</x-vdbs.actions.button>
                     </div>
                 </div>
 
@@ -95,7 +96,7 @@
                     </div>
 
                     <div class="vdbs-btn-group">
-                        <button type="button" class="vdbs-btn vdbs-btn--secondary vdbs-btn--shape-outline vdbs-btn--size-m vdbs-js-only" data-vdbs-step-prev>Zurück</button>
+                        <x-vdbs.actions.button type="button" variant="secondary" size="m" class="vdbs-js-only" data-vdbs-step-prev>Zurück</x-vdbs.actions.button>
                         <x-vdbs.actions.button type="submit" icon="send">Antrag absenden</x-vdbs.actions.button>
                     </div>
                 </div>
@@ -103,5 +104,5 @@
         </section>
     @endguest
 
-    <p style="margin-top:var(--space-8)"><x-vdbs.actions.button variant="tertiary" :href="route('portal.contact')">Kontakt aufnehmen</x-vdbs.actions.button></p>
+    <p style="margin-top:var(--space-8)"><x-vdbs.actions.button variant="text" :href="route('portal.contact')">Kontakt aufnehmen</x-vdbs.actions.button></p>
 </x-layouts.app>

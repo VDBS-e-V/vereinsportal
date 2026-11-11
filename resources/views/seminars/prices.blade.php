@@ -1,5 +1,5 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Koordination'], ['label' => 'Preise']];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Geschäftsstelle'], ['label' => 'Preise']];
     $money = fn ($cents) => \App\Modules\Seminars\Support\Money::format($cents);
 @endphp
 

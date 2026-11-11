@@ -1,5 +1,5 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Koordination'], ['label' => 'Preise', 'href' => route('seminar-prices.index')], ['label' => 'Neue Fassung']];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Geschäftsstelle'], ['label' => 'Preise', 'href' => route('seminar-prices.index')], ['label' => 'Neue Fassung']];
 @endphp
 
 <x-layouts.app title="Neue Preisliste" width="medium">
@@ -16,14 +16,14 @@
         <x-vdbs.forms.form-section title="Preise in Euro">
             <x-vdbs.forms.form-grid :columns="2">
                 @foreach ($items as $key => [$label, $note])
-                    <x-vdbs.forms.input :name="'price_'.$key" :label="$label" :required="true" :value="$values[$key] ?? null" :hint="$note" suffix="€" />
+                    <x-vdbs.forms.input :name="'price_'.$key" :label="$label" :required="true" inputmode="decimal" :value="$values[$key] ?? null" :hint="$note" suffix="€" />
                 @endforeach
             </x-vdbs.forms.form-grid>
         </x-vdbs.forms.form-section>
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="save">Neue Fassung speichern</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="route('seminar-prices.index')">Abbrechen</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="route('seminar-prices.index')">Abbrechen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>

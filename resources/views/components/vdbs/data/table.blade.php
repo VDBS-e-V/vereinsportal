@@ -9,8 +9,11 @@
             <tr>
                 @foreach ($columns as $column)
                     @php($active = $sort === $column['key'])
-                    <th scope="col" @if ($active) aria-sort="{{ $direction === 'desc' ? 'descending' : 'ascending' }}" @endif>
-                        @if (! empty($column['sortable']) && ! empty($column['href']))
+                    <th scope="col" @if ($active) aria-sort="{{ $direction === 'desc' ? 'descending' : 'ascending' }}" @endif @if (! empty($column['selectAll'])) class="vdbs-table__select" @endif>
+                        @if (! empty($column['selectAll']))
+                            {{-- Alle Zeilen auswählen: wirkt auf die Kästchen mit form="<id>"; ohne JavaScript bleibt das Kästchen verborgen. --}}
+                            <span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" hidden data-vdbs-select-all="{{ $column['selectAll'] }}" aria-label="Alle Zeilen auswählen"></span>
+                        @elseif (! empty($column['sortable']) && ! empty($column['href']))
                             <a class="vdbs-table__sort" href="{{ $column['href'] }}">{{ $column['label'] }}<x-vdbs.icon :name="$active ? ($direction === 'desc' ? 'arrow-down' : 'arrow-up') : 'arrow-up-down'" :size="16" /></a>
                         @else
                             {{ $column['label'] }}

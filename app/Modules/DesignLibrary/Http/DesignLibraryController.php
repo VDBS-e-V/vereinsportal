@@ -4,6 +4,7 @@ namespace App\Modules\DesignLibrary\Http;
 
 use App\Http\Controllers\Controller;
 use App\Modules\DesignLibrary\Enums\LibraryCategory;
+use App\Modules\DesignLibrary\Support\DesignScaffolder;
 use App\Modules\DesignLibrary\Support\PlaceholderImages;
 use App\Modules\DesignLibrary\Support\Registry;
 use Illuminate\Contracts\View\View;
@@ -17,6 +18,12 @@ class DesignLibraryController extends Controller
             'categories' => LibraryCategory::cases(),
             'grouped' => Registry::grouped(),
         ]);
+    }
+
+    /** Pakete und ihre Komponenten mit Stand der Umgestaltung. */
+    public function packages(): View
+    {
+        return view('design-library.packages', ['packages' => Registry::packages(), 'states' => DesignScaffolder::REDESIGN_STATES]);
     }
 
     public function show(string $slug): View

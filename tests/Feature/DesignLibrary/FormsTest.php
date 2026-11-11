@@ -59,14 +59,53 @@ it('renders an input with label, id and required flag as text', function () {
         ->toContain('type="email"')
         ->toContain('autocomplete="email"')
         ->toContain(' required')
+        ->toContain('vdbs-field__flag--required')
         ->toContain('(Pflichtfeld)')
         ->toContain('vdbs-control--size-m');
 });
 
-it('marks optional fields with text and falls back for unknown types and sizes', function () {
+it('marks required fields with a red asterisk for the eye and text for screen readers', function () {
+    $html = form('<x-vdbs.forms.input name="email" label="E-Mail" :required="true" />');
+
+    expect($html)->toContain('<span class="vdbs-field__flag vdbs-field__flag--required" aria-hidden="true">*</span>')
+        ->toContain('<span class="vdbs-sr-only"> (Pflichtfeld)</span>');
+
+    expect(form('<x-vdbs.forms.input name="x" label="X" />'))->not->toContain('vdbs-field__flag')->not->toContain('(Pflichtfeld)');
+});
+
+it('explains the asterisk once in forms with required fields only', function () {
+    FieldState::pullRequiredSeen();
+    $with = form('<x-vdbs.forms.form action="/x"><x-vdbs.forms.input name="a" label="A" :required="true" /><x-vdbs.forms.input name="b" label="B" :required="true" /></x-vdbs.forms.form>');
+    $without = form('<x-vdbs.forms.form action="/x"><x-vdbs.forms.input name="a" label="A" /></x-vdbs.forms.form>');
+
+    expect(substr_count($with, 'vdbs-form__required-note'))->toBe(1)->and($with)->toContain('*</span> Pflichtfeld')
+        ->and($without)->not->toContain('vdbs-form__required-note');
+});
+
+it('lets forms validate in the browser by default and can switch it off', function () {
+    expect(form('<x-vdbs.forms.form action="/x">x</x-vdbs.forms.form>'))->toContain('data-vdbs-validate')->toContain('novalidate')
+        ->and(form('<x-vdbs.forms.form action="/x" :validate="false">x</x-vdbs.forms.form>'))->not->toContain('data-vdbs-validate');
+});
+
+it('limits the width of a field by the expected content', function () {
+    expect(form('<x-vdbs.forms.input name="plz" label="PLZ" width="5" />'))->toContain('vdbs-field--w-5')
+        ->and(form('<x-vdbs.forms.input name="x" label="X" width="7" />'))->not->toContain('vdbs-field--w-')
+        ->and(form('<x-vdbs.forms.input name="x" label="X" />'))->not->toContain('vdbs-field--w-');
+});
+
+it('shows read-only fields with a lock and keeps them focusable and submitted', function () {
+    $html = form('<x-vdbs.forms.input name="nr" label="Nummer" value="12345" readonly />');
+
+    expect($html)->toContain('vdbs-input-group--readonly')->toContain('readonly')->toContain('Nur lesen')->toContain('<svg')
+        ->not->toContain('disabled')->not->toContain('tabindex="-1"');
+
+    expect(form('<x-vdbs.forms.input name="x" label="X" />'))->not->toContain('vdbs-input-group--readonly');
+});
+
+it('leaves optional fields unmarked and falls back for unknown types and sizes', function () {
     $html = form('<x-vdbs.forms.input name="x" label="X" type="hacker" size="riesig" :optional="true" />');
 
-    expect($html)->toContain('(optional)')->toContain('type="text"')->toContain('vdbs-control--size-m');
+    expect($html)->not->toContain('(optional)')->toContain('type="text"')->toContain('vdbs-control--size-m');
 });
 
 it('wires hint and error to the field for assistive technology', function () {
@@ -310,7 +349,7 @@ it('renders grid columns, sections and fieldsets with accessible names', functio
     expect($section)->toContain('aria-labelledby="section-person"')->toContain('<h2 class="vdbs-form-section__title" id="section-person">')->toContain('Angaben');
 
     $fieldset = form('<x-vdbs.forms.fieldset legend="Anschrift" :optional="true" hint="Wohnort">x</x-vdbs.forms.fieldset>');
-    expect($fieldset)->toContain('<legend')->toContain('Anschrift')->toContain('(optional)')->toContain('Wohnort');
+    expect($fieldset)->toContain('<legend')->toContain('Anschrift')->not->toContain('(optional)')->toContain('Wohnort');
 });
 
 /* ---------- Login ---------- */

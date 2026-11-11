@@ -10,8 +10,8 @@
     image-alt=""
 >
     <x-slot:actions>
-        <x-vdbs.actions.link-button href="#">Zugang zum Portal</x-vdbs.actions.link-button>
-        <x-vdbs.actions.link-button href="#" variant="line">Über das Portal</x-vdbs.actions.link-button>
+        <x-vdbs.actions.button href="#" variant="primary" icon="arrow-right" icon-position="end">Zugang zum Portal</x-vdbs.actions.button>
+        <x-vdbs.actions.button href="#" variant="secondary" icon="arrow-right" icon-position="end">Über das Portal</x-vdbs.actions.button>
     </x-slot:actions>
 </x-vdbs.media.hero>
 
@@ -36,15 +36,15 @@
         <x-vdbs.cards.teaser title="Digitalisierte Verwaltung" href="#" text="Kurzer Anreißer des Artikels." :image="placeholder('teaser', 2)" category="Themenartikel" />
         <x-vdbs.cards.teaser title="Eigene Cloud" href="#" text="Kurzer Anreißer des Artikels." :image="placeholder('teaser', 3)" category="Themenartikel" />
     </x-vdbs.layout.grid>
-    <x-slot:actions><x-vdbs.actions.link-button href="#" variant="all">Alle Artikel anzeigen</x-vdbs.actions.link-button></x-slot:actions>
+    <x-slot:actions><x-vdbs.actions.button href="#" variant="text" icon="arrow-right" icon-position="end">Alle Artikel anzeigen</x-vdbs.actions.button></x-slot:actions>
 </x-vdbs.layout.section>
 
 <x-vdbs.layout.section>
     <x-vdbs.layout.split title="Zugang zum Portal">
         <p>Hier finden Sie alle Informationen, die Sie benötigen, um auf das Portal zuzugreifen. Mit Konto können Sie sich anmelden, sonst können Sie sich registrieren.</p>
         <x-slot:actions>
-            <x-vdbs.actions.link-button href="#">Zugang zum Portal</x-vdbs.actions.link-button>
-            <x-vdbs.actions.link-button href="#" variant="all">Hilfe kontaktieren</x-vdbs.actions.link-button>
+            <x-vdbs.actions.button href="#" variant="primary" icon="arrow-right" icon-position="end">Zugang zum Portal</x-vdbs.actions.button>
+            <x-vdbs.actions.button href="#" variant="text" icon="arrow-right" icon-position="end">Hilfe kontaktieren</x-vdbs.actions.button>
         </x-slot:actions>
         <x-slot:media><x-vdbs.media.figure :src="placeholder('split', 1)" alt="" /></x-slot:media>
     </x-vdbs.layout.split>
@@ -56,7 +56,7 @@
         ['label' => 'Kontakt', 'value' => 'kontakt@example.org', 'href' => 'mailto:kontakt@example.org'],
     ]">
         <x-slot:media><x-vdbs.media.figure :src="placeholder('contact', 1)" alt="" /></x-slot:media>
-        <x-slot:actions><x-vdbs.actions.link-button href="#">Zum Kontaktformular</x-vdbs.actions.link-button></x-slot:actions>
+        <x-slot:actions><x-vdbs.actions.button href="#" variant="primary" icon="arrow-right" icon-position="end">Zum Kontaktformular</x-vdbs.actions.button></x-slot:actions>
     </x-vdbs.cards.contact-block>
 </x-vdbs.layout.section>
 

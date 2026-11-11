@@ -50,6 +50,32 @@
     --color-gruen-hell: #dcf8ea; /* ruhige Hinweisflächen */
     --color-gruen-leuchtend: #40cd9a; /* Grün auf dunklen Flächen (Dark Mode) */
     --color-gruen-pastell: #a8e6cf; /* Vereinsname auf dunklen Flächen */
+    --color-gruen-aktion-hover: #046045; /* Button primär Hover (deutlich dunkler als die Fläche) */
+    --color-gruen-gedrueckt: #034532; /* Button primär gedrückt */
+    --color-gruen-hell-hover: #c3ecd6; /* Button sekundär Hover */
+    --color-lila-hover: #301531; /* Button primär Hover */
+    --color-lila-gedrueckt: #1e0e1f;
+    --color-lila-hell: #efe6f0; /* Button sekundär */
+    --color-lila-hell-hover: #e0cfe2;
+    --color-lila-hell-gedrueckt: #d0b6d3;
+    --color-gruen-nacht: #1f8362; /* Dark Mode: Button grün */
+    --color-gruen-nacht-hover: #18644b;
+    --color-gruen-nacht-gedrueckt: #114937;
+    --color-gruen-nacht-tint: #173329;
+    --color-gruen-nacht-tint-hover: #1d4536;
+    --color-gruen-nacht-tint-gedrueckt: #245a47;
+    --color-gruen-nacht-text: #2aa87e;
+    --color-gruen-nacht-text-hover: #30bf90;
+    --color-lila-nacht: #a355b2; /* Dark Mode: Button lila */
+    --color-lila-nacht-hover: #7f3f8c;
+    --color-lila-nacht-gedrueckt: #5c2e65;
+    --color-lila-nacht-tint: #2d2336;
+    --color-lila-nacht-tint-hover: #3b2f47;
+    --color-lila-nacht-tint-gedrueckt: #4a3b58;
+    --color-lila-nacht-text: #c379d2;
+    --color-lila-nacht-text-hover: #d095dc;
+    --color-grau-deaktiviert: #e8ecea; /* deaktivierte Buttons */
+    --color-grau-deaktiviert-text: #5b6863;
 
     /* Graustufen (hell) */
     --color-grau-hell: #f5f7f6;
@@ -74,12 +100,13 @@
     --color-warnung-flaeche-dunkel: #3a2c05;
 
     /* Dark-Mode-Palette (Aubergine statt Schwarz, passend zum Lila) */
-    --color-aubergine-950: #180f18;
-    --color-aubergine-900: #261926;
-    --color-aubergine-800: #381d39;
-    --color-aubergine-700: #3d303e;
-    --color-mauve-500: #8a7d89; /* Rahmen, mind. 3:1 gegen die dunklen Flächen */
-    --color-mauve-400: #a49ca3;
+    --color-graphit-950: #121416; /* Dark Mode: Seite */
+    --color-graphit-900: #1b1e21; /* Dark Mode: Karte, Kopf- und Fußbereich */
+    --color-graphit-800: #25292d; /* Dark Mode: erhöhte Fläche */
+    --color-graphit-750: #2d3135; /* Dark Mode: deaktivierte Buttons */
+    --color-graphit-700: #343a40; /* Dark Mode: Trennlinien (dekorativ) */
+    --color-graphit-500: #80888e; /* Dark Mode: Rahmen, mind. 3:1 gegen alle dunklen Flächen */
+    --color-graphit-400: #9aa1a6; /* Dark Mode: gedämpfte Schrift */
     --color-nebel: #f1f4f2; /* Text im Dark Mode */
 
     /* Transparenzstufen (für Schleier, Hover-Flächen, Bildquellen) */
@@ -134,6 +161,33 @@
     --focus-ring: var(--color-ink);
     --focus-ring-offset: 2px;
 
+    /* Eingabefelder: Fläche, deaktiviert; Rand und Fokus siehe --border-input und --focus-ring */
+    --field-bg: var(--color-weiss);
+    --field-disabled-bg: var(--color-grau-deaktiviert);
+    --field-disabled-fg: var(--color-grau-deaktiviert-text);
+
+    /* Buttons: Tonfarben Grün (Aktion) und Lila (Marke); Rollen siehe components/actions/button-variants.css */
+    --btn-green-solid: var(--color-gruen-dunkel);
+    --btn-green-solid-hover: var(--color-gruen-aktion-hover);
+    --btn-green-solid-press: var(--color-gruen-gedrueckt);
+    --btn-green-soft: var(--color-gruen-hell);
+    --btn-green-soft-hover: var(--color-gruen-hell-hover);
+    --btn-green-soft-press: var(--color-gruen-pastell);
+    --btn-green-text: var(--color-gruen-dunkel);
+    --btn-green-text-hover: var(--color-gruen-dunkler);
+    --btn-lila-solid: var(--color-lila);
+    --btn-lila-solid-hover: var(--color-lila-hover);
+    --btn-lila-solid-press: var(--color-lila-gedrueckt);
+    --btn-lila-soft: var(--color-lila-hell);
+    --btn-lila-soft-hover: var(--color-lila-hell-hover);
+    --btn-lila-soft-press: var(--color-lila-hell-gedrueckt);
+    --btn-lila-text: var(--color-lila);
+    --btn-lila-text-hover: var(--color-lila-hover);
+    --btn-on-solid: var(--color-weiss);
+    --btn-on-soft: var(--color-ink);
+    --btn-disabled-bg: var(--color-grau-deaktiviert);
+    --btn-disabled-fg: var(--color-grau-deaktiviert-text);
+
     /* Status: Schrift, Fläche und Rand; Hinweise und Badges bauen darauf auf */
     --text-error: var(--color-fehler);
     --text-success: var(--color-gruen-dunkel);
@@ -175,6 +229,36 @@
     --on-dark-solid-fg: var(--color-ink);
     --on-dark-danger: var(--color-fehler-leuchtend);
     --on-dark-danger-hover: var(--color-fehler-pastell);
+    /* Primär auf dunklen Flächen (Lila, Ink, Bild): Grün in mittlerer Helligkeit mit weißer Schrift (gleiche Logik wie die helle Seite) */
+    --on-dark-primary: var(--color-gruen-nacht);
+    --on-dark-primary-hover: var(--color-gruen-nacht-hover);
+    --on-dark-primary-press: var(--color-gruen-nacht-gedrueckt);
+    --on-dark-primary-fg: var(--color-weiss);
+    /* Nachtfläche: die Fläche des Dunkelmodus (Graphit) als Beispiel- und Einbettungsfläche auch im hellen Theme; Buttons darauf nutzen die Töne des Dunkelmodus */
+    --night-bg: var(--color-graphit-950);
+    --night-fg: var(--color-nebel);
+    --night-green-solid: var(--color-gruen-nacht);
+    --night-green-solid-hover: var(--color-gruen-nacht-hover);
+    --night-green-solid-press: var(--color-gruen-nacht-gedrueckt);
+    --night-green-soft: var(--color-gruen-nacht-tint);
+    --night-green-soft-hover: var(--color-gruen-nacht-tint-hover);
+    --night-green-soft-press: var(--color-gruen-nacht-tint-gedrueckt);
+    --night-green-text: var(--color-gruen-nacht-text);
+    --night-green-text-hover: var(--color-gruen-nacht-text-hover);
+    --night-lila-solid: var(--color-lila-nacht);
+    --night-lila-solid-hover: var(--color-lila-nacht-hover);
+    --night-lila-solid-press: var(--color-lila-nacht-gedrueckt);
+    --night-lila-soft: var(--color-lila-nacht-tint);
+    --night-lila-soft-hover: var(--color-lila-nacht-tint-hover);
+    --night-lila-soft-press: var(--color-lila-nacht-tint-gedrueckt);
+    --night-lila-text: var(--color-lila-nacht-text);
+    --night-lila-text-hover: var(--color-lila-nacht-text-hover);
+    --night-danger-text: var(--color-fehler-leuchtend);
+    --night-danger-soft: var(--color-fehler-flaeche-dunkel);
+    --night-on-solid: var(--color-weiss);
+    --night-on-soft: var(--color-nebel);
+    --night-disabled-bg: var(--color-graphit-750);
+    --night-disabled-fg: var(--color-graphit-400);
     --on-dark-disabled-bg: var(--alpha-weiss-12);
     --on-dark-disabled-line: var(--alpha-weiss-25);
     --on-dark-disabled-fg: var(--alpha-weiss-60);
@@ -300,21 +384,46 @@
  * Die beiden Blöcke müssen identisch bleiben (Test).
  */
 :root[data-theme="dark"] {
-    --bg-page: var(--color-aubergine-950);
-    --bg-surface: var(--color-aubergine-900);
-    --bg-accent-soft: var(--color-aubergine-800);
-    --bg-header-footer: var(--color-aubergine-900);
+    --bg-page: var(--color-graphit-950);
+    --bg-surface: var(--color-graphit-900);
+    --bg-accent-soft: var(--color-graphit-800);
+    --bg-header-footer: var(--color-graphit-900);
 
     --text-default: var(--color-nebel);
-    --text-muted: var(--color-mauve-400);
+    --text-muted: var(--color-graphit-400);
     --text-on-dark: var(--color-nebel);
     --text-link: var(--color-gruen-leuchtend);
     --text-link-hover: var(--color-gruen-pastell);
     --text-org: var(--color-gruen-pastell);
 
-    --border-default: var(--color-aubergine-700);
-    --border-input: var(--color-mauve-500); /* Abweichung vom Styleguide: mind. 3:1 gegen die dunklen Flächen (WCAG 1.4.11) */
+    --border-default: var(--color-graphit-700);
+    --border-input: var(--color-graphit-500); /* Abweichung vom Styleguide: mind. 3:1 gegen die dunklen Flächen (WCAG 1.4.11) */
     --focus-ring: var(--color-weiss);
+
+    --field-bg: var(--color-graphit-900);
+    --field-disabled-bg: var(--color-graphit-750);
+    --field-disabled-fg: var(--color-graphit-400);
+
+    --btn-green-solid: var(--color-gruen-nacht);
+    --btn-green-solid-hover: var(--color-gruen-nacht-hover);
+    --btn-green-solid-press: var(--color-gruen-nacht-gedrueckt);
+    --btn-green-soft: var(--color-gruen-nacht-tint);
+    --btn-green-soft-hover: var(--color-gruen-nacht-tint-hover);
+    --btn-green-soft-press: var(--color-gruen-nacht-tint-gedrueckt);
+    --btn-green-text: var(--color-gruen-nacht-text);
+    --btn-green-text-hover: var(--color-gruen-nacht-text-hover);
+    --btn-lila-solid: var(--color-lila-nacht);
+    --btn-lila-solid-hover: var(--color-lila-nacht-hover);
+    --btn-lila-solid-press: var(--color-lila-nacht-gedrueckt);
+    --btn-lila-soft: var(--color-lila-nacht-tint);
+    --btn-lila-soft-hover: var(--color-lila-nacht-tint-hover);
+    --btn-lila-soft-press: var(--color-lila-nacht-tint-gedrueckt);
+    --btn-lila-text: var(--color-lila-nacht-text);
+    --btn-lila-text-hover: var(--color-lila-nacht-text-hover);
+    --btn-on-solid: var(--color-weiss);
+    --btn-on-soft: var(--color-nebel);
+    --btn-disabled-bg: var(--color-graphit-750);
+    --btn-disabled-fg: var(--color-graphit-400);
 
     --text-error: var(--color-fehler-leuchtend);
     --text-success: var(--color-gruen-leuchtend);
@@ -333,21 +442,44 @@
 
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-        --bg-page: var(--color-aubergine-950);
-        --bg-surface: var(--color-aubergine-900);
-        --bg-accent-soft: var(--color-aubergine-800);
-        --bg-header-footer: var(--color-aubergine-900);
+        --bg-page: var(--color-graphit-950);
+        --bg-surface: var(--color-graphit-900);
+        --bg-accent-soft: var(--color-graphit-800);
+        --bg-header-footer: var(--color-graphit-900);
 
         --text-default: var(--color-nebel);
-        --text-muted: var(--color-mauve-400);
+        --text-muted: var(--color-graphit-400);
         --text-on-dark: var(--color-nebel);
         --text-link: var(--color-gruen-leuchtend);
         --text-link-hover: var(--color-gruen-pastell);
         --text-org: var(--color-gruen-pastell);
 
-        --border-default: var(--color-aubergine-700);
-        --border-input: var(--color-mauve-500);
+        --border-default: var(--color-graphit-700);
+        --border-input: var(--color-graphit-500);
         --focus-ring: var(--color-weiss);
+        --field-bg: var(--color-graphit-900);
+        --field-disabled-bg: var(--color-graphit-750);
+        --field-disabled-fg: var(--color-graphit-400);
+        --btn-green-solid: var(--color-gruen-nacht);
+        --btn-green-solid-hover: var(--color-gruen-nacht-hover);
+        --btn-green-solid-press: var(--color-gruen-nacht-gedrueckt);
+        --btn-green-soft: var(--color-gruen-nacht-tint);
+        --btn-green-soft-hover: var(--color-gruen-nacht-tint-hover);
+        --btn-green-soft-press: var(--color-gruen-nacht-tint-gedrueckt);
+        --btn-green-text: var(--color-gruen-nacht-text);
+        --btn-green-text-hover: var(--color-gruen-nacht-text-hover);
+        --btn-lila-solid: var(--color-lila-nacht);
+        --btn-lila-solid-hover: var(--color-lila-nacht-hover);
+        --btn-lila-solid-press: var(--color-lila-nacht-gedrueckt);
+        --btn-lila-soft: var(--color-lila-nacht-tint);
+        --btn-lila-soft-hover: var(--color-lila-nacht-tint-hover);
+        --btn-lila-soft-press: var(--color-lila-nacht-tint-gedrueckt);
+        --btn-lila-text: var(--color-lila-nacht-text);
+        --btn-lila-text-hover: var(--color-lila-nacht-text-hover);
+        --btn-on-solid: var(--color-weiss);
+        --btn-on-soft: var(--color-nebel);
+        --btn-disabled-bg: var(--color-graphit-750);
+        --btn-disabled-fg: var(--color-graphit-400);
 
         --text-error: var(--color-fehler-leuchtend);
         --text-success: var(--color-gruen-leuchtend);

@@ -33,6 +33,7 @@
                 <ul class="vdbs-footer__list">
                     <li><button type="button" class="vdbs-footer__action" onclick="window.print()">Drucken</button></li>
                     <li><button type="button" class="vdbs-footer__action" data-vdbs-theme-toggle>Darstellung wechseln</button></li>
+                    <li><a href="#top">Zum Seitenanfang</a></li>
                 </ul>
             </div>
         </div>

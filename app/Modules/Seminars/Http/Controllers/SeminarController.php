@@ -11,6 +11,7 @@ use App\Modules\Seminars\Enums\SeminarType;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarSession;
 use App\Modules\Seminars\Services\SeminarAdministration;
+use App\Modules\Seminars\Support\CoordinationRecipients;
 use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -35,7 +36,7 @@ class SeminarController extends Controller
             ->with(['partner', 'sessions'])
             ->when($search !== '', function ($builder) use ($search): void {
                 $like = '%'.addcslashes($search, '%_\\').'%';
-                $builder->where(fn ($inner) => $inner->where('title', 'like', $like)->orWhereHas('partner', fn ($partner) => $partner->where('name', 'like', $like)->orWhere('city', 'like', $like)));
+                $builder->where(fn ($inner) => $inner->where('number', 'like', $like)->orWhere('title', 'like', $like)->orWhereHas('partner', fn ($partner) => $partner->where('name', 'like', $like)->orWhere('city', 'like', $like)));
             })
             ->when($status !== null, fn ($builder) => $builder->where('status', $status?->value))
             ->when($type !== null, fn ($builder) => $builder->where('type', $type?->value))
@@ -66,12 +67,17 @@ class SeminarController extends Controller
 
     public function show(Seminar $seminar): View
     {
-        $seminar->load(['partner', 'sessions', 'events.actor', 'quotes', 'createdBy.person', 'updatedBy.person']);
+        $seminar->load(['coordinator.person', 'partner', 'sessions', 'events.actor', 'quotes', 'createdBy.person', 'updatedBy.person', 'applications.user.person', 'applications.contact']);
+        $team = app(\App\Modules\Seminars\Services\TeamApplications::class);
 
         return view('seminars.show', [
             'seminar' => $seminar,
             'nextStatuses' => $seminar->status->next(),
             'canManage' => Gate::allows('seminars.manage'),
+            'teamOpen' => $team->isOpen($seminar),
+            'review' => $team->review($seminar),
+            'suggestion' => Gate::allows('seminars.manage') && $seminar->status === SeminarStatus::Scheduled && $seminar->deadlinePassed() ? $team->suggest($seminar) : null,
+            'competenceLabels' => (array) config('portal.team.competences', []),
         ]);
     }
 
@@ -91,7 +97,7 @@ class SeminarController extends Controller
 
     public function edit(Seminar $seminar): View
     {
-        return view('seminars.form', $this->formData($seminar, array_merge($seminar->only(['title', 'partner_id', 'grade_level', 'expected_participants', 'notes']), ['type' => $seminar->type->value])));
+        return view('seminars.form', $this->formData($seminar, array_merge($seminar->only(['title', 'partner_id', 'grade_level', 'expected_participants', 'notes', 'classes_count', 'location_notes', 'cost_center', 'coordinator_user_id']), ['type' => $seminar->type->value])));
     }
 
     public function update(Request $request, Seminar $seminar): RedirectResponse
@@ -118,6 +124,10 @@ class SeminarController extends Controller
             'status' => ['required', Rule::enum(SeminarStatus::class)],
             'comment' => ['nullable', 'string', 'max:500'],
         ], ['status.required' => 'Bitte wählen Sie den neuen Status.', 'status.enum' => 'Bitte wählen Sie einen gültigen Status.']);
+
+        if ($data['status'] === SeminarStatus::Completed->value) {
+            return redirect()->route('seminars.closure', $seminar);
+        }
 
         try {
             $this->seminars->changeStatus($seminar, SeminarStatus::from($data['status']), $this->actor($request), $data['comment'] ?? null);
@@ -174,14 +184,24 @@ class SeminarController extends Controller
     /** @return array<string, mixed> */
     private function validated(Request $request): array
     {
+        $request->merge(['notes' => \App\Support\Html\RichText::clean($request->input('notes'))]);
+
         return $request->validate([
             'title' => ['required', 'string', 'max:200'],
             'type' => ['required', Rule::enum(SeminarType::class)],
             'partner_id' => ['required', 'integer', Rule::exists('partners', 'id')->where('type', PartnerType::School->value)],
             'grade_level' => ['nullable', 'string', 'max:100'],
             'expected_participants' => ['nullable', 'integer', 'min:1', 'max:2000'],
-            'notes' => ['nullable', 'string', 'max:2000'],
+            'notes' => ['nullable', 'string', 'max:10000'],
+            'classes_count' => ['nullable', 'integer', 'min:1', 'max:200'],
+            'location_notes' => ['nullable', 'string', 'max:500'],
+            'cost_center' => ['nullable', 'string', 'max:40'],
+            'coordinator_user_id' => ['nullable', 'integer', Rule::in(CoordinationRecipients::users()->pluck('id')->all())],
         ], [
+            'classes_count.integer' => 'Die Anzahl der Klassen muss eine ganze Zahl sein.',
+            'classes_count.min' => 'Die Anzahl der Klassen muss mindestens 1 sein.',
+            'classes_count.max' => 'Bitte prüfen Sie die Anzahl der Klassen.',
+            'coordinator_user_id.in' => 'Bitte wählen Sie eine Person aus der Liste.',
             'title.required' => 'Bitte geben Sie einen Titel ein.',
             'type.required' => 'Bitte wählen Sie die Leistung.',
             'type.enum' => 'Bitte wählen Sie eine bekannte Leistung.',
@@ -203,9 +223,23 @@ class SeminarController extends Controller
             'seminar' => $seminar,
             'values' => $values,
             'typeOptions' => SeminarType::options(),
+            'costCenterOptions' => $this->costCenterOptions((string) ($values['cost_center'] ?? '')),
+            'coordinatorOptions' => CoordinationRecipients::users()->load('person')->mapWithKeys(fn (User $user): array => [$user->id => $user->person?->fullName() ?: $user->email])->all(),
             'partnerOptions' => Partner::query()->where('type', PartnerType::School->value)->orderBy('name')->get()
                 ->mapWithKeys(fn (Partner $partner): array => [$partner->id => $partner->name.($partner->city ? ' ('.$partner->city.')' : '')])->all(),
         ];
+    }
+
+    /** Aktive Kostenstellen (Code => Code · Name); ein bisheriger Freitext bleibt wählbar. @return array<string, string> */
+    private function costCenterOptions(string $current): array
+    {
+        $options = \App\Modules\Forms\Models\CostCenter::query()->where('active', true)->orderBy('code')->get()->mapWithKeys(fn ($center): array => [$center->code => $center->code.' · '.$center->name])->all();
+
+        if ($current !== '' && ! array_key_exists($current, $options)) {
+            $options[$current] = $current;
+        }
+
+        return $options;
     }
 
     private function actor(Request $request): User

@@ -17,7 +17,7 @@
             <x-slot:actions>
                 @if ($requested)
                     <x-vdbs.actions.button icon="check" data-vdbs-dialog-open="admit">Aufnehmen</x-vdbs.actions.button>
-                    <x-vdbs.actions.button variant="danger" shape="outline" icon="x" data-vdbs-dialog-open="reject">Ablehnen</x-vdbs.actions.button>
+                    <x-vdbs.actions.button variant="danger" icon="x" data-vdbs-dialog-open="reject">Ablehnen</x-vdbs.actions.button>
                 @endif
                 @if ($running)
                     @if (filled($membership->contactEmail()))
@@ -26,7 +26,7 @@
                     @if ($ending)
                         <x-vdbs.actions.button variant="secondary" icon="refresh-cw" data-vdbs-dialog-open="withdraw">Austritt zurücknehmen</x-vdbs.actions.button>
                     @endif
-                    <x-vdbs.actions.button variant="danger" shape="outline" icon="log-out" data-vdbs-dialog-open="terminate">{{ $ending ? 'Austrittsdatum ändern' : 'Austritt eintragen' }}</x-vdbs.actions.button>
+                    <x-vdbs.actions.button variant="danger" icon="log-out" data-vdbs-dialog-open="terminate">{{ $ending ? 'Austrittsdatum ändern' : 'Austritt eintragen' }}</x-vdbs.actions.button>
                 @endif
             </x-slot:actions>
         @endif
@@ -70,6 +70,7 @@
                     <p>Der zuletzt gesendete Registrierungslink ist abgelaufen.</p>
                 @endif
                 @if ($canManage)
+                    <p><x-vdbs.actions.button variant="secondary" icon="link" data-vdbs-dialog-open="link-account">Bestehendes Konto verknüpfen</x-vdbs.actions.button></p>
                     @if (filled($membership->email))
                         <x-vdbs.actions.button variant="secondary" icon="send" data-vdbs-dialog-open="registration-link">{{ $membership->registration_sent_at ? 'Registrierungslink erneut senden' : 'Registrierungslink senden' }}</x-vdbs.actions.button>
                     @else
@@ -99,7 +100,7 @@
                         <td>{{ $document->uploaded_at->format('d.m.Y') }}</td>
                         <td>
                             @if ($canManage)
-                                <x-vdbs.actions.button variant="danger" shape="outline" size="s" data-vdbs-dialog-open="remove-document-{{ $document->id }}">Entfernen</x-vdbs.actions.button>
+                                <x-vdbs.actions.button variant="danger-text" size="s" data-vdbs-dialog-open="remove-document-{{ $document->id }}">Entfernen</x-vdbs.actions.button>
                             @endif
                         </td>
                     </tr>
@@ -193,6 +194,15 @@
                 </x-slot:fields>
             </x-vdbs.overlays.confirm-dialog>
         @endif
+    @endif
+
+    @if ($canManage && $membership->hasNoPerson() && $membership->isOpen())
+        <x-vdbs.overlays.confirm-dialog id="link-account" title="Bestehendes Konto verknüpfen?" :action="route('membership.link-account', $membership)" confirm-label="Konto verknüpfen">
+            <p>Hatte {{ $name }} schon vor der Mitgliedschaft ein Konto im Portal, verknüpfen Sie es hier. Die Mitgliedschaft übernimmt dann die Person des Kontos, und bei laufender Mitgliedschaft erhält das Konto sofort die Rolle Vereinsmitglied. Das lässt sich nicht rückgängig machen.</p>
+            <x-slot:fields>
+                <x-vdbs.forms.input id="link-account-email" name="account_email" label="E-Mail-Adresse des Kontos" type="email" :required="true" />
+            </x-slot:fields>
+        </x-vdbs.overlays.confirm-dialog>
     @endif
 
     @if ($canManage && $membership->hasNoPerson() && $membership->isOpen() && filled($membership->email))

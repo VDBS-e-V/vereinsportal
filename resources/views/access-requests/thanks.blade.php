@@ -11,6 +11,6 @@
 
     <p style="margin-top:var(--space-6)">
         <x-vdbs.actions.button :href="route('home')">Zur Startseite</x-vdbs.actions.button>
-        <x-vdbs.actions.button variant="tertiary" :href="route('portal.contact')">Kontakt aufnehmen</x-vdbs.actions.button>
+        <x-vdbs.actions.button variant="text" :href="route('portal.contact')">Kontakt aufnehmen</x-vdbs.actions.button>
     </p>
 </x-layouts.app>

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('web')->prefix('artikel')->name('articles.public.')->group(function (): void {
     Route::get('/', [PublicArticleController::class, 'index'])->name('index');
     Route::get('/{slug}', [PublicArticleController::class, 'show'])->where('slug', '[a-z0-9\-]+')->name('show');
+    Route::get('/{slug}/autorenbild', [PublicArticleController::class, 'authorImage'])->where('slug', '[a-z0-9\-]+')->name('author-image');
     Route::get('/{slug}/bild', [PublicArticleController::class, 'image'])->where('slug', '[a-z0-9\-]+')->name('image');
 });
 

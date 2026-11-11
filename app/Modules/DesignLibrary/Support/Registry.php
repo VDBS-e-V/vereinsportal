@@ -34,7 +34,64 @@ final class Registry
         return self::all()->groupBy(fn (array $entry): string => $entry['category']->value);
     }
 
+    /**
+     * Komponenten aus den Paket-Manifesten (app/Modules/DesignLibrary/Packages/<paket>.php, angelegt von design:package und design:component).
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function packageDefinitions(?string $directory = null): array
+    {
+        $definitions = [];
+
+        foreach (glob(($directory ?? __DIR__.'/../Packages').'/*.php') ?: [] as $file) {
+            $manifest = require $file;
+            $package = basename($file, '.php');
+
+            foreach ($manifest['components'] ?? [] as $component) {
+                // Aufgenommene Komponenten haben ihre Beispielseiten schon in der Bibliothek.
+                if (($component['adopted'] ?? false) === true) {
+                    continue;
+                }
+
+                $definitions[] = [
+                    'slug' => $package.'-'.$component['name'],
+                    'title' => $component['title'],
+                    'description' => $component['description'],
+                    'category' => LibraryCategory::Components,
+                    'status' => LifecycleStatus::tryFrom((string) ($component['status'] ?? '')) ?? LifecycleStatus::Experimental,
+                    'styleguide' => 'Paket '.$manifest['title'],
+                    'width' => $component['width'] ?? 'default',
+                ];
+            }
+        }
+
+        return $definitions;
+    }
+
+    /**
+     * Alle Paket-Manifeste, nach Paketname.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public static function packages(?string $directory = null): array
+    {
+        $packages = [];
+
+        foreach (glob(($directory ?? __DIR__.'/../Packages').'/*.php') ?: [] as $file) {
+            $packages[basename($file, '.php')] = require $file;
+        }
+
+        ksort($packages);
+
+        return $packages;
+    }
+
     private static function definitions(): array
+    {
+        return array_merge(self::coreDefinitions(), self::packageDefinitions());
+    }
+
+    private static function coreDefinitions(): array
     {
         return [
             ['slug' => 'farben', 'title' => 'Farben & semantische Tokens', 'description' => 'Markenfarben, Gruppenfarben und die semantischen Tokens, die im Code verwendet werden.', 'category' => LibraryCategory::Tokens, 'status' => LifecycleStatus::Stable, 'styleguide' => 'Kap. 2'],
@@ -87,7 +144,6 @@ final class Registry
             ['slug' => 'chips', 'title' => 'Chips', 'description' => 'Liste von Links als Chips, z. B. Bereiche (Paket Daten).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.6'],
             ['slug' => 'bilder', 'title' => 'Bilder und Bildquellen', 'description' => 'Bild mit Pflicht-Quelle: Seitenverhältnisse, Fokus und die zwei Quellenanzeigen below und edge (Paket Medien).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4', 'width' => 'wide'],
             ['slug' => 'figure', 'title' => 'Bild mit Unterschrift', 'description' => 'Bild mit Bildunterschrift und Bildnachweis (Paket Medien).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4'],
-            ['slug' => 'link-button', 'title' => 'Link-Button', 'description' => 'Kurzform des Button-Systems für Links: Pfeil, Linie und „Alle anzeigen“ (Paket Aktionen).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.1'],
             ['slug' => 'back-to-top', 'title' => 'Zum Seitenanfang', 'description' => 'Sprunglink zum Seitenanfang (Paket Aktionen).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.1'],
             ['slug' => 'startseite', 'title' => 'Startseite (Muster)', 'description' => 'Zusammenspiel von Hero, Quick-Links, Abschnitten, Teasern, Split und Kontaktblock in voller Seitenbreite.', 'category' => LibraryCategory::Patterns, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4', 'width' => 'full'],
             ['slug' => 'gruppen-marken', 'title' => 'Gruppen-Marken', 'description' => 'Form, Farbe und Zahl 1–6; Zuordnung der Portal-Bereiche.', 'category' => LibraryCategory::BrandElements, 'status' => LifecycleStatus::Stable, 'styleguide' => 'Kap. 9.2'],

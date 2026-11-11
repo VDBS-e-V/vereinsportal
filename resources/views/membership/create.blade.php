@@ -17,7 +17,7 @@
 
         <x-vdbs.forms.form-section title="Mitgliedschaft und Dokument">
             <x-vdbs.forms.form-grid :columns="2">
-                <x-vdbs.forms.select name="mode" label="Art" :required="true" :options="['request' => 'Antrag (noch nicht entschieden)', 'admit' => 'Bestehende Mitgliedschaft']" value="request" />
+                <x-vdbs.forms.radio-group name="mode" legend="Art" :required="true" :options="['request' => 'Antrag (noch nicht entschieden)', 'admit' => 'Bestehende Mitgliedschaft']" :value="old('mode', 'request')" />
                 <x-vdbs.forms.input name="starts_on" label="Beitrittsdatum" type="date" :optional="true" hint="Pflicht bei bestehender Mitgliedschaft" />
                 <x-vdbs.forms.select name="kind" label="Art des Dokuments" :required="true" :options="$documentKinds" value="application" />
             </x-vdbs.forms.form-grid>
@@ -27,7 +27,7 @@
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="save">Erfassen</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="route('membership.index')">Abbrechen</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="route('membership.index')">Abbrechen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>

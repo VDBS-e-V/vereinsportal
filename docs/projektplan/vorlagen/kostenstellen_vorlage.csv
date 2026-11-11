@@ -1,0 +1,12 @@
+﻿Nummer;Name;Beschreibung;Aktiv
+100;Verwaltung und Geschäftsstelle;Büro, Porto, Software, Versicherungen;ja
+200;Seminare SV-Tage;Schulseminare Leistungsart SV-Tage;ja
+210;Seminare SV-Coaching;Kurze Tagestreffen und Coaching;ja
+220;Seminare SV-Wahl;Begleitung von Schülervertretungswahlen;ja
+230;Seminare SV-Fahrt;Mehrtägige Fahrten;ja
+300;Großveranstaltungen;Tagungen und offene Veranstaltungen;ja
+400;Teamende Aus- und Fortbildung;Schulungen, Einarbeitung, Material;ja
+500;Öffentlichkeitsarbeit;Website, Druck, Social Media;ja
+600;Mitgliederversammlung und Vorstand;Raum, Versand, Reisekosten Vorstand;ja
+700;Bibliotheken und Schulbibliotheken;Projekte Schulbibliothek;ja
+900;Sonstiges;Nur wenn nichts anderes passt;ja

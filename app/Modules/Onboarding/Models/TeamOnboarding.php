@@ -11,11 +11,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /** Modul: Onboarding. Die Einarbeitung eines Kontos mit der Rolle Teamende. */
 class TeamOnboarding extends Model
 {
-    protected $fillable = ['user_id', 'started_at', 'started_by_user_id', 'completed_at'];
+    protected $fillable = ['user_id', 'started_at', 'started_by_user_id', 'completed_at', 'last_reminded_at', 'reminders_sent'];
 
     protected function casts(): array
     {
-        return ['started_at' => 'datetime', 'completed_at' => 'datetime'];
+        return ['started_at' => 'datetime', 'completed_at' => 'datetime', 'last_reminded_at' => 'datetime'];
     }
 
     /** @return BelongsTo<User, $this> */

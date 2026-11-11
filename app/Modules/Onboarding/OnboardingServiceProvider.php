@@ -5,6 +5,7 @@ namespace App\Modules\Onboarding;
 use App\Modules\Access\Events\AccountAnonymizing;
 use App\Modules\AccessGovernance\Events\RoleGranted;
 use App\Modules\Membership\Events\MembershipAdmitted;
+use App\Modules\Onboarding\Console\RemindTeamOnboarding;
 use App\Modules\Onboarding\Listeners\RemoveOnboardingOnAccountDeletion;
 use App\Modules\Onboarding\Listeners\SendWelcomeOnAdmission;
 use App\Modules\Onboarding\Listeners\StartTeamOnboarding;
@@ -20,6 +21,9 @@ class OnboardingServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
+
+        // Auch bei Aufrufen über den Browser (Systemsteuerung, Einrichtung) müssen die Befehle bekannt sein, nicht nur auf der Konsole
+        $this->commands([RemindTeamOnboarding::class]);
 
         Event::listen(MembershipAdmitted::class, SendWelcomeOnAdmission::class);
         Event::listen(RoleGranted::class, StartTeamOnboarding::class);

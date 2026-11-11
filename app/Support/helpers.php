@@ -12,3 +12,11 @@ if (! function_exists('placeholder')) {
         return PlaceholderImages::make()->url($kind, $n);
     }
 }
+
+if (! function_exists('rich_text')) {
+    /** Formatierter Text (Editor-HTML oder älterer Markdown-Text) als sicheres HTML zur Ausgabe mit {!! !!}. */
+    function rich_text(?string $value): \Illuminate\Support\HtmlString
+    {
+        return new \Illuminate\Support\HtmlString(\App\Support\Html\RichText::render($value));
+    }
+}

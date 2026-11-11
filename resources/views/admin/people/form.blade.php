@@ -41,16 +41,16 @@
         <x-vdbs.forms.form-section title="Anschrift">
             <x-vdbs.forms.form-grid :columns="2">
                 <x-vdbs.forms.input name="street" label="Straße" :optional="true" :value="$person?->street" />
-                <x-vdbs.forms.input name="house_number" label="Hausnummer" :optional="true" :value="$person?->house_number" />
-                <x-vdbs.forms.input name="postal_code" label="Postleitzahl" :optional="true" :value="$person?->postal_code" />
+                <x-vdbs.forms.input name="house_number" label="Hausnummer" maxlength="10" :optional="true" :value="$person?->house_number" />
+                <x-vdbs.forms.input name="postal_code" label="Postleitzahl" maxlength="10" :optional="true" :value="$person?->postal_code" />
                 <x-vdbs.forms.input name="city" label="Ort" :optional="true" :value="$person?->city" />
-                <x-vdbs.forms.input name="country_code" label="Land (Code)" :required="true" maxlength="2" :value="$person?->country_code ?? 'DE'" hint="Zweistelliger Code, z. B. DE, AT oder CH" />
+                <x-vdbs.forms.input name="country_code" label="Land (Code)" :required="true" maxlength="2" autocapitalize="characters" :value="$person?->country_code ?? 'DE'" hint="Zweistelliger Code, z. B. DE, AT oder CH" />
             </x-vdbs.forms.form-grid>
         </x-vdbs.forms.form-section>
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="save">{{ $editing ? 'Speichern' : 'Person anlegen' }}</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="$editing ? route('admin.people.show', $person) : route('admin.people.index')">Abbrechen</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="$editing ? route('admin.people.show', $person) : route('admin.people.index')">Abbrechen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>

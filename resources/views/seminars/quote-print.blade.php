@@ -59,7 +59,7 @@
 <body>
     <div class="toolbar">
         <button type="button" onclick="window.print()">Drucken oder als PDF speichern</button>
-        <a href="{{ route('seminar-quotes.show', ['quote' => $quote, 'fassung' => $data['current'] ? null : $data['version']]) }}">Zurück</a>
+        <a href="{{ $back ?? route('seminar-quotes.show', ['quote' => $quote, 'fassung' => $data['current'] ? null : $data['version']]) }}">Zurück</a>
     </div>
 
     <main class="sheet">
@@ -89,6 +89,9 @@
         <h1>Kostenvoranschlag</h1>
 
         <div class="date"><span>Datum:</span><span>{{ $data['at']?->format('d.m.Y') }}</span></div>
+        @if ($quote->seminar?->number)
+            <div class="date"><span>Seminar:</span><span>{{ $quote->seminar->number }}</span></div>
+        @endif
 
         <table>
             <thead>

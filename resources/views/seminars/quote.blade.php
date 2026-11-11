@@ -1,5 +1,5 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Koordination'], ['label' => 'Kostenvoranschläge', 'href' => route('seminar-quotes.index')], ['label' => $quote->partner->name.', '.$quote->created_at?->format('d.m.Y')]];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Geschäftsstelle'], ['label' => 'Kostenvoranschläge', 'href' => route('seminar-quotes.index')], ['label' => $quote->partner->name.', '.$quote->created_at?->format('d.m.Y')]];
     $money = fn ($cents) => \App\Modules\Seminars\Support\Money::format($cents);
     $author = fn ($user) => $user ? ($user->person?->fullName() ?: $user->email) : null;
     $fassung = $data['current'] ? null : $data['version'];
@@ -15,7 +15,7 @@
             @if ($canManage)
                 <x-vdbs.actions.button :href="route('seminar-quotes.edit', ['quote' => $quote, 'fassung' => $fassung])" icon="pencil">{{ $data['current'] ? 'Ändern' : 'Daraus neue Fassung machen' }}</x-vdbs.actions.button>
                 <x-vdbs.actions.button variant="secondary" :href="route('seminar-quotes.create', ['vorlage' => $quote->id])" icon="copy">Als Vorlage für einen neuen verwenden</x-vdbs.actions.button>
-                <x-vdbs.actions.button variant="danger" shape="outline" icon="trash-2" data-vdbs-dialog-open="delete-quote">Löschen</x-vdbs.actions.button>
+                <x-vdbs.actions.button variant="danger" icon="trash-2" data-vdbs-dialog-open="delete-quote">Löschen</x-vdbs.actions.button>
             @endif
         </x-slot:actions>
     </x-vdbs.layout.page-header>
@@ -31,7 +31,7 @@
             <h2 id="quote-data-heading" style="font-size:var(--font-size-h3)">Angaben</h2>
             <x-vdbs.data.detail-list layout="inline">
                 <x-vdbs.data.detail-item label="Schule"><a href="{{ route('partners.show', $quote->partner) }}">{{ $quote->partner->name }}</a></x-vdbs.data.detail-item>
-                <x-vdbs.data.detail-item label="Seminar">@if ($quote->seminar)<a href="{{ route('seminars.show', $quote->seminar) }}">{{ $quote->seminar->title }}</a>@endif</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Seminar">@if ($quote->seminar)<a href="{{ route('seminars.show', $quote->seminar) }}">{{ $quote->seminar->number ? $quote->seminar->number.' – ' : '' }}{{ $quote->seminar->title }}</a>@endif</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Endsumme">{{ $money($data['total_cents']) }}</x-vdbs.data.detail-item>
             </x-vdbs.data.detail-list>
         </section>

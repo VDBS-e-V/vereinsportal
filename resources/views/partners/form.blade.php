@@ -29,8 +29,8 @@
         <x-vdbs.forms.form-section title="Anschrift">
             <x-vdbs.forms.form-grid :columns="2">
                 <x-vdbs.forms.input name="street" label="Straße" :optional="true" :value="$values['street'] ?? null" />
-                <x-vdbs.forms.input name="house_number" label="Hausnummer" :optional="true" :value="$values['house_number'] ?? null" />
-                <x-vdbs.forms.input name="postal_code" label="Postleitzahl" :optional="true" :value="$values['postal_code'] ?? null" />
+                <x-vdbs.forms.input name="house_number" label="Hausnummer" maxlength="10" :optional="true" :value="$values['house_number'] ?? null" />
+                <x-vdbs.forms.input name="postal_code" label="Postleitzahl" maxlength="10" inputmode="numeric" :optional="true" :value="$values['postal_code'] ?? null" />
                 <x-vdbs.forms.input name="city" label="Ort" :optional="true" :value="$values['city'] ?? null" />
             </x-vdbs.forms.form-grid>
         </x-vdbs.forms.form-section>
@@ -67,19 +67,17 @@
                     <x-partners.contact-row i="__INDEX__" />
                 </template>
 
-                <button type="button" class="vdbs-btn vdbs-btn--secondary vdbs-btn--shape-outline vdbs-btn--size-m vdbs-js-only" data-vdbs-repeater-add>
-                    <x-vdbs.icon name="plus" :size="18" /> Weitere Ansprechperson hinzufügen
-                </button>
+                <x-vdbs.actions.button type="button" variant="secondary" size="m" class="vdbs-js-only" data-vdbs-repeater-add icon="plus">Weitere Ansprechperson hinzufügen</x-vdbs.actions.button>
             </div>
         </x-vdbs.forms.form-section>
 
         <x-vdbs.forms.form-section title="Notizen">
-            <x-vdbs.forms.textarea name="notes" label="Notiz" :optional="true" maxlength="2000" :counter="true" :rows="4" :value="$values['notes'] ?? null" />
+            <x-vdbs.forms.textarea name="notes" label="Notiz" :optional="true" :rows="6" :rich="true" :value="$values['notes'] ?? null" />
         </x-vdbs.forms.form-section>
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="save">{{ $editing ? 'Speichern' : 'Schule anlegen' }}</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="$editing ? route('partners.show', $partner) : route('partners.index')">Abbrechen</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="$editing ? route('partners.show', $partner) : route('partners.index')">Abbrechen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>

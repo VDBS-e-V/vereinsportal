@@ -4,10 +4,15 @@ use App\Modules\Access\AccessServiceProvider;
 use App\Modules\AccessRequests\AccessRequestsServiceProvider;
 use App\Modules\AccessGovernance\AccessGovernanceServiceProvider;
 use App\Modules\Articles\ArticlesServiceProvider;
+use App\Modules\Setup\SetupServiceProvider;
+use App\Modules\System\SystemServiceProvider;
+use App\Modules\Mailings\MailingsServiceProvider;
 use App\Modules\Audit\AuditServiceProvider;
 use App\Modules\DesignLibrary\DesignLibraryServiceProvider;
 use App\Modules\Membership\MembershipServiceProvider;
+use App\Modules\Events\EventsServiceProvider;
 use App\Modules\Onboarding\OnboardingServiceProvider;
+use App\Modules\Pages\PagesServiceProvider;
 use App\Modules\Partners\PartnersServiceProvider;
 use App\Modules\People\PeopleServiceProvider;
 use App\Modules\Seminars\SeminarsServiceProvider;
@@ -29,11 +34,21 @@ return [
     AuditServiceProvider::class,
     PartnersServiceProvider::class,
     SeminarsServiceProvider::class,
+    \App\Modules\Feedback\FeedbackServiceProvider::class,
+    \App\Modules\Forms\FormsServiceProvider::class,
+    \App\Modules\Contracts\ContractsServiceProvider::class,
+    \App\Modules\Letters\LettersServiceProvider::class,
     PeopleServiceProvider::class,
     MembershipServiceProvider::class,
     OnboardingServiceProvider::class,
     AccessRequestsServiceProvider::class,
     ArticlesServiceProvider::class,
+    SystemServiceProvider::class,
+    SetupServiceProvider::class,
+    MailingsServiceProvider::class,
+    \App\Modules\Contacts\ContactsServiceProvider::class,
+    PagesServiceProvider::class,
+    EventsServiceProvider::class,
     SsoServiceProvider::class,
     DesignLibraryServiceProvider::class,
 ];

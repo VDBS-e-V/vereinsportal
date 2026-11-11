@@ -1,17 +1,37 @@
-<p>Paket <strong>Formulare</strong> · <code>&lt;x-vdbs.forms.input&gt;</code>, <code>password</code>, <code>code</code>, <code>textarea</code>, <code>select</code>, <code>search</code>. Jedes Feld hat ein sichtbares Label, optional Hinweis, Pflicht-/Optional-Kennzeichnung als Text und eine Fehler- oder Erfolgsmeldung mit Icon.</p>
+<p>Paket <strong>Formulare</strong> · <code>&lt;x-vdbs.forms.input&gt;</code>, <code>password</code>, <code>code</code>, <code>textarea</code>, <code>select</code>, <code>search</code>. Jedes Feld hat ein sichtbares Label über dem Feld, optional einen Hinweis, bei Pflichtfeldern ein rotes Sternchen (<code>*</code>, für Screenreader mit Text) und eine Fehler- oder Erfolgsmeldung mit Icon. Optionale Felder bleiben unmarkiert; das Formular erklärt das Sternchen einmal („* Pflichtfeld“).</p>
 
 <h2>Zustände</h2>
 <x-vdbs.forms.form-grid :columns="2">
     <x-vdbs.forms.input name="s_normal" label="Normal" hint="Ein Hinweis erklärt, was erwartet wird." />
     <x-vdbs.forms.input name="s_required" label="Pflichtfeld" :required="true" />
-    <x-vdbs.forms.input name="s_optional" label="Optionales Feld" :optional="true" />
+    <x-vdbs.forms.input name="s_optional" label="Optionales Feld (ohne Markierung)" />
     <x-vdbs.forms.input name="s_filled" label="Mit Wert" value="Erika Musterfrau" />
     <x-vdbs.forms.input name="s_error" label="Fehler" value="falsch" error="Bitte geben Sie eine gültige E-Mail-Adresse ein." type="email" />
     <x-vdbs.forms.input name="s_success" label="Erfolgreich geprüft" value="vdbs" success="Benutzername ist frei." />
     <x-vdbs.forms.input name="s_disabled" label="Deaktiviert" value="Nicht änderbar" disabled />
     <x-vdbs.forms.input name="s_readonly" label="Nur lesen" value="Mitgliedsnummer 12345" readonly />
 </x-vdbs.forms.form-grid>
-<p>Hover und Fokus: mit Maus und Tab-Taste ausprobieren. Der Fokus zeigt einen Ring von 3 px. Fehler und Erfolg sind nie nur farblich: Rahmen, Icon und Text kommen zusammen.</p>
+<p>Hover und Fokus: mit Maus und Tab-Taste ausprobieren. Der Fokus zeigt einen Rand von 2 px und einen Ring von 3 px. Fehler und Erfolg sind nie nur farblich: Rahmen, Icon und Text kommen zusammen. <strong>Nur lesen</strong> hat einen gestrichelten Rand, graue Fläche und ein Schloss; das Feld bleibt fokussierbar, kopierbar und wird gesendet. <strong>Deaktiviert</strong> ist grau, nicht fokussierbar und wird nicht gesendet.</p>
+
+<h2>Prüfung beim Verlassen und beim Absenden</h2>
+<x-vdbs.forms.form action="#" :summary="false">
+    <x-vdbs.forms.form-grid :columns="2">
+        <x-vdbs.forms.input name="v_name" label="Name" :required="true" hint="Beim Verlassen des Feldes wird geprüft." />
+        <x-vdbs.forms.input name="v_mail" label="E-Mail" type="email" :required="true" />
+    </x-vdbs.forms.form-grid>
+    <x-slot:actions><x-vdbs.actions.button type="submit">Absenden</x-vdbs.actions.button></x-slot:actions>
+</x-vdbs.forms.form>
+<p>Felder in Formularen prüfen sich mit JavaScript beim Verlassen und beim Absenden (<code>data-vdbs-validate</code>); der Fokus springt zum ersten Fehler. Die Meldungen des Servers bleiben maßgeblich. Ausnahmen: Schaltflächen mit <code>formaction</code>, <code>formnovalidate</code> oder <code>data-vdbs-no-validate</code>.</p>
+
+<h2>Breite nach Inhalt</h2>
+<x-vdbs.forms.form-grid :columns="3">
+    <x-vdbs.forms.input name="w_plz" label="Postleitzahl" width="5" inputmode="numeric" />
+    <x-vdbs.forms.input name="w_nr" label="Hausnummer" width="4" />
+    <x-vdbs.forms.input name="w_tel" label="Telefon" width="20" type="tel" />
+    <x-vdbs.forms.input name="w_name" label="Name" width="30" />
+    <x-vdbs.forms.input name="w_full" label="Volle Breite (Standard)" />
+</x-vdbs.forms.form-grid>
+<p><code>width</code> nimmt 4, 5, 10, 20 oder 30 (Zeichen). Kurze Angaben bekommen kurze Felder.</p>
 
 <h2>Größen</h2>
 <x-vdbs.forms.form-grid :columns="3">

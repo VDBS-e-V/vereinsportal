@@ -7,6 +7,7 @@
     @elseif ($pending)
         <p>Für dieses Konto ist die Löschung beantragt. Möchten Sie sie abbrechen und das Konto behalten?</p>
         <form method="post" action="{{ $action }}" style="margin-top:var(--space-5)">
+            <x-vdbs.forms.bot-guard />
             @csrf
             <x-vdbs.actions.button type="submit" icon="check">Löschung abbrechen</x-vdbs.actions.button>
         </form>

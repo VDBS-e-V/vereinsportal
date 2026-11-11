@@ -8,8 +8,10 @@
     $currentArea = \App\Support\PortalNavigation::areaForRoute($routeName);
     // Ohne Anmeldung (und auf Fehlerseiten) stehen in Zeile 2 die öffentlichen Seiten des Bereichs Start.
     $navArea = $user === null ? \App\Support\PortalAreas::Start : $currentArea;
-    $areaPages = $navArea ? \App\Support\PortalNavigation::pages($navArea, $user, $routeName) : [];
+    // Die Übersicht (Startseite des Bereichs) ist über den Bereichstitel erreichbar und steht nicht noch einmal im Menü.
+    $areaPages = $navArea ? array_values(array_filter(\App\Support\PortalNavigation::pages($navArea, $user, $routeName), fn (array $page): bool => $page['label'] !== 'Übersicht')) : [];
     $hasAreaMenu = count($visibleAreas) > 0 || $systems->isNotEmpty();
+    $headerArea = ($user !== null || $currentArea === \App\Support\PortalAreas::Start) ? $currentArea : null;
     $headerTitle = ($user !== null || $currentArea === \App\Support\PortalAreas::Start ? $currentArea?->label() : null) ?? ($title ?? 'Start');
 @endphp
 
@@ -48,20 +50,30 @@
     </div>
 
     <div class="vdbs-container vdbs-header__main">
-        <div>
-            <p class="vdbs-header__eyebrow">VDBS Portal</p>
-            <p class="vdbs-header__title">{{ $headerTitle }}</p>
-        </div>
+        @if ($headerArea)
+            <a class="vdbs-header__brand" href="{{ \App\Support\PortalNavigation::home($headerArea) }}">
+                <span class="vdbs-header__eyebrow">VDBS Portal</span>
+                <span class="vdbs-header__title">{{ $headerTitle }}</span>
+            </a>
+        @else
+            <div class="vdbs-header__brand">
+                <p class="vdbs-header__eyebrow">VDBS Portal</p>
+                <p class="vdbs-header__title">{{ $headerTitle }}</p>
+            </div>
+        @endif
 
         <div class="vdbs-header__actions vdbs-header__menu-panel" id="portal-menu-actions">
             @if (count($areaPages) > 0)
                 <nav class="vdbs-main-nav" aria-label="Seiten im Bereich {{ $navArea->label() }}">
                     <ul class="vdbs-header__links vdbs-header__links--large">
                         @foreach ($areaPages as $page)
-                            <li @class(['vdbs-main-nav__item', 'vdbs-main-nav__item--has-submenu' => $page['children'] !== []])>
-                                <a href="{{ $page['href'] }}" @if ($page['current']) aria-current="page" @endif>{{ $page['label'] }}</a>
+                            <li @class(['vdbs-main-nav__item', 'vdbs-main-nav__item--has-submenu' => $page['children'] !== [], 'is-active' => $page['active']])>
+                                <a href="{{ $page['href'] }}" @if ($page['children'] !== []) aria-haspopup="true" @endif @if ($page['current']) aria-current="page" @endif>{{ $page['label'] }}@if ($page['children'] !== [])<x-vdbs.icon class="vdbs-main-nav__chevron" name="chevron-down" :size="16" />@endif</a>
                                 @if ($page['children'] !== [])
-                                    <ul class="vdbs-main-nav__submenu">
+                                    <ul class="vdbs-main-nav__submenu" aria-label="{{ $page['label'] }}">
+                                        @unless ($page['group'])
+                                            <li class="vdbs-main-nav__overview"><a href="{{ $page['href'] }}">Zur Übersichtsseite {{ $page['label'] }}</a></li>
+                                        @endunless
                                         @foreach ($page['children'] as $child)
                                             <li><a href="{{ $child['href'] }}" @if ($child['current']) aria-current="page" @endif>{{ $child['label'] }}</a></li>
                                         @endforeach
@@ -77,11 +89,13 @@
                 @php $displayName = $user->person?->fullName() ?: $user->email; @endphp
                 <x-vdbs.navigation.dropdown variant="plain" align="end" :label="$displayName">
                     <x-slot:trigger>
-                        <x-vdbs.data.avatar :name="$displayName" size="s" aria-hidden="true" />
+                        <x-vdbs.data.avatar :name="$displayName" :src="$user->avatarUrl()" size="s" aria-hidden="true" />
                         <span class="vdbs-header__user-name">{{ $displayName }}</span>
                     </x-slot:trigger>
-                    <x-vdbs.navigation.dropdown-item :href="route('account.profile')" icon="user" :current="request()->routeIs('account.profile')">Mein Konto</x-vdbs.navigation.dropdown-item>
-                    <x-vdbs.navigation.dropdown-item :href="route('account.security.index')" icon="shield" :current="request()->routeIs('account.security.*')">Sicherheit</x-vdbs.navigation.dropdown-item>
+                    @unless ($user->can('school.area'))
+                        <x-vdbs.navigation.dropdown-item :href="route('account.profile')" icon="user" :current="request()->routeIs('account.profile*')">Mein Profil</x-vdbs.navigation.dropdown-item>
+                    @endunless
+                    <x-vdbs.navigation.dropdown-item :href="route('account.home')" icon="settings" :current="request()->routeIs('account.*') && ! request()->routeIs('account.profile*')">Mein Konto</x-vdbs.navigation.dropdown-item>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <x-vdbs.navigation.dropdown-item type="submit" icon="log-out">Abmelden</x-vdbs.navigation.dropdown-item>

@@ -9,7 +9,7 @@
         @if ($editing)
             <x-slot:actions>
                 <x-vdbs.actions.button variant="secondary" :href="route('articles.public.show', $article->slug)" icon="eye">Ansehen</x-vdbs.actions.button>
-                <x-vdbs.actions.button variant="danger" shape="outline" icon="trash-2" data-vdbs-dialog-open="delete-article">Löschen</x-vdbs.actions.button>
+                <x-vdbs.actions.button variant="danger" icon="trash-2" data-vdbs-dialog-open="delete-article">Löschen</x-vdbs.actions.button>
             </x-slot:actions>
         @endif
     </x-vdbs.layout.page-header>
@@ -17,11 +17,13 @@
     <x-vdbs.forms.form :action="$editing ? route('articles.admin.update', $article) : route('articles.admin.store')" :method="$editing ? 'put' : 'post'" :files="true">
         <x-vdbs.forms.form-section title="Artikel">
             <x-vdbs.forms.input name="title" label="Titel" :required="true" maxlength="200" :value="$values['title'] ?? null" />
+            <x-vdbs.forms.input name="subtitle" label="Untertitel" :optional="true" maxlength="250" :value="$values['subtitle'] ?? null" hint="Steht unter dem Titel, z. B. Anlass, Ort oder Datum einer Veranstaltung" />
             <x-vdbs.forms.form-grid :columns="2">
-                <x-vdbs.forms.input name="category" label="Kategorie" :optional="true" maxlength="60" :value="$values['category'] ?? null" hint="Steht auf der Karte, z. B. Themenartikel" />
+                <x-vdbs.forms.select name="category" label="Kategorie" :required="true" :options="\App\Modules\Articles\Models\Article::categoryOptions($values['category'] ?? null)" :value="$values['category'] ?? 'Themenartikel'" hint="Steht auf der Karte und über dem Titel; führt zur Artikelliste der Kategorie" />
             </x-vdbs.forms.form-grid>
             <x-vdbs.forms.textarea name="teaser" label="Anreißer" :optional="true" maxlength="300" :counter="true" :rows="2" :value="$values['teaser'] ?? null" hint="Kurzer Text für die Karte; ohne Angabe nimmt das Portal den Anfang des Artikels" />
-            <x-vdbs.forms.textarea name="body" label="Text" :required="true" maxlength="20000" :rows="14" :value="$values['body'] ?? null" hint="Einfaches Markdown: Leerzeile = neuer Absatz, ## Überschrift, **fett**, *kursiv*, - Liste, [Text](https://…)" />
+            <x-vdbs.forms.input name="tags" label="Schlagwörter" :optional="true" maxlength="500" :value="$values['tags'] ?? null" hint="Durch Komma getrennt, höchstens zehn, z. B. Demokratie, Berlin, Exkursion" />
+            <x-vdbs.forms.textarea name="body" label="Text" :required="true" maxlength="60000" :rows="14" :rich="true" :value="$values['body'] ?? null" />
         </x-vdbs.forms.form-section>
 
         <x-vdbs.forms.form-section title="Bild">
@@ -36,17 +38,35 @@
             </x-vdbs.forms.form-grid>
         </x-vdbs.forms.form-section>
 
+        <x-vdbs.forms.form-section title="Autor:in">
+            <x-vdbs.forms.checkbox name="show_author" label="Autor:in oben beim Artikel nennen" :checked="(bool) ($values['show_author'] ?? false)" />
+            <x-vdbs.forms.input name="author_name" label="Name der Autorin oder des Autors" :optional="true" maxlength="120" :value="$values['author_name'] ?? null" hint="Leer lassen: Das Portal nimmt die Angaben aus dem Profil des Kontos, das den Artikel angelegt hat (Konto › Profil bearbeiten)" />
+            <x-vdbs.forms.checkbox name="author_box" label="Kasten „Über die Autor:in“ unter dem Artikel zeigen" :checked="(bool) ($values['author_box'] ?? false)" />
+            <x-vdbs.forms.textarea name="author_text" label="Text über die Autorin oder den Autor" :optional="true" maxlength="5000" :rows="5" :rich="true" :value="$values['author_text'] ?? null" hint="Leer lassen: Text aus dem Profil des Kontos" />
+            @if ($editing && filled($article->author_image_path))
+                <p>Aktuelles Foto: <a href="{{ route('articles.public.author-image', $article->slug) }}">ansehen</a></p>
+                <x-vdbs.forms.checkbox name="remove_author_image" label="Foto entfernen" />
+            @endif
+            <x-vdbs.forms.file name="author_image" :label="$editing && filled($article->author_image_path) ? 'Neues Foto' : 'Foto'" accept=".jpg,.jpeg,.png,.webp" :optional="true" hint="Leer lassen: Profilfoto, wenn das Konto es für Artikel freigegeben hat; sonst nur Text" />
+            <x-vdbs.forms.input name="author_image_credit" label="Bildquelle des Fotos" :optional="true" maxlength="200" :value="$values['author_image_credit'] ?? null" hint="Pflicht mit Foto" />
+        </x-vdbs.forms.form-section>
+
+        <x-vdbs.forms.form-section title="Weitere Informationen">
+            <x-vdbs.forms.textarea name="more_info" label="Kasten „Weitere Informationen“" :optional="true" maxlength="5000" :rows="5" :rich="true" :value="$values['more_info'] ?? null" hint="Erscheint unter dem Artikel, z. B. Hinweise zu einer Reihe oder weiterführende Links" />
+        </x-vdbs.forms.form-section>
+
         <x-vdbs.forms.form-section title="Veröffentlichung">
             <x-vdbs.forms.form-grid :columns="2">
-                <x-vdbs.forms.select name="status" label="Status" :required="true" :options="['draft' => 'Entwurf', 'published' => 'Veröffentlicht']" :value="$values['status'] ?? 'draft'" />
+                <x-vdbs.forms.radio-group name="status" legend="Status" :required="true" :options="['draft' => 'Entwurf', 'published' => 'Veröffentlicht']" :value="old('status', $values['status'] ?? 'draft')" />
                 <x-vdbs.forms.input name="published_at" label="Veröffentlichen ab" type="datetime-local" :optional="true" :value="$values['published_at'] ?? null" hint="Ein Datum in der Zukunft plant den Artikel" />
             </x-vdbs.forms.form-grid>
             <x-vdbs.forms.checkbox name="featured" label="Auf der Startseite empfehlen" :checked="(bool) ($values['featured'] ?? false)" />
         </x-vdbs.forms.form-section>
 
         <x-slot:actions>
-            <x-vdbs.actions.button type="submit" icon="save">Speichern</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="route('articles.admin.index')">Zurück zur Liste</x-vdbs.actions.button>
+            <x-vdbs.actions.button type="submit" name="after" value="article" icon="save">{{ $editing ? 'Speichern' : 'Erstellen' }}</x-vdbs.actions.button>
+            <x-vdbs.actions.button type="submit" name="after" value="list" variant="secondary">{{ $editing ? 'Speichern und zur Liste' : 'Erstellen und zur Liste' }}</x-vdbs.actions.button>
+            <x-vdbs.actions.button type="submit" name="after" value="new" variant="secondary">{{ $editing ? 'Speichern und weiteren erstellen' : 'Erstellen und weiteren erstellen' }}</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 

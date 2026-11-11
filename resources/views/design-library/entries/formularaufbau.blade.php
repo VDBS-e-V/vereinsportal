@@ -33,7 +33,7 @@
 
     <x-slot:actions>
         <x-vdbs.actions.button type="submit">Speichern</x-vdbs.actions.button>
-        <x-vdbs.actions.button type="reset" variant="tertiary">Zurücksetzen</x-vdbs.actions.button>
+        <x-vdbs.actions.button type="reset" variant="text">Zurücksetzen</x-vdbs.actions.button>
     </x-slot:actions>
 </x-vdbs.forms.form>
 

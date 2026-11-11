@@ -1,0 +1,31 @@
+# Stand der Lückenschließung und offene Punkte
+
+Stand: alle Pakete des Projektplans (`67_PROJEKTPLAN_LUECKEN.md`) sind umgesetzt, bis auf die unten genannten Reste. Letzter Testlauf auf dem Entwicklungsrechner: **1205 bestanden, 4 übersprungen, 0 Fehler**.
+
+## Umgesetzt (Auswahl, mit Dokumentation)
+| Paket | Inhalt | Doku |
+|---|---|---|
+| E–F | Feedback (anonym, Versionen, Auswertung, Erinnerungen), SSO/OIDC-Anbindung | 71, 72 |
+| G | Anträge (Auslagen, Fahrtkosten, Bestellungen) je Bereich, Freigaberegeln, Exporte, Kostenstelle am Seminar | 74 |
+| H | Verteiler mit Filtern, Rechte-Matrix, Grundbestand an Vorlagen und Bausteinen, Rundschreiben der Koordination | 63 |
+| I | Rollen Mitarbeitende, Geschäftsführung, Kassenführung; lokales Testen | 73, 43, 40 |
+| L | Briefvorlagen aus Word mit Platzhaltern, Erzeugen am Seminar | 77 |
+| K | Honorarvertrag: Vertragstext (versioniert), Vertragsdaten, Druckansicht, optional PDF, Scan, Abschlussliste, Erinnerung | 70 |
+
+## Offen und braucht eine Entscheidung oder Prüfung durch den Verein
+1. **Vertragstext:** Der Wortlaut der Vertragsvorlage ist eingespielt. Rechtlich prüfen lassen (Scheinselbstständigkeit).
+2. **Reisekostensatz:** Umgestellt auf das Bundesreisekostengesetz (20 Cent je km, höchstens 130 Euro je Fahrt, Einstellung änderbar).
+3. **Datenschutzerklärung:** Die Abschnitte sind Entwürfe; Datenschutzbeauftragte prüfen. Aufbewahrungsfristen (10/3 Jahre, 12 Monate Feedback, 30 Tage IBAN) sind Annahmen.
+4. **Textentwürfe:** Der Grundbestand an Mailvorlagen und Bausteinen ist ein Entwurf zur Freigabe.
+5. **Abnahme mit echten Systemen:** Nextcloud/Moodle-Anmeldung über OIDC (bisher nur durch Tests belegt), Verträge und Anträge mit echten Daten.
+6. **Vor dem Go-live:** Dependabot-Hinweise und `npm audit` prüfen, Probelauf auf dem Strato-Hosting.
+
+## Optional und nicht umgesetzt
+(Bestellung → Erstattung, Gruppe Importierte Kontakte, QR-Code auf dem Feedbackplakat sind umgesetzt.)
+- PDF-Optik der Verträge und Seminardokumente prüfen (dompdf ist jetzt in `composer.json`).
+- Arbeitszeiterfassung (Paket J) ist nur ein Ausblick.
+
+## Sicherheitsprüfung der Abhängigkeiten (Stand 08.11.2026)
+- `composer audit`: 15 Hinweise in 8 Paketen (laravel/framework, league/commonmark, livewire, symfony/html-sanitizer, http-foundation, http-kernel, mime, routing) durch Patch-Updates innerhalb der erlaubten Versionen behoben (`composer.lock`). Danach: keine Hinweise.
+- `npm audit`: 5 von 6 Hinweisen behoben (follow-redirects, shell-quote/concurrently, source-map-js, vite). Offen: **tinymce 7.9.3** (XSS über das Plugin `media`). Behoben erst in TinyMCE 8 (Hauptversion mit anderer Lizenz). Das Portal lädt nur die Plugins `lists link autolink`, das betroffene Plugin ist **nicht aktiv**; bewusst nicht aktualisiert. Beim nächsten Wechsel auf TinyMCE 8 Lizenz und Texteditor-Tests prüfen.
+- Nach dem Einspielen: `composer install`, `npm ci`, `npm run build`, `php artisan portal:update`, Tests.

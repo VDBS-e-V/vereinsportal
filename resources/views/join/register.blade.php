@@ -11,6 +11,7 @@
     </x-vdbs.data.detail-list>
 
     <x-vdbs.forms.form :action="route('join.register.store', $token)" style="margin-top:var(--space-6)">
+        <x-vdbs.forms.bot-guard />
         <x-vdbs.forms.form-section title="Passwort">
             <x-vdbs.forms.password name="password" label="Passwort" :new="true" :required="true" :rules="['Mindestens 12 Zeichen', 'Groß- und Kleinbuchstaben', 'Mindestens eine Ziffer']" />
             <x-vdbs.forms.password name="password_confirmation" label="Passwort wiederholen" :new="true" :required="true" />
@@ -23,8 +24,8 @@
                 @endif
                 <x-vdbs.forms.input name="phone" label="Telefon" type="tel" :optional="true" autocomplete="tel" />
                 <x-vdbs.forms.input name="street" label="Straße" :optional="true" autocomplete="address-line1" />
-                <x-vdbs.forms.input name="house_number" label="Hausnummer" :optional="true" />
-                <x-vdbs.forms.input name="postal_code" label="Postleitzahl" :optional="true" autocomplete="postal-code" />
+                <x-vdbs.forms.input name="house_number" label="Hausnummer" maxlength="10" :optional="true" />
+                <x-vdbs.forms.input name="postal_code" label="Postleitzahl" maxlength="10" :optional="true" autocomplete="postal-code" />
                 <x-vdbs.forms.input name="city" label="Ort" :optional="true" autocomplete="address-level2" />
             </x-vdbs.forms.form-grid>
         </x-vdbs.forms.form-section>

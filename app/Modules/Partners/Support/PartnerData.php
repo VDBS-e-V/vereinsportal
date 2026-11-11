@@ -65,7 +65,7 @@ final class PartnerData
             'contacts.*.email' => ['nullable', 'string', 'email', 'max:254'],
             'contacts.*.phone' => ['nullable', 'string', 'max:50', 'regex:/^[0-9+()\/\-.\s]+$/'],
             'primary_contact' => ['nullable', 'integer', 'min:0'],
-            'notes' => ['nullable', 'string', 'max:2000'],
+            'notes' => ['nullable', 'string', 'max:10000'],
         ];
     }
 

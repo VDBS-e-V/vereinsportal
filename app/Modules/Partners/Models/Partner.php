@@ -72,6 +72,12 @@ class Partner extends Model
         return $this->hasMany(PartnerContact::class)->orderByDesc('is_primary')->orderBy('name')->orderBy('id');
     }
 
+    /** @return HasMany<PartnerUser, $this> Konten mit der Rolle Schule */
+    public function accounts(): HasMany
+    {
+        return $this->hasMany(PartnerUser::class)->orderBy('name');
+    }
+
     /** @return BelongsTo<User, $this> */
     public function createdBy(): BelongsTo
     {

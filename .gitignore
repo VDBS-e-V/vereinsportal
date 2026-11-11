@@ -95,3 +95,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*__pycache__/
+
+# TinyMCE wird beim Build aus node_modules nach public/vendor/tinymce kopiert
+/public/vendor/tinymce
+/build

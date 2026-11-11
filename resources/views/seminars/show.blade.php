@@ -18,7 +18,7 @@
 
 <x-layouts.app :title="$seminar->title" width="wide">
     <x-vdbs.layout.page-header :title="$seminar->title" :breadcrumb="$crumbs" eyebrow="{{ $seminar->type->label() }}">
-        <x-slot:meta><x-vdbs.data.badge :tone="$seminar->status->tone()">{{ $seminar->status->label() }}</x-vdbs.data.badge></x-slot:meta>
+        <x-slot:meta>@if ($seminar->number)<x-vdbs.data.badge tone="neutral">{{ $seminar->number }}</x-vdbs.data.badge> @endif<x-vdbs.data.badge :tone="$seminar->status->tone()">{{ $seminar->status->label() }}</x-vdbs.data.badge></x-slot:meta>
 
         @if ($canManage)
             <x-slot:actions>
@@ -27,8 +27,11 @@
                 @endif
                 <x-vdbs.actions.button variant="secondary" :href="route('seminar-quotes.create', ['seminar' => $seminar->id])" icon="clipboard-list">Kostenvoranschlag berechnen</x-vdbs.actions.button>
                 <x-vdbs.actions.button variant="secondary" :href="route('seminars.edit', $seminar)" icon="pencil">Bearbeiten</x-vdbs.actions.button>
+                @can('mailings.team')
+                    <x-vdbs.actions.button variant="secondary" :href="route('mailings.team.create', ['seminar' => $seminar->id])" icon="mail">Teamende anschreiben</x-vdbs.actions.button>
+                @endcan
                 @if ($deletable)
-                    <x-vdbs.actions.button variant="danger" shape="outline" icon="trash-2" data-vdbs-dialog-open="delete-seminar">Löschen</x-vdbs.actions.button>
+                    <x-vdbs.actions.button variant="danger" icon="trash-2" data-vdbs-dialog-open="delete-seminar">Löschen</x-vdbs.actions.button>
                 @endif
             </x-slot:actions>
         @endif
@@ -40,17 +43,22 @@
         <section aria-labelledby="seminar-heading">
             <h2 id="seminar-heading" style="font-size:var(--font-size-h3)">Seminar</h2>
             <x-vdbs.data.detail-list layout="inline">
+                <x-vdbs.data.detail-item label="Nummer">{{ $seminar->number }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Titel">{{ $seminar->title }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Leistung">{{ $seminar->type->label() }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Schule"><a href="{{ route('partners.show', $seminar->partner) }}">{{ $seminar->partner->name }}</a></x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Klassenstufe">{{ $seminar->grade_level }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Erwartete Teilnehmende">{{ $seminar->expected_participants }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Anzahl Klassen oder Gruppen">{{ $seminar->classes_count }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Räume und Hinweise zum Ort">{{ $seminar->location_notes }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Kostenstelle">{{ $seminar->cost_center }}</x-vdbs.data.detail-item>
+                <x-vdbs.data.detail-item label="Verantwortliche Koordination">{{ $person($seminar->coordinator) }}</x-vdbs.data.detail-item>
                 <x-vdbs.data.detail-item label="Status">{{ $seminar->status->label() }}</x-vdbs.data.detail-item>
             </x-vdbs.data.detail-list>
 
             @if (filled($seminar->notes))
                 <h3 style="margin-top:var(--space-6);font-size:var(--font-size-h4)">Notiz</h3>
-                <p style="white-space:pre-line">{{ $seminar->notes }}</p>
+                <x-vdbs.content.prose>{!! rich_text($seminar->notes) !!}</x-vdbs.content.prose>
             @endif
 
             <p style="color:var(--text-muted);font-size:var(--font-size-small)">
@@ -90,7 +98,7 @@
                         <td>{{ $session->notes ?? '–' }}</td>
                         <td>
                             @if ($canManage)
-                                <x-vdbs.actions.button variant="danger" shape="outline" size="s" data-vdbs-dialog-open="remove-session-{{ $session->id }}">Entfernen</x-vdbs.actions.button>
+                                <x-vdbs.actions.button variant="danger-text" size="s" data-vdbs-dialog-open="remove-session-{{ $session->id }}">Entfernen</x-vdbs.actions.button>
                             @endif
                         </td>
                     </tr>
@@ -111,6 +119,28 @@
             </x-vdbs.forms.form>
         @endif
     </section>
+
+    @include('seminars._team')
+
+    @can('seminars.documents')
+        @include('seminars._documents')
+    @endcan
+
+    @can('contracts.manage')
+        @include('contracts._section')
+    @endcan
+
+    @can('letters.use')
+        @include('letters._section')
+    @endcan
+
+    @can('forms.view')
+        @include('forms._seminar_sums')
+    @endcan
+
+    @can('feedback.manage')
+        @include('seminars._feedback')
+    @endcan
 
     <section aria-labelledby="history-heading" style="margin-top:var(--space-8)">
         <h2 id="history-heading" style="font-size:var(--font-size-h3)">Verlauf</h2>

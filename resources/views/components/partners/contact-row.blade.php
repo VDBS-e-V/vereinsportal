@@ -11,6 +11,6 @@
     </x-vdbs.forms.form-grid>
     <div style="display:flex;gap:var(--space-5);align-items:center;flex-wrap:wrap">
         <label style="display:inline-flex;gap:var(--space-2);align-items:center"><input type="radio" name="primary_contact" value="{{ $i }}" @checked($primary)> Hauptansprechperson</label>
-        <button type="button" class="vdbs-btn vdbs-btn--tertiary vdbs-btn--shape-line vdbs-btn--size-s vdbs-js-only" data-vdbs-repeater-remove>Zeile entfernen</button>
+        <x-vdbs.actions.button type="button" variant="text" size="s" class="vdbs-js-only" data-vdbs-repeater-remove>Zeile entfernen</x-vdbs.actions.button>
     </div>
 </fieldset>

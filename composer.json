@@ -7,11 +7,13 @@
     "license": "MIT",
     "require": {
         "php": "^8.4.1",
+        "dompdf/dompdf": "^3.1",
         "laravel/framework": "^13.0",
         "laravel/passport": "^13.7",
         "laravel/tinker": "^3.0",
         "livewire/livewire": "^4.4",
         "livewire/volt": "^1.11",
+        "phpoffice/phpword": "^1.4",
         "symfony/html-sanitizer": "^8.1"
     },
     "require-dev": {

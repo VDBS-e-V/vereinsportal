@@ -1,7 +1,31 @@
 /* Breadcrumb */
 
-.vdbs-breadcrumb { padding-block: var(--space-3); font-size: var(--font-size-small); color: var(--text-muted); }
+.vdbs-breadcrumb { padding-block: var(--space-3); font-size: var(--font-size-small); line-height: 1.4; color: var(--text-muted); }
 
-.vdbs-breadcrumb ol { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.vdbs-breadcrumb ol { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
 
-.vdbs-breadcrumb li + li::before { content: "/"; margin-right: var(--space-2); }
+.vdbs-breadcrumb li { display: inline-flex; align-items: center; gap: var(--space-2); margin: 0; padding: 0; }
+
+/* Pfeil zwischen den Ebenen: gezeichnet (nicht als Schriftzeichen), damit er exakt auf der Mittellinie des Textes sitzt */
+.vdbs-breadcrumb li:not(:last-child)::after {
+    content: "";
+    flex: none;
+    box-sizing: border-box;
+    width: 0.45em;
+    height: 0.45em;
+    margin-inline-start: 0.1em;
+    border-top: 2px solid currentColor;
+    border-right: 2px solid currentColor;
+    transform: rotate(45deg);
+}
+
+.vdbs-breadcrumb a { color: inherit; text-decoration: none; }
+
+.vdbs-breadcrumb a:hover { text-decoration: underline; }
+
+.vdbs-breadcrumb [aria-current="page"] { text-decoration: underline; text-underline-offset: 0.2em; }
+
+/* Leiste direkt unter dem Kopfbereich: farbig abgesetzt, gehört optisch zum Header; der Inhalt liegt im Container der Seite */
+.vdbs-breadcrumb-bar { background: var(--bg-surface); border-bottom: 1px solid var(--border-default); }
+
+.vdbs-breadcrumb-bar .vdbs-breadcrumb { padding-block: var(--space-2); color: var(--text-default); }

@@ -17,6 +17,12 @@
     <a class="vdbs-skip-link" href="#inhalt">Zum Inhalt springen</a>
 
     <x-vdbs.navigation.portal-header :title="$title" />
+    @hasstack('vdbs-breadcrumb')
+        {{-- Gleiche Breite und Seitenränder wie der Seiteninhalt, damit die Brotkrumen bündig beginnen --}}
+        <div class="vdbs-breadcrumb-bar">
+            <x-vdbs.layout.container :width="$width === 'full' ? 'default' : $width">@stack('vdbs-breadcrumb')</x-vdbs.layout.container>
+        </div>
+    @endif
 
     <x-vdbs.feedback.flash />
 

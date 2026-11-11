@@ -8,6 +8,7 @@
     'count' => null,
     'active' => [],
     'resetHref' => null,
+    'search' => true,
 ])
 
 {{--
@@ -15,6 +16,7 @@
     Trefferzahl. Ein GET-Formular, die Filter stehen also in der Adresse (teilbar, mit Zurück-Knopf nutzbar).
 
     label              Beschriftung der Suche für Screenreader (role="search")
+    search             false blendet das Suchfeld aus (nur Filter)
     search-name        Name des Suchfelds (Standard q); search-label, search-placeholder
     count              Text zur Trefferzahl, z. B. "42 Nutzer" (wird bei Änderung höflich vorgelesen)
     active             Liste aus ['label' => 'Rolle: Vorstand', 'href' => 'Adresse ohne diesen Filter']
@@ -29,6 +31,7 @@
 
 <form {{ $attributes->class('vdbs-toolbar') }} method="get" role="search" aria-label="{{ $label }}" @if ($action) action="{{ $action }}" @endif>
     <div class="vdbs-toolbar__row">
+        @if ($search)
         <div class="vdbs-toolbar__search">
             <label class="vdbs-sr-only" for="{{ $searchId }}">{{ $searchLabel }}</label>
             <div class="vdbs-input-group vdbs-toolbar__group">
@@ -36,6 +39,7 @@
                 <input id="{{ $searchId }}" name="{{ $searchName }}" type="search" class="vdbs-control vdbs-control--bare" placeholder="{{ $searchPlaceholder }}" autocomplete="off" @if (is_string($current) && $current !== '') value="{{ $current }}" @endif>
             </div>
         </div>
+        @endif
 
         @if (! $slot->isEmpty())
             <div class="vdbs-toolbar__filters">{{ $slot }}</div>
@@ -44,7 +48,7 @@
         <div class="vdbs-toolbar__buttons">
             <x-vdbs.actions.button type="submit" variant="secondary" icon="filter">{{ $submit }}</x-vdbs.actions.button>
             @if ($resetHref && count($active) > 0)
-                <x-vdbs.actions.button :href="$resetHref" variant="tertiary">Zurücksetzen</x-vdbs.actions.button>
+                <x-vdbs.actions.button :href="$resetHref" variant="text">Zurücksetzen</x-vdbs.actions.button>
             @endif
         </div>
 

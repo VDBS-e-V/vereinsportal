@@ -40,7 +40,8 @@ final class RoleAssignments
         AuditLog::record(AuditEvent::RoleAssigned, $by, $user, [
             'rolle' => $role->name,
             'bis' => $endsAt?->format('d.m.Y'),
-            'kommentar' => filled($comment) ? $comment : null,
+            // Der Einsatzort von Mitarbeitenden steht im Kommentar und gehört nicht ins Protokoll.
+            'kommentar' => in_array($role->key, ['employee', 'managing_director', 'treasury'], true) ? null : (filled($comment) ? $comment : null),
         ]);
 
         Event::dispatch(new RoleGranted($user, $role, $by));

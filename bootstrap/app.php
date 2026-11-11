@@ -2,6 +2,7 @@
 
 use App\Modules\Access\Http\Middleware\EnforceTwoFactorSetup;
 use App\Modules\Access\Http\Middleware\EnsureSessionVersion;
+use App\Http\Middleware\VerifyBotGuard;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -23,6 +24,9 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Schutz öffentlicher Formulare vor automatisierten Eingaben (siehe App\Support\BotGuard\BotGuard)
+        $middleware->alias(['bot.guard' => VerifyBotGuard::class]);
+
         // Beendet Sitzungen, deren Version nicht mehr zum Konto passt (Passwortwechsel, E-Mail-Wechsel, "alle abmelden")
         $middleware->web(append: [EnsureSessionVersion::class]);
 

@@ -39,7 +39,7 @@
         <x-vdbs.forms.file name="file" label="CSV-Datei" accept=".csv,.txt,text/csv" :required="true" />
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="upload">Importieren</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="tertiary" :href="route('partners.index')">Abbrechen</x-vdbs.actions.button>
+            <x-vdbs.actions.button variant="text" :href="route('partners.index')">Abbrechen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>

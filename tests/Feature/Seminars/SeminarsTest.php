@@ -90,7 +90,7 @@ it('lets coordination, staff and board work with seminars', function () {
 
 it('shows the seminar pages in the area Koordination', function () {
     $this->actingAs(smUser(RoleKey::Coordination))->get(route('seminars.index'))
-        ->assertOk()->assertSee('Seminare')->assertSee('Preise')->assertSee('Seminar anlegen');
+        ->assertOk()->assertSee('Seminare')->assertSee('Preisliste')->assertSee('Seminar anlegen');
 });
 
 // ---------- Anlegen und Bearbeiten ----------
@@ -245,7 +245,8 @@ it('walks through the status pipeline with history entries', function () {
     $this->post(route('seminar-quotes.store'), smQuote($seminar));
     $this->post(route('seminars.status', $seminar), ['status' => 'confirmed']);
     $this->post(route('seminars.status', $seminar), ['status' => 'done']);
-    $this->post(route('seminars.status', $seminar), ['status' => 'completed']);
+    $this->post(route('seminars.status', $seminar), ['status' => 'completed'])->assertRedirect(route('seminars.closure', $seminar));
+    $this->post(route('seminars.closure.store', $seminar), ['skip_reason' => ['invoice' => 'Keine Rechnung nötig', 'team' => 'Team folgt nicht', 'evaluation' => 'Keine Auswertung', 'payments' => 'Entfällt']])->assertSessionHasNoErrors();
 
     expect($seminar->fresh()->status)->toBe(SeminarStatus::Completed)
         ->and($seminar->events()->where('type', 'status_changed')->count())->toBe(5);

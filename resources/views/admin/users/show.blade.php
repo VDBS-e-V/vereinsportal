@@ -24,7 +24,7 @@
                         <x-vdbs.actions.button type="submit" variant="secondary" icon="key-round">Passwort-Link senden</x-vdbs.actions.button>
                     </form>
                     @unless ($isSelf)
-                        <x-vdbs.actions.button variant="danger" shape="outline" icon="lock" data-vdbs-dialog-open="disable-user">Sperren</x-vdbs.actions.button>
+                        <x-vdbs.actions.button variant="danger" icon="lock" data-vdbs-dialog-open="disable-user">Sperren</x-vdbs.actions.button>
                     @endunless
                 @endif
                 @if ($deletionPending)
@@ -81,7 +81,7 @@
                 <span style="margin-left:var(--space-2)">{{ $remainingCodes }} von 10 Wiederherstellungscodes übrig</span>
             </p>
             @if ($canManage)
-                <x-vdbs.actions.button variant="danger" shape="outline" icon="shield" data-vdbs-dialog-open="reset-two-factor">Zwei-Faktor zurücksetzen</x-vdbs.actions.button>
+                <x-vdbs.actions.button variant="danger" icon="shield" data-vdbs-dialog-open="reset-two-factor">Zwei-Faktor zurücksetzen</x-vdbs.actions.button>
             @endif
         @else
             <p>Nicht eingerichtet.</p>
@@ -104,7 +104,7 @@
                         <td>{{ $assignment->comment }}</td>
                         <td>
                             @if ($canAssign)
-                                <x-vdbs.actions.button variant="danger" shape="outline" size="s" data-vdbs-dialog-open="end-role-{{ $assignment->id }}">Beenden</x-vdbs.actions.button>
+                                <x-vdbs.actions.button variant="danger-text" size="s" data-vdbs-dialog-open="end-role-{{ $assignment->id }}">Beenden</x-vdbs.actions.button>
                             @endif
                         </td>
                     </tr>

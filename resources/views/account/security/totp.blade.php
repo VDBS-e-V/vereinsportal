@@ -21,7 +21,7 @@
             <x-vdbs.forms.code name="code" label="Aktueller Code aus der App" hint="Sechs Ziffern. Der Code wechselt alle 30 Sekunden." autofocus />
             <x-slot:actions>
                 <x-vdbs.actions.button type="submit">Bestätigen und aktivieren</x-vdbs.actions.button>
-                <x-vdbs.actions.button variant="tertiary" :href="route('account.security.index')">Abbrechen</x-vdbs.actions.button>
+                <x-vdbs.actions.button variant="text" :href="route('account.security.index')">Abbrechen</x-vdbs.actions.button>
             </x-slot:actions>
         </x-vdbs.forms.form>
 

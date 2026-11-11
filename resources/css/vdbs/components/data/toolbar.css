@@ -6,6 +6,7 @@
 .vdbs-toolbar__group { width: 100%; }
 .vdbs-toolbar__filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3); }
 .vdbs-toolbar__filters .vdbs-field { min-width: 11rem; margin-bottom: 0; }
+.vdbs-toolbar__filters .vdbs-fieldset { min-width: 16rem; margin-bottom: 0; }
 .vdbs-toolbar__buttons { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
 .vdbs-toolbar__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-left: auto; }
 
