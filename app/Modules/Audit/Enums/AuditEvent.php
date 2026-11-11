@@ -108,6 +108,8 @@ enum AuditEvent: string
     case ContractSigned = 'contract.signed';
     case ContractSettingsChanged = 'contract.settings_changed';
     case ContractTemplateSaved = 'contract.template_saved';
+    case LetterTemplateSaved = 'letter.template_saved';
+    case LettersGenerated = 'letter.generated';
 
     public function label(): string
     {
@@ -197,6 +199,8 @@ enum AuditEvent: string
             self::ContractSigned => 'Vertrag unterschrieben',
             self::ContractSettingsChanged => 'Vereinsdaten für Verträge geändert',
             self::ContractTemplateSaved => 'Vertragstext geändert',
+            self::LetterTemplateSaved => 'Briefvorlage geändert',
+            self::LettersGenerated => 'Schreiben erzeugt',
         };
     }
 
@@ -224,6 +228,7 @@ enum AuditEvent: string
             self::OauthClientCreated, self::OauthClientChanged, self::OauthClientDeleted, self::OauthKeysRenewed => 'sso',
             self::FormStatusChanged, self::FormExported, self::FormSettingsChanged => 'forms',
             self::ContractsCreated, self::ContractSigned, self::ContractSettingsChanged, self::ContractTemplateSaved => 'contracts',
+            self::LetterTemplateSaved, self::LettersGenerated => 'letters',
         };
     }
 
@@ -252,6 +257,7 @@ enum AuditEvent: string
             'sso' => 'Anbindungen',
             'forms' => 'Anträge',
             'contracts' => 'Verträge',
+            'letters' => 'Briefvorlagen',
         ];
     }
 

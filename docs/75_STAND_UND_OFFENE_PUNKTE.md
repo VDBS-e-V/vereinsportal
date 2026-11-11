@@ -9,6 +9,7 @@ Stand: alle Pakete des Projektplans (`67_PROJEKTPLAN_LUECKEN.md`) sind umgesetzt
 | G | Anträge (Auslagen, Fahrtkosten, Bestellungen) je Bereich, Freigaberegeln, Exporte, Kostenstelle am Seminar | 74 |
 | H | Verteiler mit Filtern, Rechte-Matrix, Grundbestand an Vorlagen und Bausteinen, Rundschreiben der Koordination | 63 |
 | I | Rollen Mitarbeitende, Geschäftsführung, Kassenführung; lokales Testen | 73, 43, 40 |
+| L | Briefvorlagen aus Word mit Platzhaltern, Erzeugen am Seminar | 77 |
 | K | Honorarvertrag: Vertragstext (versioniert), Vertragsdaten, Druckansicht, optional PDF, Scan, Abschlussliste, Erinnerung | 70 |
 
 ## Offen und braucht eine Entscheidung oder Prüfung durch den Verein

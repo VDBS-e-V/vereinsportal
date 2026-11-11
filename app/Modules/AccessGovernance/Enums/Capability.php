@@ -128,6 +128,12 @@ enum Capability: string
     /** Den Vertragstext ändern (neue Version anlegen), nur Vorstand. */
     case ContractsTemplate = 'contracts.template';
 
+    /** Schreiben aus Word-Vorlagen erzeugen und die Vorlagen ansehen (Koordination, Geschäftsstelle, Vorstand). */
+    case LettersUse = 'letters.use';
+
+    /** Word-Vorlagen für Schreiben hochladen, ändern und löschen (Geschäftsstelle, Vorstand). */
+    case LettersManage = 'letters.manage';
+
     /** Systemsteuerung: Zustand ansehen und Aufgaben ausführen (nur Administration). */
     case SystemManage = 'system.manage';
 
