@@ -11,28 +11,39 @@
 
     <section style="margin-top:var(--space-6)">
         <h2 style="font-size:var(--font-size-h3)">Wenn-Abfragen: Textblöcke nur unter einer Bedingung</h2>
-        <p>Mit zwei Markierungen blenden Sie Text ein oder aus. Jede Markierung steht in Word **allein in einem eigenen Absatz**:</p>
-        <pre style="white-space:pre-wrap">${wenn_ansprechperson}
-Ihre Ansprechperson: ${ansprechperson}
-${/wenn_ansprechperson}</pre>
-        <p>Der Block „Ihre Ansprechperson …“ erscheint nur, wenn es eine Ansprechperson gibt. Das Gegenstück ist <code>${ohne_…}</code>:</p>
-        <pre style="white-space:pre-wrap">${ohne_ansprechperson}
-Bitte melden Sie sich bei der Geschäftsstelle.
-${/ohne_ansprechperson}</pre>
+        <p>Mit zwei Markierungen blenden Sie Text ein oder aus. Jede Markierung steht in Word <strong>allein in einem eigenen Absatz</strong>. Eine Bedingung gilt als erfüllt, wenn der Platzhalter einen Wert hat.</p>
         <ul>
-            <li><code>${wenn_NAME}</code> … <code>${/wenn_NAME}</code>: zeigt den Inhalt, wenn der Platzhalter NAME einen Wert hat (zum Beispiel <code>wenn_verguetung</code>, <code>wenn_seminar_frist</code>, <code>wenn_freitext</code>).</li>
+            <li><code>${wenn_NAME}</code> … <code>${/wenn_NAME}</code>: zeigt den Inhalt, wenn NAME einen Wert hat.</li>
             <li><code>${ohne_NAME}</code> … <code>${/ohne_NAME}</code>: zeigt den Inhalt, wenn NAME leer ist.</li>
-            <li>Für verschiedene Texte an Schulen und Personen: <code>${wenn_empfaenger_ist_schule}</code> und <code>${wenn_empfaenger_ist_person}</code>. So reicht eine Vorlage für beide.</li>
-            <li>Blöcke mit unbekanntem NAME bleiben sichtbar stehen. Gleich benannte Blöcke dürfen mehrfach vorkommen. Blöcke ineinander zu schachteln ist möglich, wenn die Namen verschieden sind.</li>
+            <li>Ein „sonst“ gibt es nicht: Setzen Sie einen <code>wenn</code>- und einen <code>ohne</code>-Block mit demselben Namen hintereinander.</li>
+            <li>Für NAME ist jeder Platzhalter aus den Tabellen unten möglich. Besonders nützlich sind die mit „Oft leer“ oder „Leer, wenn …“ im Hinweis.</li>
+            <li>Gleich benannte Blöcke dürfen mehrfach vorkommen. Blöcke ineinander zu schachteln geht nur mit verschiedenen Namen.</li>
+            <li>Ein Block mit unbekanntem NAME bleibt sichtbar stehen. So erkennen Sie Tippfehler im Namen.</li>
+            <li>Die Markierungen funktionieren im Fließtext, nicht in Tabellen, Textfeldern oder Kopf- und Fußzeilen.</li>
         </ul>
+
+        <h3 style="font-size:var(--font-size-h4);margin-top:var(--space-5)">Fertige Beispiele zum Kopieren</h3>
+        @foreach ($recipes as $recipe)
+            <div style="margin-top:var(--space-4)">
+                <strong>{{ $recipe['title'] }}</strong>
+                <p style="margin:var(--space-1) 0">{{ $recipe['purpose'] }}</p>
+                <pre style="white-space:pre-wrap">{{ implode("\n", $recipe['lines']) }}</pre>
+            </div>
+        @endforeach
     </section>
 
     @foreach ($groups as $group)
         <section style="margin-top:var(--space-6)">
             <h2 style="font-size:var(--font-size-h3)">{{ $group['label'] }}</h2>
-            <x-vdbs.data.table :caption="$group['label']" :columns="[['key' => 'name', 'label' => 'Platzhalter'], ['key' => 'meaning', 'label' => 'Bedeutung']]">
-                @foreach ($group['items'] as $name => $meaning)
-                    <tr><td><code>${{ '{'.$name.'}' }}</code></td><td>{{ $meaning }}</td></tr>
+            <p>{{ $group['intro'] }}</p>
+            <x-vdbs.data.table :caption="$group['label']" :columns="[['key' => 'name', 'label' => 'Platzhalter'], ['key' => 'meaning', 'label' => 'Bedeutung'], ['key' => 'example', 'label' => 'Beispiel'], ['key' => 'source', 'label' => 'Quelle und Hinweis']]">
+                @foreach ($group['items'] as $name => $item)
+                    <tr>
+                        <td><code>${{ '{'.$name.'}' }}</code></td>
+                        <td>{{ $item['meaning'] }}</td>
+                        <td style="white-space:pre-line">{{ $item['example'] }}</td>
+                        <td>{{ $item['source'] }}@if ($item['note'] !== '')<br><small>{{ $item['note'] }}</small>@endif</td>
+                    </tr>
                 @endforeach
             </x-vdbs.data.table>
         </section>

@@ -45,3 +45,5 @@ ${/ohne_ansprechperson}
 - Serienbriefe an Verteiler oder Mitglieder.
 - Ablegen erzeugter Schreiben als Seminar-Dokument.
 - PDF-Ausgabe (der Server kann Word nicht in PDF umwandeln; dafür öffnen Sie die Datei in Word).
+
+Ausführliche Platzhalter-Tabelle mit Beispielwerten, Quellen und allen fertigen Wenn-Beispielen: Abschnitt „Alle Platzhalter mit Beispielen“ in `docs/78_WORD_VORLAGEN_ANLEITUNG.md` und im Portal unter Briefvorlagen › Platzhalter.

@@ -246,6 +246,8 @@ it('fills the extended placeholders for school, seminar and team and hands out t
     $file = $this->get(route('letters.variables-file'))->assertOk();
     $list = ltXml($file->baseResponse->getFile()->getPathname());
 
-    expect($list)->toContain('${datum}')->toContain('${seminar_team}')->toContain('${empfaenger_ist_schule}');
-    $this->get(route('letters.variables'))->assertOk()->assertSee('Wenn-Abfragen')->assertSee('Liste als Word-Datei');
+    expect($list)->toContain('${datum}')->toContain('${seminar_team}')->toContain('${empfaenger_ist_schule}')
+        ->toContain('Beispiel:')->toContain('Quelle:')->toContain('WENN-ABFRAGEN')->toContain('${wenn_ansprechperson}');
+    $this->get(route('letters.variables'))->assertOk()->assertSee('Wenn-Abfragen')->assertSee('Liste als Word-Datei')
+        ->assertSee('Fertige Beispiele zum Kopieren')->assertSee('Honorar nur nennen, wenn bekannt')->assertSee('Quelle und Hinweis');
 });

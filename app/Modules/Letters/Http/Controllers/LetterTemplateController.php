@@ -28,7 +28,7 @@ class LetterTemplateController extends Controller
 
     public function variables(): View
     {
-        return view('letters.variables', ['groups' => LetterVariables::groups()]);
+        return view('letters.variables', ['groups' => LetterVariables::groups(), 'recipes' => LetterVariables::recipes()]);
     }
 
     public function sample(): BinaryFileResponse
@@ -45,11 +45,29 @@ class LetterTemplateController extends Controller
 
         foreach (LetterVariables::groups() as $group) {
             $lines[] = mb_strtoupper($group['label']);
+            $lines[] = $group['intro'];
+            $lines[] = '';
 
-            foreach ($group['items'] as $name => $meaning) {
-                $lines[] = '${'.$name.'}  –  '.$meaning;
+            foreach ($group['items'] as $name => $item) {
+                $lines[] = '${'.$name.'}  –  '.$item['meaning'];
+                $lines[] = '    Beispiel: '.str_replace("\n", ' / ', $item['example']);
+                $lines[] = '    Quelle: '.$item['source'];
+
+                if ($item['note'] !== '') {
+                    $lines[] = '    Hinweis: '.$item['note'];
+                }
             }
 
+            $lines[] = '';
+        }
+
+        $lines[] = 'WENN-ABFRAGEN: FERTIGE BEISPIELE';
+        $lines[] = 'Jede Markierung steht in Word allein in einem eigenen Absatz. „${wenn_NAME}“ zeigt den Block, wenn NAME gefüllt ist, „${ohne_NAME}“, wenn NAME leer ist.';
+        $lines[] = '';
+
+        foreach (LetterVariables::recipes() as $recipe) {
+            $lines[] = $recipe['title'].' – '.$recipe['purpose'];
+            array_push($lines, ...array_map(fn (string $line): string => '    '.$line, $recipe['lines']));
             $lines[] = '';
         }
 
