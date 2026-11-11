@@ -76,6 +76,21 @@ So bauen Sie ihn:
 - **Mehrere Ausfertigungen:** Wenn Sie für Schulen und Teamende verschiedene Briefe brauchen, legen Sie je eine eigene Datei an. Sie wählen beim Erzeugen die passende.
 - **Schriftarten:** Verwenden Sie Schriften, die auf den Computern der Empfänger vorhanden sind (z. B. Arial, Calibri). Für Dokumente, die nur Sie ausdrucken, ist jede Schrift in Ordnung.
 
+## 7a. Wenn-Abfragen: Text nur unter einer Bedingung
+Manche Sätze sollen nur erscheinen, wenn es etwas dazu gibt, zum Beispiel ein Hinweis auf die Ansprechperson oder das Honorar. Dafür gibt es **Blöcke mit Anfang und Ende**:
+```
+${wenn_ansprechperson}
+Ihre Ansprechperson: ${ansprechperson}
+${/wenn_ansprechperson}
+```
+Regeln:
+1. **Anfang und Ende stehen jeweils allein in einem eigenen Absatz** (nichts anderes in derselben Zeile), sonst wird der Block nicht erkannt.
+2. Der Block erscheint nur, wenn der Platzhalter hinter `wenn_` einen Wert hat. `ohne_` kehrt das um: `${ohne_ansprechperson}` … `${/ohne_ansprechperson}` erscheint nur, wenn es **keinen** Wert gibt.
+3. Anfang und Ende müssen genau gleich heißen, das Ende hat zusätzlich den Schrägstrich `/`.
+4. Eine Vorlage für Schulen und Personen: `${wenn_empfaenger_ist_schule}` zeigt Text nur bei Schreiben an Schulen, `${wenn_empfaenger_ist_person}` nur bei Schreiben an Personen.
+5. Die Leerzeilen um den Block bleiben stehen. Setzen Sie sie in den Block hinein, wenn sie mit verschwinden sollen.
+6. Ein „sonst“ gibt es nicht. Schreiben Sie zwei Blöcke hintereinander: einen mit `wenn_` und einen mit `ohne_`.
+
 ## 8. Speichern und hochladen
 1. *Datei › Speichern unter* › Dateityp **Word-Dokument (*.docx)**. Nicht „Word 97–2003“ (.doc) und nicht „Word-Dokument mit Makros“ (.docm).
 2. Im Portal: Briefvorlagen › **Neue Vorlage**. Geben Sie einen Namen ein (z. B. „Bestätigung an die Schule“), wählen Sie „Für“ (Schulen, Teamende oder Allgemein) und laden Sie die Datei hoch.
@@ -94,6 +109,7 @@ So bauen Sie ihn:
 | „Das ist keine gültige Word-Datei“ | Als .docx speichern (nicht .doc oder .docm, nicht per Umbenennen). |
 | Ein Wert erscheint leer | Für diesen Empfänger gibt es keinen Wert (zum Beispiel keine Anschrift im Profil). Das Portal lässt die Stelle leer. |
 | Logo oder Fußzeile fehlen im fertigen Brief | Sie stehen nicht in der Kopf-/Fußzeile, sondern im Brieftext, oder sind auf der falschen Seite („Erste Seite anders“). Prüfen Sie die Vorlage. |
+| Ein Block erscheint nicht oder steht noch mit `${wenn_…}` im Brief | Anfang und Ende stehen nicht allein im Absatz, heißen nicht gleich, oder das Ende hat keinen `/`. Prüfen Sie die Schreibweise und setzen Sie beide Markierungen in eigene Zeilen. |
 | Datei zu groß | Höchstens 5 MB. Verkleinern Sie das Logo: Bild anklicken › *Bildformat › Bilder komprimieren*. |
 
 ## 11. Checkliste vor dem Hochladen

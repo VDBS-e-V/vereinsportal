@@ -7,6 +7,7 @@ use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Contracts\Services\ContractSettings;
 use App\Modules\Letters\Models\LetterTemplate;
+use App\Modules\Letters\Support\LetterVariables;
 use App\Modules\Partners\Models\Partner;
 use App\Modules\Seminars\Enums\ApplicationStatus;
 use App\Modules\Seminars\Models\Seminar;
@@ -48,7 +49,7 @@ final class LetterGenerator
                 throw new DomainException('Das Seminar hat keine Schule.');
             }
 
-            $jobs[] = ['label' => $seminar->partner->name, 'values' => $this->schoolValues($seminar->partner) + $base];
+            $jobs[] = ['label' => $seminar->partner->name, 'values' => ['empfaenger_ist_schule' => '1', 'empfaenger_ist_person' => ''] + $this->schoolValues($seminar->partner) + $base];
         } else {
             $applications = collect($this->recipients($seminar))->when($applicationIds !== [], fn ($list) => $list->filter(fn (SeminarApplication $application): bool => in_array($application->id, $applicationIds, true)));
 
@@ -57,11 +58,11 @@ final class LetterGenerator
             }
 
             // Die Schule des Seminars steht auch in Schreiben an Teamende zur Verfügung (schule_name, schule_anschrift, ansprechperson)
-            $school = $seminar->partner ? array_intersect_key($this->schoolValues($seminar->partner), array_flip(['schule_name', 'schule_anschrift', 'ansprechperson'])) : ['schule_name' => '', 'schule_anschrift' => '', 'ansprechperson' => ''];
+            $school = $seminar->partner ? $this->schoolOnly($seminar->partner) : [];
 
             foreach ($applications as $application) {
                 $person = $this->personValues($application);
-                $jobs[] = ['label' => $person['empfaenger_name'], 'values' => $person + $school + $base];
+                $jobs[] = ['label' => $person['empfaenger_name'], 'values' => ['empfaenger_ist_schule' => '', 'empfaenger_ist_person' => '1'] + $person + $school + $base];
             }
         }
 
@@ -112,6 +113,7 @@ final class LetterGenerator
     {
         Settings::setOutputEscapingEnabled(false);
         $processor = new TemplateProcessor($this->templates->absolutePath($template));
+        $this->applyBlocks($processor, $values);
 
         foreach ($processor->getVariables() as $variable) {
             if (array_key_exists($variable, $values)) {
@@ -123,6 +125,34 @@ final class LetterGenerator
         $processor->saveAs($path);
 
         return $path;
+    }
+
+    /**
+     * Wenn-Blöcke: ${wenn_NAME} … ${/wenn_NAME} bleibt nur, wenn NAME einen Wert hat; ${ohne_NAME} … ${/ohne_NAME} nur, wenn NAME leer ist.
+     * Die Markierungen stehen in Word jeweils allein in einem Absatz. Gleich benannte Blöcke dürfen mehrfach vorkommen. Blöcke zu unbekannten Namen bleiben stehen.
+     *
+     * @param  array<string, string>  $values
+     */
+    private function applyBlocks(TemplateProcessor $processor, array $values): void
+    {
+        foreach ($processor->getVariables() as $variable) {
+            if (str_starts_with($variable, '/')) {
+                continue;
+            }
+
+            foreach (LetterVariables::BLOCK_PREFIXES as $prefix) {
+                if (! str_starts_with($variable, $prefix) || ! array_key_exists(substr($variable, strlen($prefix)), $values)) {
+                    continue;
+                }
+
+                $filled = trim((string) $values[substr($variable, strlen($prefix))]) !== '';
+                $show = $prefix === 'wenn_' ? $filled : ! $filled;
+
+                for ($i = 0; $i < 25 && in_array('/'.$variable, $processor->getVariables(), true); $i++) {
+                    $show ? $processor->cloneBlock($variable, 1, true, false) : $processor->deleteBlock($variable);
+                }
+            }
+        }
     }
 
     /** Maskiert für Word-XML; Zeilenumbrüche werden zu Zeilenumbrüchen in Word. */
@@ -145,6 +175,7 @@ final class LetterGenerator
             'datum' => $now->format('d.m.Y'), 'datum_lang' => $now->isoFormat('D. MMMM YYYY'), 'jahr' => $now->format('Y'),
             'betreff' => trim((string) $subject), 'freitext' => trim((string) $freitext),
             'absender_name' => (string) ($by->person?->fullName() ?: $by->email), 'absender_email' => (string) $by->email,
+            'absender_telefon' => (string) ($by->person?->phone ?? ''),
             'verein_name' => $club['club_name'], 'verein_kurz' => $club['club_short'], 'verein_vorsitz' => $club['chair'], 'verein_anschrift' => $club['address'], 'verein_ort' => $club['place'],
         ];
     }
@@ -160,6 +191,14 @@ final class LetterGenerator
             'seminar_termine' => $sessions->map(fn ($session): string => $session->period().($session->location ? ' – '.$session->location : ''))->implode("\n"),
             'seminar_erster_termin' => (string) ($first?->period() ?? ''), 'seminar_ort' => (string) ($first?->location ?? ''),
             'seminar_teilnehmende' => (string) ($seminar->expected_participants ?? ''),
+            'seminar_beginn' => $first ? $first->starts_at->format('d.m.Y') : '',
+            'seminar_ende' => $sessions->isNotEmpty() ? $sessions->last()->ends_at->format('d.m.Y') : '',
+            'seminar_tage' => (string) $sessions->map(fn ($session): string => $session->starts_at->format('Y-m-d'))->unique()->count(),
+            'seminar_stunden' => str_replace('.', ',', (string) round($sessions->sum(fn ($session): float => max(0, $session->starts_at->diffInMinutes($session->ends_at)) / 60), 1)),
+            'seminar_team' => collect($this->recipients($seminar))->map(fn (SeminarApplication $application): string => $application->applicantName())->implode(', '),
+            'seminar_koordination' => (string) ($seminar->coordinator?->person?->fullName() ?? ''),
+            'seminar_frist' => $seminar->application_deadline?->format('d.m.Y') ?? '',
+            'verguetung' => ($amount = app(\App\Modules\Contracts\Services\Contracts::class)->honorarium($seminar)) > 0 ? \App\Modules\Seminars\Support\Money::format($amount) : '',
         ];
     }
 
@@ -174,7 +213,23 @@ final class LetterGenerator
         return [
             'empfaenger_name' => (string) $partner->name, 'empfaenger_vorname' => '', 'empfaenger_nachname' => '', 'empfaenger_anschrift' => $address,
             'empfaenger_strasse' => $street, 'empfaenger_plz' => (string) $partner->postal_code, 'empfaenger_ort' => (string) $partner->city, 'empfaenger_email' => (string) ($contact?->email ?? $partner->email ?? ''),
-            'schule_name' => (string) $partner->name, 'schule_anschrift' => $address, 'ansprechperson' => (string) ($contact?->name ?? ''),
+            'empfaenger_telefon' => (string) ($contact?->phone ?? $partner->phone ?? ''),
+        ] + $this->schoolOnly($partner, $address, $contact);
+    }
+
+    /** Angaben zur Schule, die auch in Schreiben an Personen zur Verfügung stehen. @return array<string, string> */
+    private function schoolOnly(Partner $partner, ?string $address = null, mixed $contact = null): array
+    {
+        $contact ??= $partner->contacts()->first();
+        $attributes = (array) ($partner->getAttribute('attributes') ?? []);
+        $state = \App\Modules\Partners\Enums\FederalState::tryFrom((string) ($attributes['federal_state'] ?? ''));
+        $type = \App\Modules\Partners\Enums\SchoolType::tryFrom((string) ($attributes['school_type'] ?? ''));
+        $address ??= collect([trim((string) $partner->street.' '.(string) $partner->house_number), trim((string) $partner->postal_code.' '.(string) $partner->city)])->filter()->implode("\n");
+
+        return [
+            'schule_name' => (string) $partner->name, 'schule_anschrift' => $address, 'schule_telefon' => (string) ($partner->phone ?? ''), 'schule_email' => (string) ($partner->email ?? ''),
+            'schule_nummer' => (string) ($partner->internalId() ?? ''), 'schule_bundesland' => (string) ($state?->label() ?? ''), 'schule_schulart' => (string) ($type?->label() ?? ''),
+            'ansprechperson' => (string) ($contact?->name ?? ''), 'ansprechperson_email' => (string) ($contact?->email ?? ''), 'ansprechperson_telefon' => (string) ($contact?->phone ?? ''),
         ];
     }
 
@@ -193,6 +248,7 @@ final class LetterGenerator
             'empfaenger_name' => $application->applicantName(), 'empfaenger_vorname' => $first, 'empfaenger_nachname' => $last,
             'empfaenger_anschrift' => collect([$street, trim($zip.' '.$city)])->filter()->implode("\n"),
             'empfaenger_strasse' => $street, 'empfaenger_plz' => $zip, 'empfaenger_ort' => $city, 'empfaenger_email' => (string) $application->applicantEmail(),
+            'empfaenger_telefon' => (string) ($person?->phone ?? $contact?->phone ?? ''),
         ];
     }
 }

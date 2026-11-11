@@ -17,6 +17,23 @@ Wo: Koordination › **Briefvorlagen** (Recht `letters.use`: Koordination, Gesch
 ## Platzhalter
 Gruppen: Allgemein (`datum`, `datum_lang`, `jahr`, `betreff`, `freitext`), Absender (`absender_name`, `absender_email`, `verein_name`, `verein_kurz`, `verein_vorsitz`, `verein_anschrift`, `verein_ort`), Empfänger (`empfaenger_name`, `empfaenger_vorname`, `empfaenger_nachname`, `empfaenger_anschrift`, `empfaenger_strasse`, `empfaenger_plz`, `empfaenger_ort`, `empfaenger_email`), Schule (`schule_name`, `schule_anschrift`, `ansprechperson`), Seminar (`seminar_titel`, `seminar_nr`, `seminar_art`, `seminar_termine`, `seminar_erster_termin`, `seminar_ort`, `seminar_teilnehmende`). Die Vereinsdaten stammen aus Koordination › Verträge (Vereinsdaten). Ein bekannter Platzhalter ohne Wert wird leer, ein unbekannter bleibt sichtbar stehen.
 
+## Wenn-Abfragen (Textblöcke unter einer Bedingung)
+Zwei Markierungen blenden einen Textblock ein oder aus. **Jede Markierung steht in Word allein in einem eigenen Absatz:**
+```
+${wenn_ansprechperson}
+Ihre Ansprechperson: ${ansprechperson}
+${/wenn_ansprechperson}
+
+${ohne_ansprechperson}
+Bitte melden Sie sich bei der Geschäftsstelle.
+${/ohne_ansprechperson}
+```
+- `${wenn_NAME}` … `${/wenn_NAME}`: Der Inhalt bleibt nur, wenn der Platzhalter NAME einen Wert hat.
+- `${ohne_NAME}` … `${/ohne_NAME}`: Der Inhalt bleibt nur, wenn NAME leer ist.
+- NAME ist ein beliebiger Platzhalter, zum Beispiel `verguetung`, `seminar_frist`, `freitext`, `ansprechperson`.
+- Für verschiedene Texte an Schulen und Personen: `${wenn_empfaenger_ist_schule}` und `${wenn_empfaenger_ist_person}`. Eine Vorlage genügt dann für beide Empfängerarten.
+- Gleich benannte Blöcke dürfen mehrfach vorkommen. Blöcke zu unbekannten Namen bleiben sichtbar stehen (die Vorlagenverwaltung warnt davor). Nicht möglich sind Vergleiche („wenn gleich“) und „sonst“; dafür nehmen Sie ein `wenn_` und ein `ohne_` nacheinander.
+
 ## Technik
 - Bibliothek `phpoffice/phpword` (TemplateProcessor, benötigt `ext-zip`, `ext-xml`, `ext-dom`, `ext-gd`).
 - Dateien: privat unter `storage/app/private/letters/templates` (Festplatte `local`), höchstens 5 MB, nur `.docx` ohne Makros; Aufbau und Größe werden geprüft.

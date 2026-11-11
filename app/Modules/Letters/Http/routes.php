@@ -12,6 +12,7 @@ Route::middleware(['web', 'auth'])->group(function (): void {
     Route::prefix('koordination/briefvorlagen')->name('letters.')->middleware('can:letters.use')->group(function (): void {
         Route::get('/', [LetterTemplateController::class, 'index'])->name('index');
         Route::get('/platzhalter', [LetterTemplateController::class, 'variables'])->name('variables');
+        Route::get('/platzhalter/datei', [LetterTemplateController::class, 'variablesFile'])->name('variables-file');
         Route::get('/beispiel', [LetterTemplateController::class, 'sample'])->name('sample');
 
         Route::middleware('can:letters.manage')->group(function (): void {

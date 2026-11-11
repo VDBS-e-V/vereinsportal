@@ -38,6 +38,24 @@ class LetterTemplateController extends Controller
         return response()->download($path, 'Beispielvorlage_Brief.docx')->deleteFileAfterSend();
     }
 
+    /** Die Platzhalterliste als Word-Datei: zum Nachschlagen und zum Kopieren der Platzhalter in die eigene Vorlage. */
+    public function variablesFile(): BinaryFileResponse
+    {
+        $lines = ['Platzhalter für Briefvorlagen', 'Kopieren Sie einen Platzhalter und fügen Sie ihn in Word mit „Nur Text übernehmen“ ein.', ''];
+
+        foreach (LetterVariables::groups() as $group) {
+            $lines[] = mb_strtoupper($group['label']);
+
+            foreach ($group['items'] as $name => $meaning) {
+                $lines[] = '${'.$name.'}  –  '.$meaning;
+            }
+
+            $lines[] = '';
+        }
+
+        return response()->download(SampleLetter::build($lines), 'Platzhalterliste.docx')->deleteFileAfterSend();
+    }
+
     public function download(LetterTemplate $template): BinaryFileResponse
     {
         return response()->download($this->templates->absolutePath($template), $template->original_name);

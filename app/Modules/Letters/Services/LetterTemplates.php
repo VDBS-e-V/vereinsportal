@@ -74,7 +74,7 @@ final class LetterTemplates
     /** Platzhalter der Vorlage, die das Portal nicht kennt (meist Tippfehler). @param  list<string>  $variables @return list<string> */
     public function unknown(array $variables): array
     {
-        return array_values(array_diff($variables, LetterVariables::known()));
+        return array_values(array_filter($variables, fn (string $name): bool => ! in_array(LetterVariables::baseName($name), LetterVariables::known(), true)));
     }
 
     /** @throws DomainException */

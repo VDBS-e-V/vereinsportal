@@ -191,3 +191,61 @@ it('shows the letters section on the seminar page and in the navigation to those
     $this->get(route('coordination.home'))->assertOk()->assertSee('Briefvorlagen');
     $this->post(route('letters.generate', $seminar), ['template_id' => 999, 'to' => 'school'])->assertSessionHasErrors('template_id');
 });
+
+it('shows or hides blocks with if-queries by value and by recipient kind, also when a block appears twice', function () {
+    [$seminar, $applications] = ltSeminar();
+    $template = ltTemplate([
+        'Anfang',
+        '${wenn_ansprechperson}', 'Ihre Ansprechperson: ${ansprechperson}', '${/wenn_ansprechperson}',
+        '${ohne_ansprechperson}', 'Keine Ansprechperson bekannt', '${/ohne_ansprechperson}',
+        '${wenn_empfaenger_ist_schule}', 'Text nur für Schulen', '${/wenn_empfaenger_ist_schule}',
+        '${wenn_empfaenger_ist_person}', 'Text nur für Personen', '${/wenn_empfaenger_ist_person}',
+        '${wenn_freitext}', 'Zusatz eins', '${/wenn_freitext}',
+        '${wenn_freitext}', 'Zusatz zwei', '${/wenn_freitext}',
+        '${wenn_unbekannt_xyz}', 'bleibt', '${/wenn_unbekannt_xyz}',
+        'Ende',
+    ], 'Bedingungen');
+
+    expect($template->variableNames())->toContain('wenn_ansprechperson', '/wenn_ansprechperson');
+
+    $this->actingAs(ltUser(RoleKey::AdministrationStaff))->get(route('letters.edit', $template))->assertOk()->assertSee('Unbekannte Platzhalter')->assertSee('wenn_unbekannt_xyz');
+
+    $this->actingAs(ltUser(RoleKey::Coordination));
+    $school = $this->post(route('letters.generate', $seminar), ['template_id' => $template->id, 'to' => 'school'])->assertOk();
+    $xml = ltXml($school->baseResponse->getFile()->getPathname());
+
+    expect($xml)->toContain('Anfang')->toContain('Keine Ansprechperson bekannt')->toContain('Text nur für Schulen')->toContain('Ende')
+        ->not->toContain('Ihre Ansprechperson')->not->toContain('Text nur für Personen')->not->toContain('Zusatz eins')
+        ->toContain('${wenn_unbekannt_xyz}')->not->toContain('${wenn_ansprechperson}')->not->toContain('${/wenn_ansprechperson}');
+
+    \App\Modules\Partners\Models\PartnerContact::query()->create(['partner_id' => $seminar->partner_id, 'name' => 'Frau Lehmann', 'email' => 'lehmann@schule.example', 'is_primary' => true]);
+
+    $with = $this->post(route('letters.generate', $seminar), ['template_id' => $template->id, 'to' => 'school', 'freitext' => 'Etwas Text'])->assertOk();
+    $xml = ltXml($with->baseResponse->getFile()->getPathname());
+
+    expect($xml)->toContain('Ihre Ansprechperson: Frau Lehmann')->not->toContain('Keine Ansprechperson bekannt')->toContain('Zusatz eins')->toContain('Zusatz zwei');
+
+    $person = $this->post(route('letters.generate', $seminar), ['template_id' => $template->id, 'to' => 'team', 'applications' => [$applications[0]->id]])->assertOk();
+    $xml = ltXml($person->baseResponse->getFile()->getPathname());
+
+    expect($xml)->toContain('Text nur für Personen')->not->toContain('Text nur für Schulen');
+});
+
+it('fills the extended placeholders for school, seminar and team and hands out the list as a word file', function () {
+    [$seminar] = ltSeminar();
+    $partner = $seminar->partner;
+    $partner->forceFill(['phone' => '030 123456', 'email' => 'schule@beispiel.example', 'attributes' => ['federal_state' => 'BE', 'school_number' => '08K06', 'school_type' => 'gymnasium']])->save();
+    $template = ltTemplate(['${schule_telefon}|${schule_email}|${schule_nummer}|${schule_bundesland}|${schule_schulart}|${seminar_beginn}|${seminar_tage}|${seminar_stunden}|${seminar_team}'], 'Erweitert');
+    $this->actingAs(ltUser(RoleKey::Coordination));
+
+    $xml = ltXml($this->post(route('letters.generate', $seminar), ['template_id' => $template->id, 'to' => 'team'])->assertOk()->baseResponse->getFile()->getPathname());
+
+    expect($xml)->toContain('030 123456')->toContain('schule@beispiel.example')->toContain('BE/08K06')->toContain('Berlin')->toContain('Gymnasium')
+        ->toContain($seminar->sessions()->first()->starts_at->format('d.m.Y'))->toContain('|1|')->toContain('6')->toContain('Anna Alt, Ben Bunt');
+
+    $file = $this->get(route('letters.variables-file'))->assertOk();
+    $list = ltXml($file->baseResponse->getFile()->getPathname());
+
+    expect($list)->toContain('${datum}')->toContain('${seminar_team}')->toContain('${empfaenger_ist_schule}');
+    $this->get(route('letters.variables'))->assertOk()->assertSee('Wenn-Abfragen')->assertSee('Liste als Word-Datei');
+});
