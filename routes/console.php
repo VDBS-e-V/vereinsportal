@@ -51,6 +51,9 @@ Schedule::command('events:remind-schools')->daily();
 // Unbestätigte Anmeldungen zu Großveranstaltungen und Anmeldungen nach der Aufbewahrungszeit löschen.
 Schedule::command('events:prune')->daily();
 
+// Angaben externer Gäste von Vorstandssitzungen nach der Aufbewahrungszeit löschen.
+Schedule::command('board:prune-guests')->daily();
+
 // Konten anonymisieren, deren Löschung beantragt wurde und deren Wartefrist abgelaufen ist.
 Schedule::command('account:purge')->daily();
 

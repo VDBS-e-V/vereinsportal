@@ -102,7 +102,7 @@ final class BoardInvitations
 
         foreach ($guests as $guest) {
             try {
-                Mail::to($guest->email)->send(new BoardGuestInvitationMail($meeting, $guest, $club, $agenda, trim((string) $note), $ics));
+                Mail::to($guest->email)->send(new BoardGuestInvitationMail($meeting, $guest, $club, $agenda, trim((string) $note), $ics, route('pages.show', 'datenschutz'), max(1, (int) config('portal.board.guest_retention_days', 30))));
                 $guest->forceFill(['invited_at' => now()])->save();
                 $sent++;
             } catch (Throwable $exception) {

@@ -15,3 +15,5 @@ Impressum (`/impressum`), Datenschutzerklärung (`/datenschutz`), Barrierefreihe
 
 ## Entwurf der Datenschutzerklärung
 Der Standardtext der Seite „Datenschutz“ ist ein Entwurf nach den tatsächlichen Verarbeitungen des Portals (Konto, Mitgliedschaft, Seminare und Teamende, Rückmeldungen, Kostenerstattung, Honorarverträge, Rundschreiben, Anmeldung bei anderen Systemen, Rechte). Er enthält Platzhalter in eckigen Klammern ([Hoster eintragen], [E-Mail-Adresse eintragen]) und muss vom Verein ergänzt und rechtlich geprüft werden. Bearbeiten unter Geschäftsstelle › Seiten; erst dann ersetzt Ihr Text den Standard.
+
+Der Entwurf enthält auch den Abschnitt „Vorstandssitzungen und Gäste“ (siehe `docs/80_DATENSCHUTZ_VORSTANDSSITZUNGEN.md`). Bereits gespeicherte Datenschutzseiten müssen ihn von Hand erhalten.

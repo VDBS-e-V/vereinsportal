@@ -15,7 +15,7 @@ use Illuminate\Mail\Mailables\Envelope;
  */
 final class BoardGuestInvitationMail extends Mailable
 {
-    public function __construct(public readonly BoardMeeting $meeting, public readonly BoardMeetingGuest $guest, public readonly string $club, public readonly string $agenda, public readonly string $note, public readonly string $ics) {}
+    public function __construct(public readonly BoardMeeting $meeting, public readonly BoardMeetingGuest $guest, public readonly string $club, public readonly string $agenda, public readonly string $note, public readonly string $ics, public readonly string $privacyUrl = '', public readonly int $retentionDays = 30) {}
 
     public function envelope(): Envelope
     {

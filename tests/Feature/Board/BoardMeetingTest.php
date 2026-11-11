@@ -362,3 +362,47 @@ it('keeps the guest list from everyone but the board and removes guests with the
     $this->actingAs(bmUser(RoleKey::BoardMember))->delete(route('board.meetings.destroy', $meeting));
     expect(BoardMeetingGuest::query()->count())->toBe(0);
 });
+
+it('deletes guest data after the retention period but keeps the meeting', function () {
+    config(['portal.board.guest_retention_days' => 30]);
+    $old = bmMeeting(['title' => 'Alt', 'starts_at' => now()->subDays(40), 'ends_at' => now()->subDays(40)->addHours(2)]);
+    $recent = bmMeeting(['title' => 'Neulich', 'starts_at' => now()->subDays(10), 'ends_at' => now()->subDays(10)->addHours(2)]);
+    $future = bmMeeting(['title' => 'Kommend']);
+
+    foreach ([$old, $recent, $future] as $i => $meeting) {
+        $meeting->guests()->create(['name' => 'Gast '.$i, 'email' => 'gast'.$i.'@beispiel.example']);
+    }
+
+    $this->artisan('board:prune-guests', ['--dry-run' => true])->expectsOutputToContain('1 Gast')->assertSuccessful();
+    expect(BoardMeetingGuest::query()->count())->toBe(3);
+
+    $this->artisan('board:prune-guests')->assertSuccessful();
+
+    expect(BoardMeetingGuest::query()->pluck('email')->all())->toEqualCanonicalizing(['gast1@beispiel.example', 'gast2@beispiel.example'])
+        ->and(BoardMeeting::query()->count())->toBe(3);
+});
+
+it('tells guests about the processing of their data in the invitation', function () {
+    Mail::fake();
+    config(['portal.board.guest_retention_days' => 45]);
+    $this->actingAs(bmUser(RoleKey::BoardMember));
+    $this->put(route('board.meetings.invitations.toggle'), ['enabled' => 1]);
+    $meeting = bmMeeting();
+    $meeting->guests()->create(['name' => 'Gerda Gast', 'email' => 'gerda@beispiel.example', 'organization' => 'Beratung eG']);
+
+    $this->post(route('board.meetings.guests.invite', $meeting))->assertSessionHas('success');
+
+    Mail::assertSent(BoardGuestInvitationMail::class, function ($mail) {
+        $html = $mail->render();
+
+        return str_contains($html, 'Hinweis zum Datenschutz') && str_contains($html, '45 Tage nach der Sitzung') && str_contains($html, route('pages.show', 'datenschutz')) && str_contains($html, 'Beratung eG')
+            && ! str_contains($html, '/vorstand/sitzungen') && $mail->privacyUrl !== '';
+    });
+});
+
+it('mentions board meetings and guests in the default privacy statement and the guest list', function () {
+    $this->get(route('pages.show', 'datenschutz'))->assertOk()->assertSee('Vorstandssitzungen und Gäste')->assertSee('30 Tage nach der Sitzung');
+
+    $this->actingAs(bmUser(RoleKey::BoardMember));
+    $this->get(route('board.meetings.show', bmMeeting()))->assertOk()->assertSee('30 Tage nach der Sitzung automatisch gelöscht');
+});

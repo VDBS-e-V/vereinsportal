@@ -86,6 +86,14 @@ Für Anträge auf Erstattung von Auslagen und Fahrtkosten sowie für Bestellunge
 
 Für Dienstleistungsverträge mit Teamenden verarbeiten wir Name, Anschrift, Steuernummer und Bankverbindung. Die Angaben sind freiwillig im Konto gespeichert oder werden für den einzelnen Vertrag erfasst, liegen verschlüsselt und werden 10 Jahre nach dem letzten Seminartermin gelöscht (Aufbewahrungspflicht für Abrechnungsunterlagen).
 
+## Vorstandssitzungen und Gäste
+
+Der Vorstand plant seine Sitzungen im Portal. Dafür speichern wir Termin, Ort, Tagesordnung, die Anwesenheit der Vorstandsmitglieder, das Protokoll und Anhänge. Diese Angaben sieht nur der Vorstand. Protokolle bewahren wir als Vereinsunterlagen auf, solange sie für die Arbeit des Vereins nötig sind. Rechtsgrundlage ist die Organisation der Vereinsarbeit (Art. 6 Abs. 1 lit. b und f DSGVO). Die Einladung der Vorstandsmitglieder per E-Mail enthält eine Kalenderdatei; sie ist abschaltbar, und einzelne Mitglieder können sie in ihrem Konto abstellen.
+
+Für externe Gäste einer Sitzung speichern wir Name, E-Mail-Adresse und gegebenenfalls Ihre Organisation, damit der Vorstand Sie einladen kann (Art. 6 Abs. 1 lit. f DSGVO, unser Interesse an der Durchführung der Sitzung). Die Angaben tragen Vorstandsmitglieder ein, sie stammen aus dem Kontakt mit Ihnen. Gäste haben keinen Zugang zum Portal. Jeder Gast erhält die Einladung einzeln, ohne dass andere Gäste die Adresse sehen; die Tagesordnung steht nur in der E-Mail, wenn der Vorstand sie ausdrücklich mitsendet. Wir löschen die Angaben der Gäste 30 Tage nach der Sitzung automatisch; auf Wunsch löschen wir sie sofort. Wenn Ihr Name im Protokoll vorkommt, bleibt das Protokoll als Vereinsunterlage bestehen.
+
+Der Kalender der Vorstandssitzungen kann als Abo in Kalenderprogrammen genutzt werden. Die geheime Abo-Adresse enthält nur Titel, Zeit, Ort und gegebenenfalls den Link zur Videokonferenz, nie Tagesordnung oder Protokoll. Der Vorstand kann die Adresse jederzeit erneuern; die alte Adresse funktioniert dann nicht mehr.
+
 ## E-Mails und Rundschreiben
 
 Wir schreiben Ihnen E-Mails, die für Ihre Rolle nötig sind (zum Beispiel Einladungen zur Mitgliederversammlung, Hinweise zu Seminaren). Mitteilungen an Teamende, Schulen und Kontakte können Sie über den Link in der E-Mail oder in Ihren Einstellungen abbestellen. Vereinspost an Mitglieder (zum Beispiel die Einladung zur Versammlung) ist von der Abmeldung ausgenommen, weil der Verein dazu verpflichtet ist. Die Zustelllisten (Adressen und Zustellstatus) löschen wir nach 90 Tagen; Texte und Zahlen der Schreiben bleiben ohne Empfängerliste erhalten.

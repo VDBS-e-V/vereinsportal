@@ -44,7 +44,7 @@
 
     <section aria-labelledby="guests-heading" style="margin-top:var(--space-6)">
         <h2 id="guests-heading" style="font-size:var(--font-size-h3)">Externe Gäste</h2>
-        <p>Gäste ohne Portalkonto, zum Beispiel Beratende oder Partner. Sie erhalten nur die Einladung per E-Mail, keinen Zugang zum Portal.</p>
+        <p>Gäste ohne Portalkonto, zum Beispiel Beratende oder Partner. Sie erhalten nur die Einladung per E-Mail, keinen Zugang zum Portal. Name, E-Mail-Adresse und Organisation werden {{ max(1, (int) config('portal.board.guest_retention_days', 30)) }} Tage nach der Sitzung automatisch gelöscht; die Einladung enthält einen Datenschutzhinweis.</p>
         @if ($meeting->guests->isEmpty())
             <p>Noch keine Gäste eingetragen.</p>
         @else
