@@ -215,7 +215,6 @@ it('keeps the pages protected by their capability even when the area is visible'
     $this->actingAs($staff)->get(route('admin.audit.index'))->assertForbidden();
 });
 
-
 // ---------- Start: öffentlich ----------
 
 it('serves the public start pages to guests', function () {
@@ -282,7 +281,6 @@ it('renders a submenu for entries with children', function () {
         ->and(array_column($result[0]['children'], 'label'))->toBe(['Kind'])
         ->and($result[0]['children'][0]['current'])->toBeTrue();
 });
-
 
 it('restricts the design library to administration and board', function () {
     $this->actingAs(pnUser(RoleKey::AdministrationStaff))->get(route('design-library.index'))->assertForbidden();

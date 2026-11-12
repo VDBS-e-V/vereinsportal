@@ -1,7 +1,9 @@
 <?php
 
+use App\Modules\System\Services\SystemChecks;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
@@ -9,7 +11,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Herzschlag des Planers: Die Systemsteuerung zeigt daran, ob der Cron-Eintrag läuft.
-Schedule::call(fn () => \Illuminate\Support\Facades\Cache::forever(\App\Modules\System\Services\SystemChecks::HEARTBEAT_KEY, time()))->name('system-heartbeat')->everyMinute();
+Schedule::call(fn () => Cache::forever(SystemChecks::HEARTBEAT_KEY, time()))->name('system-heartbeat')->everyMinute();
 
 // Geplante Schreiben an Gruppen starten, wenn ihr Zeitpunkt erreicht ist.
 Schedule::command('mailings:dispatch-due')->everyMinute();

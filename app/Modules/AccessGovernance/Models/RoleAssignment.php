@@ -2,8 +2,8 @@
 
 namespace App\Modules\AccessGovernance\Models;
 
-use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\Access\Models\User;
+use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 

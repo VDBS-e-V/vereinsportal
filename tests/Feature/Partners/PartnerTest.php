@@ -5,10 +5,11 @@ use App\Modules\Partners\Enums\PartnerStatus;
 use App\Modules\Partners\Enums\PartnerType;
 use App\Modules\Partners\Models\Partner;
 use App\Modules\People\Models\Person;
+use Illuminate\Support\Str;
 
 it('stores a school partner with typ-specific attributes', function () {
     $partner = Partner::query()->create([
-        'public_id' => (string) Illuminate\Support\Str::ulid(),
+        'public_id' => (string) Str::ulid(),
         'type' => PartnerType::School,
         'name' => 'Gesamtschule Musterstadt',
         'status' => PartnerStatus::Active,
@@ -30,7 +31,7 @@ it('has several contact persons, each free text or linked to a known person', fu
     $person = Person::factory()->create();
 
     $partner = Partner::query()->create([
-        'public_id' => (string) Illuminate\Support\Str::ulid(),
+        'public_id' => (string) Str::ulid(),
         'type' => PartnerType::School,
         'name' => 'Schule A',
     ]);
@@ -48,7 +49,7 @@ it('has several contact persons, each free text or linked to a known person', fu
 
 it('defaults to active status', function () {
     $partner = Partner::query()->create([
-        'public_id' => (string) Illuminate\Support\Str::ulid(),
+        'public_id' => (string) Str::ulid(),
         'type' => PartnerType::School,
         'name' => 'Schule C',
     ]);
@@ -60,7 +61,7 @@ it('tracks who created and last updated the partner record', function () {
     $staff = User::factory()->create();
 
     $partner = Partner::query()->create([
-        'public_id' => (string) Illuminate\Support\Str::ulid(),
+        'public_id' => (string) Str::ulid(),
         'type' => PartnerType::School,
         'name' => 'Schule D',
         'created_by_user_id' => $staff->id,

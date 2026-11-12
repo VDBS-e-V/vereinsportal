@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Middleware\VerifyBotGuard;
 use App\Modules\Access\Http\Middleware\EnforceTwoFactorSetup;
 use App\Modules\Access\Http\Middleware\EnsureSessionVersion;
-use App\Http\Middleware\VerifyBotGuard;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;

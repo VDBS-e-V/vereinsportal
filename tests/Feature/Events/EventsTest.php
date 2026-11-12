@@ -9,6 +9,8 @@ use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\Events\Enums\EventStatus;
 use App\Modules\Events\Mail\EventConfirmMail;
 use App\Modules\Events\Mail\EventRegisteredMail;
+use App\Modules\Events\Mail\EventReminderMail;
+use App\Modules\Events\Mail\EventWaitlistedMail;
 use App\Modules\Events\Models\Event;
 use App\Modules\Events\Models\EventAttendance;
 use App\Modules\Events\Models\EventRegistration;
@@ -18,6 +20,7 @@ use App\Modules\People\Models\Person;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 
 beforeEach(function () {
     $this->withoutVite();
@@ -111,7 +114,7 @@ it('rejects unsigned and expired confirmation links', function () {
     $this->get(route('events.public.confirm', $registration))->assertForbidden();
 
     $registration->forceFill(['created_at' => now()->subHours(49)])->save();
-    $url = \Illuminate\Support\Facades\URL::temporarySignedRoute('events.public.confirm', now()->addHour(), ['registration' => $registration->id]);
+    $url = URL::temporarySignedRoute('events.public.confirm', now()->addHour(), ['registration' => $registration->id]);
 
     $this->get($url)->assertOk()->assertSee('nicht mehr gültig');
     expect($registration->fresh()->isConfirmed())->toBeFalse();
@@ -352,7 +355,7 @@ it('puts registrations on the waitlist when the event is full and the waitlist i
     $service->confirm($ben);
 
     Mail::assertSent(EventRegisteredMail::class, fn (EventRegisteredMail $mail): bool => $mail->hasTo('mia@example.org') && ! $mail->promoted);
-    Mail::assertSent(\App\Modules\Events\Mail\EventWaitlistedMail::class, fn ($mail): bool => $mail->hasTo('ben@example.org'));
+    Mail::assertSent(EventWaitlistedMail::class, fn ($mail): bool => $mail->hasTo('ben@example.org'));
     Mail::assertNotSent(EventRegisteredMail::class, fn (EventRegisteredMail $mail): bool => $mail->hasTo('ben@example.org'));
 
     expect($event->fresh()->confirmedCount())->toBe(1)->and($event->fresh()->waitlistCount())->toBe(1)->and($event->fresh()->takenSpots())->toBe(1);
@@ -384,7 +387,7 @@ it('lets people cancel with the signed link and moves the first waiting person u
     $this->get($cancelUrl)->assertOk()->assertSee('abmelden');
     expect(EventRegistration::query()->count())->toBe(3);
 
-    $this->post(\Illuminate\Support\Facades\URL::signedRoute('events.public.cancel.store', ['registration' => $mia->id]))->assertOk()->assertSee('abgemeldet');
+    $this->post(URL::signedRoute('events.public.cancel.store', ['registration' => $mia->id]))->assertOk()->assertSee('abgemeldet');
 
     expect(EventRegistration::query()->where('name', 'Mia Beispiel')->exists())->toBeFalse()
         ->and(EventRegistration::query()->where('name', 'Ben Muster')->value('waitlisted'))->toBeFalse()
@@ -447,8 +450,8 @@ it('reminds confirmed registrations once before the first session', function () 
     Mail::assertNothingSent();
 
     $this->artisan('events:remind')->expectsOutputToContain('Erinnerungen: 1')->assertSuccessful();
-    Mail::assertSent(\App\Modules\Events\Mail\EventReminderMail::class, 1);
-    Mail::assertSent(\App\Modules\Events\Mail\EventReminderMail::class, fn ($mail): bool => $mail->hasTo('mia'.$soon->id.'@example.org') && str_contains($mail->cancelUrl, 'abmelden'));
+    Mail::assertSent(EventReminderMail::class, 1);
+    Mail::assertSent(EventReminderMail::class, fn ($mail): bool => $mail->hasTo('mia'.$soon->id.'@example.org') && str_contains($mail->cancelUrl, 'abmelden'));
 
     $this->artisan('events:remind')->expectsOutputToContain('Erinnerungen: 0')->assertSuccessful();
 });

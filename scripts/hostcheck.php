@@ -29,7 +29,7 @@ if ($KEY === 'HIER-EIN-EIGENES-PASSWORT-EINTRAGEN' || strlen($KEY) < 12) {
     exit('Bitte zuerst in der Datei bei $KEY ein eigenes Passwort mit mindestens 12 Zeichen eintragen.');
 }
 
-if (!isset($_GET['key']) || !hash_equals($KEY, (string) $_GET['key'])) {
+if (! isset($_GET['key']) || ! hash_equals($KEY, (string) $_GET['key'])) {
     http_response_code(403);
     exit('Zugriff verweigert.');
 }
@@ -61,6 +61,7 @@ foreach ($wanted as $ext => $why) {
 $toBytes = function (string $v): int {
     $v = trim($v);
     $n = (int) $v;
+
     return match (strtolower(substr($v, -1))) {
         'g' => $n * 1024 ** 3,
         'm' => $n * 1024 ** 2,
@@ -81,7 +82,7 @@ $disabled = array_filter(array_map('trim', explode(',', (string) ini_get('disabl
 $add('Grenzwerte', 'gesperrte Funktionen', 'info', $disabled === [] ? 'keine' : implode(', ', $disabled));
 
 foreach (['proc_open', 'exec', 'shell_exec'] as $fn) {
-    $add('Funktionen', $fn, 'info', in_array($fn, $disabled, true) || !function_exists($fn) ? 'gesperrt (das Portal braucht sie nicht)' : 'verfügbar');
+    $add('Funktionen', $fn, 'info', in_array($fn, $disabled, true) || ! function_exists($fn) ? 'gesperrt (das Portal braucht sie nicht)' : 'verfügbar');
 }
 
 $add('Funktionen', 'dns_get_record', function_exists('dns_get_record') ? 'ok' : 'warnung', function_exists('dns_get_record') ? 'vorhanden (Absenderprüfung SPF/DMARC möglich)' : 'fehlt (Absenderprüfung nicht möglich)');
@@ -90,7 +91,7 @@ $add('Funktionen', 'allow_url_fopen', 'info', ini_get('allow_url_fopen') ? 'an' 
 
 if (extension_loaded('gd')) {
     $info = gd_info();
-    $add('Bilder', 'GD', 'ok', 'JPEG: '.(!empty($info['JPEG Support']) ? 'ja' : 'nein').', PNG: '.(!empty($info['PNG Support']) ? 'ja' : 'nein').', WebP: '.(!empty($info['WebP Support']) ? 'ja' : 'nein'));
+    $add('Bilder', 'GD', 'ok', 'JPEG: '.(! empty($info['JPEG Support']) ? 'ja' : 'nein').', PNG: '.(! empty($info['PNG Support']) ? 'ja' : 'nein').', WebP: '.(! empty($info['WebP Support']) ? 'ja' : 'nein'));
 }
 
 // Schreibrechte
@@ -107,7 +108,7 @@ $tmp = sys_get_temp_dir();
 $add('Dateien', 'Temp-Ordner', is_writable($tmp) ? 'ok' : 'warnung', $tmp.(is_writable($tmp) ? ' (beschreibbar)' : ' (nicht beschreibbar)'));
 
 // Verbindung
-$https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+$https = (! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
 $add('Verbindung', 'HTTPS', $https ? 'ok' : 'fehler', $https ? 'aktiv' : 'NICHT aktiv: Zertifikat im Kundenmenü aktivieren und Weiterleitung auf HTTPS einstellen');
 $add('Verbindung', 'Server', 'info', (string) ($_SERVER['SERVER_SOFTWARE'] ?? 'unbekannt'));
 $add('Verbindung', 'mod_rewrite', 'info', function_exists('apache_get_modules') ? (in_array('mod_rewrite', apache_get_modules(), true) ? 'an' : 'AUS') : 'nicht ermittelbar (bei Strato üblicherweise an)');
@@ -119,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['dbhost'])) {
     try {
         $pdo = new PDO('mysql:host='.$_POST['dbhost'].';dbname='.$_POST['dbname'].';charset=utf8mb4', (string) $_POST['dbuser'], (string) $_POST['dbpass'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 5]);
         $version = (string) $pdo->query('SELECT VERSION()')->fetchColumn();
-        $sql = "SELECT @@sql_mode AS m, @@character_set_server AS c";
+        $sql = 'SELECT @@sql_mode AS m, @@character_set_server AS c';
         $info = $pdo->query($sql)->fetch(PDO::FETCH_ASSOC);
         $dbResult = ['ok', 'Verbunden. Version: '.$version.' · Zeichensatz: '.$info['c'].' · Modus: '.substr((string) $info['m'], 0, 80)];
     } catch (Throwable $e) {
@@ -167,9 +168,9 @@ echo "</table>\n";
 ?>
 <h2>Datenbank prüfen (optional)</h2>
 <p>Nur über HTTPS benutzen. Die Eingaben werden nicht gespeichert und nicht angezeigt.</p>
-<?php if ($dbResult): ?>
+<?php if ($dbResult) { ?>
 <div class="box" style="border-color:<?= $colors[$dbResult[0]] ?>"><strong style="color:<?= $colors[$dbResult[0]] ?>"><?= h($labels[$dbResult[0]]) ?>:</strong> <?= h($dbResult[1]) ?></div>
-<?php endif; ?>
+<?php } ?>
 <form method="post" action="?key=<?= h(rawurlencode((string) $_GET['key'])) ?>" autocomplete="off">
 <label>Server (Host)<br><input name="dbhost" required></label><br>
 <label>Datenbankname<br><input name="dbname" required></label><br>

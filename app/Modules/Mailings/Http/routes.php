@@ -6,11 +6,13 @@ use App\Modules\Mailings\Http\Controllers\MailingAttachmentController;
 use App\Modules\Mailings\Http\Controllers\MailingProgressController;
 use App\Modules\Mailings\Http\Controllers\MailSegmentController;
 use App\Modules\Mailings\Http\Controllers\MailSnippetController;
-use App\Modules\Mailings\Http\Controllers\MailWebhookController;
 use App\Modules\Mailings\Http\Controllers\MailTemplateController;
+use App\Modules\Mailings\Http\Controllers\MailWebhookController;
 use App\Modules\Mailings\Http\Controllers\SuppressionController;
-use App\Modules\Mailings\Http\Controllers\UnsubscribeController;
 use App\Modules\Mailings\Http\Controllers\TeamMailingController;
+use App\Modules\Mailings\Http\Controllers\UnsubscribeController;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -93,7 +95,7 @@ Route::middleware(['web', 'auth', 'can:mail_templates.manage'])->prefix('geschae
  */
 Route::middleware(['web', 'throttle:60,1'])->prefix('abmelden')->name('mailings.unsubscribe.')->group(function (): void {
     Route::get('/{token}', [UnsubscribeController::class, 'show'])->where('token', '[A-Za-z0-9_\-]+')->name('show');
-    Route::post('/{token}', [UnsubscribeController::class, 'store'])->where('token', '[A-Za-z0-9_\-]+')->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class, \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])->name('store');
+    Route::post('/{token}', [UnsubscribeController::class, 'store'])->where('token', '[A-Za-z0-9_\-]+')->withoutMiddleware([PreventRequestForgery::class, VerifyCsrfToken::class])->name('store');
     Route::post('/{token}/anmelden', [UnsubscribeController::class, 'resubscribe'])->where('token', '[A-Za-z0-9_\-]+')->name('resubscribe');
 });
 

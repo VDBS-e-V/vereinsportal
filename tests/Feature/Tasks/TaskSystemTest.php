@@ -1,21 +1,22 @@
 <?php
 
 use App\Modules\Access\Models\User;
+use App\Modules\Access\Services\NotificationPreferences;
 use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\People\Models\Person;
-use App\Modules\Tasks\Models\Task;
-use App\Modules\Tasks\Models\TaskComment;
-use App\Modules\Tasks\Models\TaskProject;
-use App\Modules\Tasks\Services\TaskProjects;
+use App\Modules\System\Services\SystemTasks;
 use App\Modules\Tasks\Mail\TaskAssignedMail;
 use App\Modules\Tasks\Mail\TaskDueMail;
+use App\Modules\Tasks\Models\Task;
 use App\Modules\Tasks\Models\TaskAttachment;
-use App\Modules\Tasks\Models\TaskLabel;
+use App\Modules\Tasks\Models\TaskComment;
+use App\Modules\Tasks\Models\TaskProject;
 use App\Modules\Tasks\Models\TaskTemplate;
+use App\Modules\Tasks\Services\TaskProjects;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -617,7 +618,7 @@ it('sends assignment mails only to people who switched them on', function () {
 
 it('lets each person decide about task mails and keeps them off by default', function () {
     $user = tkUser(RoleKey::Coordination);
-    $prefs = app(\App\Modules\Access\Services\NotificationPreferences::class);
+    $prefs = app(NotificationPreferences::class);
 
     expect($prefs->allows($user, 'task_assigned'))->toBeFalse()->and($prefs->allows($user, 'task_due'))->toBeFalse()->and($prefs->allows($user, 'new_applications'))->toBeTrue()
         ->and($prefs->filter([$user], 'task_due'))->toBe([])->and($prefs->filter([$user], 'board_meetings'))->toHaveCount(1);
@@ -663,7 +664,7 @@ it('reminds opted-in people once about due and overdue tasks', function () {
 
 it('lists the reminder command among the system tasks and registers it for the browser', function () {
     expect(array_key_exists('tasks:remind', Artisan::all()))->toBeTrue()
-        ->and(collect(app(\App\Modules\System\Services\SystemTasks::class)->all())->pluck('command')->contains('tasks:remind'))->toBeTrue();
+        ->and(collect(app(SystemTasks::class)->all())->pluck('command')->contains('tasks:remind'))->toBeTrue();
 });
 
 it('renders the kanban board with the design system components and without inline scripts', function () {

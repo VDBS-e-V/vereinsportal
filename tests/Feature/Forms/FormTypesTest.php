@@ -1,14 +1,17 @@
 <?php
 
 use App\Modules\Access\Models\User;
+use App\Modules\Access\Services\AccountDeletion;
 use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
+use App\Modules\Forms\Models\CostCenter;
 use App\Modules\Forms\Models\FormApplication;
 use App\Modules\Forms\Services\FormApplications;
 use App\Modules\Forms\Services\FormSettings;
 use App\Modules\People\Models\Person;
+use App\Modules\System\Services\SystemTasks;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -200,7 +203,7 @@ it('exports booking lines per position and a summary per cost center', function 
     $user = ftUser();
     $staff = ftUser(RoleKey::AdministrationStaff);
     $service = app(FormApplications::class);
-    \App\Modules\Forms\Models\CostCenter::query()->create(['code' => 'KS1', 'name' => 'Test', 'active' => true]);
+    CostCenter::query()->create(['code' => 'KS1', 'name' => 'Test', 'active' => true]);
 
     $trip = ftTravel($user, ['km' => '100'], null, ['cost_center' => 'KS1'], 'employee');
     $service->submit($trip, $user);
@@ -257,7 +260,7 @@ it('keeps applications but removes the name and bank details when the account is
     $application = ftTravel($user, ['km' => '10']);
     app(FormApplications::class)->submit($application, $user);
 
-    app(\App\Modules\Access\Services\AccountDeletion::class)->anonymize($user);
+    app(AccountDeletion::class)->anonymize($user);
 
     $fresh = $application->fresh();
     expect($fresh)->not->toBeNull()->and($fresh->applicant_name)->toBe('Gelöschte Person')->and($fresh->applicant_email)->toBeNull()->and($fresh->iban_encrypted)->toBeNull();
@@ -265,7 +268,7 @@ it('keeps applications but removes the name and bank details when the account is
 
 it('schedules the cleanup daily and offers it in the system tasks', function () {
     expect(file_get_contents(base_path('routes/console.php')))->toContain("Schedule::command('forms:prune')->daily()")
-        ->and(app(\App\Modules\System\Services\SystemTasks::class)->find('antraege-aufraeumen')['command'])->toBe('forms:prune');
+        ->and(app(SystemTasks::class)->find('antraege-aufraeumen')['command'])->toBe('forms:prune');
 });
 
 it('offers all three types to employees and lets them start each', function () {

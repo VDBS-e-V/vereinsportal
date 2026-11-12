@@ -10,6 +10,7 @@ use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\People\Models\Person;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Support\Facades\DB;
 
 beforeEach(function () {
     $this->withoutVite();
@@ -57,14 +58,14 @@ it('ignores keys that do not belong to the account and unknown keys', function (
     $user = nsUser(RoleKey::Coordination);
     $this->actingAs($user)->put(route('account.notifications.update'), ['notifications' => ['new_applications', 'erfunden']]);
 
-    expect(\Illuminate\Support\Facades\DB::table('notification_preferences')->where('user_id', $user->id)->pluck('key')->all())->toContain('school_requests')->toContain('seminar_deadline')->not->toContain('new_applications')->not->toContain('erfunden')
+    expect(DB::table('notification_preferences')->where('user_id', $user->id)->pluck('key')->all())->toContain('school_requests')->toContain('seminar_deadline')->not->toContain('new_applications')->not->toContain('erfunden')
         ->and(app(NotificationPreferences::class)->allows($user, 'erfunden'))->toBeTrue();
 });
 
 it('filters recipients by their choice and keeps mandatory mails out of the catalog', function () {
     $wants = nsUser(RoleKey::Coordination);
     $declines = nsUser(RoleKey::Coordination);
-    \Illuminate\Support\Facades\DB::table('notification_preferences')->insert(['user_id' => $declines->id, 'key' => 'school_requests', 'enabled' => false, 'created_at' => now(), 'updated_at' => now()]);
+    DB::table('notification_preferences')->insert(['user_id' => $declines->id, 'key' => 'school_requests', 'enabled' => false, 'created_at' => now(), 'updated_at' => now()]);
 
     $kept = app(NotificationPreferences::class)->filter([$wants, $declines], 'school_requests');
 

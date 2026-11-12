@@ -13,6 +13,7 @@ use App\Modules\Mailings\Services\Mailings;
 use App\Modules\People\Models\Person;
 use App\Modules\System\Services\SystemChecks;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 
@@ -232,7 +233,7 @@ it('deletes old delivery lists after the retention period but keeps subject, tex
 });
 
 it('schedules the prune command daily', function () {
-    $event = collect(app(Illuminate\Console\Scheduling\Schedule::class)->events())->first(fn ($e) => str_contains((string) $e->command, 'mailings:prune'));
+    $event = collect(app(Schedule::class)->events())->first(fn ($e) => str_contains((string) $e->command, 'mailings:prune'));
 
     expect($event)->not->toBeNull()->and($event->expression)->toBe('0 0 * * *');
 });

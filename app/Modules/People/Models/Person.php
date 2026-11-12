@@ -3,6 +3,7 @@
 namespace App\Modules\People\Models;
 
 use App\Modules\Access\Models\User;
+use App\Modules\Membership\Models\Membership;
 use Database\Factories\PersonFactory;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -54,10 +55,10 @@ class Person extends Model
         return $this->hasOne(User::class);
     }
 
-    /** @return HasMany<\App\Modules\Membership\Models\Membership, $this> */
+    /** @return HasMany<Membership, $this> */
     public function memberships(): HasMany
     {
-        return $this->hasMany(\App\Modules\Membership\Models\Membership::class);
+        return $this->hasMany(Membership::class);
     }
 
     public function fullName(): string

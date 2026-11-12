@@ -3,7 +3,6 @@
 /**
  * Dunkelmodus (neutrales Graphit, Lila und Grün nur als Akzent): Werte und Kontraste der Tokens (docs/60_BUTTONS_KRITERIEN.md).
  */
-
 function dmTokens(): string
 {
     return (string) file_get_contents(resource_path('css/vdbs/tokens.css'));

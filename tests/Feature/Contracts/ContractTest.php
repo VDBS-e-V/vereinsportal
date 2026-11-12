@@ -6,9 +6,9 @@ use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Audit\Models\AuditEntry;
+use App\Modules\Contracts\Mail\ContractScanReminderMail;
 use App\Modules\Contracts\Models\ContractorProfile;
 use App\Modules\Contracts\Models\SeminarContract;
-use App\Modules\Contracts\Services\Contracts;
 use App\Modules\Contracts\Services\ContractTexts;
 use App\Modules\People\Models\Person;
 use App\Modules\Seminars\Enums\SeminarStatus;
@@ -17,11 +17,14 @@ use App\Modules\Seminars\Models\SeminarApplication;
 use App\Modules\Seminars\Models\SeminarDocument;
 use App\Modules\Seminars\Models\SeminarPriceList;
 use App\Modules\Seminars\Models\SeminarQuote;
+use App\Modules\Seminars\Models\SeminarSession;
 use App\Modules\Seminars\Services\SeminarAdministration;
 use App\Modules\Seminars\Services\SeminarClosures;
 use Database\Seeders\RoleSeeder;
+use Dompdf\Dompdf;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
@@ -243,7 +246,7 @@ it('offers the pdf only when the package exists and explains it otherwise', func
 
     $page = $this->get(route('contracts.show', [$seminar, $contract]))->assertOk();
 
-    if (class_exists(\Dompdf\Dompdf::class)) {
+    if (class_exists(Dompdf::class)) {
         $page->assertSee('Als PDF herunterladen');
         $this->get(route('contracts.show', [$seminar, $contract, 'format' => 'pdf']))->assertOk()->assertHeader('Content-Type', 'application/pdf');
     } else {
@@ -253,21 +256,21 @@ it('offers the pdf only when the package exists and explains it otherwise', func
 });
 
 it('reminds the coordination once about missing scans three days after the last session and shows the leader rate', function () {
-    \Illuminate\Support\Facades\Mail::fake();
+    Mail::fake();
     [$seminar] = ctrSeminar(2);
     $coordination = ctrUser(RoleKey::Coordination);
     $this->actingAs($coordination)->post(route('contracts.store', $seminar), ['all' => 1]);
 
     $this->artisan('contracts:remind')->assertSuccessful();
-    \Illuminate\Support\Facades\Mail::assertNothingSent();
+    Mail::assertNothingSent();
 
-    \App\Modules\Seminars\Models\SeminarSession::query()->where('seminar_id', $seminar->id)->update(['starts_at' => now()->subDays(6)->setTime(9, 0), 'ends_at' => now()->subDays(6)->setTime(15, 0)]);
+    SeminarSession::query()->where('seminar_id', $seminar->id)->update(['starts_at' => now()->subDays(6)->setTime(9, 0), 'ends_at' => now()->subDays(6)->setTime(15, 0)]);
     $this->artisan('contracts:remind')->assertSuccessful();
-    \Illuminate\Support\Facades\Mail::assertSent(\App\Modules\Contracts\Mail\ContractScanReminderMail::class, fn ($mail) => $mail->hasTo($coordination->email) && $mail->open === 2);
+    Mail::assertSent(ContractScanReminderMail::class, fn ($mail) => $mail->hasTo($coordination->email) && $mail->open === 2);
 
     $this->artisan('contracts:remind')->assertSuccessful();
     // zwei Personen mit der Rolle Koordination (eine legt das Hilfsmittel für den Termin an): je eine Mail, kein zweiter Durchgang
-    \Illuminate\Support\Facades\Mail::assertSentCount(2);
+    Mail::assertSentCount(2);
 });
 
 it('lets the coordination mark the seminar lead and adds the leader rate to that contract only', function () {

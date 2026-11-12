@@ -4,9 +4,9 @@ namespace App\Modules\People\Services;
 
 use App\Modules\Access\Models\User;
 use App\Modules\AccessGovernance\Services\UserAdministration;
-use App\Modules\People\Models\Person;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
+use App\Modules\People\Models\Person;
 use DomainException;
 
 /** Verwaltungsaktionen an Personen: anlegen, ändern, löschen und ein Konto aus einer Person erstellen. */

@@ -7,11 +7,11 @@ use App\Modules\Sso\Services\OAuthKeys;
 use App\Modules\Sso\Services\OidcClaims;
 use DateTimeImmutable;
 use Illuminate\Support\Facades\Cache;
-use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
-use League\OAuth2\Server\ResponseTypes\BearerTokenResponse;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
+use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
+use League\OAuth2\Server\ResponseTypes\BearerTokenResponse;
 
 /** Antwort der Token-Adresse: bei Scope „openid“ kommt zusätzlich ein signiertes ID-Token (RS256) mit. */
 class IdTokenResponse extends BearerTokenResponse

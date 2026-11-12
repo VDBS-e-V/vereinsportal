@@ -1,5 +1,7 @@
 <?php
 
+use App\Modules\Access\Models\User;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Blade;
 
 it('renders a section with a labelled heading and actions', function () {
@@ -153,7 +155,7 @@ it('renders no pagination for a single page', function () {
 });
 
 it('uses a laravel paginator for the pagination', function () {
-    $paginator = new Illuminate\Pagination\LengthAwarePaginator(range(1, 10), 50, 10, 3, ['path' => '/nutzer']);
+    $paginator = new LengthAwarePaginator(range(1, 10), 50, 10, 3, ['path' => '/nutzer']);
     $html = Blade::render('<x-vdbs.navigation.pagination :paginator="$p" />', ['p' => $paginator]);
 
     expect($html)->toContain('Seite 3 von 5')->toContain('/nutzer?page=2')->toContain('rel="next"');
@@ -197,7 +199,7 @@ it('renders the side navigation with sections and a flat list', function () {
 });
 
 it('shows the user menu with the logout in the header for logged in users', function () {
-    $this->actingAs(App\Modules\Access\Models\User::factory()->create(['email' => 'erika@example.org']))
+    $this->actingAs(User::factory()->create(['email' => 'erika@example.org']))
         ->get('/')
         ->assertOk()
         ->assertSee('vdbs-dropdown', false)
@@ -311,7 +313,7 @@ it('renders the page header with breadcrumb, meta, actions and tabs', function (
     $html = Blade::render('<x-vdbs.layout.page-header title="Erika" eyebrow="Nutzer" lead="Lead" :breadcrumb="[[\'label\' => \'Start\', \'href\' => \'/\'], [\'label\' => \'Erika\']]"><x-slot:meta>Aktiv</x-slot:meta><x-slot:actions>Bearbeiten</x-slot:actions><x-slot:tabs>Tabs</x-slot:tabs></x-vdbs.layout.page-header>@stack(\'vdbs-breadcrumb\')');
 
     expect($html)
-                ->toContain('<h1 class="vdbs-page-header__title" id="page-erika-title">Erika</h1>')
+        ->toContain('<h1 class="vdbs-page-header__title" id="page-erika-title">Erika</h1>')
         ->toContain('aria-labelledby="page-erika-title"')
         ->toContain('vdbs-breadcrumb')
         ->toContain('vdbs-page-header__meta')

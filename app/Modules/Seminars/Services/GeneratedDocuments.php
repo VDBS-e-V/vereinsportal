@@ -6,6 +6,8 @@ use App\Modules\Access\Models\User;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarDocument;
 use DomainException;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -26,7 +28,7 @@ final class GeneratedDocuments
 
     public static function pdfAvailable(): bool
     {
-        return class_exists(\Dompdf\Dompdf::class);
+        return class_exists(Dompdf::class);
     }
 
     public function render(Seminar $seminar, string $type): string
@@ -57,10 +59,10 @@ final class GeneratedDocuments
             }
 
             try {
-                $options = new \Dompdf\Options;
+                $options = new Options;
                 $options->set('isRemoteEnabled', false);
                 $options->set('defaultFont', 'DejaVu Sans');
-                $pdf = new \Dompdf\Dompdf($options);
+                $pdf = new Dompdf($options);
                 $pdf->loadHtml($html, 'UTF-8');
                 $pdf->setPaper('A4');
                 $pdf->render();

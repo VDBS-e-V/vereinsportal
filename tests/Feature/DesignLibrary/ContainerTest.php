@@ -1,6 +1,5 @@
 <?php
 
-use App\Modules\Access\Models\User;
 use Illuminate\Support\Facades\Blade;
 
 it('renders every supported container width and falls back to default', function () {

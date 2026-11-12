@@ -3,10 +3,11 @@
 namespace App\Modules\Articles\Models;
 
 use App\Modules\Access\Models\User;
+use App\Modules\Access\Models\UserProfile;
+use App\Support\Html\RichText;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Str;
 
 /** Modul: Articles. Ein Artikel für die öffentlichen Seiten (Startseite und Artikelliste). */
 class Article extends Model
@@ -109,17 +110,17 @@ class Article extends Model
     /** Text als Anreißer: eigener Anreißer, sonst der Anfang des Textes. */
     public function excerpt(int $limit = 180): string
     {
-        return filled($this->teaser) ? (string) $this->teaser : \App\Support\Html\RichText::toPlain((string) $this->body, $limit);
+        return filled($this->teaser) ? (string) $this->teaser : RichText::toPlain((string) $this->body, $limit);
     }
 
     /** Text als sicheres HTML (einfaches Markdown, kein eigenes HTML, keine unsicheren Links). */
     public function html(): string
     {
-        return \App\Support\Html\RichText::render($this->body);
+        return RichText::render($this->body);
     }
 
     /** Autorenprofil des anlegenden Kontos (Angaben unter Konto › Profil), falls vorhanden. */
-    private function authorProfile(): ?\App\Modules\Access\Models\UserProfile
+    private function authorProfile(): ?UserProfile
     {
         return $this->createdBy?->profile;
     }
@@ -161,12 +162,12 @@ class Article extends Model
 
     public function authorTextHtml(): string
     {
-        return \App\Support\Html\RichText::render(filled($this->author_text) ? $this->author_text : $this->authorProfile()?->author_text);
+        return RichText::render(filled($this->author_text) ? $this->author_text : $this->authorProfile()?->author_text);
     }
 
     public function moreInfoHtml(): string
     {
-        return \App\Support\Html\RichText::render($this->more_info);
+        return RichText::render($this->more_info);
     }
 
     /** Wurde der Artikel nach der Veröffentlichung noch geändert? (Toleranz: eine Stunde, damit das Anlegen nicht zählt) */

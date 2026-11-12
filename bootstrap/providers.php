@@ -1,22 +1,29 @@
 <?php
 
 use App\Modules\Access\AccessServiceProvider;
-use App\Modules\AccessRequests\AccessRequestsServiceProvider;
 use App\Modules\AccessGovernance\AccessGovernanceServiceProvider;
+use App\Modules\AccessRequests\AccessRequestsServiceProvider;
 use App\Modules\Articles\ArticlesServiceProvider;
-use App\Modules\Setup\SetupServiceProvider;
-use App\Modules\System\SystemServiceProvider;
-use App\Modules\Mailings\MailingsServiceProvider;
 use App\Modules\Audit\AuditServiceProvider;
+use App\Modules\Board\BoardServiceProvider;
+use App\Modules\Contacts\ContactsServiceProvider;
+use App\Modules\Contracts\ContractsServiceProvider;
 use App\Modules\DesignLibrary\DesignLibraryServiceProvider;
-use App\Modules\Membership\MembershipServiceProvider;
 use App\Modules\Events\EventsServiceProvider;
+use App\Modules\Feedback\FeedbackServiceProvider;
+use App\Modules\Forms\FormsServiceProvider;
+use App\Modules\Letters\LettersServiceProvider;
+use App\Modules\Mailings\MailingsServiceProvider;
+use App\Modules\Membership\MembershipServiceProvider;
 use App\Modules\Onboarding\OnboardingServiceProvider;
 use App\Modules\Pages\PagesServiceProvider;
 use App\Modules\Partners\PartnersServiceProvider;
 use App\Modules\People\PeopleServiceProvider;
 use App\Modules\Seminars\SeminarsServiceProvider;
+use App\Modules\Setup\SetupServiceProvider;
 use App\Modules\Sso\SsoServiceProvider;
+use App\Modules\System\SystemServiceProvider;
+use App\Modules\Tasks\TasksServiceProvider;
 use App\Providers\AppServiceProvider;
 use App\Providers\VoltServiceProvider;
 
@@ -34,12 +41,12 @@ return [
     AuditServiceProvider::class,
     PartnersServiceProvider::class,
     SeminarsServiceProvider::class,
-    \App\Modules\Feedback\FeedbackServiceProvider::class,
-    \App\Modules\Forms\FormsServiceProvider::class,
-    \App\Modules\Contracts\ContractsServiceProvider::class,
-    \App\Modules\Letters\LettersServiceProvider::class,
-    \App\Modules\Board\BoardServiceProvider::class,
-    \App\Modules\Tasks\TasksServiceProvider::class,
+    FeedbackServiceProvider::class,
+    FormsServiceProvider::class,
+    ContractsServiceProvider::class,
+    LettersServiceProvider::class,
+    BoardServiceProvider::class,
+    TasksServiceProvider::class,
     PeopleServiceProvider::class,
     MembershipServiceProvider::class,
     OnboardingServiceProvider::class,
@@ -48,7 +55,7 @@ return [
     SystemServiceProvider::class,
     SetupServiceProvider::class,
     MailingsServiceProvider::class,
-    \App\Modules\Contacts\ContactsServiceProvider::class,
+    ContactsServiceProvider::class,
     PagesServiceProvider::class,
     EventsServiceProvider::class,
     SsoServiceProvider::class,

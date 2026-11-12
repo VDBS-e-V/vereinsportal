@@ -6,6 +6,7 @@ use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Models\User;
 use App\Modules\Access\Services\NotificationPreferences;
 use App\Modules\AccessGovernance\Enums\RoleKey;
+use App\Modules\Contacts\Models\TeamContact;
 use App\Modules\Mailings\Models\Mailing;
 use App\Modules\Mailings\Support\MailGroups;
 use App\Modules\Membership\Enums\MembershipStatus;
@@ -13,6 +14,7 @@ use App\Modules\Membership\Models\Membership;
 use App\Modules\Partners\Models\PartnerContact;
 use App\Modules\Seminars\Enums\ApplicationStatus;
 use App\Modules\Seminars\Models\Seminar;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -31,8 +33,8 @@ final class MailRecipients
         return $this->activeMembershipQuery()->with('person')->get();
     }
 
-    /** @return \Illuminate\Database\Eloquent\Builder<Membership> */
-    private function activeMembershipQuery(): \Illuminate\Database\Eloquent\Builder
+    /** @return Builder<Membership> */
+    private function activeMembershipQuery(): Builder
     {
         return Membership::query()
             ->where('status', MembershipStatus::Active->value)
@@ -114,7 +116,7 @@ final class MailRecipients
         $accounts = User::query()->where('status', UserStatus::Active->value)->pluck('email')->map(fn ($email): string => mb_strtolower((string) $email))->flip()->all();
         $list = [];
 
-        foreach (\App\Modules\Contacts\Models\TeamContact::query()->whereNotNull('email')->orderBy('id')->get() as $contact) {
+        foreach (TeamContact::query()->whereNotNull('email')->orderBy('id')->get() as $contact) {
             $email = trim((string) $contact->email);
 
             if ($email === '' || isset($accounts[mb_strtolower($email)])) {

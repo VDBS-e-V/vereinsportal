@@ -3,6 +3,7 @@
 use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Models\User;
 use App\Modules\People\Models\Person;
+use Illuminate\Support\Facades\Hash;
 
 it('creates a user with a hashed password and active status', function () {
     $user = User::factory()->create(['password' => 'Sicher123!']);
@@ -11,7 +12,7 @@ it('creates a user with a hashed password and active status', function () {
         ->toBe(UserStatus::Active)
         ->and($user->password)
         ->not->toBe('Sicher123!')
-        ->and(\Illuminate\Support\Facades\Hash::check('Sicher123!', $user->password))
+        ->and(Hash::check('Sicher123!', $user->password))
         ->toBeTrue();
 });
 

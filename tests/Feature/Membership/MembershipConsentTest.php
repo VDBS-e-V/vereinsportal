@@ -13,6 +13,7 @@ use App\Modules\Membership\Models\Membership;
 use App\Modules\Membership\Models\MembershipConsent;
 use App\Modules\People\Models\Person;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
@@ -184,7 +185,7 @@ it('does not notify for duplicates or paper applications', function () {
 
     $this->actingAs($board)->post(route('membership.store'), [
         'first_name' => 'Papier', 'last_name' => 'Antrag', 'mode' => 'request', 'kind' => 'application',
-        'document' => Illuminate\Http\UploadedFile::fake()->create('a.pdf', 10, 'application/pdf'),
+        'document' => UploadedFile::fake()->create('a.pdf', 10, 'application/pdf'),
     ]);
 
     Mail::assertNotSent(NewApplicationMail::class);

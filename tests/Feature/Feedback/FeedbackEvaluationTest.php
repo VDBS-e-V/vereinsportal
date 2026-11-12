@@ -12,10 +12,12 @@ use App\Modules\Feedback\Models\FeedbackResponse;
 use App\Modules\Feedback\Services\FeedbackEvaluation;
 use App\Modules\Feedback\Services\FeedbackLinks;
 use App\Modules\Mailings\Services\Mailings;
+use App\Modules\Mailings\Support\MailPlaceholders;
 use App\Modules\People\Models\Person;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Services\SeminarAdministration;
+use App\Modules\System\Services\SystemTasks;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Artisan;
 
@@ -185,7 +187,7 @@ it('prunes links after the retention period and counts in a dry run', function (
 
 it('schedules the pruning daily and offers it in the system tasks', function () {
     expect(file_get_contents(base_path('routes/console.php')))->toContain("Schedule::command('feedback:prune')->daily()")
-        ->and(app(\App\Modules\System\Services\SystemTasks::class)->find('feedback-aufraeumen')['command'])->toBe('feedback:prune');
+        ->and(app(SystemTasks::class)->find('feedback-aufraeumen')['command'])->toBe('feedback:prune');
 });
 
 it('offers the feedback links as placeholders and fills them only while a link is open', function () {
@@ -196,7 +198,7 @@ it('offers the feedback links as placeholders and fills them only while a link i
 
     $values = app(Mailings::class)->seminarValues($seminar->fresh());
 
-    expect(\App\Modules\Mailings\Support\MailPlaceholders::definitions('team'))->toHaveKey('feedback_link_lehrkraft')->toHaveKey('feedback_link_team')
+    expect(MailPlaceholders::definitions('team'))->toHaveKey('feedback_link_lehrkraft')->toHaveKey('feedback_link_team')
         ->and($values['feedback_link_lehrkraft'])->toBe($teacher->url())
         ->and($values['feedback_link_team'])->toBe('');
 });

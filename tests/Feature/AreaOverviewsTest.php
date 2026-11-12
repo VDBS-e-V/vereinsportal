@@ -12,6 +12,7 @@ use App\Modules\Onboarding\Services\OnboardingDocuments;
 use App\Modules\People\Models\Person;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
+use App\Modules\Seminars\Services\SeminarAdministration;
 use App\Support\PortalAreas;
 use App\Support\PortalNavigation;
 use Database\Seeders\RoleSeeder;
@@ -92,7 +93,7 @@ it('shows the board key figures without personal data and keeps others out', fun
 it('shows Bildungsreferenten an overview and lets them read but not change seminars and events', function () {
     $education = aoUser(RoleKey::EducationCoordination);
     $seminar = Seminar::factory()->create(['title' => 'SV-Tage Süd', 'status' => SeminarStatus::Confirmed]);
-    app(\App\Modules\Seminars\Services\SeminarAdministration::class)->addSession($seminar, ['date' => now()->addMonth()->toDateString(), 'start' => '09:00', 'end' => '15:00'], aoUser(RoleKey::Coordination));
+    app(SeminarAdministration::class)->addSession($seminar, ['date' => now()->addMonth()->toDateString(), 'start' => '09:00', 'end' => '15:00'], aoUser(RoleKey::Coordination));
     Event::query()->create(['slug' => 'tag-eins', 'title' => 'Demokratietag', 'status' => 'open']);
 
     $this->actingAs($education)->get(route('education.overview'))->assertOk()->assertSee('SV-Tage Süd')->assertSee('Demokratietag')->assertSee('Seminare nach Stand');

@@ -3,6 +3,7 @@
 namespace App\Modules\Seminars\Models;
 
 use App\Modules\Access\Models\User;
+use App\Modules\Feedback\Models\FeedbackLink;
 use App\Modules\Partners\Models\Partner;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Enums\SeminarType;
@@ -88,10 +89,10 @@ class Seminar extends Model
         return $this->hasMany(SeminarClosure::class)->orderByDesc('id');
     }
 
-    /** @return HasMany<\App\Modules\Feedback\Models\FeedbackLink, $this> */
+    /** @return HasMany<FeedbackLink, $this> */
     public function feedbackLinks(): HasMany
     {
-        return $this->hasMany(\App\Modules\Feedback\Models\FeedbackLink::class);
+        return $this->hasMany(FeedbackLink::class);
     }
 
     /** Der geltende Abschluss (nicht wieder geöffnet), sonst null. */

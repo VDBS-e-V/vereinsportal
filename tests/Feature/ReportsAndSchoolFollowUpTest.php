@@ -7,7 +7,6 @@ use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Events\Mail\SchoolEventReminderMail;
-use App\Modules\Events\Models\Event;
 use App\Modules\Events\Models\EventAttendance;
 use App\Modules\Events\Services\EventAdministration;
 use App\Modules\Membership\Models\Membership;
@@ -21,6 +20,8 @@ use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
 use App\Modules\Seminars\Services\SeminarAdministration;
+use App\Support\PortalAreas;
+use App\Support\PortalNavigation;
 use App\Support\YearReport;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Mail;
@@ -136,7 +137,7 @@ it('shows the report to the board only, with the year switch and a csv export', 
 it('lists the report in the board navigation', function () {
     $board = rfUser(RoleKey::BoardMember);
 
-    expect(array_column(\App\Support\PortalNavigation::pages(\App\Support\PortalAreas::Vorstand, $board), 'label'))->toContain('Berichte');
+    expect(array_column(PortalNavigation::pages(PortalAreas::Vorstand, $board), 'label'))->toContain('Berichte');
 });
 
 // ---------- Schulen: Erinnerung, Sperren, Übersicht ----------

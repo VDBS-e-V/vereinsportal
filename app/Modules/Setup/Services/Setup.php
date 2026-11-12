@@ -10,6 +10,7 @@ use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\People\Models\Person;
+use App\Modules\Sso\Services\OAuthKeys;
 use App\Modules\System\Support\Redactor;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -146,7 +147,7 @@ class Setup
         }
 
         try {
-            app(\App\Modules\Sso\Services\OAuthKeys::class)->ensure();
+            app(OAuthKeys::class)->ensure();
 
             return ['ok' => true, 'message' => 'Die Schlüssel für Anbindungen (SSO) wurden erzeugt.'];
         } catch (Throwable $exception) {

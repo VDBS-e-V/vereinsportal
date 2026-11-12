@@ -8,6 +8,7 @@ use App\Modules\Seminars\Enums\ApplicationStatus;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
 use App\Modules\Seminars\Services\TeamApplications;
+use App\Modules\Seminars\Services\TeamInvites;
 use Carbon\Carbon;
 use DomainException;
 use Illuminate\Http\RedirectResponse;
@@ -48,14 +49,14 @@ class SeminarTeamController extends Controller
             return redirect()->route('seminars.show', $seminar)->withErrors(['team' => 'Einen Bewerbungslink gibt es nur für terminierte Seminare mit Bedarf und Stichtag in der Zukunft.']);
         }
 
-        $created = app(\App\Modules\Seminars\Services\TeamInvites::class)->create($seminar, $this->actor($request));
+        $created = app(TeamInvites::class)->create($seminar, $this->actor($request));
 
         return redirect()->route('seminars.show', $seminar)->with('success', 'Der Bewerbungslink wurde erzeugt. Kopieren Sie ihn jetzt, später ist er nicht mehr lesbar.')->with('invite_link', $created['link']);
     }
 
     public function revokeInvite(Request $request, Seminar $seminar): RedirectResponse
     {
-        $count = app(\App\Modules\Seminars\Services\TeamInvites::class)->revoke($seminar, $this->actor($request));
+        $count = app(TeamInvites::class)->revoke($seminar, $this->actor($request));
 
         return redirect()->route('seminars.show', $seminar)->with('success', $count > 0 ? 'Der Bewerbungslink wurde gesperrt.' : 'Es gab keinen gültigen Bewerbungslink.');
     }
@@ -87,7 +88,7 @@ class SeminarTeamController extends Controller
     {
         abort_unless($application->seminar_id === $seminar->id, 404);
 
-        if ($application->status !== \App\Modules\Seminars\Enums\ApplicationStatus::Confirmed) {
+        if ($application->status !== ApplicationStatus::Confirmed) {
             return redirect()->route('seminars.show', $seminar)->with('error', 'Die Seminarleitung kann nur eine Person im Team übernehmen.');
         }
 

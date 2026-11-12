@@ -3,6 +3,7 @@
 namespace App\Modules\AccessGovernance;
 
 use App\Modules\Access\Models\User;
+use App\Modules\AccessGovernance\Console\DemoUsers;
 use App\Modules\AccessGovernance\Enums\Capability;
 use App\Modules\AccessGovernance\Support\Capabilities;
 use Illuminate\Support\Facades\Gate;
@@ -19,6 +20,6 @@ class AccessGovernanceServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
 
         // Auch bei Aufrufen über den Browser (Systemsteuerung, Einrichtung) müssen die Befehle bekannt sein, nicht nur auf der Konsole
-        $this->commands([\App\Modules\AccessGovernance\Console\DemoUsers::class]);
+        $this->commands([DemoUsers::class]);
     }
 }

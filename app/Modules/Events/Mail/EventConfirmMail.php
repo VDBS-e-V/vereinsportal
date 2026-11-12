@@ -19,6 +19,6 @@ final class EventConfirmMail extends Mailable
 
     public function content(): Content
     {
-        return new Content(view: 'mail.events.confirm', with: ['hours' => \App\Modules\Events\Models\Event::PENDING_HOURS]);
+        return new Content(view: 'mail.events.confirm', with: ['hours' => Event::PENDING_HOURS]);
     }
 }

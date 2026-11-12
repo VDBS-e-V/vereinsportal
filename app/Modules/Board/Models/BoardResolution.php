@@ -2,6 +2,7 @@
 
 namespace App\Modules\Board\Models;
 
+use App\Modules\Tasks\Models\Task;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -39,9 +40,9 @@ class BoardResolution extends Model
         return $this->belongsTo(BoardMeeting::class, 'board_meeting_id');
     }
 
-    /** @return HasMany<\App\Modules\Tasks\Models\Task, $this> */
+    /** @return HasMany<Task, $this> */
     public function tasks(): HasMany
     {
-        return $this->hasMany(\App\Modules\Tasks\Models\Task::class, 'board_resolution_id');
+        return $this->hasMany(Task::class, 'board_resolution_id');
     }
 }

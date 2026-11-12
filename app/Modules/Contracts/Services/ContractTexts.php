@@ -6,7 +6,9 @@ use App\Modules\Access\Models\User;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Contracts\Models\ContractTemplate;
+use App\Modules\Seminars\Support\Money;
 use App\Support\Html\RichText;
+use Illuminate\Support\Collection;
 
 /**
  * Der Vertragstext, versioniert: Jede Fassung bleibt erhalten, ein neuer Text ist eine neue Version, bestehende Verträge behalten ihre Fassung.
@@ -61,8 +63,8 @@ final class ContractTexts
         ]);
     }
 
-    /** @return \Illuminate\Support\Collection<int, ContractTemplate> */
-    public function versions(): \Illuminate\Support\Collection
+    /** @return Collection<int, ContractTemplate> */
+    public function versions(): Collection
     {
         $this->active();
 
@@ -105,7 +107,7 @@ final class ContractTexts
         $vat = $data['vat_mode'] ?? null;
         $box = fn (string $mode, string $label): string => ($vat === $mode ? '&#9746;' : '&#9744;').' '.$label;
 
-        $amount = isset($data['amount_cents']) && (int) $data['amount_cents'] > 0 ? e(\App\Modules\Seminars\Support\Money::format((int) $data['amount_cents'])) : $blank;
+        $amount = isset($data['amount_cents']) && (int) $data['amount_cents'] > 0 ? e(Money::format((int) $data['amount_cents'])) : $blank;
         $values = [
             'auftragnehmer_name' => $text($data['name'] ?? null),
             'auftragnehmer_anschrift' => $text($data['address'] ?? null),

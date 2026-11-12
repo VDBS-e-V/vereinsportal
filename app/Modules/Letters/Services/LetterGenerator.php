@@ -5,13 +5,17 @@ namespace App\Modules\Letters\Services;
 use App\Modules\Access\Models\User;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
+use App\Modules\Contracts\Services\Contracts;
 use App\Modules\Contracts\Services\ContractSettings;
 use App\Modules\Letters\Models\LetterTemplate;
 use App\Modules\Letters\Support\LetterVariables;
+use App\Modules\Partners\Enums\FederalState;
+use App\Modules\Partners\Enums\SchoolType;
 use App\Modules\Partners\Models\Partner;
 use App\Modules\Seminars\Enums\ApplicationStatus;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
+use App\Modules\Seminars\Support\Money;
 use DomainException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -198,7 +202,7 @@ final class LetterGenerator
             'seminar_team' => collect($this->recipients($seminar))->map(fn (SeminarApplication $application): string => $application->applicantName())->implode(', '),
             'seminar_koordination' => (string) ($seminar->coordinator?->person?->fullName() ?? ''),
             'seminar_frist' => $seminar->application_deadline?->format('d.m.Y') ?? '',
-            'verguetung' => ($amount = app(\App\Modules\Contracts\Services\Contracts::class)->honorarium($seminar)) > 0 ? \App\Modules\Seminars\Support\Money::format($amount) : '',
+            'verguetung' => ($amount = app(Contracts::class)->honorarium($seminar)) > 0 ? Money::format($amount) : '',
         ];
     }
 
@@ -222,8 +226,8 @@ final class LetterGenerator
     {
         $contact ??= $partner->contacts()->first();
         $attributes = (array) ($partner->getAttribute('attributes') ?? []);
-        $state = \App\Modules\Partners\Enums\FederalState::tryFrom((string) ($attributes['federal_state'] ?? ''));
-        $type = \App\Modules\Partners\Enums\SchoolType::tryFrom((string) ($attributes['school_type'] ?? ''));
+        $state = FederalState::tryFrom((string) ($attributes['federal_state'] ?? ''));
+        $type = SchoolType::tryFrom((string) ($attributes['school_type'] ?? ''));
         $address ??= collect([trim((string) $partner->street.' '.(string) $partner->house_number), trim((string) $partner->postal_code.' '.(string) $partner->city)])->filter()->implode("\n");
 
         return [

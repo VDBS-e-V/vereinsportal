@@ -9,10 +9,10 @@ use App\Modules\Forms\Models\CostCenter;
 use App\Modules\Forms\Models\FormApplication;
 use App\Modules\Forms\Models\FormFile;
 use App\Modules\Forms\Services\FormApplications;
+use App\Modules\Forms\Services\FormSettings;
 use App\Modules\Forms\Services\Iban;
 use App\Modules\Forms\Support\FormTypes;
 use App\Modules\Seminars\Models\Seminar;
-use App\Modules\Seminars\Support\Money;
 use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -92,7 +92,7 @@ class FormApplicationController extends Controller
             'costCenters' => CostCenter::query()->where('active', true)->orderBy('code')->get()->mapWithKeys(fn (CostCenter $center): array => [$center->code => $center->label()])->all(),
             'iban' => $application->iban_encrypted ? Iban::pretty((string) $application->iban_encrypted) : '',
             'items' => $application->items->values(),
-            'settings' => app(\App\Modules\Forms\Services\FormSettings::class),
+            'settings' => app(FormSettings::class),
             'warnings' => $this->applications->warnings($application),
             'problems' => $application->status === 'returned' || $request->boolean('check') ? $this->applications->problems($application) : [],
         ]);

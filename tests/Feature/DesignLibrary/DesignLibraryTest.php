@@ -1,6 +1,5 @@
 <?php
 
-use App\Modules\Access\Models\User;
 use App\Modules\DesignLibrary\Support\Registry;
 use App\Support\PortalAreas;
 

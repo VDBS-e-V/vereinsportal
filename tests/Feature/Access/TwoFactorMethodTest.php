@@ -3,6 +3,7 @@
 use App\Modules\Access\Enums\TwoFactorMethodType;
 use App\Modules\Access\Models\TwoFactorMethod;
 use App\Modules\Access\Models\User;
+use Illuminate\Support\Facades\DB;
 
 it('encrypts the totp secret at rest', function () {
     $user = User::factory()->create();
@@ -14,7 +15,7 @@ it('encrypts the totp secret at rest', function () {
         'confirmed_at' => now(),
     ]);
 
-    $raw = \Illuminate\Support\Facades\DB::table('two_factor_methods')
+    $raw = DB::table('two_factor_methods')
         ->where('id', $method->id)
         ->value('secret');
 

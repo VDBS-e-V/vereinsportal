@@ -6,6 +6,7 @@ use App\Modules\Seminars\Models\Seminar;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Crypt;
 
 /** Modul: Feedback. Ein Link zu einem Formular für ein Seminar (viele Antworten über einen Link). Der Link ist verschlüsselt gespeichert und darf von der Koordination wieder angezeigt werden. */
@@ -38,8 +39,8 @@ class FeedbackLink extends Model
         return $this->hasMany(FeedbackResponse::class, 'link_id');
     }
 
-    /** @return \Illuminate\Database\Eloquent\Relations\HasOne<FeedbackArchive, $this> */
-    public function archive(): \Illuminate\Database\Eloquent\Relations\HasOne
+    /** @return HasOne<FeedbackArchive, $this> */
+    public function archive(): HasOne
     {
         return $this->hasOne(FeedbackArchive::class, 'link_id');
     }

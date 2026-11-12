@@ -6,6 +6,7 @@ use App\Modules\Membership\Enums\MembershipStatus;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\Membership\Models\MembershipConsent;
 use App\Modules\Membership\Models\MembershipDocument;
+use App\Modules\Membership\Services\MembershipRetention;
 use App\Modules\People\Models\Person;
 use Illuminate\Support\Facades\Storage;
 
@@ -130,7 +131,7 @@ it('only counts in a dry run', function () {
 
     $this->artisan('membership:prune', ['--dry-run' => true])->expectsOutputToContain('[Trockenlauf]')->assertSuccessful();
 
-    expect(app(\App\Modules\Membership\Services\MembershipRetention::class)->prune(true))->toBe(['unverified' => 1, 'rejected' => 1, 'ended' => 0])
+    expect(app(MembershipRetention::class)->prune(true))->toBe(['unverified' => 1, 'rejected' => 1, 'ended' => 0])
         ->and(Membership::query()->whereKey($old->id)->exists())->toBeTrue()->and(Membership::query()->whereKey($rejected->id)->exists())->toBeTrue();
 });
 

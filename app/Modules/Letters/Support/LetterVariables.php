@@ -40,8 +40,8 @@ final class LetterVariables
                 'empfaenger_name' => self::v('Vollständiger Name der Person oder Name der Schule', 'Anna Alt / Gesamtschule am Park', 'Person: Profil oder Kontakt; Schule: Stammdaten'),
                 'empfaenger_vorname' => self::v('Vorname', 'Anna', 'Person: Profil oder Kontakt', 'Bei Schulen leer.'),
                 'empfaenger_nachname' => self::v('Nachname', 'Alt', 'Person: Profil oder Kontakt', 'Bei Schulen leer.'),
-                'empfaenger_anschrift' => self::v('Anschrift in mehreren Zeilen (Straße, dann PLZ und Ort)', "Musterweg 5
-10115 Berlin", 'Person: Profil oder Kontakt; Schule: Stammdaten', 'Steht am besten allein in einem Absatz. Leer, wenn keine Anschrift bekannt ist.'),
+                'empfaenger_anschrift' => self::v('Anschrift in mehreren Zeilen (Straße, dann PLZ und Ort)', 'Musterweg 5
+10115 Berlin', 'Person: Profil oder Kontakt; Schule: Stammdaten', 'Steht am besten allein in einem Absatz. Leer, wenn keine Anschrift bekannt ist.'),
                 'empfaenger_strasse' => self::v('Straße und Hausnummer', 'Musterweg 5', 'wie Anschrift'),
                 'empfaenger_plz' => self::v('Postleitzahl', '10115', 'wie Anschrift'),
                 'empfaenger_ort' => self::v('Ort', 'Berlin', 'wie Anschrift'),
@@ -50,8 +50,8 @@ final class LetterVariables
             ]],
             'school' => ['label' => 'Schule des Seminars', 'intro' => 'Stehen in allen Schreiben zum Seminar zur Verfügung, auch bei Schreiben an Personen aus dem Team.', 'items' => [
                 'schule_name' => self::v('Name der Schule', 'Gesamtschule am Park', 'Schule des Seminars (Schulen)'),
-                'schule_anschrift' => self::v('Anschrift der Schule in mehreren Zeilen', "Schulweg 3
-12345 Berlin", 'Schule des Seminars'),
+                'schule_anschrift' => self::v('Anschrift der Schule in mehreren Zeilen', 'Schulweg 3
+12345 Berlin', 'Schule des Seminars'),
                 'schule_telefon' => self::v('Telefonnummer der Schule', '030 123456', 'Schule des Seminars', 'Oft leer.'),
                 'schule_email' => self::v('E-Mail-Adresse der Schule', 'sekretariat@schule.example', 'Schule des Seminars', 'Oft leer.'),
                 'schule_nummer' => self::v('Interne Kennung der Schule', 'BE/08K06', 'Bundesland und Schulnummer', 'Leer, solange eins von beiden fehlt.'),
@@ -65,8 +65,8 @@ final class LetterVariables
                 'seminar_titel' => self::v('Titel des Seminars', 'SV-Tage Nord', 'Seminar'),
                 'seminar_nr' => self::v('Seminarnummer', 'S-2027-0042', 'Seminar'),
                 'seminar_art' => self::v('Art des Seminars', 'SV-Tage', 'Seminar'),
-                'seminar_termine' => self::v('Alle Termine, jeder in einer eigenen Zeile', "12.05.2027, 09:00–15:00 Uhr – Aula
-13.05.2027, 09:00–15:00 Uhr – Aula", 'Termine des Seminars', 'Steht am besten allein in einem Absatz.'),
+                'seminar_termine' => self::v('Alle Termine, jeder in einer eigenen Zeile', '12.05.2027, 09:00–15:00 Uhr – Aula
+13.05.2027, 09:00–15:00 Uhr – Aula', 'Termine des Seminars', 'Steht am besten allein in einem Absatz.'),
                 'seminar_erster_termin' => self::v('Erster Termin', '12.05.2027, 09:00–15:00 Uhr', 'Termine des Seminars'),
                 'seminar_beginn' => self::v('Datum des ersten Termins', '12.05.2027', 'Termine des Seminars'),
                 'seminar_ende' => self::v('Datum des letzten Termins', '13.05.2027', 'Termine des Seminars'),

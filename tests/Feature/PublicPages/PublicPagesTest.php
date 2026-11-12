@@ -2,8 +2,14 @@
 
 use App\Mail\ContactMessageMail;
 use App\Modules\Access\Models\User;
+use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
+use App\Modules\AccessGovernance\Models\Role;
+use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Articles\Models\Article;
+use Database\Seeders\RoleSeeder;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->withoutVite();
@@ -187,12 +193,12 @@ it('hides drafts and future articles from the public and shows them to editors a
 
 function obEditor(): User
 {
-    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => \Database\Seeders\RoleSeeder::class]);
+    Artisan::call('db:seed', ['--class' => RoleSeeder::class]);
     $user = User::factory()->create();
-    \App\Modules\AccessGovernance\Models\RoleAssignment::query()->create([
+    RoleAssignment::query()->create([
         'user_id' => $user->id,
-        'role_id' => \App\Modules\AccessGovernance\Models\Role::query()->where('key', 'administration_staff')->value('id'),
-        'source' => \App\Modules\AccessGovernance\Enums\RoleAssignmentSource::Manual,
+        'role_id' => Role::query()->where('key', 'administration_staff')->value('id'),
+        'source' => RoleAssignmentSource::Manual,
         'starts_at' => now()->subMinute(),
     ]);
 
@@ -200,8 +206,8 @@ function obEditor(): User
 }
 
 it('delivers the article image only for visible articles', function () {
-    \Illuminate\Support\Facades\Storage::fake('local');
-    \Illuminate\Support\Facades\Storage::disk('local')->put('articles/bild.jpg', 'JPEGDATEN');
+    Storage::fake('local');
+    Storage::disk('local')->put('articles/bild.jpg', 'JPEGDATEN');
     $visible = ppArticle(['image_path' => 'articles/bild.jpg', 'image_alt' => 'Bild', 'image_credit' => 'Foto']);
     $draft = ppArticle(['image_path' => 'articles/bild.jpg', 'image_alt' => 'Bild', 'status' => Article::STATUS_DRAFT]);
     $without = ppArticle();

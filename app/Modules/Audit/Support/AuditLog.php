@@ -7,8 +7,8 @@ use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\Partners\Models\Partner;
-use App\Modules\Seminars\Models\Seminar;
 use App\Modules\People\Models\Person;
+use App\Modules\Seminars\Models\Seminar;
 use Illuminate\Database\Eloquent\Model;
 use Throwable;
 

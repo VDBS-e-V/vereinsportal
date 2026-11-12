@@ -3,6 +3,7 @@
 use App\Modules\System\Models\CronRun;
 use App\Modules\System\Services\PortalTick;
 use App\Modules\System\Services\SystemChecks;
+use App\Modules\System\Services\SystemTasks;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
@@ -110,7 +111,7 @@ it('portal:update bricht bei unvollständigem Paket ab, ohne die Wartung einzusc
 });
 
 it('bietet das Update als Aufgabe der Systemsteuerung mit Passwort an', function () {
-    $tasks = app(\App\Modules\System\Services\SystemTasks::class);
+    $tasks = app(SystemTasks::class);
 
     expect($tasks->find('update')['command'])->toBe('portal:update')
         ->and($tasks->needsPassword('update'))->toBeTrue();

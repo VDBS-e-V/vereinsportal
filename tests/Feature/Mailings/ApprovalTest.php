@@ -10,6 +10,7 @@ use App\Modules\Mailings\Mail\MailingApprovalMail;
 use App\Modules\Mailings\Mail\MailingMail;
 use App\Modules\Mailings\Models\Mailing;
 use App\Modules\Mailings\Models\MailingDelivery;
+use App\Modules\Mailings\Services\Mailings;
 use App\Modules\People\Models\Person;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Mail;
@@ -178,7 +179,7 @@ it('sends with the configured sender name and reply-to of the area', function ()
     apTeam(1);
 
     $this->actingAs(apUser(RoleKey::AdministrationStaff))->post(route('mailings.office.store'), apBody());
-    (new SendMailing(Mailing::query()->firstOrFail()->id))->handle(app(\App\Modules\Mailings\Services\Mailings::class));
+    (new SendMailing(Mailing::query()->firstOrFail()->id))->handle(app(Mailings::class));
 
     Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasReplyTo('office@beispiel.example') && $mail->envelope()->from?->name === 'VDBS Geschäftsstelle');
 });

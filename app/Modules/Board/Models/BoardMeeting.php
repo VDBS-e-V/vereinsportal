@@ -3,6 +3,7 @@
 namespace App\Modules\Board\Models;
 
 use App\Modules\Access\Models\User;
+use App\Modules\Tasks\Models\Task;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -39,10 +40,10 @@ class BoardMeeting extends Model
         return $this->hasMany(BoardResolution::class, 'board_meeting_id')->orderBy('year')->orderBy('seq');
     }
 
-    /** @return HasMany<\App\Modules\Tasks\Models\Task, $this> */
+    /** @return HasMany<Task, $this> */
     public function tasks(): HasMany
     {
-        return $this->hasMany(\App\Modules\Tasks\Models\Task::class, 'board_meeting_id')->orderByRaw('done_at is not null')->orderBy('due_on');
+        return $this->hasMany(Task::class, 'board_meeting_id')->orderByRaw('done_at is not null')->orderBy('due_on');
     }
 
     /** @return HasMany<BoardMeetingGuest, $this> */

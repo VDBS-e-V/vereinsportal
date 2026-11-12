@@ -1,10 +1,15 @@
 <?php
 
+use App\Modules\Seminars\Http\Controllers\SeminarClosureController;
 use App\Modules\Seminars\Http\Controllers\SeminarController;
+use App\Modules\Seminars\Http\Controllers\SeminarDocumentController;
 use App\Modules\Seminars\Http\Controllers\SeminarPriceController;
 use App\Modules\Seminars\Http\Controllers\SeminarQuoteController;
+use App\Modules\Seminars\Http\Controllers\SeminarStatisticsController;
 use App\Modules\Seminars\Http\Controllers\SeminarTeamController;
 use App\Modules\Seminars\Http\Controllers\SeminarTextController;
+use App\Modules\Seminars\Http\Controllers\TeamInfoController;
+use App\Modules\Seminars\Http\Controllers\TeamInviteController;
 use App\Modules\Seminars\Http\Controllers\TeamProfileController;
 use App\Modules\Seminars\Http\Controllers\TeamSeminarController;
 use Illuminate\Support\Facades\Route;
@@ -27,8 +32,8 @@ Route::middleware(['web', 'auth'])->group(function (): void {
             Route::put('/{seminar}/bedarf', [SeminarTeamController::class, 'need'])->whereNumber('seminar')->name('team.need');
             Route::post('/{seminar}/bewerbungslink', [SeminarTeamController::class, 'createInvite'])->whereNumber('seminar')->middleware('throttle:20,10')->name('team.invite.create');
             Route::delete('/{seminar}/bewerbungslink', [SeminarTeamController::class, 'revokeInvite'])->whereNumber('seminar')->name('team.invite.revoke');
-            Route::get('/{seminar}/team/information', [\App\Modules\Seminars\Http\Controllers\TeamInfoController::class, 'show'])->whereNumber('seminar')->name('team.info');
-            Route::post('/{seminar}/team/information', [\App\Modules\Seminars\Http\Controllers\TeamInfoController::class, 'send'])->whereNumber('seminar')->middleware('throttle:10,10')->name('team.info.send');
+            Route::get('/{seminar}/team/information', [TeamInfoController::class, 'show'])->whereNumber('seminar')->name('team.info');
+            Route::post('/{seminar}/team/information', [TeamInfoController::class, 'send'])->whereNumber('seminar')->middleware('throttle:10,10')->name('team.info.send');
             Route::post('/{seminar}/team/vorschlag', [SeminarTeamController::class, 'suggestion'])->whereNumber('seminar')->name('team.suggestion');
             Route::put('/{seminar}/bewerbungen/{application}/notiz', [SeminarTeamController::class, 'note'])->whereNumber(['seminar', 'application'])->name('team.note');
             Route::post('/{seminar}/bewerbungen/{application}/leitung', [SeminarTeamController::class, 'lead'])->whereNumber(['seminar', 'application'])->name('team.lead');
@@ -37,18 +42,18 @@ Route::middleware(['web', 'auth'])->group(function (): void {
         });
 
         Route::middleware('can:seminars.manage')->group(function (): void {
-            Route::get('/{seminar}/abschluss', [\App\Modules\Seminars\Http\Controllers\SeminarClosureController::class, 'show'])->whereNumber('seminar')->name('closure');
-            Route::post('/{seminar}/abschluss', [\App\Modules\Seminars\Http\Controllers\SeminarClosureController::class, 'store'])->whereNumber('seminar')->middleware('throttle:20,10')->name('closure.store');
+            Route::get('/{seminar}/abschluss', [SeminarClosureController::class, 'show'])->whereNumber('seminar')->name('closure');
+            Route::post('/{seminar}/abschluss', [SeminarClosureController::class, 'store'])->whereNumber('seminar')->middleware('throttle:20,10')->name('closure.store');
         });
 
-        Route::post('/{seminar}/abschluss/oeffnen', [\App\Modules\Seminars\Http\Controllers\SeminarClosureController::class, 'reopen'])->whereNumber('seminar')->middleware(['can:seminars.reopen', 'throttle:10,10'])->name('closure.reopen');
+        Route::post('/{seminar}/abschluss/oeffnen', [SeminarClosureController::class, 'reopen'])->whereNumber('seminar')->middleware(['can:seminars.reopen', 'throttle:10,10'])->name('closure.reopen');
 
         Route::middleware('can:seminars.documents')->group(function (): void {
-            Route::post('/{seminar}/dokumente', [\App\Modules\Seminars\Http\Controllers\SeminarDocumentController::class, 'store'])->whereNumber('seminar')->middleware('throttle:30,10')->name('documents.store');
-            Route::post('/{seminar}/dokumente/erzeugen', [\App\Modules\Seminars\Http\Controllers\SeminarDocumentController::class, 'generate'])->whereNumber('seminar')->middleware('throttle:20,10')->name('documents.generate');
-            Route::post('/{seminar}/dokumente/loeschen', [\App\Modules\Seminars\Http\Controllers\SeminarDocumentController::class, 'destroy'])->whereNumber('seminar')->name('documents.destroy');
-            Route::get('/{seminar}/dokumente/{document}', [\App\Modules\Seminars\Http\Controllers\SeminarDocumentController::class, 'download'])->whereNumber(['seminar', 'document'])->name('documents.download');
-            Route::get('/{seminar}/mappe', [\App\Modules\Seminars\Http\Controllers\SeminarDocumentController::class, 'folder'])->whereNumber('seminar')->middleware('throttle:10,10')->name('folder');
+            Route::post('/{seminar}/dokumente', [SeminarDocumentController::class, 'store'])->whereNumber('seminar')->middleware('throttle:30,10')->name('documents.store');
+            Route::post('/{seminar}/dokumente/erzeugen', [SeminarDocumentController::class, 'generate'])->whereNumber('seminar')->middleware('throttle:20,10')->name('documents.generate');
+            Route::post('/{seminar}/dokumente/loeschen', [SeminarDocumentController::class, 'destroy'])->whereNumber('seminar')->name('documents.destroy');
+            Route::get('/{seminar}/dokumente/{document}', [SeminarDocumentController::class, 'download'])->whereNumber(['seminar', 'document'])->name('documents.download');
+            Route::get('/{seminar}/mappe', [SeminarDocumentController::class, 'folder'])->whereNumber('seminar')->middleware('throttle:10,10')->name('folder');
         });
 
         Route::middleware('can:seminars.view')->group(function (): void {
@@ -58,8 +63,8 @@ Route::middleware(['web', 'auth'])->group(function (): void {
     });
 
     Route::prefix('koordination/seminarstatistik')->name('seminar-stats.')->middleware('can:seminars.view')->group(function (): void {
-        Route::get('/', [\App\Modules\Seminars\Http\Controllers\SeminarStatisticsController::class, 'index'])->name('index');
-        Route::get('/export', [\App\Modules\Seminars\Http\Controllers\SeminarStatisticsController::class, 'export'])->name('export');
+        Route::get('/', [SeminarStatisticsController::class, 'index'])->name('index');
+        Route::get('/export', [SeminarStatisticsController::class, 'export'])->name('export');
     });
 
     Route::prefix('geschaeftsstelle/kostenvoranschlaege')->name('seminar-quotes.')->group(function (): void {
@@ -109,8 +114,8 @@ Route::middleware(['web', 'auth'])->group(function (): void {
  * Bewerbungslink eines Seminars (öffentlich, ohne Konto): Formular, Bestätigung der E-Mail-Adresse per signiertem Link.
  */
 Route::middleware('web')->prefix('team/bewerbung')->name('team-invite.')->group(function (): void {
-    Route::get('/gesendet', [\App\Modules\Seminars\Http\Controllers\TeamInviteController::class, 'sent'])->name('sent');
-    Route::get('/bestaetigen/{application}', [\App\Modules\Seminars\Http\Controllers\TeamInviteController::class, 'confirm'])->whereNumber('application')->middleware(['signed', 'throttle:30,1'])->name('confirm');
-    Route::get('/{token}', [\App\Modules\Seminars\Http\Controllers\TeamInviteController::class, 'show'])->where('token', '[A-Za-z0-9]{20,64}')->middleware('throttle:60,1')->name('show');
-    Route::post('/{token}', [\App\Modules\Seminars\Http\Controllers\TeamInviteController::class, 'store'])->where('token', '[A-Za-z0-9]{20,64}')->middleware(['throttle:10,10', 'bot.guard'])->name('store');
+    Route::get('/gesendet', [TeamInviteController::class, 'sent'])->name('sent');
+    Route::get('/bestaetigen/{application}', [TeamInviteController::class, 'confirm'])->whereNumber('application')->middleware(['signed', 'throttle:30,1'])->name('confirm');
+    Route::get('/{token}', [TeamInviteController::class, 'show'])->where('token', '[A-Za-z0-9]{20,64}')->middleware('throttle:60,1')->name('show');
+    Route::post('/{token}', [TeamInviteController::class, 'store'])->where('token', '[A-Za-z0-9]{20,64}')->middleware(['throttle:10,10', 'bot.guard'])->name('store');
 });

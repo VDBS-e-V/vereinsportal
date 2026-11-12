@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
 use App\Modules\Articles\Models\Article;
 use App\Modules\Articles\Services\ArticleAdministration;
+use App\Support\Html\RichText;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -93,7 +94,7 @@ class ArticleAdminController extends Controller
     /** @return array<string, mixed> */
     private function validated(Request $request, ?Article $article = null): array
     {
-        $request->merge(['body' => \App\Support\Html\RichText::normalize($request->input('body'))]);
+        $request->merge(['body' => RichText::normalize($request->input('body'))]);
         $hasAuthorImage = $request->hasFile('author_image') || ($article !== null && filled($article->author_image_path) && ! $request->boolean('remove_author_image'));
 
         $hasImage = $request->hasFile('image') || ($article !== null && filled($article->image_path) && ! $request->boolean('remove_image'));

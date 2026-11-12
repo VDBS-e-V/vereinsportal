@@ -6,6 +6,7 @@ use App\Modules\Access\Models\User;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use DomainException;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Laravel\Passport\Passport;
 
@@ -27,7 +28,7 @@ final class OAuthKeys
         return is_file($this->privatePath()) && is_file($this->publicPath());
     }
 
-    /** @return array{exists: bool, fingerprint: ?string, created_at: ?\Illuminate\Support\Carbon} */
+    /** @return array{exists: bool, fingerprint: ?string, created_at: ?Carbon} */
     public function status(): array
     {
         if (! $this->exists()) {
@@ -36,7 +37,7 @@ final class OAuthKeys
 
         $hash = strtoupper(hash('sha256', (string) file_get_contents($this->publicPath())));
 
-        return ['exists' => true, 'fingerprint' => implode(':', str_split(substr($hash, 0, 24), 4)), 'created_at' => \Illuminate\Support\Carbon::createFromTimestamp((int) filemtime($this->publicPath()))];
+        return ['exists' => true, 'fingerprint' => implode(':', str_split(substr($hash, 0, 24), 4)), 'created_at' => Carbon::createFromTimestamp((int) filemtime($this->publicPath()))];
     }
 
     /** Kennung des öffentlichen Schlüssels (kid in JWKS und ID-Token). */

@@ -6,6 +6,7 @@ use App\Modules\Access\Models\User;
 use App\Modules\Mailings\Models\MailSegment;
 use App\Modules\Mailings\Support\MailGroups;
 use App\Modules\Mailings\Support\SegmentFilters;
+use Illuminate\Support\Collection;
 
 /**
  * Berechnet Verteiler zum Zeitpunkt der Nutzung (Gruppen, Ausschlüsse, Personen, dann die Filter) und verbindet sie mit den Gruppen eines Schreibens.
@@ -77,7 +78,7 @@ final class SegmentResolver
     }
 
     /** Verteiler, die diese Person beim Schreiben wählen darf: sichtbar für ihren Bereich und nur mit Gruppen, die sie anschreiben darf. @return \Illuminate\Support\Collection<int, MailSegment> */
-    public function usableBy(User $user): \Illuminate\Support\Collection
+    public function usableBy(User $user): Collection
     {
         $areas = array_keys(array_filter(['board' => $user->can('mailings.members'), 'office' => $user->can('mailings.send'), 'coordination' => $user->can('mailings.send_limited')]));
         $allowed = array_keys(MailGroups::allowedFor($user));

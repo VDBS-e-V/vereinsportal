@@ -3,10 +3,13 @@
 namespace App\Modules\Tasks\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Models\User;
 use App\Modules\AccessGovernance\Enums\RoleKey;
+use App\Modules\AccessGovernance\Support\Capabilities;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
+use App\Modules\Board\Models\BoardMeeting;
 use App\Modules\Tasks\Models\Task;
 use App\Modules\Tasks\Models\TaskLabel;
 use App\Modules\Tasks\Models\TaskProject;
@@ -33,7 +36,7 @@ class ProjectController extends Controller
         $showArchived = $request->boolean('archived');
 
         // Das Projekt „Vorstand“ entsteht, sobald ein Vorstandsmitglied das Aufgabensystem öffnet.
-        if (in_array(RoleKey::BoardMember->value, \App\Modules\AccessGovernance\Support\Capabilities::activeRoleKeys($user), true)) {
+        if (in_array(RoleKey::BoardMember->value, Capabilities::activeRoleKeys($user), true)) {
             $this->projects->board($user);
         }
 
@@ -176,9 +179,9 @@ class ProjectController extends Controller
     {
         return User::query()->with('person')
             ->where(fn ($query) => $query
-                ->where(fn ($active) => $active->where('status', \App\Modules\Access\Enums\UserStatus::Active->value)->whereHas('activeRoleAssignments', fn ($assignments) => $assignments->whereHas('role', fn ($role) => $role->whereIn('key', self::ROLES))))
+                ->where(fn ($active) => $active->where('status', UserStatus::Active->value)->whereHas('activeRoleAssignments', fn ($assignments) => $assignments->whereHas('role', fn ($role) => $role->whereIn('key', self::ROLES))))
                 ->orWhereIn('id', $include))
-            ->get()->mapWithKeys(fn (User $user): array => [$user->id => \App\Modules\Board\Models\BoardMeeting::attendeeName($user)])->sort()->all();
+            ->get()->mapWithKeys(fn (User $user): array => [$user->id => BoardMeeting::attendeeName($user)])->sort()->all();
     }
 
     private function authorizeView(TaskProject $project): void

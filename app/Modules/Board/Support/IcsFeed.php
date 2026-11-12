@@ -42,7 +42,7 @@ final class IcsFeed
 
     public static function escape(string $text): string
     {
-        return str_replace(["\\", ';', ',', "\r\n", "\n", "\r"], ['\\\\', '\;', '\,', '\n', '\n', '\n'], $text);
+        return str_replace(['\\', ';', ',', "\r\n", "\n", "\r"], ['\\\\', '\;', '\,', '\n', '\n', '\n'], $text);
     }
 
     /** Zeilen höchstens 75 Byte lang, Fortsetzung mit Leerzeichen; Zeichen werden nicht zerschnitten. */

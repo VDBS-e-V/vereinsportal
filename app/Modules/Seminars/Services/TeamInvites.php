@@ -6,7 +6,7 @@ use App\Modules\Access\Models\User;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Contacts\Models\TeamContact;
-use App\Modules\Contacts\Services\ContactAccessSender;
+use App\Modules\Mailings\Services\MailSuppressions;
 use App\Modules\Seminars\Enums\ApplicationStatus;
 use App\Modules\Seminars\Mail\ApplicationConfirmationMail;
 use App\Modules\Seminars\Models\Seminar;
@@ -104,7 +104,7 @@ final class TeamInvites
     {
         $contact = $application->contact;
 
-        if ($contact === null || app(\App\Modules\Mailings\Services\MailSuppressions::class)->isSuppressed($contact->email)) {
+        if ($contact === null || app(MailSuppressions::class)->isSuppressed($contact->email)) {
             return;
         }
 

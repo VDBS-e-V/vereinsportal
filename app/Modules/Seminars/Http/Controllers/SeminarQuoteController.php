@@ -9,6 +9,7 @@ use App\Modules\Partners\Models\Partner;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Enums\SeminarType;
 use App\Modules\Seminars\Models\Seminar;
+use App\Modules\Seminars\Models\SeminarPriceList;
 use App\Modules\Seminars\Models\SeminarQuote;
 use App\Modules\Seminars\Services\Quotes;
 use App\Modules\Seminars\Support\QuoteCalculator;
@@ -16,6 +17,7 @@ use App\Modules\Seminars\Support\QuoteTexts;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -259,7 +261,7 @@ class SeminarQuoteController extends Controller
     /**
      * Stand des Kostenvoranschlags in einer Fassung (ohne Angabe: die aktuelle). Unbekannte Fassungen sind 404.
      *
-     * @return array{version: int, positions: list<array<string, mixed>>, total_cents: int, price_list: \App\Modules\Seminars\Models\SeminarPriceList, at: \Illuminate\Support\Carbon, author: ?string, comment: ?string, current: bool}
+     * @return array{version: int, positions: list<array<string, mixed>>, total_cents: int, price_list: SeminarPriceList, at: Carbon, author: ?string, comment: ?string, current: bool}
      */
     private function versionData(SeminarQuote $quote, ?int $version): array
     {

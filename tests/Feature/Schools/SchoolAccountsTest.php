@@ -11,12 +11,13 @@ use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\Partners\Models\Partner;
 use App\Modules\Partners\Models\PartnerContact;
 use App\Modules\Partners\Models\PartnerUser;
+use App\Modules\Partners\Services\SchoolAccounts;
 use App\Modules\People\Models\Person;
 use App\Modules\Seminars\Enums\SeminarEventType;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Mail\SchoolMessageMail;
 use App\Modules\Seminars\Models\Seminar;
-use App\Modules\Seminars\Services\Quotes;
+use App\Modules\Seminars\Models\SeminarQuote;
 use App\Support\PortalAreas;
 use App\Support\PortalNavigation;
 use App\Support\TaskOverview;
@@ -51,7 +52,7 @@ function scSchoolAccount(?Partner $partner = null, string $email = 'lehrkraft@sc
 {
     $partner ??= Partner::factory()->create();
     $contact = PartnerContact::query()->create(['partner_id' => $partner->id, 'name' => 'Frau Lehrkraft', 'email' => $email, 'is_primary' => true]);
-    app(\App\Modules\Partners\Services\SchoolAccounts::class)->invite($partner, $contact, scUser(RoleKey::Coordination));
+    app(SchoolAccounts::class)->invite($partner, $contact, scUser(RoleKey::Coordination));
 
     $account = PartnerUser::query()->where('contact_id', $contact->id)->firstOrFail();
     $account->user->forceFill(['status' => UserStatus::Active])->save();
@@ -60,7 +61,7 @@ function scSchoolAccount(?Partner $partner = null, string $email = 'lehrkraft@sc
 }
 
 /** Legt wie die Koordination einen Kostenvoranschlag zu einem Seminar an. */
-function scQuote(Seminar $seminar, User $by): \App\Modules\Seminars\Models\SeminarQuote
+function scQuote(Seminar $seminar, User $by): SeminarQuote
 {
     test()->actingAs($by)->post(route('seminar-quotes.store'), [
         'partner_id' => $seminar->partner_id,
@@ -69,7 +70,7 @@ function scQuote(Seminar $seminar, User $by): \App\Modules\Seminars\Models\Semin
         'action' => 'save',
     ]);
 
-    return \App\Modules\Seminars\Models\SeminarQuote::query()->where('seminar_id', $seminar->id)->latest('id')->firstOrFail();
+    return SeminarQuote::query()->where('seminar_id', $seminar->id)->latest('id')->firstOrFail();
 }
 
 it('invites a contact person as a school account with the role school and the link to the school', function () {

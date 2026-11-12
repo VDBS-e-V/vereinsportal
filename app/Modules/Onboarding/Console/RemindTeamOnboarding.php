@@ -2,6 +2,7 @@
 
 namespace App\Modules\Onboarding\Console;
 
+use App\Modules\Access\Services\NotificationPreferences;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Support\Capabilities;
 use App\Modules\Onboarding\Mail\TeamOnboardingReminderMail;
@@ -37,7 +38,7 @@ class RemindTeamOnboarding extends Command
                     return;
                 }
 
-                if (! app(\App\Modules\Access\Services\NotificationPreferences::class)->allows($user, 'onboarding_reminders')) {
+                if (! app(NotificationPreferences::class)->allows($user, 'onboarding_reminders')) {
                     return;
                 }
 

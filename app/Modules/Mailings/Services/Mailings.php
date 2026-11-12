@@ -7,9 +7,10 @@ use App\Modules\Access\Models\User;
 use App\Modules\Access\Services\NotificationPreferences;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
+use App\Modules\Feedback\Services\FeedbackLinks;
+use App\Modules\Mailings\Jobs\SendMailing;
 use App\Modules\Mailings\Mail\MailingApprovalMail;
 use App\Modules\Mailings\Mail\MailingMail;
-use App\Modules\Mailings\Jobs\SendMailing;
 use App\Modules\Mailings\Models\Mailing;
 use App\Modules\Mailings\Models\MailingDelivery;
 use App\Modules\Mailings\Support\MailGroups;
@@ -435,7 +436,7 @@ final class Mailings
     /** Adresse des zurzeit offenen Feedbacklinks einer Gruppe, sonst leer. */
     private function feedbackLink(Seminar $seminar, string $audience): string
     {
-        $links = app(\App\Modules\Feedback\Services\FeedbackLinks::class);
+        $links = app(FeedbackLinks::class);
         $link = $seminar->feedbackLinks()->where('audience', $audience)->orderByDesc('id')->get()->first(fn ($candidate): bool => $links->state($candidate) === 'open');
 
         return $link ? $link->url() : '';

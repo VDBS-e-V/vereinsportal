@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Models\User;
 use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
@@ -10,6 +11,8 @@ use App\Modules\Feedback\Models\FeedbackResponse;
 use App\Modules\Feedback\Services\FeedbackEvaluation;
 use App\Modules\Feedback\Services\FeedbackLinks;
 use App\Modules\Partners\Models\PartnerContact;
+use App\Modules\Partners\Models\PartnerUser;
+use App\Modules\Partners\Services\SchoolAccounts;
 use App\Modules\People\Models\Person;
 use App\Modules\Seminars\Enums\ApplicationStatus;
 use App\Modules\Seminars\Enums\SeminarStatus;
@@ -124,9 +127,9 @@ it('puts the figures into the closure only after the feedback was anonymized', f
 it('calls the school message a message to the coordination and shows the teacher link when open', function () {
     $seminar = fxSeminar(1);
     $contact = PartnerContact::query()->create(['partner_id' => $seminar->partner_id, 'name' => 'Frau Lehrkraft', 'email' => 'lehrkraft@schule.example', 'is_primary' => true]);
-    app(\App\Modules\Partners\Services\SchoolAccounts::class)->invite($seminar->partner, $contact, fxUser());
-    $account = \App\Modules\Partners\Models\PartnerUser::query()->where('contact_id', $contact->id)->firstOrFail();
-    $account->user->forceFill(['status' => \App\Modules\Access\Enums\UserStatus::Active])->save();
+    app(SchoolAccounts::class)->invite($seminar->partner, $contact, fxUser());
+    $account = PartnerUser::query()->where('contact_id', $contact->id)->firstOrFail();
+    $account->user->forceFill(['status' => UserStatus::Active])->save();
     $link = app(FeedbackLinks::class)->create($seminar, 'teachers', [], fxUser());
 
     $this->actingAs($account->user)->get(route('school.home'))->assertOk()->assertSee('Nachricht an die Koordination schicken')->assertDontSee('Rückmeldung an die Koordination')->assertSee($link->url());

@@ -3,6 +3,7 @@
 namespace App\Modules\Feedback\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Feedback\Services\FeedbackForms;
 use App\Modules\Feedback\Services\FeedbackLinks;
 use App\Modules\Feedback\Services\FeedbackSubmissions;
 use DomainException;
@@ -29,7 +30,7 @@ class PublicFeedbackController extends Controller
             return view('feedback.closed', ['reason' => $state, 'link' => $link]);
         }
 
-        $version = app(\App\Modules\Feedback\Services\FeedbackForms::class)->version($link->form_id, $link->form_version);
+        $version = app(FeedbackForms::class)->version($link->form_id, $link->form_version);
 
         return view('feedback.form', ['link' => $link, 'form' => $version, 'token' => $token, 'questions' => $this->submissions->questions($link)]);
     }

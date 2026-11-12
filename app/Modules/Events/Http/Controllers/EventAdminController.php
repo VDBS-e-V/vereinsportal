@@ -7,12 +7,13 @@ use App\Modules\Access\Models\User;
 use App\Modules\Events\Enums\EventStatus;
 use App\Modules\Events\Models\Event;
 use App\Modules\Events\Models\EventMessage;
-use App\Modules\Events\Services\EventMessages;
 use App\Modules\Events\Models\EventRegistration;
 use App\Modules\Events\Models\EventSession;
 use App\Modules\Events\Services\EventAdministration;
+use App\Modules\Events\Services\EventMessages;
 use App\Modules\Events\Services\EventRegistrations;
 use App\Support\CsvCell;
+use App\Support\Html\RichText;
 use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -154,7 +155,7 @@ class EventAdminController extends Controller
 
     public function sendMessage(Request $request, Event $event): RedirectResponse
     {
-        $request->merge(['body' => \App\Support\Html\RichText::normalize($request->input('body'))]);
+        $request->merge(['body' => RichText::normalize($request->input('body'))]);
 
         $data = $request->validate([
             'subject' => ['required', 'string', 'max:150'],
@@ -257,7 +258,7 @@ class EventAdminController extends Controller
     /** @return array<string, mixed> */
     private function validated(Request $request): array
     {
-        $request->merge(['description' => \App\Support\Html\RichText::clean($request->input('description'))]);
+        $request->merge(['description' => RichText::clean($request->input('description'))]);
 
         return $request->validate([
             'title' => ['required', 'string', 'max:200'],

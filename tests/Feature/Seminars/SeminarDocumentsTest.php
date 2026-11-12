@@ -16,6 +16,7 @@ use App\Modules\Seminars\Models\SeminarDocument;
 use App\Modules\Seminars\Services\SeminarAdministration;
 use App\Modules\Seminars\Services\SeminarClosures;
 use App\Modules\Seminars\Services\SeminarDocuments;
+use App\Modules\System\Services\SystemTasks;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -334,5 +335,5 @@ it('sets longer retention for contracts, quotes and invoices than for the rest',
 
 it('schedules the pruning daily and offers it in the system tasks', function () {
     expect(file_get_contents(base_path('routes/console.php')))->toContain("Schedule::command('seminars:prune-documents')->daily()")
-        ->and(app(\App\Modules\System\Services\SystemTasks::class)->find('seminardokumente-aufraeumen')['command'])->toBe('seminars:prune-documents');
+        ->and(app(SystemTasks::class)->find('seminardokumente-aufraeumen')['command'])->toBe('seminars:prune-documents');
 });

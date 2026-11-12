@@ -5,15 +5,21 @@ namespace App\Support;
 use App\Modules\Access\Models\User;
 use App\Modules\AccessRequests\Enums\AccessRequestStatus;
 use App\Modules\AccessRequests\Models\AccessRequest;
+use App\Modules\Contracts\Models\SeminarContract;
+use App\Modules\Forms\Models\FormApplication;
 use App\Modules\Membership\Enums\MembershipStatus;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\Onboarding\Models\TeamOnboarding;
+use App\Modules\Partners\Models\PartnerUser;
 use App\Modules\Seminars\Enums\ApplicationStatus;
+use App\Modules\Seminars\Enums\SeminarEventType;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
 use App\Modules\Seminars\Models\TeamProfile;
 use App\Modules\Seminars\Services\TeamApplications;
+use App\Modules\Tasks\Models\Task;
+use App\Modules\Tasks\Services\ProjectAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Throwable;
@@ -60,9 +66,9 @@ final class TaskOverview
 
         // Schulen
         if ($can('school.area')) {
-            $partnerId = \App\Modules\Partners\Models\PartnerUser::query()->where('user_id', $user->id)->value('partner_id');
+            $partnerId = PartnerUser::query()->where('user_id', $user->id)->value('partner_id');
             $waiting = $partnerId === null ? 0 : Seminar::query()->where('partner_id', $partnerId)->where('status', SeminarStatus::Scheduled->value)->whereHas('quotes')
-                ->whereDoesntHave('events', fn ($query) => $query->where('type', \App\Modules\Seminars\Enums\SeminarEventType::SchoolConfirmed->value))->count();
+                ->whereDoesntHave('events', fn ($query) => $query->where('type', SeminarEventType::SchoolConfirmed->value))->count();
             $add('Seminare warten auf Ihre Bestätigung von Termin und Kostenvoranschlag', $waiting, route('school.home'));
         }
 
@@ -90,15 +96,15 @@ final class TaskOverview
 
         // Anträge (nur Zahlen) und Verträge
         if ($can('forms.manage')) {
-            $add('Anträge warten auf Prüfung', \App\Modules\Forms\Models\FormApplication::query()->whereIn('status', ['submitted', 'in_review'])->count(), route('forms-office.index'));
+            $add('Anträge warten auf Prüfung', FormApplication::query()->whereIn('status', ['submitted', 'in_review'])->count(), route('forms-office.index'));
         }
 
         if ($can('forms.approve')) {
-            $add('Anträge warten auf Freigabe durch den Vorstand', \App\Modules\Forms\Models\FormApplication::query()->where('status', 'in_review')->where('approval_level', 'board')->count(), route('forms-office.index'));
+            $add('Anträge warten auf Freigabe durch den Vorstand', FormApplication::query()->where('status', 'in_review')->where('approval_level', 'board')->count(), route('forms-office.index'));
         }
 
         if ($can('contracts.manage')) {
-            $missing = \App\Modules\Contracts\Models\SeminarContract::query()->where('status', 'created')
+            $missing = SeminarContract::query()->where('status', 'created')
                 ->whereHas('seminar.sessions', fn ($query) => $query->where('ends_at', '<', now()))
                 ->whereDoesntHave('seminar.sessions', fn ($query) => $query->where('ends_at', '>=', now()))->count();
             $add('Verträge warten auf den unterschriebenen Scan', $missing, route('seminars.index'));
@@ -106,8 +112,8 @@ final class TaskOverview
 
         // Aufgabensystem: eigene offene und überfällige Aufgaben aus den Projekten, die die Person sehen darf
         if ($can('tasks.use')) {
-            $mine = \App\Modules\Tasks\Models\Task::query()->whereNull('done_at')
-                ->whereIn('task_project_id', app(\App\Modules\Tasks\Services\ProjectAccess::class)->visible($user)->select('task_projects.id'))
+            $mine = Task::query()->whereNull('done_at')
+                ->whereIn('task_project_id', app(ProjectAccess::class)->visible($user)->select('task_projects.id'))
                 ->whereHas('assignees', fn ($assignees) => $assignees->where('users.id', $user->id));
             $overdue = (clone $mine)->whereDate('due_on', '<', today())->count();
 

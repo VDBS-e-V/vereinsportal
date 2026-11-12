@@ -2,14 +2,14 @@
 
 namespace Database\Seeders;
 
-use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
-use App\Modules\AccessGovernance\Enums\RoleKey;
-use App\Modules\AccessGovernance\Models\Role;
-use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Access\Enums\TwoFactorMethodType;
 use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Models\TwoFactorMethod;
 use App\Modules\Access\Models\User;
+use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
+use App\Modules\AccessGovernance\Enums\RoleKey;
+use App\Modules\AccessGovernance\Models\Role;
+use App\Modules\AccessGovernance\Models\RoleAssignment;
 use Illuminate\Database\Seeder;
 use InvalidArgumentException;
 

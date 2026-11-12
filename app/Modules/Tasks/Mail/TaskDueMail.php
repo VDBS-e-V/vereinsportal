@@ -2,6 +2,7 @@
 
 namespace App\Modules\Tasks\Mail;
 
+use App\Modules\Tasks\Models\Task;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -11,8 +12,8 @@ use Illuminate\Support\Collection;
 final class TaskDueMail extends Mailable
 {
     /**
-     * @param  Collection<int, \App\Modules\Tasks\Models\Task>  $soon
-     * @param  Collection<int, \App\Modules\Tasks\Models\Task>  $overdue
+     * @param  Collection<int, Task>  $soon
+     * @param  Collection<int, Task>  $overdue
      */
     public function __construct(public readonly Collection $soon, public readonly Collection $overdue, public readonly string $url) {}
 

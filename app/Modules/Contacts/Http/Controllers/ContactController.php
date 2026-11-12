@@ -4,6 +4,8 @@ namespace App\Modules\Contacts\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
+use App\Modules\Audit\Enums\AuditEvent;
+use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Contacts\Models\TeamContact;
 use App\Modules\Contacts\Services\AccessCredentials;
 use App\Modules\Contacts\Services\ContactAccessSender;
@@ -11,8 +13,10 @@ use App\Modules\Contacts\Services\ContactImporter;
 use App\Modules\Mailings\Services\MailSuppressions;
 use App\Modules\Mailings\Services\MailUnsubscribes;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /** Teamkontakte (Geschäftsstelle): importierte Mailingliste, persönliche Zugänge senden, sperren, Kontakte löschen. */
@@ -33,7 +37,7 @@ class ContactController extends Controller
     public function index(Request $request): View
     {
         $search = trim((string) $request->query('q', ''));
-        $states = array_values(array_intersect(array_keys(self::STATES), \Illuminate\Support\Arr::wrap($request->query('zugang'))));
+        $states = array_values(array_intersect(array_keys(self::STATES), Arr::wrap($request->query('zugang'))));
 
         $query = TeamContact::query()->with('credentials')
             ->when($search !== '', function ($builder) use ($search): void {
@@ -101,7 +105,7 @@ class ContactController extends Controller
             'phone' => $data['phone'] ?? null,
         ], fn ($value): bool => filled($value)) + ['consent_confirmed_at' => now()]);
 
-        \App\Modules\Audit\Support\AuditLog::record(\App\Modules\Audit\Enums\AuditEvent::ContactsImported, $this->actor($request), null, ['neu' => 1, 'ergaenzt' => 0, 'uebersprungen' => 0]);
+        AuditLog::record(AuditEvent::ContactsImported, $this->actor($request), null, ['neu' => 1, 'ergaenzt' => 0, 'uebersprungen' => 0]);
 
         if ($request->boolean('send_access')) {
             return redirect()->route('contacts.index')->with($this->sender->queue($contact) ? 'success' : 'warning', $this->sender->canMail($contact) ? 'Die Adresse wurde hinzugefügt, der Zugang wird versendet.' : 'Die Adresse wurde hinzugefügt. Sie ist gesperrt oder abgemeldet und bekommt keinen Zugang.');
@@ -209,7 +213,7 @@ class ContactController extends Controller
         return redirect()->route('contacts.index')->with('success', $count === 1 ? '1 Kontakt wurde gelöscht.' : "{$count} Kontakte wurden gelöscht.");
     }
 
-    /** @return \Illuminate\Database\Eloquent\Collection<int, TeamContact> */
+    /** @return Collection<int, TeamContact> */
     private function selected(Request $request)
     {
         $data = $request->validate(['ids' => ['required', 'array', 'min:1', 'max:500'], 'ids.*' => ['integer']], ['ids.required' => 'Bitte haken Sie mindestens eine Adresse an.', 'ids.min' => 'Bitte haken Sie mindestens eine Adresse an.']);

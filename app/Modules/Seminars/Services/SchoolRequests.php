@@ -3,6 +3,7 @@
 namespace App\Modules\Seminars\Services;
 
 use App\Modules\Access\Models\User;
+use App\Modules\Access\Services\NotificationPreferences;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Partners\Models\PartnerUser;
 use App\Modules\Seminars\Enums\SeminarEventType;
@@ -90,7 +91,7 @@ final class SchoolRequests
     {
         $seminar->loadMissing('partner');
 
-        foreach (app(\App\Modules\Access\Services\NotificationPreferences::class)->filter(CoordinationRecipients::users(), 'school_requests') as $recipient) {
+        foreach (app(NotificationPreferences::class)->filter(CoordinationRecipients::users(), 'school_requests') as $recipient) {
             try {
                 Mail::to($recipient->email)->send(new SchoolMessageMail($kind, $seminar, route('seminars.show', $seminar)));
             } catch (Throwable $exception) {

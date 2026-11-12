@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Modules\Events\Models\Event;
 use App\Modules\Events\Models\EventAttendance;
 use App\Modules\Events\Models\EventRegistration;
+use App\Modules\Events\Models\EventSession;
 use App\Modules\Membership\Enums\MembershipStatus;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\Seminars\Enums\ApplicationStatus;
@@ -12,6 +13,7 @@ use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Enums\SeminarType;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
+use App\Modules\Seminars\Models\SeminarClosure;
 use App\Modules\Seminars\Models\SeminarQuote;
 use App\Modules\Seminars\Models\SeminarSession;
 use Carbon\Carbon;
@@ -42,7 +44,7 @@ final class YearReport
         $add('Seminare', 'Seminartage (Termine)', (clone $sessions)->count());
         $add('Seminare', 'Beteiligte Schulen', (clone $seminars)->distinct('partner_id')->count('partner_id'));
 
-        $closures = \App\Modules\Seminars\Models\SeminarClosure::query()->whereNull('reopened_at')->whereBetween('closed_at', [$from, $to])->get();
+        $closures = SeminarClosure::query()->whereNull('reopened_at')->whereBetween('closed_at', [$from, $to])->get();
         $add('Seminare', 'Abgeschlossene Seminare (mit Abschluss im Portal)', $closures->count());
         $add('Seminare', 'Seminarstunden laut Abschluss', str_replace('.', ',', (string) round((float) $closures->sum(fn ($closure): float => (float) ($closure->snapshot['hours'] ?? 0)), 1)));
 
@@ -80,7 +82,7 @@ final class YearReport
     {
         $years = collect([(int) now()->year]);
 
-        foreach ([SeminarSession::query()->min('starts_at'), \App\Modules\Events\Models\EventSession::query()->min('starts_at'), Membership::query()->min('starts_on')] as $first) {
+        foreach ([SeminarSession::query()->min('starts_at'), EventSession::query()->min('starts_at'), Membership::query()->min('starts_on')] as $first) {
             if ($first !== null) {
                 $years->push(Carbon::parse($first)->year);
             }

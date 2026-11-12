@@ -4,9 +4,9 @@ namespace App\Modules\Pages\Models;
 
 use App\Modules\Access\Models\User;
 use App\Modules\Pages\Enums\PageKey;
+use App\Support\Html\RichText;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Str;
 
 /** Modul: Pages. Bearbeiteter Text einer Rechtstext-Seite (Impressum, Datenschutz, …). Ohne Zeile gilt der Standardtext. */
 class Page extends Model
@@ -32,7 +32,7 @@ class Page extends Model
     /** Text als sicheres HTML (einfaches Markdown, kein eigenes HTML, keine unsicheren Links). */
     public function html(): string
     {
-        return \App\Support\Html\RichText::render($this->body);
+        return RichText::render($this->body);
     }
 
     /** @return BelongsTo<User, $this> */

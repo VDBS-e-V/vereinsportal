@@ -4,7 +4,6 @@
  * Schutz für das Tokensystem (resources/css/vdbs/tokens.css): Farbcodes nur dort, Komponenten nutzen nur
  * Semantik, der Dark Mode steht in beiden Blöcken identisch da und jede verwendete Variable ist definiert.
  */
-
 function vdbsCssFiles(): array
 {
     $root = resource_path('css/vdbs');

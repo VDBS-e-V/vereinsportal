@@ -11,8 +11,8 @@ use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
 /** Systemsteuerung (Bereich Admins): Zustand ansehen und Aufgaben aus der festen Liste ausführen. Berechtigung system.manage. */

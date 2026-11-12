@@ -18,6 +18,7 @@ use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
 use App\Modules\Seminars\Models\TeamProfile;
 use App\Modules\Seminars\Services\SeminarAdministration;
+use App\Modules\Seminars\Services\TeamApplications;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Mail;
 
@@ -249,7 +250,7 @@ it('tells the coordination once when a deadline has passed and again after a new
 
     $this->artisan('seminars:team-deadlines')->expectsOutputToContain('Gemeldete Seminare: 0')->assertSuccessful();
 
-    app(\App\Modules\Seminars\Services\TeamApplications::class)->setNeed($due->fresh(), 2, now()->addDays(3), [], $coordination);
+    app(TeamApplications::class)->setNeed($due->fresh(), 2, now()->addDays(3), [], $coordination);
     expect($due->fresh()->deadline_notified_at)->toBeNull();
 });
 
@@ -346,7 +347,7 @@ it('suggests a team by competences, leadership and experience, skips overlaps an
         SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $user->id, 'status' => ApplicationStatus::Applied]);
     }
 
-    $suggestion = app(\App\Modules\Seminars\Services\TeamApplications::class)->suggest($seminar->fresh());
+    $suggestion = app(TeamApplications::class)->suggest($seminar->fresh());
     expect(collect($suggestion['picks'])->pluck('application.user_id')->all())->toBe([$a->id, $b->id])->and($suggestion['slots'])->toBe(2)->and($suggestion['conflicts'])->toBe(1);
     expect($suggestion['picks'][0]['reasons'])->toContain('deckt gesuchte Kompetenz ab: Moderation und Gesprächsführung');
 

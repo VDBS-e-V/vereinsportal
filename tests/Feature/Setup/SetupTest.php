@@ -4,6 +4,7 @@ use App\Modules\Access\Models\User;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\People\Models\Person;
+use App\Modules\Setup\Http\Middleware\SetupThrottle;
 use App\Modules\Setup\Services\Setup;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Hash;
@@ -104,7 +105,7 @@ it('never writes the password into the audit log', function () {
 it('limits calls to the setup per address without session, account lookup or database cache', function () {
     config(['cache.default' => 'array']);
 
-    foreach (range(1, \App\Modules\Setup\Http\Middleware\SetupThrottle::MAX) as $i) {
+    foreach (range(1, SetupThrottle::MAX) as $i) {
         $this->get(route('setup.show'))->assertOk();
     }
 

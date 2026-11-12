@@ -2,12 +2,14 @@
 
 namespace App\Modules\Contracts\Console;
 
+use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Models\User;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Contracts\Mail\ContractScanReminderMail;
 use App\Modules\Contracts\Models\SeminarContract;
 use App\Modules\Seminars\Models\Seminar;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
@@ -26,7 +28,7 @@ class RemindContractScans extends Command
             ->filter(function (SeminarContract $contract) use ($days): bool {
                 $end = $contract->seminar?->sessions()->max('ends_at');
 
-                return $end !== null && \Carbon\Carbon::parse($end)->addDays($days)->isPast();
+                return $end !== null && Carbon::parse($end)->addDays($days)->isPast();
             })->groupBy('seminar_id');
 
         if ($open->isEmpty()) {
@@ -38,7 +40,7 @@ class RemindContractScans extends Command
         $recipients = User::query()->whereIn('id', RoleAssignment::query()
             ->where('starts_at', '<=', now())->where(fn ($query) => $query->whereNull('ends_at')->orWhere('ends_at', '>', now()))
             ->whereHas('role', fn ($query) => $query->where('key', RoleKey::Coordination->value))->select('user_id'))->get()
-            ->filter(fn (User $user): bool => $user->status === \App\Modules\Access\Enums\UserStatus::Active);
+            ->filter(fn (User $user): bool => $user->status === UserStatus::Active);
 
         foreach ($open as $seminarId => $contracts) {
             $seminar = Seminar::query()->find($seminarId);

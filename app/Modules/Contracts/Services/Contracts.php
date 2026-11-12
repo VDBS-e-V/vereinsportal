@@ -11,7 +11,6 @@ use App\Modules\Forms\Services\Iban;
 use App\Modules\Seminars\Enums\ApplicationStatus;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
-use App\Modules\Seminars\Models\SeminarDocument;
 use App\Modules\Seminars\Services\SeminarDocuments;
 use App\Modules\Seminars\Support\Money;
 use DomainException;

@@ -101,7 +101,9 @@ final class SeminarFolder
             'Erwartete Teilnehmende' => (string) ($s['expected_participants'] ?? '–'), 'Teamgröße' => (string) ($s['team_size'] ?? 0),
             'Kostenvoranschlag (Endsumme)' => isset($s['quote_total_cents']) ? number_format($s['quote_total_cents'] / 100, 2, ',', '.').' €' : '–',
         ];
-        $check = collect($closure->checklist)->map(fn (array $item): string => '<li>'.e($item['label']).': '.match ($item['state']) { 'auto' => 'erfüllt', 'confirmed' => 'bestätigt', default => 'übersprungen – '.e((string) ($item['reason'] ?? '')) }.'</li>')->implode('');
+        $check = collect($closure->checklist)->map(fn (array $item): string => '<li>'.e($item['label']).': '.match ($item['state']) {
+            'auto' => 'erfüllt', 'confirmed' => 'bestätigt', default => 'übersprungen – '.e((string) ($item['reason'] ?? ''))
+        }.'</li>')->implode('');
         $table = collect($rows)->map(fn ($value, $label): string => '<tr><th>'.e($label).'</th><td>'.e((string) $value).'</td></tr>')->implode('');
 
         return '<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><title>Abschluss '.e((string) ($s['number'] ?? '')).'</title><style>body{font-family:Arial,sans-serif;max-width:46rem;margin:2rem auto;line-height:1.5}th{text-align:left;padding-right:1rem}</style></head><body>'

@@ -2,6 +2,7 @@
 
 namespace App\Modules\System\Services;
 
+use App\Modules\System\Models\CronRun;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -191,7 +192,7 @@ final class SystemChecks
         $keyLength = strlen((string) config('portal.cron.key', ''));
 
         try {
-            $last = $keyLength >= 32 && Schema::hasTable('cron_runs') ? \App\Modules\System\Models\CronRun::query()->latest('started_at')->first() : null;
+            $last = $keyLength >= 32 && Schema::hasTable('cron_runs') ? CronRun::query()->latest('started_at')->first() : null;
         } catch (Throwable) {
             $last = null;
         }

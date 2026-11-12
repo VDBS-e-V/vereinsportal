@@ -8,6 +8,7 @@ use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarDocument;
+use Carbon\Carbon;
 use DomainException;
 use finfo;
 use Illuminate\Http\UploadedFile;
@@ -177,13 +178,13 @@ final class SeminarDocuments
     }
 
     /** Aufbewahrung bis: letzter Termin (oder heute) plus Jahre je Art. */
-    public function retentionFor(Seminar $seminar, string $kind): \Carbon\Carbon
+    public function retentionFor(Seminar $seminar, string $kind): Carbon
     {
         $years = (array) config('portal.seminars.documents.retention_years', []);
         $count = (int) ($years[$kind] ?? $years['default'] ?? 3);
         $end = $seminar->sessions()->max('ends_at');
 
-        return ($end ? \Carbon\Carbon::parse($end) : now())->copy()->addYears(max(1, $count))->startOfDay();
+        return ($end ? Carbon::parse($end) : now())->copy()->addYears(max(1, $count))->startOfDay();
     }
 
     public function isClosed(Seminar $seminar): bool

@@ -14,6 +14,7 @@ use App\Modules\Contacts\Services\ContactImporter;
 use App\Modules\Mailings\Services\MailSuppressions;
 use App\Modules\Mailings\Services\MailUnsubscribes;
 use App\Modules\People\Models\Person;
+use App\Modules\Seminars\Models\Seminar;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
@@ -339,7 +340,7 @@ it('revokes an access and deletes a contact with its credentials', function () {
 
 it('shows open seminars read-only on the access page', function () {
     $contact = kcContact();
-    $seminar = \App\Modules\Seminars\Models\Seminar::factory()->create(['title' => 'Offenes Seminar', 'status' => 'scheduled', 'team_needed' => 3, 'application_deadline' => now()->addWeek()]);
+    $seminar = Seminar::factory()->create(['title' => 'Offenes Seminar', 'status' => 'scheduled', 'team_needed' => 3, 'application_deadline' => now()->addWeek()]);
     $issued = app(AccessCredentials::class)->issue($contact);
 
     $this->get(route('access.link', ['token' => $issued['token']]));

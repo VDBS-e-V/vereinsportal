@@ -4,7 +4,6 @@ namespace App\Modules\Contracts\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
-use App\Modules\Contracts\Models\ContractTemplate;
 use App\Modules\Contracts\Services\ContractSettings;
 use App\Modules\Contracts\Services\ContractTexts;
 use App\Support\Html\RichText;

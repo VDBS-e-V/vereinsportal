@@ -9,6 +9,7 @@ use App\Modules\Events\Mail\EventMessageMail;
 use App\Modules\Events\Models\Event;
 use App\Modules\Events\Models\EventMessage;
 use DomainException;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
 
@@ -50,7 +51,7 @@ final class EventMessages
         return $message;
     }
 
-    /** @return \Illuminate\Support\Collection<int, string> */
+    /** @return Collection<int, string> */
     private function emails(Event $event, string $audience)
     {
         $query = $event->registrations()->whereNotNull('verified_at');

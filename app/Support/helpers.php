@@ -1,6 +1,8 @@
 <?php
 
 use App\Modules\DesignLibrary\Support\PlaceholderImages;
+use App\Support\Html\RichText;
+use Illuminate\Support\HtmlString;
 
 if (! function_exists('placeholder')) {
     /**
@@ -15,8 +17,8 @@ if (! function_exists('placeholder')) {
 
 if (! function_exists('rich_text')) {
     /** Formatierter Text (Editor-HTML oder älterer Markdown-Text) als sicheres HTML zur Ausgabe mit {!! !!}. */
-    function rich_text(?string $value): \Illuminate\Support\HtmlString
+    function rich_text(?string $value): HtmlString
     {
-        return new \Illuminate\Support\HtmlString(\App\Support\Html\RichText::render($value));
+        return new HtmlString(RichText::render($value));
     }
 }

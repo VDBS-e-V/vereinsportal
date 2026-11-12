@@ -2,6 +2,11 @@
 
 namespace App\Modules\Sso;
 
+use App\Modules\Sso\Console\EnsureOAuthKeys;
+use App\Modules\Sso\Http\Middleware\GuardAuthorization;
+use App\Modules\Sso\Models\OAuthClient;
+use App\Modules\Sso\Services\OidcClaims;
+use App\Modules\Sso\Support\IdTokenResponse;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
 
@@ -44,17 +49,17 @@ class SsoServiceProvider extends ServiceProvider
         Passport::refreshTokensExpireIn(now()->addDays(30));
         Passport::personalAccessTokensExpireIn(now()->addMonths(6));
 
-        Passport::tokensCan(\App\Modules\Sso\Services\OidcClaims::SCOPES);
+        Passport::tokensCan(OidcClaims::SCOPES);
         Passport::setDefaultScope(['openid']);
         Passport::authorizationView('sso.authorize');
-        Passport::useClientModel(\App\Modules\Sso\Models\OAuthClient::class);
-        Passport::useAuthorizationServerResponseType(new \App\Modules\Sso\Support\IdTokenResponse);
+        Passport::useClientModel(OAuthClient::class);
+        Passport::useAuthorizationServerResponseType(new IdTokenResponse);
 
-        $this->app['router']->pushMiddlewareToGroup('web', \App\Modules\Sso\Http\Middleware\GuardAuthorization::class);
+        $this->app['router']->pushMiddlewareToGroup('web', GuardAuthorization::class);
 
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
 
         // Auch bei Aufrufen über den Browser (Systemsteuerung, Einrichtung) müssen die Befehle bekannt sein, nicht nur auf der Konsole
-        $this->commands([\App\Modules\Sso\Console\EnsureOAuthKeys::class]);
+        $this->commands([EnsureOAuthKeys::class]);
     }
 }

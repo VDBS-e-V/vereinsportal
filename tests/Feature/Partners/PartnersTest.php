@@ -414,7 +414,6 @@ it('maps school type, federal state and status flexibly', function () {
         ->and(Partner::query()->where('name', 'C')->first()->status)->toBe(PartnerStatus::Past);
 });
 
-
 // ---------- Interne Kennung (Bundesland-Kürzel + Schulnummer) ----------
 
 it('builds the internal id from the state code and the school number', function () {

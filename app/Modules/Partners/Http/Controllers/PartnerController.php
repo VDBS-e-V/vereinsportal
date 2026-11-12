@@ -3,6 +3,7 @@
 namespace App\Modules\Partners\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Models\User;
 use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\Partners\Enums\FederalState;
@@ -10,14 +11,15 @@ use App\Modules\Partners\Enums\PartnerStatus;
 use App\Modules\Partners\Enums\PartnerType;
 use App\Modules\Partners\Enums\SchoolType;
 use App\Modules\Partners\Models\Partner;
-use App\Modules\Partners\Services\PartnerAdministration;
 use App\Modules\Partners\Models\PartnerContact;
 use App\Modules\Partners\Models\PartnerUser;
+use App\Modules\Partners\Services\PartnerAdministration;
 use App\Modules\Partners\Services\PartnerImporter;
 use App\Modules\Partners\Services\SchoolAccounts;
-use DomainException;
 use App\Modules\Partners\Support\PartnerData;
 use App\Support\CsvCell;
+use App\Support\Html\RichText;
+use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -200,7 +202,7 @@ class PartnerController extends Controller
                 ], $contactCells, [
                     $attributes['student_count'] ?? '',
                     $partner->status->label(),
-                    \App\Support\Html\RichText::toPlain((string) $partner->notes),
+                    RichText::toPlain((string) $partner->notes),
                 ])), ';', '"', '\\');
             }
 
@@ -240,14 +242,14 @@ class PartnerController extends Controller
         abort_unless($account->partner_id === $partner->id, 404);
 
         try {
-            $account->user->status === \App\Modules\Access\Enums\UserStatus::Disabled
+            $account->user->status === UserStatus::Disabled
                 ? app(SchoolAccounts::class)->enable($account, $this->actor($request))
                 : app(SchoolAccounts::class)->disable($account, $this->actor($request));
         } catch (DomainException $exception) {
             return redirect()->route('partners.show', $partner)->withErrors(['account' => $exception->getMessage()]);
         }
 
-        return redirect()->route('partners.show', $partner)->with('success', $account->user->fresh()->status === \App\Modules\Access\Enums\UserStatus::Disabled ? 'Das Konto wurde gesperrt.' : 'Das Konto wurde entsperrt.');
+        return redirect()->route('partners.show', $partner)->with('success', $account->user->fresh()->status === UserStatus::Disabled ? 'Das Konto wurde gesperrt.' : 'Das Konto wurde entsperrt.');
     }
 
     public function importForm(): View
@@ -333,7 +335,7 @@ class PartnerController extends Controller
     /** @return array<string, mixed> */
     private function validated(Request $request, ?Partner $partner): array
     {
-        $request->merge(['notes' => \App\Support\Html\RichText::clean($request->input('notes'))]);
+        $request->merge(['notes' => RichText::clean($request->input('notes'))]);
         $data = $request->validate(PartnerData::rules(), PartnerData::messages());
 
         if ($this->partners->exists($data['name'], $data['city'] ?? null, $partner?->id)) {

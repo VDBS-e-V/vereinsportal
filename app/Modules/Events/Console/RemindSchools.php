@@ -3,6 +3,7 @@
 namespace App\Modules\Events\Console;
 
 use App\Modules\Access\Enums\UserStatus;
+use App\Modules\Access\Services\NotificationPreferences;
 use App\Modules\Events\Enums\EventStatus;
 use App\Modules\Events\Mail\SchoolEventReminderMail;
 use App\Modules\Events\Models\Event;
@@ -31,7 +32,7 @@ class RemindSchools extends Command
                     ->whereNotIn('id', DB::table('school_event_reminders')->where('event_id', $event->id)->select('partner_user_id'))->with('user')->get();
 
                 foreach ($accounts as $account) {
-                    if (! app(\App\Modules\Access\Services\NotificationPreferences::class)->allows($account->user, 'school_event_reminders')) {
+                    if (! app(NotificationPreferences::class)->allows($account->user, 'school_event_reminders')) {
                         continue;
                     }
 

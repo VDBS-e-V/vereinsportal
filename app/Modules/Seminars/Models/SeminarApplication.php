@@ -3,6 +3,7 @@
 namespace App\Modules\Seminars\Models;
 
 use App\Modules\Access\Models\User;
+use App\Modules\Contacts\Models\TeamContact;
 use App\Modules\Seminars\Enums\ApplicationStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,10 +24,10 @@ class SeminarApplication extends Model
         return $this->belongsTo(Seminar::class);
     }
 
-    /** @return BelongsTo<\App\Modules\Contacts\Models\TeamContact, $this> */
+    /** @return BelongsTo<TeamContact, $this> */
     public function contact(): BelongsTo
     {
-        return $this->belongsTo(\App\Modules\Contacts\Models\TeamContact::class, 'contact_id');
+        return $this->belongsTo(TeamContact::class, 'contact_id');
     }
 
     /** Bewerbung über den persönlichen Zugang (ohne Konto). */

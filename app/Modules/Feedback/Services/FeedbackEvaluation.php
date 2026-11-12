@@ -2,12 +2,14 @@
 
 namespace App\Modules\Feedback\Services;
 
+use App\Modules\Access\Models\User;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
-use App\Modules\Access\Models\User;
 use App\Modules\Feedback\Models\FeedbackArchive;
 use App\Modules\Feedback\Models\FeedbackLink;
+use App\Modules\Feedback\Models\FeedbackResponse;
 use App\Modules\Seminars\Models\Seminar;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -76,7 +78,7 @@ final class FeedbackEvaluation
             }
 
             $first = $seminar->sessions->min('starts_at');
-            $year = $first ? \Illuminate\Support\Carbon::parse($first)->format('Y') : $link->opens_at->format('Y');
+            $year = $first ? Carbon::parse($first)->format('Y') : $link->opens_at->format('Y');
             $type = $seminar->type->value ?? (string) $seminar->type;
 
             if (($years !== [] && ! in_array($year, $years, true)) || ($types !== [] && ! in_array((string) $type, $types, true)) || ($schools !== [] && ! in_array((int) $seminar->partner_id, $schools, true)) || ($audiences !== [] && ! in_array($link->audience, $audiences, true))) {
@@ -193,7 +195,7 @@ final class FeedbackEvaluation
 
     /**
      * @param  list<array<string, mixed>>  $questions
-     * @param  Collection<int, \App\Modules\Feedback\Models\FeedbackResponse>  $responses
+     * @param  Collection<int, FeedbackResponse>  $responses
      * @return list<array<string, mixed>>
      */
     public function summarize(array $questions, Collection $responses, bool $withTexts): array

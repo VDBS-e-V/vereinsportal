@@ -5,14 +5,17 @@ namespace App\Modules\Contracts\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
 use App\Modules\Contracts\Models\SeminarContract;
-use App\Modules\Contracts\Services\ContractSettings;
 use App\Modules\Contracts\Services\Contracts;
+use App\Modules\Contracts\Services\ContractSettings;
 use App\Modules\Contracts\Services\ContractTexts;
 use App\Modules\Seminars\Models\Seminar;
 use DomainException;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
@@ -107,7 +110,7 @@ class ContractController extends Controller
         return redirect()->to(route('seminars.show', $seminar).'#contracts-heading')->with('success', 'Der Vertrag wurde storniert.');
     }
 
-    /** @param  \Illuminate\Support\Collection<int, SeminarContract>  $contracts */
+    /** @param  Collection<int, SeminarContract>  $contracts */
     private function printView(Seminar $seminar, $contracts, string $name = 'Vertrag')
     {
         $club = $this->settings->all();
@@ -117,7 +120,7 @@ class ContractController extends Controller
             return ['contract' => $contract, 'title' => $template->title, 'html' => $this->texts->render($template, (array) $contract->data, $club), 'club' => $club];
         });
 
-        $data = ['seminar' => $seminar, 'pages' => $pages, 'club' => $club, 'pdfAvailable' => class_exists(\Dompdf\Dompdf::class), 'pdf' => false];
+        $data = ['seminar' => $seminar, 'pages' => $pages, 'club' => $club, 'pdfAvailable' => class_exists(Dompdf::class), 'pdf' => false];
 
         if (request()->query('format') === 'pdf') {
             if (! $data['pdfAvailable']) {
@@ -125,9 +128,9 @@ class ContractController extends Controller
             }
 
             try {
-                $options = new \Dompdf\Options;
+                $options = new Options;
                 $options->set('isRemoteEnabled', false);
-                $pdf = new \Dompdf\Dompdf($options);
+                $pdf = new Dompdf($options);
                 $pdf->loadHtml(view('contracts.print', ['pdf' => true] + $data)->render(), 'UTF-8');
                 $pdf->setPaper('A4');
                 $pdf->render();

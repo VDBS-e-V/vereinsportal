@@ -7,16 +7,21 @@ use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\Letters\Models\LetterTemplate;
+use App\Modules\Letters\Services\LetterTemplates;
+use App\Modules\Letters\Support\LetterVariables;
 use App\Modules\Letters\Support\SampleLetter;
 use App\Modules\Partners\Models\Partner;
+use App\Modules\Partners\Models\PartnerContact;
 use App\Modules\People\Models\Person;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
 use App\Modules\Seminars\Services\SeminarAdministration;
+use App\Modules\System\Services\SystemTasks;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpWord\TemplateProcessor;
 
 beforeEach(function () {
     $this->withoutVite();
@@ -45,7 +50,7 @@ function ltDocx(array $paragraphs, string $name = 'vorlage.docx'): UploadedFile
 it('opens a built docx with PHPWord and reads its placeholders', function () {
     $path = SampleLetter::build(['Guten Tag ${empfaenger_name}', '${datum}']);
 
-    expect((new \PhpOffice\PhpWord\TemplateProcessor($path))->getVariables())->toBe(['empfaenger_name', 'datum']);
+    expect((new TemplateProcessor($path))->getVariables())->toBe(['empfaenger_name', 'datum']);
 });
 
 function ltTemplate(array $paragraphs, string $name = 'Vorlage', string $audience = 'general'): LetterTemplate
@@ -227,7 +232,7 @@ it('shows or hides blocks with if-queries by value and by recipient kind, also w
         ->not->toContain('Ihre Ansprechperson')->not->toContain('Text nur für Personen')->not->toContain('Zusatz eins')
         ->toContain('${wenn_unbekannt_xyz}')->not->toContain('${wenn_ansprechperson}')->not->toContain('${/wenn_ansprechperson}');
 
-    \App\Modules\Partners\Models\PartnerContact::query()->create(['partner_id' => $seminar->partner_id, 'name' => 'Frau Lehmann', 'email' => 'lehmann@schule.example', 'is_primary' => true]);
+    PartnerContact::query()->create(['partner_id' => $seminar->partner_id, 'name' => 'Frau Lehmann', 'email' => 'lehmann@schule.example', 'is_primary' => true]);
 
     $with = $this->post(route('letters.generate', $seminar), ['template_id' => $template->id, 'to' => 'school', 'freitext' => 'Etwas Text'])->assertOk();
     $xml = ltXml($with->baseResponse->getFile()->getPathname());
@@ -268,8 +273,8 @@ it('offers several sample templates that only use known placeholders and open wi
 
     foreach ($catalog as $key => $sample) {
         expect($sample['audience'])->toBeIn(['general', 'school', 'team'])->and($sample['name'])->not->toBe('')->and($sample['description'])->not->toBe('');
-        $names = (new \PhpOffice\PhpWord\TemplateProcessor(SampleLetter::build($sample['paragraphs'])))->getVariables();
-        $unknown = array_values(array_filter($names, fn (string $name): bool => ! in_array(\App\Modules\Letters\Support\LetterVariables::baseName($name), \App\Modules\Letters\Support\LetterVariables::known(), true)));
+        $names = (new TemplateProcessor(SampleLetter::build($sample['paragraphs'])))->getVariables();
+        $unknown = array_values(array_filter($names, fn (string $name): bool => ! in_array(LetterVariables::baseName($name), LetterVariables::known(), true)));
 
         expect($unknown)->toBe([], 'Unbekannte Platzhalter in '.$key);
     }
@@ -300,7 +305,7 @@ it('loads the samples once on update, keeps changed ones and does not bring back
     $changed = LetterTemplate::query()->where('audience', 'team')->orderBy('name')->first();
     $changed->update(['description' => 'Von uns geändert']);
     $deleted = LetterTemplate::query()->where('audience', 'school')->first();
-    app(\App\Modules\Letters\Services\LetterTemplates::class)->delete($deleted, ltUser(RoleKey::AdministrationStaff));
+    app(LetterTemplates::class)->delete($deleted, ltUser(RoleKey::AdministrationStaff));
 
     $this->artisan('letters:load-defaults')->expectsOutputToContain('0 Beispielvorlage(n) neu angelegt')->assertSuccessful();
     expect(LetterTemplate::query()->count())->toBe($count - 1)->and($changed->fresh()->description)->toBe('Von uns geändert');
@@ -323,7 +328,7 @@ it('loads the samples with the portal update and offers the task in the system t
     $this->artisan('portal:update', ['--skip-verify' => true])->assertSuccessful();
 
     expect(LetterTemplate::query()->count())->toBe(count(SampleLetter::catalog()))
-        ->and(collect(app(\App\Modules\System\Services\SystemTasks::class)->all())->pluck('command')->contains('letters:load-defaults'))->toBeTrue();
+        ->and(collect(app(SystemTasks::class)->all())->pluck('command')->contains('letters:load-defaults'))->toBeTrue();
 });
 
 it('fills an installed sample for a school with the blocks of the right recipient kind', function () {

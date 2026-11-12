@@ -1,5 +1,7 @@
 <?php
 
+use App\Modules\Access\Models\User;
+
 return [
 
     /*
@@ -75,7 +77,7 @@ return [
             'driver' => 'eloquent',
             'model' => env(
                 'AUTH_MODEL',
-                App\Modules\Access\Models\User::class,
+                User::class,
             ),
         ],
 

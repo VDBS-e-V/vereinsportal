@@ -5,6 +5,7 @@ namespace App\Modules\Feedback\Services;
 use App\Modules\Feedback\Mail\FeedbackReminderMail;
 use App\Modules\Feedback\Models\FeedbackLink;
 use App\Modules\Seminars\Enums\ApplicationStatus;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 
 /**
@@ -28,7 +29,7 @@ final class FeedbackReminders
             $seminar = $link->seminar;
             $lastEnd = $seminar?->sessions->max('ends_at');
 
-            if ($seminar === null || $lastEnd === null || now()->lessThan(\Illuminate\Support\Carbon::parse($lastEnd)->addDays($after)) || $this->links->state($link) !== 'open') {
+            if ($seminar === null || $lastEnd === null || now()->lessThan(Carbon::parse($lastEnd)->addDays($after)) || $this->links->state($link) !== 'open') {
                 continue;
             }
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Access\Models\User;
+use Illuminate\Support\Facades\Blade;
 
 beforeEach(fn () => $this->withoutVite());
 
@@ -74,11 +75,11 @@ it('shows the area chips with group color but without icons or marks', function 
 });
 
 it('keeps the numbered group marks where the styleguide shows them', function () {
-    $html = \Illuminate\Support\Facades\Blade::render('<x-vdbs.data.group-mark :number="3" />');
+    $html = Blade::render('<x-vdbs.data.group-mark :number="3" />');
 
     expect($html)->toContain('vdbs-group-mark--3')->toContain('>3<')->toContain('Gruppe 3');
 
-    $plain = \Illuminate\Support\Facades\Blade::render('<x-vdbs.data.group-mark :number="3" :numbered="false" />');
+    $plain = Blade::render('<x-vdbs.data.group-mark :number="3" :numbered="false" />');
 
     expect($plain)->toContain('vdbs-group-mark--3')->not->toContain('>3<')->not->toContain('Gruppe 3')->toContain('aria-hidden="true"');
 });

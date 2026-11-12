@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Access\Models\User;
+use App\Modules\Access\Services\Profiles;
 use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
@@ -77,7 +78,7 @@ it('keeps everything private until it is released and uses a default name', func
     $user = pfUser();
     $this->actingAs($user)->put(route('account.profile.update'), ['display_name' => '', 'headline' => 'Seminarleitung']);
 
-    $profiles = app(\App\Modules\Access\Services\Profiles::class);
+    $profiles = app(Profiles::class);
 
     expect($profiles->shownTo($user->fresh(), null))->toBe([])
         ->and($profiles->shownTo($user->fresh(), pfUser()))->toBe([])
@@ -89,7 +90,7 @@ it('shows each field only to the chosen audience', function () {
     $this->actingAs($user)->put(route('account.profile.update'), ['display_name' => 'Erika', 'headline' => 'Leitung', 'bio' => '<p>Text</p>']);
     $this->put(route('account.profile.visibility.update'), pfLevels(['name' => 'public', 'headline' => 'portal', 'phone' => 'portal']) + ['consent' => '1'])->assertSessionHasNoErrors();
 
-    $profiles = app(\App\Modules\Access\Services\Profiles::class);
+    $profiles = app(Profiles::class);
     $fresh = $user->fresh();
 
     expect($profiles->shownTo($fresh, null))->toBe(['name' => 'Erika'])

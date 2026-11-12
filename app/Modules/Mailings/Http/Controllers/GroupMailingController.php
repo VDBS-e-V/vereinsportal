@@ -4,15 +4,16 @@ namespace App\Modules\Mailings\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
+use App\Modules\Mailings\Models\Mailing;
 use App\Modules\Mailings\Models\MailSnippet;
 use App\Modules\Mailings\Models\MailTemplate;
-use App\Modules\Mailings\Models\Mailing;
 use App\Modules\Mailings\Services\MailAttachments;
-use App\Modules\Mailings\Services\MailRecipients;
 use App\Modules\Mailings\Services\Mailings;
-use App\Modules\Mailings\Services\SegmentResolver;
+use App\Modules\Mailings\Services\MailRecipients;
 use App\Modules\Mailings\Services\MailTemplates;
+use App\Modules\Mailings\Services\SegmentResolver;
 use App\Modules\Mailings\Support\MailAccessibilityCheck;
+use App\Modules\Mailings\Support\MailCategories;
 use App\Modules\Mailings\Support\MailGroups;
 use App\Modules\Mailings\Support\MailPlaceholders;
 use App\Support\Html\RichText;
@@ -21,8 +22,8 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -106,7 +107,7 @@ class GroupMailingController extends Controller
             'mandatoryChecked' => $mandatory,
             'needsApproval' => $this->mailings->needsApproval($user, $total),
             'placeholders' => MailPlaceholders::definitions('general'),
-            'templates' => $this->templates->general()->mapWithKeys(fn (MailTemplate $t): array => [$t->id => ($t->category ? \App\Modules\Mailings\Support\MailCategories::templateLabel($t->category).': ' : '').$t->name])->all(),
+            'templates' => $this->templates->general()->mapWithKeys(fn (MailTemplate $t): array => [$t->id => ($t->category ? MailCategories::templateLabel($t->category).': ' : '').$t->name])->all(),
             'template' => $template,
             'draft' => $draft,
             'prefill' => $prefill,

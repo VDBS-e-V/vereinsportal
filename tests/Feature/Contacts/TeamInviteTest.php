@@ -5,7 +5,9 @@ use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
+use App\Modules\Contacts\Mail\ContactAccessMail;
 use App\Modules\Contacts\Models\TeamContact;
+use App\Modules\Mailings\Services\MailSuppressions;
 use App\Modules\People\Models\Person;
 use App\Modules\Seminars\Enums\ApplicationStatus;
 use App\Modules\Seminars\Enums\SeminarStatus;
@@ -18,6 +20,7 @@ use App\Modules\Seminars\Services\SeminarAdministration;
 use App\Modules\Seminars\Services\TeamApplications;
 use App\Modules\Seminars\Services\TeamInfo;
 use App\Modules\Seminars\Services\TeamInvites;
+use App\Modules\System\Services\SystemTasks;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
@@ -166,8 +169,8 @@ it('keeps contacts from the link out of the bulk sending of personal access', fu
 
     $this->actingAs(tiUser(RoleKey::AdministrationStaff))->post(route('contacts.send-all'))->assertSessionHas('success');
 
-    Mail::assertSent(\App\Modules\Contacts\Mail\ContactAccessMail::class, 1);
-    Mail::assertSent(\App\Modules\Contacts\Mail\ContactAccessMail::class, fn ($mail): bool => $mail->hasTo('import@example.org'));
+    Mail::assertSent(ContactAccessMail::class, 1);
+    Mail::assertSent(ContactAccessMail::class, fn ($mail): bool => $mail->hasTo('import@example.org'));
 });
 
 it('informs the whole team with an overview and shows contact data only with consent', function () {
@@ -205,7 +208,7 @@ it('sends the team information only to the ticked people and skips blocked addre
     $seminar = tiSeminar(['application_deadline' => now()->subDay()->toDateString()]);
     $a = TeamContact::query()->create(['email' => 'a@example.org']);
     $b = TeamContact::query()->create(['email' => 'b@example.org']);
-    app(\App\Modules\Mailings\Services\MailSuppressions::class)->suppress('b@example.org', 'manual', null, null);
+    app(MailSuppressions::class)->suppress('b@example.org', 'manual', null, null);
     $first = SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'contact_id' => $a->id, 'status' => 'confirmed', 'confirmed_at' => now(), 'guest_name' => 'A A']);
     $second = SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'contact_id' => $b->id, 'status' => 'confirmed', 'confirmed_at' => now(), 'guest_name' => 'B B']);
 
@@ -273,7 +276,7 @@ it('schedules the pruning daily and offers it in the system tasks', function () 
     $schedule = file_get_contents(base_path('routes/console.php'));
 
     expect($schedule)->toContain("Schedule::command('seminars:prune-applicants')->daily()")
-        ->and(app(\App\Modules\System\Services\SystemTasks::class)->find('bewerbungen-aufraeumen')['command'])->toBe('seminars:prune-applicants');
+        ->and(app(SystemTasks::class)->find('bewerbungen-aufraeumen')['command'])->toBe('seminars:prune-applicants');
 });
 
 it('keeps anonymized applications out of the review', function () {

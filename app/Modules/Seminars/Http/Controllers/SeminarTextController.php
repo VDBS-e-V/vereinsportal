@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
 use App\Modules\Seminars\Enums\SeminarType;
 use App\Modules\Seminars\Services\Quotes;
+use App\Modules\Seminars\Support\QuoteCalculator;
 use App\Modules\Seminars\Support\QuoteTexts;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -23,7 +24,7 @@ class SeminarTextController extends Controller
         $examples = [];
 
         foreach (SeminarType::cases() as $type) {
-            $examples[$type->value] = QuoteTexts::defaults($type, \App\Modules\Seminars\Support\QuoteCalculator::defaults($type));
+            $examples[$type->value] = QuoteTexts::defaults($type, QuoteCalculator::defaults($type));
         }
 
         return view('seminars.texts', [

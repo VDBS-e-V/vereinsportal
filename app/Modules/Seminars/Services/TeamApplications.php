@@ -3,16 +3,18 @@
 namespace App\Modules\Seminars\Services;
 
 use App\Modules\Access\Models\User;
+use App\Modules\Access\Services\NotificationPreferences;
+use App\Modules\AccessGovernance\Enums\RoleKey;
+use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
+use App\Modules\Contacts\Models\TeamContact;
+use App\Modules\Contacts\Services\ContactAccessSender;
 use App\Modules\Seminars\Enums\ApplicationStatus;
 use App\Modules\Seminars\Enums\SeminarEventType;
 use App\Modules\Seminars\Enums\SeminarStatus;
-use App\Modules\AccessGovernance\Enums\RoleKey;
-use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Seminars\Mail\SeminarDeadlineMail;
 use App\Modules\Seminars\Mail\SeminarTeamMail;
-use App\Modules\Contacts\Models\TeamContact;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
 use App\Modules\Seminars\Models\TeamProfile;
@@ -377,7 +379,7 @@ final class TeamApplications
         $recipients = User::query()->whereIn('id', RoleAssignment::query()
             ->where('starts_at', '<=', now())->where(fn ($query) => $query->whereNull('ends_at')->orWhere('ends_at', '>', now()))
             ->whereHas('role', fn ($query) => $query->where('key', RoleKey::Coordination->value))->select('user_id'))->get();
-        $recipients = app(\App\Modules\Access\Services\NotificationPreferences::class)->filter($recipients, 'seminar_deadline');
+        $recipients = app(NotificationPreferences::class)->filter($recipients, 'seminar_deadline');
 
         foreach ($seminars as $seminar) {
             foreach ($recipients as $recipient) {
@@ -465,7 +467,7 @@ final class TeamApplications
 
     private function escape(string $text): string
     {
-        return str_replace(["\\", ';', ',', "\r\n", "\n"], ['\\\\', '\;', '\,', '\n', '\n'], $text);
+        return str_replace(['\\', ';', ',', "\r\n", "\n"], ['\\\\', '\;', '\,', '\n', '\n'], $text);
     }
 
     private function name(User $user): string
@@ -484,7 +486,7 @@ final class TeamApplications
 
         $contact = $application->contact;
 
-        if ($contact === null || ! app(\App\Modules\Contacts\Services\ContactAccessSender::class)->canMail($contact)) {
+        if ($contact === null || ! app(ContactAccessSender::class)->canMail($contact)) {
             return;
         }
 
@@ -497,7 +499,7 @@ final class TeamApplications
 
     private function send(User $user, string $kind, Seminar $seminar): void
     {
-        if (! app(\App\Modules\Access\Services\NotificationPreferences::class)->allows($user, 'seminar_team')) {
+        if (! app(NotificationPreferences::class)->allows($user, 'seminar_team')) {
             return;
         }
 

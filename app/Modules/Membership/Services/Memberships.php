@@ -4,8 +4,8 @@ namespace App\Modules\Membership\Services;
 
 use App\Modules\Access\Models\User;
 use App\Modules\Membership\Enums\MembershipEventType;
-use App\Modules\Membership\Events\MembershipAdmitted;
 use App\Modules\Membership\Enums\MembershipStatus;
+use App\Modules\Membership\Events\MembershipAdmitted;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\People\Models\Person;
 use DomainException;

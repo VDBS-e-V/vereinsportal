@@ -2,8 +2,9 @@
 
 use App\Modules\Access\Enums\TwoFactorMethodType;
 use App\Modules\Access\Models\User;
-use App\Modules\Access\Services\TwoFactorPolicy;
 use App\Modules\Access\Services\Totp;
+use App\Modules\Access\Services\TwoFactorManager;
+use App\Modules\Access\Services\TwoFactorPolicy;
 use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
@@ -131,7 +132,7 @@ it('does not let a user with a duty remove the last method', function () {
         ->assertRedirect(route('account.security.index'))
         ->assertSessionHas('warning');
 
-    expect(app(\App\Modules\Access\Services\TwoFactorManager::class)->has($staff, TwoFactorMethodType::Totp))->toBeTrue();
+    expect(app(TwoFactorManager::class)->has($staff, TwoFactorMethodType::Totp))->toBeTrue();
 });
 
 it('lets a user with a duty remove a method when another one remains', function () {
@@ -140,7 +141,7 @@ it('lets a user with a duty remove a method when another one remains', function 
 
     $this->actingAs($staff)->delete(route('account.security.destroy', 'totp'), ['password' => 'password'])->assertSessionHas('success');
 
-    expect(app(\App\Modules\Access\Services\TwoFactorManager::class)->has($staff, TwoFactorMethodType::Totp))->toBeFalse();
+    expect(app(TwoFactorManager::class)->has($staff, TwoFactorMethodType::Totp))->toBeFalse();
 });
 
 it('lets members remove their last method as before', function () {
@@ -148,7 +149,7 @@ it('lets members remove their last method as before', function () {
 
     $this->actingAs($member)->delete(route('account.security.destroy', 'totp'), ['password' => 'password'])->assertSessionHas('success');
 
-    expect(app(\App\Modules\Access\Services\TwoFactorManager::class)->isEnabled($member))->toBeFalse();
+    expect(app(TwoFactorManager::class)->isEnabled($member))->toBeFalse();
 });
 
 it('tells users with a duty why the last method cannot be removed', function () {

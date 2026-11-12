@@ -4,6 +4,7 @@ namespace App\Modules\AccessRequests\Services;
 
 use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Models\User;
+use App\Modules\Access\Services\NotificationPreferences;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Services\RoleAssignments;
@@ -230,7 +231,7 @@ final class AccessRequests
             ->whereHas('activeRoleAssignments', fn ($assignments) => $assignments->whereHas('role', fn ($role) => $role->where('key', RoleKey::AdministrationStaff->value)))
             ->get();
 
-        foreach (app(\App\Modules\Access\Services\NotificationPreferences::class)->filter($staff, 'new_access_requests') as $recipient) {
+        foreach (app(NotificationPreferences::class)->filter($staff, 'new_access_requests') as $recipient) {
             Mail::to($recipient->email)->send(new NewAccessRequestMail($url));
         }
     }

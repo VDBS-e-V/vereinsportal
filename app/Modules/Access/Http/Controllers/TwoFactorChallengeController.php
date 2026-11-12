@@ -11,6 +11,7 @@ use App\Modules\Access\Services\EmailChallenges;
 use App\Modules\Access\Services\TwoFactorManager;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,7 +31,7 @@ class TwoFactorChallengeController extends Controller
         private readonly EmailChallenges $emailChallenges,
     ) {}
 
-    public function create(Request $request): \Illuminate\Contracts\View\View|RedirectResponse
+    public function create(Request $request): View|RedirectResponse
     {
         $user = $this->pendingUser($request);
 

@@ -11,6 +11,9 @@ use App\Modules\Seminars\Enums\ApplicationStatus;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
+use App\Modules\Tasks\Models\Task;
+use App\Modules\Tasks\Services\TaskProjects;
+use App\Support\PortalAreas;
 use App\Support\TaskOverview;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Mail;
@@ -95,21 +98,21 @@ it('assigns each hint to the area of the page it links to', function () {
     $user = toUser(RoleKey::AdministrationStaff);
     Seminar::factory()->create(['status' => SeminarStatus::Request]);
 
-    $coordination = array_column(TaskOverview::forArea($user, \App\Support\PortalAreas::Koordination), 'label');
-    $office = array_column(TaskOverview::forArea($user, \App\Support\PortalAreas::Geschaeftsstelle), 'label');
+    $coordination = array_column(TaskOverview::forArea($user, PortalAreas::Koordination), 'label');
+    $office = array_column(TaskOverview::forArea($user, PortalAreas::Geschaeftsstelle), 'label');
 
     expect($coordination)->toContain('Neue Seminaranfragen')->and($office)->not->toContain('Neue Seminaranfragen')
-        ->and(TaskOverview::forArea($user, \App\Support\PortalAreas::Schulen))->toBe([]);
+        ->and(TaskOverview::forArea($user, PortalAreas::Schulen))->toBe([]);
 });
 
 it('lists the own open and overdue tasks of the task system in the account and the area Aufgaben', function () {
     $user = toUser(RoleKey::Coordination);
-    $project = app(\App\Modules\Tasks\Services\TaskProjects::class)->create(['name' => 'Entwicklung', 'description' => null, 'role_key' => null], [], [$user->id], toUser(RoleKey::Administration));
+    $project = app(TaskProjects::class)->create(['name' => 'Entwicklung', 'description' => null, 'role_key' => null], [], [$user->id], toUser(RoleKey::Administration));
     $open = $project->statuses()->where('is_done', false)->first();
     $done = $project->statuses()->where('is_done', true)->first();
 
     foreach ([['Heute', now()->addDay(), $open, null], ['Gestern', now()->subDay(), $open, null], ['Fertig', now()->subDay(), $done, now()]] as [$title, $due, $status, $doneAt]) {
-        $task = \App\Modules\Tasks\Models\Task::query()->create(['task_project_id' => $project->id, 'task_status_id' => $status->id, 'title' => $title, 'due_on' => $due, 'done_at' => $doneAt]);
+        $task = Task::query()->create(['task_project_id' => $project->id, 'task_status_id' => $status->id, 'title' => $title, 'due_on' => $due, 'done_at' => $doneAt]);
         $task->assignees()->sync([$user->id]);
     }
 

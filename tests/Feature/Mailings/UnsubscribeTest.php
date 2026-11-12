@@ -12,6 +12,7 @@ use App\Modules\Mailings\Mail\MailingMail;
 use App\Modules\Mailings\Models\Mailing;
 use App\Modules\Mailings\Models\MailingDelivery;
 use App\Modules\Mailings\Models\MailSuppression;
+use App\Modules\Mailings\Services\Mailings;
 use App\Modules\Mailings\Services\MailRecipients;
 use App\Modules\Mailings\Services\MailSuppressions;
 use App\Modules\Mailings\Services\MailUnsubscribes;
@@ -182,7 +183,7 @@ it('checks again at the moment of sending: an unsubscribe or block in between st
     app(MailUnsubscribes::class)->unsubscribe('anna@beispiel.example', 'member_info');
     app(MailSuppressions::class)->suppress('bert@beispiel.example', MailSuppression::HARD_BOUNCE, null, null);
 
-    (new SendMailing($mailing->id))->handle(app(App\Modules\Mailings\Services\Mailings::class));
+    (new SendMailing($mailing->id))->handle(app(Mailings::class));
 
     Mail::assertNothingSent();
     expect(MailingDelivery::query()->where('status', 'skipped')->pluck('error')->sort()->values()->all())->toBe(['Abgemeldet', 'Adresse gesperrt'])

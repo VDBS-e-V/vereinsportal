@@ -5,6 +5,8 @@ namespace App\Modules\Seminars\Services;
 use App\Modules\Access\Models\User;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
+use App\Modules\Contracts\Services\Contracts;
+use App\Modules\Feedback\Services\FeedbackEvaluation;
 use App\Modules\Seminars\Enums\ApplicationStatus;
 use App\Modules\Seminars\Enums\SeminarEventType;
 use App\Modules\Seminars\Enums\SeminarStatus;
@@ -29,7 +31,7 @@ final class SeminarClosures
     {
         $kinds = $seminar->documents()->pluck('kind')->unique()->all();
 
-        $contractsSigned = class_exists(\App\Modules\Contracts\Services\Contracts::class) ? app(\App\Modules\Contracts\Services\Contracts::class)->allSigned($seminar) : null;
+        $contractsSigned = class_exists(Contracts::class) ? app(Contracts::class)->allSigned($seminar) : null;
 
         $items = [
             'quote' => ['label' => 'Kostenvoranschlag liegt vor', 'auto' => $seminar->quotes()->exists(), 'hint' => 'Wird erkannt, sobald ein Kostenvoranschlag zum Seminar existiert.'],
@@ -158,7 +160,7 @@ final class SeminarClosures
             'quote_total_cents' => $quote?->total_cents,
             'documents' => $seminar->documents()->get()->groupBy('kind')->map->count()->all(),
             // Nur anonymisierte Rückmeldungen (Zahlen aus dem Archiv); die Rohantworten sehen nur die Koordination.
-            'feedback' => app(\App\Modules\Feedback\Services\FeedbackEvaluation::class)->archivedFigures($seminar),
+            'feedback' => app(FeedbackEvaluation::class)->archivedFigures($seminar),
         ];
     }
 }

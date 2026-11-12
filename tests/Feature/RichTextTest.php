@@ -63,7 +63,7 @@ it('recognizes empty editor output and treats old texts as markdown or plain tex
         ->and(RichText::clean('<p onclick="x">Hallo</p>'))->toBe('<p>Hallo</p>');
 
     expect((string) rich_text("Erste Zeile\nZweite Zeile\n\n**fett**"))->toContain('<br />')->toContain('<strong>fett</strong>')
-        ->and((string) rich_text("Text <script>alert(1)</script> [x](javascript:alert(1))"))->not->toContain('<script>')->not->toContain('javascript:')
+        ->and((string) rich_text('Text <script>alert(1)</script> [x](javascript:alert(1))'))->not->toContain('<script>')->not->toContain('javascript:')
         ->and((string) rich_text(null))->toBe('');
 });
 

@@ -10,6 +10,8 @@ use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\AccessGovernance\Support\Capabilities;
 use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\People\Models\Person;
+use App\Modules\Sso\Services\OAuthClients;
+use App\Modules\Sso\Services\OidcClaims;
 use App\Support\PortalAreas;
 use App\Support\PortalNavigation;
 use Database\Seeders\RoleSeeder;
@@ -139,9 +141,9 @@ it('opens the employee page for the new roles and keeps others out', function ()
 });
 
 it('lets employees and the managing director log in to other systems by default', function () {
-    expect(\App\Modules\Sso\Services\OAuthClients::defaultRoles())->toContain('employee', 'managing_director')
-        ->and(\App\Modules\Sso\Services\OidcClaims::GROUPS['employee'])->toBe('vdbs-mitarbeitende')
-        ->and(\App\Modules\Sso\Services\OidcClaims::GROUPS['managing_director'])->toBe('vdbs-geschaeftsfuehrung');
+    expect(OAuthClients::defaultRoles())->toContain('employee', 'managing_director')
+        ->and(OidcClaims::GROUPS['employee'])->toBe('vdbs-mitarbeitende')
+        ->and(OidcClaims::GROUPS['managing_director'])->toBe('vdbs-geschaeftsfuehrung');
 });
 
 it('creates test accounts for every role locally and only there', function () {

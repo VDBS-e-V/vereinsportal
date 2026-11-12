@@ -2,6 +2,7 @@
 
 namespace App\Modules\Board;
 
+use App\Modules\Board\Console\PruneBoardGuests;
 use Illuminate\Support\ServiceProvider;
 
 class BoardServiceProvider extends ServiceProvider
@@ -11,6 +12,6 @@ class BoardServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
 
         // Auch bei Aufrufen über den Browser (Systemsteuerung) müssen die Befehle bekannt sein, nicht nur auf der Konsole
-        $this->commands([\App\Modules\Board\Console\PruneBoardGuests::class]);
+        $this->commands([PruneBoardGuests::class]);
     }
 }

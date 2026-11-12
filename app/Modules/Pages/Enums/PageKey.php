@@ -52,7 +52,7 @@ enum PageKey: string
     /** Entwurf der Datenschutzerklärung nach den tatsächlichen Verarbeitungen des Portals. Muss vom Verein ergänzt und rechtlich geprüft werden. */
     private function privacy(string $note): string
     {
-        return $note."
+        return $note.'
 
 ## Verantwortlicher
 
@@ -112,7 +112,7 @@ Ihre Daten sehen nur Personen, die sie für ihre Aufgabe brauchen (Vorstand, Ges
 
 ## Ihre Rechte
 
-Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch sowie das Recht auf Beschwerde bei einer Aufsichtsbehörde (zuständig ist die Berliner Beauftragte für Datenschutz und Informationsfreiheit). Einwilligungen können Sie jederzeit mit Wirkung für die Zukunft widerrufen.";
+Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch sowie das Recht auf Beschwerde bei einer Aufsichtsbehörde (zuständig ist die Berliner Beauftragte für Datenschutz und Informationsfreiheit). Einwilligungen können Sie jederzeit mit Wirkung für die Zukunft widerrufen.';
     }
 
     private function imprint(): string

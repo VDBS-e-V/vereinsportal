@@ -4,6 +4,7 @@ namespace App\Modules\Membership\Services;
 
 use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Models\User;
+use App\Modules\Access\Services\NotificationPreferences;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\Membership\Enums\MembershipStatus;
 use App\Modules\Membership\Mail\NewApplicationMail;
@@ -43,7 +44,7 @@ final class BoardNotifications
             ->whereHas('activeRoleAssignments', fn ($assignments) => $assignments->whereHas('role', fn ($role) => $role->where('key', RoleKey::BoardMember->value)))
             ->get();
 
-        foreach (app(\App\Modules\Access\Services\NotificationPreferences::class)->filter($board, 'new_applications') as $member) {
+        foreach (app(NotificationPreferences::class)->filter($board, 'new_applications') as $member) {
             Mail::to($member->email)->send(new NewApplicationMail($url));
         }
     }

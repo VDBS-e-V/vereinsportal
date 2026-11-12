@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Modules\Access\Models\User;
+use App\Modules\Events\Enums\EventStatus;
+use App\Modules\Events\Models\Event;
+use App\Modules\Events\Models\EventRegistration;
+use App\Modules\Events\Services\EventRegistrations;
 use App\Modules\Partners\Models\PartnerUser;
 use App\Modules\Partners\Services\SchoolAccounts;
 use App\Modules\Seminars\Enums\SeminarStatus;
@@ -11,10 +15,7 @@ use App\Modules\Seminars\Http\Controllers\SeminarQuoteController;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarQuote;
 use App\Modules\Seminars\Services\SchoolRequests;
-use App\Modules\Events\Enums\EventStatus;
-use App\Modules\Events\Models\Event;
-use App\Modules\Events\Models\EventRegistration;
-use App\Modules\Events\Services\EventRegistrations;
+use App\Support\Html\RichText;
 use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -52,7 +53,7 @@ class SchoolAreaController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $account = $this->account($request);
-        $request->merge(['notes' => \App\Support\Html\RichText::clean($request->input('notes'))]);
+        $request->merge(['notes' => RichText::clean($request->input('notes'))]);
 
         $data = $request->validate([
             'type' => ['required', Rule::in(array_keys(SeminarType::options()))],

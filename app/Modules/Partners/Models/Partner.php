@@ -5,6 +5,7 @@ namespace App\Modules\Partners\Models;
 use App\Modules\Access\Models\User;
 use App\Modules\Partners\Enums\PartnerStatus;
 use App\Modules\Partners\Enums\PartnerType;
+use App\Modules\Partners\Support\PartnerData;
 use Database\Factories\PartnerFactory;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -63,7 +64,7 @@ class Partner extends Model
     {
         $attributes = $this->getAttribute('attributes') ?? [];
 
-        return \App\Modules\Partners\Support\PartnerData::internalId($attributes['federal_state'] ?? null, $attributes['school_number'] ?? null);
+        return PartnerData::internalId($attributes['federal_state'] ?? null, $attributes['school_number'] ?? null);
     }
 
     /** @return HasMany<PartnerContact, $this> Hauptansprechperson zuerst */

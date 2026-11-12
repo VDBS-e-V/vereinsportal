@@ -15,12 +15,12 @@ use App\Modules\AccessRequests\Mail\AccessRequestRejectedMail;
 use App\Modules\AccessRequests\Mail\NewAccessRequestMail;
 use App\Modules\AccessRequests\Models\AccessRequest;
 use App\Modules\AccessRequests\Models\AccessRequestFile;
-use App\Modules\AccessRequests\Services\AccessRequests;
 use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\Onboarding\Models\TeamOnboarding;
 use App\Modules\People\Models\Person;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
@@ -120,7 +120,7 @@ it('works without proofs and optional fields', function () {
 });
 
 it('validates the request', function () {
-    $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+    $this->withoutMiddleware(ThrottleRequests::class);
 
     $this->post(route('portal.access.store'), [])->assertSessionHasErrors(['consent', 'connection', 'first_name', 'last_name', 'email', 'birth_date', 'terms']);
     $this->post(route('portal.access.store'), arForm(['consent' => null]))->assertSessionHasErrors('consent');

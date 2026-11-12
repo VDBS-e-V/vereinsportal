@@ -33,7 +33,7 @@ function ocUser(?RoleKey $role = RoleKey::Administration): User
 
 function ocData(array $over = []): array
 {
-    return array_merge(['name' => 'Nextcloud', 'redirect_uris' => "https://cloud.example.org/apps/user_oidc/code", 'confidential' => 1, 'roles' => ['coordination', 'administration_staff'], 'description' => 'Dateien', 'contact' => 'it@example.org', 'show_consent' => 1], $over);
+    return array_merge(['name' => 'Nextcloud', 'redirect_uris' => 'https://cloud.example.org/apps/user_oidc/code', 'confidential' => 1, 'roles' => ['coordination', 'administration_staff'], 'description' => 'Dateien', 'contact' => 'it@example.org', 'show_consent' => 1], $over);
 }
 
 it('gives every account a stable public id', function () {

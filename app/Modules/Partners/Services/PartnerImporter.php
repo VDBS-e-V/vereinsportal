@@ -8,7 +8,6 @@ use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Partners\Enums\FederalState;
 use App\Modules\Partners\Enums\PartnerStatus;
 use App\Modules\Partners\Enums\SchoolType;
-use App\Modules\Partners\Models\Partner;
 use App\Modules\Partners\Models\PartnerContact;
 use App\Modules\Partners\Support\PartnerData;
 use Illuminate\Support\Facades\DB;

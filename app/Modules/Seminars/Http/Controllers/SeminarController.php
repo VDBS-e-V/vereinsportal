@@ -4,6 +4,7 @@ namespace App\Modules\Seminars\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
+use App\Modules\Forms\Models\CostCenter;
 use App\Modules\Partners\Enums\PartnerType;
 use App\Modules\Partners\Models\Partner;
 use App\Modules\Seminars\Enums\SeminarStatus;
@@ -11,7 +12,9 @@ use App\Modules\Seminars\Enums\SeminarType;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarSession;
 use App\Modules\Seminars\Services\SeminarAdministration;
+use App\Modules\Seminars\Services\TeamApplications;
 use App\Modules\Seminars\Support\CoordinationRecipients;
+use App\Support\Html\RichText;
 use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -68,7 +71,7 @@ class SeminarController extends Controller
     public function show(Seminar $seminar): View
     {
         $seminar->load(['coordinator.person', 'partner', 'sessions', 'events.actor', 'quotes', 'createdBy.person', 'updatedBy.person', 'applications.user.person', 'applications.contact']);
-        $team = app(\App\Modules\Seminars\Services\TeamApplications::class);
+        $team = app(TeamApplications::class);
 
         return view('seminars.show', [
             'seminar' => $seminar,
@@ -184,7 +187,7 @@ class SeminarController extends Controller
     /** @return array<string, mixed> */
     private function validated(Request $request): array
     {
-        $request->merge(['notes' => \App\Support\Html\RichText::clean($request->input('notes'))]);
+        $request->merge(['notes' => RichText::clean($request->input('notes'))]);
 
         return $request->validate([
             'title' => ['required', 'string', 'max:200'],
@@ -233,7 +236,7 @@ class SeminarController extends Controller
     /** Aktive Kostenstellen (Code => Code · Name); ein bisheriger Freitext bleibt wählbar. @return array<string, string> */
     private function costCenterOptions(string $current): array
     {
-        $options = \App\Modules\Forms\Models\CostCenter::query()->where('active', true)->orderBy('code')->get()->mapWithKeys(fn ($center): array => [$center->code => $center->code.' · '.$center->name])->all();
+        $options = CostCenter::query()->where('active', true)->orderBy('code')->get()->mapWithKeys(fn ($center): array => [$center->code => $center->code.' · '.$center->name])->all();
 
         if ($current !== '' && ! array_key_exists($current, $options)) {
             $options[$current] = $current;

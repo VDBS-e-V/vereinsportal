@@ -5,11 +5,23 @@ use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
+use App\Modules\Contacts\Models\AccessCredential;
+use App\Modules\Contacts\Models\TeamContact;
 use App\Modules\Mailings\Models\Mailing;
 use App\Modules\Mailings\Models\MailSegment;
+use App\Modules\Mailings\Services\Mailings;
+use App\Modules\Mailings\Services\MailRecipients;
+use App\Modules\Mailings\Services\MailUnsubscribes;
 use App\Modules\Mailings\Services\SegmentResolver;
+use App\Modules\Mailings\Support\MailGroups;
+use App\Modules\Mailings\Support\MailPlaceholders;
+use App\Modules\Mailings\Support\SegmentFilters;
 use App\Modules\Onboarding\Models\TeamOnboarding;
 use App\Modules\People\Models\Person;
+use App\Modules\Seminars\Enums\SeminarStatus;
+use App\Modules\Seminars\Models\Seminar;
+use App\Modules\Seminars\Models\SeminarApplication;
+use App\Modules\Seminars\Models\TeamProfile;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Mail;
 
@@ -156,16 +168,16 @@ it('filters by competences and by the number of conducted seminars', function ()
     $keys = array_keys((array) config('portal.team.competences', []));
     $skilled = sgUser(RoleKey::Team);
     $other = sgUser(RoleKey::Team);
-    \App\Modules\Seminars\Models\TeamProfile::query()->create(['user_id' => $skilled->id, 'competences' => [$keys[0]], 'experience' => 'x']);
-    \App\Modules\Seminars\Models\TeamProfile::query()->create(['user_id' => $other->id, 'competences' => [], 'experience' => 'y']);
+    TeamProfile::query()->create(['user_id' => $skilled->id, 'competences' => [$keys[0]], 'experience' => 'x']);
+    TeamProfile::query()->create(['user_id' => $other->id, 'competences' => [], 'experience' => 'y']);
 
-    foreach ([\App\Modules\Seminars\Enums\SeminarStatus::Done, \App\Modules\Seminars\Enums\SeminarStatus::Done] as $status) {
-        $seminar = \App\Modules\Seminars\Models\Seminar::factory()->create(['status' => $status]);
-        \App\Modules\Seminars\Models\SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $skilled->id, 'status' => 'confirmed']);
+    foreach ([SeminarStatus::Done, SeminarStatus::Done] as $status) {
+        $seminar = Seminar::factory()->create(['status' => $status]);
+        SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $skilled->id, 'status' => 'confirmed']);
     }
 
-    $upcoming = \App\Modules\Seminars\Models\Seminar::factory()->create(['status' => \App\Modules\Seminars\Enums\SeminarStatus::Scheduled]);
-    \App\Modules\Seminars\Models\SeminarApplication::query()->create(['seminar_id' => $upcoming->id, 'user_id' => $other->id, 'status' => 'confirmed']);
+    $upcoming = Seminar::factory()->create(['status' => SeminarStatus::Scheduled]);
+    SeminarApplication::query()->create(['seminar_id' => $upcoming->id, 'user_id' => $other->id, 'status' => 'confirmed']);
 
     $resolver = app(SegmentResolver::class);
     $emails = fn (array $filters) => collect($resolver->recipients(sgSegment(['groups' => ['team'], 'filters' => $filters], ['office'], 'F'.md5(json_encode($filters))))['kept'])->pluck('email')->all();
@@ -173,36 +185,36 @@ it('filters by competences and by the number of conducted seminars', function ()
     expect($emails(['competence' => [$keys[0]]]))->toBe([$skilled->email])
         ->and($emails(['seminars_done' => 2]))->toBe([$skilled->email])
         ->and($emails(['seminars_done' => 3]))->toBe([])
-        ->and(\App\Modules\Mailings\Support\SegmentFilters::normalize(['seminars_done' => '5', 'competence' => ['gibtsnicht']]))->toBe(['seminars_done' => 5]);
+        ->and(SegmentFilters::normalize(['seminars_done' => '5', 'competence' => ['gibtsnicht']]))->toBe(['seminars_done' => 5]);
 });
 
 it('fills the team placeholder with the names of the confirmed team', function () {
-    $seminar = \App\Modules\Seminars\Models\Seminar::factory()->create(['status' => \App\Modules\Seminars\Enums\SeminarStatus::Scheduled]);
+    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Scheduled]);
     $anna = sgUser(RoleKey::Team, ['first_name' => 'Anna', 'last_name' => 'Alt']);
     $ben = sgUser(RoleKey::Team, ['first_name' => 'Ben', 'last_name' => 'Bunt']);
     $declined = sgUser(RoleKey::Team, ['first_name' => 'Cora', 'last_name' => 'Cäsar']);
 
     foreach ([[$anna, 'confirmed'], [$ben, 'confirmed'], [$declined, 'declined']] as [$user, $status]) {
-        \App\Modules\Seminars\Models\SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $user->id, 'status' => $status]);
+        SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $user->id, 'status' => $status]);
     }
 
-    $values = app(\App\Modules\Mailings\Services\Mailings::class)->seminarValues($seminar);
+    $values = app(Mailings::class)->seminarValues($seminar);
 
     expect($values['team'])->toContain('Anna Alt')->toContain('Ben Bunt')->not->toContain('Cora')
-        ->and(\App\Modules\Mailings\Support\MailPlaceholders::unknown('Team: {team}', 'team'))->toBe([])
-        ->and(\App\Modules\Mailings\Support\MailPlaceholders::unknown('Team: {team}', 'general'))->toBe(['team']);
+        ->and(MailPlaceholders::unknown('Team: {team}', 'team'))->toBe([])
+        ->and(MailPlaceholders::unknown('Team: {team}', 'general'))->toBe(['team']);
 });
 
 it('offers imported contacts as a group with unsubscribe and filters them by the state of the personal access', function () {
     $office = sgUser(RoleKey::AdministrationStaff);
-    $sent = \App\Modules\Contacts\Models\TeamContact::query()->create(['email' => 'gesendet@beispiel.example', 'first_name' => 'Gina', 'last_name' => 'Gesendet']);
-    $used = \App\Modules\Contacts\Models\TeamContact::query()->create(['email' => 'benutzt@beispiel.example', 'first_name' => 'Ben', 'last_name' => 'Benutzt']);
-    $none = \App\Modules\Contacts\Models\TeamContact::query()->create(['email' => 'neu@beispiel.example', 'first_name' => 'Nina', 'last_name' => 'Neu']);
+    $sent = TeamContact::query()->create(['email' => 'gesendet@beispiel.example', 'first_name' => 'Gina', 'last_name' => 'Gesendet']);
+    $used = TeamContact::query()->create(['email' => 'benutzt@beispiel.example', 'first_name' => 'Ben', 'last_name' => 'Benutzt']);
+    $none = TeamContact::query()->create(['email' => 'neu@beispiel.example', 'first_name' => 'Nina', 'last_name' => 'Neu']);
     $account = sgUser(RoleKey::Team);
-    \App\Modules\Contacts\Models\TeamContact::query()->create(['email' => $account->email, 'first_name' => 'Doppelt', 'last_name' => 'Konto']);
+    TeamContact::query()->create(['email' => $account->email, 'first_name' => 'Doppelt', 'last_name' => 'Konto']);
 
     foreach ([[$sent, null], [$used, now()]] as [$contact, $lastUsed]) {
-        \App\Modules\Contacts\Models\AccessCredential::query()->create(['contact_id' => $contact->id, 'token_hash' => hash('sha256', 'a'.$contact->id), 'code_hash' => hash('sha256', 'b'), 'code_hint' => '12', 'sent_at' => now()->subDay(), 'last_used_at' => $lastUsed, 'expires_at' => now()->addMonth()]);
+        AccessCredential::query()->create(['contact_id' => $contact->id, 'token_hash' => hash('sha256', 'a'.$contact->id), 'code_hash' => hash('sha256', 'b'), 'code_hint' => '12', 'sent_at' => now()->subDay(), 'last_used_at' => $lastUsed, 'expires_at' => now()->addMonth()]);
     }
 
     $resolver = app(SegmentResolver::class);
@@ -213,9 +225,9 @@ it('offers imported contacts as a group with unsubscribe and filters them by the
         ->and($emails(['contact_access' => 'sent_unused'], 'Gesendet'))->toBe(['gesendet@beispiel.example'])
         ->and($emails(['contact_access' => 'used'], 'Benutzt'))->toBe(['benutzt@beispiel.example']);
 
-    expect(array_keys(\App\Modules\Mailings\Support\MailGroups::allowedFor($office)))->toContain('contacts')
-        ->and(array_keys(\App\Modules\Mailings\Support\MailGroups::allowedFor(sgUser(RoleKey::Coordination))))->not->toContain('contacts');
+    expect(array_keys(MailGroups::allowedFor($office)))->toContain('contacts')
+        ->and(array_keys(MailGroups::allowedFor(sgUser(RoleKey::Coordination))))->not->toContain('contacts');
 
-    app(\App\Modules\Mailings\Services\MailUnsubscribes::class)->unsubscribe('neu@beispiel.example', 'contact_mailings');
-    expect(collect(app(\App\Modules\Mailings\Services\MailRecipients::class)->groups(['contacts']))->pluck('email')->all())->not->toContain('neu@beispiel.example');
+    app(MailUnsubscribes::class)->unsubscribe('neu@beispiel.example', 'contact_mailings');
+    expect(collect(app(MailRecipients::class)->groups(['contacts']))->pluck('email')->all())->not->toContain('neu@beispiel.example');
 });

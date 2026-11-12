@@ -7,6 +7,7 @@ use App\Modules\Access\Models\User;
 use App\Modules\Pages\Enums\PageKey;
 use App\Modules\Pages\Models\Page;
 use App\Modules\Pages\Services\PageAdministration;
+use App\Support\Html\RichText;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -29,7 +30,7 @@ class PageAdminController extends Controller
     public function update(Request $request, string $page): RedirectResponse
     {
         $key = PageKey::from($page);
-        $request->merge(['body' => \App\Support\Html\RichText::normalize($request->input('body'))]);
+        $request->merge(['body' => RichText::normalize($request->input('body'))]);
         $data = $request->validate(['body' => ['required', 'string', 'max:60000']], [
             'body.required' => 'Bitte geben Sie den Text ein.',
             'body.max' => 'Der Text darf höchstens 60.000 Zeichen lang sein.',

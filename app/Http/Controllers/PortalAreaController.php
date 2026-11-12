@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Modules\AccessGovernance\Enums\RoleKey;
-use App\Modules\AccessGovernance\Support\Capabilities;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
+use App\Modules\AccessGovernance\Support\Capabilities;
 use App\Modules\AccessRequests\Enums\AccessRequestStatus;
 use App\Modules\AccessRequests\Models\AccessRequest;
+use App\Modules\Board\Models\BoardMeeting;
 use App\Modules\Events\Enums\EventStatus;
 use App\Modules\Events\Models\Event;
 use App\Modules\Membership\Enums\MembershipStatus;
@@ -18,6 +19,8 @@ use App\Modules\Onboarding\Services\OnboardingDocuments;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarSession;
+use App\Modules\Tasks\Models\Task;
+use App\Modules\Tasks\Models\TaskProject;
 use App\Support\PortalAreas;
 use App\Support\PortalNavigation;
 use Illuminate\Contracts\View\View;
@@ -83,10 +86,10 @@ class PortalAreaController extends Controller
             'seminarsPlanning' => Seminar::query()->whereIn('status', [SeminarStatus::Request->value, SeminarStatus::Planning->value])->count(),
             'seminarsPlanned' => Seminar::query()->whereIn('status', [SeminarStatus::Scheduled->value, SeminarStatus::Confirmed->value])->count(),
             'events' => Event::query()->where('status', EventStatus::Open->value)->count(),
-            'boardTasksOpen' => \App\Modules\Tasks\Models\Task::query()->whereHas('project', fn ($project) => $project->where('slug', 'vorstand'))->whereNull('done_at')->count(),
-            'boardTasksOverdue' => \App\Modules\Tasks\Models\Task::query()->whereHas('project', fn ($project) => $project->where('slug', 'vorstand'))->whereNull('done_at')->whereDate('due_on', '<', today())->count(),
-            'boardProject' => \App\Modules\Tasks\Models\TaskProject::query()->where('slug', 'vorstand')->value('id'),
-            'nextMeeting' => \App\Modules\Board\Models\BoardMeeting::query()->where('ends_at', '>=', now())->where('status', '!=', 'cancelled')->orderBy('starts_at')->first()?->starts_at?->format('d.m.Y, H:i \\U\\h\\r'),
+            'boardTasksOpen' => Task::query()->whereHas('project', fn ($project) => $project->where('slug', 'vorstand'))->whereNull('done_at')->count(),
+            'boardTasksOverdue' => Task::query()->whereHas('project', fn ($project) => $project->where('slug', 'vorstand'))->whereNull('done_at')->whereDate('due_on', '<', today())->count(),
+            'boardProject' => TaskProject::query()->where('slug', 'vorstand')->value('id'),
+            'nextMeeting' => BoardMeeting::query()->where('ends_at', '>=', now())->where('status', '!=', 'cancelled')->orderBy('starts_at')->first()?->starts_at?->format('d.m.Y, H:i \\U\\h\\r'),
         ]]);
     }
 
@@ -100,6 +103,7 @@ class PortalAreaController extends Controller
 
         $routeName = $request->route()->getName();
         $pages = array_values(array_filter(PortalNavigation::pages($area, $user, $routeName), fn (array $page): bool => ! $page['current']));
+
         return view('portal.area', [
             'area' => $area,
             'pages' => $pages,

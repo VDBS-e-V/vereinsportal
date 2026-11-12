@@ -1,15 +1,18 @@
 <?php
 
+use App\Modules\Access\Models\User;
+use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
-use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
-use App\Modules\Access\Models\User;
+use App\Modules\Mailings\Services\Mailings;
+use App\Modules\Mailings\Support\MailPlaceholders;
 use App\Modules\Partners\Models\Partner;
 use App\Modules\People\Models\Person;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Services\SeminarAdministration;
 use App\Modules\Seminars\Services\SeminarNumbers;
+use App\Modules\System\Services\SystemTasks;
 use Carbon\Carbon;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\DB;
@@ -138,15 +141,15 @@ it('saves the master data and rejects a foreign coordinator', function () {
 });
 
 it('offers the placeholder for the seminar number in team letters', function () {
-    $values = app(\App\Modules\Mailings\Services\Mailings::class)->seminarValues(Seminar::factory()->create());
+    $values = app(Mailings::class)->seminarValues(Seminar::factory()->create());
 
     expect($values['seminar_nr'])->toMatch('/^S-\d{4}-\d{4}$/')
-        ->and(\App\Modules\Mailings\Support\MailPlaceholders::definitions('team'))->toHaveKey('seminar_nr');
+        ->and(MailPlaceholders::definitions('team'))->toHaveKey('seminar_nr');
 });
 
 it('gives school requests a number and offers the number task to the administration', function () {
     $seminar = app(SeminarAdministration::class)->create(['title' => 'Anfrage', 'type' => 'sv_days', 'partner_id' => Partner::factory()->create()->id], snCoordination());
 
     expect($seminar->number)->not->toBeNull()
-        ->and(app(\App\Modules\System\Services\SystemTasks::class)->find('seminarnummern-nachtragen')['command'])->toBe('seminars:number-existing');
+        ->and(app(SystemTasks::class)->find('seminarnummern-nachtragen')['command'])->toBe('seminars:number-existing');
 });

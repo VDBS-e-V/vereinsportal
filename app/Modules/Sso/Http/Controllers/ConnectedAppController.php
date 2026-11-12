@@ -8,6 +8,7 @@ use App\Modules\Sso\Services\OAuthClients;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /** Konto › Verbundene Anwendungen: Systeme, bei denen das Konto über das Portal angemeldet wurde, mit Widerruf. */
@@ -27,7 +28,7 @@ class ConnectedAppController extends Controller
                 continue;
             }
 
-            $apps[] = ['id' => (string) $clientId, 'name' => (string) $client->name, 'description' => OAuthClientSetting::query()->where('client_id', (string) $clientId)->value('description'), 'since' => \Illuminate\Support\Carbon::parse($group->min('created_at'))];
+            $apps[] = ['id' => (string) $clientId, 'name' => (string) $client->name, 'description' => OAuthClientSetting::query()->where('client_id', (string) $clientId)->value('description'), 'since' => Carbon::parse($group->min('created_at'))];
         }
 
         return view('sso.connected', ['apps' => $apps]);

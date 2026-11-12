@@ -12,7 +12,6 @@ use App\Modules\Mailings\Models\MailSuppression;
 use App\Modules\Mailings\Models\MailTemplate;
 use App\Modules\Mailings\Models\MailTemplateVersion;
 use App\Modules\Mailings\Services\Mailings;
-use App\Modules\Mailings\Services\MailRecipients;
 use App\Modules\Mailings\Services\MailSuppressions;
 use App\Modules\Mailings\Services\MailTemplates;
 use App\Modules\Mailings\Services\SenderCheck;
@@ -20,6 +19,7 @@ use App\Modules\People\Models\Person;
 use App\Modules\System\Services\SystemChecks;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Testing\TestResponse;
 
 beforeEach(function () {
     $this->withoutVite();
@@ -35,7 +35,7 @@ function qaUser(RoleKey $role): User
     return $user;
 }
 
-function qaHook($test, array $payload, ?string $signature = null, string $secret = 'geheim'): Illuminate\Testing\TestResponse
+function qaHook($test, array $payload, ?string $signature = null, string $secret = 'geheim'): TestResponse
 {
     $body = json_encode($payload);
 

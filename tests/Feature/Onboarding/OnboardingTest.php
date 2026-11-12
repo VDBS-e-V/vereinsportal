@@ -8,12 +8,15 @@ use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\AccessGovernance\Services\RoleAssignments;
 use App\Modules\Audit\Models\AuditEntry;
+use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\Onboarding\Enums\OnboardingDocumentKind;
+use App\Modules\Onboarding\Enums\TeamStep;
 use App\Modules\Onboarding\Mail\MemberWelcomeMail;
 use App\Modules\Onboarding\Mail\TeamOnboardingStartedMail;
 use App\Modules\Onboarding\Models\OnboardingDocument;
 use App\Modules\Onboarding\Models\TeamOnboarding;
+use App\Modules\Onboarding\Models\TeamOnboardingStep;
 use App\Modules\People\Models\Person;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\UploadedFile;
@@ -163,7 +166,7 @@ it('lets the board send the welcome package again to a running membership', func
     $this->actingAs($board)->post(route('membership.welcome', $membership))->assertRedirect(route('membership.show', $membership))->assertSessionHas('success');
 
     Mail::assertSent(MemberWelcomeMail::class, fn (MemberWelcomeMail $mail): bool => $mail->hasTo('altmitglied@example.org') && count($mail->documents) === 1);
-    expect($membership->events()->where('type', 'welcome_sent')->first()->actor_label)->toBe(\App\Modules\Audit\Support\AuditLog::label($board));
+    expect($membership->events()->where('type', 'welcome_sent')->first()->actor_label)->toBe(AuditLog::label($board));
 
     $this->get(route('membership.show', $membership))->assertSee('Willkommenspaket senden')->assertSee('Willkommenspaket gesendet');
 });
@@ -260,7 +263,7 @@ it('lets team members confirm the declaration and the code of conduct after read
     $this->post(route('team-self.confirm', 'commitment'), [])->assertSessionHasErrors('confirm');
     $this->post(route('team-self.confirm', 'commitment'), ['confirm' => '1'])->assertRedirect(route('team-self.index'))->assertSessionHas('success');
 
-    $step = TeamOnboarding::query()->firstOrFail()->step(\App\Modules\Onboarding\Enums\TeamStep::Commitment);
+    $step = TeamOnboarding::query()->firstOrFail()->step(TeamStep::Commitment);
     expect($step->isDone())->toBeTrue()->and($step->by_self)->toBeTrue()->and($step->done_by_user_id)->toBe($team->id)->and($step->document_id)->toBe($commitment->id);
 
     $this->get(route('team-self.index'))->assertSee('1 von 4 Schritten erledigt');
@@ -287,14 +290,14 @@ it('lets the coordination enter the steps with date and note and reopen them', f
     $this->post(route('team-onboarding.mark', [$team, 'measles']), ['date' => now()->addDay()->toDateString()])->assertSessionHasErrors('date');
     $this->post(route('team-onboarding.mark', [$team, 'measles']), ['date' => '2026-05-12', 'note' => 'Impfausweis'])->assertRedirect(route('team-onboarding.show', $team))->assertSessionHas('success');
 
-    $step = TeamOnboarding::query()->firstOrFail()->step(\App\Modules\Onboarding\Enums\TeamStep::Measles);
+    $step = TeamOnboarding::query()->firstOrFail()->step(TeamStep::Measles);
     expect($step->isDone())->toBeTrue()->and($step->by_self)->toBeFalse()->and($step->done_by_user_id)->toBe($coordinator->id)->and($step->data)->toEqual(['datum' => '2026-05-12'])->and($step->note)->toBe('Impfausweis');
 
     $this->get(route('team-onboarding.show', $team))->assertSee('12.05.2026')->assertSee('Impfausweis')->assertSee('Wieder öffnen');
 
     $this->delete(route('team-onboarding.reopen', [$team, 'measles']))->assertRedirect(route('team-onboarding.show', $team));
-    expect(TeamOnboarding::query()->firstOrFail()->step(\App\Modules\Onboarding\Enums\TeamStep::Measles)->isDone())->toBeFalse()
-        ->and(TeamOnboarding::query()->firstOrFail()->step(\App\Modules\Onboarding\Enums\TeamStep::Measles)->note)->toBeNull();
+    expect(TeamOnboarding::query()->firstOrFail()->step(TeamStep::Measles)->isDone())->toBeFalse()
+        ->and(TeamOnboarding::query()->firstOrFail()->step(TeamStep::Measles)->note)->toBeNull();
 });
 
 it('completes the onboarding when all four steps are done and reopens it when one is taken back', function () {
@@ -390,7 +393,7 @@ it('deletes the onboarding when the account is deleted', function () {
 
     app(AccountDeletion::class)->anonymize($team->fresh());
 
-    expect(TeamOnboarding::query()->count())->toBe(0)->and(\App\Modules\Onboarding\Models\TeamOnboardingStep::query()->count())->toBe(0);
+    expect(TeamOnboarding::query()->count())->toBe(0)->and(TeamOnboardingStep::query()->count())->toBe(0);
 });
 
 it('keeps the two processes apart in the navigation', function () {

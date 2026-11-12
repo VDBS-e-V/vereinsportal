@@ -16,6 +16,8 @@ use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Services\SeminarAdministration;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 beforeEach(function () {
     $this->withoutVite();
@@ -118,7 +120,7 @@ it('creates links with sensible defaults', function () {
 
 it('does not store the link in plain text', function () {
     $link = fbLink();
-    $raw = \Illuminate\Support\Facades\DB::table('feedback_links')->first();
+    $raw = DB::table('feedback_links')->first();
 
     expect($raw->token_hash)->toHaveLength(64)
         ->and($raw->token_enc)->not->toContain(fbToken($link));
@@ -167,7 +169,7 @@ it('accepts an anonymous answer without any identifying data', function () {
     $this->post(route('feedback.store', fbToken($link)), ['a_q1' => '4', 'a_q2' => '5', 'a_q3' => '3', 'a_q4' => '4', 'a_q5' => '4', 'a_q6' => 'genau richtig', 'a_q7' => 'Das Spiel', 'a_q9' => 'yes'])->assertRedirect(route('feedback.thanks'));
 
     $response = FeedbackResponse::query()->first();
-    $columns = \Illuminate\Support\Facades\Schema::getColumnListing('feedback_responses');
+    $columns = Schema::getColumnListing('feedback_responses');
 
     expect($response->answers['q1'])->toBe(4)
         ->and($response->answers['q7'])->toBe('Das Spiel')

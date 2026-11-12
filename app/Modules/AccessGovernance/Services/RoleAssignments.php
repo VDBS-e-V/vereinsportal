@@ -5,12 +5,12 @@ namespace App\Modules\AccessGovernance\Services;
 use App\Modules\Access\Models\User;
 use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
+use App\Modules\AccessGovernance\Events\RoleGranted;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use DomainException;
-use App\Modules\AccessGovernance\Events\RoleGranted;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
 

@@ -1,14 +1,15 @@
 <?php
 
 use App\Modules\Access\Models\User;
-use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
+use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\Membership\Enums\MembershipEventType;
 use App\Modules\Membership\Enums\MembershipStatus;
 use App\Modules\Membership\Models\Membership;
+use App\Modules\Membership\Services\MembershipRoles;
 use App\Modules\Membership\Services\Memberships;
 use App\Modules\People\Models\Person;
 use Database\Seeders\RoleSeeder;
@@ -176,7 +177,7 @@ it('enters a future termination and ends the member role at the end of that day'
     $person = Person::factory()->create();
     $account = mbUser(null, $person);
     $membership = Membership::factory()->create(['person_id' => $person->id]);
-    app(\App\Modules\Membership\Services\MembershipRoles::class)->syncPerson($person);
+    app(MembershipRoles::class)->syncPerson($person);
     $end = now()->addMonths(2)->toDateString();
 
     $this->actingAs(mbBoard())->post(route('membership.terminate', $membership), ['ends_on' => $end, 'comment' => 'Kündigung'])->assertSessionHas('success');
@@ -201,7 +202,7 @@ it('ends the membership at once when the termination lies in the past', function
     $person = Person::factory()->create();
     $account = mbUser(null, $person);
     $membership = Membership::factory()->create(['person_id' => $person->id, 'starts_on' => '2020-01-01']);
-    app(\App\Modules\Membership\Services\MembershipRoles::class)->syncPerson($person);
+    app(MembershipRoles::class)->syncPerson($person);
 
     $this->actingAs(mbBoard())->post(route('membership.terminate', $membership), ['ends_on' => now()->subMonth()->toDateString()])->assertSessionHas('success');
 
@@ -225,7 +226,7 @@ it('withdraws a termination and keeps the member role open ended', function () {
     $person = Person::factory()->create();
     $account = mbUser(null, $person);
     $membership = Membership::factory()->create(['person_id' => $person->id, 'ends_on' => now()->addMonth()->toDateString()]);
-    app(\App\Modules\Membership\Services\MembershipRoles::class)->syncPerson($person);
+    app(MembershipRoles::class)->syncPerson($person);
     expect(mbMemberRole($account)->ends_at)->not->toBeNull();
 
     $this->actingAs(mbBoard())->post(route('membership.withdraw', $membership), ['comment' => 'Doch geblieben'])->assertSessionHas('success');
@@ -254,7 +255,7 @@ it('gives the member role to an account that is created later and leaves manual 
 it('does nothing for people without an account and is idempotent', function () {
     $person = Person::factory()->create();
     Membership::factory()->create(['person_id' => $person->id]);
-    $roles = app(\App\Modules\Membership\Services\MembershipRoles::class);
+    $roles = app(MembershipRoles::class);
 
     $roles->syncPerson($person);
     expect(RoleAssignment::query()->count())->toBe(0);
@@ -270,7 +271,7 @@ it('gives the account the capabilities of the member role only while the members
     $person = Person::factory()->create();
     $account = mbUser(null, $person);
     $membership = Membership::factory()->create(['person_id' => $person->id]);
-    app(\App\Modules\Membership\Services\MembershipRoles::class)->syncPerson($person);
+    app(MembershipRoles::class)->syncPerson($person);
 
     expect($account->activeRoleAssignments()->count())->toBe(1);
 

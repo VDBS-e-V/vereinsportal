@@ -5,6 +5,7 @@ namespace App\Modules\Access\Services;
 use App\Modules\Access\Enums\TwoFactorMethodType;
 use App\Modules\Access\Models\TwoFactorMethod;
 use App\Modules\Access\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -22,7 +23,7 @@ final class TwoFactorManager
     ) {}
 
     /** Bestätigte, nicht entfernte Methoden. */
-    public function activeMethods(User $user): \Illuminate\Support\Collection
+    public function activeMethods(User $user): Collection
     {
         return $user->twoFactorMethods()->whereNotNull('confirmed_at')->whereNull('disabled_at')->get();
     }

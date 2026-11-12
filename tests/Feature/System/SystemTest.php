@@ -9,11 +9,16 @@ use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\System\Models\SystemTaskRun;
 use App\Modules\System\Services\SystemChecks;
+use App\Modules\System\Services\SystemLogs;
 use App\Modules\System\Services\SystemTasks;
+use App\Modules\System\Support\Redactor;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
 
@@ -61,7 +66,7 @@ it('runs checks without failing and reports the scheduler heartbeat', function (
 });
 
 it('beats the scheduler heartbeat every minute', function () {
-    $event = collect(app(Illuminate\Console\Scheduling\Schedule::class)->events())->first(fn ($e) => $e->description === 'system-heartbeat');
+    $event = collect(app(Schedule::class)->events())->first(fn ($e) => $e->description === 'system-heartbeat');
 
     expect($event)->not->toBeNull()->and($event->expression)->toBe('* * * * *');
 });
@@ -180,7 +185,7 @@ it('reads the log file newest first, filters by level and search and redacts sec
     ])."\n");
 
     try {
-        $logs = app(\App\Modules\System\Services\SystemLogs::class);
+        $logs = app(SystemLogs::class);
         $all = $logs->read();
 
         expect($all['entries'])->toHaveCount(3)
@@ -200,31 +205,31 @@ it('reads the log file newest first, filters by level and search and redacts sec
 });
 
 it('redacts secrets from texts', function () {
-    $clean = \App\Modules\System\Support\Redactor::clean('Anmeldung mit password=Passwort99 und Authorization: Bearer abc.def-ghi fehlgeschlagen');
+    $clean = Redactor::clean('Anmeldung mit password=Passwort99 und Authorization: Bearer abc.def-ghi fehlgeschlagen');
 
     expect($clean)->not->toContain('Passwort99')->not->toContain('abc.def-ghi')->toContain('***');
 });
 
 it('lists failed jobs and lets the administration retry, forget and flush them', function () {
-    if (! \Illuminate\Support\Facades\Schema::hasTable('failed_jobs')) {
+    if (! Schema::hasTable('failed_jobs')) {
         $this->markTestSkipped('Die Tabelle failed_jobs fehlt.');
     }
 
     $admin = sysUser(RoleKey::Administration);
-    $insert = fn (string $uuid) => \Illuminate\Support\Facades\DB::table('failed_jobs')->insert(['uuid' => $uuid, 'connection' => 'database', 'queue' => 'default', 'payload' => json_encode(['displayName' => 'App\\Jobs\\Beispiel', 'job' => 'x']), 'exception' => "RuntimeException: kaputt\n#0 stack", 'failed_at' => now()]);
+    $insert = fn (string $uuid) => DB::table('failed_jobs')->insert(['uuid' => $uuid, 'connection' => 'database', 'queue' => 'default', 'payload' => json_encode(['displayName' => 'App\\Jobs\\Beispiel', 'job' => 'x']), 'exception' => "RuntimeException: kaputt\n#0 stack", 'failed_at' => now()]);
     $insert('aaaaaaaa-0000-0000-0000-000000000001');
     $insert('aaaaaaaa-0000-0000-0000-000000000002');
 
     $this->actingAs($admin)->get(route('system.queue'))->assertOk()->assertSee('App\Jobs\Beispiel')->assertSee('RuntimeException: kaputt');
 
     $this->delete(route('system.queue.forget', 'aaaaaaaa-0000-0000-0000-000000000001'))->assertRedirect(route('system.queue'))->assertSessionHas('success');
-    expect(\Illuminate\Support\Facades\DB::table('failed_jobs')->count())->toBe(1);
+    expect(DB::table('failed_jobs')->count())->toBe(1);
 
     $this->delete(route('system.queue.flush'))->assertSessionHasErrors('password');
-    expect(\Illuminate\Support\Facades\DB::table('failed_jobs')->count())->toBe(1);
+    expect(DB::table('failed_jobs')->count())->toBe(1);
 
     $this->delete(route('system.queue.flush'), ['password' => 'geheim-12345'])->assertRedirect(route('system.queue'))->assertSessionHas('success');
-    expect(\Illuminate\Support\Facades\DB::table('failed_jobs')->count())->toBe(0);
+    expect(DB::table('failed_jobs')->count())->toBe(0);
 
     $this->post(route('system.queue.retry', 'gibt-es-nicht'))->assertSessionHas('error');
 });

@@ -9,6 +9,7 @@ use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Laravel\Passport\Client;
 use Throwable;
 
 /** Anbindungen für Nextcloud, Moodle und andere Systeme verwalten (Berechtigung oauth.manage, nur Administration). */
@@ -130,7 +131,7 @@ class OAuthClientController extends Controller
         ];
     }
 
-    private function find(string $id): \Laravel\Passport\Client
+    private function find(string $id): Client
     {
         return $this->clients->find($id) ?? abort(404);
     }

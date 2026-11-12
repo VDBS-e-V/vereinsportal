@@ -11,7 +11,6 @@ return [
         ['label' => 'Umfragen', 'url' => env('PORTAL_SURVEY_URL')],
     ],
 
-
     /*
      * Zwei-Faktor-Pflicht: Wer eine dieser Rollen hat, muss mindestens eine Methode einrichten (Konto > Sicherheit), bevor
      * andere Seiten hinter der Anmeldung erreichbar sind. Lokal abschaltbar mit TWO_FACTOR_REQUIRED=false.

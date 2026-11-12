@@ -9,6 +9,7 @@ use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\People\Models\Person;
 use App\Modules\Sso\Services\OAuthClients;
 use App\Modules\Sso\Services\OAuthKeys;
+use App\Modules\Sso\Services\OidcClaims;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\DB;
 
@@ -199,9 +200,9 @@ it('logs out of the portal, revokes the tokens and redirects only to known addre
 });
 
 it('maps every role to a stable group name', function () {
-    expect(\App\Modules\Sso\Services\OidcClaims::GROUPS)->toHaveKeys(['administration', 'board_member', 'administration_staff', 'coordination', 'education_coordination'])
-        ->and(\App\Modules\Sso\Services\OidcClaims::GROUPS['coordination'])->toBe('vdbs-koordination')
-        ->and(\App\Modules\Sso\Services\OidcClaims::GROUPS['board_member'])->toBe('vdbs-vorstand');
+    expect(OidcClaims::GROUPS)->toHaveKeys(['administration', 'board_member', 'administration_staff', 'coordination', 'education_coordination'])
+        ->and(OidcClaims::GROUPS['coordination'])->toBe('vdbs-koordination')
+        ->and(OidcClaims::GROUPS['board_member'])->toBe('vdbs-vorstand');
 });
 
 it('lists connected applications in the account and lets the person revoke one', function () {

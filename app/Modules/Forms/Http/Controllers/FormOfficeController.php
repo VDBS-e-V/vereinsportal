@@ -14,11 +14,14 @@ use App\Modules\Forms\Services\FormApplications;
 use App\Modules\Forms\Services\FormSettings;
 use App\Modules\Forms\Services\Iban;
 use App\Modules\Forms\Support\FormTypes;
+use App\Modules\Seminars\Support\Money;
 use App\Support\CsvCell;
 use DomainException;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -202,7 +205,7 @@ class FormOfficeController extends Controller
         }, 'jahresuebersicht-'.now()->format('Y-m-d').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
-    /** @return \Illuminate\Database\Eloquent\Builder<FormApplication> */
+    /** @return Builder<FormApplication> */
     private function filteredForExport(Request $request)
     {
         $statuses = array_values(array_intersect(array_map('strval', (array) $request->query('status', ['approved', 'paid', 'ordered', 'delivered', 'closed'])), array_keys(FormApplication::STATUS_LABELS)));
@@ -216,7 +219,7 @@ class FormOfficeController extends Controller
         foreach (['von' => '>=', 'bis' => '<='] as $key => $operator) {
             if (filled($request->query($key))) {
                 try {
-                    $query->whereDate('approved_at', $operator, \Illuminate\Support\Carbon::parse((string) $request->query($key))->toDateString());
+                    $query->whereDate('approved_at', $operator, Carbon::parse((string) $request->query($key))->toDateString());
                 } catch (\Throwable) {
                 }
             }
@@ -253,14 +256,14 @@ class FormOfficeController extends Controller
     public function updateSettings(Request $request): RedirectResponse
     {
         $data = $request->validate(['approval_limit' => ['required', 'string'], 'km_rate' => ['required', 'string'], 'max_km_per_trip' => ['required', 'integer', 'min:1', 'max:100000'], 'car_max' => ['nullable', 'string']], ['approval_limit.required' => 'Bitte geben Sie die Grenze an.', 'km_rate.required' => 'Bitte geben Sie den Kilometersatz an.']);
-        $limit = \App\Modules\Seminars\Support\Money::parseEuro($data['approval_limit']);
-        $rate = \App\Modules\Seminars\Support\Money::parseEuro($data['km_rate']);
+        $limit = Money::parseEuro($data['approval_limit']);
+        $rate = Money::parseEuro($data['km_rate']);
 
         if ($limit === null || $rate === null) {
             return back()->withInput()->withErrors(['approval_limit' => 'Bitte geben Sie Beträge in Euro an, zum Beispiel 50,00 und 0,20.']);
         }
 
-        $cap = filled($data['car_max'] ?? null) ? \App\Modules\Seminars\Support\Money::parseEuro($data['car_max']) : $this->settings->int('car_max_cents');
+        $cap = filled($data['car_max'] ?? null) ? Money::parseEuro($data['car_max']) : $this->settings->int('car_max_cents');
 
         if ($cap === null) {
             return back()->withInput()->withErrors(['car_max' => 'Bitte geben Sie den Höchstbetrag in Euro an, zum Beispiel 130,00 (0 = ohne Grenze).']);

@@ -2,9 +2,9 @@
 
 use App\Support\Media\ImageManifest;
 use App\Support\Media\ImageSource;
-use Illuminate\View\ViewException;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\ViewException;
 
 function img(string $attributes): string
 {

@@ -1,5 +1,10 @@
 <?php
 
+use App\Modules\Access\Models\User;
+use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
+use App\Modules\AccessGovernance\Models\Role;
+use App\Modules\AccessGovernance\Models\RoleAssignment;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -49,18 +54,17 @@ function something()
     // ..
 }
 
-
 /** Nutzer mit der Rolle Administration (darf u. a. die Design-Bibliothek sehen). */
-function designViewer(): \App\Modules\Access\Models\User
+function designViewer(): User
 {
-    app(\Database\Seeders\RoleSeeder::class)->run();
+    app(RoleSeeder::class)->run();
 
-    $user = \App\Modules\Access\Models\User::factory()->create();
+    $user = User::factory()->create();
 
-    \App\Modules\AccessGovernance\Models\RoleAssignment::query()->create([
+    RoleAssignment::query()->create([
         'user_id' => $user->id,
-        'role_id' => \App\Modules\AccessGovernance\Models\Role::query()->where('key', 'administration')->value('id'),
-        'source' => \App\Modules\AccessGovernance\Enums\RoleAssignmentSource::Manual,
+        'role_id' => Role::query()->where('key', 'administration')->value('id'),
+        'source' => RoleAssignmentSource::Manual,
         'starts_at' => now()->subMinute(),
     ]);
 

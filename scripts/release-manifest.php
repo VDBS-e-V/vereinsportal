@@ -5,7 +5,7 @@
  * Das Portal prüft damit nach dem FTP-Upload, ob alle Dateien vollständig angekommen sind (Systemsteuerung, Aufgabe „Paket prüfen“).
  */
 
-$dir = rtrim((string) ($argv[1] ?? ''), "/\\");
+$dir = rtrim((string) ($argv[1] ?? ''), '/\\');
 $version = (string) ($argv[2] ?? date('Ymd-Hi'));
 
 if ($dir === '' || ! is_dir($dir)) {

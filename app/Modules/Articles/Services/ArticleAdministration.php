@@ -6,6 +6,7 @@ use App\Modules\Access\Models\User;
 use App\Modules\Articles\Models\Article;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
+use App\Support\Html\RichText;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -105,9 +106,9 @@ final class ArticleAdministration
             'show_author' => (bool) ($data['show_author'] ?? false),
             'author_name' => $clean($data['author_name'] ?? null),
             'author_box' => (bool) ($data['author_box'] ?? false),
-            'author_text' => filled(\App\Support\Html\RichText::clean($data['author_text'] ?? null)) ? \App\Support\Html\RichText::clean($data['author_text']) : null,
+            'author_text' => filled(RichText::clean($data['author_text'] ?? null)) ? RichText::clean($data['author_text']) : null,
             'author_image_credit' => $clean($data['author_image_credit'] ?? null),
-            'more_info' => \App\Support\Html\RichText::clean($data['more_info'] ?? null),
+            'more_info' => RichText::clean($data['more_info'] ?? null),
             'status' => $published ? Article::STATUS_PUBLISHED : Article::STATUS_DRAFT,
             // Das Datum entscheidet, ab wann der Artikel zu sehen ist (auch in der Zukunft); ohne Angabe gilt jetzt
             'published_at' => $published ? (filled($data['published_at'] ?? null) ? $data['published_at'] : now()) : null,

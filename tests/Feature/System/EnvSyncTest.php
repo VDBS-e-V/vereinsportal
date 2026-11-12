@@ -55,7 +55,7 @@ it('is repeatable and reports settings that exist only in the env', function () 
     $after = file_get_contents($env);
     $this->artisan('env:sync', ['--env' => $env, '--example' => $example])->assertSuccessful();
 
-    expect(file_get_contents($env))->toBe($after)->and(substr_count($after, "B=3"))->toBe(1);
+    expect(file_get_contents($env))->toBe($after)->and(substr_count($after, 'B=3'))->toBe(1);
 
     envSyncClean($dir);
 });

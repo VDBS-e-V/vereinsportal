@@ -14,6 +14,7 @@ use App\Modules\Forms\Services\FormNumbers;
 use App\Modules\Forms\Services\FormSettings;
 use App\Modules\Forms\Services\Iban;
 use App\Modules\People\Models\Person;
+use App\Modules\Seminars\Models\Seminar;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
@@ -126,7 +127,7 @@ it('adapts the form: no seminar and cost center for members, seminar for team, b
     $team = $service->create(ffUser(RoleKey::Team), 'expense', 'team');
     $member = $service->create(ffUser(RoleKey::Member), 'expense', 'member');
     $employee = $service->create(ffUser(RoleKey::Employee), 'expense', 'employee');
-    $seminar = \App\Modules\Seminars\Models\Seminar::factory()->create();
+    $seminar = Seminar::factory()->create();
 
     foreach ([$team, $member, $employee] as $application) {
         $service->saveDraft($application, ['seminar_id' => $seminar->id, 'cost_center' => 'KS9']);
@@ -422,14 +423,14 @@ it('lists the new areas in the navigation for the right roles', function () {
 });
 
 it('takes the cost center of the seminar for applications when nobody chose another and offers the list in the seminar form', function () {
-    \App\Modules\Forms\Models\CostCenter::query()->create(['code' => 'KS-S1', 'name' => 'Seminarkosten Nord', 'active' => true]);
-    $seminar = \App\Modules\Seminars\Models\Seminar::factory()->create(['cost_center' => 'KS-S1']);
+    CostCenter::query()->create(['code' => 'KS-S1', 'name' => 'Seminarkosten Nord', 'active' => true]);
+    $seminar = Seminar::factory()->create(['cost_center' => 'KS-S1']);
     $team = ffUser(RoleKey::Team);
 
     $application = ffDraft($team, 2500, ['seminar_id' => $seminar->id]);
     expect($application->cost_center)->toBe('KS-S1');
 
-    $other = \App\Modules\Seminars\Models\Seminar::factory()->create(['cost_center' => 'FREITEXT']);
+    $other = Seminar::factory()->create(['cost_center' => 'FREITEXT']);
     expect(ffDraft($team, 2500, ['seminar_id' => $other->id])->cost_center)->toBeNull();
 
     $this->actingAs(ffUser(RoleKey::Coordination))->get(route('seminars.edit', $seminar))->assertOk()->assertSee('KS-S1 · Seminarkosten Nord');

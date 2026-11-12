@@ -3,27 +3,29 @@
 namespace App\Modules\Board\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Models\User;
-use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Board\Models\BoardMeeting;
 use App\Modules\Board\Models\BoardMeetingDocument;
-use App\Modules\Board\Models\BoardMeetingGuest;
+use App\Modules\Board\Models\BoardResolution;
 use App\Modules\Board\Services\BoardCalendar;
 use App\Modules\Board\Services\BoardInvitations;
 use App\Modules\Board\Services\BoardMeetingDocuments;
+use App\Modules\Board\Services\BoardMembers;
+use App\Modules\Tasks\Services\ProjectAccess;
+use App\Modules\Tasks\Services\TaskProjects;
 use App\Support\Html\RichText;
+use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use DomainException;
 
 /** Vorstandssitzungen im Portal: planen, Tagesordnung, Anwesenheit und Protokoll. Nur für den Vorstand. */
 class BoardMeetingController extends Controller
@@ -64,14 +66,14 @@ class BoardMeetingController extends Controller
 
     public function show(BoardMeeting $meeting): View
     {
-        $taskProject = app(\App\Modules\Tasks\Services\TaskProjects::class)->board($this->user());
+        $taskProject = app(TaskProjects::class)->board($this->user());
         $meeting->load(['attendees.person', 'documents.uploadedBy.person', 'guests', 'resolutions', 'tasks.assignees.person', 'tasks.status']);
 
         return view('board.meetings.show', [
             'meeting' => $meeting, 'invitations' => $this->calendar->invitationsEnabled(),
             'present' => $meeting->attendees->filter(fn (User $user): bool => $user->pivot->status === 'present'),
             'excused' => $meeting->attendees->filter(fn (User $user): bool => $user->pivot->status === 'excused'),
-            'taskProject' => $taskProject, 'taskAssignable' => app(\App\Modules\Tasks\Services\ProjectAccess::class)->assignable($taskProject), 'outcomes' => \App\Modules\Board\Models\BoardResolution::OUTCOMES,
+            'taskProject' => $taskProject, 'taskAssignable' => app(ProjectAccess::class)->assignable($taskProject), 'outcomes' => BoardResolution::OUTCOMES,
         ]);
     }
 
@@ -289,7 +291,7 @@ class BoardMeetingController extends Controller
         return $redirect->with('success', $message.' Die Einladung ging an '.$result['sent'].' Vorstandsmitglied'.($result['sent'] === 1 ? '' : 'er').'.');
     }
 
-    /** @param  \Illuminate\Support\Collection<int, BoardMeeting>  $meetings */
+    /** @param  Collection<int, BoardMeeting>  $meetings */
     private function delete($meetings): void
     {
         foreach ($meetings as $meeting) {
@@ -363,7 +365,7 @@ class BoardMeetingController extends Controller
     /** Aktive Vorstandsmitglieder, dazu bereits eingetragene Teilnehmende der Sitzung. @return array<int, string> */
     private function members(?BoardMeeting $meeting = null): array
     {
-        return app(\App\Modules\Board\Services\BoardMembers::class)->options($meeting ? $meeting->attendees()->pluck('users.id')->all() : []);
+        return app(BoardMembers::class)->options($meeting ? $meeting->attendees()->pluck('users.id')->all() : []);
     }
 
     private function user(): User
