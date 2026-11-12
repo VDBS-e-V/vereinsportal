@@ -21,7 +21,7 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
-        "tinymce": "^7.9.0",
+        "tinymce": "^8.9.3",
         "tinymce-i18n": ">=24.0.0"
     }
 }
