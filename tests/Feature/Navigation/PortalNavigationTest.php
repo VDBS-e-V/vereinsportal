@@ -332,7 +332,7 @@ it('limits the start menu to the four public entries (issue 93)', function () {
 it('renders an overflow menu with three dots for every menu row (issue 94)', function () {
     $html = pnHeader($this->actingAs(pnUser(RoleKey::BoardMember))->get(route('board.overview'))->getContent());
 
-    expect(substr_count($html, 'data-vdbs-overflow'))->toBe(2)->and(substr_count($html, 'data-vdbs-more-list'))->toBe(2)
+    expect(substr_count($html, 'data-vdbs-overflow '))->toBe(2)->and(substr_count($html, 'data-vdbs-more-list'))->toBe(2)
         ->and($html)->toContain('aria-label="Weitere Einträge"')->toContain('data-vdbs-more');
     // mehr als acht Einträge: sieben bleiben sichtbar, der Rest steht hinter den drei Punkten
     expect(substr_count($html, 'data-vdbs-overflow-max="8"'))->toBe(2);
