@@ -5,7 +5,7 @@
     "scripts": {
         "build": "node scripts/copy-tinymce.mjs && vite build",
         "dev": "vite",
-        "audit": "npm audit --audit-level=high",
+        "audit": "node scripts/npm_audit.mjs",
         "check": "npm run build",
         "design:audit": "node scripts/design_audit.mjs",
         "tinymce:copy": "node scripts/copy-tinymce.mjs"
