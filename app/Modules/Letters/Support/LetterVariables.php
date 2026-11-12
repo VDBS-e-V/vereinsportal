@@ -127,6 +127,7 @@ final class LetterVariables
     /** @return list<string> */
     public static function known(): array
     {
-        return array_values(array_merge(...array_map(fn (array $group): array => array_keys($group['items']), self::groups())));
+        // array_values: Die Gruppen haben Textschlüssel, die beim Entpacken als benannte Parameter gelten würden.
+        return array_values(array_merge(...array_values(array_map(fn (array $group): array => array_keys($group['items']), self::groups()))));
     }
 }
