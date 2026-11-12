@@ -40,11 +40,15 @@
                     <td>{{ $row->email }}</td>
                     <td><x-vdbs.data.badge :tone="$row->status->tone()">{{ $row->status->label() }}</x-vdbs.data.badge></td>
                     <td>
-                        @forelse ($row->activeRoleAssignments as $assignment)
+                        @php $roleAssignments = $row->activeRoleAssignments; @endphp
+                        @forelse ($roleAssignments->take(3) as $assignment)
                             <x-vdbs.data.badge>{{ $assignment->role?->name }}</x-vdbs.data.badge>
                         @empty
                             <span aria-hidden="true">–</span><span class="vdbs-sr-only">keine Rolle</span>
                         @endforelse
+                        @if ($roleAssignments->count() > 3)
+                            <span title="{{ $roleAssignments->skip(3)->map(fn ($assignment) => $assignment->role?->name)->filter()->implode(', ') }}"><span aria-hidden="true">…</span><span class="vdbs-sr-only">und {{ $roleAssignments->count() - 3 }} weitere Rollen: {{ $roleAssignments->skip(3)->map(fn ($assignment) => $assignment->role?->name)->filter()->implode(', ') }}</span> <span class="vdbs-hint" aria-hidden="true">+{{ $roleAssignments->count() - 3 }}</span></span>
+                        @endif
                     </td>
                     <td>{{ $row->last_login_at?->format('d.m.Y, H:i') ?? '–' }}</td>
                 </tr>

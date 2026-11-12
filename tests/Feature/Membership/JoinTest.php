@@ -61,12 +61,14 @@ function jnRoleKeys(User $user): array
 
 // ---------- Online-Antrag ----------
 
-it('shows the application form to guests and lists it in the start navigation', function () {
+it('shows the application form to guests but keeps it out of the start navigation', function () {
     $this->get(route('join.apply'))->assertOk()->assertSee('Mitgliedschaft beantragen')->assertSee('Ich erkenne die Satzung');
 
     preg_match('/<header class="vdbs-header".*?<\/header>/s', $this->get(route('join.apply'))->getContent(), $header);
 
-    expect($header[0])->toContain('>Mitglied werden<')->toMatch('/aria-current="page"\s*>Mitglied werden</');
+    // Das Menü des Bereichs Start hat nur vier Einträge; „Mitglied werden“ und „Veranstaltungen“ gehören auf die Vereinswebsite.
+    expect($header[0])->not->toContain('>Mitglied werden<')->not->toContain('>Veranstaltungen<')
+        ->toContain('>Über das Portal<')->toContain('>Kontakt<');
 });
 
 it('creates person, pending account and a requested membership from an online application', function () {

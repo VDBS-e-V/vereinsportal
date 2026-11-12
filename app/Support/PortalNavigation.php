@@ -35,14 +35,12 @@ final class PortalNavigation
             PortalAreas::Start->value => [
                 'home' => 'home',
                 'roles' => [],
-                'routes' => ['home', 'join.*', 'articles.public.*', 'pages.show', 'portal.design-packages'],
+                'routes' => ['home', 'join.*', 'events.public.*', 'articles.public.*', 'pages.show', 'portal.design-packages'],
                 'pages' => [
                     ['label' => 'Über das Portal', 'route' => 'portal.about', 'match' => 'portal.about', 'children' => [
                         ['label' => 'Zugang zum Portal', 'route' => 'portal.access', 'match' => 'portal.access*'],
                         ['label' => 'FAQ', 'route' => 'portal.about', 'fragment' => 'portal-faq', 'match' => null],
                     ]],
-                    ['label' => 'Veranstaltungen', 'route' => 'events.public.index', 'match' => 'events.public.*'],
-                    ['label' => 'Mitglied werden', 'route' => 'join.apply', 'match' => 'join.apply*'],
                     ['label' => 'Kontakt', 'route' => 'portal.contact', 'match' => 'portal.contact*'],
                 ],
             ],

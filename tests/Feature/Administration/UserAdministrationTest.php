@@ -119,6 +119,29 @@ it('lists users with name, email, status and roles', function () {
         ->assertSee('2 Nutzer');
 });
 
+it('shows at most three roles in the user table and marks the rest (issue 81)', function () {
+    $staff = uaUser(RoleKey::AdministrationStaff, [], ['first_name' => 'Sabine', 'last_name' => 'Schmidt']);
+    $many = uaUser(RoleKey::Team, [], ['first_name' => 'Viele', 'last_name' => 'Rollen']);
+
+    foreach ([RoleKey::Member, RoleKey::Coordination, RoleKey::Employee, RoleKey::Treasury] as $role) {
+        uaGrant($many, $role);
+    }
+
+    $html = $this->actingAs($staff)->get(route('admin.users.index', ['q' => 'Rollen']))->assertOk()->getContent();
+    preg_match('/Viele Rollen.*?<\/tr>/s', $html, $row);
+
+    expect(substr_count($row[0], 'class="vdbs-badge'))->toBe(3 + 1)->and($row[0])->toContain('+2')->toContain('weitere Rollen');
+
+    // genau drei Rollen: kein Hinweis
+    $three = uaUser(RoleKey::Team, [], ['first_name' => 'Drei', 'last_name' => 'Rollen']);
+    uaGrant($three, RoleKey::Member);
+    uaGrant($three, RoleKey::Employee);
+    $html = $this->get(route('admin.users.index', ['q' => 'Drei']))->getContent();
+    preg_match('/Drei Rollen.*?<\/tr>/s', $html, $row);
+
+    expect($row[0])->not->toContain('weitere Rollen');
+});
+
 it('searches by name and email, filters by status and role and shows removable filter tags', function () {
     $staff = uaUser(RoleKey::AdministrationStaff, [], ['first_name' => 'Sabine', 'last_name' => 'Schmidt']);
     uaUser(RoleKey::Team, [], ['first_name' => 'Tom', 'last_name' => 'Tester', 'email' => 'tom@example.org']);

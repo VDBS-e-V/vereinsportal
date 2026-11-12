@@ -45,7 +45,7 @@
         </x-vdbs.layout.section>
     @endauth
 
-    <x-vdbs.layout.section :title="$home['areas']['title']" :lead="$home['areas']['lead']" align="center">
+    <x-vdbs.layout.section :title="$home['areas']['title']" :lead="$home['areas']['lead']" align="center" variant="band">
         <x-vdbs.data.chip-list label="Bereiche des Portals">
             @foreach ($areas as $area)
                 <x-vdbs.data.chip :label="$area->label()" :href="$areaLink($area)" :group="$area->groupMark()" />
@@ -74,8 +74,8 @@
         </x-vdbs.layout.section>
     @endif
 
-    {{-- Zugang: Text mit Aktionen links, Bild rechts (Bild und Quelle aus config portal.home.access_image) --}}
-    <x-vdbs.layout.section>
+    {{-- Zugang: Text mit Aktionen links, Bild rechts (Bild und Quelle aus config portal.home.access_image); grauer Streifen im Wechsel mit weißen Abschnitten --}}
+    <x-vdbs.layout.section variant="band">
         <x-vdbs.layout.split :title="$home['access']['title']">
             <p>{{ auth()->check() ? $home['access']['member'] : $home['access']['guest'] }}</p>
 

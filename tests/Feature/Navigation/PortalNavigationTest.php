@@ -317,3 +317,35 @@ it('shows the area start pages only to people of the area and links to them from
     $this->actingAs(pnUser(RoleKey::Team))->get(route('team.home'))->assertOk();
     $this->actingAs(pnUser(RoleKey::Team))->get(route('coordination.home'))->assertForbidden();
 });
+
+// ---------- Issues 93 bis 95 ----------
+
+it('limits the start menu to the four public entries (issue 93)', function () {
+    $html = pnHeader($this->get(route('portal.about'))->getContent());
+
+    expect($html)->toContain('>Über das Portal<')->toContain('>Zugang zum Portal<')->toContain('>FAQ<')->toContain('>Kontakt<')
+        ->not->toContain('>Veranstaltungen<')->not->toContain('>Mitglied werden<');
+
+    // die Seiten selbst bleiben erreichbar, nur ohne Menüpunkt
+    $this->get(route('events.public.index'))->assertOk();
+    expect(PortalNavigation::areaForRoute('events.public.index'))->toBe(PortalAreas::Start)->and(PortalNavigation::areaForRoute('join.apply'))->toBe(PortalAreas::Start);
+});
+
+it('renders an overflow menu with three dots for every menu row (issue 94)', function () {
+    $html = pnHeader($this->actingAs(pnUser(RoleKey::BoardMember))->get(route('board.overview'))->getContent());
+
+    expect(substr_count($html, 'data-vdbs-overflow'))->toBe(2)->and(substr_count($html, 'data-vdbs-more-list'))->toBe(2)
+        ->and($html)->toContain('aria-label="Weitere Einträge"')->toContain('data-vdbs-more');
+    // ohne JavaScript bleibt das Überlaufmenü verborgen und alle Einträge stehen in der Zeile
+    expect($html)->toMatch('/<li class="vdbs-main-nav__more" data-vdbs-more hidden>/');
+});
+
+it('offers a grey section background with its own token that works in the dark mode (issue 95)', function () {
+    $css = (string) file_get_contents(resource_path('css/vdbs/tokens.css'));
+
+    expect($css)->toContain('--bg-band: var(--color-grau-band)')->and(substr_count($css, '--bg-band: var(--color-graphit-900)'))->toBe(2)
+        ->and((string) file_get_contents(resource_path('css/vdbs/components/layout/section.css')))->toContain('.vdbs-section--band { background: var(--bg-band); }');
+
+    $html = $this->get(route('home'))->assertOk()->getContent();
+    expect(substr_count($html, 'vdbs-section--band'))->toBeGreaterThanOrEqual(2);
+});

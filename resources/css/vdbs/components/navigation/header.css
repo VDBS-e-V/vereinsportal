@@ -170,3 +170,57 @@ a.vdbs-header__brand .vdbs-header__eyebrow, a.vdbs-header__brand .vdbs-header__t
 .vdbs-main-nav__overview a { font-weight: var(--font-weight-bold); text-decoration: underline; text-underline-offset: 0.2em; }
 
 .vdbs-area-pages__children { margin: var(--space-2) 0 0; padding-inline-start: var(--space-5); }
+
+
+/* Überlaufmenü (Issue #94): ab 1100 px stehen die Einträge einer Zeile nebeneinander; was nicht passt, liegt hinter dem Knopf mit den drei Punkten */
+.vdbs-main-nav__more { position: relative; }
+.vdbs-main-nav__more[hidden], .vdbs-main-nav__more-list[hidden] { display: none; }
+
+.vdbs-main-nav__more-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--size-touch);
+    min-height: var(--size-touch);
+    padding: 0;
+    border: var(--border-width) solid transparent;
+    background: transparent;
+    color: var(--text-default);
+    cursor: pointer;
+}
+
+.vdbs-main-nav__more-toggle:hover { background: var(--bg-surface); }
+.vdbs-main-nav__more-toggle.is-active { text-decoration: underline; text-decoration-color: var(--bg-brand); text-decoration-thickness: 3px; }
+
+.vdbs-main-nav__more-list {
+    position: absolute;
+    inset-block-start: 100%;
+    inset-inline-end: 0;
+    z-index: var(--z-dropdown);
+    min-width: 14rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--bg-page);
+    border: 1px solid var(--border-default);
+    box-shadow: var(--shadow-md);
+}
+
+.vdbs-main-nav__more-list > li + li { border-top: 1px solid var(--border-default); }
+.vdbs-main-nav__more-list a { display: block; width: 100%; padding: var(--space-3) var(--space-4); font-size: var(--font-size-body); text-decoration: none; }
+.vdbs-main-nav__more-list a:hover, .vdbs-main-nav__more-list a:focus-visible { background: var(--bg-surface); }
+
+/* Untermenüs wandernder Einträge stehen eingerückt direkt darunter */
+.vdbs-main-nav__more-list .vdbs-main-nav__submenu { display: block; position: static; min-width: 0; border: 0; box-shadow: none; padding-inline-start: var(--space-4); }
+.vdbs-main-nav__more-list .vdbs-main-nav__chevron { display: none; }
+
+@media (min-width: 1100px) {
+    .vdbs-js .vdbs-header [data-vdbs-overflow] { flex-wrap: nowrap; white-space: nowrap; }
+    .vdbs-js .vdbs-header__links--areas { justify-content: flex-end; }
+    .vdbs-js .vdbs-header #portal-menu-areas,
+    .vdbs-js .vdbs-header .vdbs-header__actions > .vdbs-main-nav { flex: 1 1 0; min-width: 0; }
+}
+
+@media (max-width: 1099px) {
+    .vdbs-main-nav__more { display: none; }
+}

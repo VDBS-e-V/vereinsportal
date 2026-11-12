@@ -79,6 +79,7 @@
 
     /* Graustufen (hell) */
     --color-grau-hell: #f5f7f6;
+    --color-grau-band: #ebefed; /* graue Streifen über die volle Breite (Abschnitt „band“) */
     --color-grau-linie: #d4dbd8;
     --color-grau-rahmen: #7f8d88;
     --color-grau-text: #52605b;
@@ -139,6 +140,7 @@
     /* Flächen */
     --bg-page: var(--color-weiss);
     --bg-surface: var(--color-grau-hell); /* Karten, Infoboxen, Tabellenzeilen */
+    --bg-band: var(--color-grau-band); /* Abschnitte mit grauem Hintergrund (etwas grauer als Karten, damit weiße Karten darauf stehen) */
     --bg-accent-soft: var(--color-gruen-hell); /* ruhige Hinweisflächen */
     --bg-header-footer: var(--color-lila); /* Kopf-/Fußbereich, Statement-Flächen */
     --bg-brand: var(--color-gruen); /* helles Markengrün: Akzente, Hover-Flächen; Schrift darauf: Ink */
@@ -386,6 +388,7 @@
 :root[data-theme="dark"] {
     --bg-page: var(--color-graphit-950);
     --bg-surface: var(--color-graphit-900);
+    --bg-band: var(--color-graphit-900);
     --bg-accent-soft: var(--color-graphit-800);
     --bg-header-footer: var(--color-graphit-900);
 
@@ -444,6 +447,7 @@
     :root:not([data-theme="light"]) {
         --bg-page: var(--color-graphit-950);
         --bg-surface: var(--color-graphit-900);
+        --bg-band: var(--color-graphit-900);
         --bg-accent-soft: var(--color-graphit-800);
         --bg-header-footer: var(--color-graphit-900);
 

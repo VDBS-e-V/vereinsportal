@@ -45,3 +45,89 @@ window.matchMedia('(min-width: 1100px)').addEventListener('change', (event) => {
         document.querySelectorAll('[data-vdbs-header]').forEach((header) => setMenu(header, false));
     }
 });
+
+
+/*
+ * Überlaufmenü (Issue #94): Passen die Einträge einer Menüzeile (ul[data-vdbs-overflow]) ab 1100 px nicht nebeneinander, wandern die letzten
+ * hinter einen Knopf mit drei Punkten. Darunter gilt das Menü hinter dem Bars-Knopf, dort bleiben alle Einträge an ihrem Platz.
+ * Ohne JavaScript bleibt alles sichtbar und umbricht in die nächste Zeile.
+ */
+const wide = window.matchMedia('(min-width: 1100px)');
+const overflowLists = [];
+
+const initOverflow = (list) => {
+    const more = list.querySelector(':scope > [data-vdbs-more]');
+
+    if (!more) {
+        return;
+    }
+
+    const panel = more.querySelector('[data-vdbs-more-list]');
+    const toggle = more.querySelector('button');
+    const items = [...list.querySelectorAll(':scope > li:not([data-vdbs-more])')];
+
+    const setOpen = (open) => {
+        panel.hidden = !open;
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+
+    const layout = () => {
+        setOpen(false);
+        items.forEach((item) => list.insertBefore(item, more));
+        more.hidden = true;
+        list.classList.remove('is-overflowing');
+
+        if (!wide.matches || list.scrollWidth <= list.clientWidth + 1) {
+            return;
+        }
+
+        more.hidden = false;
+        list.classList.add('is-overflowing');
+
+        for (let guard = items.length; guard > 0 && list.scrollWidth > list.clientWidth + 1; guard--) {
+            const last = [...list.querySelectorAll(':scope > li:not([data-vdbs-more])')].pop();
+
+            if (!last) {
+                break;
+            }
+
+            panel.prepend(last);
+        }
+
+        toggle.classList.toggle('is-active', panel.querySelector('[aria-current]') !== null);
+    };
+
+    toggle.addEventListener('click', () => setOpen(panel.hidden));
+
+    document.addEventListener('click', (event) => {
+        if (!more.contains(event.target)) {
+            setOpen(false);
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !panel.hidden) {
+            setOpen(false);
+            toggle.focus();
+        }
+    });
+
+    overflowLists.push(layout);
+    layout();
+};
+
+document.querySelectorAll('ul[data-vdbs-overflow]').forEach(initOverflow);
+
+if (overflowLists.length > 0) {
+    let frame = null;
+    const relayout = () => {
+        frame ??= window.requestAnimationFrame(() => {
+            frame = null;
+            overflowLists.forEach((layout) => layout());
+        });
+    };
+
+    window.addEventListener('resize', relayout);
+    wide.addEventListener('change', relayout);
+    document.fonts?.ready.then(relayout);
+}

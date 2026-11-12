@@ -7,7 +7,7 @@
     margin-inline: auto;
 }
 
-.vdbs-section--band { background: var(--bg-surface); }
+.vdbs-section--band { background: var(--bg-band); }
 
 .vdbs-section__header { margin-bottom: var(--space-6); }
 

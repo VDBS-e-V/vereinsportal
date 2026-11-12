@@ -6,7 +6,7 @@
         'Dark Mode' => ['graphit-950', 'graphit-900', 'graphit-800', 'graphit-750', 'graphit-700', 'graphit-500', 'graphit-400', 'nebel', 'gruen-nacht', 'gruen-nacht-text', 'lila-nacht', 'lila-nacht-text'],
     ];
     $semantic = [
-        'Flächen' => ['bg-page', 'bg-surface', 'bg-accent-soft', 'bg-header-footer', 'bg-brand', 'bg-action', 'bg-action-hover', 'bg-media', 'bg-danger'],
+        'Flächen' => ['bg-page', 'bg-surface', 'bg-band', 'bg-accent-soft', 'bg-header-footer', 'bg-brand', 'bg-action', 'bg-action-hover', 'bg-media', 'bg-danger'],
         'Status-Flächen' => ['bg-error-soft', 'bg-warning-soft'],
         'Rahmen und Akzente' => ['border-default', 'border-input', 'border-error', 'border-warning', 'border-success', 'accent-info', 'accent-success', 'accent-warning'],
         'Gruppen' => ['group-1', 'group-2', 'group-3', 'group-4', 'group-5', 'group-6'],
