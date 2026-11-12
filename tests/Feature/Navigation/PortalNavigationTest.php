@@ -334,6 +334,8 @@ it('renders an overflow menu with three dots for every menu row (issue 94)', fun
 
     expect(substr_count($html, 'data-vdbs-overflow'))->toBe(2)->and(substr_count($html, 'data-vdbs-more-list'))->toBe(2)
         ->and($html)->toContain('aria-label="Weitere Einträge"')->toContain('data-vdbs-more');
+    // mehr als acht Einträge: sieben bleiben sichtbar, der Rest steht hinter den drei Punkten
+    expect(substr_count($html, 'data-vdbs-overflow-max="8"'))->toBe(2);
     // ohne JavaScript bleibt das Überlaufmenü verborgen und alle Einträge stehen in der Zeile
     expect($html)->toMatch('/<li class="vdbs-main-nav__more" data-vdbs-more hidden>/');
 });

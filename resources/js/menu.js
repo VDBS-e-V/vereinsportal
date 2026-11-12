@@ -49,7 +49,8 @@ window.matchMedia('(min-width: 1100px)').addEventListener('change', (event) => {
 
 /*
  * Überlaufmenü (Issue #94): Passen die Einträge einer Menüzeile (ul[data-vdbs-overflow]) ab 1100 px nicht nebeneinander, wandern die letzten
- * hinter einen Knopf mit drei Punkten. Darunter gilt das Menü hinter dem Bars-Knopf, dort bleiben alle Einträge an ihrem Platz.
+ * hinter einen Knopf mit drei Punkten. Mit data-vdbs-overflow-max="8" gilt zusätzlich: Gibt es mehr als 8 Einträge, bleiben 7 sichtbar und der Rest steht
+ * hinter dem Knopf (der Knopf zählt als achter Platz), auch wenn die Zeile noch Platz hätte. Darunter gilt das Menü hinter dem Bars-Knopf, dort bleiben alle Einträge an ihrem Platz.
  * Ohne JavaScript bleibt alles sichtbar und umbricht in die nächste Zeile.
  */
 const wide = window.matchMedia('(min-width: 1100px)');
@@ -77,12 +78,24 @@ const initOverflow = (list) => {
         more.hidden = true;
         list.classList.remove('is-overflowing');
 
-        if (!wide.matches || list.scrollWidth <= list.clientWidth + 1) {
+        if (!wide.matches) {
+            return;
+        }
+
+        // Obergrenze: Mehr als max Einträge wirken überladen, auch wenn sie nebeneinander passen
+        const max = Number(list.dataset.vdbsOverflowMax || 0);
+        const capped = max > 0 && items.length > max;
+
+        if (!capped && list.scrollWidth <= list.clientWidth + 1) {
             return;
         }
 
         more.hidden = false;
         list.classList.add('is-overflowing');
+
+        if (capped) {
+            items.slice(max - 1).forEach((item) => panel.append(item));
+        }
 
         for (let guard = items.length; guard > 0 && list.scrollWidth > list.clientWidth + 1; guard--) {
             const last = [...list.querySelectorAll(':scope > li:not([data-vdbs-more])')].pop();

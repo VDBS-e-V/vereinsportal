@@ -17,7 +17,7 @@
 
 {{--
     Kopfbereich (Paket "navigation"). Zeile 1: die Bereiche des Nutzers (App\Support\PortalNavigation) und die Systeme; Zeile 2: Name
-    des aktuellen Bereichs und dessen Seiten. Der Bereich wechselt nur durch Klick in Zeile 1. Ab 1100 px zweizeilig; was nicht in eine Zeile passt, wandert hinter einen Knopf mit drei Punkten (Überlaufmenü, JavaScript); darunter (Handy und Tablet) klappen Bereiche, Systeme und
+    des aktuellen Bereichs und dessen Seiten. Der Bereich wechselt nur durch Klick in Zeile 1. Ab 1100 px zweizeilig; was nicht in eine Zeile passt oder über acht Einträge hinausgeht, wandert hinter einen Knopf mit drei Punkten (Überlaufmenü, JavaScript); darunter (Handy und Tablet) klappen Bereiche, Systeme und
     Aktionen hinter dem Bars-Knopf "Menü" (aria-expanded, Esc und Klick daneben schließen). Ohne JavaScript bleibt
     alles sichtbar und untereinander gestapelt.
     safe: true auf Fehlerseiten; liest weder Sitzung noch Datenbank und zeigt die Ansicht für Gäste.
@@ -36,7 +36,7 @@
 
             @if ($hasAreaMenu)
                 <nav id="portal-menu-areas" class="vdbs-header__menu-panel" aria-label="Bereiche und externe Systeme">
-                    <ul class="vdbs-header__links vdbs-header__links--areas" data-vdbs-overflow>
+                    <ul class="vdbs-header__links vdbs-header__links--areas" data-vdbs-overflow data-vdbs-overflow-max="8">
                         @foreach ($visibleAreas as $topArea)
                             <li><a href="{{ \App\Support\PortalNavigation::home($topArea, $user) }}" @if ($topArea === $currentArea) aria-current="true" @endif>{{ $topArea->label() }}</a></li>
                         @endforeach
@@ -69,7 +69,7 @@
         <div class="vdbs-header__actions vdbs-header__menu-panel" id="portal-menu-actions">
             @if (count($areaPages) > 0)
                 <nav class="vdbs-main-nav" aria-label="Seiten im Bereich {{ $navArea->label() }}">
-                    <ul class="vdbs-header__links vdbs-header__links--large" data-vdbs-overflow>
+                    <ul class="vdbs-header__links vdbs-header__links--large" data-vdbs-overflow data-vdbs-overflow-max="8">
                         @foreach ($areaPages as $page)
                             <li @class(['vdbs-main-nav__item', 'vdbs-main-nav__item--has-submenu' => $page['children'] !== [], 'is-active' => $page['active']])>
                                 <a href="{{ $page['href'] }}" @if ($page['children'] !== []) aria-haspopup="true" @endif @if ($page['current']) aria-current="page" @endif>{{ $page['label'] }}@if ($page['children'] !== [])<x-vdbs.icon class="vdbs-main-nav__chevron" name="chevron-down" :size="16" />@endif</a>
