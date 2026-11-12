@@ -4,10 +4,12 @@ use App\Modules\System\Models\CronRun;
 use App\Modules\System\Services\PortalTick;
 use App\Modules\System\Services\SystemChecks;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->withoutVite();
     config(['portal.cron.seconds' => 5]);
+    Storage::fake('local');
 });
 
 function tickKey(): string

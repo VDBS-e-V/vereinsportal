@@ -49,7 +49,7 @@
 
     <section style="margin-top:var(--space-8)" aria-labelledby="samples-title">
         <h2 id="samples-title" style="font-size:var(--font-size-h3)">Beispielvorlagen</h2>
-        <p>Fertige Vorlagen für typische Schreiben, mit Platzhaltern und Wenn-Blöcken. Laden Sie sie herunter, fügen Sie Ihren Briefbogen ein und passen Sie die Texte an, oder legen Sie sie unverändert im Portal an und ändern Sie sie später.</p>
+        <p>Fertige Vorlagen für typische Schreiben, mit Platzhaltern und Wenn-Blöcken. Sie sind schon als Vorlagen im Portal angelegt (siehe oben) und lassen sich dort ändern oder löschen. Hier können Sie sie auch als Word-Datei herunterladen, um sie in Word mit Ihrem Briefbogen zu gestalten und als eigene Vorlage hochzuladen.</p>
         <x-vdbs.data.table caption="Beispielvorlagen" :columns="[['key' => 'name', 'label' => 'Beispiel'], ['key' => 'audience', 'label' => 'Für'], ['key' => 'file', 'label' => 'Datei']]">
             @foreach ($samples as $key => $sample)
                 <tr>
@@ -63,7 +63,7 @@
             <x-vdbs.actions.button variant="secondary" :href="route('letters.samples-zip')" icon="download">Alle als ZIP</x-vdbs.actions.button>
             @if ($canManage)
                 <form method="post" action="{{ route('letters.samples-install') }}">@csrf
-                    <x-vdbs.actions.button type="submit" icon="plus" onclick="return confirm('Alle Beispielvorlagen im Portal anlegen? Vorhandene bleiben unverändert.')">Beispiele im Portal anlegen</x-vdbs.actions.button>
+                    <x-vdbs.actions.button type="submit" icon="plus" onclick="return confirm('Fehlende Beispielvorlagen wieder anlegen? Vorhandene bleiben unverändert.')">Fehlende Beispiele wieder anlegen</x-vdbs.actions.button>
                 </form>
             @endif
         </div>

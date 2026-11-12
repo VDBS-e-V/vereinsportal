@@ -84,7 +84,7 @@ final class LetterTemplates
     }
 
     /** @throws DomainException */
-    public function store(UploadedFile $file, string $name, ?string $description, string $audience, User $by): LetterTemplate
+    public function store(UploadedFile $file, string $name, ?string $description, string $audience, ?User $by): LetterTemplate
     {
         $name = trim($name);
 
@@ -98,10 +98,10 @@ final class LetterTemplates
             'name' => $name, 'description' => filled($description) ? trim((string) $description) : null,
             'audience' => array_key_exists($audience, LetterTemplate::AUDIENCES) ? $audience : 'general',
             'path' => $path, 'original_name' => $this->safeName($file), 'size' => (int) $file->getSize(), 'variables' => $variables,
-            'created_by_user_id' => $by->id, 'updated_by_user_id' => $by->id,
+            'created_by_user_id' => $by?->id, 'updated_by_user_id' => $by?->id,
         ]);
 
-        AuditLog::record(AuditEvent::LetterTemplateSaved, $by, null, [], 'Briefvorlage angelegt');
+        AuditLog::record(AuditEvent::LetterTemplateSaved, $by, null, [], $by === null ? 'Beispielvorlage geladen' : 'Briefvorlage angelegt');
 
         return $template;
     }

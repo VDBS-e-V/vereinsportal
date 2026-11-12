@@ -5,6 +5,7 @@ namespace App\Modules\Letters\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
 use App\Modules\Letters\Models\LetterTemplate;
+use App\Modules\Letters\Services\LetterDefaultsLoader;
 use App\Modules\Letters\Services\LetterTemplates;
 use App\Modules\Letters\Support\LetterVariables;
 use App\Modules\Letters\Support\SampleLetter;
@@ -12,7 +13,6 @@ use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -68,31 +68,11 @@ class LetterTemplateController extends Controller
         return response()->download($zipPath, 'Beispielvorlagen_Briefe.zip')->deleteFileAfterSend();
     }
 
-    /** Legt die Beispielvorlagen als Vorlagen im Portal an; vorhandene Namen werden übersprungen, damit nichts doppelt oder überschrieben wird. */
-    public function installSamples(): RedirectResponse
+    /** Legt fehlende Beispielvorlagen wieder an (auch gelöschte); vorhandene Namen werden übersprungen, damit nichts doppelt oder überschrieben wird. */
+    public function installSamples(LetterDefaultsLoader $loader): RedirectResponse
     {
-        $created = $skipped = 0;
-
-        foreach (SampleLetter::catalog() as $key => $sample) {
-            if (LetterTemplate::query()->where('name', $sample['name'])->exists()) {
-                $skipped++;
-
-                continue;
-            }
-
-            $path = SampleLetter::build($sample['paragraphs']);
-
-            try {
-                $this->templates->store(new UploadedFile($path, 'Beispiel_'.$key.'.docx', null, null, true), $sample['name'], $sample['description'], $sample['audience'], $this->user());
-                $created++;
-            } catch (DomainException $exception) {
-                return back()->with('error', $exception->getMessage());
-            } finally {
-                @unlink($path);
-            }
-        }
-
-        $message = $created.' Beispielvorlage'.($created === 1 ? '' : 'n').' angelegt'.($skipped > 0 ? ', '.$skipped.' gab es schon' : '').'.';
+        $result = $loader->load(true);
+        $message = $result['created'].' Beispielvorlage'.($result['created'] === 1 ? '' : 'n').' angelegt'.($result['skipped'] > 0 ? ', '.$result['skipped'].' gab es schon' : '').'.';
 
         return redirect()->route('letters.index')->with('success', $message);
     }

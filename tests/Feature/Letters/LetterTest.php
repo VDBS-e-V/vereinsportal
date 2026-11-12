@@ -289,23 +289,45 @@ it('lets everyone with letters.use download the samples and only managers instal
     expect(LetterTemplate::query()->count())->toBe(0);
 });
 
-it('installs the samples as templates once without duplicates and keeps changed ones', function () {
-    $this->actingAs(ltUser(RoleKey::AdministrationStaff));
+it('loads the samples once on update, keeps changed ones and does not bring back deleted ones', function () {
+    $count = count(SampleLetter::catalog());
 
-    $this->post(route('letters.samples-install'))->assertRedirect(route('letters.index'))->assertSessionHas('success');
-    expect(LetterTemplate::query()->count())->toBe(count(SampleLetter::catalog()));
+    $this->artisan('letters:load-defaults')->expectsOutputToContain($count.' Beispielvorlage(n) neu angelegt')->assertSuccessful();
+    expect(LetterTemplate::query()->count())->toBe($count)->and(LetterTemplate::query()->whereNull('created_by_user_id')->count())->toBe($count);
+    Storage::disk('local')->assertExists(LetterTemplate::query()->first()->path);
 
-    $first = LetterTemplate::query()->orderBy('name')->first();
-    $first->update(['description' => 'Von uns geändert']);
+    $changed = LetterTemplate::query()->where('audience', 'team')->orderBy('name')->first();
+    $changed->update(['description' => 'Von uns geändert']);
+    $deleted = LetterTemplate::query()->where('audience', 'school')->first();
+    app(\App\Modules\Letters\Services\LetterTemplates::class)->delete($deleted, ltUser(RoleKey::AdministrationStaff));
 
-    $this->post(route('letters.samples-install'))->assertSessionHas('success');
-    expect(LetterTemplate::query()->count())->toBe(count(SampleLetter::catalog()))->and($first->fresh()->description)->toBe('Von uns geändert')
-        ->and(LetterTemplate::query()->where('audience', 'team')->count())->toBeGreaterThanOrEqual(1);
+    $this->artisan('letters:load-defaults')->expectsOutputToContain('0 Beispielvorlage(n) neu angelegt')->assertSuccessful();
+    expect(LetterTemplate::query()->count())->toBe($count - 1)->and($changed->fresh()->description)->toBe('Von uns geändert');
+
+    // der Knopf auf der Seite holt Gelöschtes zurück
+    $this->actingAs(ltUser(RoleKey::AdministrationStaff))->post(route('letters.samples-install'))->assertRedirect(route('letters.index'))->assertSessionHas('success');
+    expect(LetterTemplate::query()->count())->toBe($count)->and($changed->fresh()->description)->toBe('Von uns geändert');
+});
+
+it('never overwrites a template with the same name as a sample', function () {
+    $sample = collect(SampleLetter::catalog())->first();
+    $own = ltTemplate(['Eigener Text ${datum}'], $sample['name']);
+
+    $this->artisan('letters:load-defaults')->assertSuccessful();
+
+    expect(LetterTemplate::query()->where('name', $sample['name'])->count())->toBe(1)->and($own->fresh()->variableNames())->toBe(['datum']);
+});
+
+it('loads the samples with the portal update and offers the task in the system tasks', function () {
+    $this->artisan('portal:update', ['--skip-verify' => true])->assertSuccessful();
+
+    expect(LetterTemplate::query()->count())->toBe(count(SampleLetter::catalog()))
+        ->and(collect(app(\App\Modules\System\Services\SystemTasks::class)->all())->pluck('command')->contains('letters:load-defaults'))->toBeTrue();
 });
 
 it('fills an installed sample for a school with the blocks of the right recipient kind', function () {
     $this->actingAs(ltUser(RoleKey::AdministrationStaff));
-    $this->post(route('letters.samples-install'));
+    $this->artisan('letters:load-defaults');
     [$seminar] = ltSeminar();
     $template = LetterTemplate::query()->where('name', 'Beispiel: Terminänderung')->firstOrFail();
 

@@ -48,6 +48,12 @@ ${/ohne_ansprechperson}
 
 Ausführliche Platzhalter-Tabelle mit Beispielwerten, Quellen und allen fertigen Wenn-Beispielen: Abschnitt „Alle Platzhalter mit Beispielen“ in `docs/78_WORD_VORLAGEN_ANLEITUNG.md` und im Portal unter Briefvorlagen › Platzhalter.
 
-## Beispielvorlagen
+## Beispielvorlagen (schon im System)
 
-Auf der Seite *Briefvorlagen* liegen sieben fertige Beispiele (Seminarbestätigung an die Schule, Einsatzbestätigung für Teamende, Terminänderung, Absage, Erinnerung, Dank an Teamende, Allgemeines Anschreiben). Sie nutzen Platzhalter und Wenn-Blöcke (zum Beispiel Schule oder Person, Ansprechperson, Honorar). Jede lässt sich einzeln oder alle zusammen als ZIP herunterladen. Mit *Beispiele im Portal anlegen* (Geschäftsstelle, Vorstand) werden sie als Vorlagen angelegt; vorhandene Namen bleiben unverändert, nichts wird überschrieben. Die Beispiele sind schlicht gesetzt: Fügen Sie in Word Ihren Briefbogen ein und passen Sie Texte und Schrift an. Neue Beispiele ergänzen Entwickler in `SampleLetter::catalog()`.
+Sieben fertige Beispiele (Seminarbestätigung an die Schule, Einsatzbestätigung für Teamende, Terminänderung, Absage, Erinnerung, Dank an Teamende, Allgemeines Anschreiben) liegen nach dem Einspielen **schon als Vorlagen im Portal**, ohne dass jemand etwas anlegen muss. Sie nutzen Platzhalter und Wenn-Blöcke (zum Beispiel Schule oder Person, Ansprechperson, Honorar).
+
+- **Laden:** `php artisan portal:update` (und damit auch die Aufgabe „Update ausführen“ der Systemsteuerung) ruft `letters:load-defaults` auf; einzeln auch als Aufgabe „Beispielvorlagen für Briefe laden“. Jede Vorlage wird **nur einmal** geladen (Tabelle `letter_template_defaults`): Was Sie ändern, bleibt; was Sie löschen, kommt nicht zurück; eine Vorlage mit gleichem Namen wird nie überschrieben.
+- **Wiederherstellen:** *Fehlende Beispiele wieder anlegen* auf der Seite *Briefvorlagen* (Geschäftsstelle, Vorstand) oder `php artisan letters:load-defaults --restore` legt gelöschte Beispiele nach Namen wieder an.
+- **Als Datei:** Die Beispiele lassen sich einzeln oder als ZIP herunterladen, um sie in Word mit dem Briefbogen zu gestalten und als eigene Vorlage hochzuladen.
+- Die Beispiele sind schlicht gesetzt: Fügen Sie in Word Ihren Briefbogen ein und passen Sie Texte und Schrift an. Neue Beispiele ergänzen Entwickler in `SampleLetter::catalog()`; sie werden beim nächsten Update geladen.
+- Eine ganz neue Installation bekommt die Beispiele beim ersten Update (`Update ausführen` in der Systemsteuerung oder `portal:update`).
