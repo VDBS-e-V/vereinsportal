@@ -12,4 +12,6 @@ parameters:
         - routes/
 
     level: 5
+    # Je nach Installation (lokal/CI) melden die Versionen leicht unterschiedliche Altbestände.
+    reportUnmatchedIgnoredErrors: false
     parseModelCastsMethod: true

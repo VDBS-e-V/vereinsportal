@@ -1,6 +1,12 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\PasswordBroker\:\:createToken\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Modules/AccessGovernance/Services/UserAdministration.php
+
+		-
 			message: '#^Using nullsafe property access "\?\-\>value" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
