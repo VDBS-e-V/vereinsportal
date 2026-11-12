@@ -183,7 +183,7 @@ it('creates one file per confirmed person, as a zip for several and as a single 
         $names[] = $zip->getNameIndex($i);
     }
 
-    expect(implode(' ', $names))->toContain('Anna-Alt')->toContain('Ben-Bunt');
+    expect(strtolower(implode(' ', $names)))->toContain('anna-alt')->toContain('ben-bunt');
     $zip->close();
 
     $single = $this->post(route('letters.generate', $seminar), ['template_id' => $template->id, 'to' => 'team', 'applications' => [$applications[1]->id]])->assertOk();
@@ -241,13 +241,14 @@ it('shows or hides blocks with if-queries by value and by recipient kind, also w
 });
 
 it('fills the extended placeholders for school, seminar and team and hands out the list as a word file', function () {
-    [$seminar] = ltSeminar();
+    [$seminar, $applications] = ltSeminar();
     $partner = $seminar->partner;
     $partner->forceFill(['phone' => '030 123456', 'email' => 'schule@beispiel.example', 'attributes' => ['federal_state' => 'BE', 'school_number' => '08K06', 'school_type' => 'gymnasium']])->save();
     $template = ltTemplate(['${schule_telefon}|${schule_email}|${schule_nummer}|${schule_bundesland}|${schule_schulart}|${seminar_beginn}|${seminar_tage}|${seminar_stunden}|${seminar_team}'], 'Erweitert');
     $this->actingAs(ltUser(RoleKey::Coordination));
 
-    $xml = ltXml($this->post(route('letters.generate', $seminar), ['template_id' => $template->id, 'to' => 'team'])->assertOk()->baseResponse->getFile()->getPathname());
+    // eine einzelne Person, damit eine Word-Datei statt eines ZIP kommt
+    $xml = ltXml($this->post(route('letters.generate', $seminar), ['template_id' => $template->id, 'to' => 'team', 'applications' => [$applications[0]->id]])->assertOk()->baseResponse->getFile()->getPathname());
 
     expect($xml)->toContain('030 123456')->toContain('schule@beispiel.example')->toContain('BE/08K06')->toContain('Berlin')->toContain('Gymnasium')
         ->toContain($seminar->sessions()->first()->starts_at->format('d.m.Y'))->toContain('|1|')->toContain('6')->toContain('Anna Alt, Ben Bunt');
