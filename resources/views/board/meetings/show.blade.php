@@ -42,6 +42,65 @@
         @endif
     </section>
 
+    <section aria-labelledby="resolutions-heading" style="margin-top:var(--space-6)">
+        <h2 id="resolutions-heading" style="font-size:var(--font-size-h3)">Beschlüsse</h2>
+        @if ($meeting->resolutions->isEmpty())
+            <p>Noch keine Beschlüsse erfasst.</p>
+        @else
+            <x-vdbs.data.table caption="Beschlüsse der Sitzung" :columns="[['key' => 'select', 'label' => 'Auswahl', 'selectAll' => 'board-resolutions-form'], ['key' => 'number', 'label' => 'Nummer'], ['key' => 'title', 'label' => 'Beschluss'], ['key' => 'outcome', 'label' => 'Ergebnis']]">
+                @foreach ($meeting->resolutions as $resolution)
+                    <tr>
+                        <td class="vdbs-table__select"><span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="ids[]" value="{{ $resolution->id }}" form="board-resolutions-form" aria-label="{{ $resolution->number() }} auswählen"></span></td>
+                        <td>{{ $resolution->number() }}</td>
+                        <td><a href="{{ route('board.resolutions.edit', $resolution) }}">{{ $resolution->title }}</a>@if (filled($resolution->text))<br><span style="white-space:pre-line">{{ $resolution->text }}</span>@endif @if ($resolution->votesLabel() !== '')<br><span class="vdbs-hint">{{ $resolution->votesLabel() }}</span>@endif</td>
+                        <td>{{ $resolution->outcomeLabel() }}</td>
+                    </tr>
+                @endforeach
+            </x-vdbs.data.table>
+            <form id="board-resolutions-form" method="post" action="{{ route('board.resolutions.destroy-many') }}" style="margin-top:var(--space-3)">@csrf
+                <p class="vdbs-table__select-count" role="status" data-vdbs-select-count="board-resolutions-form">Nichts ausgewählt.</p>
+                <x-vdbs.actions.button type="submit" variant="danger" icon="trash-2" onclick="return confirm('Die ausgewählten Beschlüsse löschen? Verknüpfte Aufgaben bleiben erhalten.')">Auswahl löschen</x-vdbs.actions.button>
+            </form>
+        @endif
+        <x-vdbs.forms.form :action="route('board.resolutions.store', $meeting)" method="post" :summary="false">
+            @include('board.resolutions._fields', ['resolution' => null])
+            <x-slot:actions><x-vdbs.actions.button type="submit" icon="plus">Beschluss erfassen</x-vdbs.actions.button></x-slot:actions>
+        </x-vdbs.forms.form>
+    </section>
+
+    <section aria-labelledby="tasks-heading" style="margin-top:var(--space-6)">
+        <h2 id="tasks-heading" style="font-size:var(--font-size-h3)">Aufgaben</h2>
+        @if ($meeting->tasks->isEmpty())
+            <p>Noch keine Aufgaben aus dieser Sitzung.</p>
+        @else
+            <form id="board-tasks-form" method="post" action="{{ route('board.tasks.bulk') }}">@csrf
+                <x-vdbs.data.table caption="Aufgaben der Sitzung" :columns="[['key' => 'select', 'label' => 'Auswahl', 'selectAll' => 'board-tasks-form'], ['key' => 'title', 'label' => 'Aufgabe'], ['key' => 'who', 'label' => 'Zuständig'], ['key' => 'due', 'label' => 'Fällig'], ['key' => 'state', 'label' => 'Stand']]">
+                    @foreach ($meeting->tasks as $task)
+                        <tr>
+                            <td class="vdbs-table__select"><span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="ids[]" value="{{ $task->id }}" aria-label="{{ $task->title }} auswählen"></span></td>
+                            <td><a href="{{ route('board.tasks.edit', $task) }}">{{ $task->title }}</a></td>
+                            <td>{{ $task->assigneeNames() ?: '–' }}</td>
+                            <td>{{ $task->due_on?->format('d.m.Y') ?? '–' }}@if ($task->isOverdue()) <x-vdbs.data.badge tone="error">überfällig</x-vdbs.data.badge>@endif</td>
+                            <td>{{ $task->isDone() ? 'erledigt' : 'offen' }}</td>
+                        </tr>
+                    @endforeach
+                </x-vdbs.data.table>
+                <p class="vdbs-table__select-count" role="status" data-vdbs-select-count="board-tasks-form">Nichts ausgewählt.</p>
+                <div class="vdbs-btn-group">
+                    <x-vdbs.actions.button type="submit" name="action" value="done" icon="check">Als erledigt markieren</x-vdbs.actions.button>
+                    <x-vdbs.actions.button type="submit" name="action" value="open" variant="secondary" icon="refresh-cw">Wieder öffnen</x-vdbs.actions.button>
+                    <x-vdbs.actions.button type="submit" name="action" value="delete" variant="danger" icon="trash-2" onclick="return confirm('Die ausgewählten Aufgaben löschen?')">Löschen</x-vdbs.actions.button>
+                </div>
+            </form>
+        @endif
+        <x-vdbs.forms.form :action="route('board.tasks.store')" method="post" :summary="false">
+            <input type="hidden" name="board_meeting_id" value="{{ $meeting->id }}">
+            <input type="hidden" name="from_meeting" value="1">
+            @include('board.tasks._fields', ['task' => null, 'resolutions' => $meeting->resolutions->mapWithKeys(fn ($resolution) => [$resolution->id => $resolution->number().' '.$resolution->title])->all()])
+            <x-slot:actions><x-vdbs.actions.button type="submit" icon="plus">Aufgabe anlegen</x-vdbs.actions.button></x-slot:actions>
+        </x-vdbs.forms.form>
+    </section>
+
     <section aria-labelledby="guests-heading" style="margin-top:var(--space-6)">
         <h2 id="guests-heading" style="font-size:var(--font-size-h3)">Externe Gäste</h2>
         <p>Gäste ohne Portalkonto, zum Beispiel Beratende oder Partner. Sie erhalten nur die Einladung per E-Mail, keinen Zugang zum Portal. Name, E-Mail-Adresse und Organisation werden {{ max(1, (int) config('portal.board.guest_retention_days', 30)) }} Tage nach der Sitzung automatisch gelöscht; die Einladung enthält einen Datenschutzhinweis.</p>
@@ -131,6 +190,6 @@
 
     <form method="post" action="{{ route('board.meetings.destroy', $meeting) }}" style="margin-top:var(--space-8)">
         @csrf @method('delete')
-        <x-vdbs.actions.button type="submit" variant="danger-text" size="s" onclick="return confirm('Diese Sitzung samt Protokoll löschen?')">Sitzung löschen</x-vdbs.actions.button>
+        <x-vdbs.actions.button type="submit" variant="danger-text" size="s" onclick="return confirm('Diese Sitzung samt Protokoll, Beschlüssen und Anhängen löschen? Aufgaben bleiben erhalten.')">Sitzung löschen</x-vdbs.actions.button>
     </form>
 </x-layouts.app>

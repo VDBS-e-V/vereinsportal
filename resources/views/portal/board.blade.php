@@ -15,6 +15,15 @@
         @endcan
     </x-vdbs.layout.grid>
 
+    @can('board.meetings')
+        <h2 style="margin-top:var(--space-8);font-size:var(--font-size-h3)">Vorstandsarbeit</h2>
+        <x-vdbs.layout.grid :columns="4">
+            <x-vdbs.data.stat label="Nächste Sitzung" :value="$stats['nextMeeting'] ?? 'keine geplant'" :href="route('board.meetings.index')" />
+            <x-vdbs.data.stat label="Offene Aufgaben" :value="$stats['boardTasksOpen']" :href="route('board.tasks.index')" />
+            <x-vdbs.data.stat label="Überfällige Aufgaben" :value="$stats['boardTasksOverdue']" :tone="$stats['boardTasksOverdue'] > 0 ? 'warning' : 'neutral'" :href="route('board.tasks.index', ['overdue' => 1])" />
+        </x-vdbs.layout.grid>
+    @endcan
+
     <h2 style="margin-top:var(--space-8);font-size:var(--font-size-h3)">Teamende</h2>
     <x-vdbs.layout.grid :columns="4">
         <x-vdbs.data.stat label="Teamende" :value="$stats['team']" />

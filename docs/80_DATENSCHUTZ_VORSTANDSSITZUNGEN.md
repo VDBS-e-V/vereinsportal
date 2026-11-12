@@ -15,6 +15,8 @@ Entwurf für Verzeichnis der Verarbeitungstätigkeiten (Art. 30 DSGVO), Datensch
 | Löschfristen | Gäste: **30 Tage nach Ende der Sitzung** automatisch (`board:prune-guests`, einstellbar `BOARD_GUEST_RETENTION_DAYS`), jederzeit manuell. Sitzung, Protokoll, Anhänge: als Vereinsunterlagen so lange wie nötig, Löschung durch den Vorstand möglich |
 | Informationspflicht (Art. 14) | Gäste erhalten die Information in der ersten Einladung (Hinweis zum Datenschutz mit Link zur Datenschutzerklärung); Quelle: Eintrag durch den Vorstand |
 
+Beschlüsse und Aufgaben gehören zur selben Verarbeitung: Beschlüsse (Titel, Wortlaut, Ergebnis, Stimmenzahlen ohne Namen) sind Vereinsunterlagen und bleiben, bis der Vorstand sie löscht. Aufgaben nennen Zuständige (Vorstandsmitglieder, per Konto) und Fälligkeit; Zuständige sind nur Vorstandsmitglieder. Es werden keine namentlichen Abstimmungen gespeichert. Das Portalprotokoll nennt bei Beschlüssen die Nummer und bei Aufgaben den Titel, nie den Wortlaut. Bitte keine Gesundheits- oder sonstigen besonderen Daten in Titel oder Wortlaut schreiben.
+
 ## Technische und organisatorische Maßnahmen
 
 - Zugriff nur mit Berechtigung `board.meetings` (nur Rolle Vorstand); Gäste, Anhänge und Protokolle nie für andere Rollen sichtbar.

@@ -32,7 +32,7 @@
                 @endif
             </section>
         @endforeach
-        <p style="margin-top:var(--space-3)"><x-vdbs.actions.button type="submit" variant="danger-text" size="s" onclick="return confirm('Die ausgewählten Sitzungen samt Protokoll löschen?')">Ausgewählte löschen</x-vdbs.actions.button></p>
+        <p style="margin-top:var(--space-3)"><x-vdbs.actions.button type="submit" variant="danger-text" size="s" onclick="return confirm('Die ausgewählten Sitzungen samt Protokoll, Beschlüssen und Anhängen löschen? Aufgaben bleiben erhalten.')">Ausgewählte löschen</x-vdbs.actions.button></p>
     </form>
 
     <x-vdbs.layout.section title="Kalender abonnieren">

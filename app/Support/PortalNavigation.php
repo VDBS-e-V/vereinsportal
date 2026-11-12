@@ -83,6 +83,8 @@ final class PortalNavigation
                     ]],
                     ['description' => 'E-Mails an Mitglieder und andere Gruppen, frei oder mit Vorlage.', 'label' => 'Rundschreiben', 'route' => 'mailings.board.index', 'match' => 'mailings.board.*', 'can' => 'mailings.members'],
                     ['description' => 'Vorstandssitzungen planen, Tagesordnung, Anwesenheit und Protokoll, mit Kalender-Abo.', 'label' => 'Sitzungen', 'route' => 'board.meetings.index', 'match' => 'board.meetings.*', 'can' => 'board.meetings'],
+                    ['description' => 'Alle Beschlüsse des Vorstands, nummeriert und durchsuchbar.', 'label' => 'Beschlüsse', 'route' => 'board.resolutions.index', 'match' => 'board.resolutions.*', 'can' => 'board.meetings'],
+                    ['description' => 'Offene und erledigte Aufgaben aus Sitzungen und Beschlüssen.', 'label' => 'Aufgaben', 'route' => 'board.tasks.index', 'match' => 'board.tasks.*', 'can' => 'board.meetings'],
                     ['label' => 'Berichte', 'route' => 'board.reports', 'match' => 'board.reports*', 'can' => 'reports.view'],
                 ],
             ],

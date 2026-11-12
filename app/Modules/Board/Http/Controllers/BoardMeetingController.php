@@ -64,12 +64,13 @@ class BoardMeetingController extends Controller
 
     public function show(BoardMeeting $meeting): View
     {
-        $meeting->load(['attendees.person', 'documents.uploadedBy.person', 'guests']);
+        $meeting->load(['attendees.person', 'documents.uploadedBy.person', 'guests', 'resolutions', 'tasks.assignees.person']);
 
         return view('board.meetings.show', [
             'meeting' => $meeting, 'invitations' => $this->calendar->invitationsEnabled(),
             'present' => $meeting->attendees->filter(fn (User $user): bool => $user->pivot->status === 'present'),
             'excused' => $meeting->attendees->filter(fn (User $user): bool => $user->pivot->status === 'excused'),
+            'members' => $this->members($meeting), 'outcomes' => \App\Modules\Board\Models\BoardResolution::OUTCOMES,
         ]);
     }
 
@@ -361,13 +362,7 @@ class BoardMeetingController extends Controller
     /** Aktive Vorstandsmitglieder, dazu bereits eingetragene Teilnehmende der Sitzung. @return array<int, string> */
     private function members(?BoardMeeting $meeting = null): array
     {
-        $users = User::query()->with('person')
-            ->where(fn ($query) => $query
-                ->where(fn ($active) => $active->where('status', UserStatus::Active->value)->whereHas('activeRoleAssignments', fn ($assignments) => $assignments->whereHas('role', fn ($role) => $role->where('key', RoleKey::BoardMember->value))))
-                ->when($meeting, fn ($or) => $or->orWhereIn('id', $meeting->attendees()->pluck('users.id'))))
-            ->get();
-
-        return $users->mapWithKeys(fn (User $user): array => [$user->id => BoardMeeting::attendeeName($user)])->sort()->all();
+        return app(\App\Modules\Board\Services\BoardMembers::class)->options($meeting ? $meeting->attendees()->pluck('users.id')->all() : []);
     }
 
     private function user(): User

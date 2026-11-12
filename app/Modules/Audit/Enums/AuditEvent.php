@@ -118,6 +118,10 @@ enum AuditEvent: string
     case BoardDocumentRemoved = 'board.document_removed';
     case BoardInvitationSent = 'board.invitation_sent';
     case BoardGuestsChanged = 'board.guests_changed';
+    case BoardResolutionSaved = 'board.resolution_saved';
+    case BoardResolutionDeleted = 'board.resolution_deleted';
+    case BoardTaskSaved = 'board.task_saved';
+    case BoardTaskDeleted = 'board.task_deleted';
 
     public function label(): string
     {
@@ -217,6 +221,10 @@ enum AuditEvent: string
             self::BoardDocumentRemoved => 'Anhang zur Vorstandssitzung gelöscht',
             self::BoardInvitationSent => 'Einladung zur Vorstandssitzung gesendet',
             self::BoardGuestsChanged => 'Gäste einer Vorstandssitzung geändert',
+            self::BoardResolutionSaved => 'Vorstandsbeschluss gespeichert',
+            self::BoardResolutionDeleted => 'Vorstandsbeschluss gelöscht',
+            self::BoardTaskSaved => 'Vorstandsaufgabe gespeichert',
+            self::BoardTaskDeleted => 'Vorstandsaufgabe gelöscht',
         };
     }
 
@@ -245,7 +253,7 @@ enum AuditEvent: string
             self::FormStatusChanged, self::FormExported, self::FormSettingsChanged => 'forms',
             self::ContractsCreated, self::ContractSigned, self::ContractSettingsChanged, self::ContractTemplateSaved => 'contracts',
             self::LetterTemplateSaved, self::LettersGenerated => 'letters',
-            self::BoardCalendarChanged, self::BoardMeetingSaved, self::BoardMeetingDeleted, self::BoardMinutesApproved, self::BoardDocumentAdded, self::BoardDocumentRemoved, self::BoardInvitationSent, self::BoardGuestsChanged => 'board',
+            self::BoardCalendarChanged, self::BoardMeetingSaved, self::BoardMeetingDeleted, self::BoardMinutesApproved, self::BoardDocumentAdded, self::BoardDocumentRemoved, self::BoardInvitationSent, self::BoardGuestsChanged, self::BoardResolutionSaved, self::BoardResolutionDeleted, self::BoardTaskSaved, self::BoardTaskDeleted => 'board',
         };
     }
 
@@ -283,7 +291,7 @@ enum AuditEvent: string
     public function tone(): string
     {
         return match ($this) {
-            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::EventDeleted, self::OauthClientDeleted, self::BoardMeetingDeleted => 'error',
+            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::EventDeleted, self::OauthClientDeleted, self::BoardMeetingDeleted, self::BoardResolutionDeleted => 'error',
             self::SystemTaskRun, self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
             self::Login, self::UserEnabled, self::TwoFactorEnabled, self::TeamOnboardingCompleted => 'success',
             default => 'neutral',

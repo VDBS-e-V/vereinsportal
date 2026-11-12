@@ -33,6 +33,18 @@ class BoardMeeting extends Model
         return $this->hasMany(BoardMeetingDocument::class, 'board_meeting_id')->orderBy('created_at');
     }
 
+    /** @return HasMany<BoardResolution, $this> */
+    public function resolutions(): HasMany
+    {
+        return $this->hasMany(BoardResolution::class, 'board_meeting_id')->orderBy('year')->orderBy('seq');
+    }
+
+    /** @return HasMany<BoardTask, $this> */
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(BoardTask::class, 'board_meeting_id')->orderByRaw('done_at is not null')->orderBy('due_on');
+    }
+
     /** @return HasMany<BoardMeetingGuest, $this> */
     public function guests(): HasMany
     {
