@@ -9,7 +9,6 @@ use App\Modules\Board\Models\BoardMeeting;
 use App\Modules\Board\Models\BoardMeetingDocument;
 use App\Modules\Seminars\Services\SeminarDocuments;
 use DomainException;
-use finfo;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -43,7 +42,7 @@ final class BoardMeetingDocuments
             'title' => filled($title) ? Str::limit(trim((string) $title), 200, '') : pathinfo($name, PATHINFO_FILENAME),
             'original_name' => $name,
             'path' => $path,
-            'mime' => (string) ((new finfo(FILEINFO_MIME_TYPE))->file((string) $file->getRealPath()) ?: 'application/octet-stream'),
+            'mime' => SeminarDocuments::mimeOf((string) $file->getRealPath()) ?: 'application/octet-stream',
             'size' => (int) $file->getSize(),
             'uploaded_by_user_id' => $by->id,
         ]);

@@ -38,6 +38,18 @@ final class SeminarDocuments
 
     private const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif', 'bmp', 'tif', 'tiff', 'svg'];
 
+    private static ?finfo $detector = null;
+
+    /**
+     * Inhaltstyp einer Datei. Der Erkenner lädt die Magic-Datenbank (mehrere MB) und wird deshalb nur einmal je Prozess angelegt.
+     */
+    public static function mimeOf(string $path): string
+    {
+        self::$detector ??= new finfo(FILEINFO_MIME_TYPE);
+
+        return (string) (self::$detector->file($path) ?: '');
+    }
+
     /** @return list<string> */
     public static function extensions(): array
     {
@@ -91,7 +103,7 @@ final class SeminarDocuments
             'title' => filled($title) ? Str::limit(trim((string) $title), 200, '') : pathinfo($name, PATHINFO_FILENAME),
             'original_name' => $name,
             'path' => $path,
-            'mime' => (string) ((new finfo(FILEINFO_MIME_TYPE))->file((string) $file->getRealPath()) ?: 'application/octet-stream'),
+            'mime' => self::mimeOf((string) $file->getRealPath()) ?: 'application/octet-stream',
             'size' => (int) $file->getSize(),
             'is_snapshot' => $isSnapshot,
             'uploaded_by_user_id' => $by->id,
@@ -187,7 +199,7 @@ final class SeminarDocuments
     public function validate(UploadedFile $file): string
     {
         $extension = strtolower((string) $file->getClientOriginalExtension());
-        $mime = (new finfo(FILEINFO_MIME_TYPE))->file((string) $file->getRealPath()) ?: '';
+        $mime = self::mimeOf((string) $file->getRealPath());
         $photoMessage = 'Fotos und Bilder sind nicht erlaubt, damit keine Fotos von Teilnehmenden im Portal landen. Laden Sie stattdessen ein Dokument hoch (z. B. PDF).';
 
         if (in_array($extension, self::IMAGE_EXTENSIONS, true) || str_starts_with($mime, 'image/')) {
