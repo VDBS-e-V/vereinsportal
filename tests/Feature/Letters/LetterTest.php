@@ -46,6 +46,9 @@ function ltTemplate(array $paragraphs, string $name = 'Vorlage', string $audienc
 {
     test()->actingAs(ltUser(RoleKey::AdministrationStaff))->post(route('letters.store'), ['name' => $name, 'audience' => $audience, 'file' => ltDocx($paragraphs)])->assertRedirect();
 
+    // Zeigt bei einem Fehler die Meldung des Portals statt nur „Vorlage nicht gefunden“.
+    expect(session('error') ?? session('errors')?->all())->toBeNull();
+
     return LetterTemplate::query()->where('name', $name)->firstOrFail();
 }
 
