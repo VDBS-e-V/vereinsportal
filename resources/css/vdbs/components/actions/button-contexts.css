@@ -1,0 +1,175 @@
+/* Button-Flächen: dunkle (Lila/Ink/Bild) und Markenfläche (helles Grün).
+ * Entweder am Button (on="dark|brand") oder an einem Container (.vdbs-on-dark / .vdbs-on-brand).
+ * Gesetzt werden nur die Farbvariablen; die Formen bleiben unverändert.
+ * Farben kommen aus den Tokens --on-dark-* und --on-brand-* (tokens.css).
+ */
+
+/* ---------- dark ---------- */
+.vdbs-btn--on-dark,
+.vdbs-on-dark .vdbs-btn {
+    --btn-line: var(--on-dark-fg);
+    --btn-press-bg: var(--btn-hover-bg);
+    --btn-press-fg: var(--btn-hover-fg);
+    --btn-fill-edge: var(--btn-fill);
+    --focus-ring: var(--on-dark-fg);
+}
+
+.vdbs-btn--on-dark.vdbs-btn--primary,
+.vdbs-on-dark .vdbs-btn--primary {
+    --btn-bg: var(--on-dark-primary);
+    --btn-fg: var(--on-dark-primary-fg);
+    --btn-hover-bg: var(--on-dark-primary-hover);
+    --btn-hover-fg: var(--on-dark-primary-fg);
+    --btn-press-bg: var(--on-dark-primary-press);
+    --btn-press-fg: var(--on-dark-primary-fg);
+    --btn-fill: var(--on-dark-primary);
+    --btn-fill-fg: var(--on-dark-primary-fg);
+}
+
+.vdbs-btn--on-dark.vdbs-btn--secondary,
+.vdbs-on-dark .vdbs-btn--secondary {
+    --btn-bg: var(--on-dark-solid);
+    --btn-fg: var(--on-dark-solid-fg);
+    --btn-hover-bg: var(--on-dark-hover);
+    --btn-hover-fg: var(--on-dark-fg);
+    --btn-fill: var(--on-dark-solid);
+    --btn-fill-fg: var(--on-dark-solid-fg);
+}
+
+.vdbs-btn--on-dark.vdbs-btn--tertiary,
+.vdbs-btn--on-dark.vdbs-btn--text,
+.vdbs-on-dark .vdbs-btn--tertiary,
+.vdbs-on-dark .vdbs-btn--text {
+    --btn-bg: transparent;
+    --btn-fg: var(--on-dark-fg);
+    --btn-hover-bg: var(--on-dark-hover);
+    --btn-hover-fg: var(--on-dark-fg);
+    --btn-fill: var(--on-dark-fill-soft);
+    --btn-fill-fg: var(--on-dark-fg);
+}
+
+.vdbs-btn--on-dark.vdbs-btn--text,
+.vdbs-on-dark .vdbs-btn--text {
+    --btn-fill: var(--on-dark-fill-soft);
+    --btn-fill-fg: var(--on-dark-fg);
+}
+
+.vdbs-btn--on-dark.vdbs-btn--danger,
+.vdbs-on-dark .vdbs-btn--danger {
+    --btn-bg: var(--on-dark-danger);
+    --btn-fg: var(--on-dark-solid-fg);
+    --btn-line: var(--on-dark-danger);
+    --btn-hover-bg: var(--on-dark-danger-hover);
+    --btn-hover-fg: var(--on-dark-solid-fg);
+    --btn-fill: var(--on-dark-danger);
+    --btn-fill-fg: var(--on-dark-solid-fg);
+}
+
+
+/* ---------- brand (auf hellem Markengrün: Ink statt Grün) ---------- */
+.vdbs-btn--on-brand,
+.vdbs-on-brand .vdbs-btn {
+    --btn-line: var(--on-brand-fg);
+    --btn-press-bg: var(--btn-hover-bg);
+    --btn-press-fg: var(--btn-hover-fg);
+    --btn-fill-edge: var(--btn-fill);
+    --focus-ring: var(--on-dark-fg);
+}
+
+.vdbs-btn--on-brand.vdbs-btn--primary,
+.vdbs-on-brand .vdbs-btn--primary {
+    --btn-bg: var(--on-brand-solid);
+    --btn-fg: var(--on-brand-solid-fg);
+    --btn-hover-bg: var(--on-dark-solid);
+    --btn-hover-fg: var(--on-dark-solid-fg);
+    --btn-fill: var(--on-brand-solid);
+    --btn-fill-fg: var(--on-brand-solid-fg);
+}
+
+.vdbs-btn--on-brand.vdbs-btn--secondary,
+.vdbs-on-brand .vdbs-btn--secondary {
+    --btn-bg: var(--on-dark-solid);
+    --btn-fg: var(--on-dark-solid-fg);
+    --btn-hover-bg: var(--on-brand-secondary-hover);
+    --btn-hover-fg: var(--on-brand-fg);
+    --btn-fill: var(--on-brand-solid);
+    --btn-fill-fg: var(--on-brand-solid-fg);
+}
+
+.vdbs-btn--on-brand.vdbs-btn--tertiary,
+.vdbs-btn--on-brand.vdbs-btn--text,
+.vdbs-on-brand .vdbs-btn--tertiary,
+.vdbs-on-brand .vdbs-btn--text {
+    --btn-bg: transparent;
+    --btn-fg: var(--on-brand-fg);
+    --btn-hover-bg: var(--on-brand-hover);
+    --btn-hover-fg: var(--on-brand-fg);
+    --btn-fill: var(--on-brand-fill-soft);
+    --btn-fill-fg: var(--on-brand-fg);
+}
+
+
+/* ---------- night (Fläche des Dunkelmodus, Graphit): die Töne des Dunkelmodus, auch im hellen Theme ----------
+ * Die Rollen bleiben unverändert (button-variants.css); nur die Tonfarben-Variablen werden durch die Nachtwerte ersetzt.
+ */
+.vdbs-btn--on-night,
+.vdbs-on-night .vdbs-btn {
+    --btn-green-solid: var(--night-green-solid);
+    --btn-green-solid-hover: var(--night-green-solid-hover);
+    --btn-green-solid-press: var(--night-green-solid-press);
+    --btn-green-soft: var(--night-green-soft);
+    --btn-green-soft-hover: var(--night-green-soft-hover);
+    --btn-green-soft-press: var(--night-green-soft-press);
+    --btn-green-text: var(--night-green-text);
+    --btn-green-text-hover: var(--night-green-text-hover);
+    --btn-lila-solid: var(--night-lila-solid);
+    --btn-lila-solid-hover: var(--night-lila-solid-hover);
+    --btn-lila-solid-press: var(--night-lila-solid-press);
+    --btn-lila-soft: var(--night-lila-soft);
+    --btn-lila-soft-hover: var(--night-lila-soft-hover);
+    --btn-lila-soft-press: var(--night-lila-soft-press);
+    --btn-lila-text: var(--night-lila-text);
+    --btn-lila-text-hover: var(--night-lila-text-hover);
+    --btn-on-solid: var(--night-on-solid);
+    --btn-on-soft: var(--night-on-soft);
+    --btn-disabled-bg: var(--night-disabled-bg);
+    --btn-disabled-fg: var(--night-disabled-fg);
+    --focus-ring: var(--night-on-solid);
+}
+
+.vdbs-btn--on-night.vdbs-btn--danger-text,
+.vdbs-on-night .vdbs-btn--danger-text {
+    --btn-fg: var(--night-danger-text);
+    --btn-line: var(--night-danger-text);
+    --btn-hover-bg: var(--night-danger-soft);
+    --btn-hover-fg: var(--night-danger-text);
+    --btn-press-bg: var(--night-danger-soft);
+    --btn-press-fg: var(--night-danger-text);
+    --btn-fill: var(--night-danger-soft);
+    --btn-fill-fg: var(--night-danger-text);
+}
+
+/* Gefahr als Text auf dunklen Flächen (Lila, Ink, Bild) und auf dem Markengrün */
+.vdbs-btn--on-dark.vdbs-btn--danger-text,
+.vdbs-on-dark .vdbs-btn--danger-text {
+    --btn-fg: var(--on-dark-danger);
+    --btn-line: var(--on-dark-danger);
+    --btn-hover-bg: var(--on-dark-hover);
+    --btn-hover-fg: var(--on-dark-danger);
+    --btn-press-bg: var(--on-dark-fill-soft);
+    --btn-press-fg: var(--on-dark-danger);
+    --btn-fill: var(--on-dark-fill-soft);
+    --btn-fill-fg: var(--on-dark-danger);
+}
+
+.vdbs-btn--on-brand.vdbs-btn--danger-text,
+.vdbs-on-brand .vdbs-btn--danger-text {
+    --btn-fg: var(--on-brand-fg);
+    --btn-line: var(--on-brand-fg);
+    --btn-hover-bg: var(--on-brand-hover);
+    --btn-hover-fg: var(--on-brand-fg);
+    --btn-press-bg: var(--on-brand-fill-soft);
+    --btn-press-fg: var(--on-brand-fg);
+    --btn-fill: var(--on-brand-fill-soft);
+    --btn-fill-fg: var(--on-brand-fg);
+}

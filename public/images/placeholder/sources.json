@@ -1,0 +1,184 @@
+{
+  "hero-01.jpg": {
+    "author": "Berlinerlights",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/18719900/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "hero-02.jpg": {
+    "author": "Jiajia",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/30692969/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "hero-03.jpg": {
+    "author": "Mohammed Shaheen",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/28376557/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "hero-04.jpg": {
+    "author": "Viviana Ceballos",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/5729766/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "hero-05.jpg": {
+    "author": "Raylarinda Sehrin",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/37128557/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "tile-01.jpg": {
+    "author": "Bluemix",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/19615598/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "tile-02.jpg": {
+    "author": "Imagenesclau",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/37291169/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "tile-03.jpg": {
+    "author": "Ali Durmus Cevlan",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/32742326/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "tile-04.jpg": {
+    "author": "Wal 172619",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/39305238/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "tile-05.jpg": {
+    "author": "Paul Scharf",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/32386767/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "teaser-01.jpg": {
+    "author": "Eddson Lens",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/18684565/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "teaser-02.jpg": {
+    "author": "Travel With Lenses",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/24729087/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "teaser-03.jpg": {
+    "author": "Iohichu",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/34612482/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "teaser-04.jpg": {
+    "author": "Omerfuyar",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/32335629/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "split-01.jpg": {
+    "author": "Pavel Danilyuk",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/8423014/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "split-02.jpg": {
+    "author": "Yankrukov",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/8617742/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "split-03.jpg": {
+    "author": "Tima Miroshnichenko",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/5428152/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "split-04.jpg": {
+    "author": "This And No Internet 25",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/20670596/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "contact-01.jpg": {
+    "author": "Pavel Danilyuk",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/8423415/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "contact-02.jpg": {
+    "author": "Cottonbro",
+    "source": "Pexels",
+    "url": "https://www.pexels.com/photo/7396377/",
+    "license": "Pexels-Lizenz",
+    "placeholder": true
+  },
+  "hero.svg": {
+    "author": null,
+    "source": "VDBS (Platzhaltergrafik)",
+    "url": null,
+    "license": "Eigene Grafik",
+    "placeholder": true
+  },
+  "tile.svg": {
+    "author": null,
+    "source": "VDBS (Platzhaltergrafik)",
+    "url": null,
+    "license": "Eigene Grafik",
+    "placeholder": true
+  },
+  "teaser.svg": {
+    "author": null,
+    "source": "VDBS (Platzhaltergrafik)",
+    "url": null,
+    "license": "Eigene Grafik",
+    "placeholder": true
+  },
+  "split.svg": {
+    "author": null,
+    "source": "VDBS (Platzhaltergrafik)",
+    "url": null,
+    "license": "Eigene Grafik",
+    "placeholder": true
+  },
+  "contact.svg": {
+    "author": null,
+    "source": "VDBS (Platzhaltergrafik)",
+    "url": null,
+    "license": "Eigene Grafik",
+    "placeholder": true
+  },
+  "portrait.svg": {
+    "author": null,
+    "source": "VDBS (Platzhaltergrafik)",
+    "url": null,
+    "license": "Eigene Grafik",
+    "placeholder": true
+  }
+}

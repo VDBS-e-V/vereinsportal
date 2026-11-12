@@ -1,0 +1,44 @@
+/* Chip */
+
+.vdbs-chip__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--size-touch);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border-input);
+    background: var(--bg-page);
+    color: var(--text-default);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-small);
+    text-decoration: none;
+    transition: background-color var(--transition-fast);
+}
+
+.vdbs-chip__link:hover { background: var(--bg-accent-soft); color: var(--text-default); }
+.vdbs-chip__icon { flex: 0 0 auto; }
+.vdbs-chip__link .vdbs-group-mark { width: 1.5rem; height: 1.5rem; font-size: var(--font-size-caption); }
+
+/* Gruppenfarbe als Schrift- und Rahmenfarbe; die Schrift wird für den Kontrast leicht mit der Textfarbe abgedunkelt */
+.vdbs-chip[class*="vdbs-chip--group-"] .vdbs-chip__link {
+    border: 2px solid var(--chip-group);
+    background: var(--bg-page);
+    color: color-mix(in srgb, var(--chip-group) 55%, var(--text-default));
+}
+/* Hover: Hintergrund färbt sich leicht in der Gruppenfarbe, die Schrift wird Ink (im Darkmode hell, da der Hintergrund dunkel bleibt) */
+.vdbs-chip[class*="vdbs-chip--group-"] { --chip-hover-text: var(--text-on-group-light); }
+.vdbs-chip[class*="vdbs-chip--group-"] .vdbs-chip__link:hover {
+    background: color-mix(in srgb, var(--chip-group) 15%, var(--bg-page));
+    color: var(--chip-hover-text);
+    text-decoration: underline;
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .vdbs-chip[class*="vdbs-chip--group-"] { --chip-hover-text: var(--text-default); }
+}
+:root[data-theme="dark"] .vdbs-chip[class*="vdbs-chip--group-"] { --chip-hover-text: var(--text-default); }
+.vdbs-chip--group-1 { --chip-group: var(--group-1); }
+.vdbs-chip--group-2 { --chip-group: var(--group-2); }
+.vdbs-chip--group-3 { --chip-group: var(--group-3); }
+.vdbs-chip--group-4 { --chip-group: var(--group-4); }
+.vdbs-chip--group-5 { --chip-group: var(--group-5); }
+.vdbs-chip--group-6 { --chip-group: var(--group-6); }

@@ -1,0 +1,14 @@
+/* Bild (Paket media): Seitenverhältnis, Fokus, Platzhalter-Kennzeichnung */
+
+.vdbs-image { position: relative; }
+
+.vdbs-image__img { display: block; width: 100%; height: auto; }
+
+.vdbs-image--ratio-16-9 .vdbs-image__img { aspect-ratio: 16 / 9; object-fit: cover; }
+.vdbs-image--ratio-3-2 .vdbs-image__img { aspect-ratio: 3 / 2; object-fit: cover; }
+.vdbs-image--ratio-4-3 .vdbs-image__img { aspect-ratio: 4 / 3; object-fit: cover; }
+.vdbs-image--ratio-1-1 .vdbs-image__img { aspect-ratio: 1 / 1; object-fit: cover; }
+.vdbs-image--ratio-21-9 .vdbs-image__img { aspect-ratio: 21 / 9; object-fit: cover; }
+
+/* Platzhalterbilder gibt es nur in der Entwicklung (Design-Bibliothek) */
+.vdbs-image--placeholder { outline: 0; }

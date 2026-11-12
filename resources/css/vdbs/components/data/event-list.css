@@ -1,0 +1,15 @@
+/* Terminliste: Datum und Titel in Zeilen, Fuß mit Blätter-Knöpfen */
+
+.vdbs-event-list__title {
+    margin: 0 0 var(--space-3);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.vdbs-event-list__items { margin: 0; padding: 0; list-style: none; }
+
+.vdbs-event-list__footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); margin-top: var(--space-4); }
+.vdbs-event-list__controls { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--text-muted); font-size: var(--font-size-small); }
+.vdbs-event-list__all { color: var(--text-default); font-weight: var(--font-weight-bold); }

@@ -1,0 +1,7 @@
+[
+    {
+        "ghsa": "GHSA-mf2p-h6hf-fcwm",
+        "package": "tinymce",
+        "reason": "XSS im Plugin media; das Portal lädt nur lists, link und autolink. Behoben erst in TinyMCE 8 (andere Lizenz). Prüfen beim Wechsel auf TinyMCE 8, spätestens zum nächsten Quartalsreview."
+    }
+]

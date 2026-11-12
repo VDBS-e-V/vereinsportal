@@ -7,11 +7,13 @@
     "license": "MIT",
     "require": {
         "php": "^8.4.1",
+        "dompdf/dompdf": "^3.1",
         "laravel/framework": "^13.0",
         "laravel/passport": "^13.7",
         "laravel/tinker": "^3.0",
         "livewire/livewire": "^4.4",
         "livewire/volt": "^1.11",
+        "phpoffice/phpword": "^1.4",
         "symfony/html-sanitizer": "^8.1"
     },
     "require-dev": {
@@ -26,6 +28,9 @@
         "phpunit/phpunit": "^12.5.12"
     },
     "autoload": {
+        "files": [
+            "app/Support/helpers.php"
+        ],
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
@@ -39,8 +44,9 @@
     },
     "scripts": {
         "setup": [
-            "composer install",
+            "Composer\\Config::disableProcessTimeout",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan key:generate",
             "@php artisan migrate --force",
             "npm ci",
@@ -65,7 +71,6 @@
             "@lint",
             "@analyse",
             "@test",
-            "@php artisan vdbs:library-check",
             "npm run build"
         ],
         "security": [
@@ -97,6 +102,7 @@
         }
     },
     "config": {
+        "process-timeout": 0,
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,

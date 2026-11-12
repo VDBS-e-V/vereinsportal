@@ -1,0 +1,32 @@
+/* Platzhalter während des Ladens */
+
+.vdbs-skeleton { display: grid; align-content: start; gap: var(--space-2); }
+
+.vdbs-skeleton__line,
+.vdbs-skeleton__shape,
+.vdbs-skeleton__block {
+    display: block;
+    background: linear-gradient(90deg, var(--bg-surface) 25%, var(--border-default) 50%, var(--bg-surface) 75%);
+    background-size: 200% 100%;
+    animation: vdbs-skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.vdbs-skeleton__line { height: 1rem; }
+.vdbs-skeleton__line[data-last] { width: 60%; }
+.vdbs-skeleton__line--title { height: 1.5rem; width: 70%; }
+.vdbs-skeleton__block { height: 9rem; margin-bottom: var(--space-2); }
+
+.vdbs-skeleton--title .vdbs-skeleton__shape { height: 2rem; width: 50%; }
+.vdbs-skeleton--avatar .vdbs-skeleton__shape { width: 2.5rem; height: 2.5rem; border-radius: var(--radius-full); }
+.vdbs-skeleton--block .vdbs-skeleton__shape { height: 9rem; }
+
+@keyframes vdbs-skeleton-shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vdbs-skeleton__line,
+    .vdbs-skeleton__shape,
+    .vdbs-skeleton__block { animation: none; }
+}

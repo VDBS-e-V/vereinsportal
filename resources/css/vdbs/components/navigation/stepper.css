@@ -1,0 +1,53 @@
+/* Schritt-Anzeige */
+
+.vdbs-stepper__summary { margin: 0 0 var(--space-3); color: var(--text-muted); font-size: var(--font-size-small); }
+.vdbs-stepper__list { display: flex; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+
+.vdbs-stepper__step { position: relative; display: flex; flex: 1 1 0; align-items: flex-start; gap: var(--space-3); min-width: 0; }
+
+.vdbs-stepper__marker {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: var(--border-width-strong) solid var(--border-input);
+    background: var(--bg-page);
+    color: var(--text-default);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-bold);
+}
+
+.vdbs-stepper__text { display: grid; gap: var(--space-1); padding-top: 0.3125rem; min-width: 0; }
+.vdbs-stepper__label { font-weight: var(--font-weight-bold); }
+.vdbs-stepper__hint { color: var(--text-muted); font-size: var(--font-size-small); }
+
+.vdbs-stepper__step--done .vdbs-stepper__marker { border-color: var(--bg-action); background: var(--bg-action); color: var(--text-on-action); }
+.vdbs-stepper__step--current .vdbs-stepper__marker { border-color: var(--bg-action); box-shadow: 0 0 0 3px var(--bg-accent-soft); }
+.vdbs-stepper__step--todo .vdbs-stepper__label { color: var(--text-muted); font-weight: var(--font-weight-regular); }
+
+/* Verbindungslinie zum nächsten Schritt */
+.vdbs-stepper__step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    background: var(--border-input);
+}
+
+.vdbs-stepper__step--done:not(:last-child)::after { background: var(--bg-action); }
+
+/* horizontal: Marker oben, Text darunter; die Linie läuft zwischen den Markern */
+.vdbs-stepper--horizontal .vdbs-stepper__step { flex-direction: column; gap: var(--space-2); }
+.vdbs-stepper--horizontal .vdbs-stepper__text { padding-top: 0; padding-right: var(--space-3); }
+.vdbs-stepper--horizontal .vdbs-stepper__step:not(:last-child)::after { top: 0.9375rem; left: 2.5rem; right: calc(-1 * var(--space-3) + 0.5rem); height: var(--border-width-strong); }
+
+/* vertikal, und auf dem Handy auch die horizontale Anzeige */
+.vdbs-stepper--vertical .vdbs-stepper__list { flex-direction: column; gap: var(--space-5); }
+.vdbs-stepper--vertical .vdbs-stepper__step:not(:last-child)::after { top: 2.25rem; left: 0.9375rem; bottom: calc(-1 * var(--space-5) + 0.25rem); width: var(--border-width-strong); }
+
+@media (max-width: 639px) {
+    .vdbs-stepper--horizontal .vdbs-stepper__list { flex-direction: column; gap: var(--space-5); }
+    .vdbs-stepper--horizontal .vdbs-stepper__step { flex-direction: row; gap: var(--space-3); }
+    .vdbs-stepper--horizontal .vdbs-stepper__text { padding-top: 0.3125rem; }
+    .vdbs-stepper--horizontal .vdbs-stepper__step:not(:last-child)::after { top: 2.25rem; left: 0.9375rem; right: auto; bottom: calc(-1 * var(--space-5) + 0.25rem); width: var(--border-width-strong); height: auto; }
+}

@@ -1,0 +1,108 @@
+/* Button-Rollen (Wichtigkeit) und Tonfarben.
+ *
+ * Tonfarbe (tone="green|lila", Standard Grün) setzt die lokalen Variablen --t-*; die Rollen setzen daraus die Farbvariablen des Buttons:
+ *   primary    dunkle Fläche, helle Schrift
+ *   secondary  helle Fläche, Ink-Schrift
+ *   tertiary   Rahmen und Schrift in Farbe (Form outline)
+ *   text       nur Schrift in Farbe (Form text), Fläche und Unterstrich erst bei Hover
+ *   danger     Gefahr (rot)
+ * Variablen je Rolle: --btn-bg/--btn-fg (Fläche), --btn-line (Rahmen/Schrift der Rahmenformen), --btn-hover-*, --btn-press-* (gedrückt),
+ * --btn-fill/--btn-fill-fg/--btn-fill-edge (Hover der Rahmen- und Textformen).
+ */
+
+.vdbs-btn,
+.vdbs-btn--tone-green {
+    --t-solid: var(--btn-green-solid);
+    --t-solid-hover: var(--btn-green-solid-hover);
+    --t-solid-press: var(--btn-green-solid-press);
+    --t-soft: var(--btn-green-soft);
+    --t-soft-hover: var(--btn-green-soft-hover);
+    --t-soft-press: var(--btn-green-soft-press);
+    --t-text: var(--btn-green-text);
+    --t-text-hover: var(--btn-green-text-hover);
+}
+
+.vdbs-btn--tone-lila {
+    --t-solid: var(--btn-lila-solid);
+    --t-solid-hover: var(--btn-lila-solid-hover);
+    --t-solid-press: var(--btn-lila-solid-press);
+    --t-soft: var(--btn-lila-soft);
+    --t-soft-hover: var(--btn-lila-soft-hover);
+    --t-soft-press: var(--btn-lila-soft-press);
+    --t-text: var(--btn-lila-text);
+    --t-text-hover: var(--btn-lila-text-hover);
+}
+
+.vdbs-btn--primary {
+    --btn-bg: var(--t-solid);
+    --btn-fg: var(--btn-on-solid);
+    --btn-line: var(--t-text);
+    --btn-hover-bg: var(--t-solid-hover);
+    --btn-hover-fg: var(--btn-on-solid);
+    --btn-press-bg: var(--t-solid-press);
+    --btn-press-fg: var(--btn-on-solid);
+    --btn-fill: var(--t-solid);
+    --btn-fill-fg: var(--btn-on-solid);
+}
+
+.vdbs-btn--secondary {
+    --btn-bg: var(--t-soft);
+    --btn-fg: var(--btn-on-soft);
+    --btn-line: var(--btn-on-soft);
+    --btn-hover-bg: var(--t-soft-hover);
+    --btn-hover-fg: var(--btn-on-soft);
+    --btn-press-bg: var(--t-soft-press);
+    --btn-press-fg: var(--btn-on-soft);
+    --btn-fill: var(--t-soft-hover);
+    --btn-fill-fg: var(--btn-on-soft);
+}
+
+.vdbs-btn--tertiary {
+    --btn-bg: transparent;
+    --btn-fg: var(--t-text);
+    --btn-line: var(--t-text);
+    --btn-hover-bg: var(--t-soft);
+    --btn-hover-fg: var(--t-text-hover);
+    --btn-press-bg: var(--t-soft-hover);
+    --btn-press-fg: var(--t-text-hover);
+    --btn-fill: var(--t-soft);
+    --btn-fill-fg: var(--t-text-hover);
+    --btn-fill-edge: var(--t-text);
+}
+
+.vdbs-btn--text {
+    --btn-bg: transparent;
+    --btn-fg: var(--t-text);
+    --btn-line: var(--t-text);
+    --btn-hover-bg: var(--t-soft);
+    --btn-hover-fg: var(--t-text-hover);
+    --btn-press-bg: var(--t-soft-hover);
+    --btn-press-fg: var(--t-text-hover);
+    --btn-fill: var(--t-soft);
+    --btn-fill-fg: var(--t-text-hover);
+}
+
+.vdbs-btn--danger {
+    --btn-bg: var(--bg-danger);
+    --btn-fg: var(--text-on-danger);
+    --btn-line: var(--text-error);
+    --btn-hover-bg: var(--bg-danger-hover);
+    --btn-hover-fg: var(--text-on-danger);
+    --btn-fill: var(--bg-danger);
+    --btn-fill-fg: var(--text-on-danger);
+    --btn-press-bg: var(--bg-danger-hover);
+    --btn-press-fg: var(--text-on-danger);
+}
+
+/* Gefahr als Text: rote Schrift ohne Fläche, beim Überfahren helle Fehlerfläche und Unterstrich */
+.vdbs-btn--danger-text {
+    --btn-bg: transparent;
+    --btn-fg: var(--text-error);
+    --btn-line: var(--text-error);
+    --btn-hover-bg: var(--bg-error-soft);
+    --btn-hover-fg: var(--text-error);
+    --btn-press-bg: var(--bg-error-soft);
+    --btn-press-fg: var(--text-error);
+    --btn-fill: var(--bg-error-soft);
+    --btn-fill-fg: var(--text-error);
+}

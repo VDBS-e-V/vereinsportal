@@ -1,0 +1,7 @@
+/* Profilkarte: Vorschau eines Profils (Foto oder Initialen, Name, Funktion, Kurzvorstellung) */
+
+.vdbs-profile-card { padding: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-default); }
+
+.vdbs-profile-card__head { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3); }
+
+.vdbs-profile-card__name { margin: 0; font-weight: var(--font-weight-bold); }

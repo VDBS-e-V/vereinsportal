@@ -1,0 +1,307 @@
+<?php
+
+/*
+ * Externe Systeme, die per SSO angebunden sind (selbst gehostet). Ein System
+ * ohne URL wird in Header und Footer nicht angezeigt.
+ */
+return [
+    'systems' => [
+        ['label' => 'Nextcloud', 'url' => env('PORTAL_NEXTCLOUD_URL')],
+        ['label' => 'Moodle', 'url' => env('PORTAL_MOODLE_URL')],
+        ['label' => 'Umfragen', 'url' => env('PORTAL_SURVEY_URL')],
+    ],
+
+    /*
+     * Zwei-Faktor-Pflicht: Wer eine dieser Rollen hat, muss mindestens eine Methode einrichten (Konto > Sicherheit), bevor
+     * andere Seiten hinter der Anmeldung erreichbar sind. Lokal abschaltbar mit TWO_FACTOR_REQUIRED=false.
+     */
+    'two_factor' => [
+        'required' => (bool) env('TWO_FACTOR_REQUIRED', true),
+        'roles' => ['administration', 'administration_staff', 'board_member', 'managing_director', 'treasury'],
+    ],
+
+    /*
+     * Fassungen von Satzung und Datenschutzhinweisen, denen bei Antrag und Registrierung zugestimmt wird (Nachweis in
+     * membership_consents). Bei einer neuen Fassung die Kennung ändern.
+     */
+    'legal' => [
+        'statute_version' => env('PORTAL_STATUTE_VERSION', '2026-01'),
+        'privacy_version' => env('PORTAL_PRIVACY_VERSION', '2026-01'),
+        // Links zu den rechtlichen Seiten (Nutzungsbedingungen, Datenschutzerklärung), die im Zugangsantrag verlinkt werden
+        'terms_url' => env('LEGAL_TERMS_URL', '/nutzungsbedingungen'),
+        'privacy_url' => env('LEGAL_PRIVACY_URL', '/datenschutz'),
+    ],
+
+    /* Konto löschen: Wartefrist in Tagen zwischen Antrag und Anonymisierung (Abbruch ist bis dahin möglich). */
+    'offboarding' => [
+        'grace_days' => (int) env('ACCOUNT_DELETION_GRACE_DAYS', 14),
+    ],
+
+    /* Mitgliedschaften: Vorstand per E-Mail über neue (bestätigte) Online-Anträge informieren. */
+    'membership' => [
+        'notify_board' => (bool) env('MEMBERSHIP_NOTIFY_BOARD', true),
+
+        /*
+         * Aufbewahrung in Tagen (`php artisan membership:prune`, täglich geplant). unverified: Online-Anträge, deren
+         * E-Mail-Adresse nie bestätigt wurde; rejected: abgelehnte Anträge nach der Entscheidung; ended: beendete
+         * Mitgliedschaften nach dem Austritt (leer = nie löschen; die Frist legt der Verein fest).
+         */
+        'retention' => [
+            'unverified_days' => (int) env('MEMBERSHIP_RETENTION_UNVERIFIED_DAYS', 7),
+            'rejected_days' => env('MEMBERSHIP_RETENTION_REJECTED_DAYS', 180),
+            'ended_days' => env('MEMBERSHIP_RETENTION_ENDED_DAYS'),
+        ],
+    ],
+
+    /*
+     * Footer-Spalten. Platzhalter '#', bis die Seiten bzw. Profile feststehen.
+     * 'icon' ist optional (Name unter resources/icons).
+     */
+    'footer' => [
+        [
+            'heading' => 'Informationen für',
+            'links' => [
+                ['label' => 'Teamer:innen', 'url' => '#'],
+                ['label' => 'Vereinsmitglieder:innen', 'url' => '#'],
+                ['label' => 'Verwaltung', 'url' => '#'],
+                ['label' => 'Schüler:innen', 'url' => '#'],
+                ['label' => 'Lehrkräfte', 'url' => '#'],
+                ['label' => 'Partner:innen', 'url' => '#'],
+            ],
+        ],
+        [
+            'heading' => 'Service-Portal',
+            'links' => [
+                ['label' => 'Startseite', 'url' => '/'],
+                ['label' => 'Kontakt', 'url' => '/kontakt'],
+                ['label' => 'Impressum', 'url' => '/impressum'],
+                ['label' => 'Datenschutz', 'url' => '/datenschutz'],
+                ['label' => 'Barrierefreiheit', 'url' => '/barrierefreiheit'],
+                ['label' => 'Beratung', 'url' => '#'],
+            ],
+        ],
+        [
+            'heading' => 'Soziale Medien',
+            'links' => [
+                ['label' => 'Instagram', 'url' => '#', 'icon' => 'instagram'],
+                ['label' => 'Homo Politicus', 'url' => '#', 'icon' => 'youtube'],
+            ],
+        ],
+    ],
+
+    /*
+     * Bild neben dem Login-Formular (optional). Leer = Login ohne Bild.
+     * Beispiel: ['src' => '/images/login.jpg', 'alt' => '', 'credit' => 'Name der Urheber:in']
+     * Quelle: entweder 'credit' oder ein Eintrag in sources.json des Bildordners (siehe config/images.php).
+     */
+    'login_image' => null,
+
+    /*
+     * Texte der Startseite (Platzhaltertexte bis zur redaktionellen Freigabe).
+     * Kontaktzeilen erscheinen nur, wenn sie hier eingetragen sind.
+     */
+    /*
+     * Schutz öffentlicher Formulare vor automatisierten Eingaben (Skripte, Bots, KI-Agenten), selbst gehostet.
+     * Details: docs/51_FORMULARSCHUTZ.md. Die Tests schalten den Schutz per BOT_GUARD_ENABLED=false ab.
+     */
+    'bot_guard' => [
+        'enabled' => env('BOT_GUARD_ENABLED', true),
+        'min_seconds' => 2,       // schneller abgeschickte Formulare gelten als automatisiert
+        'max_seconds' => 7200,    // älteres Token ist abgelaufen (Seite neu laden)
+        'proof_of_work' => true,  // Rechenaufgabe im Browser
+        'difficulty_bits' => 16,  // Nullbits der Rechenaufgabe; je 1 Bit doppelt so viel Rechenzeit
+    ],
+
+    // Kompetenzen, die Teamende in ihrem Profil angeben und die Koordination für ein Seminar als gesucht markiert (Schlüssel => Bezeichnung).
+    'team' => [
+        'competences' => [
+            'sv_work' => 'SV-Arbeit und Schülervertretung',
+            'elections' => 'Wahlen und Wahlorganisation',
+            'moderation' => 'Moderation und Gesprächsführung',
+            'conflict' => 'Konfliktklärung und Mediation',
+            'democracy' => 'Demokratiebildung',
+            'media' => 'Medien und digitale Beteiligung',
+            'school_law' => 'Schulrecht und Gremien',
+            'project' => 'Projektmanagement',
+            'diversity' => 'Vielfalt und Antidiskriminierung',
+        ],
+    ],
+
+    // Vorstandssitzungen: Angaben externer Gäste werden so viele Tage nach dem Ende der Sitzung gelöscht (Befehl board:prune-guests, täglich geplant).
+    'board' => ['guest_retention_days' => (int) env('BOARD_GUEST_RETENTION_DAYS', 30)],
+
+    // Großveranstaltungen: Anmeldungen werden nach dieser Zeit seit dem letzten Termin gelöscht (Befehl events:prune, täglich geplant).
+    'events' => ['retention_years' => 3, 'school_reminder_days' => 3],
+
+    'home' => [
+        'title' => 'Willkommen im VDBS Serviceportal',
+        'lead' => 'Die zentrale Anlaufstelle für Mitglieder, Teamende und Schulen des VDBS.',
+        'areas' => [
+            'title' => 'Das VDBS Serviceportal',
+            'lead' => 'Das VDBS Serviceportal ist Ihre zentrale Anlaufstelle für alle Informationen und Dienstleistungen rund um den VDBS. Hier finden Sie alle Bereiche des Portals. Welche Bereiche Sie sehen, richtet sich nach Ihrer Rolle.',
+        ],
+        // Bild im Kopf der Startseite (Titel liegt mittig darüber). Die Quelle ist Pflicht; bitte durch das Originalbild samt Urheberangabe ersetzen.
+        'hero_image' => [
+            'src' => 'images/portal/hero-bibliothek.jpg',
+            'alt' => 'Bibliothek mit mehreren Ebenen voller Bücherregale',
+            'credit' => 'Bild aus dem bisherigen VDBS-Portal',
+        ],
+        // Bild neben dem Block „Zugang zum Portal“ (Startseite, Über das Portal); ohne src erscheint der Block ohne Bild.
+        // Die Quelle ist Pflicht (Bildregel der Design-Bibliothek). Bitte Urheberin/Urheber und Lizenz ergänzen, sobald bekannt.
+        'access_image' => [
+            'src' => 'images/portal/zugang.jpg',
+            'alt' => 'Steinerner Torbogen mit Blick in einen sonnenbeschienenen Durchgang',
+            'credit' => 'Bild aus dem bisherigen VDBS-Portal',
+        ],
+        'access' => [
+            'title' => 'Zugang zum Portal',
+            'guest' => 'Hier finden Sie alle Informationen, die Sie benötigen, um auf das VDBS Serviceportal zuzugreifen. Wenn Sie bereits ein Konto haben, können Sie sich hier anmelden. Wenn Sie noch kein Konto haben, können Sie hier den Zugang beantragen.',
+            'member' => 'Sie sind angemeldet. Ihr Konto, Ihre Sicherheitseinstellungen und Ihre Bereiche finden Sie hier.',
+        ],
+        'contact' => [
+            'title' => 'Kontakt',
+            'text' => 'Sollten Sie Fragen oder Probleme haben, können Sie uns jederzeit kontaktieren. Wir helfen Ihnen gerne weiter. Sie erreichen uns unter den E-Mail-Adressen:',
+            'image' => [
+                'src' => 'images/portal/kontakt.jpg',
+                'alt' => 'Leuchtendes Umschlag-Symbol auf dunklem Grund',
+                'credit' => 'Bild aus dem bisherigen VDBS-Portal',
+            ],
+            'lines' => [
+                ['label' => 'Support', 'value' => env('CONTACT_SUPPORT_EMAIL', 'support@portal.vdb.schule'), 'href' => 'mailto:'.env('CONTACT_SUPPORT_EMAIL', 'support@portal.vdb.schule')],
+                ['label' => 'Kontakt', 'value' => env('CONTACT_GENERAL_EMAIL', 'kontakt@vdb.schule'), 'href' => 'mailto:'.env('CONTACT_GENERAL_EMAIL', 'kontakt@vdb.schule')],
+            ],
+        ],
+    ],
+
+    /*
+     * Kontaktformular (öffentliche Seite „Kontakt“): Empfänger zur Auswahl, jeder mit fester E-Mail-Adresse. Die Nachricht geht nur per E-Mail
+     * an diese Adresse (mit Antwort an die absendende Person); im Portal wird nichts gespeichert.
+     */
+    'contact_form' => [
+        'recipients' => [
+            'general' => ['label' => 'Allgemeine Anfrage', 'email' => env('CONTACT_GENERAL_EMAIL', 'kontakt@vdb.schule')],
+            'board' => ['label' => 'Vorstand', 'email' => env('CONTACT_BOARD_EMAIL', 'vorstand@vdb.schule')],
+            'support' => ['label' => 'Portal-Support', 'email' => env('CONTACT_SUPPORT_EMAIL', 'support@portal.vdb.schule')],
+        ],
+    ],
+
+    /*
+     * Schreiben an Gruppen (Modul Mailings). per_minute: Obergrenze der Mails pro Minute je Worker; batch_size: Zustellungen je Auftragslauf;
+     * max_attempts: Versuche je Adresse, bevor sie als fehlgeschlagen gilt; delivery_retention_days: so lange bleibt die Zustellliste mit den Adressen
+     * (danach nur noch Betreff, Text und Zahlen).
+     */
+    'contacts' => [
+        // Frühere Zugänge einer Adresse gelten nach dem Erzeugen eines neuen noch so viele Tage weiter.
+        'old_access_days' => (int) env('CONTACT_ACCESS_GRACE_DAYS', 14),
+        // Minuten ohne Aktivität, nach denen die Sitzung eines persönlichen Zugangs endet.
+        // Monate nach dem letzten Termin, nach denen Angaben von Bewerbenden ohne Konto anonymisiert werden.
+        'applicant_retention_months' => (int) env('CONTACT_APPLICANT_RETENTION_MONTHS', 6),
+        'idle_minutes' => (int) env('CONTACT_ACCESS_IDLE_MINUTES', 30),
+    ],
+
+    'forms' => [
+        // Freigeschaltete Arten von Anträgen (expense, travel, purchase).
+        'enabled_types' => array_filter(explode(',', (string) env('FORMS_ENABLED_TYPES', 'expense,travel,purchase'))),
+    ],
+
+    'feedback' => [
+        // Mindestzahl an Antworten pro Link, ab der Auswertungen gezeigt werden (Schutz vor Rückschlüssen auf Einzelne).
+        'min_responses' => (int) env('FEEDBACK_MIN_RESPONSES', 5),
+        // Aufbewahrung der Einzelantworten in Monaten nach Ende des Links, danach anonymisiert/archiviert bzw. gelöscht.
+        'retention_months' => (int) env('FEEDBACK_RETENTION_MONTHS', 12),
+        // Erinnerung an Lehrkräfte und Teamende, wenn so viele Tage nach dem letzten Termin noch zu wenig geantwortet wurde.
+        'remind_after_days' => (int) env('FEEDBACK_REMIND_AFTER_DAYS', 7),
+    ],
+
+    'seminars' => [
+        // Format der Seminarnummer: {Y} = Jahr, {N:4} = laufende Nummer mit vier Stellen.
+        'number_format' => env('SEMINAR_NUMBER_FORMAT', 'S-{Y}-{N:4}'),
+        // Dokumente je Seminar: Größe einer Datei und aller Dateien zusammen (in KB), Aufbewahrung in Jahren je Art (nach dem letzten Termin).
+        'documents' => [
+            'max_kb' => (int) env('SEMINAR_DOCUMENT_MAX_KB', 25600),
+            'max_total_kb' => (int) env('SEMINAR_DOCUMENTS_MAX_TOTAL_KB', 512000),
+            'folder_max_mb' => (int) env('SEMINAR_FOLDER_MAX_MB', 100),
+            'retention_years' => ['contract' => 10, 'quote' => 10, 'invoice' => 10, 'default' => 3],
+        ],
+    ],
+
+    'mailings' => [
+        'per_minute' => (int) env('MAILINGS_PER_MINUTE', 60),
+        'batch_size' => (int) env('MAILINGS_BATCH_SIZE', 25),
+        'max_attempts' => (int) env('MAILINGS_MAX_ATTEMPTS', 3),
+        'delivery_retention_days' => (int) env('MAILINGS_DELIVERY_RETENTION_DAYS', 90),
+        // Freigabe: Schreiben von Personen ohne die Berechtigung mailings.approve (Geschäftsstelle) an mindestens so viele Empfänger brauchen die Freigabe des Vorstands.
+        'approval' => ['enabled' => (bool) env('MAILINGS_APPROVAL', true), 'threshold' => (int) env('MAILINGS_APPROVAL_THRESHOLD', 50)],
+        // Anhänge an Schreiben: alle zusammen höchstens so viele KB (PDF, JPEG, PNG)
+        'attachments' => ['max_kb' => (int) env('MAILINGS_ATTACHMENTS_MAX_KB', 5120)],
+        // Zustellqualität: Warnung ab dieser Fehlerquote (Prozent) eines Versands, Sperre nach so vielen vorläufigen Zustellfehlern, Geheimnis des Rückmelde-Webhooks, DKIM-Selektor der Absenderdomain
+        'failure_warning_percent' => (int) env('MAILINGS_FAILURE_WARNING_PERCENT', 5),
+        'soft_bounce_limit' => (int) env('MAILINGS_SOFT_BOUNCE_LIMIT', 5),
+        'webhook_secret' => env('MAILINGS_WEBHOOK_SECRET'),
+        'dkim_selector' => env('MAILINGS_DKIM_SELECTOR'),
+        // Einladungsfrist zu Versammlungen in Tagen (Annahme, mit der Satzung abgleichen). Unterschreitung ergibt nur eine Warnung.
+        'invitation_notice_days' => (int) env('MAILINGS_INVITATION_NOTICE_DAYS', 14),
+        // Absendername und Antwortadresse je Bereich (die Absenderadresse bleibt MAIL_FROM_ADDRESS)
+        'senders' => [
+            'board' => ['name' => env('MAILINGS_FROM_NAME_BOARD', 'VDBS Vorstand'), 'reply_to' => env('MAILINGS_REPLY_TO_BOARD')],
+            'office' => ['name' => env('MAILINGS_FROM_NAME_OFFICE', 'VDBS Geschäftsstelle'), 'reply_to' => env('MAILINGS_REPLY_TO_OFFICE')],
+            'coordination' => ['name' => env('MAILINGS_FROM_NAME_COORDINATION', 'VDBS Koordination'), 'reply_to' => env('MAILINGS_REPLY_TO_COORDINATION')],
+            'team' => ['name' => env('MAILINGS_FROM_NAME_TEAM', 'VDBS Koordination'), 'reply_to' => env('MAILINGS_REPLY_TO_TEAM')],
+        ],
+    ],
+
+    /*
+     * Zugangsanträge (öffentliche Seite „Zugang zum Portal“): Aufbewahrung in Tagen (entschiedene Anträge, liegengebliebene offene Anträge),
+     * Hinweis an die Geschäftsstelle bei neuen Anträgen und die Fassung der Nutzungsbedingungen, der zugestimmt wird.
+     */
+    'access_requests' => [
+        'notify_staff' => (bool) env('ACCESS_REQUESTS_NOTIFY_STAFF', true),
+        'retention_days' => (int) env('ACCESS_REQUESTS_RETENTION_DAYS', 180),
+        'open_retention_days' => (int) env('ACCESS_REQUESTS_OPEN_RETENTION_DAYS', 365),
+        'terms_version' => '2026-01',
+    ],
+
+    /*
+     * Onboarding: Willkommenspaket für neue Mitglieder (Willkommensmail mit Satzung und Willkommensbrief) beim Aufnehmen eines Online-Antrags.
+     */
+    'onboarding' => [
+        'welcome_on_admission' => (bool) env('ONBOARDING_WELCOME_ON_ADMISSION', true),
+        // Erinnerung an Teamende mit offener Einarbeitung (Befehl onboarding:remind-team, täglich geplant)
+        'reminder' => ['after_days' => 14, 'repeat_days' => 14, 'max' => 3],
+    ],
+
+    /*
+     * Briefkopf und Fußzeile für gedruckte Schreiben (Kostenvoranschlag). Anschrift, Bankverbindung und Kontakt des Vereins.
+     */
+    'letter' => [
+        'logo' => 'images/brand/vdbs-briefkopf.jpg',
+        'sender_line' => 'VDBS, Fritz-Karsen-Schule (K101), Onkel-Bräsig-Straße 76/78, 12359 Berlin',
+        'board' => [
+            'title' => 'Vereinsvorstand',
+            'lines' => ['Onkel-Bräsig-Str. 76/78', '12359 Berlin'],
+            'phone' => 'Tel. 030 60 900 – 168',
+            'office_email' => 'neukoelln@vdb.schule',
+            'website' => 'www.vdb.schule',
+            'contact_email' => 'kontakt@vdb.schule',
+        ],
+        'footer' => [
+            'organization' => 'Verband für Demokratiebildung und Bibliotheken an Schule e.V.',
+            'chair_label' => 'Vorsitzender:',
+            'chair' => 'Jan Ole Schmiedecke',
+            'address_title' => 'Anschrift:',
+            'address_lines' => ['Fritz-Karsen-Schule (VDBS)', 'Onkel-Bräsig-Str. 76/78', '12359 Berlin'],
+            'contact_title' => 'Kontaktdaten:',
+            'contact_lines' => ['kontakt@vdb.schule', 'vorstand@vdb.schule'],
+            'bank_title' => 'VDBS e.V.',
+            'bank_lines' => ['Geldinstitut: Berliner Sparkasse', 'IBAN: DE63 1005 0000 0191 2739 96', 'BIC: BELADEBEXXX'],
+        ],
+    ],
+
+    /*
+     * Betrieb auf Webhosting ohne Konsole. SETUP_TOKEN schaltet die Einrichtung im Browser (/einrichtung) frei, bis die Sperrdatei
+     * storage/app/setup.lock existiert. CRON_KEY (mindestens 32 Zeichen) ist der Schlüssel in der Adresse /cron/{key}, die ein externer Dienst
+     * jede Minute aufruft; PORTAL_TICK_SECONDS begrenzt, wie lange ein Aufruf Aufträge abarbeitet.
+     */
+    'setup' => ['token' => env('SETUP_TOKEN'), 'lock' => storage_path('app/setup.lock')],
+    'cron' => ['key' => env('CRON_KEY'), 'seconds' => (int) env('PORTAL_TICK_SECONDS', 45)],
+];

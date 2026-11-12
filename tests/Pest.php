@@ -1,5 +1,10 @@
 <?php
 
+use App\Modules\Access\Models\User;
+use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
+use App\Modules\AccessGovernance\Models\Role;
+use App\Modules\AccessGovernance\Models\RoleAssignment;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -47,4 +52,21 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/** Nutzer mit der Rolle Administration (darf u. a. die Design-Bibliothek sehen). */
+function designViewer(): User
+{
+    app(RoleSeeder::class)->run();
+
+    $user = User::factory()->create();
+
+    RoleAssignment::query()->create([
+        'user_id' => $user->id,
+        'role_id' => Role::query()->where('key', 'administration')->value('id'),
+        'source' => RoleAssignmentSource::Manual,
+        'starts_at' => now()->subMinute(),
+    ]);
+
+    return $user;
 }

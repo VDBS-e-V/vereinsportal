@@ -1,0 +1,69 @@
+/* Button-System: Basis, Größen, Zustände (Styleguide 5.1)
+ *
+ * Farben kommen aus den lokalen Variablen --btn-bg, --btn-fg, --btn-line,
+ * --btn-hover-bg und --btn-hover-fg; Rollen, Formen und Flächen setzen nur diese.
+ */
+
+.vdbs-btn {
+    --btn-height: var(--size-touch);
+    --btn-pad-x: var(--space-5);
+    --btn-font-size: var(--font-size-body);
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: var(--btn-height);
+    padding: 0 var(--btn-pad-x);
+    border: 2px solid transparent;
+    border-radius: var(--radius-md);
+    font: inherit;
+    font-size: var(--btn-font-size);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+/* Größen */
+.vdbs-btn--size-s { --btn-height: 2.25rem; --btn-pad-x: var(--space-3); --btn-font-size: var(--font-size-small); }
+.vdbs-btn--size-m { --btn-height: var(--size-touch); --btn-pad-x: var(--space-5); --btn-font-size: var(--font-size-body); }
+.vdbs-btn--size-l { --btn-height: 3.25rem; --btn-pad-x: var(--space-5); --btn-font-size: var(--font-size-body-lg); }
+
+/* Inhalt */
+.vdbs-btn__icon { flex: 0 0 auto; }
+.vdbs-btn__label { overflow-wrap: anywhere; }
+
+.vdbs-btn--full { display: flex; width: 100%; }
+
+.vdbs-btn--icon-only { width: var(--btn-height); padding: 0; }
+
+/* Zustände: aktiv, deaktiviert, gedrückt und Laden stehen in button-states.css */
+.vdbs-btn:active:not(.vdbs-btn--disabled):not(.vdbs-btn--loading) { transform: scale(0.98); }
+
+/* Laden */
+
+.vdbs-btn__spinner {
+    width: 1em;
+    height: 1em;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: var(--radius-full);
+    animation: vdbs-btn-spin 0.8s linear infinite;
+}
+
+@keyframes vdbs-btn-spin { to { transform: rotate(360deg); } }
+
+/* Gruppe */
+.vdbs-btn-group { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+.vdbs-btn-group--center { justify-content: center; }
+.vdbs-btn-group--end { justify-content: flex-end; }
+.vdbs-btn-group--between { justify-content: space-between; }
+
+@media (max-width: 479px) {
+    .vdbs-btn-group--stack { flex-direction: column; align-items: stretch; }
+    .vdbs-btn-group--stack > .vdbs-btn { width: 100%; }
+}

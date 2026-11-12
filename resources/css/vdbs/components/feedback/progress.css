@@ -1,0 +1,28 @@
+/* Fortschrittsbalken */
+
+.vdbs-progress { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: var(--space-1) var(--space-3); }
+.vdbs-progress__label { grid-column: 1 / -1; font-weight: var(--font-weight-bold); }
+.vdbs-progress__value { color: var(--text-muted); font-size: var(--font-size-small); font-variant-numeric: tabular-nums; }
+.vdbs-progress:not(:has(.vdbs-progress__value)) .vdbs-progress__bar { grid-column: 1 / -1; }
+
+.vdbs-progress__bar {
+    appearance: none;
+    width: 100%;
+    height: 0.75rem;
+    border: var(--border-width) solid var(--border-input);
+    background: var(--bg-surface);
+    color: var(--bg-action);
+    overflow: hidden;
+}
+
+.vdbs-progress__bar::-webkit-progress-bar { background: var(--bg-surface); }
+.vdbs-progress__bar::-webkit-progress-value { background: var(--bg-action); transition: width var(--transition-base); }
+.vdbs-progress__bar::-moz-progress-bar { background: var(--bg-action); }
+
+/* unbestimmt: laufender Streifen */
+.vdbs-progress__bar:indeterminate { background: linear-gradient(90deg, var(--bg-surface) 0 30%, var(--bg-action) 30% 60%, var(--bg-surface) 60%); background-size: 200% 100%; animation: vdbs-progress-run 1.4s linear infinite; }
+.vdbs-progress__bar:indeterminate::-webkit-progress-bar { background: transparent; }
+
+@keyframes vdbs-progress-run { from { background-position: 200% 0; } to { background-position: -100% 0; } }
+
+@media (prefers-reduced-motion: reduce) { .vdbs-progress__bar:indeterminate { animation: none; } }

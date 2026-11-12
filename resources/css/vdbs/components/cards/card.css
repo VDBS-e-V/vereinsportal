@@ -1,0 +1,40 @@
+/* Karten (Styleguide 5.3) */
+
+/* Karten (Styleguide 5.3) */
+
+.vdbs-card {
+    padding: var(--space-5);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+    color: var(--text-default);
+    display: flex;
+    flex-direction: column;
+}
+
+.vdbs-card__body > :last-child { margin-bottom: 0; }
+.vdbs-card__actions { margin-top: auto; padding-top: var(--space-4); }
+
+.vdbs-card__title { margin-bottom: var(--space-2); }
+
+.vdbs-card--info {
+    background: var(--bg-accent-soft);
+    border-color: var(--bg-brand);
+}
+
+.vdbs-card--statement {
+    background: var(--bg-header-footer);
+    border-color: transparent;
+    color: var(--text-on-dark);
+}
+
+.vdbs-card--statement a { color: var(--text-on-dark); }
+
+.vdbs-card--quote {
+    background: var(--bg-page);
+    border-width: 0 0 0 4px;
+    border-color: var(--bg-brand);
+    font-size: var(--font-size-body-lg);
+}
+
+.vdbs-card__source { margin: var(--space-3) 0 0; color: var(--text-muted); font-size: var(--font-size-small); }

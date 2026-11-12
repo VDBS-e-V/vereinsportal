@@ -1,0 +1,156 @@
+<?php
+
+namespace App\Modules\DesignLibrary\Support;
+
+use App\Modules\DesignLibrary\Enums\LibraryCategory;
+use App\Modules\DesignLibrary\Enums\LifecycleStatus;
+use Illuminate\Support\Collection;
+
+/**
+ * Zentrale Registry der Design-Bibliothek. Reine PHP-Konfiguration, keine DB.
+ *
+ * `view` verweist auf eine Blade-View unter design-library/entries/.
+ */
+final class Registry
+{
+    /**
+     * @return Collection<string, array{slug: string, title: string, description: string, category: LibraryCategory, status: LifecycleStatus, view: string, styleguide: string, width: string}>
+     */
+    public static function all(): Collection
+    {
+        return collect(self::definitions())
+            ->map(fn (array $entry): array => $entry + ['view' => 'design-library.entries.'.$entry['slug'], 'width' => 'default'])
+            ->keyBy('slug');
+    }
+
+    public static function find(string $slug): ?array
+    {
+        return self::all()->get($slug);
+    }
+
+    /** @return Collection<string, Collection<string, array>> nach Kategorie-Wert gruppiert */
+    public static function grouped(): Collection
+    {
+        return self::all()->groupBy(fn (array $entry): string => $entry['category']->value);
+    }
+
+    /**
+     * Komponenten aus den Paket-Manifesten (app/Modules/DesignLibrary/Packages/<paket>.php, angelegt von design:package und design:component).
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function packageDefinitions(?string $directory = null): array
+    {
+        $definitions = [];
+
+        foreach (glob(($directory ?? __DIR__.'/../Packages').'/*.php') ?: [] as $file) {
+            $manifest = require $file;
+            $package = basename($file, '.php');
+
+            foreach ($manifest['components'] ?? [] as $component) {
+                // Aufgenommene Komponenten haben ihre Beispielseiten schon in der Bibliothek.
+                if (($component['adopted'] ?? false) === true) {
+                    continue;
+                }
+
+                $definitions[] = [
+                    'slug' => $package.'-'.$component['name'],
+                    'title' => $component['title'],
+                    'description' => $component['description'],
+                    'category' => LibraryCategory::Components,
+                    'status' => LifecycleStatus::tryFrom((string) ($component['status'] ?? '')) ?? LifecycleStatus::Experimental,
+                    'styleguide' => 'Paket '.$manifest['title'],
+                    'width' => $component['width'] ?? 'default',
+                ];
+            }
+        }
+
+        return $definitions;
+    }
+
+    /**
+     * Alle Paket-Manifeste, nach Paketname.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public static function packages(?string $directory = null): array
+    {
+        $packages = [];
+
+        foreach (glob(($directory ?? __DIR__.'/../Packages').'/*.php') ?: [] as $file) {
+            $packages[basename($file, '.php')] = require $file;
+        }
+
+        ksort($packages);
+
+        return $packages;
+    }
+
+    private static function definitions(): array
+    {
+        return array_merge(self::coreDefinitions(), self::packageDefinitions());
+    }
+
+    private static function coreDefinitions(): array
+    {
+        return [
+            ['slug' => 'farben', 'title' => 'Farben & semantische Tokens', 'description' => 'Markenfarben, Gruppenfarben und die semantischen Tokens, die im Code verwendet werden.', 'category' => LibraryCategory::Tokens, 'status' => LifecycleStatus::Stable, 'styleguide' => 'Kap. 2'],
+            ['slug' => 'typografie', 'title' => 'Typografie', 'description' => 'Lato in 400/700/900, Größenskala und Zeilenhöhen.', 'category' => LibraryCategory::Tokens, 'status' => LifecycleStatus::Stable, 'styleguide' => 'Kap. 2'],
+            ['slug' => 'spacing-radius', 'title' => 'Spacing, Radius & Schatten', 'description' => '4-px-Raster; Ecken sind eckig (Radius 0), nur Pills und Avatare bleiben rund.', 'category' => LibraryCategory::Tokens, 'status' => LifecycleStatus::Stable, 'styleguide' => 'Kap. 2'],
+            ['slug' => 'buttons', 'title' => 'Buttons', 'description' => 'Das einheitliche Button-System: Rolle, Form, Größe und Fläche, mit Icons, Zuständen und Gruppen (Paket Aktionen).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Beta, 'styleguide' => 'Kap. 5.1', 'width' => 'wide'],
+            ['slug' => 'formulare', 'title' => 'Textfelder', 'description' => 'Input, Passwort, Code, Textarea, Auswahlliste und Suche mit allen Zuständen, Größen und Typen (Paket Formulare).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Beta, 'styleguide' => 'Kap. 5.2'],
+            ['slug' => 'auswahlfelder', 'title' => 'Auswahlfelder', 'description' => 'Checkbox, Checkbox-Gruppe, Radio-Gruppe (auch als Karten) und Schalter (Paket Formulare).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Beta, 'styleguide' => 'Kap. 5.2'],
+            ['slug' => 'upload', 'title' => 'Datei-Upload', 'description' => 'Upload-Feld und Dropzone mit Anzeige der gewählten Dateien (Paket Formulare).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Beta, 'styleguide' => 'Kap. 5.2'],
+            ['slug' => 'formularaufbau', 'title' => 'Formularaufbau', 'description' => 'Formular, Raster, Abschnitte, Feldgruppen und Fehlerübersicht (Paket Formulare).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Beta, 'styleguide' => 'Kap. 5.2', 'width' => 'wide'],
+            ['slug' => 'login-formular', 'title' => 'Login-Formular (Muster)', 'description' => 'Anmeldung mit E-Mail, Passwort, Angemeldet bleiben und Fehlerübersicht.', 'category' => LibraryCategory::Patterns, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.2'],
+            ['slug' => 'zwei-faktor-formular', 'title' => 'Zwei-Faktor-Formular (Muster)', 'description' => 'Code-Eingabe, Methodenwahl und Fehlerzustand für die Zwei-Faktor-Anmeldung.', 'category' => LibraryCategory::Patterns, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.2'],
+            ['slug' => 'kontaktformular', 'title' => 'Kontaktformular (Muster)', 'description' => 'Längeres Formular mit Raster, Auswahl, Textarea mit Zähler, Upload und Einwilligung.', 'category' => LibraryCategory::Patterns, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.2'],
+            ['slug' => 'karten', 'title' => 'Karten', 'description' => 'Standard, Info, Statement und Zitat.', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Stable, 'styleguide' => 'Kap. 5.3'],
+            ['slug' => 'navigation', 'title' => 'Navigation & Breadcrumb', 'description' => 'Hauptnavigation und Brotkrumen.', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Beta, 'styleguide' => 'Kap. 5.4'],
+            ['slug' => 'tabs', 'title' => 'Tabs', 'description' => 'Tabs als Links für eigene Seiten und Tabs mit Inhalt auf derselben Seite, mit Tastatursteuerung (Paket Navigation).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.4'],
+            ['slug' => 'paginierung', 'title' => 'Paginierung', 'description' => 'Seitenzahlen mit Auslassung, Zurück und Weiter, auch für Laravel-Paginatoren (Paket Navigation).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.4'],
+            ['slug' => 'schritte', 'title' => 'Schritt-Anzeige', 'description' => 'Stepper für mehrstufige Abläufe wie die Zwei-Faktor-Einrichtung, horizontal und vertikal (Paket Navigation).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.4'],
+            ['slug' => 'dropdown', 'title' => 'Aufklappmenü und Avatar', 'description' => 'Menü mit Links und Aktionen auf Basis von details, Nutzermenü mit Avatar (Pakete Navigation und Daten).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.4'],
+            ['slug' => 'seitennavigation', 'title' => 'Seitennavigation', 'description' => 'Navigation in der Seitenleiste für Konto und Verwaltung mit Abschnitten, Icons und Zählern (Paket Navigation).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.4'],
+            ['slug' => 'tabellen', 'title' => 'Tabellen', 'description' => 'Zebra-Streifen und sortierbare Spalten.', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Beta, 'styleguide' => 'Kap. 5.5'],
+            ['slug' => 'werkzeugleiste', 'title' => 'Werkzeugleiste', 'description' => 'Suche, Filter und aktive Filter als Tags über Tabellen und Listen, als GET-Formular (Paket Daten).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.5', 'width' => 'wide'],
+            ['slug' => 'detailliste', 'title' => 'Detailliste', 'description' => 'Beschriftung und Wert für Profile und Zusammenfassungen, übereinander oder nebeneinander (Paket Daten).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.5'],
+            ['slug' => 'kennzahlen', 'title' => 'Kennzahlen', 'description' => 'Kachel mit Zahl, Beschriftung, Trend und Status für Übersichten (Paket Daten).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.5', 'width' => 'wide'],
+            ['slug' => 'verlauf', 'title' => 'Verlauf', 'description' => 'Ereignisse in zeitlicher Reihenfolge, z. B. Aktivitäten und Protokolle (Paket Daten).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.5'],
+            ['slug' => 'verwaltungsliste', 'title' => 'Verwaltungsliste (Muster)', 'description' => 'Kennzahlen, Werkzeugleiste, Tabelle, Paginierung und Leerzustand für die Nutzerverwaltung.', 'category' => LibraryCategory::Patterns, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.5', 'width' => 'wide'],
+            ['slug' => 'badges', 'title' => 'Badges', 'description' => 'Neutral, Erfolg, Warnung, Fehler und Kategorie 1–6.', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Stable, 'styleguide' => 'Kap. 5.6'],
+            ['slug' => 'hinweise', 'title' => 'Hinweise', 'description' => 'Info-, Erfolgs-, Warn- und Fehlerhinweise.', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Stable, 'styleguide' => 'Kap. 5.7'],
+            ['slug' => 'toast', 'title' => 'Toast und Flash-Meldungen', 'description' => 'Kurze Rückmeldungen nach Aktionen: schwebend mit JavaScript, im Inhalt ohne; Flash-Meldungen der Sitzung erscheinen automatisch (Paket Feedback).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.7'],
+            ['slug' => 'leerzustand', 'title' => 'Leerzustand', 'description' => 'Erklärung und nächster Schritt für leere Listen und Suchen, normal und kompakt (Paket Feedback).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.7'],
+            ['slug' => 'laden', 'title' => 'Laden: Skeleton und Fortschritt', 'description' => 'Platzhalter für nachgeladene Inhalte und Fortschrittsbalken, bestimmt und unbestimmt (Paket Feedback).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.7'],
+            ['slug' => 'tooltip', 'title' => 'Tooltip', 'description' => 'Kurze Zusatzerklärung bei Hover und Fokus in vier Positionen (Paket Feedback).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.7'],
+            ['slug' => 'seitenkopf', 'title' => 'Seitenkopf', 'description' => 'Brotkrumen, Titel, Einleitung, Status, Aktionen und Tabs am Anfang einer Seite (Paket Layout).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4'],
+            ['slug' => 'bestaetigungsdialog', 'title' => 'Bestätigungsdialog', 'description' => 'Dialog für folgenreiche Aktionen, mit Fokus auf Abbrechen und optionaler Bestätigungseingabe (Paket Overlays).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.8'],
+            ['slug' => 'drawer', 'title' => 'Seitenpanel (Drawer)', 'description' => 'Panel am Seitenrand für Filter, Details und kurze Formulare (Paket Overlays).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.8'],
+            ['slug' => 'akkordeon', 'title' => 'Akkordeon', 'description' => 'Aufklappbare Abschnitte auf Basis von details, auch mit exklusivem Öffnen (Paket Disclosure).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.4'],
+            ['slug' => 'textstil', 'title' => 'Fließtext und Zitat', 'description' => 'Typografie für redaktionelle Texte und das Zitat (Paket Content).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 2'],
+            ['slug' => 'download-karte', 'title' => 'Download-Karte', 'description' => 'Datei mit Titel, Typ und Größe als klickbare Karte (Paket Content).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.3'],
+            ['slug' => 'termin-karte', 'title' => 'Termin-Karte', 'description' => 'Datum als Kachel mit Titel, Zeit und Ort (Paket Content).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.3'],
+            ['slug' => 'modal', 'title' => 'Modal', 'description' => 'Natives dialog-Element mit Fokus-Falle.', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Beta, 'styleguide' => 'Kap. 5.8'],
+            ['slug' => 'seitenlayout', 'title' => 'Seitenbreiten und Layouts', 'description' => 'Container-Breiten (schmal bis voll) und Seitenvorlagen des Portals.', 'category' => LibraryCategory::Patterns, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 6'],
+            ['slug' => 'hero', 'title' => 'Hero', 'description' => 'Großer Einstieg einer Seite in acht Varianten: image, overlay, caption, split, panel, compact, banner und feature (Paket Medien).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4', 'width' => 'wide'],
+            ['slug' => 'abschnitt-split-raster', 'title' => 'Abschnitt, Split und Raster', 'description' => 'Seitenabschnitte (auch als graues Band), Text neben Bild und gleichmäßige Raster (Paket Layout).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4'],
+            ['slug' => 'inhaltsblock', 'title' => 'Inhaltsblock', 'description' => 'Text mit Bild und Aktionen in vier Varianten: side, overlap, offset und links, mit Farbflächen (Paket Content).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4', 'width' => 'wide'],
+            ['slug' => 'quick-links', 'title' => 'Quick-Links', 'description' => 'Reihe farbig akzentuierter Kacheln für den Schnellzugriff (Paket Karten).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.3'],
+            ['slug' => 'teaser', 'title' => 'Teaser', 'description' => 'Bild, Titel und Anreißer mit einem Link für die ganze Karte in vier Varianten: default, flat, featured und compact (Paket Karten).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.3', 'width' => 'wide'],
+            ['slug' => 'termine', 'title' => 'Terminliste', 'description' => 'Termine mit Datum, Uhrzeit und Link, optional mit Blätter-Knöpfen und „Alle Termine“ (Paket Daten).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.5'],
+            ['slug' => 'nachrichten', 'title' => 'Nachrichten (Muster)', 'description' => 'Aufmacher, flache Teaser mit eigener Höhe und Terminliste in der Seitenspalte.', 'category' => LibraryCategory::Patterns, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4', 'width' => 'wide'],
+            ['slug' => 'kontaktblock', 'title' => 'Kontaktblock', 'description' => 'Bild, Text, Kontaktzeilen und Aktion für Kontaktabschnitte (Paket Karten).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.3'],
+            ['slug' => 'chips', 'title' => 'Chips', 'description' => 'Liste von Links als Chips, z. B. Bereiche (Paket Daten).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.6'],
+            ['slug' => 'bilder', 'title' => 'Bilder und Bildquellen', 'description' => 'Bild mit Pflicht-Quelle: Seitenverhältnisse, Fokus und die zwei Quellenanzeigen below und edge (Paket Medien).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4', 'width' => 'wide'],
+            ['slug' => 'figure', 'title' => 'Bild mit Unterschrift', 'description' => 'Bild mit Bildunterschrift und Bildnachweis (Paket Medien).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4'],
+            ['slug' => 'back-to-top', 'title' => 'Zum Seitenanfang', 'description' => 'Sprunglink zum Seitenanfang (Paket Aktionen).', 'category' => LibraryCategory::Components, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 5.1'],
+            ['slug' => 'startseite', 'title' => 'Startseite (Muster)', 'description' => 'Zusammenspiel von Hero, Quick-Links, Abschnitten, Teasern, Split und Kontaktblock in voller Seitenbreite.', 'category' => LibraryCategory::Patterns, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4', 'width' => 'full'],
+            ['slug' => 'gruppen-marken', 'title' => 'Gruppen-Marken', 'description' => 'Form, Farbe und Zahl 1–6; Zuordnung der Portal-Bereiche.', 'category' => LibraryCategory::BrandElements, 'status' => LifecycleStatus::Stable, 'styleguide' => 'Kap. 9.2'],
+            ['slug' => 'portal-bereiche', 'title' => 'Portal-Bereiche', 'description' => 'Die zehn Bereiche mit Icon, Label und Gruppen-Marke.', 'category' => LibraryCategory::Patterns, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 9.2'],
+            ['slug' => 'platzhalterbilder', 'title' => 'Platzhalterbilder', 'description' => 'Namenskonvention, Formate und Bestand der Platzhalterbilder, inklusive Helfer placeholder().', 'category' => LibraryCategory::Guidelines, 'status' => LifecycleStatus::Experimental, 'styleguide' => 'Kap. 4'],
+            ['slug' => 'barrierefreiheit', 'title' => 'Barrierefreiheit', 'description' => 'WCAG 2.1/2.2 AA: Kontrast, Fokus, Touch-Targets, keine Information nur über Farbe.', 'category' => LibraryCategory::Guidelines, 'status' => LifecycleStatus::Stable, 'styleguide' => 'Kap. 3'],
+            ['slug' => 'ton-sprache', 'title' => 'Ton & Sprache', 'description' => 'Ansprache, Schreibweise und Beschriftungen.', 'category' => LibraryCategory::Guidelines, 'status' => LifecycleStatus::Stable, 'styleguide' => 'Kap. 8'],
+        ];
+    }
+}

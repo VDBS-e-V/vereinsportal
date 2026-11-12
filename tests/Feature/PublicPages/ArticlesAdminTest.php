@@ -1,0 +1,246 @@
+<?php
+
+use App\Modules\Access\Models\User;
+use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
+use App\Modules\AccessGovernance\Enums\RoleKey;
+use App\Modules\AccessGovernance\Models\Role;
+use App\Modules\AccessGovernance\Models\RoleAssignment;
+use App\Modules\Articles\Models\Article;
+use App\Modules\Audit\Models\AuditEntry;
+use App\Modules\People\Models\Person;
+use Database\Seeders\RoleSeeder;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+
+beforeEach(function () {
+    $this->withoutVite();
+    $this->seed(RoleSeeder::class);
+    Storage::fake('local');
+});
+
+function aaUser(?RoleKey $role = null): User
+{
+    $person = Person::factory()->create();
+    $user = User::factory()->create(['person_id' => $person->id, 'email' => $person->email]);
+
+    if ($role !== null) {
+        RoleAssignment::query()->create([
+            'user_id' => $user->id,
+            'role_id' => Role::query()->where('key', $role->value)->value('id'),
+            'source' => RoleAssignmentSource::Manual,
+            'starts_at' => now()->subMinute(),
+        ]);
+    }
+
+    return $user;
+}
+
+function aaForm(array $overrides = []): array
+{
+    return $overrides + ['title' => 'Mehr Sicherheit im Portal', 'teaser' => 'Kurz erklärt', 'body' => "Erster Absatz.\n\nZweiter Absatz.", 'category' => 'Themenartikel', 'status' => 'published', 'published_at' => now()->subHour()->format('Y-m-d\TH:i'), 'featured' => '1'];
+}
+
+it('lets staff and board manage articles and keeps everyone else out', function () {
+    $this->get(route('articles.admin.index'))->assertRedirect(route('login'));
+
+    foreach ([RoleKey::AdministrationStaff, RoleKey::BoardMember] as $role) {
+        $this->actingAs(aaUser($role))->get(route('articles.admin.index'))->assertOk();
+        $this->get(route('articles.admin.create'))->assertOk();
+    }
+
+    foreach ([RoleKey::Coordination, RoleKey::Member, RoleKey::Team, RoleKey::Administration] as $role) {
+        $this->actingAs(aaUser($role))->get(route('articles.admin.index'))->assertForbidden();
+        $this->post(route('articles.admin.store'), aaForm())->assertForbidden();
+    }
+});
+
+it('creates an article with a unique slug, the creator and a log entry', function () {
+    $staff = aaUser(RoleKey::AdministrationStaff);
+
+    $this->actingAs($staff)->post(route('articles.admin.store'), aaForm())->assertSessionHasNoErrors();
+    $this->post(route('articles.admin.store'), aaForm());
+
+    $articles = Article::query()->orderBy('id')->get();
+    expect($articles->pluck('slug')->all())->toBe(['mehr-sicherheit-im-portal', 'mehr-sicherheit-im-portal-2'])
+        ->and($articles[0]->created_by_user_id)->toBe($staff->id)
+        ->and($articles[0]->status)->toBe('published')
+        ->and($articles[0]->featured)->toBeTrue()
+        ->and($articles[0]->category)->toBe('Themenartikel')
+        ->and($articles[0]->published_at)->not->toBeNull();
+
+    $entry = AuditEntry::query()->where('event', 'article.created')->firstOrFail();
+    expect($entry->context)->toEqual(['titel' => 'Mehr Sicherheit im Portal']);
+
+    $this->get(route('articles.admin.index'))->assertSee('Mehr Sicherheit im Portal')->assertSee('Veröffentlicht');
+});
+
+it('validates the article form', function () {
+    $this->actingAs(aaUser(RoleKey::AdministrationStaff));
+
+    $this->post(route('articles.admin.store'), [])->assertSessionHasErrors(['title', 'body', 'status']);
+    $this->post(route('articles.admin.store'), aaForm(['status' => 'weg']))->assertSessionHasErrors('status');
+    $this->post(route('articles.admin.store'), aaForm(['teaser' => str_repeat('x', 301)]))->assertSessionHasErrors('teaser');
+    $this->post(route('articles.admin.store'), aaForm(['image' => UploadedFile::fake()->create('bild.jpg', 10, 'image/jpeg')]))->assertSessionHasErrors(['image_alt', 'image_credit']);
+    $this->post(route('articles.admin.store'), aaForm(['image' => UploadedFile::fake()->create('datei.pdf', 10, 'application/pdf'), 'image_alt' => 'x']))->assertSessionHasErrors('image');
+    $this->post(route('articles.admin.store'), aaForm(['image' => UploadedFile::fake()->create('gross.jpg', 5000, 'image/jpeg'), 'image_alt' => 'x']))->assertSessionHasErrors('image');
+
+    expect(Article::query()->count())->toBe(0);
+});
+
+it('stores the image privately and serves it through the article route', function () {
+    $this->actingAs(aaUser(RoleKey::AdministrationStaff))->post(route('articles.admin.store'), aaForm(['image' => UploadedFile::fake()->create('bild.jpg', 50, 'image/jpeg'), 'image_alt' => 'Ein Schloss', 'image_credit' => 'Foto: Beispiel']))->assertSessionHasNoErrors();
+
+    $article = Article::query()->firstOrFail();
+    expect($article->image_path)->toStartWith('articles/')->and($article->image_alt)->toBe('Ein Schloss')->and($article->image_credit)->toBe('Foto: Beispiel');
+    Storage::disk('local')->assertExists($article->image_path);
+
+    $this->app['auth']->forgetGuards();
+    $this->get(route('articles.public.image', $article->slug))->assertOk();
+    $this->get('/')->assertSee(route('articles.public.image', $article->slug), false)->assertSee('Foto: Beispiel', false);
+});
+
+it('edits an article, replaces and removes the image and records the changed fields', function () {
+    $staff = aaUser(RoleKey::BoardMember);
+    $this->actingAs($staff)->post(route('articles.admin.store'), aaForm(['image' => UploadedFile::fake()->create('bild.jpg', 50, 'image/jpeg'), 'image_alt' => 'Alt', 'image_credit' => 'Foto: Test']));
+    $article = Article::query()->firstOrFail();
+    $old = $article->image_path;
+
+    $this->get(route('articles.admin.edit', $article))->assertOk()->assertSee('Mehr Sicherheit im Portal')->assertSee('Bild entfernen');
+
+    $this->put(route('articles.admin.update', $article), aaForm(['title' => 'Neuer Titel', 'image' => UploadedFile::fake()->create('neu.png', 50, 'image/png'), 'image_alt' => 'Neu', 'image_credit' => 'Foto: Neu']))->assertSessionHasNoErrors();
+    $article->refresh();
+    expect($article->title)->toBe('Neuer Titel')->and($article->slug)->toBe('mehr-sicherheit-im-portal')->and($article->image_path)->not->toBe($old)->and($article->image_path)->toEndWith('.png');
+    Storage::disk('local')->assertMissing($old);
+    Storage::disk('local')->assertExists($article->image_path);
+
+    $entry = AuditEntry::query()->where('event', 'article.updated')->firstOrFail();
+    expect($entry->context['felder'])->toContain('title')->toContain('image_path');
+
+    $this->put(route('articles.admin.update', $article), aaForm(['title' => 'Neuer Titel', 'remove_image' => '1']));
+    $article->refresh();
+    expect($article->image_path)->toBeNull()->and($article->image_alt)->toBeNull();
+});
+
+it('keeps drafts and planned articles off the public pages', function () {
+    $this->actingAs(aaUser(RoleKey::AdministrationStaff));
+    $this->post(route('articles.admin.store'), aaForm(['title' => 'Entwurfsartikel', 'status' => 'draft']));
+    $this->post(route('articles.admin.store'), aaForm(['title' => 'Geplanter Artikel', 'published_at' => now()->addDays(3)->format('Y-m-d\TH:i')]));
+    $this->post(route('articles.admin.store'), aaForm(['title' => 'Sichtbarer Artikel']));
+
+    expect(Article::query()->where('title', 'Entwurfsartikel')->first()->published_at)->toBeNull();
+
+    $this->app['auth']->forgetGuards();
+    $this->get(route('articles.public.index'))->assertSee('Sichtbarer Artikel')->assertDontSee('Entwurfsartikel')->assertDontSee('Geplanter Artikel');
+    $this->get('/')->assertSee('Sichtbarer Artikel')->assertDontSee('Geplanter Artikel');
+
+    $this->actingAs(aaUser(RoleKey::AdministrationStaff))->get(route('articles.admin.index', ['status' => 'draft']))->assertSee('Entwurfsartikel')->assertDontSee('Sichtbarer Artikel');
+    $this->get(route('articles.admin.index'))->assertSee('Geplant');
+});
+
+it('deletes an article with its image and logs it', function () {
+    $this->actingAs(aaUser(RoleKey::AdministrationStaff))->post(route('articles.admin.store'), aaForm(['image' => UploadedFile::fake()->create('bild.jpg', 50, 'image/jpeg'), 'image_alt' => 'Alt', 'image_credit' => 'Foto: Test']));
+    $article = Article::query()->firstOrFail();
+
+    $this->delete(route('articles.admin.destroy', $article))->assertRedirect(route('articles.admin.index'));
+
+    expect(Article::query()->count())->toBe(0)->and(AuditEntry::query()->where('event', 'article.deleted')->exists())->toBeTrue();
+    Storage::disk('local')->assertMissing($article->image_path);
+});
+
+it('searches the article list', function () {
+    $this->actingAs(aaUser(RoleKey::AdministrationStaff));
+    $this->post(route('articles.admin.store'), aaForm(['title' => 'Alpha Artikel']));
+    $this->post(route('articles.admin.store'), aaForm(['title' => 'Beta Artikel']));
+
+    $this->get(route('articles.admin.index', ['q' => 'Alpha']))->assertSee('Alpha Artikel')->assertDontSee('Beta Artikel');
+});
+
+it('shows subtitle, dates on top, tags, optional author, boxes and buttons and filters by category and tag', function () {
+    $author = Person::factory()->create(['first_name' => 'Anna', 'last_name' => 'Autorin']);
+    $user = User::factory()->create(['person_id' => $author->id]);
+    $base = ['slug' => 'untertitel-test', 'title' => 'Titel', 'subtitle' => 'Ein Untertitel', 'teaser' => 'Anreißer', 'body' => '<p>Text</p>', 'category' => 'Presse', 'tags' => ['Demokratie', 'Berlin'], 'status' => 'published', 'published_at' => now()->subDays(3), 'created_by_user_id' => $user->id];
+    $article = Article::query()->create($base);
+    Article::query()->create(['slug' => 'andere', 'title' => 'Andere Kategorie', 'body' => 'x', 'category' => 'Verein', 'status' => 'published', 'published_at' => now()->subDay()]);
+
+    $this->get(route('articles.public.show', $article->slug))->assertOk()
+        ->assertSee('Ein Untertitel')->assertSee('Veröffentlicht am')->assertSee('Schlagwörter')->assertSee('Demokratie')
+        ->assertDontSee('Anna Autorin')->assertDontSee('Über die Autor:in')->assertDontSee('Weitere Informationen')
+        ->assertSee('Alle Artikel ansehen')->assertSee('Zur Kategorie');
+
+    $article->update(['show_author' => true, 'author_box' => true, 'author_text' => '<p>Biografie</p>', 'more_info' => '<p>Mehr dazu</p>']);
+
+    $this->get(route('articles.public.show', $article->slug))->assertOk()
+        ->assertSee('Von Anna Autorin')->assertSee('Über die Autor:in')->assertSee('Biografie')->assertSee('Weitere Informationen')->assertSee('Mehr dazu');
+
+    $this->get(route('articles.public.index', ['kategorie' => 'Presse']))->assertOk()->assertSee('Titel')->assertDontSee('Andere Kategorie');
+    $this->get(route('articles.public.index', ['schlagwort' => 'Berlin']))->assertOk()->assertSee('Titel')->assertDontSee('Andere Kategorie');
+});
+
+it('takes author name, text and photo release from the profile of the creating account unless the article overrides them', function () {
+    $person = Person::factory()->create(['first_name' => 'Berta', 'last_name' => 'Beispiel']);
+    $user = User::factory()->create(['person_id' => $person->id, 'avatar_path' => 'profile-photos/x.jpg']);
+    $user->profile()->create(['author_name' => 'B. Beispiel', 'author_text' => '<p>Aus dem Profil</p>', 'author_use_photo' => true, 'author_photo_credit' => 'Eigenes Foto']);
+    $article = Article::query()->create(['slug' => 'profil-autor', 'title' => 'T', 'body' => 'x', 'category' => 'Presse', 'status' => 'published', 'published_at' => now()->subDay(), 'created_by_user_id' => $user->id, 'show_author' => true, 'author_box' => true]);
+
+    expect($article->authorName())->toBe('B. Beispiel')
+        ->and($article->authorTextHtml())->toContain('Aus dem Profil')
+        ->and($article->authorImagePath())->toBe('profile-photos/x.jpg')
+        ->and($article->authorImageCredit())->toBe('Eigenes Foto');
+
+    $article->update(['author_name' => 'Gastautor', 'author_text' => '<p>Eigener Text</p>']);
+
+    expect($article->fresh()->authorName())->toBe('Gastautor')->and($article->fresh()->authorTextHtml())->toContain('Eigener Text');
+
+    $user->profile->update(['author_use_photo' => false]);
+
+    expect($article->fresh()->authorImagePath())->toBeNull();
+});
+
+it('offers three ways to create an article and leads to the article, the list or a new form', function () {
+    $staff = aaUser(RoleKey::AdministrationStaff);
+    $this->actingAs($staff)->get(route('articles.admin.create'))->assertOk()->assertSee('Erstellen und zur Liste')->assertSee('Erstellen und weiteren erstellen');
+
+    $this->post(route('articles.admin.store'), aaForm(['title' => 'Eins']))->assertRedirect(route('articles.public.show', Article::query()->where('title', 'Eins')->value('slug')));
+    $this->post(route('articles.admin.store'), aaForm(['title' => 'Zwei', 'after' => 'list']))->assertRedirect(route('articles.admin.index'));
+    $this->post(route('articles.admin.store'), aaForm(['title' => 'Drei', 'after' => 'new']))->assertRedirect(route('articles.admin.create'));
+});
+
+it('searches and filters the public and the admin list by category, tag and year', function () {
+    $staff = aaUser(RoleKey::AdministrationStaff);
+    Article::query()->create(['slug' => 'a1', 'title' => 'Alpha Exkursion', 'subtitle' => 'Nach Berlin', 'body' => 'x', 'category' => 'Presse', 'tags' => ['Demokratie'], 'status' => 'published', 'published_at' => now()->subYear(), 'featured' => true]);
+    Article::query()->create(['slug' => 'b1', 'title' => 'Beta Bericht', 'body' => 'x', 'category' => 'Verein', 'tags' => ['Finanzen'], 'status' => 'published', 'published_at' => now()->subDay()]);
+    Article::query()->create(['slug' => 'c1', 'title' => 'Gamma Entwurf', 'body' => 'x', 'category' => 'Verein', 'status' => 'draft']);
+
+    $this->get(route('articles.public.index', ['q' => 'Berlin']))->assertOk()->assertSee('Alpha Exkursion')->assertDontSee('Beta Bericht');
+    $this->get(route('articles.public.index', ['q' => 'Finanzen']))->assertSee('Beta Bericht')->assertDontSee('Alpha Exkursion');
+    $this->get(route('articles.public.index', ['kategorie' => 'Verein']))->assertSee('Beta Bericht')->assertDontSee('Gamma Entwurf')->assertDontSee('Alpha Exkursion');
+    $this->get(route('articles.public.index', ['jahr' => now()->subYear()->format('Y')]))->assertSee('Alpha Exkursion')->assertDontSee('Beta Bericht');
+    $this->get(route('articles.public.index', ['q' => 'gibtesnicht']))->assertSee('Keine passenden Artikel');
+
+    $this->actingAs($staff)->get(route('articles.admin.index', ['status' => 'draft']))->assertSee('Gamma Entwurf')->assertDontSee('Beta Bericht');
+    $this->get(route('articles.admin.index', ['schlagwort' => 'Demokratie']))->assertSee('Alpha Exkursion')->assertDontSee('Beta Bericht');
+    $this->get(route('articles.admin.index', ['empfohlen' => '1']))->assertSee('Alpha Exkursion')->assertDontSee('Gamma Entwurf');
+    $this->get(route('articles.admin.index', ['q' => 'Berlin']))->assertSee('Alpha Exkursion');
+});
+
+it('leads to the article, the list or a new form after saving changes', function () {
+    $staff = aaUser(RoleKey::AdministrationStaff);
+    $this->actingAs($staff)->post(route('articles.admin.store'), aaForm(['title' => 'Bearbeiten']));
+    $article = Article::query()->where('title', 'Bearbeiten')->firstOrFail();
+
+    $this->put(route('articles.admin.update', $article), aaForm(['title' => 'Bearbeiten']))->assertRedirect(route('articles.public.show', $article->slug));
+    $this->put(route('articles.admin.update', $article), aaForm(['title' => 'Bearbeiten', 'after' => 'list']))->assertRedirect(route('articles.admin.index'));
+    $this->put(route('articles.admin.update', $article), aaForm(['title' => 'Bearbeiten', 'after' => 'new']))->assertRedirect(route('articles.admin.create'));
+});
+
+it('filters by several tags chosen in a searchable multi select', function () {
+    $staff = aaUser(RoleKey::AdministrationStaff);
+    Article::query()->create(['slug' => 'm1', 'title' => 'Mit Demokratie', 'body' => 'x', 'category' => 'Presse', 'tags' => ['Demokratie'], 'status' => 'published', 'published_at' => now()->subDay()]);
+    Article::query()->create(['slug' => 'm2', 'title' => 'Mit Finanzen', 'body' => 'x', 'category' => 'Presse', 'tags' => ['Finanzen', 'Berlin'], 'status' => 'published', 'published_at' => now()->subDay()]);
+    Article::query()->create(['slug' => 'm3', 'title' => 'Ohne Schlagwort', 'body' => 'x', 'category' => 'Presse', 'status' => 'published', 'published_at' => now()->subDay()]);
+
+    $this->get(route('articles.public.index'))->assertOk()->assertSee('data-vdbs-multiselect', false)->assertSee('name="schlagwort[]"', false);
+    $this->get(route('articles.public.index', ['schlagwort' => ['Demokratie', 'Finanzen']]))->assertSee('Mit Demokratie')->assertSee('Mit Finanzen')->assertDontSee('Ohne Schlagwort');
+    $this->get(route('articles.public.index', ['schlagwort' => 'Berlin']))->assertSee('Mit Finanzen')->assertDontSee('Mit Demokratie');
+    $this->actingAs($staff)->get(route('articles.admin.index', ['schlagwort' => ['Demokratie', 'Berlin']]))->assertSee('Mit Demokratie')->assertSee('Mit Finanzen')->assertDontSee('Ohne Schlagwort');
+});

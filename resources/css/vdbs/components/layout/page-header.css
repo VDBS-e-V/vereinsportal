@@ -1,0 +1,21 @@
+/* Seitenkopf: Brotkrumen, Titel, Einleitung, Aktionen, Tabs */
+
+.vdbs-page-header { margin-bottom: var(--space-6); }
+.vdbs-page-header .vdbs-breadcrumb { padding-top: 0; }
+
+.vdbs-page-header__main { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--space-4) var(--space-6); }
+.vdbs-page-header__text { flex: 1 1 24rem; min-width: 0; }
+
+.vdbs-page-header__eyebrow { margin: 0 0 var(--space-1); color: var(--text-muted); font-size: var(--font-size-small); font-weight: var(--font-weight-bold); }
+.vdbs-page-header__title-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
+.vdbs-page-header__title { margin: 0; font-size: var(--font-size-h1); font-weight: var(--font-weight-black); line-height: var(--line-height-heading); }
+.vdbs-page-header__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.vdbs-page-header__lead { margin: var(--space-2) 0 0; max-width: var(--max-line-length); color: var(--text-muted); font-size: var(--font-size-body-lg); }
+
+.vdbs-page-header__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.vdbs-page-header__tabs { margin-top: var(--space-5); }
+
+@media (max-width: 639px) {
+    .vdbs-page-header__actions { width: 100%; }
+    .vdbs-page-header__actions .vdbs-btn { flex: 1 1 auto; }
+}

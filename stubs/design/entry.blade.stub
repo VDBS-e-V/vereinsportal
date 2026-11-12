@@ -1,0 +1,9 @@
+<p>Paket <strong>__PACKAGE_TITLE__</strong> · <code>&lt;x-vdbs.__PACKAGE__.__NAME__&gt;</code></p>
+
+<h2>Standard</h2>
+<x-vdbs.__PACKAGE__.__NAME__>Beispielinhalt der Komponente.</x-vdbs.__PACKAGE__.__NAME__>
+
+<h2>Varianten</h2>
+<x-vdbs.__PACKAGE__.__NAME__ variant="default">Variante „default“.</x-vdbs.__PACKAGE__.__NAME__>
+
+{{-- Weitere Beispiele hier ergänzen: Zustände, Größen, Inhalte mit langem Text, Dunkelmodus. --}}

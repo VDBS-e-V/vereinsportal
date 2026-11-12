@@ -1,0 +1,26 @@
+/* Akkordeon (details) */
+
+.vdbs-accordion { border-top: var(--border-width) solid var(--border-default); }
+.vdbs-accordion__item { border-bottom: var(--border-width) solid var(--border-default); }
+
+.vdbs-accordion__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: var(--size-touch);
+    padding: var(--space-3) var(--space-2);
+    list-style: none;
+    cursor: pointer;
+}
+
+.vdbs-accordion__summary::-webkit-details-marker { display: none; }
+.vdbs-accordion__summary:hover { background: var(--bg-surface); }
+
+.vdbs-accordion__title { margin: 0; font-size: var(--font-size-h4); font-weight: var(--font-weight-bold); line-height: var(--line-height-tight); }
+.vdbs-accordion__icon { flex: 0 0 auto; transition: transform var(--transition-fast); }
+.vdbs-accordion__item[open] > .vdbs-accordion__summary .vdbs-accordion__icon { transform: rotate(180deg); }
+.vdbs-accordion__item[open] > .vdbs-accordion__summary { background: var(--bg-surface); }
+
+.vdbs-accordion__panel { padding: var(--space-4) var(--space-2) var(--space-5); max-width: var(--max-line-length); }
+.vdbs-accordion__panel > :last-child { margin-bottom: 0; }

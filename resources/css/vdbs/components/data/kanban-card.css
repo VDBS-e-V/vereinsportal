@@ -1,0 +1,18 @@
+/* Karte der Kanban-Tafel (Paket "Daten"). */
+
+.vdbs-kanban-card {
+    padding: var(--space-3);
+    border: var(--border-width) solid var(--border-default);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    color: var(--text-default);
+}
+
+.vdbs-kanban-card[draggable="true"] { cursor: grab; }
+.vdbs-kanban-card--normal { }
+.vdbs-kanban-card--high { border-left: var(--border-width-strong) solid var(--border-error); }
+.vdbs-kanban-card.is-dragging { opacity: 0.5; }
+
+.vdbs-kanban-card__title { display: block; margin-bottom: var(--space-1); font-weight: var(--font-weight-bold); }
+.vdbs-kanban-card__body { display: grid; gap: var(--space-1); font-size: var(--font-size-small); }
+.vdbs-kanban-card__footer { margin-top: var(--space-2); font-size: var(--font-size-small); }

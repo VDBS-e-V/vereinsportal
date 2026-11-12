@@ -1,5 +1,7 @@
 # Web Content Bibliothek selbst erweitern
 
+> Hinweis: Die Befehle `vdbs:library-check` und `vdbs:design-status` wurden durch `design:check` und `design:status` der Design-Bibliothek ersetzt (siehe `docs/59_DESIGN_PAKETE.md`). Die Beschreibung der Prüfungen unten stammt aus der älteren Struktur und gilt sinngemäß.
+
 ## Grundregel
 
 Nicht mit einer neuen Komponente anfangen, sondern mit der Frage:
@@ -157,14 +159,14 @@ Eine Dokumentationsseite sollte mindestens enthalten:
 Immer ausführen:
 
 ```bat
-php artisan vdbs:library-check
+php artisan design:check
 php artisan test tests\Feature\Design
 npm run build
 git diff --check
 git status --short
 ```
 
-`vdbs:library-check` prüft nicht nur die Registry-Felder und Dateipfade.
+`design:check` prüft nicht nur die Registry-Felder und Dateipfade.
 Das Kommando entdeckt außerdem neue VDBS-Blade-Komponenten und Komponenten-CSS-Dateien,
 die noch nicht inventarisiert wurden.
 

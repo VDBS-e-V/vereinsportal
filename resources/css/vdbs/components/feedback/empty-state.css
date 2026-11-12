@@ -1,0 +1,20 @@
+/* Leerzustand */
+
+.vdbs-empty {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-3);
+    padding: var(--space-8) var(--space-5);
+    border: var(--border-width-strong) dashed var(--border-default);
+    background: var(--bg-surface);
+    text-align: center;
+}
+
+.vdbs-empty--s { padding: var(--space-5) var(--space-4); gap: var(--space-2); }
+
+.vdbs-empty__icon { color: var(--text-muted); }
+.vdbs-empty__title { margin: 0; font-size: var(--font-size-h3); font-weight: var(--font-weight-black); line-height: var(--line-height-heading); }
+.vdbs-empty--s .vdbs-empty__title { font-size: var(--font-size-h4); }
+.vdbs-empty__text { max-width: 36rem; color: var(--text-muted); }
+.vdbs-empty__text > :last-child { margin-bottom: 0; }
+.vdbs-empty__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3); margin-top: var(--space-2); }

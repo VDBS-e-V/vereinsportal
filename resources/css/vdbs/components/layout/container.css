@@ -1,0 +1,14 @@
+/* Container: begrenzt die Inhaltsbreite und setzt den Seitenrand */
+
+.vdbs-container {
+    width: 100%;
+    max-width: var(--container-default);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+}
+
+.vdbs-container--narrow { max-width: var(--container-narrow); }
+.vdbs-container--medium { max-width: var(--container-medium); }
+.vdbs-container--default { max-width: var(--container-default); }
+.vdbs-container--wide { max-width: var(--container-wide); }
+.vdbs-container--full { max-width: none; }

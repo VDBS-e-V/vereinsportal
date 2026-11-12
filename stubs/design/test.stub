@@ -1,0 +1,5 @@
+<?php
+
+use Illuminate\Support\Facades\Blade;
+
+/** Paket "__PACKAGE_TITLE__": Gerüst. design:component hängt je Komponente einen Test an. */

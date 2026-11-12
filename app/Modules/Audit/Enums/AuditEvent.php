@@ -1,0 +1,312 @@
+<?php
+
+namespace App\Modules\Audit\Enums;
+
+/** Ereignisse des Protokolls. Neue Ereignisse hier ergänzen: Wert, Bezeichnung, Gruppe und Gewicht an einer Stelle. */
+enum AuditEvent: string
+{
+    case Login = 'auth.login';
+    case LoginFailed = 'auth.login_failed';
+    case TwoFactorFailed = 'auth.two_factor_failed';
+
+    case PasswordChanged = 'account.password_changed';
+    case PasswordSet = 'account.password_set';
+    case EmailChanged = 'account.email_changed';
+    case SessionsEnded = 'account.sessions_ended';
+    case ProfileUpdated = 'account.profile_updated';
+    case ProfileEdited = 'account.profile_edited';
+    case ProfileVisibilityChanged = 'account.profile_visibility_changed';
+    case ProfilePhotoChanged = 'account.profile_photo_changed';
+    case NotificationsChanged = 'account.notifications_changed';
+    case AccountDeletionRequested = 'account.deletion_requested';
+    case AccountDeletionCancelled = 'account.deletion_cancelled';
+    case AccountAnonymized = 'account.anonymized';
+
+    case TwoFactorEnabled = 'two_factor.enabled';
+    case TwoFactorDisabled = 'two_factor.disabled';
+    case RecoveryCodesRenewed = 'two_factor.recovery_codes_renewed';
+
+    case UserCreated = 'user.created';
+    case UserInvited = 'user.invited';
+    case UserDisabled = 'user.disabled';
+    case UserEnabled = 'user.enabled';
+    case UserTwoFactorReset = 'user.two_factor_reset';
+    case UserPasswordLinkSent = 'user.password_link_sent';
+
+    case RoleAssigned = 'role.assigned';
+    case RoleEnded = 'role.ended';
+
+    case PersonCreated = 'person.created';
+    case PersonUpdated = 'person.updated';
+    case PersonDeleted = 'person.deleted';
+
+    case PartnerCreated = 'partner.created';
+    case PartnerUpdated = 'partner.updated';
+    case PartnerDeleted = 'partner.deleted';
+    case PartnersImported = 'partner.imported';
+
+    case SeminarCreated = 'seminar.created';
+    case SeminarUpdated = 'seminar.updated';
+    case SeminarDeleted = 'seminar.deleted';
+    case SeminarStatusChanged = 'seminar.status_changed';
+    case SeminarQuoteCreated = 'seminar.quote_created';
+    case SeminarQuoteUpdated = 'seminar.quote_updated';
+    case SeminarQuoteDeleted = 'seminar.quote_deleted';
+    case SeminarPricesChanged = 'seminar.prices_changed';
+    case SeminarTextsChanged = 'seminar.texts_changed';
+    case SeminarTeamDecided = 'seminar.team_decided';
+
+    case ArticleCreated = 'article.created';
+    case ArticleUpdated = 'article.updated';
+    case ArticleDeleted = 'article.deleted';
+    case PageUpdated = 'page.updated';
+    case EventCreated = 'event.created';
+    case EventUpdated = 'event.updated';
+    case EventDeleted = 'event.deleted';
+    case EventRegistrationsImported = 'event.registrations_imported';
+    case EventRegistrationRemoved = 'event.registration_removed';
+    case EventMessageSent = 'event.message_sent';
+
+    case AccessRequestApproved = 'access_request.approved';
+    case AccessRequestRejected = 'access_request.rejected';
+
+    case OnboardingDocumentUploaded = 'onboarding.document_uploaded';
+    case TeamOnboardingStarted = 'onboarding.team_started';
+    case TeamOnboardingCompleted = 'onboarding.team_completed';
+
+    case AuditExported = 'audit.exported';
+
+    case SystemTaskRun = 'system.task_run';
+
+    case MailingSent = 'mailing.sent';
+    case MailSuppressionChanged = 'mailing.suppression_changed';
+    case MailingWorkflow = 'mailing.workflow';
+
+    case ContactsImported = 'contacts.imported';
+
+    case SeminarDocumentAdded = 'seminar.document_added';
+    case SeminarDocumentRemoved = 'seminar.document_removed';
+    case SeminarClosed = 'seminar.closed';
+    case SeminarReopened = 'seminar.reopened';
+    case SeminarFolderDownloaded = 'seminar.folder_downloaded';
+
+    case FeedbackFormSaved = 'feedback.form_saved';
+    case FeedbackLinkCreated = 'feedback.link_created';
+    case FeedbackLinkClosed = 'feedback.link_closed';
+    case FeedbackLinkAnonymized = 'feedback.link_anonymized';
+
+    case OauthClientCreated = 'oauth.client_created';
+    case OauthClientChanged = 'oauth.client_changed';
+    case OauthClientDeleted = 'oauth.client_deleted';
+    case OauthKeysRenewed = 'oauth.keys_renewed';
+
+    case FormStatusChanged = 'form.status_changed';
+    case FormExported = 'form.exported';
+    case FormSettingsChanged = 'form.settings_changed';
+    case MailSegmentSaved = 'mailing.segment_saved';
+    case ContractsCreated = 'contract.created';
+    case ContractSigned = 'contract.signed';
+    case ContractSettingsChanged = 'contract.settings_changed';
+    case ContractTemplateSaved = 'contract.template_saved';
+    case LetterTemplateSaved = 'letter.template_saved';
+    case LettersGenerated = 'letter.generated';
+    case BoardCalendarChanged = 'board.calendar_changed';
+    case BoardMeetingSaved = 'board.meeting_saved';
+    case BoardMeetingDeleted = 'board.meeting_deleted';
+    case BoardMinutesApproved = 'board.minutes_approved';
+    case BoardDocumentAdded = 'board.document_added';
+    case BoardDocumentRemoved = 'board.document_removed';
+    case BoardInvitationSent = 'board.invitation_sent';
+    case BoardGuestsChanged = 'board.guests_changed';
+    case BoardResolutionSaved = 'board.resolution_saved';
+    case BoardResolutionDeleted = 'board.resolution_deleted';
+    case TaskProjectSaved = 'task.project_saved';
+    case TaskProjectDeleted = 'task.project_deleted';
+    case TaskSaved = 'task.saved';
+    case TaskDeleted = 'task.deleted';
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Login => 'Angemeldet',
+            self::LoginFailed => 'Anmeldung fehlgeschlagen',
+            self::TwoFactorFailed => 'Zwei-Faktor-Code falsch',
+            self::PasswordChanged => 'Passwort geändert',
+            self::PasswordSet => 'Passwort festgelegt oder zurückgesetzt',
+            self::EmailChanged => 'E-Mail-Adresse geändert',
+            self::SessionsEnded => 'Andere Sitzungen beendet',
+            self::ProfileUpdated => 'Stammdaten geändert',
+            self::ProfileEdited => 'Profil bearbeitet',
+            self::ProfileVisibilityChanged => 'Sichtbarkeit des Profils geändert',
+            self::ProfilePhotoChanged => 'Profilfoto geändert',
+            self::NotificationsChanged => 'Benachrichtigungen geändert',
+            self::AccountDeletionRequested => 'Kontolöschung beantragt',
+            self::AccountDeletionCancelled => 'Kontolöschung abgebrochen',
+            self::AccountAnonymized => 'Konto gelöscht (anonymisiert)',
+            self::TwoFactorEnabled => 'Zwei-Faktor eingerichtet',
+            self::TwoFactorDisabled => 'Zwei-Faktor entfernt',
+            self::RecoveryCodesRenewed => 'Wiederherstellungscodes erneuert',
+            self::UserCreated => 'Konto angelegt',
+            self::UserInvited => 'Einladung gesendet',
+            self::UserDisabled => 'Konto gesperrt',
+            self::UserEnabled => 'Konto entsperrt',
+            self::UserTwoFactorReset => 'Zwei-Faktor zurückgesetzt',
+            self::UserPasswordLinkSent => 'Passwort-Link gesendet',
+            self::RoleAssigned => 'Rolle vergeben',
+            self::RoleEnded => 'Rolle beendet',
+            self::PersonCreated => 'Person angelegt',
+            self::PersonUpdated => 'Person geändert',
+            self::PersonDeleted => 'Person gelöscht',
+            self::PartnerCreated => 'Schule angelegt',
+            self::PartnerUpdated => 'Schule geändert',
+            self::PartnerDeleted => 'Schule gelöscht',
+            self::PartnersImported => 'Schulen importiert',
+            self::SeminarCreated => 'Seminar angelegt',
+            self::SeminarUpdated => 'Seminar geändert',
+            self::SeminarDeleted => 'Seminar gelöscht',
+            self::SeminarStatusChanged => 'Seminarstatus geändert',
+            self::SeminarQuoteCreated => 'Kostenvoranschlag erstellt',
+            self::SeminarQuoteUpdated => 'Kostenvoranschlag geändert',
+            self::SeminarQuoteDeleted => 'Kostenvoranschlag gelöscht',
+            self::SeminarPricesChanged => 'Preisliste der Seminare geändert',
+            self::SeminarTextsChanged => 'Texte der Seminarprodukte geändert',
+            self::SeminarTeamDecided => 'Bewerbung auf Seminar entschieden',
+            self::ArticleCreated => 'Artikel angelegt',
+            self::ArticleUpdated => 'Artikel geändert',
+            self::ArticleDeleted => 'Artikel gelöscht',
+            self::PageUpdated => 'Seite geändert',
+            self::EventCreated => 'Veranstaltung angelegt',
+            self::EventUpdated => 'Veranstaltung geändert',
+            self::EventDeleted => 'Veranstaltung gelöscht',
+            self::EventRegistrationsImported => 'Anmeldungen importiert',
+            self::EventRegistrationRemoved => 'Anmeldung entfernt',
+            self::EventMessageSent => 'Mitteilung an Angemeldete gesendet',
+            self::AccessRequestApproved => 'Zugangsantrag angenommen',
+            self::AccessRequestRejected => 'Zugangsantrag abgelehnt',
+            self::OnboardingDocumentUploaded => 'Onboarding-Dokument hochgeladen',
+            self::TeamOnboardingStarted => 'Einarbeitung der Teamenden begonnen',
+            self::TeamOnboardingCompleted => 'Einarbeitung der Teamenden abgeschlossen',
+            self::AuditExported => 'Protokoll exportiert',
+            self::SystemTaskRun => 'Systemaufgabe ausgeführt',
+            self::MailingSent => 'Schreiben versendet',
+            self::MailSuppressionChanged => 'Adresssperre geändert',
+            self::MailingWorkflow => 'Schreiben: Freigabe und Planung',
+            self::ContactsImported => 'Mailingliste importiert',
+            self::SeminarDocumentAdded => 'Seminardokument hinzugefügt',
+            self::SeminarDocumentRemoved => 'Seminardokument entfernt',
+            self::SeminarClosed => 'Seminar abgeschlossen',
+            self::SeminarReopened => 'Seminarabschluss wieder geöffnet',
+            self::SeminarFolderDownloaded => 'Seminarmappe heruntergeladen',
+            self::FeedbackFormSaved => 'Feedbackformular gespeichert',
+            self::FeedbackLinkCreated => 'Feedbacklink angelegt',
+            self::FeedbackLinkClosed => 'Feedbacklink beendet',
+            self::FeedbackLinkAnonymized => 'Feedbacklink anonymisiert',
+            self::OauthClientCreated => 'Anbindung angelegt',
+            self::OauthClientChanged => 'Anbindung geändert',
+            self::OauthClientDeleted => 'Anbindung gelöscht',
+            self::OauthKeysRenewed => 'Anmeldeschlüssel erneuert',
+            self::FormStatusChanged => 'Antrag bearbeitet',
+            self::FormExported => 'Sammelliste der Anträge erstellt',
+            self::FormSettingsChanged => 'Einstellungen der Anträge geändert',
+            self::MailSegmentSaved => 'Verteiler geändert',
+            self::ContractsCreated => 'Verträge erzeugt',
+            self::ContractSigned => 'Vertrag unterschrieben',
+            self::ContractSettingsChanged => 'Vereinsdaten für Verträge geändert',
+            self::ContractTemplateSaved => 'Vertragstext geändert',
+            self::LetterTemplateSaved => 'Briefvorlage geändert',
+            self::LettersGenerated => 'Schreiben erzeugt',
+            self::BoardCalendarChanged => 'Kalender des Vorstands geändert',
+            self::BoardMeetingSaved => 'Vorstandssitzung gespeichert',
+            self::BoardMeetingDeleted => 'Vorstandssitzung gelöscht',
+            self::BoardMinutesApproved => 'Sitzungsprotokoll genehmigt',
+            self::BoardDocumentAdded => 'Anhang zur Vorstandssitzung abgelegt',
+            self::BoardDocumentRemoved => 'Anhang zur Vorstandssitzung gelöscht',
+            self::BoardInvitationSent => 'Einladung zur Vorstandssitzung gesendet',
+            self::BoardGuestsChanged => 'Gäste einer Vorstandssitzung geändert',
+            self::BoardResolutionSaved => 'Vorstandsbeschluss gespeichert',
+            self::BoardResolutionDeleted => 'Vorstandsbeschluss gelöscht',
+            self::TaskProjectSaved => 'Aufgabenprojekt gespeichert',
+            self::TaskProjectDeleted => 'Aufgabenprojekt gelöscht',
+            self::TaskSaved => 'Aufgabe gespeichert',
+            self::TaskDeleted => 'Aufgabe gelöscht',
+        };
+    }
+
+    public function category(): string
+    {
+        return match ($this) {
+            self::Login, self::LoginFailed, self::TwoFactorFailed => 'auth',
+            self::PasswordChanged, self::PasswordSet, self::EmailChanged, self::SessionsEnded, self::ProfileUpdated, self::ProfileEdited, self::ProfileVisibilityChanged, self::ProfilePhotoChanged, self::NotificationsChanged, self::AccountDeletionRequested, self::AccountDeletionCancelled, self::AccountAnonymized => 'account',
+            self::TwoFactorEnabled, self::TwoFactorDisabled, self::RecoveryCodesRenewed => 'two_factor',
+            self::UserCreated, self::UserInvited, self::UserDisabled, self::UserEnabled, self::UserTwoFactorReset, self::UserPasswordLinkSent => 'users',
+            self::RoleAssigned, self::RoleEnded => 'roles',
+            self::PersonCreated, self::PersonUpdated, self::PersonDeleted => 'people',
+            self::PartnerCreated, self::PartnerUpdated, self::PartnerDeleted, self::PartnersImported => 'partners',
+            self::SeminarCreated, self::SeminarUpdated, self::SeminarDeleted, self::SeminarStatusChanged, self::SeminarQuoteCreated, self::SeminarQuoteUpdated, self::SeminarQuoteDeleted, self::SeminarPricesChanged, self::SeminarTextsChanged, self::SeminarTeamDecided, self::SeminarDocumentAdded, self::SeminarDocumentRemoved, self::SeminarClosed, self::SeminarReopened, self::SeminarFolderDownloaded => 'seminars',
+            self::ArticleCreated, self::ArticleUpdated, self::ArticleDeleted => 'articles',
+            self::PageUpdated => 'pages',
+            self::EventCreated, self::EventUpdated, self::EventDeleted, self::EventRegistrationsImported, self::EventRegistrationRemoved, self::EventMessageSent => 'events',
+            self::AccessRequestApproved, self::AccessRequestRejected => 'access_requests',
+            self::OnboardingDocumentUploaded, self::TeamOnboardingStarted, self::TeamOnboardingCompleted => 'onboarding',
+            self::AuditExported => 'audit',
+            self::SystemTaskRun => 'system',
+            self::MailingSent, self::MailSuppressionChanged, self::MailingWorkflow, self::MailSegmentSaved => 'mailings',
+            self::ContactsImported => 'contacts',
+            self::FeedbackFormSaved, self::FeedbackLinkCreated, self::FeedbackLinkClosed, self::FeedbackLinkAnonymized => 'feedback',
+            self::OauthClientCreated, self::OauthClientChanged, self::OauthClientDeleted, self::OauthKeysRenewed => 'sso',
+            self::FormStatusChanged, self::FormExported, self::FormSettingsChanged => 'forms',
+            self::ContractsCreated, self::ContractSigned, self::ContractSettingsChanged, self::ContractTemplateSaved => 'contracts',
+            self::LetterTemplateSaved, self::LettersGenerated => 'letters',
+            self::BoardCalendarChanged, self::BoardMeetingSaved, self::BoardMeetingDeleted, self::BoardMinutesApproved, self::BoardDocumentAdded, self::BoardDocumentRemoved, self::BoardInvitationSent, self::BoardGuestsChanged, self::BoardResolutionSaved, self::BoardResolutionDeleted => 'board',
+            self::TaskProjectSaved, self::TaskProjectDeleted, self::TaskSaved, self::TaskDeleted => 'tasks',
+        };
+    }
+
+    /** @return array<string, string> Gruppe => Bezeichnung */
+    public static function categories(): array
+    {
+        return [
+            'auth' => 'Anmeldung',
+            'account' => 'Konto',
+            'two_factor' => 'Zwei-Faktor',
+            'users' => 'Nutzerverwaltung',
+            'roles' => 'Rollen',
+            'people' => 'Personen',
+            'partners' => 'Schulen',
+            'seminars' => 'Seminare',
+            'onboarding' => 'Onboarding',
+            'access_requests' => 'Zugangsanträge',
+            'articles' => 'Artikel',
+            'pages' => 'Seiten',
+            'events' => 'Veranstaltungen',
+            'audit' => 'Protokoll',
+            'system' => 'System',
+            'mailings' => 'Schreiben',
+            'contacts' => 'Teamkontakte',
+            'feedback' => 'Feedback',
+            'sso' => 'Anbindungen',
+            'forms' => 'Anträge',
+            'contracts' => 'Verträge',
+            'letters' => 'Briefvorlagen',
+            'board' => 'Vorstand',
+            'tasks' => 'Aufgaben',
+        ];
+    }
+
+    /** Farbton für Badges: Warnendes und Sperrendes fällt auf. */
+    public function tone(): string
+    {
+        return match ($this) {
+            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::EventDeleted, self::OauthClientDeleted, self::BoardMeetingDeleted, self::BoardResolutionDeleted, self::TaskProjectDeleted => 'error',
+            self::SystemTaskRun, self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
+            self::Login, self::UserEnabled, self::TwoFactorEnabled, self::TeamOnboardingCompleted => 'success',
+            default => 'neutral',
+        };
+    }
+
+    /** @return list<self> */
+    public static function inCategory(string $category): array
+    {
+        return array_values(array_filter(self::cases(), static fn (self $case): bool => $case->category() === $category));
+    }
+}

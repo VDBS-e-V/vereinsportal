@@ -1,0 +1,98 @@
+# Mitgliedschaften (Modul Membership)
+
+Bereich **Vorstand**, Seite **Mitgliedschaften** (`/vorstand/mitgliedschaften`). Antrag, Aufnahme, Ablehnung und Austritt einer Person,
+mit Verlauf und automatischer Steuerung der Rolle **Vereinsmitglied**.
+
+## Wer sieht und pflegt
+
+Berechtigungen `memberships.view` und `memberships.manage` haben **nur Vorstandsmitglieder** (`AccessGovernance/Support/Capabilities.php`).
+Geschäftsstelle und Administration sehen Mitgliedschaften nicht. Mitgliedschaftsdaten erscheinen **nicht** in den Personenseiten der
+Verwaltung und **nicht** im allgemeinen Protokoll (`docs/42_PROTOKOLL.md`); jede Mitgliedschaft hat stattdessen einen eigenen Verlauf
+(`membership_events`). Mitglieder sehen die eigene Mitgliedschaft unter Konto > Profil. Die **öffentlichen Seiten** (Antrag, Registrierung) liegen im Bereich Start.
+
+## Drei Wege zu einer Mitgliedschaft
+
+1. **Vom Vorstand erfasst (ohne digitale Person):** Antrag oder Altbestand wird mit **Dokument** (PDF, JPEG, PNG, bis 10 MB) erfasst:
+   Name (Pflicht), optional Geburtsdatum, E-Mail und Beitrittsdatum. Es entsteht **keine** Person und kein Konto.
+2. **Online-Antrag (öffentlich, `/mitglied-werden`, Bereich Start):** Das Formular legt **Person, Konto und einen Antrag** an.
+   Das Konto ist bis zur Bestätigung der E-Mail-Adresse (signierter Link, 48 Stunden) nicht anmeldbar; danach kann sich die Person
+   anmelden, sieht aber nur den Bereich Konto. Die **Rolle Vereinsmitglied** vergibt erst die **Aufnahme durch den Vorstand**. Bei
+   Ablehnung bleibt das Konto ohne diese Rolle bestehen.
+3. **Registrierungslink:** Der Vorstand sendet einer erfassten Mitgliedschaft mit hinterlegter E-Mail einen Link
+   (`/registrierung/{token}`, 14 Tage gültig, einmal verwendbar, nur der Hash wird gespeichert). Das Mitglied legt damit selbst
+   Person und Konto an. Der Link beweist den Zugriff auf die Adresse: Das Konto ist **sofort aktiv und verknüpft**, bei laufender
+   Mitgliedschaft gilt die Rolle sofort. Ein neuer Link macht den vorherigen ungültig.
+
+### Dubletten und Missbrauch beim Online-Antrag
+
+- Gibt es die E-Mail-Adresse (Konto, Person, erfasste Mitgliedschaft) oder Name mit Geburtsdatum schon, wird **nichts angelegt**.
+  Die Webseite antwortet immer gleich („Wir haben Ihnen eine E-Mail gesendet“); an die angegebene Adresse geht eine neutrale
+  Nachricht (Anmelden/Passwort zurücksetzen bzw. an den Vorstand wenden). Es gibt keine Auskunft, ob jemand Mitglied ist.
+- Schutz: Begrenzung pro Besucher-IP (10 Anträge pro Stunde, Bestätigung erneut senden 5 pro 10 Minuten), verstecktes Köderfeld,
+  Pflichtangaben zu Satzung und Datenschutz, Passwortregeln des Portals.
+- Im allgemeinen Protokoll steht nur „Konto angelegt (Selbstregistrierung)“, keine Mitgliedschaftsdaten.
+
+## Einwilligungsnachweise und Hinweis an den Vorstand
+
+- Beim **Online-Antrag** werden die Zustimmung zur **Satzung** und zu den **Datenschutzhinweisen** mit Fassung und Zeitpunkt festgehalten
+  (`membership_consents`, nur anlegen). Bei der **Registrierung per Link** wird die Datenschutz-Kenntnisnahme festgehalten. Die aktuelle
+  Fassung steht in `config/portal.php` > `legal` (`PORTAL_STATUTE_VERSION`, `PORTAL_PRIVACY_VERSION`); bei einer neuen Fassung die Kennung ändern.
+  Die Mitgliedschaft zeigt die Nachweise im Abschnitt „Einwilligungen“. Bei vom Vorstand erfassten Mitgliedschaften liegt der Nachweis im Dokument.
+- **Hinweis an den Vorstand:** Sobald die Antragstellerin ihre E-Mail-Adresse bestätigt hat, erhalten alle aktiven Vorstandskonten einmal eine
+  E-Mail mit Link zum Antrag, **ohne personenbezogene Daten**. Unbestätigte Fremdanträge, Dubletten und manuell erfasste Mitgliedschaften lösen
+  nichts aus. Abschaltbar mit `MEMBERSHIP_NOTIFY_BOARD=false`.
+
+## Ablauf und Status
+
+| Status | Bedeutung | Übergänge |
+|---|---|---|
+| Beantragt | Antrag erfasst (manuell oder online) | aufnehmen (Beitrittsdatum, Notiz) → Aktiv; ablehnen (Grund Pflicht) → Abgelehnt |
+| Aktiv | Mitglied | Austritt eintragen, Austritt zurücknehmen, Notiz |
+| Beendet | Austrittsdatum liegt zurück | neue Mitgliedschaft möglich |
+| Abgelehnt | Antrag abgelehnt | neue Mitgliedschaft möglich |
+
+- Pro Person (Name mit Geburtsdatum bzw. E-Mail) gibt es höchstens **eine offene** (beantragte oder laufende) Mitgliedschaft.
+- **Austrittsdatum = letzter Tag der Mitgliedschaft.** Bis einschließlich dieses Tages ist die Person aktiv („Austritt eingetragen“).
+  Liegt das Datum in der Vergangenheit, ist die Mitgliedschaft sofort beendet; es darf nicht vor dem Beitritt liegen.
+- Der **wirksame Status** (`Membership::effectiveStatus()`) richtet sich nach dem Datum. Der tägliche Befehl `membership:sync`
+  (in `routes/console.php` geplant, braucht den Scheduler-Cron `php artisan schedule:run`) schreibt „beendet“ in die Datenbank und
+  trägt das Ereignis in den Verlauf ein.
+
+## Dokumente
+
+Im **privaten Speicher** (Disk `local`, `storage/app/private/membership-documents/{id}/`), unter zufälligem Namen; der Originalname steht
+nur in der Datenbank (`membership_documents`, mit Prüfsumme). Auslieferung nur über die Mitgliedschaft (Berechtigung `memberships.view`,
+Download mit `X-Content-Type-Options: nosniff` und `Cache-Control: private, no-store`). Hochladen und Entfernen: `memberships.manage`;
+beides steht im Verlauf. Dieser Speicher gehört in **Backup und Restore** (`docs/29_BACKUP_RESTORE_RUNBOOK.md`) und darf bei Releases nicht überschrieben werden.
+
+## Rolle Vereinsmitglied
+
+`MembershipRoles` hält je aufgenommener Mitgliedschaft eine **automatische** Rollenzuordnung (Quelle: die Mitgliedschaft) vom
+Beitrittsdatum bis zum Ende des Austrittstages. Austritt, Rücknahme und Ablehnung ziehen sie nach. Von Hand vergebene Rollen
+bleiben unberührt. Hat die Person noch kein Konto, wird die Rolle beim Anlegen des Kontos nachgezogen (`UserAdministration`).
+
+## Aufbewahrung und Löschung
+
+`php artisan membership:prune` (täglich geplant, `--dry-run` zählt nur; Einstellungen in `config/portal.php` > `membership.retention`):
+
+| Daten | Frist (Standard) | Wirkung |
+|---|---|---|
+| Unbestätigte Online-Anträge (E-Mail nie bestätigt, nie angemeldet) | 7 Tage (`MEMBERSHIP_RETENTION_UNVERIFIED_DAYS`) | Antrag, Konto und Person werden gelöscht |
+| Abgelehnte Anträge | 180 Tage nach der Entscheidung (`MEMBERSHIP_RETENTION_REJECTED_DAYS`) | Mitgliedschaft mit Dokumenten, Einwilligungen und Verlauf wird gelöscht; ein Konto der Person bleibt |
+| Beendete Mitgliedschaften | **aus** (`MEMBERSHIP_RETENTION_ENDED_DAYS` leer) | nach der gesetzten Frist nach dem Austritt gelöscht, mit Dokumenten |
+
+Die Frist für beendete Mitgliedschaften legt der Verein fest (Vereins-, Steuer- und Datenschutzrecht); bis dahin bleibt alles erhalten.
+Eingeladene Konten, vom Vorstand erfasste Anträge und Konten, die sich schon angemeldet haben, löscht der Befehl nie. Der Scheduler-Cron
+(`php artisan schedule:run`) muss laufen. Die Löschung wird nicht im allgemeinen Protokoll vermerkt (keine Mitgliedschaftsdaten dort).
+
+## Datenschutz
+
+Personen mit Mitgliedschaft können nicht gelöscht werden. Dokumente enthalten personenbezogene Daten und liegen privat. Der Verlauf enthält Akteur, Zeitpunkt, Notiz und Daten, aber keine
+Zugangsdaten. Aufbewahrungsfristen siehe oben.
+
+## Noch offen
+
+- Mitgliedsarten (ordentlich, Förder-, Ehrenmitglied), Beiträge und Probezeit: erst nach Klärung der Regeln.
+- Festlegen der Frist für beendete Mitgliedschaften durch den Verein.
+
+Tests: `tests/Feature/Membership/MembershipTest.php`. Migration: `php artisan migrate`.

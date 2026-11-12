@@ -3,7 +3,7 @@
 @section('documentTitle', 'Sitzung abgelaufen')
 
 @section('content')
-    <x-vdbs.error-page
+    <x-vdbs.feedback.error-page
         code="419"
         title="Sitzung abgelaufen"
         description="Aus Sicherheitsgründen ist Ihre Sitzung abgelaufen. Bitte melden Sie sich erneut an."

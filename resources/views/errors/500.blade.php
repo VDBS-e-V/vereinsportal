@@ -3,7 +3,7 @@
 @section('documentTitle', 'Technischer Fehler')
 
 @section('content')
-    <x-vdbs.error-page
+    <x-vdbs.feedback.error-page
         code="500"
         title="Es ist ein Fehler aufgetreten"
         description="Beim Laden der Seite ist ein unerwarteter technischer Fehler aufgetreten."

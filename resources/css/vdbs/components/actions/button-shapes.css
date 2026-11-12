@@ -1,0 +1,45 @@
+/* Button-Formen: verwenden nur die Farbvariablen der Rollen (button-variants.css).
+ * solid    gefüllt (primary, secondary, danger)
+ * outline  Rahmen und Schrift in Farbe (tertiary)
+ * text     nur Schrift in Farbe, Fläche und Unterstrich beim Überfahren (text)
+ */
+
+.vdbs-btn--form-solid {
+    background: var(--btn-bg);
+    border-color: var(--btn-bg);
+    color: var(--btn-fg);
+}
+
+.vdbs-btn--form-solid:hover {
+    background: var(--btn-hover-bg);
+    border-color: var(--btn-hover-bg);
+    color: var(--btn-hover-fg);
+}
+
+.vdbs-btn--form-outline {
+    background: transparent;
+    border-color: var(--btn-line);
+    color: var(--btn-line);
+}
+
+.vdbs-btn--form-outline:hover {
+    background: var(--btn-fill);
+    border-color: var(--btn-fill-edge, var(--btn-fill));
+    color: var(--btn-fill-fg);
+}
+
+.vdbs-btn--form-text {
+    --btn-pad-x: var(--space-3);
+
+    background: transparent;
+    border-color: transparent;
+    color: var(--btn-line);
+}
+
+.vdbs-btn--form-text:hover {
+    background: var(--btn-fill);
+    color: var(--btn-fill-fg);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
+}

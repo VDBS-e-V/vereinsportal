@@ -62,7 +62,7 @@ jobs:
         run: npm ci
 
       - name: Audit npm dependencies
-        run: npm audit --audit-level=high
+        run: npm run audit
 
   dependency-review:
     name: Dependency Review
@@ -80,6 +80,8 @@ jobs:
         uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0
         with:
           fail-on-severity: high
+          # Begründete Ausnahme: tinymce-Plugin media wird nicht geladen (scripts/npm-audit-allowlist.json, docs/75)
+          allow-ghsas: GHSA-mf2p-h6hf-fcwm
 
   secret-scan:
     name: Secret Scan

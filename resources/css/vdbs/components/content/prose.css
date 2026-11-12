@@ -1,0 +1,45 @@
+/* Fließtext-Stil für redaktionelle Texte */
+
+.vdbs-prose { max-width: var(--max-line-length); line-height: var(--line-height-body); }
+.vdbs-prose--l { font-size: var(--font-size-body-lg); }
+
+.vdbs-prose > :first-child { margin-top: 0; }
+.vdbs-prose > :last-child { margin-bottom: 0; }
+
+.vdbs-prose h2 { margin: var(--space-8) 0 var(--space-3); font-size: var(--font-size-h2); font-weight: var(--font-weight-black); line-height: var(--line-height-heading); }
+.vdbs-prose h3 { margin: var(--space-6) 0 var(--space-2); font-size: var(--font-size-h3); font-weight: var(--font-weight-bold); line-height: var(--line-height-heading); }
+.vdbs-prose h4 { margin: var(--space-5) 0 var(--space-2); font-size: var(--font-size-h4); font-weight: var(--font-weight-bold); }
+
+.vdbs-prose p,
+.vdbs-prose ul,
+.vdbs-prose ol,
+.vdbs-prose table,
+.vdbs-prose figure,
+.vdbs-prose blockquote,
+.vdbs-prose pre { margin: 0 0 var(--space-4); }
+
+.vdbs-prose ul,
+.vdbs-prose ol { padding-left: var(--space-6); }
+.vdbs-prose ul { list-style: disc; }
+.vdbs-prose ol { list-style: decimal; }
+.vdbs-prose li > ul,
+.vdbs-prose li > ol { margin: var(--space-1) 0 0; }
+.vdbs-prose li + li { margin-top: var(--space-1); }
+
+.vdbs-prose a { color: var(--text-link); text-decoration: underline; text-underline-offset: 0.2em; }
+.vdbs-prose a:hover { color: var(--text-link-hover); text-decoration-thickness: 2px; }
+
+.vdbs-prose blockquote { padding: var(--space-2) var(--space-5); border-left: 6px solid var(--bg-brand); background: var(--bg-surface); }
+
+.vdbs-prose code { padding: 0.125rem var(--space-1); background: var(--bg-surface); font-size: 0.9em; }
+.vdbs-prose pre { overflow-x: auto; padding: var(--space-4); background: var(--bg-surface); }
+.vdbs-prose pre code { padding: 0; background: transparent; }
+
+.vdbs-prose hr { margin: var(--space-6) 0; border: 0; border-top: var(--border-width) solid var(--border-default); }
+
+.vdbs-prose table { width: 100%; border-collapse: collapse; font-size: var(--font-size-small); }
+.vdbs-prose th,
+.vdbs-prose td { padding: var(--space-2) var(--space-3); border-bottom: var(--border-width) solid var(--border-default); text-align: left; }
+.vdbs-prose th { background: var(--bg-surface); border-bottom: var(--border-width-strong) solid var(--border-input); }
+
+.vdbs-prose img { max-width: 100%; height: auto; }

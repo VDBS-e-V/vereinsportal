@@ -1,16 +1,69 @@
 <?php
 
-use App\Modules\Identity\Jobs\CleanupExpiredRegistrationRequestsJob;
+use App\Modules\System\Services\SystemChecks;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::job(
-    new CleanupExpiredRegistrationRequestsJob
-)
-    ->hourly()
-    ->withoutOverlapping();
+// Herzschlag des Planers: Die Systemsteuerung zeigt daran, ob der Cron-Eintrag läuft.
+Schedule::call(fn () => Cache::forever(SystemChecks::HEARTBEAT_KEY, time()))->name('system-heartbeat')->everyMinute();
+
+// Geplante Schreiben an Gruppen starten, wenn ihr Zeitpunkt erreicht ist.
+Schedule::command('mailings:dispatch-due')->everyMinute();
+
+// Zustelllisten der Schreiben an Gruppen nach der Aufbewahrungsfrist löschen (Adressen und Fehlergründe).
+Schedule::command('mailings:prune')->daily();
+
+// Mitgliedschaften mit abgelaufenem Austrittsdatum beenden, Rolle Vereinsmitglied abgleichen.
+Schedule::command('membership:sync')->daily();
+
+// Aufbewahrungsfristen: unbestätigte Online-Anträge, abgelehnte und (falls konfiguriert) beendete Mitgliedschaften löschen.
+Schedule::command('membership:prune')->daily();
+Schedule::command('access-requests:prune')->daily();
+
+// Koordination informieren, wenn der Stichtag für Interessenbekundungen auf ein Seminar vorbei ist.
+Schedule::command('seminars:team-deadlines')->daily();
+
+// Bewerbungen ohne Konto: Fristen der Aufbewahrung
+Schedule::command('seminars:prune-applicants')->daily();
+Schedule::command('seminars:prune-documents')->daily();
+Schedule::command('feedback:prune')->daily();
+Schedule::command('feedback:remind')->daily();
+Schedule::command('forms:prune')->daily();
+Schedule::command('contracts:prune')->daily();
+Schedule::command('contracts:remind')->daily();
+
+// Abgelaufene und widerrufene Tokens der Anbindungen (SSO) entfernen.
+Schedule::command('passport:purge')->daily();
+
+// Teamende mit offener Einarbeitung erinnern (nach 14 Tagen, dann alle 14 Tage, höchstens dreimal).
+Schedule::command('onboarding:remind-team')->daily();
+
+// Angemeldete einen Tag vor der Großveranstaltung erinnern.
+Schedule::command('events:remind')->daily();
+
+// Schulkonten kurz vor dem Anmeldeschluss einer Großveranstaltung erinnern.
+Schedule::command('events:remind-schools')->daily();
+
+// Unbestätigte Anmeldungen zu Großveranstaltungen und Anmeldungen nach der Aufbewahrungszeit löschen.
+Schedule::command('events:prune')->daily();
+
+// Erinnerungen an bald fällige und überfällige Aufgaben, nur an Personen, die sie eingeschaltet haben.
+Schedule::command('tasks:remind')->dailyAt('07:30');
+
+// Angaben externer Gäste von Vorstandssitzungen nach der Aufbewahrungszeit löschen.
+Schedule::command('board:prune-guests')->daily();
+
+// Konten anonymisieren, deren Löschung beantragt wurde und deren Wartefrist abgelaufen ist.
+Schedule::command('account:purge')->daily();
+
+/*
+ * Der fruehere Cleanup-Job fuer abgelaufene Registrierungsanfragen
+ * gehoerte zu app/Modules/Identity (Onboarding) und kommt zurueck,
+ * sobald dieses Modul neu aufgebaut ist.
+ */

@@ -1,0 +1,529 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\PasswordBroker\:\:createToken\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Modules/AccessGovernance/Services/UserAdministration.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>value" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Access/Http/Controllers/TwoFactorChallengeController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\StatefulGuard\:\:getProvider\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Modules/Access/Http/Requests/LoginRequest.php
+
+		-
+			message: '#^Trait Laravel\\Passport\\HasApiTokens requires using class to implement Laravel\\Passport\\Contracts\\OAuthenticatable, but App\\Modules\\Access\\Models\\User does not\.$#'
+			identifier: class.missingImplements
+			count: 1
+			path: app/Modules/Access/Models/User.php
+
+		-
+			message: '#^Template type T of method App\\Modules\\Access\\Services\\NotificationPreferences\:\:filter\(\) is not referenced in a parameter\.$#'
+			identifier: method.templateTypeNotInParameter
+			count: 1
+			path: app/Modules/Access/Services/NotificationPreferences.php
+
+		-
+			message: '#^Offset ''author_name'' on array\{display_name\?\: string\|null, headline\?\: string\|null, bio\?\: string\|null\} on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Modules/Access/Services/Profiles.php
+
+		-
+			message: '#^Offset ''author_photo_credit'' on array\{display_name\?\: string\|null, headline\?\: string\|null, bio\?\: string\|null\} on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Modules/Access/Services/Profiles.php
+
+		-
+			message: '#^Offset ''author_text'' on array\{display_name\?\: string\|null, headline\?\: string\|null, bio\?\: string\|null\} on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Modules/Access/Services/Profiles.php
+
+		-
+			message: '#^Offset ''author_use_photo'' on array\{display_name\?\: string\|null, headline\?\: string\|null, bio\?\: string\|null\} on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Modules/Access/Services/Profiles.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>value" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Access/Services/Profiles.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Access\\Models\\User\:\:\$pivot\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Modules/Board/Http/Controllers/BoardMeetingController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>positions" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Modules/Contracts/Services/Contracts.php
+
+		-
+			message: '#^Method App\\Modules\\DesignLibrary\\Support\\Registry\:\:all\(\) should return Illuminate\\Support\\Collection\<string, array\{slug\: string, title\: string, description\: string, category\: App\\Modules\\DesignLibrary\\Enums\\LibraryCategory, status\: App\\Modules\\DesignLibrary\\Enums\\LifecycleStatus, view\: string, styleguide\: string, width\: string\}\> but returns Illuminate\\Support\\Collection\<\(int\|string\), non\-empty\-array\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Modules/DesignLibrary/Support/Registry.php
+
+		-
+			message: '#^Method App\\Modules\\DesignLibrary\\Support\\Registry\:\:grouped\(\) should return Illuminate\\Support\\Collection\<string, Illuminate\\Support\\Collection\<string, array\>\> but returns Illuminate\\Support\\Collection\<\(int\|string\), Illuminate\\Support\\Collection\<int, array\{slug\: string, title\: string, description\: string, category\: App\\Modules\\DesignLibrary\\Enums\\LibraryCategory, status\: App\\Modules\\DesignLibrary\\Enums\\LifecycleStatus, view\: string, styleguide\: string, width\: string\}\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Modules/DesignLibrary/Support/Registry.php
+
+		-
+			message: '#^Method App\\Modules\\Events\\Services\\EventMessages\:\:emails\(\) should return Illuminate\\Support\\Collection\<int, string\> but returns Illuminate\\Support\\Collection\<int, lowercase\-string\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Modules/Events/Services/EventMessages.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between Carbon\\Carbon\|null and false will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Modules/Events/Services/EventRegistrations.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Events/Services/EventRegistrations.php
+
+		-
+			message: '#^Cannot cast App\\Modules\\Seminars\\Enums\\SeminarType to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: app/Modules/Feedback/Services/FeedbackEvaluation.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Modules/Feedback/Services/FeedbackEvaluation.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>responses_count" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Feedback/Services/FeedbackEvaluation.php
+
+		-
+			message: '#^Parameter \#1 \$array \(non\-empty\-list\<array\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: app/Modules/Feedback/Services/FeedbackForms.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>contacts" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Feedback/Services/FeedbackReminders.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,array\<int, mixed\>\>\:\:sum\(\) expects \(callable\(array\{string, string, mixed, mixed\}, int\)\: mixed\)\|string\|null, 2 given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Modules/Forms/Http/Controllers/FormOfficeController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,array\<int, mixed\>\>\:\:sum\(\) expects \(callable\(array\{string, string, mixed, mixed\}, int\)\: mixed\)\|string\|null, 3 given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Modules/Forms/Http/Controllers/FormOfficeController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>number" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Modules/Forms/Http/Controllers/FormOfficeController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>title" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Forms/Http/Controllers/FormOfficeController.php
+
+		-
+			message: '#^Instanceof between Illuminate\\Http\\UploadedFile and Illuminate\\Http\\UploadedFile will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: app/Modules/Forms/Services/FormApplications.php
+
+		-
+			message: '#^Method App\\Modules\\Forms\\Services\\FormApplications\:\:safeDate\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Modules/Forms/Services/FormApplications.php
+
+		-
+			message: '#^Binary operation "%%" between non\-falsy\-string and 97 results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: app/Modules/Forms/Services/Iban.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>city" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Modules/Letters/Services/LetterGenerator.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>email" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Modules/Letters/Services/LetterGenerator.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>first_name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Modules/Letters/Services/LetterGenerator.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>house_number" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Modules/Letters/Services/LetterGenerator.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>last_name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Modules/Letters/Services/LetterGenerator.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>location" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Letters/Services/LetterGenerator.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Letters/Services/LetterGenerator.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>phone" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 5
+			path: app/Modules/Letters/Services/LetterGenerator.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>postal_code" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Modules/Letters/Services/LetterGenerator.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>street" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Modules/Letters/Services/LetterGenerator.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<string\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: app/Modules/Letters/Support/LetterVariables.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>attachments" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Mailings/Http/Controllers/GroupMailingController.php
+
+		-
+			message: '#^Parameter \#3 \$sendAt of method App\\Modules\\Mailings\\Services\\Mailings\:\:noticeWarning\(\) expects Illuminate\\Support\\Carbon\|null, Carbon\\Carbon\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Modules/Mailings/Http/Controllers/MailingProgressController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>email" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Mailings/Http/Controllers/MailingProgressController.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<array\<string, string\>\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: app/Modules/Mailings/Services/MailRecipients.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<array\{token\: string, label\: string\}\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: app/Modules/Mailings/Services/MailRecipients.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>first_name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 7
+			path: app/Modules/Mailings/Services/MailRecipients.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>last_name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 7
+			path: app/Modules/Mailings/Services/MailRecipients.php
+
+		-
+			message: '#^Offset ''exclude'' on array\{groups\: list\<string\>, subject\: string, body\: string, meeting\: array\<string, mixed\>, mandatory\: bool, send_at\: Illuminate\\Support\\Carbon\|null\} on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Modules/Mailings/Services/Mailings.php
+
+		-
+			message: '#^Offset ''people'' on array\{groups\: list\<string\>, subject\: string, body\: string, meeting\: array\<string, mixed\>, mandatory\: bool, send_at\: Illuminate\\Support\\Carbon\|null\} on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Modules/Mailings/Services/Mailings.php
+
+		-
+			message: '#^Offset ''segments'' on array\{groups\: list\<string\>, subject\: string, body\: string, meeting\: array\<string, mixed\>, mandatory\: bool, send_at\: Illuminate\\Support\\Carbon\|null\} on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Modules/Mailings/Services/Mailings.php
+
+		-
+			message: '#^Parameter \#1 \$array \(array\{\}\) to function array_values is empty, call has no effect\.$#'
+			identifier: arrayValues.empty
+			count: 3
+			path: app/Modules/Mailings/Services/Mailings.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<string\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: app/Modules/Mailings/Services/Mailings.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>first_name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Mailings/Services/Mailings.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>last_name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Mailings/Services/Mailings.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>location" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Mailings/Services/Mailings.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Mailings/Services/Mailings.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<string\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: app/Modules/Mailings/Services/SenderCheck.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>email" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Mailings/Support/SegmentFilters.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>email" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Membership/Models/Membership.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between Carbon\\Carbon and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Modules/Membership/Services/MembershipRegistrations.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type Carbon\\Carbon\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Membership/Services/Memberships.php
+
+		-
+			message: '#^Call to function abort_unless\(\) with true and 404 will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 5
+			path: app/Modules/Partners/Http/Controllers/PartnerController.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between App\\Modules\\Partners\\Enums\\PartnerType and App\\Modules\\Partners\\Enums\\PartnerType\:\:School will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 5
+			path: app/Modules/Partners/Http/Controllers/PartnerController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>value" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 3
+			path: app/Modules/Partners/Services/PartnerImporter.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Support\\Collection\<int, App\\Modules\\Access\\Models\\User\>\:\:load\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Modules/Seminars/Http/Controllers/SeminarController.php
+
+		-
+			message: '#^Method App\\Modules\\Seminars\\Http\\Controllers\\SeminarQuoteController\:\:versionData\(\) should return array\{version\: int, positions\: list\<array\<string, mixed\>\>, total_cents\: int, price_list\: App\\Modules\\Seminars\\Models\\SeminarPriceList, at\: Illuminate\\Support\\Carbon, author\: string\|null, comment\: string\|null, current\: bool\} but returns array\{version\: int, positions\: array, total_cents\: int, price_list\: App\\Modules\\Seminars\\Models\\SeminarPriceList\|null, at\: Carbon\\Carbon\|null, author\: string\|null, comment\: string\|null, current\: bool\}\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Modules/Seminars/Http/Controllers/SeminarQuoteController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>partner_id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Modules/Seminars/Http/Controllers/SeminarQuoteController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>type" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Seminars/Http/Controllers/SeminarQuoteController.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<array\<string, mixed\>\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: app/Modules/Seminars/Services/Quotes.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Seminars/Services/SeminarClosures.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Seminars/Services/SeminarStatistics.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Seminars\\Models\\Seminar\:\:\$interested_count\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Seminars/Services/TeamApplications.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<string\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: app/Modules/Seminars/Services/TeamApplications.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>competences" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Seminars/Services/TeamApplications.php
+
+		-
+			message: '#^Ternary operator condition is always true\.$#'
+			identifier: ternary.alwaysTrue
+			count: 1
+			path: app/Modules/Setup/Services/Setup.php
+
+		-
+			message: '#^Access to an undefined property Laravel\\Passport\\Client\:\:\$redirect_uris\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Sso/Http/Controllers/OidcController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>allowed_roles" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Sso/Http/Middleware/GuardAuthorization.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>first_name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Sso/Services/OidcClaims.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>last_name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Sso/Services/OidcClaims.php
+
+		-
+			message: '#^Ternary operator condition is always true\.$#'
+			identifier: ternary.alwaysTrue
+			count: 1
+			path: app/Modules/System/Services/SystemChecks.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Relations\\Pivot\:\:\$role\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Tasks/Services/ProjectAccess.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<string\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: app/Modules/Tasks/Services/TaskService.php
+
+		-
+			message: '#^Offset ''active'' does not exist on array\{label\: string, href\: string, current\: bool, children\: list\<array\<string, mixed\>\>\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: app/Support/PortalNavigation.php
+
+		-
+			message: '#^Offset ''home'' does not exist on array\{roles\: list\<App\\Modules\\AccessGovernance\\Enums\\RoleKey\>, routes\?\: list\<string\>, pages\: list\<array\<string, mixed\>\>\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 3
+			path: app/Support/PortalNavigation.php
+
+		-
+			message: '#^Offset ''label'' on array\{label\: string, href\?\: string\|null\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Support/PortalNavigation.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<array\{label\: string, href\?\: string\|null\}\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: app/Support/PortalNavigation.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between array\{\} and array\{\} will always evaluate to false\.$#'
+			identifier: notIdentical.alwaysFalse
+			count: 1
+			path: app/Support/PortalNavigation.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>type" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: database/migrations/2026_11_07_000001_rework_seminar_quotes_to_positions.php

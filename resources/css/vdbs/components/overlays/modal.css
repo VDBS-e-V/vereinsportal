@@ -1,0 +1,57 @@
+/* Modal (Styleguide 5.8) */
+
+/* Modal (5.8) — natives <dialog> */
+
+.vdbs-modal {
+    width: min(36rem, calc(100% - 2rem));
+    margin: auto;
+    max-height: calc(100% - 2rem);
+    padding: 0;
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-lg);
+    background: var(--bg-page);
+    color: var(--text-default);
+    box-shadow: var(--shadow-lg);
+}
+
+.vdbs-modal::backdrop { background: var(--scrim-modal); }
+
+.vdbs-modal__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-5) var(--space-5) 0;
+}
+
+.vdbs-modal__title { margin: 0; }
+.vdbs-modal__body { padding: var(--space-4) var(--space-5); }
+
+.vdbs-modal__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding: 0 var(--space-5) var(--space-5);
+}
+
+.vdbs-modal__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--size-touch);
+    min-height: var(--size-touch);
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+/* Bestätigungsdialog */
+.vdbs-modal__form { display: contents; }
+.vdbs-modal__icon { margin-right: var(--space-2); vertical-align: -0.2em; }
+.vdbs-modal--danger { border-top: 6px solid var(--border-error); }
+.vdbs-modal--danger .vdbs-modal__icon { color: var(--text-error); }
+.vdbs-modal__body > :last-child { margin-bottom: 0; }
+.vdbs-modal__fields,
+.vdbs-modal__phrase { margin-top: var(--space-4); }

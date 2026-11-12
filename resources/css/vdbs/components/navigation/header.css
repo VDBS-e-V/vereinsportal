@@ -1,0 +1,226 @@
+/* Kopfbereich (Logo, Systemlinks, Titelzeile, Aktionen) */
+
+.vdbs-header {
+    background: var(--bg-page);
+    color: var(--text-default);
+    border-bottom: 1px solid var(--border-default);
+    box-shadow: var(--shadow-sm);
+}
+
+.vdbs-header__top { border-bottom: 1px solid var(--border-default); }
+
+.vdbs-header > .vdbs-container,
+.vdbs-header__top > .vdbs-container { max-width: none; padding-inline: var(--space-8); }
+
+@media (max-width: 767px) {
+    .vdbs-header > .vdbs-container,
+    .vdbs-header__top > .vdbs-container { padding-inline: var(--space-4); }
+}
+
+.vdbs-header__top-inner,
+.vdbs-header__main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-5);
+}
+
+.vdbs-header__top-inner { padding-block: var(--space-2); }
+.vdbs-header__main { padding-block: var(--space-4); }
+
+.vdbs-header__logo { display: inline-flex; align-items: center; gap: var(--space-3); color: var(--text-default); text-decoration: none; }
+.vdbs-header__logo:hover { color: var(--text-default); }
+.vdbs-header__logo { background: var(--bg-logo); padding: var(--space-1); }
+.vdbs-header__logo img { display: block; width: auto; height: 2.5rem; }
+.vdbs-header__wordmark { padding-left: var(--space-3); border-left: 1px solid var(--text-default); font-family: Georgia, "Times New Roman", serif; font-size: var(--font-size-h2); font-weight: var(--font-weight-medium); line-height: 1; }
+
+.vdbs-header__links { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); margin: 0; padding: 0; list-style: none; }
+
+.vdbs-header__links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--size-touch);
+    color: var(--text-default);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    font-size: var(--font-size-small);
+}
+
+.vdbs-header__links a:hover { color: var(--text-default); text-decoration: underline; }
+.vdbs-header__links a[aria-current="page"],
+.vdbs-header__links a[aria-current="true"] { text-decoration: underline; text-decoration-color: var(--bg-brand); text-decoration-thickness: 3px; }
+
+.vdbs-header__links--large a { font-size: var(--font-size-h4); }
+.vdbs-header__links--large { gap: var(--space-1) var(--space-6); }
+
+.vdbs-header__eyebrow { margin: 0; color: var(--text-muted); font-weight: var(--font-weight-medium); font-size: var(--font-size-body); }
+.vdbs-header__title { margin: 0; font-size: var(--font-size-h3); font-weight: var(--font-weight-black); line-height: var(--line-height-heading); }
+
+.vdbs-header__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4) var(--space-5); }
+
+
+/* ---------- Mobile und Tablet Navigation ---------- */
+
+/* Knopf: nur das Bars-Symbol (Beschriftung über aria-label) */
+.vdbs-header__menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--size-touch);
+    height: var(--size-touch);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-default);
+    cursor: pointer;
+}
+
+.vdbs-header__menu-toggle:hover { background: var(--bg-surface); }
+.vdbs-header__menu-icon-close { display: none; }
+.vdbs-header__menu-toggle[aria-expanded="true"] .vdbs-header__menu-icon-open { display: none; }
+.vdbs-header__menu-toggle[aria-expanded="true"] .vdbs-header__menu-icon-close { display: inline-block; }
+
+/* Bis 1099 px (Handy und Tablet): Bereiche und Aktionen erst nach dem Klick auf die Bars */
+@media (max-width: 1099px) {
+    .vdbs-header__top-inner { flex-wrap: wrap; }
+
+    .vdbs-js .vdbs-header:not(.is-menu-open) .vdbs-header__menu-panel { display: none; }
+
+    .vdbs-header__menu-panel { flex: 1 0 100%; }
+
+    .vdbs-header__links,
+    .vdbs-header__links--large { flex-direction: column; gap: 0; }
+
+    .vdbs-header__links li { border-top: 1px solid var(--border-default); }
+    .vdbs-header__links a { width: 100%; }
+    .vdbs-header__links--large a { font-size: var(--font-size-body); }
+
+    .vdbs-header__actions { flex-direction: column; align-items: stretch; width: 100%; }
+    .vdbs-header__actions form { display: contents; }
+    .vdbs-header__actions .vdbs-btn { width: 100%; }
+
+    .vdbs-header__main { gap: var(--space-2); }
+}
+
+/* Tablet (768–1099 px): Links in zwei Spalten, Aktionen in einer Zeile */
+@media (min-width: 768px) and (max-width: 1099px) {
+    .vdbs-header__links,
+    .vdbs-header__links--large { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-6); }
+
+    .vdbs-header__actions { flex-direction: row; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; }
+    .vdbs-header__actions > nav { flex: 1 1 24rem; }
+    .vdbs-header__actions .vdbs-btn { width: auto; }
+    .vdbs-header__actions form { display: block; }
+}
+
+@media (min-width: 1100px) {
+    .vdbs-js .vdbs-header__menu-toggle { display: none; }
+}
+
+/* Nutzermenü: Name neben dem Avatar, auf dem Handy mit Umbruch statt Abschneiden */
+.vdbs-header__user-name { max-width: 16rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 1099px) { .vdbs-header__user-name { max-width: none; white-space: normal; text-align: left; } }
+
+
+/* Seitenleiste des Bereichs (Zeile 2) mit optionalem Untermenü: <li class="vdbs-main-nav__item"> mit <ul class="vdbs-main-nav__submenu"> */
+.vdbs-main-nav__item { position: relative; }
+
+.vdbs-main-nav__submenu { margin: 0; padding: 0; list-style: none; }
+
+@media (min-width: 1100px) {
+    .vdbs-main-nav__submenu {
+        display: none;
+        position: absolute;
+        inset-block-start: 100%;
+        inset-inline-start: 0;
+        z-index: var(--z-dropdown);
+        min-width: 14rem;
+        background: var(--bg-page);
+        border: 1px solid var(--border-default);
+        box-shadow: var(--shadow-md);
+    }
+
+    .vdbs-main-nav__item--has-submenu:hover > .vdbs-main-nav__submenu,
+    .vdbs-main-nav__item--has-submenu:focus-within > .vdbs-main-nav__submenu { display: block; }
+
+    .vdbs-main-nav__submenu a { display: block; width: 100%; padding: var(--space-3) var(--space-4); font-size: var(--font-size-body); text-decoration: none; }
+    .vdbs-main-nav__submenu a:hover, .vdbs-main-nav__submenu a:focus-visible { background: var(--bg-surface); }
+    .vdbs-main-nav__submenu li + li { border-top: 1px solid var(--border-default); }
+}
+
+/* Handy und Tablet: Untermenü eingerückt direkt unter dem Eintrag */
+@media (max-width: 1099px) {
+    .vdbs-main-nav__submenu { padding-inline-start: var(--space-5); }
+}
+
+/* Eyebrow und Bereichstitel bilden zusammen einen Link zur Startseite des Bereichs (ohne Unterstreichung) */
+.vdbs-header__brand { display: block; color: inherit; text-decoration: none; }
+a.vdbs-header__brand:hover, a.vdbs-header__brand:focus-visible { text-decoration: none; }
+a.vdbs-header__brand .vdbs-header__eyebrow, a.vdbs-header__brand .vdbs-header__title { display: block; }
+
+.vdbs-area-pages { display: grid; gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
+
+/* Untermenü nach dem Muster: oben der Link zur Übersichtsseite, darunter die Seiten; der Pfeil zeigt, dass ein Menü aufgeht */
+.vdbs-main-nav__chevron { margin-inline-start: var(--space-1); vertical-align: middle; }
+
+.vdbs-main-nav__item--has-submenu:hover .vdbs-main-nav__chevron,
+.vdbs-main-nav__item--has-submenu:focus-within .vdbs-main-nav__chevron { transform: rotate(180deg); }
+
+.vdbs-main-nav__overview a { font-weight: var(--font-weight-bold); text-decoration: underline; text-underline-offset: 0.2em; }
+
+.vdbs-area-pages__children { margin: var(--space-2) 0 0; padding-inline-start: var(--space-5); }
+
+
+/* Überlaufmenü (Issue #94): ab 1100 px stehen die Einträge einer Zeile nebeneinander; was nicht passt, liegt hinter dem Knopf mit den drei Punkten */
+.vdbs-main-nav__more { position: relative; }
+.vdbs-main-nav__more[hidden], .vdbs-main-nav__more-list[hidden] { display: none; }
+
+.vdbs-main-nav__more-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--size-touch);
+    min-height: var(--size-touch);
+    padding: 0;
+    border: var(--border-width) solid transparent;
+    background: transparent;
+    color: var(--text-default);
+    cursor: pointer;
+}
+
+.vdbs-main-nav__more-toggle:hover { background: var(--bg-surface); }
+.vdbs-main-nav__more-toggle.is-active { text-decoration: underline; text-decoration-color: var(--bg-brand); text-decoration-thickness: 3px; }
+
+.vdbs-main-nav__more-list {
+    position: absolute;
+    inset-block-start: 100%;
+    inset-inline-end: 0;
+    z-index: var(--z-dropdown);
+    min-width: 14rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--bg-page);
+    border: 1px solid var(--border-default);
+    box-shadow: var(--shadow-md);
+}
+
+.vdbs-main-nav__more-list > li + li { border-top: 1px solid var(--border-default); }
+.vdbs-main-nav__more-list a { display: block; width: 100%; padding: var(--space-3) var(--space-4); font-size: var(--font-size-body); text-decoration: none; }
+.vdbs-main-nav__more-list a:hover, .vdbs-main-nav__more-list a:focus-visible { background: var(--bg-surface); }
+
+/* Untermenüs wandernder Einträge stehen eingerückt direkt darunter */
+.vdbs-main-nav__more-list .vdbs-main-nav__submenu { display: block; position: static; min-width: 0; border: 0; box-shadow: none; padding-inline-start: var(--space-4); }
+.vdbs-main-nav__more-list .vdbs-main-nav__chevron { display: none; }
+
+@media (min-width: 1100px) {
+    .vdbs-js .vdbs-header [data-vdbs-overflow] { flex-wrap: nowrap; white-space: nowrap; }
+    .vdbs-js .vdbs-header__links--areas { justify-content: flex-end; }
+    .vdbs-js .vdbs-header #portal-menu-areas,
+    .vdbs-js .vdbs-header .vdbs-header__actions > .vdbs-main-nav { flex: 1 1 0; min-width: 0; }
+}
+
+@media (max-width: 1099px) {
+    .vdbs-main-nav__more { display: none; }
+}

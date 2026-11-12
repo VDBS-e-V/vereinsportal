@@ -1,0 +1,25 @@
+/* Kontaktblock */
+
+.vdbs-contact-block { display: grid; gap: var(--space-5); align-items: center; }
+
+.vdbs-contact-block__media img { display: block; width: 100%; height: auto; }
+
+.vdbs-contact-block__title { margin: 0 0 var(--space-3); font-size: var(--font-size-h1); font-weight: var(--font-weight-black); line-height: var(--line-height-heading); }
+
+.vdbs-contact-block__text { margin: 0 0 var(--space-3); }
+
+.vdbs-contact-block__lines { display: grid; gap: var(--space-1); margin: 0 0 var(--space-4); }
+.vdbs-contact-block__line { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.vdbs-contact-block__label { font-weight: var(--font-weight-bold); }
+.vdbs-contact-block__value { margin: 0; }
+
+.vdbs-contact-block__actions { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+
+@media (min-width: 768px) {
+    .vdbs-contact-block { gap: var(--space-8); }
+    /* Größenverhältnis wie bei der FU: Text etwa ein Drittel, Bild zwei Drittel (Bild links: 2fr 1fr) */
+    .vdbs-contact-block:has(.vdbs-contact-block__media) { grid-template-columns: 2fr 1fr; }
+}
+
+.vdbs-contact-block--surface { padding: var(--space-5); background: var(--bg-surface); }
+@media (min-width: 768px) { .vdbs-contact-block--surface { padding: var(--space-6); } }

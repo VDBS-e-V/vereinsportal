@@ -1,0 +1,30 @@
+/* Formular: Raster, Abschnitte, Aktionen */
+
+.vdbs-form { max-width: none; }
+
+.vdbs-form__actions { margin-top: var(--space-5); }
+
+/*
+ * Raster: Jedes Element belegt zwei Zeilen. Felder übernehmen sie per Subgrid (Kopf = Label und Hinweis, Körper = Steuerelement
+ * und Meldungen), damit die Steuerelemente einer Zeile immer auf gleicher Höhe beginnen, auch wenn nur ein Feld einen Hinweis
+ * hat. Der Abstand zwischen den Zeilen kommt vom unteren Rand der Felder.
+ */
+.vdbs-form-grid { display: grid; gap: 0 var(--space-5); }
+.vdbs-form-grid > * { grid-row: span 2; }
+
+@supports (grid-template-rows: subgrid) {
+    .vdbs-form-grid > .vdbs-field { grid-template-rows: subgrid; row-gap: var(--space-1); }
+
+    .vdbs-form-grid > .vdbs-field > .vdbs-field__head,
+    .vdbs-form-grid > .vdbs-field > .vdbs-field__body { display: grid; align-content: start; gap: var(--space-1); }
+}
+
+@media (min-width: 640px) {
+    .vdbs-form-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .vdbs-form-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .vdbs-form-grid__full { grid-column: 1 / -1; }
+}
+
+.vdbs-form-section { margin-bottom: var(--space-6); padding-top: var(--space-5); border-top: 1px solid var(--border-default); }
+.vdbs-form-section__title { margin: 0 0 var(--space-1); font-size: var(--font-size-h3); }
+.vdbs-form-section__description { margin: 0 0 var(--space-4); color: var(--text-muted); }

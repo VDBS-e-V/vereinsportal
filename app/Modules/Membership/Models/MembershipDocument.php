@@ -2,36 +2,34 @@
 
 namespace App\Modules\Membership\Models;
 
-use App\Modules\Identity\Models\User;
-use App\Modules\Membership\Enums\MembershipDocumentType;
+use App\Modules\Access\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
+/**
+ * Modul: Membership. Ein hochgeladenes Dokument zu einer Mitgliedschaft (Antrag, Mitgliedsnachweis). Die Datei liegt im
+ * privaten Speicher (Disk "local") unter einem zufälligen Namen und wird nur über die Mitgliedschaft ausgeliefert.
+ */
 class MembershipDocument extends Model
 {
-    protected $fillable = [
-        'membership_id',
-        'document_type',
-        'label',
-        'disk',
-        'path',
-        'original_name',
-        'mime_type',
-        'size_bytes',
-        'sha256',
-        'received_on',
-        'uploaded_by_user_id',
-        'supersedes_document_id',
+    public const KINDS = [
+        'application' => 'Antrag',
+        'record' => 'Mitgliedsnachweis',
+        'other' => 'Sonstiges',
     ];
+
+    public $timestamps = false;
+
+    protected $fillable = ['membership_id', 'kind', 'original_name', 'path', 'mime', 'size', 'sha256', 'uploaded_by_user_id', 'uploaded_at'];
 
     protected function casts(): array
     {
-        return [
-            'document_type' => MembershipDocumentType::class,
-            'received_on' => 'date',
-            'size_bytes' => 'integer',
-        ];
+        return ['uploaded_at' => 'datetime', 'size' => 'integer'];
+    }
+
+    public function kindLabel(): string
+    {
+        return self::KINDS[$this->kind] ?? 'Dokument';
     }
 
     /** @return BelongsTo<Membership, $this> */
@@ -44,17 +42,5 @@ class MembershipDocument extends Model
     public function uploadedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by_user_id');
-    }
-
-    /** @return BelongsTo<MembershipDocument, $this> */
-    public function supersedes(): BelongsTo
-    {
-        return $this->belongsTo(self::class, 'supersedes_document_id');
-    }
-
-    /** @return HasOne<MembershipDocument, $this> */
-    public function supersededBy(): HasOne
-    {
-        return $this->hasOne(self::class, 'supersedes_document_id');
     }
 }

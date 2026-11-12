@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Modules\Events;
+
+use App\Modules\Events\Console\PruneEvents;
+use App\Modules\Events\Console\RemindEvents;
+use App\Modules\Events\Console\RemindSchools;
+use Illuminate\Support\ServiceProvider;
+
+class EventsServiceProvider extends ServiceProvider
+{
+    public function boot(): void
+    {
+        $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
+
+        // Auch bei Aufrufen über den Browser (Systemsteuerung, Einrichtung) müssen die Befehle bekannt sein, nicht nur auf der Konsole
+        $this->commands([PruneEvents::class, RemindEvents::class, RemindSchools::class]);
+    }
+}

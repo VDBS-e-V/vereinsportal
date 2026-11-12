@@ -1,0 +1,47 @@
+/* Inhalt mit Bild, Fläche oder Seitenleiste daneben */
+
+.vdbs-aside-layout { display: grid; gap: var(--space-6); }
+
+.vdbs-aside-layout__content { width: 100%; margin-inline: auto; }
+.vdbs-aside-layout__content--narrow { max-width: var(--container-narrow); }
+.vdbs-aside-layout__content--medium { max-width: var(--container-medium); }
+.vdbs-aside-layout__content--default { max-width: var(--container-default); }
+
+/* Handy: eine Spalte; Position der Zusatzspalte nach mobile */
+.vdbs-aside-layout--mobile-above .vdbs-aside-layout__aside { order: -1; }
+.vdbs-aside-layout--mobile-hidden .vdbs-aside-layout__aside { display: none; }
+
+/* Bild */
+.vdbs-aside-layout--image .vdbs-aside-layout__aside { min-height: 14rem; }
+.vdbs-aside-layout--image .vdbs-aside-layout__aside .vdbs-image { height: 100%; }
+.vdbs-aside-layout--image .vdbs-aside-layout__aside .vdbs-image__img { height: 100%; object-fit: cover; }
+
+/* Fläche */
+.vdbs-aside-layout--panel .vdbs-aside-layout__aside { padding: var(--space-5); background: var(--bg-surface); align-self: start; }
+
+/* Seitenleiste */
+.vdbs-aside-layout--sidebar .vdbs-aside-layout__aside { align-self: start; }
+
+@media (min-width: 768px) {
+    .vdbs-aside-layout { gap: var(--space-8); }
+
+    .vdbs-aside-layout--size-s { --aside-width: 16rem; }
+    .vdbs-aside-layout--size-m { --aside-width: 24rem; }
+    .vdbs-aside-layout--size-l { --aside-width: 32rem; }
+
+    .vdbs-aside-layout--side-end { grid-template-columns: minmax(0, 1fr) var(--aside-width, 24rem); }
+    .vdbs-aside-layout--side-start { grid-template-columns: var(--aside-width, 24rem) minmax(0, 1fr); }
+    .vdbs-aside-layout--side-start .vdbs-aside-layout__main { order: 2; }
+
+    .vdbs-aside-layout--size-half.vdbs-aside-layout--side-end,
+    .vdbs-aside-layout--size-half.vdbs-aside-layout--side-start { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .vdbs-aside-layout--mobile-above .vdbs-aside-layout__aside { order: 0; }
+    .vdbs-aside-layout--side-start .vdbs-aside-layout__aside { order: 1; }
+    .vdbs-aside-layout--mobile-hidden .vdbs-aside-layout__aside { display: block; }
+
+    .vdbs-aside-layout--image { min-height: 28rem; }
+    .vdbs-aside-layout--image .vdbs-aside-layout__main { align-self: center; padding-block: var(--space-6); }
+
+    .vdbs-aside-layout--sticky .vdbs-aside-layout__aside { position: sticky; top: var(--space-5); }
+}

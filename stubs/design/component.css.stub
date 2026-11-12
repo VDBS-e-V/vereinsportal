@@ -1,0 +1,13 @@
+/* __TITLE__ (Paket "__PACKAGE_TITLE__"). Nur Tokens aus tokens.css verwenden, keine Farbcodes. */
+
+.vdbs-__NAME__ {
+    padding: var(--space-4);
+    background: var(--bg-surface);
+    color: var(--text-default);
+    border: 1px solid var(--border-default);
+}
+
+/* Varianten: .vdbs-__NAME__--default, weitere hier ergänzen */
+.vdbs-__NAME__--default { }
+
+/* Teile: .vdbs-__NAME____teil (BEM) */

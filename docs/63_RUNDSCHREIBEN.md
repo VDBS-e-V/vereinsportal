@@ -1,0 +1,128 @@
+# Rundschreiben und Mitteilungen per E-Mail
+
+Modul `app/Modules/Mailings`. Ein Platzhalter-System, drei Wege.
+
+## 1. Rundschreiben an Gruppen (Vorstand und Geschäftsstelle)
+- Zwei Seiten, eine Klasse (`GroupMailingController`): im Bereich **Vorstand** (`/vorstand/mitteilungen`, Berechtigung `mailings.members`) und im Bereich **Geschäftsstelle** (`/geschaeftsstelle/mitteilungen`, Berechtigung `mailings.send`).
+- Gruppen zur Auswahl (mehrere möglich, jede Adresse einmal): Mitglieder, Teamende, Schulen, Koordination, Bildungsreferenten, Vorstand, Geschäftsstelle.
+  - **Mitglieder** darf nur der Vorstand anschreiben (`mailings.members`). Die Mail kommt aus den laufenden Mitgliedschaften mit E-Mail-Adresse und ist nicht abbestellbar (Vereinspost).
+  - Alle anderen Gruppen sind aktive Konten mit der jeweiligen Rolle. **Teamende** und **Schulen** können die Mitteilungen in Konto › Benachrichtigungen abbestellen; wer das getan hat, wird nicht gezählt und nicht angeschrieben.
+- Schreiben: frei im Editor mit Platzhaltern, **oder** eine Vorlage laden (dann Betreff und Text ändern). Optional Angaben zu Termin oder Versammlung (Titel, Datum, Uhrzeit, Ort, Link, Frist).
+- Ablauf: Gruppen wählen → schreiben → Vorschau (mit den Angaben der schreibenden Person eingesetzt) → optional Testmail an sich → Senden.
+
+## 2. Mailvorlagen (Geschäftsstelle und Vorstand, `mail_templates.manage`)
+- `/geschaeftsstelle/vorlagen`: eigene Vorlagen für Rundschreiben anlegen, ändern, löschen (Name, Beschreibung, Betreff, Text).
+- Dort auch der **feste Rahmen für Mitteilungen an Teamende zu Seminaren** (`/geschaeftsstelle/vorlagen/seminar`). Ohne gespeicherte Fassung gilt die eingebaute.
+
+## 3. Koordination: Mitteilungen an Teamende zu Seminaren
+- `/koordination/mitteilungen`, Berechtigung `mailings.team` (Rolle Koordination).
+- Seminar wählen (in Planung, terminiert oder bestätigt), Empfänger wählen (alle Teamenden, Interesse an diesem Seminar, im Team dieses Seminars), eigenen **Textabschnitt** schreiben. Er steht an der Stelle `{eigener_text}` der Vorlage der Geschäftsstelle (fehlt die Stelle, wird er angehängt).
+
+## Platzhalter
+Geschrieben als `{name}`. Unbekannte werden beim Speichern und Senden abgelehnt.
+
+| Art | Platzhalter |
+|---|---|
+| Alle | `{vorname}` `{nachname}` `{name}` `{absender}` `{verein}` `{portal}` |
+| Rundschreiben | `{versammlung}` `{termin}` `{datum}` `{uhrzeit}` `{ort}` `{link}` `{frist}` |
+| Seminar-Mitteilungen | `{seminar}` `{schule}` `{termine}` `{erster_termin}` `{ort}` `{stichtag}` `{link}` `{eigener_text}` |
+
+Wer einen Platzhalter des Termins nutzt, muss die Angabe machen. Fehlt der Vorname einer Person, steht eine neutrale Anrede der Gruppe (z. B. „Mitglied“, „Teamer:in“, „Schule“). Werte werden maskiert eingesetzt (nur `{termine}` und `{eigener_text}` sind bereinigtes HTML).
+
+## Datenschutz und Protokoll
+Gespeichert werden Betreff, Text mit Platzhaltern, Gruppen und Zahl der Empfänger und Fehlschläge, nie die Empfängerliste. Das Protokoll hält nur Art, Gruppen und Zahlen fest („Schreiben versendet“).
+
+## Versand im Hintergrund (seit Update 1)
+- Ein Schreiben wird in die **Warteschlange** gestellt und von einem Worker versendet: lokal `php artisan queue:work`, produktiv als Dienst (z. B. Supervisor). Mit `QUEUE_CONNECTION=sync` läuft der Versand sofort im Seitenaufruf (Tests, kleine Gruppen).
+- Je Adresse gibt es eine **Zustellzeile** (wartend, wird gesendet, gesendet, fehlgeschlagen, übersprungen) mit Versuchen und Fehlergrund. Eine Zeile wird atomar „in Arbeit“ gesetzt, bevor gesendet wird: Ein wiederholter Lauf sendet nie doppelt.
+- Der Versand läuft in Paketen (`MAILINGS_BATCH_SIZE`, Standard 25) mit Drosselung (`MAILINGS_PER_MINUTE`, Standard 60) und bis zu `MAILINGS_MAX_ATTEMPTS` (3) Versuchen je Adresse.
+- Die **Versandseite** (Klick auf ein Schreiben in der Liste) zeigt Stand, Zähler, Fortschritt und die fehlgeschlagenen Adressen (nur für die schreibende Person und den Vorstand), dazu „Versand abbrechen“ und „Fehlgeschlagene erneut versuchen“. Sie aktualisiert sich selbst, solange der Versand läuft.
+- **Aufbewahrung:** Die Zustelllisten mit den Adressen werden nach `MAILINGS_DELIVERY_RETENTION_DAYS` (Standard 90) von `php artisan mailings:prune` gelöscht (täglich im Planer). Betreff, Text und Zahlen bleiben.
+- Systemsteuerung › Zustand warnt, wenn ein Auftrag lange wartet oder ein Schreiben über 15 Minuten nicht versendet wurde (Hinweis auf den Worker).
+
+## Abmelden und Sperren (seit Update 2)
+- **Abmeldelink:** Jede abbestellbare Mail enthält im Fuß „Mitteilungen dieser Art abbestellen“ und die Kopfzeilen `List-Unsubscribe` und `List-Unsubscribe-Post: List-Unsubscribe=One-Click` (RFC 2369 und RFC 8058). Der Link `/abmelden/{Token}` enthält Adresse und Thema **verschlüsselt** und funktioniert ohne Anmeldung. Die Seite zeigt nur die verkürzte Adresse (`a***@…`), meldet mit einem Klick ab und lässt sich rückgängig machen. Der POST nimmt auch den One-Click-Aufruf der Postfachanbieter entgegen (ohne CSRF-Token, Drosselung 60 pro Minute).
+- **Themen:** Mitglieder (`member_info`), Teamende (`team_mailings`), Schulen (`school_mailings`). Abmeldung gilt je Thema. Interne Gruppen (Koordination, Bildungsreferenten, Vorstand, Geschäftsstelle) sind Organisationspost und nicht abbestellbar, die Mails haben keinen Abmeldelink.
+- **Konto und Link im Gleichschritt:** Teamende und Schulen mit Konto: Die Abmeldung per Link setzt die Einstellung unter Konto › Benachrichtigungen und umgekehrt.
+- **Pflichtmitteilung** (nur Vorstand): Kreuzfeld „Pflichtmitteilung (nicht abbestellbar)“ im Formular. Die Mail geht auch an Abgemeldete, enthält keinen Abmeldelink und trägt im Fuß den Hinweis, dass sie nicht abbestellt werden kann. Für Einladungen zur Mitgliederversammlung gedacht.
+- **Gesperrte Adressen** (Vorstand und Geschäftsstelle, Seite „Gesperrte Adressen“ in der Rundschreiben-Liste): Gesperrte bekommen **nie** ein Schreiben an Gruppen, auch keine Pflichtmitteilung. Sperren manuell setzen und aufheben; Gründe „Dauerhafter Zustellfehler“ und „Beschwerde“ sind für die späteren Bounce-Updates vorbereitet. Das allgemeine Protokoll nennt nur Aktion und Grund, nie die Adresse.
+- **Zahlen vor dem Senden:** Das Formular zeigt Erreichbare, Abgemeldete und Gesperrte.
+- **Prüfung beim Senden:** Der Worker prüft jede Adresse noch einmal unmittelbar vor dem Versand. Wer sich nach dem Anlegen abmeldet oder gesperrt wird, wird übersprungen (Zeile „übersprungen“ mit Grund).
+
+## Entwürfe, Planung und Freigabe (seit Update 3)
+
+- **Entwurf:** Im Formular „Als Entwurf speichern“. Entwürfe sieht nur die schreibende Person; sie öffnet ihn unter „In Vorbereitung“ wieder und kann ihn ändern oder löschen.
+- **Planung:** Das Feld „Senden am“ plant den Versand. Der Planer (`mailings:dispatch-due`, jede Minute) startet das Schreiben zur Zeit. Die Empfänger werden erst dann bestimmt, Abmeldungen und Sperren gelten also bis zuletzt. Ein geplantes Schreiben lässt sich zurückziehen.
+- **Freigabe (Vier-Augen-Prinzip):** Ab `MAILINGS_APPROVAL_THRESHOLD` Empfängern (Standard 50) legt das Schreiben Personen ohne Recht `mailings.approve` zur Freigabe vor. Der Vorstand wird benachrichtigt (Einstellung „Schreiben zur Freigabe“), gibt frei oder mit Begründung zurück. Das eigene Schreiben lässt sich nicht freigeben. Der Vorstand schreibt frei. Abschalten: `MAILINGS_APPROVAL=false`.
+- **Absender je Bereich:** `MAILINGS_FROM_NAME_BOARD/OFFICE/TEAM` und `MAILINGS_REPLY_TO_BOARD/OFFICE/TEAM`. Die Absenderadresse bleibt die des Versanddienstes.
+- Jeder Schritt (vorgelegt, freigegeben, zurückgegeben, geplant, zurückgezogen) steht im Protokoll („Schreiben: Freigabe und Planung“).
+
+## Nachweis für Versammlungen (seit Update 4)
+
+- **Fristwarnung:** Bei Schreiben an die Gruppe Mitglieder mit einem Versammlungsdatum warnt die Vorschau (und die Seite eines vorbereiteten Schreibens), wenn zwischen Versand und Versammlung weniger als `MAILINGS_INVITATION_NOTICE_DAYS` Tage liegen (Standard 14, Annahme: bitte mit der Satzung abgleichen). Es ist nur eine Warnung, nichts wird gesperrt. Als Versandtag zählt der geplante Zeitpunkt, sonst heute.
+- **Versandbescheinigung:** Auf der Versandseite eines beendeten Schreibens (Vorstand, Geschäftsstelle), sichtbar für die sendende Person und alle mit `mailings.members`. Druckansicht ohne Navigation mit Versandzeitpunkt, Freigabe, Gruppen, Text, Zahlen (Empfänger, zugestellt, fehlgeschlagen, abbestellt, gesperrt). Sie protokolliert den Versand durch das Portal und belegt nicht den Zugang bei einzelnen Personen. Kein Rechtsgutachten.
+- **Nicht erreichte Mitglieder:** Unter der Versandseite (nur mit `mailings.members`) die Liste der laufenden Mitgliedschaften ohne gültige Adresse, mit gesperrter Adresse, mit Abbestellung (außer bei Pflichtmitteilungen) oder mit fehlgeschlagener Zustellung, nur Name und Grund, Stand heute. Die Zustelldetails entfallen nach der Aufbewahrungsfrist.
+
+## Empfänger genauer wählen (seit Update 5)
+
+- **Außer:** Zweite Auswahl neben den Gruppen. Rechenweg: Vereinigung der gewählten Gruppen, minus alle Adressen der „Außer“-Gruppen (auch wenn dort Mitteilungen abbestellt wurden), dazu die einzeln gewählten Personen, danach Duplikate, Abmeldungen und Sperren. Die Vorschau nennt, wie viele Personen durch „Außer“, Abmeldung und Sperre nicht angeschrieben werden.
+- **Einzelne Personen:** Suchfeld mit Chips (Konten mit `mailings.send`, Mitglieder nur mit `mailings.members`, nur Namen, keine Adressen). Direkt gewählte Personen bekommen das Schreiben auch bei Abbestellung von Sammelmitteilungen, gesperrte Adressen nie. Ein Schreiben darf auch nur aus einzelnen Personen bestehen. Ohne JavaScript bleiben bereits gewählte Personen als Häkchen erhalten.
+- **Kontextstart:** Auf der Schulseite „Ansprechpersonen anschreiben“ (öffnet das Formular der Geschäftsstelle mit den Ansprechpersonen, die eine Adresse haben), auf der Seminarseite „Teamende anschreiben“ (Formular der Koordination mit dem Seminar). Die Berechtigung wird serverseitig geprüft.
+- Auswahl und Ausschlüsse stehen in `payload` des Schreibens. Segmente (gespeicherte Filter) folgen später.
+
+## Inhalt ausbauen (seit Update 6)
+
+- **Standardwerte:** `{ort|noch offen}` setzt den Standardwert, wenn der Platzhalter leer ist. Die Prüfung bleibt streng: nur bekannte Namen vor dem `|`. (`{vorname}` ist nie leer, dort greift schon die Anrede-Ersatzform.)
+- **Textbausteine** (Geschäftsstelle, Vorstand mit `mail_templates.manage`): unter Mailvorlagen → Textbausteine. Beim Schreiben fügt eine Auswahl den Baustein in den Text ein. Das Einfügen kopiert den Text, spätere Änderungen am Baustein wirken nicht rückwirkend.
+- **Einfügen per Klick:** Platzhalter lassen sich in Betreff oder Text (an der Cursorposition) einfügen. Dafür muss das Frontend neu gebaut werden (`npm run build`). Ohne JavaScript bleibt die Liste zum Abtippen.
+- **Anhänge:** Nur an einem gespeicherten Entwurf (PDF, JPEG, PNG; zusammen höchstens `MAILINGS_ATTACHMENTS_MAX_KB`, Standard 5120 KB). Privater Speicher, Download nur für die schreibende Person, Freigebende und `mailings.members`. Jede Mail trägt die Anhänge. Sie werden mit dem Entwurf gelöscht und von `mailings:prune` zusammen mit den Zustelllisten.
+- **Textversion:** Jede Mail enthält zusätzlich einen Nur-Text-Teil (Absätze, Listen, Links als „Text (Adresse)“).
+- **Lesbarkeitshinweise** in der Vorschau: nichtssagende Linktexte („hier“), leere oder übersprungene Überschriften, Bilder ohne Alternativtext, sehr lange Absätze. Nur Hinweise, nichts wird gesperrt.
+
+## Auswahl per Mehrfachauswahl und weitere Platzhalter (seit Update 7)
+
+- **Gruppen, „Außer“ und einzelne Personen** sind Mehrfachauswahlen mit Suchfeld. Bei den Personen holt das Suchfeld ab zwei Buchstaben passende Konten und Mitglieder vom Server (nur Namen). Ohne JavaScript bleiben die schon gewählten Personen sichtbar, die Suche braucht JavaScript (`npm run build`).
+- **Neue Platzhalter für alle Schreiben:** `{email}` (Adresse der empfangenden Person), `{heute}` (Datum des Versands), `{jahr}`, `{abmelden}` (Link zum Abbestellen, bei Pflichtmitteilungen und Direktauswahl leer, dann greift ein Standardtext wie `{abmelden|nicht möglich}`).
+- **Neu bei Schreiben an Gruppen:** `{wochentag}` und `{tage_bis}` (Tage vom Versand bis zur Versammlung, zum Sendezeitpunkt berechnet, auch bei geplantem Versand). Beide brauchen das Datum der Versammlung.
+
+## Zustellqualität, Rückmeldungen und Nachfassen (seit Update 8)
+
+- **Seite „Zustellqualität“** (Geschäftsstelle, `mail_templates.manage`): je Monat Schreiben, Empfänger, Fehlerquote, neue Sperren und Abmeldungen als Tabelle. **Absenderprüfung** per DNS (SPF, DMARC, bei eingestelltem `MAILINGS_DKIM_SELECTOR` auch DKIM) auf Knopfdruck, nur als Ampel mit Erklärung.
+- **Warnung bei hoher Fehlerquote:** Über `MAILINGS_FAILURE_WARNING_PERCENT` (Standard 5 %) erscheint ein Hinweis auf der Seite des Schreibens und in den Zustandsprüfungen der Systemsteuerung.
+- **Rückmelde-Webhook** `POST /webhooks/mail`: Der Versanddienst sendet im Kopf `X-Signature` den HMAC-SHA256 des Inhalts, berechnet mit `MAILINGS_WEBHOOK_SECRET`. Ohne gesetztes Geheimnis antwortet die Adresse mit 404. Format (neutral, `GenericBounceAdapter`): `{"events":[{"type":"hard_bounce|soft_bounce|complaint","email":"..."}]}`. Dauerhafte Fehler und Beschwerden sperren sofort, vorläufige Fehler zählen und sperren nach `MAILINGS_SOFT_BOUNCE_LIMIT` (Standard 5, Zählung verfällt nach 30 Tagen, Annahme). Für einen bestimmten Dienst wird eine weitere Umsetzung von `Contracts\BounceAdapter` ergänzt.
+- **Nachfassen:** Auf der Seite eines Schreibens mit fehlgeschlagenen Zustellungen legt „Nachfassen an nicht Erreichte“ einen Entwurf mit denselben Adressen an (höchstens 200, nur solange die Zustellliste noch gespeichert ist).
+- **Versionsverlauf der Vorlagen:** Beim Speichern einer Vorlage bleibt der vorherige Stand erhalten (die letzten 20) und lässt sich wiederherstellen. Gilt für Vorlagen für Rundschreiben, nicht für den festen Rahmen der Koordination.
+- Anleitungen in einfacher Sprache: `docs/66_RUNDSCHREIBEN_ANLEITUNGEN.md`.
+
+## Grenzen
+Stürzt ein Worker mitten in einer Mail ab, kann diese eine Mail doppelt zugestellt werden (Zeilen im Zustand „wird gesendet“ werden nach 10 Minuten wieder freigegeben). Bounces folgen im nächsten Update (siehe `docs/65_RUNDSCHREIBEN_ENTWICKLUNGSPLAN.md`).
+
+## Grundbestand, Kategorien und Platzhalter (Paket H3–H5)
+- **Grundbestand:** 15 Mailvorlagen (Versammlung, Schulen, Team, Feedback, Allgemein) und 27 Textbausteine werden mit `php artisan mail:load-defaults` angelegt. Der Befehl läuft auch bei `portal:update` und als Aufgabe „Standardinhalte laden“ in der Systemsteuerung. Er ergänzt nur fehlende Einträge (nach Name) und überschreibt nie. Alle Texte sind Entwürfe zur Freigabe durch Vorstand oder Geschäftsstelle und danach frei änderbar.
+- **Kategorien:** Vorlagen (Versammlung & Mitglieder, Schulen & Seminare, Team, Feedback, Allgemein) und Bausteine (Anrede & Gruß, Termine & Orte, Anmeldung & Fristen, Datenschutz & Abmeldung, Kontakt, Seminare, Allgemein) haben eine feste Kategorie. Die Verwaltung hat Suche und Kategoriefilter, Bausteine eine Reihenfolge, gleiche Namen werden abgelehnt. Beim Schreiben erscheint die Kategorie vor dem Namen. Mehrere Einträge lassen sich per Auswahl gemeinsam löschen.
+- **Neue Platzhalter:** `{stichtag}`, `{bewerbungslink}`, `{antraglink}` (bei Schreiben an Gruppen und bei Seminarmitteilungen). `{seminar_nr}`, `{feedback_link_lehrkraft}`, `{feedback_link_team}` gelten bei Seminarmitteilungen der Koordination. `{team}` nennt die Namen der bestätigten Teamenden (nur bei Seminarmitteilungen).
+
+## Rechte-Matrix (Paket H1)
+| Empfängerkreis | Vorstand | Geschäftsstelle | Koordination |
+|---|---|---|---|
+| Mitglieder | ja | – | – |
+| Teamende, Schulen, Koordination, Bildungsreferenten | ja | ja | ja |
+| Vorstand, Geschäftsstelle | ja | ja | – |
+| Einzelpersonen: Konten | alle | alle | nur Teamende und Schulen (und Ansprechpersonen von Schulen) |
+| Einzelpersonen: Mitglieder | ja | – | – |
+| Freigabe nötig | nein (gibt frei) | ab 50 Empfängern | nein |
+
+Die Koordination hat dafür das Recht `mailings.send_limited` und die Seite **Koordination › Rundschreiben** (`/koordination/rundschreiben`). Sie sieht dort nur ihre eigenen Schreiben. Absender: `MAILINGS_FROM_NAME_COORDINATION`, `MAILINGS_REPLY_TO_COORDINATION`. Der Test `MailRightsMatrixTest` prüft die Zellen.
+
+## Verteiler (Paket H2)
+Ein **Verteiler** ist ein benannter, gespeicherter Empfängerkreis: Gruppen, „Außer“-Gruppen und Filter. Gespeichert wird die Regel, nicht die Adressen; beim Versand wird er neu berechnet (Abmeldungen und Sperren von jetzt, Neuzugänge sind dabei). Ein Verteiler erreicht höchstens 5 000 Personen.
+
+- **Wo:** Geschäftsstelle › Verteiler (`mail_segments.manage`: Geschäftsstelle, Vorstand). Liste mit „Erreichbar jetzt“, Bearbeiten mit Vorschau (Zahl, Abgemeldete, Gesperrte, die ersten zehn Namen) auch ohne zu speichern, Löschen einzeln oder per Mehrfachauswahl.
+- **Wer ändert:** Verteiler mit der Gruppe Mitglieder nur der Vorstand. Die Geschäftsstelle darf sie weder anlegen noch ändern.
+- **Wer nutzt:** je Verteiler „Nutzbar von“ (Vorstand, Geschäftsstelle, Koordination). Beim Schreiben erscheint die Mehrfachauswahl **Verteiler** nur mit Verteilern, die für den Bereich sichtbar sind und nur Gruppen enthalten, die die Person anschreiben darf. Die Koordination nutzt nur Verteiler aus Teamenden, Schulen, Koordination und Bildungsreferenten.
+- **Filter** (UND-verknüpft, Werte eines Filters ODER-verknüpft): Bundesland der Schule, Schulart, Seminar (beworben/bestätigt), Einarbeitung offen/abgeschlossen, Teamprofil vollständig/unvollständig, Bewerbung in den letzten 12 Monaten oder noch nie, Mitgliedsstatus, Mitglied seit Jahr (von/bis), Postleitzahl-Anfang, Altersgruppe (18–29, 30–49, 50–64, 65+).
+- **Im Entwurf** steht nur der Verweis auf den Verteiler. Wird er gelöscht, bleibt der Entwurf gültig und ignoriert ihn.
+- Weitere Filter: Kompetenzen im Teamprofil und „mindestens n durchgeführte Seminare“. Filter „Zugang der importierten Kontakte“ (noch nichts gesendet, gesendet aber nie benutzt, benutzt) für die Gruppe Importierte Kontakte.
+
+## Gruppe „Importierte Kontakte“
+Teamkontakte ohne Konto (aus dem Import, Zugang über den persönlichen Link) lassen sich als Gruppe **Importierte Kontakte** anschreiben. Wer: Recht `contacts.manage` (Geschäftsstelle, Vorstand), nicht die Koordination. Kontakte, deren Adresse inzwischen zu einem aktiven Konto gehört, gehören nicht dazu (sie erreicht die Gruppe ihrer Rolle). Die Mail enthält einen Abmeldelink (Thema „Mitteilungen an Kontakte aus dem Teamzugang“), gesperrte Adressen bekommen nichts. Die Gruppe ist nicht Teil der Rechte-Matrix für die Koordination.

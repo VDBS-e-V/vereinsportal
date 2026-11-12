@@ -1,13 +1,19 @@
 <?php
 
-use App\Modules\Administration\Http\Middleware\RequireAdministrationAccess;
-use App\Modules\Administration\Http\Middleware\RequireAdministrationCapability;
-use App\Modules\Identity\Http\Middleware\RevalidateAuthenticatedUser;
+use App\Http\Middleware\VerifyBotGuard;
+use App\Modules\Access\Http\Middleware\EnforceTwoFactorSetup;
+use App\Modules\Access\Http\Middleware\EnsureSessionVersion;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Request;
 
+/*
+ * Die Middleware-Aliase fuer Administration (administration.access,
+ * administration.capability) und Identity (identity.revalidate) sind
+ * mit ihren Modulen entfernt worden und kommen zurueck, sobald
+ * Access-Governance bzw. Access ihre HTTP-Schicht bekommen. Bis dahin
+ * gibt es auch keinen Login, auf den Gaeste umgeleitet werden koennten.
+ */
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -15,19 +21,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
         then: function (): void {
             require base_path('routes/administration.php');
-            require base_path('routes/design.php');
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->alias([
-            'administration.access' => RequireAdministrationAccess::class,
-            'administration.capability' => RequireAdministrationCapability::class,
-            'identity.revalidate' => RevalidateAuthenticatedUser::class,
-        ]);
+        // Schutz öffentlicher Formulare vor automatisierten Eingaben (siehe App\Support\BotGuard\BotGuard)
+        $middleware->alias(['bot.guard' => VerifyBotGuard::class]);
 
-        $middleware->redirectGuestsTo(
-            fn (Request $request): string => route('my.login')
-        );
+        // Beendet Sitzungen, deren Version nicht mehr zum Konto passt (Passwortwechsel, E-Mail-Wechsel, "alle abmelden")
+        $middleware->web(append: [EnsureSessionVersion::class]);
+
+        // Zwei-Faktor-Pflicht für Rollen mit Verwaltungsrechten (siehe TwoFactorPolicy); danach die Sitzungsprüfung
+        $middleware->web(append: [EnforceTwoFactorSetup::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

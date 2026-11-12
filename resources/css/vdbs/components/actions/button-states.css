@@ -1,0 +1,62 @@
+/* Button-Zustände: deaktiviert, laden, gedrückt.
+ * Wird nach Formen und Flächen geladen und hat höhere Spezifität.
+ */
+
+/* Deaktiviert: graue Fläche und gedämpfter Text; die Textform bleibt ohne Fläche */
+.vdbs-btn.vdbs-btn--disabled {
+    background: var(--btn-disabled-bg);
+    border-color: var(--btn-disabled-bg);
+    color: var(--btn-disabled-fg);
+    cursor: not-allowed;
+    pointer-events: none;
+    text-decoration: none;
+}
+
+.vdbs-btn.vdbs-btn--disabled.vdbs-btn--form-text { background: transparent; border-color: transparent; }
+
+.vdbs-on-dark .vdbs-btn.vdbs-btn--disabled,
+.vdbs-btn--on-dark.vdbs-btn--disabled {
+    background: var(--on-dark-disabled-bg);
+    border-color: var(--on-dark-disabled-line);
+    color: var(--on-dark-disabled-fg);
+}
+
+.vdbs-on-brand .vdbs-btn.vdbs-btn--disabled,
+.vdbs-btn--on-brand.vdbs-btn--disabled {
+    background: var(--on-brand-disabled-bg);
+    border-color: var(--on-brand-disabled-line);
+    color: var(--on-brand-disabled-fg);
+}
+
+.vdbs-on-dark .vdbs-btn.vdbs-btn--disabled.vdbs-btn--form-text,
+.vdbs-on-brand .vdbs-btn.vdbs-btn--disabled.vdbs-btn--form-text { background: transparent; }
+
+/* Gedrückt (Maus oder Touch): dunklere Fläche der Rolle. Gefüllte Formen und Text nutzen --btn-press-*, Rahmenformen die Fläche des Hovers */
+.vdbs-btn--form-solid:active:not(.vdbs-btn--disabled):not(.vdbs-btn--loading) {
+    background: var(--btn-press-bg, var(--btn-hover-bg));
+    border-color: var(--btn-press-bg, var(--btn-hover-bg));
+    color: var(--btn-press-fg, var(--btn-hover-fg));
+}
+
+.vdbs-btn--form-outline:active:not(.vdbs-btn--disabled):not(.vdbs-btn--loading),
+.vdbs-btn--form-text:active:not(.vdbs-btn--disabled):not(.vdbs-btn--loading) {
+    background: var(--btn-press-bg, var(--btn-fill));
+    color: var(--btn-press-fg, var(--btn-fill-fg));
+}
+
+/* Laden: Farben bleiben, Bedienung ist gesperrt */
+.vdbs-btn--loading { cursor: progress; pointer-events: none; }
+
+/* Gedrückt (Umschalter): gefüllte Fläche in der Rollenfarbe plus Balken unten, damit der Zustand nicht nur an der Farbe hängt */
+.vdbs-btn[aria-pressed="true"] {
+    background: var(--btn-fill);
+    border-color: var(--btn-fill);
+    color: var(--btn-fill-fg);
+    box-shadow: inset 0 -4px 0 currentColor;
+}
+
+.vdbs-btn--form-solid[aria-pressed="true"] {
+    background: var(--btn-hover-bg);
+    border-color: var(--btn-hover-bg);
+    color: var(--btn-hover-fg);
+}

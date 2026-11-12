@@ -2,67 +2,41 @@
 
 @import './vdbs/tokens.css';
 @import './vdbs/base.css';
-@import './vdbs/layout.css';
-@import './vdbs/parts/header.css';
-@import './vdbs/frames.css';
-@import './vdbs/parts/footer.css';
-@import './vdbs/components/buttons.css';
-@import './vdbs/components/icons.css';
-@import './vdbs/components/forms.css';
-@import './vdbs/components/grids.css';
-@import './vdbs/components/links.css';
-@import './vdbs/components/cards.css';
-@import './vdbs/components/metadata.css';
-@import './vdbs/components/disclosure.css';
-@import './vdbs/components/navigation.css';
-@import './vdbs/components/search.css';
-@import './vdbs/components/loading.css';
-@import './vdbs/components/validation.css';
-@import './vdbs/components/danger.css';
-@import './vdbs/components/dialogs.css';
-@import './vdbs/components/media.css';
-@import './vdbs/components/files.css';
-@import './vdbs/components/editorial.css';
-@import './vdbs/components/events.css';
-@import './vdbs/components/contacts.css';
-@import './vdbs/components/resources.css';
-@import './vdbs/components/records.css';
-@import './vdbs/components/page-states.css';
-@import './vdbs/components/notices.css';
-@import './vdbs/components/empty-states.css';
-@import './vdbs/components/error-pages.css';
-@import './vdbs/components/code-examples.css';
-@import './vdbs/components/icon-browser.css';
-@import './vdbs/components/playground.css';
-@import './vdbs/components/tables.css';
-@import './vdbs/pages.css';
-@import './vdbs/a11y.css';
-@import './vdbs/design.css';
-@import './vdbs/print.css';
+@import './vdbs/components/foundation/index.css';
+@import './vdbs/components/actions/index.css';
+@import './vdbs/components/forms/index.css';
+@import './vdbs/components/navigation/index.css';
+@import './vdbs/components/layout/index.css';
+@import './vdbs/components/cards/index.css';
+@import './vdbs/components/data/index.css';
+@import './vdbs/components/feedback/index.css';
+@import './vdbs/components/overlays/index.css';
+@import './vdbs/components/media/index.css';
+@import './vdbs/components/disclosure/index.css';
+@import './vdbs/components/content/index.css';
+/* design-packages:imports (hier ergänzt `php artisan design:package` neue Pakete; Zeile nicht entfernen) */
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+/*
+ * Dateien unter ./vdbs/components/_legacy/ (editorial, events, contacts,
+ * records, ...) sind bewusst nicht eingebunden: sie nutzen noch alte
+ * Token-Namen und werden überarbeitet, sobald ihr fachlicher Bereich gebaut wird.
+ */
+
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
-/*
- * Tailwind-facing brand tokens.
- *
- * The VDBS component layer is intentionally kept in resources/css/vdbs,
- * following the same separation used by the former VDBS portal: tokens,
- * base, layout, parts and components. Tailwind remains available for local
- * layout utilities, while reusable product UI is expressed through the
- * component classes from that layer.
- */
 @theme {
-    --font-sans: 'IBM Plex Sans', 'Segoe UI', Arial, sans-serif;
-    --font-serif: 'Source Serif 4', Georgia, serif;
+    --font-sans: 'Lato', 'Segoe UI', system-ui, -apple-system, sans-serif;
 
-    --color-vdbs-green: #2fbf71;
-    --color-vdbs-ocean: #22b7a3;
-    --color-vdbs-ink: #0f172a;
-    --color-vdbs-amber: #f59e0b;
-    --color-vdbs-teal: #14b8a6;
-    --color-vdbs-berry: #d946ef;
-    --color-vdbs-white: #ffffff;
+    --color-vdbs-gruen: var(--color-gruen);
+    --color-vdbs-ink: var(--color-ink);
+    --color-vdbs-weiss: var(--color-weiss);
+    --color-vdbs-lila: var(--color-lila);
+    --color-vdbs-group-1: var(--color-group-1);
+    --color-vdbs-group-2: var(--color-group-2);
+    --color-vdbs-group-3: var(--color-group-3);
+    --color-vdbs-group-4: var(--color-group-4);
+    --color-vdbs-group-5: var(--color-group-5);
+    --color-vdbs-group-6: var(--color-group-6);
 }

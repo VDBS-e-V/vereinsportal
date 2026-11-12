@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\User;
+use App\Modules\Access\Models\User;
 
 return [
 
@@ -46,6 +46,13 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // Modul: SSO. Fuer Laravel Passport als OIDC-Provider fuer
+        // Nextcloud/Moodle/Umfragetools (siehe Konzept-Dokument).
+        'api' => [
+            'driver' => 'passport',
+            'provider' => 'users',
+        ],
     ],
 
     /*
@@ -70,7 +77,7 @@ return [
             'driver' => 'eloquent',
             'model' => env(
                 'AUTH_MODEL',
-                App\Modules\Identity\Models\User::class,
+                User::class,
             ),
         ],
 
@@ -104,6 +111,14 @@ return [
             'provider' => 'users',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        // Einladungen neuer Nutzer: gleiche Tabelle, aber sieben Tage gültig (Links zum Zurücksetzen nur 60 Minuten)
+        'invitations' => [
+            'provider' => 'users',
+            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+            'expire' => 60 * 24 * 7,
             'throttle' => 60,
         ],
     ],

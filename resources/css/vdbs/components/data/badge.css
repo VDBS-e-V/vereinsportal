@@ -1,0 +1,29 @@
+/* Badges (Styleguide 5.6) */
+
+.vdbs-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 0.125rem var(--space-3);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-full);
+    background: var(--bg-surface);
+    color: var(--text-default);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+    white-space: nowrap;
+}
+
+.vdbs-badge--success { background: var(--bg-accent-soft); border-color: var(--border-success); color: var(--text-on-success-soft); }
+.vdbs-badge--warning { background: var(--bg-warning-soft); border-color: var(--border-warning); color: var(--text-warning); }
+.vdbs-badge--error { background: var(--bg-error-soft); border-color: var(--border-error); color: var(--text-error); }
+
+/* Kategorie 1–6: Gruppenfarbe als Marker, Text bleibt in Standardfarbe */
+.vdbs-badge--cat-1 { --cat: var(--group-1); }
+.vdbs-badge--cat-2 { --cat: var(--group-2); }
+.vdbs-badge--cat-3 { --cat: var(--group-3); }
+.vdbs-badge--cat-4 { --cat: var(--group-4); }
+.vdbs-badge--cat-5 { --cat: var(--group-5); }
+.vdbs-badge--cat-6 { --cat: var(--group-6); }
+.vdbs-badge[class*="vdbs-badge--cat-"] { border-left: 0.5rem solid var(--cat); }

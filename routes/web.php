@@ -1,178 +1,61 @@
 <?php
 
-use App\Modules\Identity\Http\Controllers\AcceptPortalInvitationController;
-use App\Modules\Identity\Http\Controllers\ConfirmAccountDeletionController;
-use App\Modules\Identity\Http\Controllers\ConfirmEmailChangeController;
-use App\Modules\Identity\Http\Controllers\DeleteProfileAvatarController;
-use App\Modules\Identity\Http\Controllers\LogoutController;
-use App\Modules\Identity\Http\Controllers\ShowPortalInvitationController;
-use App\Modules\Identity\Http\Controllers\ShowProfileAvatarController;
-use App\Modules\Identity\Http\Controllers\StoreProfileAvatarController;
-use App\Modules\Identity\Http\Controllers\VerifyRegistrationController;
-use App\Modules\Identity\Http\Controllers\WithdrawAccountDeletionController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NotFoundController;
+use App\Http\Controllers\PortalAreaController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SchoolAreaController;
 use Illuminate\Support\Facades\Route;
-use Livewire\Volt\Volt;
 
-Route::get(
-    '/identity/registration/verify/{publicId}/{version}',
-    VerifyRegistrationController::class,
-)
-    ->middleware('signed')
-    ->name('identity.registration.verify');
+/*
+ * Login/Logout liegen im Access-Modul, die Design-Bibliothek unter /design.
+ * Weitere Bereiche kommen modulweise dazu (Onboarding, Offboarding, ...).
+ *
+ * Siehe Konzept: https://claude.ai/artifact/6T9qoinqTT6m6UoQMXptKs
+ */
+// Startseite: öffentlich, zeigt Gästen den Zugang und Angemeldeten ihre Bereiche.
+Route::get('/', [HomeController::class, 'index'])->middleware('web')->name('home');
 
-Route::domain(config('domains.my'))
-    ->group(function (): void {
-        Route::get(
-            '/einladung/{publicId}/{version}/{token}',
-            ShowPortalInvitationController::class,
-        )
-            ->middleware('signed')
-            ->name('identity.portal-invitation.show');
+// Start-Bereich: öffentliche Informationsseiten (Zeile 2 des Kopfbereichs, siehe docs/43_BEREICHE.md).
+Route::middleware('web')->group(function (): void {
+    Route::view('/ueber-das-portal', 'portal.about')->name('portal.about');
+    Route::view('/design-pakete', 'portal.design-packages')->name('portal.design-packages');
+    Route::get('/kontakt', [ContactController::class, 'show'])->name('portal.contact');
+    Route::post('/kontakt', [ContactController::class, 'send'])->middleware(['bot.guard', 'throttle:5,10'])->name('portal.contact.send');
+});
 
-        Route::post(
-            '/einladung/{publicId}/{version}/{token}',
-            AcceptPortalInvitationController::class,
-        )
-            ->middleware('signed')
-            ->name('identity.portal-invitation.accept');
+// Übersichten der Bereiche Mitglieder, Vorstand und Bildungsreferenten
+Route::middleware(['web', 'auth'])->group(function (): void {
+    Route::get('/mitglieder', [PortalAreaController::class, 'member'])->middleware('can:member.area')->name('member.home');
+    Route::get('/mitglieder/mitgliedschaft', [PortalAreaController::class, 'membership'])->middleware('can:member.area')->name('member.membership');
+    Route::get('/mitglieder/dokumente/{document}', [PortalAreaController::class, 'memberDocument'])->whereNumber('document')->middleware('can:member.area')->name('member.documents.download');
+    Route::get('/vorstand', [PortalAreaController::class, 'board'])->middleware('can:memberships.view')->name('board.overview');
+    Route::get('/vorstand/berichte', [ReportController::class, 'index'])->middleware('can:reports.view')->name('board.reports');
+    Route::get('/vorstand/berichte/export', [ReportController::class, 'export'])->middleware('can:reports.view')->name('board.reports.export');
+    Route::get('/teamende', [PortalAreaController::class, 'area'])->defaults('area', 'teamende')->name('team.home');
+    Route::get('/mitarbeitende', [PortalAreaController::class, 'employee'])->middleware('can:employee.area')->name('employee.home');
+    Route::get('/koordination', [PortalAreaController::class, 'area'])->defaults('area', 'koordination')->name('coordination.home');
+    Route::get('/geschaeftsstelle', [PortalAreaController::class, 'area'])->defaults('area', 'geschaeftsstelle')->name('office.home');
+    Route::get('/admins', [PortalAreaController::class, 'area'])->defaults('area', 'admins')->name('admins.home');
+    Route::get('/bildung', [PortalAreaController::class, 'education'])->middleware('can:education.view')->name('education.overview');
+});
 
-        Route::get(
-            '/email/aenderung/bestaetigen/{publicId}',
-            ConfirmEmailChangeController::class,
-        )
-            ->middleware('signed')
-            ->name('identity.email-change.verify');
+// Bereich Schulen (Konten mit der Rolle Schule, nur die eigene Schule)
+Route::middleware(['web', 'auth', 'can:school.area'])->prefix('schulen')->name('school.')->group(function (): void {
+    Route::get('/', [SchoolAreaController::class, 'home'])->name('home');
+    Route::get('/anfrage', [SchoolAreaController::class, 'create'])->name('requests.create');
+    Route::post('/anfrage', [SchoolAreaController::class, 'store'])->middleware('throttle:10,10')->name('requests.store');
+    Route::get('/veranstaltungen', [SchoolAreaController::class, 'events'])->name('events.index');
+    Route::get('/veranstaltungen/{event}', [SchoolAreaController::class, 'event'])->whereNumber('event')->name('events.show');
+    Route::get('/veranstaltungen/{event}/vorlage', [SchoolAreaController::class, 'eventTemplate'])->whereNumber('event')->name('events.template');
+    Route::post('/veranstaltungen/{event}/liste', [SchoolAreaController::class, 'eventImport'])->whereNumber('event')->middleware('throttle:10,10')->name('events.import');
+    Route::delete('/veranstaltungen/{event}/anmeldungen/{registration}', [SchoolAreaController::class, 'eventRegistrationDestroy'])->whereNumber(['event', 'registration'])->name('events.registrations.destroy');
+    Route::get('/kostenvoranschlaege/{quote}/druck', [SchoolAreaController::class, 'quote'])->whereNumber('quote')->name('quotes.print');
+    Route::post('/seminare/{seminar}/bestaetigen', [SchoolAreaController::class, 'confirm'])->whereNumber('seminar')->middleware('throttle:10,10')->name('seminars.confirm');
+    Route::post('/seminare/{seminar}/rueckmeldung', [SchoolAreaController::class, 'feedback'])->whereNumber('seminar')->middleware('throttle:10,10')->name('seminars.feedback');
+});
 
-        Volt::route(
-            '/email/aenderung/sicherheit/{publicId}',
-            'identity.email-change-security',
-        )
-            ->middleware('signed')
-            ->name('identity.email-change.security');
-
-        Volt::route(
-            '/anmelden',
-            'identity.login',
-        )->name('my.login');
-
-        Volt::route(
-            '/anmeldung/2fa',
-            'identity.two-factor-challenge',
-        )->name('my.two-factor.challenge');
-
-        Volt::route(
-            '/anmeldung/2fa/methode',
-            'identity.two-factor-method',
-        )->name('my.two-factor.method');
-
-        Volt::route(
-            '/passwort/vergessen',
-            'identity.password-forgot',
-        )->name('my.password.request');
-
-        Volt::route(
-            '/passwort/zuruecksetzen/{token}',
-            'identity.password-reset',
-        )
-            ->middleware('signed')
-            ->name('my.password.reset');
-
-        Route::middleware([
-            'auth',
-            'identity.revalidate',
-        ])->group(function (): void {
-            Volt::route(
-                '/',
-                'identity.home',
-            )->name('my.home');
-
-            Volt::route(
-                '/konto',
-                'identity.account',
-            )->name('my.account');
-
-            Volt::route(
-                '/konto/profil',
-                'identity.account-profile',
-            )->name('my.account.profile');
-
-            Route::get(
-                '/konto/profilbild',
-                ShowProfileAvatarController::class,
-            )->name('my.account.avatar');
-
-            Route::post(
-                '/konto/profilbild',
-                StoreProfileAvatarController::class,
-            )->name('my.account.avatar.store');
-
-            Route::delete(
-                '/konto/profilbild',
-                DeleteProfileAvatarController::class,
-            )->name('my.account.avatar.delete');
-
-            Volt::route(
-                '/konto/einstellungen',
-                'identity.account-settings',
-            )->name('my.account.settings');
-
-            Volt::route(
-                '/konto/mitgliedschaft',
-                'identity.membership',
-            )->name('my.membership');
-
-            Route::post(
-                '/abmelden',
-                LogoutController::class,
-            )->name('my.logout');
-
-            Volt::route(
-                '/profil',
-                'identity.profile',
-            )->name('my.profile');
-
-            Volt::route(
-                '/profil/email',
-                'identity.email-change',
-            )->name('my.email-change');
-
-            Volt::route(
-                '/profil/passwort',
-                'identity.password-change',
-            )->name('my.password.change');
-
-            Volt::route(
-                '/profil/sicherheit',
-                'identity.security',
-            )->name('my.security');
-
-            Volt::route(
-                '/profil/konto-loeschen',
-                'identity.account-deletion',
-            )->name('my.account-deletion');
-        });
-
-        Volt::route(
-            '/registrieren',
-            'identity.registration',
-        )->name('my.registration.create');
-
-        Volt::route(
-            '/registrierung/status/{publicId}',
-            'identity.registration-status',
-        )->name('my.registration.status');
-
-        Route::get(
-            '/identity/account-deletion/confirm/{publicId}',
-            ConfirmAccountDeletionController::class,
-        )
-            ->middleware('signed')
-            ->name('identity.account-deletion.confirm');
-
-        Route::get(
-            '/identity/account-deletion/withdraw/{publicId}',
-            WithdrawAccountDeletionController::class,
-        )
-            ->middleware('signed')
-            ->name('identity.account-deletion.withdraw');
-    });
+// Unbekannte Adressen laufen durch die Web-Middleware, damit die 404-Seite die Anmeldung kennt (Bereiche statt Login).
+// Alle Methoden, damit eine unbekannte Adresse nicht plötzlich 405 statt 404 liefert.
+Route::match(['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], '{fallbackPlaceholder}', [NotFoundController::class, '__invoke'])->where('fallbackPlaceholder', '.*')->fallback();
