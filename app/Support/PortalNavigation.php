@@ -201,7 +201,7 @@ final class PortalNavigation
             ],
             PortalAreas::Aufgaben->value => [
                 'home' => 'tasks.index',
-                'routes' => ['tasks.projects.*', 'tasks.show', 'tasks.update', 'tasks.store', 'tasks.bulk', 'tasks.move', 'tasks.destroy', 'tasks.comments.*'],
+                'routes' => ['tasks.projects.*', 'tasks.show', 'tasks.update', 'tasks.store', 'tasks.bulk', 'tasks.move', 'tasks.destroy', 'tasks.comments.*', 'tasks.templates.*', 'tasks.attachments.*', 'tasks.subtasks.*'],
                 'roles' => [RoleKey::BoardMember, RoleKey::Administration, RoleKey::AdministrationStaff, RoleKey::Coordination, RoleKey::EducationCoordination, RoleKey::ManagingDirector, RoleKey::Treasury, RoleKey::Employee],
                 'pages' => [
                     ['description' => 'Projekte mit Kanban-Tafel und Liste.', 'label' => 'Projekte', 'route' => 'tasks.index', 'match' => 'tasks.index', 'can' => 'tasks.use'],

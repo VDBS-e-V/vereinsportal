@@ -327,7 +327,7 @@ it('invites guests with a calendar file only when invitations are on', function 
 
     $this->post(route('board.meetings.guests.invite', $meeting), ['ids' => [$one->id], 'note' => 'Bitte Unterlagen mitbringen.'])->assertSessionHas('success');
     Mail::assertSent(BoardGuestInvitationMail::class, 1);
-    Mail::assertSent(BoardGuestInvitationMail::class, fn ($mail) => $mail->hasTo('gerda@beispiel.example') && str_contains($mail->ics, 'BEGIN:VEVENT') && $mail->agenda === '' && $mail->note === 'Bitte Unterlagen mitbringen.' && ! str_contains(view('mail.board.guest-invitation', ['meeting' => $mail->meeting, 'guest' => $mail->guest, 'club' => $mail->club, 'agenda' => $mail->agenda, 'note' => $mail->note])->render(), '/vorstand/'));
+    Mail::assertSent(BoardGuestInvitationMail::class, fn ($mail) => $mail->hasTo('gerda@beispiel.example') && str_contains($mail->ics, 'BEGIN:VEVENT') && $mail->agenda === '' && $mail->note === 'Bitte Unterlagen mitbringen.' && ! str_contains($mail->render(), '/vorstand/'));
     expect($one->fresh()->invited_at)->not->toBeNull()->and($two->fresh()->invited_at)->toBeNull();
 
     $this->post(route('board.meetings.guests.invite', $meeting), ['with_agenda' => '1'])->assertSessionHas('success');
@@ -399,7 +399,7 @@ it('tells guests about the processing of their data in the invitation', function
     Mail::assertSent(BoardGuestInvitationMail::class, function ($mail) {
         $html = $mail->render();
 
-        return str_contains($html, 'Hinweis zum Datenschutz') && str_contains($html, '45 Tage nach der Sitzung') && str_contains($html, route('pages.show', 'datenschutz')) && str_contains($html, 'Beratung eG')
+        return str_contains($html, 'Hinweis zum Datenschutz') && str_contains($html, '45 Tage nach der Sitzung') && str_contains($html, route('pages.show', 'datenschutz')) && str_contains($html, 'sowie Ihre Organisation')
             && ! str_contains($html, '/vorstand/sitzungen') && $mail->privacyUrl !== '';
     });
 });

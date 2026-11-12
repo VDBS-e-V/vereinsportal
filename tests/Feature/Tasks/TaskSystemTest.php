@@ -502,7 +502,7 @@ it('stores, downloads and deletes task attachments and removes the files with th
     $this->post(route('tasks.attachments.store', $task), [])->assertSessionHasErrors('files');
 
     // fremde Anhänge löscht nur, wer das Projekt verwaltet
-    $this->actingAs($manager)->post(route('tasks.attachments.store', $task), ['files' => [tkFile('verwaltung.txt', 'x')]]);
+    $this->actingAs($manager)->post(route('tasks.attachments.store', $task), ['files' => [tkFile('verwaltung.txt', 'Text der Verwaltung')]]);
     $this->actingAs($user)->post(route('tasks.attachments.destroy', $task), ['ids' => [$task->attachments()->where('original_name', 'verwaltung.txt')->value('id')]])->assertForbidden();
     $this->post(route('tasks.attachments.destroy', $task), ['ids' => [$attachments[1]->id]])->assertRedirect();
     expect($task->attachments()->count())->toBe(2);
@@ -518,12 +518,12 @@ it('keeps task attachments from non-members', function () {
     $user = tkUser(RoleKey::Coordination);
     $project = tkProject([$user]);
     $task = tkTask($project);
-    $this->actingAs($user)->post(route('tasks.attachments.store', $task), ['files' => [tkFile('a.txt', 'x')]]);
+    $this->actingAs($user)->post(route('tasks.attachments.store', $task), ['files' => [tkFile('a.txt', 'Beispieltext einer Datei')]]);
     $attachment = $task->attachments()->firstOrFail();
 
     $this->actingAs(tkUser(RoleKey::Coordination));
     $this->get(route('tasks.attachments.download', [$task, $attachment]))->assertForbidden();
-    $this->post(route('tasks.attachments.store', $task), ['files' => [tkFile('b.txt', 'x')]])->assertForbidden();
+    $this->post(route('tasks.attachments.store', $task), ['files' => [tkFile('b.txt', 'Zweiter Beispieltext')]])->assertForbidden();
     $this->post(route('tasks.attachments.destroy', $task), ['ids' => [$attachment->id]])->assertForbidden();
     expect($task->attachments()->count())->toBe(1);
 });
@@ -678,7 +678,7 @@ it('renders the kanban board with the design system components and without inlin
 it('deletes a project with its tasks and attachments', function () {
     $project = tkProject();
     $task = tkTask($project);
-    $this->actingAs(tkUser(RoleKey::Administration))->post(route('tasks.attachments.store', $task), ['files' => [tkFile('a.txt', 'x')]]);
+    $this->actingAs(tkUser(RoleKey::Administration))->post(route('tasks.attachments.store', $task), ['files' => [tkFile('a.txt', 'Beispieltext einer Datei')]]);
     $path = $task->attachments()->firstOrFail()->path;
     Storage::disk('local')->assertExists($path);
 
