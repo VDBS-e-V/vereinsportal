@@ -19,8 +19,8 @@ behandelt.
 ## Abschlussprüfung
 
 ```bat
-php artisan vdbs:library-check
-php artisan vdbs:design-status
+php artisan design:check
+php artisan design:status
 php artisan test tests\Feature\Design
 npm run build
 git diff --check

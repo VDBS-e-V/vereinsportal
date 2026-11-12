@@ -1,5 +1,7 @@
 # Web Content Library — Entwicklungswerkzeuge
 
+> Hinweis: Die Befehle `vdbs:library-check` und `vdbs:design-status` wurden durch `design:check` und `design:status` der Design-Bibliothek ersetzt (siehe `docs/59_DESIGN_PAKETE.md`). Die Beschreibung der Prüfungen unten stammt aus der älteren Struktur und gilt sinngemäß.
+
 ## Komponenten erzeugen
 
 ```bat
@@ -30,7 +32,7 @@ Der Generator erzeugt Dokumentation und Design-Test für ein neues Muster.
 ## Bibliothek prüfen
 
 ```bat
-php artisan vdbs:library-check
+php artisan design:check
 ```
 
 Die Prüfung schlägt fehl bei:

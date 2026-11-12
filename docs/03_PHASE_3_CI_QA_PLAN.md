@@ -25,7 +25,7 @@ Datei:
 - eigene `.env.testing` mit MySQL-Testdatenbank und nicht-persistenten Cache-/Session-/Mail-Treibern
 - `php artisan config:clear --env=testing`
 - `php artisan migrate:fresh --env=testing --force`
-- `php artisan vdbs:library-check`
+- `php artisan design:check`
 - `npm run build`
 - `git diff --check`
 - `php vendor/bin/pest`

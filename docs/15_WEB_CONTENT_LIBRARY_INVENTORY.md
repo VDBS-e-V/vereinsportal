@@ -1,5 +1,7 @@
 # VDBS Web Content Bibliothek — vollständiges Inventar
 
+> Hinweis: Die Befehle `vdbs:library-check` und `vdbs:design-status` wurden durch `design:check` und `design:status` der Design-Bibliothek ersetzt (siehe `docs/59_DESIGN_PAKETE.md`). Die Beschreibung der Prüfungen unten stammt aus der älteren Struktur und gilt sinngemäß.
+
 Dieses Dokument bildet den Stand der zentral gepflegten Web-Content-Bibliothek ab.
 Die maschinenlesbare Quelle bleibt `config/web_content_library.php`.
 
@@ -81,7 +83,7 @@ Die maschinenlesbare Quelle bleibt `config/web_content_library.php`.
 
 ## Automatische Abdeckung
 
-`php artisan vdbs:library-check` prüft zusätzlich automatisch alle Dateien in:
+`php artisan design:check` prüft zusätzlich automatisch alle Dateien in:
 
 - `resources/views/components/vdbs/*.blade.php`
 - `resources/css/vdbs/components/*.css`
