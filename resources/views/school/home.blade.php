@@ -9,6 +9,9 @@
         </x-slot:actions>
     </x-vdbs.layout.page-header>
 
+    @include('portal._tasks', ['area' => \App\Support\PortalAreas::Schulen])
+
+
     <x-vdbs.forms.error-summary />
 
     @if ($seminars->isEmpty())

@@ -26,25 +26,6 @@
         </x-vdbs.media.hero>
     </x-vdbs.layout.container>
 
-    @auth
-        <x-vdbs.layout.section title="Ihre Aufgaben" lead="Was für Sie gerade ansteht." id="aufgaben">
-            @if ($tasks === [])
-                <p>Im Moment gibt es nichts zu erledigen.</p>
-            @else
-                <ul class="vdbs-task-list">
-                    @foreach ($tasks as $task)
-                        <li class="vdbs-task-list__item">
-                            <a class="vdbs-task-list__link" href="{{ $task['href'] }}">
-                                @if ($task['count'] !== null)<x-vdbs.data.badge :tone="$task['tone']">{{ $task['count'] }}</x-vdbs.data.badge>@endif
-                                <span>{{ $task['label'] }}</span>
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-            @endif
-        </x-vdbs.layout.section>
-    @endauth
-
     <x-vdbs.layout.section :title="$home['areas']['title']" :lead="$home['areas']['lead']" align="center" variant="band">
         <x-vdbs.data.chip-list label="Bereiche des Portals">
             @foreach ($areas as $area)

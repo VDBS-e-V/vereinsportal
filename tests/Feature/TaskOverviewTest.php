@@ -75,12 +75,55 @@ it('shows the coordination seminar requests and teams waiting after the deadline
         ->and($byLabel['Seminare, deren Team nach dem Stichtag noch zusammengestellt werden muss']['count'])->toBe(1);
 });
 
-it('shows the tasks on the start page for logged-in people only', function () {
+it('keeps the hints off the public start page and shows them in the account and the matching area', function () {
     $this->get('/')->assertOk()->assertDontSee('Ihre Aufgaben');
 
     $coordination = toUser(RoleKey::Coordination);
     Seminar::factory()->create(['status' => SeminarStatus::Request]);
 
-    $this->actingAs($coordination)->get('/')->assertOk()->assertSee('Ihre Aufgaben')->assertSee('Neue Seminaranfragen');
-    $this->actingAs(toUser())->get('/')->assertOk()->assertSee('Im Moment gibt es nichts zu erledigen.');
+    // nicht mehr auf der Startseite, auch nicht für Angemeldete
+    $this->actingAs($coordination)->get('/')->assertOk()->assertDontSee('Ihre Aufgaben')->assertDontSee('Neue Seminaranfragen');
+
+    // im Konto alle Hinweise, im Bereich nur seine
+    $this->get(route('account.home'))->assertOk()->assertSee('Ihre Aufgaben')->assertSee('Neue Seminaranfragen');
+    $this->get(route('coordination.home'))->assertOk()->assertSee('Ihre Aufgaben')->assertSee('Neue Seminaranfragen');
+
+    $this->actingAs(toUser())->get(route('account.home'))->assertOk()->assertSee('Im Moment gibt es nichts zu erledigen.');
+});
+
+it('assigns each hint to the area of the page it links to', function () {
+    $user = toUser(RoleKey::AdministrationStaff);
+    Seminar::factory()->create(['status' => SeminarStatus::Request]);
+
+    $coordination = array_column(TaskOverview::forArea($user, \App\Support\PortalAreas::Koordination), 'label');
+    $office = array_column(TaskOverview::forArea($user, \App\Support\PortalAreas::Geschaeftsstelle), 'label');
+
+    expect($coordination)->toContain('Neue Seminaranfragen')->and($office)->not->toContain('Neue Seminaranfragen')
+        ->and(TaskOverview::forArea($user, \App\Support\PortalAreas::Schulen))->toBe([]);
+});
+
+it('lists the own open and overdue tasks of the task system in the account and the area Aufgaben', function () {
+    $user = toUser(RoleKey::Coordination);
+    $project = app(\App\Modules\Tasks\Services\TaskProjects::class)->create(['name' => 'Entwicklung', 'description' => null, 'role_key' => null], [], [$user->id], toUser(RoleKey::Administration));
+    $open = $project->statuses()->where('is_done', false)->first();
+    $done = $project->statuses()->where('is_done', true)->first();
+
+    foreach ([['Heute', now()->addDay(), $open, null], ['Gestern', now()->subDay(), $open, null], ['Fertig', now()->subDay(), $done, now()]] as [$title, $due, $status, $doneAt]) {
+        $task = \App\Modules\Tasks\Models\Task::query()->create(['task_project_id' => $project->id, 'task_status_id' => $status->id, 'title' => $title, 'due_on' => $due, 'done_at' => $doneAt]);
+        $task->assignees()->sync([$user->id]);
+    }
+
+    $labels = toLabels($user);
+    expect($labels)->toContain('Offene Aufgaben im Aufgabensystem')->toContain('Überfällige Aufgaben im Aufgabensystem');
+
+    $counts = collect(TaskOverview::for($user))->pluck('count', 'label');
+    expect($counts['Offene Aufgaben im Aufgabensystem'])->toBe(2)->and($counts['Überfällige Aufgaben im Aufgabensystem'])->toBe(1);
+
+    $this->actingAs($user);
+    $this->get(route('account.home'))->assertOk()->assertSee('Offene Aufgaben im Aufgabensystem');
+    $this->get(route('tasks.index'))->assertOk()->assertSee('Überfällige Aufgaben im Aufgabensystem');
+    $this->get(route('coordination.home'))->assertOk()->assertDontSee('im Aufgabensystem');
+
+    // wer das Aufgabensystem nicht nutzt, sieht die Hinweise nicht
+    expect(toLabels(toUser(RoleKey::Team)))->not->toContain('Offene Aufgaben im Aufgabensystem');
 });

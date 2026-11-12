@@ -1,4 +1,6 @@
 <x-account.shell title="Konto" current="home" lead="Ihr Profil, Ihre Stammdaten und Ihre Einstellungen an einem Ort.">
+    @include('portal._tasks', ['showEmpty' => true])
+
     <x-vdbs.layout.grid :columns="2">
         @if ($hasProfile)
             <section aria-labelledby="profile-heading">

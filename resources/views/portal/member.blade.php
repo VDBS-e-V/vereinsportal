@@ -6,6 +6,9 @@
 <x-layouts.app title="Mitglieder" width="medium">
     <x-vdbs.layout.page-header title="Mitgliederbereich" lead="Ihre Mitgliedschaft, die Satzung und alles, was Sie als Mitglied brauchen." :breadcrumb="$crumbs" />
 
+    @include('portal._tasks', ['area' => \App\Support\PortalAreas::Mitglieder])
+
+
     <section aria-labelledby="membership-heading">
         <h2 id="membership-heading" style="font-size:var(--font-size-h3)">Ihre Mitgliedschaft</h2>
 

@@ -12,18 +12,9 @@
 <x-layouts.app :title="$area->label()" width="wide">
     <x-vdbs.layout.page-header :title="'Bereich '.$area->label()" :lead="$lead" :breadcrumb="$crumbs" />
 
-    @if ($tasks !== [])
-        <section aria-labelledby="tasks-heading">
-            <h2 id="tasks-heading" style="font-size:var(--font-size-h3)">Was ansteht</h2>
-            <ul>
-                @foreach ($tasks as $task)
-                    <li><a href="{{ $task['href'] }}">{{ $task['count'] !== null ? $task['count'].' ' : '' }}{{ $task['label'] }}</a></li>
-                @endforeach
-            </ul>
-        </section>
-    @endif
+    @include('portal._tasks', ['area' => $area])
 
-    <section aria-labelledby="pages-heading" @if ($tasks !== []) style="margin-top:var(--space-8)" @endif>
+    <section aria-labelledby="pages-heading">
         <h2 id="pages-heading" style="font-size:var(--font-size-h3)">Seiten</h2>
 
         @if ($pages === [])

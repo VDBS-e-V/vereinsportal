@@ -2,6 +2,9 @@
 <x-layouts.app title="Mitarbeitende" width="wide">
     <x-vdbs.layout.page-header title="Bereich Mitarbeitende" lead="Willkommen, {{ $name }}. Hier finden Sie Ihre Anträge und den Weg zu den Systemen des Vereins." :breadcrumb="$crumbs" />
 
+    @include('portal._tasks', ['area' => \App\Support\PortalAreas::Mitarbeitende])
+
+
     <section aria-labelledby="roles-heading">
         <h2 id="roles-heading" style="font-size:var(--font-size-h3)">Ihre Rollen</h2>
         <ul>

@@ -5,6 +5,9 @@
 <x-layouts.app title="Vorstand" width="wide">
     <x-vdbs.layout.page-header title="Übersicht für den Vorstand" lead="Kennzahlen zum Verein. Es werden nur Zahlen gezeigt, keine Personendaten." :breadcrumb="$crumbs" />
 
+    @include('portal._tasks', ['area' => \App\Support\PortalAreas::Vorstand])
+
+
     <h2 style="font-size:var(--font-size-h3)">Mitgliedschaften</h2>
     <x-vdbs.layout.grid :columns="4">
         <x-vdbs.data.stat label="Aktive Mitglieder" :value="$stats['members']" tone="success" :href="route('membership.index')" />

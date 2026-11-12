@@ -14,6 +14,6 @@ class HomeController extends Controller
     {
         $articles = Article::query()->visible()->orderByDesc('featured')->orderByDesc('published_at')->orderByDesc('id')->limit(self::ARTICLES)->get();
 
-        return view('portal.home', ['articles' => $articles, 'tasks' => auth()->check() ? \App\Support\TaskOverview::for(auth()->user()) : null]);
+        return view('portal.home', ['articles' => $articles]);
     }
 }

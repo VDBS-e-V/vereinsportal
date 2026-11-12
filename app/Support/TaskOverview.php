@@ -14,10 +14,12 @@ use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
 use App\Modules\Seminars\Models\TeamProfile;
 use App\Modules\Seminars\Services\TeamApplications;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Throwable;
 
 /**
- * „Ihre Aufgaben“ auf der Startseite: Was für die angemeldete Person gerade ansteht, nach Berechtigungen. Jeder Eintrag ist ein Hinweis mit Zahl und Link,
+ * „Ihre Aufgaben“ im Konto und in den Bereichen (nicht auf der öffentlichen Startseite): Was für die angemeldete Person gerade ansteht, nach Berechtigungen. Jeder Eintrag ist ein Hinweis mit Zahl und Link,
  * es werden nur Zahlen gezeigt, keine Namen oder Inhalte. Einträge ohne etwas zu tun entfallen.
  */
 final class TaskOverview
@@ -102,6 +104,36 @@ final class TaskOverview
             $add('Verträge warten auf den unterschriebenen Scan', $missing, route('seminars.index'));
         }
 
+        // Aufgabensystem: eigene offene und überfällige Aufgaben aus den Projekten, die die Person sehen darf
+        if ($can('tasks.use')) {
+            $mine = \App\Modules\Tasks\Models\Task::query()->whereNull('done_at')
+                ->whereIn('task_project_id', app(\App\Modules\Tasks\Services\ProjectAccess::class)->visible($user)->select('task_projects.id'))
+                ->whereHas('assignees', fn ($assignees) => $assignees->where('users.id', $user->id));
+            $overdue = (clone $mine)->whereDate('due_on', '<', today())->count();
+
+            $add('Überfällige Aufgaben im Aufgabensystem', $overdue, route('tasks.mine', ['overdue' => 1]), 'error');
+            $add('Offene Aufgaben im Aufgabensystem', (clone $mine)->count(), route('tasks.mine'), 'info');
+        }
+
         return $tasks;
+    }
+
+    /**
+     * Nur die Hinweise, deren Ziel in dem Bereich liegt (für die Übersichtsseiten der Bereiche). Der Bereich eines Hinweises ergibt sich aus der Seite, auf die er verweist.
+     *
+     * @return list<array{label: string, count: ?int, href: string, tone: string}>
+     */
+    public static function forArea(User $user, PortalAreas $area): array
+    {
+        return array_values(array_filter(self::for($user), fn (array $task): bool => self::areaOf($task['href']) === $area));
+    }
+
+    private static function areaOf(string $href): ?PortalAreas
+    {
+        try {
+            return PortalNavigation::areaForRoute(app('router')->getRoutes()->match(Request::create($href))->getName());
+        } catch (Throwable) {
+            return null;
+        }
     }
 }

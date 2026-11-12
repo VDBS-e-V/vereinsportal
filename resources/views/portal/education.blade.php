@@ -10,6 +10,9 @@
         </x-slot:actions>
     </x-vdbs.layout.page-header>
 
+    @include('portal._tasks', ['area' => \App\Support\PortalAreas::Bildungsreferenten])
+
+
     <h2 style="font-size:var(--font-size-h3)">Seminare nach Stand</h2>
     <x-vdbs.layout.grid :columns="4">
         @foreach (\App\Modules\Seminars\Enums\SeminarStatus::cases() as $status)

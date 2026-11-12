@@ -21,7 +21,7 @@ Abgelehnt wird, wenn die Ansprechperson keine gültige Adresse hat, schon ein Ko
 
 Die **Koordination** bekommt bei Anfrage, Bestätigung und Rückmeldung eine E-Mail ohne den Inhalt der Nachricht (der steht im Verlauf des Seminars: „Schule hat bestätigt“, „Rückmeldung der Schule“). Die Bestätigung der Schule ersetzt nicht die der Koordination: Das Seminar auf „Bestätigt“ setzt weiterhin die Koordination.
 
-Auf der Startseite zeigt „Ihre Aufgaben“ Schulen, wie viele Seminare auf ihre Bestätigung warten.
+Im Konto und in der Übersicht des Bereichs Schulen zeigt „Ihre Aufgaben“ Schulen, wie viele Seminare auf ihre Bestätigung warten.
 
 ## Grenzen
 

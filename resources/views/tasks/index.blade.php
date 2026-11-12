@@ -12,6 +12,9 @@
         </x-slot:actions>
     </x-vdbs.layout.page-header>
 
+    @include('portal._tasks', ['area' => \App\Support\PortalAreas::Aufgaben])
+
+
     @if ($projects->isEmpty())
         <x-vdbs.feedback.empty-state title="{{ $showArchived ? 'Keine archivierten Projekte' : 'Noch keine Projekte' }}" icon="clipboard-list">
             <p>{{ $showArchived ? 'Es gibt keine archivierten Projekte.' : 'Sie sind noch in keinem Projekt Mitglied. Neue Projekte legt die Administration oder der Vorstand an.' }}</p>

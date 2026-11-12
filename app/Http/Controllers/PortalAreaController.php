@@ -20,7 +20,6 @@ use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarSession;
 use App\Support\PortalAreas;
 use App\Support\PortalNavigation;
-use App\Support\TaskOverview;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -101,16 +100,9 @@ class PortalAreaController extends Controller
 
         $routeName = $request->route()->getName();
         $pages = array_values(array_filter(PortalNavigation::pages($area, $user, $routeName), fn (array $page): bool => ! $page['current']));
-        $hrefs = [];
-
-        foreach ($pages as $page) {
-            $hrefs = [...$hrefs, $page['href'], ...array_column($page['children'], 'href')];
-        }
-
         return view('portal.area', [
             'area' => $area,
             'pages' => $pages,
-            'tasks' => array_values(array_filter(TaskOverview::for($user), fn (array $task): bool => in_array(strtok($task['href'], '?'), array_map(fn (string $href): string => strtok($href, '?'), $hrefs), true))),
         ]);
     }
 
