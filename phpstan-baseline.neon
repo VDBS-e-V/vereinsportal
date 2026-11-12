@@ -1,5 +1,3 @@
-# Altbestand der statischen Analyse (Larastan, Stufe 5). Neue Fehler werden nicht aufgenommen.
-# Abbau: Eintrag beheben, dann `composer analyse -- --generate-baseline phpstan-baseline.neon` ausführen.
 parameters:
 	ignoreErrors:
 		-
@@ -55,12 +53,6 @@ parameters:
 			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Modules/Access/Services/Profiles.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\PasswordBroker\:\:createToken\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Modules/AccessGovernance/Services/UserAdministration.php
 
 		-
 			message: '#^Access to an undefined property App\\Modules\\Access\\Models\\User\:\:\$pivot\.$#'
@@ -171,7 +163,7 @@ parameters:
 			path: app/Modules/Forms/Services/FormApplications.php
 
 		-
-			message: '#^Binary operation "%" between non\-falsy\-string and 97 results in an error\.$#'
+			message: '#^Binary operation "%%" between non\-falsy\-string and 97 results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 1
 			path: app/Modules/Forms/Services/Iban.php
@@ -528,4 +520,4 @@ parameters:
 			message: '#^Using nullsafe property access "\?\-\>type" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Support/PortalNavigation.php
+			path: database/migrations/2026_11_07_000001_rework_seminar_quotes_to_positions.php
