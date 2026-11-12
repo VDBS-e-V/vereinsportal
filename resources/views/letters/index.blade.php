@@ -47,6 +47,28 @@
         </form>
     @endif
 
+    <section style="margin-top:var(--space-8)" aria-labelledby="samples-title">
+        <h2 id="samples-title" style="font-size:var(--font-size-h3)">Beispielvorlagen</h2>
+        <p>Fertige Vorlagen für typische Schreiben, mit Platzhaltern und Wenn-Blöcken. Laden Sie sie herunter, fügen Sie Ihren Briefbogen ein und passen Sie die Texte an, oder legen Sie sie unverändert im Portal an und ändern Sie sie später.</p>
+        <x-vdbs.data.table caption="Beispielvorlagen" :columns="[['key' => 'name', 'label' => 'Beispiel'], ['key' => 'audience', 'label' => 'Für'], ['key' => 'file', 'label' => 'Datei']]">
+            @foreach ($samples as $key => $sample)
+                <tr>
+                    <td>{{ $sample['name'] }}<br><span class="vdbs-hint">{{ $sample['description'] }}</span></td>
+                    <td>{{ $audiences[$sample['audience']] ?? $sample['audience'] }}</td>
+                    <td><a href="{{ route('letters.sample-file', $key) }}">Herunterladen (.docx)</a></td>
+                </tr>
+            @endforeach
+        </x-vdbs.data.table>
+        <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-3)">
+            <x-vdbs.actions.button variant="secondary" :href="route('letters.samples-zip')" icon="download">Alle als ZIP</x-vdbs.actions.button>
+            @if ($canManage)
+                <form method="post" action="{{ route('letters.samples-install') }}">@csrf
+                    <x-vdbs.actions.button type="submit" icon="plus" onclick="return confirm('Alle Beispielvorlagen im Portal anlegen? Vorhandene bleiben unverändert.')">Beispiele im Portal anlegen</x-vdbs.actions.button>
+                </form>
+            @endif
+        </div>
+    </section>
+
     <section style="margin-top:var(--space-8)" aria-labelledby="how-title">
         <h2 id="how-title" style="font-size:var(--font-size-h3)">So funktioniert es</h2>
         <ol>

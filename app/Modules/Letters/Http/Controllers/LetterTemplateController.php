@@ -12,9 +12,11 @@ use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use ZipArchive;
 
 /** Briefvorlagen (Word mit Platzhaltern): ansehen und herunterladen für alle mit Recht letters.use, hochladen, ändern und löschen mit letters.manage. */
 class LetterTemplateController extends Controller
@@ -23,7 +25,7 @@ class LetterTemplateController extends Controller
 
     public function index(): View
     {
-        return view('letters.index', ['templates' => LetterTemplate::query()->orderBy('name')->get(), 'user' => $this->user(), 'service' => $this->templates]);
+        return view('letters.index', ['templates' => LetterTemplate::query()->orderBy('name')->get(), 'user' => $this->user(), 'service' => $this->templates, 'samples' => SampleLetter::catalog(), 'audiences' => LetterTemplate::AUDIENCES]);
     }
 
     public function variables(): View
@@ -36,6 +38,63 @@ class LetterTemplateController extends Controller
         $path = SampleLetter::build(SampleLetter::sampleParagraphs());
 
         return response()->download($path, 'Beispielvorlage_Brief.docx')->deleteFileAfterSend();
+    }
+
+    /** Eine der Beispielvorlagen als Word-Datei. */
+    public function sampleFile(string $key): BinaryFileResponse
+    {
+        $sample = SampleLetter::catalog()[$key] ?? null;
+        abort_if($sample === null, 404);
+
+        return response()->download(SampleLetter::build($sample['paragraphs']), 'Beispiel_'.$key.'.docx')->deleteFileAfterSend();
+    }
+
+    /** Alle Beispielvorlagen in einer ZIP-Datei. */
+    public function samplesZip(): BinaryFileResponse
+    {
+        $zipPath = tempnam(sys_get_temp_dir(), 'beispiele').'.zip';
+        $zip = new ZipArchive;
+        $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+        $files = [];
+
+        foreach (SampleLetter::catalog() as $key => $sample) {
+            $files[] = $path = SampleLetter::build($sample['paragraphs']);
+            $zip->addFile($path, 'Beispiel_'.$key.'.docx');
+        }
+
+        $zip->close();
+        array_map('unlink', $files);
+
+        return response()->download($zipPath, 'Beispielvorlagen_Briefe.zip')->deleteFileAfterSend();
+    }
+
+    /** Legt die Beispielvorlagen als Vorlagen im Portal an; vorhandene Namen werden übersprungen, damit nichts doppelt oder überschrieben wird. */
+    public function installSamples(): RedirectResponse
+    {
+        $created = $skipped = 0;
+
+        foreach (SampleLetter::catalog() as $key => $sample) {
+            if (LetterTemplate::query()->where('name', $sample['name'])->exists()) {
+                $skipped++;
+
+                continue;
+            }
+
+            $path = SampleLetter::build($sample['paragraphs']);
+
+            try {
+                $this->templates->store(new UploadedFile($path, 'Beispiel_'.$key.'.docx', null, null, true), $sample['name'], $sample['description'], $sample['audience'], $this->user());
+                $created++;
+            } catch (DomainException $exception) {
+                return back()->with('error', $exception->getMessage());
+            } finally {
+                @unlink($path);
+            }
+        }
+
+        $message = $created.' Beispielvorlage'.($created === 1 ? '' : 'n').' angelegt'.($skipped > 0 ? ', '.$skipped.' gab es schon' : '').'.';
+
+        return redirect()->route('letters.index')->with('success', $message);
     }
 
     /** Die Platzhalterliste als Word-Datei: zum Nachschlagen und zum Kopieren der Platzhalter in die eigene Vorlage. */

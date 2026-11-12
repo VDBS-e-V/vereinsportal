@@ -14,10 +14,13 @@ Route::middleware(['web', 'auth'])->group(function (): void {
         Route::get('/platzhalter', [LetterTemplateController::class, 'variables'])->name('variables');
         Route::get('/platzhalter/datei', [LetterTemplateController::class, 'variablesFile'])->name('variables-file');
         Route::get('/beispiel', [LetterTemplateController::class, 'sample'])->name('sample');
+        Route::get('/beispiele-alle', [LetterTemplateController::class, 'samplesZip'])->name('samples-zip');
+        Route::get('/beispiele/{key}', [LetterTemplateController::class, 'sampleFile'])->where('key', '[a-z\-]+')->name('sample-file');
 
         Route::middleware('can:letters.manage')->group(function (): void {
             Route::get('/neu', [LetterTemplateController::class, 'create'])->name('create');
             Route::post('/', [LetterTemplateController::class, 'store'])->middleware('throttle:20,10')->name('store');
+            Route::post('/beispiele-uebernehmen', [LetterTemplateController::class, 'installSamples'])->middleware('throttle:10,10')->name('samples-install');
             Route::post('/loeschen', [LetterTemplateController::class, 'destroyMany'])->name('destroy-many');
             Route::get('/{template}/bearbeiten', [LetterTemplateController::class, 'edit'])->whereNumber('template')->name('edit');
             Route::put('/{template}', [LetterTemplateController::class, 'update'])->whereNumber('template')->middleware('throttle:20,10')->name('update');

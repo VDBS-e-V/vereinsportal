@@ -47,3 +47,7 @@ ${/ohne_ansprechperson}
 - PDF-Ausgabe (der Server kann Word nicht in PDF umwandeln; dafür öffnen Sie die Datei in Word).
 
 Ausführliche Platzhalter-Tabelle mit Beispielwerten, Quellen und allen fertigen Wenn-Beispielen: Abschnitt „Alle Platzhalter mit Beispielen“ in `docs/78_WORD_VORLAGEN_ANLEITUNG.md` und im Portal unter Briefvorlagen › Platzhalter.
+
+## Beispielvorlagen
+
+Auf der Seite *Briefvorlagen* liegen sieben fertige Beispiele (Seminarbestätigung an die Schule, Einsatzbestätigung für Teamende, Terminänderung, Absage, Erinnerung, Dank an Teamende, Allgemeines Anschreiben). Sie nutzen Platzhalter und Wenn-Blöcke (zum Beispiel Schule oder Person, Ansprechperson, Honorar). Jede lässt sich einzeln oder alle zusammen als ZIP herunterladen. Mit *Beispiele im Portal anlegen* (Geschäftsstelle, Vorstand) werden sie als Vorlagen angelegt; vorhandene Namen bleiben unverändert, nichts wird überschrieben. Die Beispiele sind schlicht gesetzt: Fügen Sie in Word Ihren Briefbogen ein und passen Sie Texte und Schrift an. Neue Beispiele ergänzen Entwickler in `SampleLetter::catalog()`.

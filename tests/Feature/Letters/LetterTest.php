@@ -260,3 +260,56 @@ it('fills the extended placeholders for school, seminar and team and hands out t
     $this->get(route('letters.variables'))->assertOk()->assertSee('Wenn-Abfragen')->assertSee('Liste als Word-Datei')
         ->assertSee('Fertige Beispiele zum Kopieren')->assertSee('Honorar nur nennen, wenn bekannt')->assertSee('Quelle und Hinweis');
 });
+
+it('offers several sample templates that only use known placeholders and open with PHPWord', function () {
+    $catalog = SampleLetter::catalog();
+    expect(count($catalog))->toBeGreaterThanOrEqual(6);
+
+    foreach ($catalog as $key => $sample) {
+        expect($sample['audience'])->toBeIn(['general', 'school', 'team'])->and($sample['name'])->not->toBe('')->and($sample['description'])->not->toBe('');
+        $names = (new \PhpOffice\PhpWord\TemplateProcessor(SampleLetter::build($sample['paragraphs'])))->getVariables();
+        $unknown = array_values(array_filter($names, fn (string $name): bool => ! in_array(\App\Modules\Letters\Support\LetterVariables::baseName($name), \App\Modules\Letters\Support\LetterVariables::known(), true)));
+
+        expect($unknown)->toBe([], 'Unbekannte Platzhalter in '.$key);
+    }
+});
+
+it('lets everyone with letters.use download the samples and only managers install them', function () {
+    $this->actingAs(ltUser(RoleKey::Coordination));
+    $this->get(route('letters.index'))->assertOk()->assertSee('Beispielvorlagen')->assertSee('Beispiel: Seminarbestätigung an die Schule');
+    $this->get(route('letters.sample-file', 'absage'))->assertOk()->assertHeader('content-disposition');
+    $this->get(route('letters.sample-file', 'gibt-es-nicht'))->assertNotFound();
+
+    $zip = new ZipArchive;
+    $zip->open($this->get(route('letters.samples-zip'))->assertOk()->baseResponse->getFile()->getPathname());
+    expect($zip->numFiles)->toBe(count(SampleLetter::catalog()))->and($zip->locateName('Beispiel_absage.docx'))->not->toBeFalse();
+    $zip->close();
+
+    $this->post(route('letters.samples-install'))->assertForbidden();
+    expect(LetterTemplate::query()->count())->toBe(0);
+});
+
+it('installs the samples as templates once without duplicates and keeps changed ones', function () {
+    $this->actingAs(ltUser(RoleKey::AdministrationStaff));
+
+    $this->post(route('letters.samples-install'))->assertRedirect(route('letters.index'))->assertSessionHas('success');
+    expect(LetterTemplate::query()->count())->toBe(count(SampleLetter::catalog()));
+
+    $first = LetterTemplate::query()->orderBy('name')->first();
+    $first->update(['description' => 'Von uns geändert']);
+
+    $this->post(route('letters.samples-install'))->assertSessionHas('success');
+    expect(LetterTemplate::query()->count())->toBe(count(SampleLetter::catalog()))->and($first->fresh()->description)->toBe('Von uns geändert')
+        ->and(LetterTemplate::query()->where('audience', 'team')->count())->toBeGreaterThanOrEqual(1);
+});
+
+it('fills an installed sample for a school with the blocks of the right recipient kind', function () {
+    $this->actingAs(ltUser(RoleKey::AdministrationStaff));
+    $this->post(route('letters.samples-install'));
+    [$seminar] = ltSeminar();
+    $template = LetterTemplate::query()->where('name', 'Beispiel: Terminänderung')->firstOrFail();
+
+    $xml = ltXml($this->post(route('letters.generate', $seminar), ['template_id' => $template->id, 'to' => 'school', 'freitext' => 'Neuer Raum 12'])->assertOk()->baseResponse->getFile()->getPathname());
+
+    expect($xml)->toContain('Sehr geehrte Damen und Herren')->not->toContain('Liebe/r')->toContain('Neuer Raum 12')->not->toContain('${');
+});
