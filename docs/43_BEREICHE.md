@@ -1,7 +1,7 @@
 # Bereiche und Kopfbereich
 
 Das Portal ist in **Bereiche** gegliedert (`App\Support\PortalAreas`: Start, Konto, Vorstand, Mitglieder, Teamende, Schulen,
-Koordination, Geschäftsstelle, Bildungsreferenten, Admins). **Jede Seite gehört zu genau einem Bereich.** Der Katalog steht an einer
+Koordination, Geschäftsstelle, Bildungsreferenten, Admins, Aufgaben). **Jede Seite gehört zu genau einem Bereich.** Der Katalog steht an einer
 Stelle: `app/Support/PortalNavigation.php` (`catalog()`).
 
 ## Kopfbereich
@@ -53,3 +53,7 @@ bestimmt nur die Darstellung, er ersetzt keine Berechtigungsprüfung. Ein Bereic
 3. Neue Rollen für einen Bereich: im Katalog bei `roles` eintragen.
 
 Tests: `tests/Feature/Navigation/PortalNavigationTest.php`.
+
+## Bereich Aufgaben
+
+Der Bereich *Aufgaben* (Modul `Tasks`, `docs/81_AUFGABENSYSTEM.md`) ist für Vorstand, Administration, Geschäftsstelle, Koordination, Bildungsreferenten, Geschäftsführung, Kassenführung und Mitarbeitende sichtbar (Berechtigung `tasks.use`); was jemand darin sieht, bestimmt die Mitgliedschaft im Projekt. Die Aufgaben des Vorstands liegen im Projekt „Vorstand"; die Sitzungsseite im Bereich Vorstand verweist dorthin. Das ist eine bewusste Ausnahme von der Regel, dass Links nicht den Bereich wechseln.

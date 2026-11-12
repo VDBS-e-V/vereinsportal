@@ -16,6 +16,10 @@ Zusätzliche Ausführungsrunbooks auf `main`:
 - Design-/Accessibility-QA: `docs/26_DESIGN_QA_EXECUTION.md`
 - spätere Betriebsentscheidungen: `docs/27_OPERATIONS_DECISION_MATRIX.md`
 
+## Entwicklungsstand auf dem Arbeitsbranch (noch nicht in `main`)
+
+Auf dem Branch `claude/cool-ramanujan-fgmbcu` liegt zusätzlich zum Stand von `main` ein größerer Funktionsumfang, der nach den Regeln des Rulesets per Pull Request nach `main` gehört: Lückenschließung (Pakete A–K), Briefvorlagen aus Word, Vorstandssitzungen (Gäste, Beschlüsse, Kalender-Feed, Einladungen), allgemeines Aufgabensystem mit Kanban und der Kanban-Baustein im Designsystem. Übersicht, Dokumentation und offene Punkte: `docs/75_STAND_UND_OFFENE_PUNKTE.md`, Fachdokus 70–81. **Vor einem Pull Request:** vollständiger Pest-Lauf, `npm run build`, Design-Prüfung (`php artisan design:check`), manuelle Prüfungen laut Nummer 7 in `docs/75`. Wegen des Grundsatzes unten ist zu entscheiden, ob der Umfang gebündelt oder in mehreren Pull Requests (Gruppen: Lückenschließung, Vorstand, Aufgaben) nach `main` geht.
+
 ## Implementiert
 
 Technische Basis:
