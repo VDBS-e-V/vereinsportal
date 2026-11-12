@@ -62,6 +62,10 @@ final class LetterTemplates
             throw new DomainException('Die Datei ist für eine Vorlage zu umfangreich.');
         }
 
+        if (! class_exists(TemplateProcessor::class)) {
+            throw new DomainException('Die Komponente für Word-Dateien (phpoffice/phpword) ist nicht installiert. Bitte „composer install“ ausführen.');
+        }
+
         try {
             $variables = (new TemplateProcessor($path))->getVariables();
         } catch (Throwable $exception) {
