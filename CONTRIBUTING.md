@@ -38,7 +38,7 @@ Mindestens relevant:
 composer validate --no-check-publish
 php vendor/bin/pint --test
 php artisan test
-php artisan vdbs:library-check
+php artisan design:check
 npm run build
 git diff --check
 ```
@@ -66,7 +66,7 @@ Große Änderungen nach Möglichkeit in nachvollziehbare, einzeln reviewbare Sch
 
 ## Designsystem
 
-Neue Designsystem-Bausteine entstehen nur aus realen Produkt- oder Content-Anforderungen. Wiederverwendbare Lösungen anschließend in die Web Content Library übernehmen und `php artisan vdbs:library-check` ausführen.
+Neue Designsystem-Bausteine entstehen nur aus realen Produkt- oder Content-Anforderungen. Wiederverwendbare Lösungen anschließend in die Web Content Library übernehmen und `php artisan design:check` ausführen.
 
 ## Security und Datenschutz
 
