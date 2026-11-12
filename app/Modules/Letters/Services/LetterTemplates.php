@@ -64,8 +64,10 @@ final class LetterTemplates
 
         try {
             $variables = (new TemplateProcessor($path))->getVariables();
-        } catch (Throwable) {
-            throw new DomainException('Die Word-Datei lässt sich nicht lesen. Öffnen Sie sie in Word und speichern Sie sie neu als .docx.');
+        } catch (Throwable $exception) {
+            report($exception);
+
+            throw new DomainException('Die Word-Datei lässt sich nicht lesen. Öffnen Sie sie in Word und speichern Sie sie neu als .docx.', 0, $exception);
         }
 
         return array_values(array_unique(array_map('strval', $variables)));

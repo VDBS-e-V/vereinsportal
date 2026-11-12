@@ -42,6 +42,12 @@ function ltDocx(array $paragraphs, string $name = 'vorlage.docx'): UploadedFile
     return new UploadedFile(SampleLetter::build($paragraphs), $name, null, null, true);
 }
 
+it('opens a built docx with PHPWord and reads its placeholders', function () {
+    $path = SampleLetter::build(['Guten Tag ${empfaenger_name}', '${datum}']);
+
+    expect((new \PhpOffice\PhpWord\TemplateProcessor($path))->getVariables())->toBe(['empfaenger_name', 'datum']);
+});
+
 function ltTemplate(array $paragraphs, string $name = 'Vorlage', string $audience = 'general'): LetterTemplate
 {
     test()->actingAs(ltUser(RoleKey::AdministrationStaff))->post(route('letters.store'), ['name' => $name, 'audience' => $audience, 'file' => ltDocx($paragraphs)])->assertRedirect();
