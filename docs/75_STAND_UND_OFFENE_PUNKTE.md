@@ -1,6 +1,6 @@
 # Stand der Lückenschließung und offene Punkte
 
-Stand: alle Pakete des Projektplans (`67_PROJEKTPLAN_LUECKEN.md`) sind umgesetzt, bis auf die unten genannten Reste. Letzter vollständiger Testlauf auf dem Entwicklungsrechner: **1205 bestanden, 4 übersprungen, 0 Fehler**. Seitdem sind Vorstandssitzungen, Aufgabensystem, Kanban-Baustein und Erweiterungen der Briefvorlagen hinzugekommen (siehe unten); für diese Teile liegt **noch kein Testlauf** vor, sie sind nur syntaxgeprüft. Nächster Schritt: `composer install`, `php artisan portal:update`, `npm ci && npm run build`, den ganzen Pest-Lauf und die manuellen Prüfungen unten.
+Stand: alle Pakete des Projektplans (`67_PROJEKTPLAN_LUECKEN.md`) sind umgesetzt, bis auf die unten genannten Reste. Letzter vollständiger Testlauf (Pull Request, CI auf MySQL 8.4 und Entwicklungsrechner): **1305 Tests, alle bestanden** (lokal 4 übersprungen wegen fehlender GD-Erweiterung). CI vollständig grün: Quality (Pest, Pint, Build), Larastan mit Baseline, Composer-/npm-Audit, Dependency Review, Secret Scan, PHP 8.4/8.5. Nächste Schritte: manuelle Prüfungen (Nummer 7), Merge, Release.
 
 ## Umgesetzt (Auswahl, mit Dokumentation)
 | Paket | Inhalt | Doku |
