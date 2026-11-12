@@ -163,8 +163,8 @@ jobs:
       - name: Run migrations
         run: php artisan migrate:fresh --env=testing --force
 
-      - name: Check Web Content Library
-        run: php artisan vdbs:library-check
+      - name: Check Design Library
+        run: php artisan design:check
 
       - name: Build frontend
         run: npm run build
