@@ -283,5 +283,26 @@ return [
                 'verwaltungsliste',
             ],
         ],
+        [
+            'name' => 'kanban',
+            'title' => 'Kanban',
+            'description' => 'Kanban-Tafel: Spalten nebeneinander, Karten per Ziehen und Ablegen verschieben (JavaScript kanban.js), mit Alternative per Formular.',
+            'status' => 'experimental',
+            'width' => 'wide',
+        ],
+        [
+            'name' => 'kanban-column',
+            'title' => 'Kanban Column',
+            'description' => 'Spalte der Kanban-Tafel mit Titel, Anzahl, Kartenliste und Fußbereich.',
+            'status' => 'experimental',
+            'width' => 'wide',
+        ],
+        [
+            'name' => 'kanban-card',
+            'title' => 'Kanban Card',
+            'description' => 'Karte der Kanban-Tafel mit Titel, Angaben und optional hoher Priorität.',
+            'status' => 'experimental',
+            'width' => 'default',
+        ],
     ],
 ];

@@ -15,3 +15,6 @@
 @import './copy.css';
 @import './task-list.css';
 @import './profile-card.css';
+@import './kanban.css';
+@import './kanban-column.css';
+@import './kanban-card.css';

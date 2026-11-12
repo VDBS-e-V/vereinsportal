@@ -15,3 +15,4 @@ import './bot-guard';
 import './richtext';
 import './mailings';
 import './select-all';
+import './kanban';

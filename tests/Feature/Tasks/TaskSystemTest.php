@@ -11,11 +11,21 @@ use App\Modules\Tasks\Models\Task;
 use App\Modules\Tasks\Models\TaskComment;
 use App\Modules\Tasks\Models\TaskProject;
 use App\Modules\Tasks\Services\TaskProjects;
+use App\Modules\Tasks\Mail\TaskAssignedMail;
+use App\Modules\Tasks\Mail\TaskDueMail;
+use App\Modules\Tasks\Models\TaskAttachment;
+use App\Modules\Tasks\Models\TaskLabel;
+use App\Modules\Tasks\Models\TaskTemplate;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->withoutVite();
     $this->seed(RoleSeeder::class);
+    Storage::fake('local');
 });
 
 function tkUser(?RoleKey $role, array $person = []): User
@@ -110,8 +120,8 @@ it('creates tasks with assignees, priority, due date and renders board and list'
     expect($task->status->name)->toBe('Offen')->and($task->priority)->toBe('high')->and($task->assignees)->toHaveCount(2)->and($task->isOverdue())->toBeTrue()
         ->and(AuditEntry::query()->where('event', 'task.saved')->count())->toBe(1);
 
-    $this->get(route('tasks.projects.show', $project))->assertOk()->assertSee('data-kanban', false)->assertSee('Login prüfen')->assertSee('Hans Helfer, Mia Leitung')->assertSee('Offen')->assertSee('In Arbeit')->assertSee('Erledigt');
-    $this->get(route('tasks.projects.show', [$project, 'view' => 'list']))->assertOk()->assertDontSee('data-kanban', false)->assertSee('Login prüfen')->assertSee('überfällig');
+    $this->get(route('tasks.projects.show', $project))->assertOk()->assertSee('data-vdbs-kanban', false)->assertSee('Login prüfen')->assertSee('Hans Helfer, Mia Leitung')->assertSee('Offen')->assertSee('In Arbeit')->assertSee('Erledigt');
+    $this->get(route('tasks.projects.show', [$project, 'view' => 'list']))->assertOk()->assertDontSee('data-vdbs-kanban', false)->assertSee('Login prüfen')->assertSee('überfällig');
     $this->get(route('tasks.show', $task))->assertOk()->assertSee('Fehler bei Zwei-Faktor');
 });
 
@@ -367,4 +377,313 @@ it('lists my tasks across projects', function () {
 it('shows the area Aufgaben to the roles that use the task system', function () {
     $this->actingAs(tkUser(RoleKey::Coordination))->get(route('tasks.index'))->assertOk()->assertSee('Meine Aufgaben');
     $this->actingAs(tkUser(RoleKey::Employee))->get(route('tasks.mine'))->assertOk();
+});
+
+function tkFile(string $name, string $content): UploadedFile
+{
+    $path = tempnam(sys_get_temp_dir(), 'tk');
+    file_put_contents($path, $content);
+
+    return new UploadedFile($path, $name, null, null, true);
+}
+
+function tkTask(TaskProject $project, array $attributes = []): Task
+{
+    return Task::query()->create($attributes + ['task_project_id' => $project->id, 'task_status_id' => tkStatus($project, 'Offen')->id, 'title' => 'Aufgabe']);
+}
+
+const TK_PDF = "%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n";
+
+it('manages labels in the project settings and rejects duplicates', function () {
+    $manager = tkUser(RoleKey::Coordination);
+    $project = tkProject([], [$manager]);
+    $this->actingAs($manager);
+    $statuses = $project->statuses->mapWithKeys(fn ($s) => [$s->id => ['name' => $s->name, 'position' => $s->position] + ($s->is_done ? ['done' => 1] : [])])->all();
+    $save = fn (array $extra) => $this->put(route('tasks.projects.update', $project), ['name' => 'Entwicklung', 'managers' => [$manager->id], 'statuses' => $statuses] + $extra);
+
+    $save(['new_labels' => [['name' => 'Fehler', 'color' => '1'], ['name' => 'Wunsch', 'color' => 'gibtesnicht'], ['name' => '']]])->assertRedirect();
+    expect($project->labels()->pluck('color', 'name')->all())->toBe(['Fehler' => '1', 'Wunsch' => 'gray']);
+
+    $fehler = $project->labels()->where('name', 'Fehler')->first();
+    $wunsch = $project->labels()->where('name', 'Wunsch')->first();
+    $save(['labels' => [$fehler->id => ['name' => 'Wunsch', 'color' => '2'], $wunsch->id => ['name' => 'Fehler', 'color' => 'gray']]])->assertRedirect();
+    expect($project->labels()->pluck('color', 'name')->all())->toBe(['Fehler' => 'gray', 'Wunsch' => '2']);
+
+    $save(['labels' => [$fehler->id => ['name' => 'Gleich', 'color' => 'gray'], $wunsch->id => ['name' => 'gleich', 'color' => 'gray']]])->assertSessionHasErrors('labels');
+    $save(['labels' => [$fehler->id => ['name' => 'Fehler', 'color' => 'gray', 'delete' => 1], $wunsch->id => ['name' => 'Wunsch', 'color' => '2']]])->assertRedirect();
+    expect($project->labels()->pluck('name')->all())->toBe(['Wunsch']);
+});
+
+it('labels tasks, filters by label and applies labels in bulk', function () {
+    $user = tkUser(RoleKey::Coordination);
+    $project = tkProject([$user]);
+    $bug = $project->labels()->create(['name' => 'Fehler', 'color' => '1']);
+    $wish = $project->labels()->create(['name' => 'Wunsch', 'color' => '3']);
+    $foreign = tkProject([$user], [], ['name' => 'Anderes'])->labels()->create(['name' => 'Fremd', 'color' => 'gray']);
+    $this->actingAs($user);
+
+    $this->post(route('tasks.store', $project), ['title' => 'Mit Label', 'labels_sent' => 1, 'labels' => [$bug->id, $foreign->id]])->assertRedirect();
+    $this->post(route('tasks.store', $project), ['title' => 'Ohne Label']);
+    $task = Task::query()->where('title', 'Mit Label')->firstOrFail();
+    expect($task->labels->pluck('name')->all())->toBe(['Fehler']);
+
+    $this->get(route('tasks.projects.show', [$project, 'label' => $bug->id]))->assertOk()->assertSee('Mit Label')->assertDontSee('Ohne Label');
+    $this->get(route('tasks.projects.show', [$project, 'view' => 'list', 'label' => $bug->id]))->assertOk()->assertSee('Mit Label')->assertDontSee('Ohne Label')->assertSee('Fehler');
+
+    $this->put(route('tasks.update', $task), ['title' => 'Mit Label', 'labels_sent' => 1, 'labels' => [$wish->id]]);
+    expect($task->fresh()->labels->pluck('name')->all())->toBe(['Wunsch']);
+    $this->put(route('tasks.update', $task), ['title' => 'Mit Label']);
+    expect($task->fresh()->labels)->toHaveCount(1);
+    $this->put(route('tasks.update', $task), ['title' => 'Mit Label', 'labels_sent' => 1]);
+    expect($task->fresh()->labels)->toHaveCount(0);
+
+    $ids = Task::query()->pluck('id')->all();
+    $this->post(route('tasks.bulk', $project), ['ids' => $ids, 'action' => 'label', 'labels' => [$bug->id]])->assertSessionHas('success');
+    expect(Task::query()->whereHas('labels')->count())->toBe(2);
+    $this->post(route('tasks.bulk', $project), ['ids' => $ids, 'action' => 'label', 'labels' => [$foreign->id]])->assertSessionHasErrors('labels');
+    $this->post(route('tasks.bulk', $project), ['ids' => $ids, 'action' => 'label'])->assertSessionHasErrors('labels');
+});
+
+it('keeps labels working when a task is created in a kanban column without a labels field', function () {
+    $user = tkUser(RoleKey::Coordination);
+    $project = tkProject([$user]);
+    $this->actingAs($user)->post(route('tasks.store', $project), ['title' => 'Schnell', 'task_status_id' => tkStatus($project, 'Wartet')->id])->assertRedirect();
+
+    expect(Task::query()->firstOrFail()->status->name)->toBe('Wartet');
+});
+
+it('manages subtasks with progress, several lines at once and permissions', function () {
+    $user = tkUser(RoleKey::Coordination);
+    $project = tkProject([$user]);
+    $task = tkTask($project);
+    $this->actingAs($user);
+
+    $this->post(route('tasks.subtasks.store', $task), ['title' => "Erster Schritt\n\n  Zweiter Schritt  \nDritter Schritt"])->assertRedirect();
+    $this->post(route('tasks.subtasks.store', $task), ['title' => ''])->assertSessionHasErrors('title');
+    expect($task->subtasks()->pluck('title')->all())->toBe(['Erster Schritt', 'Zweiter Schritt', 'Dritter Schritt']);
+
+    $first = $task->subtasks()->first();
+    $this->post(route('tasks.subtasks.toggle', [$task, $first]))->assertRedirect();
+    expect($first->fresh()->isDone())->toBeTrue();
+    $this->get(route('tasks.show', $task))->assertOk()->assertSee('1/3')->assertSee('Zweiter Schritt');
+    $this->get(route('tasks.projects.show', $project))->assertOk()->assertSee('1/3');
+    $this->post(route('tasks.subtasks.toggle', [$task, $first]));
+    expect($first->fresh()->isDone())->toBeFalse();
+
+    $other = tkTask($project, ['title' => 'Andere']);
+    $this->post(route('tasks.subtasks.toggle', [$other, $first]))->assertNotFound();
+    $this->delete(route('tasks.subtasks.destroy', [$task, $first]))->assertRedirect();
+    expect($task->subtasks()->count())->toBe(2);
+
+    $this->actingAs(tkUser(RoleKey::Coordination));
+    $this->post(route('tasks.subtasks.store', $task), ['title' => 'Fremd'])->assertForbidden();
+    $this->post(route('tasks.subtasks.toggle', [$task, $task->subtasks()->first()]))->assertForbidden();
+});
+
+it('stores, downloads and deletes task attachments and removes the files with the task', function () {
+    $user = tkUser(RoleKey::Coordination);
+    $manager = tkUser(RoleKey::Employee);
+    $project = tkProject([$user], [$manager]);
+    $task = tkTask($project);
+    $this->actingAs($user);
+
+    $this->post(route('tasks.attachments.store', $task), ['title' => 'Konzept', 'files' => [tkFile('konzept.pdf', TK_PDF), tkFile('zahlen.txt', 'Zahlen')]])->assertRedirect()->assertSessionHas('success');
+    $attachments = $task->attachments()->get();
+    expect($attachments)->toHaveCount(2);
+    Storage::disk('local')->assertExists($attachments[0]->path);
+
+    $this->get(route('tasks.show', $task))->assertOk()->assertSee('Konzept');
+    $this->get(route('tasks.attachments.download', [$task, $attachments[0]]))->assertOk()->assertHeader('X-Content-Type-Options', 'nosniff');
+    $this->get(route('tasks.attachments.download', [tkTask($project, ['title' => 'Andere']), $attachments[0]]))->assertNotFound();
+
+    $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
+    $this->post(route('tasks.attachments.store', $task), ['files' => [tkFile('foto.png', $png)]])->assertSessionHasErrors('attachments');
+    $this->post(route('tasks.attachments.store', $task), ['files' => [tkFile('falsch.pdf', 'kein pdf')]])->assertSessionHasErrors('attachments');
+    $this->post(route('tasks.attachments.store', $task), [])->assertSessionHasErrors('files');
+
+    // fremde Anhänge löscht nur, wer das Projekt verwaltet
+    $this->actingAs($manager)->post(route('tasks.attachments.store', $task), ['files' => [tkFile('verwaltung.txt', 'x')]]);
+    $this->actingAs($user)->post(route('tasks.attachments.destroy', $task), ['ids' => [$task->attachments()->where('original_name', 'verwaltung.txt')->value('id')]])->assertForbidden();
+    $this->post(route('tasks.attachments.destroy', $task), ['ids' => [$attachments[1]->id]])->assertRedirect();
+    expect($task->attachments()->count())->toBe(2);
+    Storage::disk('local')->assertMissing($attachments[1]->path);
+
+    $path = $attachments[0]->path;
+    $this->actingAs($manager)->post(route('tasks.bulk', $project), ['ids' => [$task->id], 'action' => 'delete']);
+    expect(TaskAttachment::query()->count())->toBe(0);
+    Storage::disk('local')->assertMissing($path);
+});
+
+it('keeps task attachments from non-members', function () {
+    $user = tkUser(RoleKey::Coordination);
+    $project = tkProject([$user]);
+    $task = tkTask($project);
+    $this->actingAs($user)->post(route('tasks.attachments.store', $task), ['files' => [tkFile('a.txt', 'x')]]);
+    $attachment = $task->attachments()->firstOrFail();
+
+    $this->actingAs(tkUser(RoleKey::Coordination));
+    $this->get(route('tasks.attachments.download', [$task, $attachment]))->assertForbidden();
+    $this->post(route('tasks.attachments.store', $task), ['files' => [tkFile('b.txt', 'x')]])->assertForbidden();
+    $this->post(route('tasks.attachments.destroy', $task), ['ids' => [$attachment->id]])->assertForbidden();
+    expect($task->attachments()->count())->toBe(1);
+});
+
+it('creates, edits and uses task templates with labels, subtasks and a due date', function () {
+    $manager = tkUser(RoleKey::Coordination);
+    $member = tkUser(RoleKey::Employee);
+    $project = tkProject([$member], [$manager]);
+    $label = $project->labels()->create(['name' => 'Routine', 'color' => '2']);
+    $this->actingAs($manager);
+
+    $this->get(route('tasks.templates.index', $project))->assertOk();
+    $this->post(route('tasks.templates.store', $project), ['name' => 'Monatsabschluss', 'title' => 'Monatsabschluss durchführen', 'description' => 'Alle Belege prüfen', 'priority' => 'high', 'due_in_days' => 7, 'subtasks' => "Belege sammeln\nBuchen\n\nBericht schreiben", 'labels' => [$label->id]])->assertRedirect(route('tasks.templates.index', $project));
+    $this->post(route('tasks.templates.store', $project), ['name' => 'Monatsabschluss', 'title' => 'X', 'priority' => 'normal'])->assertSessionHasErrors('name');
+    $this->post(route('tasks.templates.store', $project), ['name' => 'Y', 'title' => '', 'priority' => 'dringend'])->assertSessionHasErrors(['title', 'priority']);
+
+    $template = TaskTemplate::query()->firstOrFail();
+    expect($template->subtaskTitles())->toBe(['Belege sammeln', 'Buchen', 'Bericht schreiben'])->and($template->labels)->toHaveCount(1);
+    $this->get(route('tasks.templates.edit', [$project, $template]))->assertOk()->assertSee('Monatsabschluss');
+    $this->put(route('tasks.templates.update', [$project, $template]), ['name' => 'Monatsabschluss neu', 'title' => 'Monatsabschluss durchführen', 'priority' => 'high', 'due_in_days' => 5, 'subtasks' => 'Eins'])->assertRedirect();
+    expect($template->fresh()->name)->toBe('Monatsabschluss neu')->and($template->fresh()->labels)->toHaveCount(0)->and($template->fresh()->subtaskTitles())->toBe(['Eins']);
+    $this->put(route('tasks.templates.update', [$project, $template]), ['name' => 'Monatsabschluss neu', 'title' => 'Monatsabschluss durchführen', 'priority' => 'high', 'due_in_days' => 7, 'subtasks' => "Belege sammeln\nBuchen", 'labels' => [$label->id]]);
+
+    // Mitglieder legen Aufgaben aus der Vorlage an, ändern sie aber nicht
+    $this->actingAs($member);
+    $this->get(route('tasks.projects.show', $project))->assertOk()->assertSee('Neue Aufgabe aus Vorlage');
+    $this->post(route('tasks.templates.use', $project), ['template' => $template->id, 'assignees' => [$member->id]])->assertRedirect();
+
+    $task = Task::query()->firstOrFail();
+    expect($task->title)->toBe('Monatsabschluss durchführen')->and($task->priority)->toBe('high')->and($task->due_on->toDateString())->toBe(now()->addDays(7)->toDateString())
+        ->and($task->subtasks->pluck('title')->all())->toBe(['Belege sammeln', 'Buchen'])->and($task->labels->pluck('name')->all())->toBe(['Routine'])->and($task->assignees)->toHaveCount(1);
+
+    $this->post(route('tasks.templates.use', $project), ['template' => $template->id, 'title' => 'Eigener Titel', 'due_on' => '2030-01-15']);
+    expect(Task::query()->where('title', 'Eigener Titel')->firstOrFail()->due_on->toDateString())->toBe('2030-01-15');
+    $this->post(route('tasks.templates.use', $project), [])->assertSessionHasErrors('template');
+    $this->post(route('tasks.templates.use', $project), ['template' => 9999])->assertSessionHasErrors('template');
+    $this->post(route('tasks.templates.store', $project), ['name' => 'Heimlich', 'title' => 'X', 'priority' => 'normal'])->assertForbidden();
+    $this->get(route('tasks.templates.edit', [$project, $template]))->assertForbidden();
+    $this->post(route('tasks.templates.destroy-many', $project), ['ids' => [$template->id]])->assertForbidden();
+
+    $this->actingAs($manager)->post(route('tasks.templates.destroy-many', $project), ['ids' => [$template->id]])->assertRedirect();
+    expect(TaskTemplate::query()->count())->toBe(0)->and(Task::query()->count())->toBe(2);
+});
+
+it('saves a task as a template without assignees and due date', function () {
+    $manager = tkUser(RoleKey::Coordination);
+    $project = tkProject([], [$manager]);
+    $label = $project->labels()->create(['name' => 'Routine', 'color' => '2']);
+    $task = tkTask($project, ['title' => 'Quartalsbericht', 'description' => 'Zahlen holen', 'priority' => 'high', 'due_on' => now()->addDays(3)]);
+    $task->labels()->sync([$label->id]);
+    $task->subtasks()->create(['title' => 'Zahlen holen', 'position' => 1]);
+    $task->assignees()->sync([$manager->id]);
+    $this->actingAs($manager);
+
+    $this->post(route('tasks.templates.from-task', $task), ['name' => ''])->assertSessionHasErrors('name');
+    $this->post(route('tasks.templates.from-task', $task), ['name' => 'Quartal'])->assertRedirect(route('tasks.templates.index', $project));
+    $this->post(route('tasks.templates.from-task', $task), ['name' => 'Quartal'])->assertSessionHasErrors('name');
+
+    $template = TaskTemplate::query()->firstOrFail();
+    expect($template->title)->toBe('Quartalsbericht')->and($template->priority)->toBe('high')->and($template->due_in_days)->toBeNull()->and($template->subtaskTitles())->toBe(['Zahlen holen'])->and($template->labels)->toHaveCount(1);
+
+    $this->actingAs(tkUser(RoleKey::Employee));
+    $this->post(route('tasks.templates.from-task', $task), ['name' => 'Heimlich'])->assertForbidden();
+});
+
+it('sends assignment mails only to people who switched them on', function () {
+    Mail::fake();
+    $actor = tkUser(RoleKey::Coordination);
+    $wants = tkUser(RoleKey::Employee);
+    $silent = tkUser(RoleKey::Employee);
+    $project = tkProject([$wants, $silent], [$actor]);
+    DB::table('notification_preferences')->insert(['user_id' => $wants->id, 'key' => 'task_assigned', 'enabled' => true, 'created_at' => now(), 'updated_at' => now()]);
+    $this->actingAs($actor);
+
+    $this->post(route('tasks.store', $project), ['title' => 'Neu', 'assignees' => [$wants->id, $silent->id, $actor->id]])->assertRedirect();
+    Mail::assertSent(TaskAssignedMail::class, 1);
+    Mail::assertSent(TaskAssignedMail::class, fn ($mail) => $mail->hasTo($wants->email) && $mail->tasks->first()->title === 'Neu');
+
+    $task = Task::query()->firstOrFail();
+    $this->put(route('tasks.update', $task), ['title' => 'Neu', 'assignees' => [$wants->id, $silent->id, $actor->id]]);
+    Mail::assertSent(TaskAssignedMail::class, 1);
+
+    DB::table('notification_preferences')->insert(['user_id' => $silent->id, 'key' => 'task_assigned', 'enabled' => true, 'created_at' => now(), 'updated_at' => now()]);
+    $this->put(route('tasks.update', $task), ['title' => 'Neu', 'assignees' => [$wants->id, $silent->id, $actor->id]]);
+    Mail::assertSent(TaskAssignedMail::class, 1);
+
+    $second = tkTask($project, ['title' => 'Zwei']);
+    $this->post(route('tasks.bulk', $project), ['ids' => [$task->id, $second->id], 'action' => 'assign', 'assignees' => [$wants->id]]);
+    Mail::assertSent(TaskAssignedMail::class, fn ($mail) => $mail->hasTo($wants->email) && $mail->tasks->count() === 1);
+});
+
+it('lets each person decide about task mails and keeps them off by default', function () {
+    $user = tkUser(RoleKey::Coordination);
+    $prefs = app(\App\Modules\Access\Services\NotificationPreferences::class);
+
+    expect($prefs->allows($user, 'task_assigned'))->toBeFalse()->and($prefs->allows($user, 'task_due'))->toBeFalse()->and($prefs->allows($user, 'new_applications'))->toBeTrue()
+        ->and($prefs->filter([$user], 'task_due'))->toBe([])->and($prefs->filter([$user], 'board_meetings'))->toHaveCount(1);
+
+    $this->actingAs($user)->get(route('account.notifications'))->assertOk()->assertSee('Neue Aufgaben, die Ihnen zugewiesen werden')->assertSee('Erinnerung an fällige Aufgaben');
+    $this->put(route('account.notifications.update'), ['notifications' => ['task_due']])->assertRedirect();
+
+    expect($prefs->allows($user, 'task_due'))->toBeTrue()->and($prefs->allows($user, 'task_assigned'))->toBeFalse()->and($prefs->filter([$user], 'task_due'))->toHaveCount(1);
+
+    // wer das Aufgabensystem nicht nutzt, sieht die Einträge nicht
+    $this->actingAs(tkUser(RoleKey::Member))->get(route('account.notifications'))->assertDontSee('Erinnerung an fällige Aufgaben');
+});
+
+it('reminds opted-in people once about due and overdue tasks', function () {
+    Mail::fake();
+    $wants = tkUser(RoleKey::Coordination);
+    $silent = tkUser(RoleKey::Coordination);
+    $project = tkProject([$wants, $silent]);
+    DB::table('notification_preferences')->insert(['user_id' => $wants->id, 'key' => 'task_due', 'enabled' => true, 'created_at' => now(), 'updated_at' => now()]);
+    $make = function (string $title, $due, array $users, array $extra = []) use ($project) {
+        $task = tkTask($project, ['title' => $title, 'due_on' => $due] + $extra);
+        $task->assignees()->sync(array_map(fn ($u) => $u->id, $users));
+
+        return $task;
+    };
+    $make('Heute', now(), [$wants, $silent]);
+    $make('Morgen', now()->addDay(), [$wants]);
+    $make('Gestern', now()->subDay(), [$wants]);
+    $make('Später', now()->addDays(5), [$wants]);
+    $make('Erledigt', now(), [$wants], ['done_at' => now(), 'task_status_id' => tkStatus($project, 'Erledigt')->id]);
+    $make('Ohne Frist', null, [$wants]);
+
+    $this->artisan('tasks:remind', ['--dry-run' => true])->expectsOutputToContain('1 Erinnerung(en) für 3 Aufgabe(n)')->assertSuccessful();
+    Mail::assertNothingSent();
+
+    $this->artisan('tasks:remind')->assertSuccessful();
+    Mail::assertSent(TaskDueMail::class, 1);
+    Mail::assertSent(TaskDueMail::class, fn ($mail) => $mail->hasTo($wants->email) && $mail->soon->pluck('title')->sort()->values()->all() === ['Heute', 'Morgen'] && $mail->overdue->pluck('title')->all() === ['Gestern']);
+
+    $this->artisan('tasks:remind')->assertSuccessful();
+    Mail::assertSent(TaskDueMail::class, 1);
+});
+
+it('lists the reminder command among the system tasks and registers it for the browser', function () {
+    expect(array_key_exists('tasks:remind', Artisan::all()))->toBeTrue()
+        ->and(collect(app(\App\Modules\System\Services\SystemTasks::class)->all())->pluck('command')->contains('tasks:remind'))->toBeTrue();
+});
+
+it('renders the kanban board with the design system components and without inline scripts', function () {
+    $user = tkUser(RoleKey::Coordination);
+    $project = tkProject([$user]);
+    $task = tkTask($project, ['title' => 'Karte', 'priority' => 'high']);
+    $html = $this->actingAs($user)->get(route('tasks.projects.show', $project))->assertOk()->getContent();
+
+    expect($html)->toContain('vdbs-kanban')->toContain('vdbs-kanban-column')->toContain('vdbs-kanban-card--high')->toContain('data-move-url="'.route('tasks.move', $task).'"')->not->toContain('kanban.js')->not->toContain('kb-card');
+});
+
+it('deletes a project with its tasks and attachments', function () {
+    $project = tkProject();
+    $task = tkTask($project);
+    $this->actingAs(tkUser(RoleKey::Administration))->post(route('tasks.attachments.store', $task), ['files' => [tkFile('a.txt', 'x')]]);
+    $path = $task->attachments()->firstOrFail()->path;
+    Storage::disk('local')->assertExists($path);
+
+    $this->delete(route('tasks.projects.destroy', $project))->assertRedirect();
+
+    Storage::disk('local')->assertMissing($path);
+    expect(Task::query()->count())->toBe(0);
 });

@@ -6,6 +6,7 @@ use App\Modules\Access\Models\User;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Tasks\Models\Task;
+use App\Modules\Tasks\Models\TaskLabel;
 use App\Modules\Tasks\Models\TaskProject;
 use App\Modules\Tasks\Models\TaskStatus;
 use DomainException;
@@ -130,6 +131,76 @@ final class TaskProjects
                     fn ($query) => $query->whereNull('done_at')->update(['done_at' => now()]),
                     fn ($query) => $query->whereNotNull('done_at')->update(['done_at' => null]),
                 );
+            }
+        });
+    }
+
+    /**
+     * Labels eines Projekts speichern: bestehende umbenennen, umfärben oder löschen, neue anlegen. Namen sind je Projekt eindeutig.
+     *
+     * @param  array<int|string, array{name?: string, color?: string, delete?: mixed}>  $rows  Schlüssel = Label-ID
+     * @param  list<array{name?: string, color?: string}>  $new
+     *
+     * @throws DomainException
+     */
+    public function saveLabels(TaskProject $project, array $rows, array $new): void
+    {
+        DB::transaction(function () use ($project, $rows, $new): void {
+            $names = [];
+            $apply = [];
+            $color = fn (?string $value): string => array_key_exists((string) $value, TaskLabel::COLORS) ? (string) $value : 'gray';
+
+            foreach ($project->labels()->get() as $label) {
+                $row = $rows[$label->id] ?? null;
+
+                if ($row === null || ! empty($row['delete'])) {
+                    $apply[] = ['delete', $label];
+
+                    continue;
+                }
+
+                $name = mb_substr(trim((string) ($row['name'] ?? '')), 0, 40);
+
+                if ($name === '') {
+                    throw new DomainException('Jedes Label braucht einen Namen.');
+                }
+
+                $names[] = mb_strtolower($name);
+                $apply[] = ['update', $label, ['name' => $name, 'color' => $color($row['color'] ?? null)]];
+            }
+
+            foreach ($new as $row) {
+                $name = mb_substr(trim((string) ($row['name'] ?? '')), 0, 40);
+
+                if ($name !== '') {
+                    $names[] = mb_strtolower($name);
+                    $apply[] = ['create', null, ['name' => $name, 'color' => $color($row['color'] ?? null)]];
+                }
+            }
+
+            if (count($names) !== count(array_unique($names))) {
+                throw new DomainException('Label-Namen müssen sich unterscheiden.');
+            }
+
+            // Erst löschen und umbenennen, dann anlegen, damit ein freigewordener Name wieder vergeben werden kann.
+            foreach ($apply as [$action, $label]) {
+                if ($action === 'delete') {
+                    $label->delete();
+                }
+            }
+
+            foreach ($apply as $entry) {
+                if ($entry[0] === 'update') {
+                    $entry[1]->update(['name' => '~'.$entry[1]->id.'~'.$entry[2]['name']]);
+                }
+            }
+
+            foreach ($apply as $entry) {
+                if ($entry[0] === 'update') {
+                    $entry[1]->update($entry[2]);
+                } elseif ($entry[0] === 'create') {
+                    $project->labels()->create($entry[2]);
+                }
             }
         });
     }

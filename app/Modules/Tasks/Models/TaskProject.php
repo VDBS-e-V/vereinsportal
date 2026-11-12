@@ -37,6 +37,18 @@ class TaskProject extends Model
         return $this->hasMany(Task::class, 'task_project_id');
     }
 
+    /** @return HasMany<TaskLabel, $this> */
+    public function labels(): HasMany
+    {
+        return $this->hasMany(TaskLabel::class, 'task_project_id')->orderBy('name');
+    }
+
+    /** @return HasMany<TaskTemplate, $this> */
+    public function templates(): HasMany
+    {
+        return $this->hasMany(TaskTemplate::class, 'task_project_id')->orderBy('name');
+    }
+
     /** Ausdrücklich eingetragene Mitglieder (Rolle „manager“ oder „member“). @return BelongsToMany<User, $this> */
     public function members(): BelongsToMany
     {

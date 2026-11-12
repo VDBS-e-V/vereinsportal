@@ -15,7 +15,7 @@ final class NotificationPreferences
     /**
      * Der Katalog: Schlüssel => Bezeichnung, Erklärung, Gruppe und die Berechtigung, ab der die Benachrichtigung überhaupt vorkommt.
      *
-     * @return array<string, array{label: string, description: string, group: string, ability: string}>
+     * @return array<string, array{label: string, description: string, group: string, ability: string, default?: bool}>
      */
     public static function catalog(): array
     {
@@ -29,6 +29,8 @@ final class NotificationPreferences
             'mailing_approvals' => ['label' => 'Schreiben zur Freigabe', 'description' => 'Wenn die Geschäftsstelle ein Schreiben an viele Personen zur Freigabe vorlegt.', 'group' => 'Vorstand', 'ability' => 'mailings.approve'],
             'new_applications' => ['label' => 'Neue Mitgliedsanträge', 'description' => 'Wenn jemand seine E-Mail-Adresse bestätigt hat und über den Antrag zu entscheiden ist.', 'group' => 'Vorstand', 'ability' => 'memberships.manage'],
             'board_meetings' => ['label' => 'Einladungen zu Vorstandssitzungen', 'description' => 'Wenn der Vorstand eine Einladung zu einer Sitzung per E-Mail verschickt, mit Kalenderdatei im Anhang.', 'group' => 'Vorstand', 'ability' => 'board.meetings'],
+            'task_assigned' => ['label' => 'Neue Aufgaben, die Ihnen zugewiesen werden', 'description' => 'Eine E-Mail, wenn Ihnen jemand im Aufgabensystem eine Aufgabe zuweist. Standardmäßig aus.', 'group' => 'Aufgaben', 'ability' => 'tasks.use', 'default' => false],
+            'task_due' => ['label' => 'Erinnerung an fällige Aufgaben', 'description' => 'Eine E-Mail am Tag vor der Fälligkeit und noch einmal, wenn eine Ihrer Aufgaben überfällig ist (einmal je Aufgabe). Standardmäßig aus.', 'group' => 'Aufgaben', 'ability' => 'tasks.use', 'default' => false],
             'new_access_requests' => ['label' => 'Neue Zugangsanträge', 'description' => 'Wenn ein neuer Antrag auf Zugang zum Portal eingeht.', 'group' => 'Geschäftsstelle', 'ability' => 'access_requests.manage'],
             'school_event_reminders' => ['label' => 'Erinnerung an Anmeldefristen von Veranstaltungen', 'description' => 'Wenn die Anmeldefrist einer Veranstaltung bald endet.', 'group' => 'Schulen', 'ability' => 'school.area'],
         ];
@@ -54,7 +56,10 @@ final class NotificationPreferences
             return true;
         }
 
-        return ! DB::table('notification_preferences')->where('user_id', $user->id)->where('key', $key)->where('enabled', false)->exists();
+        $row = DB::table('notification_preferences')->where('user_id', $user->id)->where('key', $key)->value('enabled');
+
+        // Ohne eigene Wahl gilt der Standard des Eintrags (meist an; Aufgaben-Mails sind standardmäßig aus).
+        return $row === null ? (self::catalog()[$key]['default'] ?? true) : (bool) $row;
     }
 
     /**
@@ -67,11 +72,12 @@ final class NotificationPreferences
      */
     public function filter(iterable $users, string $key): array
     {
-        $off = DB::table('notification_preferences')->where('key', $key)->where('enabled', false)->pluck('user_id')->all();
+        $choices = DB::table('notification_preferences')->where('key', $key)->pluck('enabled', 'user_id')->all();
+        $default = (bool) (self::catalog()[$key]['default'] ?? true);
         $kept = [];
 
         foreach ($users as $user) {
-            if (! in_array($user->id, $off, true)) {
+            if (array_key_exists($user->id, $choices) ? (bool) $choices[$user->id] : $default) {
                 $kept[] = $user;
             }
         }

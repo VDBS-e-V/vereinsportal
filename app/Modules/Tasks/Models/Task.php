@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 /** Modul: Tasks. Eine Aufgabe in einem Projekt mit Status, Zuständigen, Priorität und Fälligkeit; optional mit Bezug zu einer Vorstandssitzung und einem Beschluss. */
 class Task extends Model
@@ -20,6 +21,14 @@ class Task extends Model
     protected function casts(): array
     {
         return ['due_on' => 'date', 'done_at' => 'datetime', 'position' => 'integer'];
+    }
+
+    protected static function booted(): void
+    {
+        // Die Dateien der Anhänge müssen mit gelöscht werden; die Datenbank allein ließe sie liegen.
+        static::deleting(function (Task $task): void {
+            $task->attachments()->get()->each->delete();
+        });
     }
 
     public function isDone(): bool
@@ -59,6 +68,33 @@ class Task extends Model
     public function assignees(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'task_assignees', 'task_id', 'user_id');
+    }
+
+    /** @return BelongsToMany<TaskLabel, $this> */
+    public function labels(): BelongsToMany
+    {
+        return $this->belongsToMany(TaskLabel::class, 'task_label_task', 'task_id', 'task_label_id')->orderBy('name');
+    }
+
+    /** @return HasMany<TaskSubtask, $this> */
+    public function subtasks(): HasMany
+    {
+        return $this->hasMany(TaskSubtask::class, 'task_id')->orderBy('position')->orderBy('id');
+    }
+
+    /** @return HasMany<TaskAttachment, $this> */
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(TaskAttachment::class, 'task_id')->orderBy('created_at');
+    }
+
+    /** Fortschritt der Unteraufgaben, zum Beispiel „2/5“; leer ohne Unteraufgaben. Setzt geladene Unteraufgaben voraus. */
+    public function subtaskProgress(): string
+    {
+        /** @var Collection<int, TaskSubtask> $subtasks */
+        $subtasks = $this->subtasks;
+
+        return $subtasks->isEmpty() ? '' : $subtasks->whereNotNull('done_at')->count().'/'.$subtasks->count();
     }
 
     /** @return HasMany<TaskComment, $this> */

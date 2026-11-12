@@ -36,6 +36,28 @@
             </x-vdbs.data.table>
         </x-vdbs.layout.section>
 
+        <x-vdbs.layout.section title="Labels">
+            <p>Labels ordnen Aufgaben ein, zum Beispiel „Fehler“ oder „Wunsch“. Die Farben sind die sechs Farben des Portals. Löschen Sie ein Label, verschwindet es von allen Aufgaben.</p>
+            @error('labels')<x-vdbs.feedback.alert variant="error">{{ $message }}</x-vdbs.feedback.alert>@enderror
+            <x-vdbs.data.table caption="Labels" :columns="[['key' => 'name', 'label' => 'Name'], ['key' => 'color', 'label' => 'Farbe'], ['key' => 'count', 'label' => 'Aufgaben'], ['key' => 'del', 'label' => 'Löschen']]">
+                @foreach ($labelRows as $label)
+                    <tr>
+                        <td><input type="text" maxlength="40" class="vdbs-input" name="labels[{{ $label->id }}][name]" value="{{ old('labels.'.$label->id.'.name', $label->name) }}" aria-label="Name des Labels" required></td>
+                        <td><select class="vdbs-select" name="labels[{{ $label->id }}][color]" aria-label="Farbe von {{ $label->name }}">@foreach ($colors as $value => $text)<option value="{{ $value }}" @selected(old('labels.'.$label->id.'.color', $label->color) === (string) $value)>{{ $text }}</option>@endforeach</select> @include('tasks._label', ['label' => $label])</td>
+                        <td>{{ $label->tasks_count }}</td>
+                        <td><input type="checkbox" name="labels[{{ $label->id }}][delete]" value="1" aria-label="{{ $label->name }} löschen"></td>
+                    </tr>
+                @endforeach
+                @foreach ([0, 1] as $i)
+                    <tr>
+                        <td><input type="text" maxlength="40" class="vdbs-input" name="new_labels[{{ $i }}][name]" value="{{ old('new_labels.'.$i.'.name') }}" aria-label="Name eines neuen Labels" placeholder="Neues Label"></td>
+                        <td><select class="vdbs-select" name="new_labels[{{ $i }}][color]" aria-label="Farbe des neuen Labels">@foreach ($colors as $value => $text)<option value="{{ $value }}">{{ $text }}</option>@endforeach</select></td>
+                        <td>–</td><td>–</td>
+                    </tr>
+                @endforeach
+            </x-vdbs.data.table>
+        </x-vdbs.layout.section>
+
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="save">Speichern</x-vdbs.actions.button>
             <x-vdbs.actions.button variant="secondary" :href="route('tasks.projects.show', $project)">Abbrechen</x-vdbs.actions.button>

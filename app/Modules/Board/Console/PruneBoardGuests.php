@@ -25,7 +25,7 @@ class PruneBoardGuests extends Command
             $query->delete();
         }
 
-        $this->components->info(($this->option('dry-run') ? 'Probelauf: ' : '').$count.' Gast/Gäste '.($this->option('dry-run') ? 'würden gelöscht.' : 'gelöscht.'));
+        $this->info(($this->option('dry-run') ? 'Probelauf: ' : '').$count.' Gast/Gäste '.($this->option('dry-run') ? 'würden gelöscht.' : 'gelöscht.'));
 
         return self::SUCCESS;
     }

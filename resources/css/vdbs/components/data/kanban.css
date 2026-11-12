@@ -1,0 +1,9 @@
+/* Kanban-Tafel (Paket "Daten"). Nur Tokens aus tokens.css verwenden, keine Farbcodes. */
+
+.vdbs-kanban {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-start;
+    overflow-x: auto;
+    padding: var(--space-4) var(--space-4) var(--space-6);
+}

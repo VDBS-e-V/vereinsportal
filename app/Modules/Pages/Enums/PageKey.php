@@ -96,7 +96,7 @@ Der Kalender der Vorstandssitzungen kann als Abo in Kalenderprogrammen genutzt w
 
 ## Aufgabenverwaltung
 
-Für die interne Zusammenarbeit führen wir Aufgaben in Projekten. Gespeichert werden Titel, Beschreibung, Priorität, Fälligkeit, der Status, die zuständigen Konten, Kommentare mit Name und Zeit sowie Änderungen im Protokoll (ohne Inhalte). Projekte sehen nur ihre Mitglieder; Aufgaben des Vorstands nur der Vorstand. Rechtsgrundlage ist die Organisation der Vereinsarbeit (Art. 6 Abs. 1 lit. b und f DSGVO). Aufgaben und Kommentare bleiben, bis sie oder das Projekt gelöscht werden; wird ein Konto anonymisiert, verschwindet der Name aus Zuweisungen und Kommentaren.
+Für die interne Zusammenarbeit führen wir Aufgaben in Projekten. Gespeichert werden Titel, Beschreibung, Priorität, Fälligkeit, der Status, die zuständigen Konten, Kommentare mit Name und Zeit sowie Änderungen im Protokoll (ohne Inhalte). Projekte sehen nur ihre Mitglieder; Aufgaben des Vorstands nur der Vorstand. Rechtsgrundlage ist die Organisation der Vereinsarbeit (Art. 6 Abs. 1 lit. b und f DSGVO). Dazu kommen Labels, Unteraufgaben und Anhänge (privat gespeichert, nur für die Mitglieder des Projekts). E-Mails zu Aufgaben (neue Zuweisung, Erinnerung an die Fälligkeit) senden wir nur, wenn Sie sie in Ihrem Konto selbst eingeschaltet haben; sie nennen den Titel der Aufgabe und das Projekt. Aufgaben, Anhänge und Kommentare bleiben, bis sie oder das Projekt gelöscht werden; wird ein Konto anonymisiert, verschwindet der Name aus Zuweisungen und Kommentaren.
 
 ## E-Mails und Rundschreiben
 

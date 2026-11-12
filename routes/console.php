@@ -51,6 +51,9 @@ Schedule::command('events:remind-schools')->daily();
 // Unbestätigte Anmeldungen zu Großveranstaltungen und Anmeldungen nach der Aufbewahrungszeit löschen.
 Schedule::command('events:prune')->daily();
 
+// Erinnerungen an bald fällige und überfällige Aufgaben, nur an Personen, die sie eingeschaltet haben.
+Schedule::command('tasks:remind')->dailyAt('07:30');
+
 // Angaben externer Gäste von Vorstandssitzungen nach der Aufbewahrungszeit löschen.
 Schedule::command('board:prune-guests')->daily();
 

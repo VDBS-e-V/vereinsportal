@@ -8,6 +8,7 @@ use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Tasks\Models\Task;
+use App\Modules\Tasks\Models\TaskLabel;
 use App\Modules\Tasks\Models\TaskProject;
 use App\Modules\Tasks\Services\ProjectAccess;
 use App\Modules\Tasks\Services\TaskProjects;
@@ -66,12 +67,13 @@ class ProjectController extends Controller
         $user = $this->user();
         $filters = $request->validate([
             'view' => ['nullable', Rule::in(['board', 'list'])], 'q' => ['nullable', 'string', 'max:100'], 'assignee' => ['nullable', 'string', 'max:20'],
-            'priority' => ['nullable', Rule::in(array_keys(Task::PRIORITIES))], 'status' => ['nullable', Rule::in(['open', 'done', 'all'])],
+            'priority' => ['nullable', Rule::in(array_keys(Task::PRIORITIES))], 'label' => ['nullable', 'integer'], 'status' => ['nullable', Rule::in(['open', 'done', 'all'])],
         ]);
         $view = $filters['view'] ?? 'board';
         $assignee = $filters['assignee'] ?? '';
 
-        $tasks = $project->tasks()->with(['assignees.person', 'status', 'meeting'])
+        $tasks = $project->tasks()->with(['assignees.person', 'status', 'meeting', 'labels', 'subtasks'])
+            ->when($filters['label'] ?? null, fn ($query, $label) => $query->whereHas('labels', fn ($labels) => $labels->where('task_labels.id', $label)))
             ->when($filters['q'] ?? null, fn ($query, $q) => $query->where(fn ($inner) => $inner->where('title', 'like', '%'.addcslashes($q, '%_\\').'%')->orWhere('description', 'like', '%'.addcslashes($q, '%_\\').'%')))
             ->when($filters['priority'] ?? null, fn ($query, $priority) => $query->where('priority', $priority))
             ->when($assignee === 'me', fn ($query) => $query->whereHas('assignees', fn ($assignees) => $assignees->where('users.id', $user->id)))
@@ -84,7 +86,7 @@ class ProjectController extends Controller
 
         return view('tasks.projects.show', [
             'project' => $project, 'statuses' => $project->statuses()->get(), 'tasks' => $tasks, 'view' => $view, 'filters' => $filters, 'overdue' => $request->boolean('overdue'),
-            'assignable' => $this->access->assignable($project), 'canManage' => $this->access->canManage($user, $project), 'priorities' => Task::PRIORITIES,
+            'assignable' => $this->access->assignable($project), 'labels' => $project->labels()->pluck('name', 'id')->all(), 'templates' => $project->templates()->pluck('name', 'id')->all(), 'canManage' => $this->access->canManage($user, $project), 'priorities' => Task::PRIORITIES,
         ]);
     }
 
@@ -94,7 +96,7 @@ class ProjectController extends Controller
         $project->load('members');
 
         return view('tasks.projects.edit', [
-            'project' => $project, 'statuses' => $project->statuses()->withCount('tasks')->get(), 'roles' => $this->roleOptions(), 'users' => $this->allUsers($project->members->pluck('id')->all()),
+            'project' => $project, 'statuses' => $project->statuses()->withCount('tasks')->get(), 'labelRows' => $project->labels()->withCount('tasks')->get(), 'colors' => TaskLabel::COLORS, 'roles' => $this->roleOptions(), 'users' => $this->allUsers($project->members->pluck('id')->all()),
             'managers' => $project->members->where('pivot.role', 'manager')->pluck('id')->all(), 'members' => $project->members->where('pivot.role', 'member')->pluck('id')->all(),
             'isAdmin' => $this->access->isAdmin($this->user()),
         ]);
@@ -112,8 +114,9 @@ class ProjectController extends Controller
 
         try {
             $this->projects->saveStatuses($project, (array) $request->input('statuses', []), (array) $request->input('new_statuses', []));
+            $this->projects->saveLabels($project, (array) $request->input('labels', []), (array) $request->input('new_labels', []));
         } catch (DomainException $exception) {
-            return back()->withInput()->withErrors(['statuses' => $exception->getMessage()]);
+            return back()->withInput()->withErrors([str_contains($exception->getMessage(), 'Label') ? 'labels' : 'statuses' => $exception->getMessage()]);
         }
 
         $this->projects->update($project, $data, $this->ids($data, 'managers'), $this->ids($data, 'members'), $this->user());
@@ -135,7 +138,7 @@ class ProjectController extends Controller
     {
         abort_unless($this->access->isAdmin($this->user()) && $project->slug !== TaskProject::BOARD, 403);
         AuditLog::record(AuditEvent::TaskProjectDeleted, $this->user(), null, ['projekt' => $project->name, 'aufgaben' => $project->tasks()->count()]);
-        $project->tasks()->delete();
+        $project->tasks()->get()->each->delete();
         $project->delete();
 
         return redirect()->route('tasks.index')->with('success', 'Das Projekt samt Aufgaben wurde gelöscht.');
