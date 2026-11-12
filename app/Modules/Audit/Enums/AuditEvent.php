@@ -120,8 +120,10 @@ enum AuditEvent: string
     case BoardGuestsChanged = 'board.guests_changed';
     case BoardResolutionSaved = 'board.resolution_saved';
     case BoardResolutionDeleted = 'board.resolution_deleted';
-    case BoardTaskSaved = 'board.task_saved';
-    case BoardTaskDeleted = 'board.task_deleted';
+    case TaskProjectSaved = 'task.project_saved';
+    case TaskProjectDeleted = 'task.project_deleted';
+    case TaskSaved = 'task.saved';
+    case TaskDeleted = 'task.deleted';
 
     public function label(): string
     {
@@ -223,8 +225,10 @@ enum AuditEvent: string
             self::BoardGuestsChanged => 'Gäste einer Vorstandssitzung geändert',
             self::BoardResolutionSaved => 'Vorstandsbeschluss gespeichert',
             self::BoardResolutionDeleted => 'Vorstandsbeschluss gelöscht',
-            self::BoardTaskSaved => 'Vorstandsaufgabe gespeichert',
-            self::BoardTaskDeleted => 'Vorstandsaufgabe gelöscht',
+            self::TaskProjectSaved => 'Aufgabenprojekt gespeichert',
+            self::TaskProjectDeleted => 'Aufgabenprojekt gelöscht',
+            self::TaskSaved => 'Aufgabe gespeichert',
+            self::TaskDeleted => 'Aufgabe gelöscht',
         };
     }
 
@@ -253,7 +257,8 @@ enum AuditEvent: string
             self::FormStatusChanged, self::FormExported, self::FormSettingsChanged => 'forms',
             self::ContractsCreated, self::ContractSigned, self::ContractSettingsChanged, self::ContractTemplateSaved => 'contracts',
             self::LetterTemplateSaved, self::LettersGenerated => 'letters',
-            self::BoardCalendarChanged, self::BoardMeetingSaved, self::BoardMeetingDeleted, self::BoardMinutesApproved, self::BoardDocumentAdded, self::BoardDocumentRemoved, self::BoardInvitationSent, self::BoardGuestsChanged, self::BoardResolutionSaved, self::BoardResolutionDeleted, self::BoardTaskSaved, self::BoardTaskDeleted => 'board',
+            self::BoardCalendarChanged, self::BoardMeetingSaved, self::BoardMeetingDeleted, self::BoardMinutesApproved, self::BoardDocumentAdded, self::BoardDocumentRemoved, self::BoardInvitationSent, self::BoardGuestsChanged, self::BoardResolutionSaved, self::BoardResolutionDeleted => 'board',
+            self::TaskProjectSaved, self::TaskProjectDeleted, self::TaskSaved, self::TaskDeleted => 'tasks',
         };
     }
 
@@ -284,6 +289,7 @@ enum AuditEvent: string
             'contracts' => 'Verträge',
             'letters' => 'Briefvorlagen',
             'board' => 'Vorstand',
+            'tasks' => 'Aufgaben',
         ];
     }
 
@@ -291,7 +297,7 @@ enum AuditEvent: string
     public function tone(): string
     {
         return match ($this) {
-            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::EventDeleted, self::OauthClientDeleted, self::BoardMeetingDeleted, self::BoardResolutionDeleted => 'error',
+            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::EventDeleted, self::OauthClientDeleted, self::BoardMeetingDeleted, self::BoardResolutionDeleted, self::TaskProjectDeleted => 'error',
             self::SystemTaskRun, self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
             self::Login, self::UserEnabled, self::TwoFactorEnabled, self::TeamOnboardingCompleted => 'success',
             default => 'neutral',

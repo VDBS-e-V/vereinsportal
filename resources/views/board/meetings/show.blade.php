@@ -70,33 +70,30 @@
 
     <section aria-labelledby="tasks-heading" style="margin-top:var(--space-6)">
         <h2 id="tasks-heading" style="font-size:var(--font-size-h3)">Aufgaben</h2>
+        <p>Aufgaben dieser Sitzung stehen im Projekt „Vorstand“ des Aufgabensystems, dort auch als Kanban-Tafel: <a href="{{ route('tasks.projects.show', $taskProject) }}">Projekt öffnen</a>.</p>
         @if ($meeting->tasks->isEmpty())
             <p>Noch keine Aufgaben aus dieser Sitzung.</p>
         @else
-            <form id="board-tasks-form" method="post" action="{{ route('board.tasks.bulk') }}">@csrf
-                <x-vdbs.data.table caption="Aufgaben der Sitzung" :columns="[['key' => 'select', 'label' => 'Auswahl', 'selectAll' => 'board-tasks-form'], ['key' => 'title', 'label' => 'Aufgabe'], ['key' => 'who', 'label' => 'Zuständig'], ['key' => 'due', 'label' => 'Fällig'], ['key' => 'state', 'label' => 'Stand']]">
-                    @foreach ($meeting->tasks as $task)
-                        <tr>
-                            <td class="vdbs-table__select"><span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="ids[]" value="{{ $task->id }}" aria-label="{{ $task->title }} auswählen"></span></td>
-                            <td><a href="{{ route('board.tasks.edit', $task) }}">{{ $task->title }}</a></td>
-                            <td>{{ $task->assigneeNames() ?: '–' }}</td>
-                            <td>{{ $task->due_on?->format('d.m.Y') ?? '–' }}@if ($task->isOverdue()) <x-vdbs.data.badge tone="error">überfällig</x-vdbs.data.badge>@endif</td>
-                            <td>{{ $task->isDone() ? 'erledigt' : 'offen' }}</td>
-                        </tr>
-                    @endforeach
-                </x-vdbs.data.table>
-                <p class="vdbs-table__select-count" role="status" data-vdbs-select-count="board-tasks-form">Nichts ausgewählt.</p>
-                <div class="vdbs-btn-group">
-                    <x-vdbs.actions.button type="submit" name="action" value="done" icon="check">Als erledigt markieren</x-vdbs.actions.button>
-                    <x-vdbs.actions.button type="submit" name="action" value="open" variant="secondary" icon="refresh-cw">Wieder öffnen</x-vdbs.actions.button>
-                    <x-vdbs.actions.button type="submit" name="action" value="delete" variant="danger" icon="trash-2" onclick="return confirm('Die ausgewählten Aufgaben löschen?')">Löschen</x-vdbs.actions.button>
-                </div>
-            </form>
+            <x-vdbs.data.table caption="Aufgaben der Sitzung" :columns="[['key' => 'title', 'label' => 'Aufgabe'], ['key' => 'who', 'label' => 'Zuständig'], ['key' => 'due', 'label' => 'Fällig'], ['key' => 'state', 'label' => 'Stand']]">
+                @foreach ($meeting->tasks as $task)
+                    <tr>
+                        <td><a href="{{ route('tasks.show', $task) }}">{{ $task->title }}</a></td>
+                        <td>{{ $task->assigneeNames() ?: '–' }}</td>
+                        <td>{{ $task->due_on?->format('d.m.Y') ?? '–' }}@if ($task->isOverdue()) <x-vdbs.data.badge tone="error">überfällig</x-vdbs.data.badge>@endif</td>
+                        <td>{{ $task->status?->name }}</td>
+                    </tr>
+                @endforeach
+            </x-vdbs.data.table>
         @endif
-        <x-vdbs.forms.form :action="route('board.tasks.store')" method="post" :summary="false">
+        <x-vdbs.forms.form :action="route('tasks.store', $taskProject)" method="post" :summary="false">
             <input type="hidden" name="board_meeting_id" value="{{ $meeting->id }}">
             <input type="hidden" name="from_meeting" value="1">
-            @include('board.tasks._fields', ['task' => null, 'resolutions' => $meeting->resolutions->mapWithKeys(fn ($resolution) => [$resolution->id => $resolution->number().' '.$resolution->title])->all()])
+            <x-vdbs.forms.input name="title" label="Aufgabe" :required="true" maxlength="200" />
+            <x-vdbs.forms.multi-select name="assignees" label="Zuständig" :optional="true" :searchable="true" placeholder="Niemand ausgewählt" search-label="Personen filtern" :options="$taskAssignable" :value="old('assignees', [])" hint="Mehrere Personen möglich." />
+            <x-vdbs.forms.input name="due_on" label="Fällig am" type="date" :optional="true" />
+            @if ($meeting->resolutions->isNotEmpty())
+                <x-vdbs.forms.select name="board_resolution_id" label="Zu Beschluss" :optional="true" placeholder="Kein Beschluss" :options="$meeting->resolutions->mapWithKeys(fn ($resolution) => [$resolution->id => $resolution->number().' '.$resolution->title])->all()" :value="old('board_resolution_id')" />
+            @endif
             <x-slot:actions><x-vdbs.actions.button type="submit" icon="plus">Aufgabe anlegen</x-vdbs.actions.button></x-slot:actions>
         </x-vdbs.forms.form>
     </section>

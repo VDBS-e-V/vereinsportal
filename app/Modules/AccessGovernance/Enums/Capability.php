@@ -131,6 +131,12 @@ enum Capability: string
     /** Vorstandssitzungen mit Tagesordnung, Anwesenheit, Protokoll und Kalender-Abo verwalten (nur Vorstand). */
     case BoardMeetings = 'board.meetings';
 
+    /** Das Aufgabensystem nutzen: Projekte ansehen, in denen man Mitglied ist, Aufgaben anlegen, bearbeiten und verschieben. */
+    case TasksUse = 'tasks.use';
+
+    /** Im Aufgabensystem alle Projekte sehen und verwalten, Projekte anlegen und löschen (Administration, Vorstand). */
+    case TasksAdmin = 'tasks.admin';
+
     /** Schreiben aus Word-Vorlagen erzeugen und die Vorlagen ansehen (Koordination, Geschäftsstelle, Vorstand). */
     case LettersUse = 'letters.use';
 

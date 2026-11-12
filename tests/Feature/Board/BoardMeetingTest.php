@@ -14,7 +14,9 @@ use App\Modules\Board\Mail\BoardGuestInvitationMail;
 use App\Modules\Board\Mail\BoardMeetingInvitationMail;
 use App\Modules\Board\Models\BoardMeetingGuest;
 use App\Modules\Board\Models\BoardResolution;
-use App\Modules\Board\Models\BoardTask;
+use App\Modules\Tasks\Models\Task;
+use App\Modules\Tasks\Models\TaskProject;
+use App\Modules\Tasks\Services\TaskProjects;
 use App\Modules\Board\Models\BoardMeetingDocument;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\UploadedFile;
@@ -442,12 +444,18 @@ it('edits and deletes resolutions and validates them', function () {
     $this->put(route('board.resolutions.update', $resolution), ['title' => 'Geändert', 'outcome' => 'rejected'])->assertRedirect();
     expect($resolution->fresh()->title)->toBe('Geändert')->and($resolution->fresh()->outcome)->toBe('rejected');
 
-    $task = BoardTask::query()->create(['title' => 'Umsetzen', 'board_resolution_id' => $resolution->id, 'board_meeting_id' => $meeting->id]);
     $this->post(route('board.resolutions.destroy-many'), ['ids' => [$resolution->id]])->assertRedirect();
-    expect(BoardResolution::query()->count())->toBe(0)->and($task->fresh()->board_resolution_id)->toBeNull();
+    expect(BoardResolution::query()->count())->toBe(0);
 });
 
-it('creates tasks with several assignees, filters them and handles bulk actions', function () {
+function bmTask(array $override = []): Task
+{
+    $project = app(TaskProjects::class)->board();
+
+    return Task::query()->create($override + ['task_project_id' => $project->id, 'task_status_id' => $project->statuses()->first()->id, 'title' => 'Aufgabe']);
+}
+
+it('creates tasks for a meeting in the project Vorstand with assignees and a resolution', function () {
     $a = bmUser(RoleKey::BoardMember, ['first_name' => 'Anna', 'last_name' => 'Eins']);
     $b = bmUser(RoleKey::BoardMember, ['first_name' => 'Bernd', 'last_name' => 'Zwei']);
     $outsider = bmUser(RoleKey::Coordination);
@@ -455,69 +463,43 @@ it('creates tasks with several assignees, filters them and handles bulk actions'
     $meeting = bmMeeting();
     $this->post(route('board.resolutions.store', $meeting), ['title' => 'Plan', 'outcome' => 'accepted']);
     $resolution = BoardResolution::query()->firstOrFail();
+    $project = app(TaskProjects::class)->board();
 
-    $this->post(route('board.tasks.store'), ['title' => 'Angebot einholen', 'board_meeting_id' => $meeting->id, 'board_resolution_id' => $resolution->id, 'assignees' => [$a->id, $b->id], 'due_on' => now()->subDay()->format('Y-m-d'), 'from_meeting' => 1])->assertRedirect();
-    $this->post(route('board.tasks.store'), ['title' => 'Später erledigen', 'assignees' => [$b->id], 'due_on' => now()->addWeek()->format('Y-m-d')])->assertRedirect(route('board.tasks.index'));
-    $this->post(route('board.tasks.store'), ['title' => 'Fremd', 'assignees' => [$outsider->id]])->assertSessionHasErrors('assignees');
-    $this->post(route('board.tasks.store'), ['title' => 'Falscher Beschluss', 'board_meeting_id' => bmMeeting(['title' => 'Andere'])->id, 'board_resolution_id' => $resolution->id])->assertSessionHasErrors('board_resolution_id');
+    $this->post(route('tasks.store', $project), ['title' => 'Angebot einholen', 'board_meeting_id' => $meeting->id, 'board_resolution_id' => $resolution->id, 'assignees' => [$a->id, $b->id], 'due_on' => now()->subDay()->format('Y-m-d'), 'from_meeting' => 1])
+        ->assertRedirect(route('board.meetings.show', $meeting).'#tasks-heading');
+    $this->post(route('tasks.store', $project), ['title' => 'Fremd', 'assignees' => [$outsider->id]])->assertSessionHasErrors('assignees');
+    $this->post(route('tasks.store', $project), ['title' => 'Falscher Beschluss', 'board_meeting_id' => bmMeeting(['title' => 'Andere'])->id, 'board_resolution_id' => $resolution->id])->assertSessionHasErrors('board_resolution_id');
 
-    $first = BoardTask::query()->where('title', 'Angebot einholen')->firstOrFail();
-    expect($first->assignees)->toHaveCount(2)->and($first->isOverdue())->toBeTrue();
-
-    $this->get(route('board.tasks.index'))->assertOk()->assertSee('Angebot einholen')->assertSee('überfällig')->assertSee('Anna Eins, Bernd Zwei');
-    $this->get(route('board.tasks.index', ['overdue' => 1]))->assertOk()->assertSee('Angebot einholen')->assertDontSee('Später erledigen');
-    $this->get(route('board.tasks.index', ['mine' => 1]))->assertOk()->assertSee('Angebot einholen')->assertDontSee('Später erledigen');
-    $this->get(route('board.meetings.show', $meeting))->assertOk()->assertSee('Angebot einholen');
-
-    $ids = BoardTask::query()->pluck('id')->all();
-    $this->post(route('board.tasks.bulk'), ['ids' => $ids, 'action' => 'done'])->assertSessionHas('success');
-    expect(BoardTask::query()->whereNull('done_at')->count())->toBe(0);
-    $this->get(route('board.tasks.index'))->assertOk()->assertDontSee('Angebot einholen');
-    $this->get(route('board.tasks.index', ['status' => 'done']))->assertOk()->assertSee('Angebot einholen')->assertDontSee('überfällig');
-
-    $this->post(route('board.tasks.bulk'), ['ids' => [$first->id], 'action' => 'open']);
-    expect($first->fresh()->done_at)->toBeNull();
-    $this->post(route('board.tasks.bulk'), ['ids' => $ids, 'action' => 'delete']);
-    $this->post(route('board.tasks.bulk'), ['ids' => $ids, 'action' => 'bogus'])->assertSessionHasErrors('action');
-    $this->post(route('board.tasks.bulk'), [])->assertSessionHasErrors('ids');
-    expect(BoardTask::query()->count())->toBe(0)->and(AuditEntry::query()->where('event', 'board.task_deleted')->count())->toBe(2);
+    $task = Task::query()->where('title', 'Angebot einholen')->firstOrFail();
+    expect($task->assignees)->toHaveCount(2)->and($task->isOverdue())->toBeTrue()->and($task->project->slug)->toBe('vorstand');
+    $this->get(route('board.meetings.show', $meeting))->assertOk()->assertSee('Angebot einholen')->assertSee('Anna Eins, Bernd Zwei');
 });
 
-it('edits a task and marks it done', function () {
-    $user = bmUser(RoleKey::BoardMember);
-    $this->actingAs($user);
-    $task = BoardTask::query()->create(['title' => 'Alt', 'created_by' => $user->id]);
-
-    $this->get(route('board.tasks.edit', $task))->assertOk()->assertSee('Alt');
-    $this->put(route('board.tasks.update', $task), ['title' => 'Neu', 'notes' => 'Mit Hinweis', 'assignees' => [$user->id], 'done' => 1])->assertRedirect();
-
-    $task->refresh();
-    expect($task->title)->toBe('Neu')->and($task->isDone())->toBeTrue()->and($task->assignees)->toHaveCount(1);
-
-    $this->put(route('board.tasks.update', $task), ['title' => 'Neu'])->assertRedirect();
-    expect($task->fresh()->isDone())->toBeFalse()->and($task->fresh()->assignees)->toHaveCount(0);
-});
-
-it('keeps tasks when their meeting is deleted and keeps resolutions and tasks from everyone but the board', function () {
+it('keeps tasks when their meeting or resolution is deleted', function () {
     $this->actingAs(bmUser(RoleKey::BoardMember));
     $meeting = bmMeeting();
-    $task = BoardTask::query()->create(['title' => 'Bleibt', 'board_meeting_id' => $meeting->id]);
+    $this->post(route('board.resolutions.store', $meeting), ['title' => 'Plan', 'outcome' => 'accepted']);
+    $resolution = BoardResolution::query()->firstOrFail();
+    $task = bmTask(['board_meeting_id' => $meeting->id, 'board_resolution_id' => $resolution->id]);
+
+    $this->post(route('board.resolutions.destroy-many'), ['ids' => [$resolution->id]])->assertRedirect();
+    expect($task->fresh()->board_resolution_id)->toBeNull()->and($task->fresh()->board_meeting_id)->toBe($meeting->id);
+
     $this->delete(route('board.meetings.destroy', $meeting));
     expect($task->fresh())->not->toBeNull()->and($task->fresh()->board_meeting_id)->toBeNull();
+});
 
+it('keeps resolutions from everyone but the board', function () {
     $resolution = BoardResolution::query()->create(['board_meeting_id' => bmMeeting()->id, 'year' => 2027, 'seq' => 1, 'title' => 'Intern', 'outcome' => 'accepted']);
 
     foreach ([RoleKey::AdministrationStaff, RoleKey::Coordination, RoleKey::Team, RoleKey::Member] as $role) {
         $this->actingAs(bmUser($role));
         $this->get(route('board.resolutions.index'))->assertForbidden();
         $this->get(route('board.resolutions.edit', $resolution))->assertForbidden();
-        $this->get(route('board.tasks.index'))->assertForbidden();
-        $this->get(route('board.tasks.edit', $task))->assertForbidden();
-        $this->post(route('board.tasks.bulk'), ['ids' => [$task->id], 'action' => 'delete'])->assertForbidden();
         $this->post(route('board.resolutions.destroy-many'), ['ids' => [$resolution->id]])->assertForbidden();
     }
 
-    expect(BoardTask::query()->count())->toBe(1)->and(BoardResolution::query()->count())->toBe(1);
+    expect(BoardResolution::query()->count())->toBe(1);
 });
 
 it('shows the board overview with the next meeting and open tasks', function () {
@@ -525,7 +507,7 @@ it('shows the board overview with the next meeting and open tasks', function () 
     $this->get(route('board.overview'))->assertOk()->assertSee('Vorstandsarbeit')->assertSee('keine geplant');
 
     bmMeeting(['starts_at' => now()->addDays(3)->setTime(19, 0), 'ends_at' => now()->addDays(3)->setTime(21, 0)]);
-    BoardTask::query()->create(['title' => 'Offen', 'due_on' => now()->subDay()]);
+    bmTask(['title' => 'Offen', 'due_on' => now()->subDay()]);
 
     $this->get(route('board.overview'))->assertOk()->assertSee(now()->addDays(3)->format('d.m.Y').', 19:00 Uhr')->assertSee('Überfällige Aufgaben');
 });

@@ -39,9 +39,9 @@ class BoardResolution extends Model
         return $this->belongsTo(BoardMeeting::class, 'board_meeting_id');
     }
 
-    /** @return HasMany<BoardTask, $this> */
+    /** @return HasMany<\App\Modules\Tasks\Models\Task, $this> */
     public function tasks(): HasMany
     {
-        return $this->hasMany(BoardTask::class, 'board_resolution_id');
+        return $this->hasMany(\App\Modules\Tasks\Models\Task::class, 'board_resolution_id');
     }
 }

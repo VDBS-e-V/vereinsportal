@@ -84,8 +84,9 @@ class PortalAreaController extends Controller
             'seminarsPlanning' => Seminar::query()->whereIn('status', [SeminarStatus::Request->value, SeminarStatus::Planning->value])->count(),
             'seminarsPlanned' => Seminar::query()->whereIn('status', [SeminarStatus::Scheduled->value, SeminarStatus::Confirmed->value])->count(),
             'events' => Event::query()->where('status', EventStatus::Open->value)->count(),
-            'boardTasksOpen' => \App\Modules\Board\Models\BoardTask::query()->whereNull('done_at')->count(),
-            'boardTasksOverdue' => \App\Modules\Board\Models\BoardTask::query()->whereNull('done_at')->whereDate('due_on', '<', today())->count(),
+            'boardTasksOpen' => \App\Modules\Tasks\Models\Task::query()->whereHas('project', fn ($project) => $project->where('slug', 'vorstand'))->whereNull('done_at')->count(),
+            'boardTasksOverdue' => \App\Modules\Tasks\Models\Task::query()->whereHas('project', fn ($project) => $project->where('slug', 'vorstand'))->whereNull('done_at')->whereDate('due_on', '<', today())->count(),
+            'boardProject' => \App\Modules\Tasks\Models\TaskProject::query()->where('slug', 'vorstand')->value('id'),
             'nextMeeting' => \App\Modules\Board\Models\BoardMeeting::query()->where('ends_at', '>=', now())->where('status', '!=', 'cancelled')->orderBy('starts_at')->first()?->starts_at?->format('d.m.Y, H:i \\U\\h\\r'),
         ]]);
     }

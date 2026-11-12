@@ -157,4 +157,10 @@ class User extends Authenticatable
     {
         return $this->hasOne(\App\Modules\Onboarding\Models\TeamOnboarding::class);
     }
+
+    /** Aufgabenprojekte, in die dieses Konto ausdrücklich eingetragen ist. @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Modules\Tasks\Models\TaskProject, $this> */
+    public function taskProjectMemberships(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(\App\Modules\Tasks\Models\TaskProject::class, 'task_project_members', 'user_id', 'task_project_id')->withPivot('role');
+    }
 }

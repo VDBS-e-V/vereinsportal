@@ -39,10 +39,10 @@ class BoardMeeting extends Model
         return $this->hasMany(BoardResolution::class, 'board_meeting_id')->orderBy('year')->orderBy('seq');
     }
 
-    /** @return HasMany<BoardTask, $this> */
+    /** @return HasMany<\App\Modules\Tasks\Models\Task, $this> */
     public function tasks(): HasMany
     {
-        return $this->hasMany(BoardTask::class, 'board_meeting_id')->orderByRaw('done_at is not null')->orderBy('due_on');
+        return $this->hasMany(\App\Modules\Tasks\Models\Task::class, 'board_meeting_id')->orderByRaw('done_at is not null')->orderBy('due_on');
     }
 
     /** @return HasMany<BoardMeetingGuest, $this> */

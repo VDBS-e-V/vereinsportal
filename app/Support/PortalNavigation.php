@@ -84,7 +84,6 @@ final class PortalNavigation
                     ['description' => 'E-Mails an Mitglieder und andere Gruppen, frei oder mit Vorlage.', 'label' => 'Rundschreiben', 'route' => 'mailings.board.index', 'match' => 'mailings.board.*', 'can' => 'mailings.members'],
                     ['description' => 'Vorstandssitzungen planen, Tagesordnung, Anwesenheit und Protokoll, mit Kalender-Abo.', 'label' => 'Sitzungen', 'route' => 'board.meetings.index', 'match' => 'board.meetings.*', 'can' => 'board.meetings'],
                     ['description' => 'Alle Beschlüsse des Vorstands, nummeriert und durchsuchbar.', 'label' => 'Beschlüsse', 'route' => 'board.resolutions.index', 'match' => 'board.resolutions.*', 'can' => 'board.meetings'],
-                    ['description' => 'Offene und erledigte Aufgaben aus Sitzungen und Beschlüssen.', 'label' => 'Aufgaben', 'route' => 'board.tasks.index', 'match' => 'board.tasks.*', 'can' => 'board.meetings'],
                     ['label' => 'Berichte', 'route' => 'board.reports', 'match' => 'board.reports*', 'can' => 'reports.view'],
                 ],
             ],
@@ -198,6 +197,15 @@ final class PortalNavigation
                     ]],
                     ['description' => 'Nextcloud, Moodle und andere Systeme, die sich über das Portal anmelden.', 'label' => 'Anbindungen', 'route' => 'admin.oauth.index', 'match' => 'admin.oauth.*', 'can' => 'oauth.manage'],
                     ['description' => 'Komponenten und Muster des Designsystems.', 'label' => 'Design-Bibliothek', 'route' => 'design-library.index', 'match' => 'design-library.*', 'can' => 'design.view'],
+                ],
+            ],
+            PortalAreas::Aufgaben->value => [
+                'home' => 'tasks.index',
+                'routes' => ['tasks.projects.*', 'tasks.show', 'tasks.update', 'tasks.store', 'tasks.bulk', 'tasks.move', 'tasks.destroy', 'tasks.comments.*'],
+                'roles' => [RoleKey::BoardMember, RoleKey::Administration, RoleKey::AdministrationStaff, RoleKey::Coordination, RoleKey::EducationCoordination, RoleKey::ManagingDirector, RoleKey::Treasury, RoleKey::Employee],
+                'pages' => [
+                    ['description' => 'Projekte mit Kanban-Tafel und Liste.', 'label' => 'Projekte', 'route' => 'tasks.index', 'match' => 'tasks.index', 'can' => 'tasks.use'],
+                    ['description' => 'Alle Aufgaben, die Ihnen zugewiesen sind.', 'label' => 'Meine Aufgaben', 'route' => 'tasks.mine', 'match' => 'tasks.mine', 'can' => 'tasks.use'],
                 ],
             ],
         ];

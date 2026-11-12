@@ -39,6 +39,7 @@ return [
     \App\Modules\Contracts\ContractsServiceProvider::class,
     \App\Modules\Letters\LettersServiceProvider::class,
     \App\Modules\Board\BoardServiceProvider::class,
+    \App\Modules\Tasks\TasksServiceProvider::class,
     PeopleServiceProvider::class,
     MembershipServiceProvider::class,
     OnboardingServiceProvider::class,

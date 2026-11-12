@@ -3,7 +3,6 @@
 use App\Modules\Board\Http\Controllers\BoardFeedController;
 use App\Modules\Board\Http\Controllers\BoardMeetingController;
 use App\Modules\Board\Http\Controllers\BoardResolutionController;
-use App\Modules\Board\Http\Controllers\BoardTaskController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,11 +39,6 @@ Route::middleware(['web', 'auth', 'can:board.meetings'])->prefix('vorstand')->gr
     Route::get('/beschluesse/{resolution}/bearbeiten', [BoardResolutionController::class, 'edit'])->whereNumber('resolution')->name('board.resolutions.edit');
     Route::put('/beschluesse/{resolution}', [BoardResolutionController::class, 'update'])->whereNumber('resolution')->name('board.resolutions.update');
 
-    Route::get('/aufgaben', [BoardTaskController::class, 'index'])->name('board.tasks.index');
-    Route::post('/aufgaben', [BoardTaskController::class, 'store'])->name('board.tasks.store');
-    Route::post('/aufgaben/aktion', [BoardTaskController::class, 'bulk'])->name('board.tasks.bulk');
-    Route::get('/aufgaben/{task}/bearbeiten', [BoardTaskController::class, 'edit'])->whereNumber('task')->name('board.tasks.edit');
-    Route::put('/aufgaben/{task}', [BoardTaskController::class, 'update'])->whereNumber('task')->name('board.tasks.update');
 });
 
 Route::middleware(['web', 'throttle:60,1'])->get('/vorstand/kalender/{token}.ics', BoardFeedController::class)->where('token', '[A-Za-z0-9]{40}')->name('board.feed');

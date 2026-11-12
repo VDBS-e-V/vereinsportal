@@ -64,13 +64,14 @@ class BoardMeetingController extends Controller
 
     public function show(BoardMeeting $meeting): View
     {
-        $meeting->load(['attendees.person', 'documents.uploadedBy.person', 'guests', 'resolutions', 'tasks.assignees.person']);
+        $taskProject = app(\App\Modules\Tasks\Services\TaskProjects::class)->board($this->user());
+        $meeting->load(['attendees.person', 'documents.uploadedBy.person', 'guests', 'resolutions', 'tasks.assignees.person', 'tasks.status']);
 
         return view('board.meetings.show', [
             'meeting' => $meeting, 'invitations' => $this->calendar->invitationsEnabled(),
             'present' => $meeting->attendees->filter(fn (User $user): bool => $user->pivot->status === 'present'),
             'excused' => $meeting->attendees->filter(fn (User $user): bool => $user->pivot->status === 'excused'),
-            'members' => $this->members($meeting), 'outcomes' => \App\Modules\Board\Models\BoardResolution::OUTCOMES,
+            'taskProject' => $taskProject, 'taskAssignable' => app(\App\Modules\Tasks\Services\ProjectAccess::class)->assignable($taskProject), 'outcomes' => \App\Modules\Board\Models\BoardResolution::OUTCOMES,
         ]);
     }
 
