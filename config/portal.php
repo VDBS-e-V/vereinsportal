@@ -106,10 +106,11 @@ return [
      */
     'bot_guard' => [
         'enabled' => env('BOT_GUARD_ENABLED', true),
-        'min_seconds' => 2,       // schneller abgeschickte Formulare gelten als automatisiert
+        'min_seconds' => 1,       // schneller abgeschickte Formulare gelten als automatisiert (Passwortmanager füllen und senden sehr schnell)
         'max_seconds' => 7200,    // älteres Token ist abgelaufen (Seite neu laden)
         'proof_of_work' => true,  // Rechenaufgabe im Browser
         'difficulty_bits' => 16,  // Nullbits der Rechenaufgabe; je 1 Bit doppelt so viel Rechenzeit
+        'show_reason' => env('BOT_GUARD_SHOW_REASON', false), // zeigt die Ablehnungskennung (honeypot, proof, ...) in der Meldung; nur zur Fehlersuche einschalten
     ],
 
     // Kompetenzen, die Teamende in ihrem Profil angeben und die Koordination für ein Seminar als gesucht markiert (Schlüssel => Bezeichnung).

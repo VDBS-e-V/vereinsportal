@@ -2,6 +2,8 @@
 
 use App\Support\BotGuard\BotGuard;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 
 uses(RefreshDatabase::class);
@@ -125,4 +127,33 @@ it('counts leading zero bits', function () {
     expect($guard->leadingZeroBits("\x00\x00\x80"))->toBe(16)
         ->and($guard->leadingZeroBits("\x00\x1f"))->toBe(11)
         ->and($guard->leadingZeroBits("\xff"))->toBe(0);
+});
+
+it('shows the rejection reason only when switched on for troubleshooting', function () {
+    $this->from(route('password.request'))->post(route('password.email'), ['email' => 'jemand@example.org'])->assertSessionMissing('bot_guard_reason');
+
+    config(['portal.bot_guard.show_reason' => true]);
+
+    $this->from(route('password.request'))->post(route('password.email'), ['email' => 'jemand@example.org'])->assertSessionHas('bot_guard_reason', 'token');
+
+    $this->get(route('password.request'))->assertSee('Kennung: token', false);
+});
+
+it('keeps password managers away from the honeypot and loads the guard first', function () {
+    $this->get(route('login'))->assertSee('data-1p-ignore', false)->assertSee('data-lpignore="true"', false);
+
+    $app = file_get_contents(resource_path('js/app.js'));
+
+    expect(strpos($app, "import './bot-guard'"))->toBeLessThan(strpos($app, "import './portal-dialog'"));
+});
+
+it('does not reject a form only because the cache cannot be written', function () {
+    $token = app(BotGuard::class)->issue();
+
+    Cache::shouldReceive('has')->once()->andReturn(false);
+    Cache::shouldReceive('put')->once()->andReturn(false);
+
+    $request = Request::create('/login', 'POST', [BotGuard::TOKEN_FIELD => $token, BotGuard::PROOF_FIELD => botProof($token)]);
+
+    expect(app(BotGuard::class)->failure($request))->toBeNull();
 });

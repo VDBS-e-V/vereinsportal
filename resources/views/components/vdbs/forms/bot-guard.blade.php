@@ -11,11 +11,11 @@
 @if ($guard->enabled())
     <div class="vdbs-bot-guard" data-vdbs-bot-guard data-bits="{{ $guard->bits() }}" @unless (config('portal.bot_guard.proof_of_work', true)) data-pow="off" @endunless>
         @if (session('bot_guard_failed'))
-            <x-vdbs.feedback.alert variant="error" title="Prüfung nicht bestanden">Die Prüfung gegen automatisierte Eingaben ist fehlgeschlagen. Bitte versuchen Sie es erneut. Ihre Eingaben wurden übernommen.</x-vdbs.feedback.alert>
+            <x-vdbs.feedback.alert variant="error" title="Prüfung nicht bestanden">Die Prüfung gegen automatisierte Eingaben ist fehlgeschlagen. Bitte versuchen Sie es erneut. Ihre Eingaben wurden übernommen.@if (session('bot_guard_reason')) <br>Kennung: {{ session('bot_guard_reason') }}@endif</x-vdbs.feedback.alert>
         @endif
 
         <div class="vdbs-bot-guard__trap" aria-hidden="true">
-            <label>Bitte leer lassen <input type="text" name="{{ \App\Support\BotGuard\BotGuard::HONEYPOT_FIELD }}" value="" tabindex="-1" autocomplete="off"></label>
+            <label>Bitte leer lassen <input type="text" name="{{ \App\Support\BotGuard\BotGuard::HONEYPOT_FIELD }}" value="" tabindex="-1" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore="true" data-form-type="other"></label>
         </div>
         <input type="hidden" name="{{ \App\Support\BotGuard\BotGuard::TOKEN_FIELD }}" value="{{ $guard->issue() }}">
         <input type="hidden" name="{{ \App\Support\BotGuard\BotGuard::PROOF_FIELD }}" value="" data-vdbs-bot-guard-proof>

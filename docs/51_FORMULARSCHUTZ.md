@@ -24,5 +24,5 @@ gestoppt**, nur verlangsamt. Dagegen helfen die vorhandenen Rate-Limits (`thrott
 - Neues öffentliches Formular: Komponente in das Formular setzen und die POST-Route mit `bot.guard` versehen.
 - Bei Ablehnung geht es zurück zum Formular mit übernommenen Eingaben (ohne Passwörter) und einem Hinweis. Protokoll: nur Grund und Route
   (`bot_guard.rejected`), keine Eingaben, keine IP-Adresse.
-- Konfiguration: `config/portal.php` → `bot_guard`; abschaltbar mit `BOT_GUARD_ENABLED=false` (in `phpunit.xml` gesetzt).
+- Konfiguration: `config/portal.php` → `bot_guard`; abschaltbar mit `BOT_GUARD_ENABLED=false` (in `phpunit.xml` gesetzt). Zur Fehlersuche zeigt `BOT_GUARD_SHOW_REASON=true` die Ablehnungskennung (`honeypot`, `token`, `too_fast`, `expired`, `proof`, `replay`) in der Meldung; danach wieder entfernen und `php artisan config:clear`. Das Skript `bot-guard.js` wird als Erstes geladen; bei nicht beschreibbarem Zwischenspeicher entfällt nur die Einmal-Prüfung des Tokens (Eintrag `bot_guard.cache_not_writable` im Log).
 - **Ohne JavaScript** lassen sich diese Formulare nicht absenden; ein Hinweis steht im `<noscript>`.
