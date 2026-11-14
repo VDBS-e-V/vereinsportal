@@ -18,7 +18,7 @@ npm run build
 
 echo "2/5 Dateien kopieren ..."
 rsync -a --exclude='.git' --exclude='.github' --exclude='node_modules' --exclude='tests' --exclude='docs' --exclude='build' \
-  --exclude='.idea' --exclude='.vscode' --exclude='.env' --exclude='.env.*' --exclude='*.log' --exclude='phpunit.xml' ./ "$TARGET/"
+  --exclude='.idea' --exclude='.vscode' --exclude='/public/hot' --exclude='.env' --exclude='.env.*' --exclude='*.log' --exclude='phpunit.xml' ./ "$TARGET/"
 
 mkdir -p "$TARGET"/storage/{logs,framework/{cache/data,sessions,views},app/{private,public}} "$TARGET/bootstrap/cache"
 find "$TARGET/storage" -type f ! -name '.gitignore' -delete
