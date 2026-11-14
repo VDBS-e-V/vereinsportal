@@ -137,6 +137,9 @@ enum Capability: string
     /** Im Aufgabensystem alle Projekte sehen und verwalten, Projekte anlegen und löschen (Administration, Vorstand). */
     case TasksAdmin = 'tasks.admin';
 
+    /** Themen, FAQ-Seiten und Formulare des öffentlichen Kontaktbereichs pflegen (Administration, Geschäftsstelle). */
+    case ContactFormsManage = 'contact_forms.manage';
+
     /** Schreiben aus Word-Vorlagen erzeugen und die Vorlagen ansehen (Koordination, Geschäftsstelle, Vorstand). */
     case LettersUse = 'letters.use';
 

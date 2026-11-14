@@ -1,6 +1,6 @@
 <?php
 
-use App\Mail\ContactMessageMail;
+use App\Modules\ContactForms\Mail\ContactFormMail;
 use App\Modules\Access\Models\User;
 use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Models\Role;
@@ -34,7 +34,7 @@ function ppArticle(array $overrides = []): Article
 
 function ppContact(array $overrides = []): array
 {
-    return $overrides + ['first_name' => 'Max', 'last_name' => 'Mustermann', 'email' => 'Max@Beispiel.example', 'recipient' => 'board', 'subject' => 'Frage zur Mitgliedschaft', 'message' => "Guten Tag,\nich habe eine Frage.", 'consent' => '1'];
+    return $overrides + ['first_name' => 'Max', 'last_name' => 'Mustermann', 'email' => 'Max@Beispiel.example', 'subject' => 'Frage zur Mitgliedschaft', 'message' => "Guten Tag,\nich habe eine Frage.", 'consent' => '1'];
 }
 
 // ---------- Startseite ----------
@@ -89,63 +89,62 @@ it('explains the portal and answers the frequent questions', function () {
 
 // ---------- Kontaktformular ----------
 
-it('shows the contact form with all fields and the configured recipients', function () {
+it('shows the topic selection with areas and a search field', function () {
     $html = $this->get(route('portal.contact'))->assertOk()->getContent();
 
-    expect($html)->toContain('Kontaktformular')
-        ->toContain('name="first_name"')->toContain('name="last_name"')->toContain('name="email"')->toContain('name="recipient"')->toContain('name="subject"')->toContain('name="message"')->toContain('name="consent"')
-        ->toContain('Allgemeine Anfrage')->toContain('Vorstand')->toContain('Portal-Support')
+    expect($html)->toContain('Thema wählen')->toContain('name="q"')->toContain('Zugang und Konto')->toContain('Verein und Mitgliedschaft')->toContain('Sonstiges')
+        ->not->toContain('name="first_name"');
+});
+
+it('shows the contact form with all fields', function () {
+    $html = $this->get(route('portal.contact.form', ['form' => 'vorstand']))->assertOk()->getContent();
+
+    expect($html)->toContain('Vorstand')
+        ->toContain('name="first_name"')->toContain('name="last_name"')->toContain('name="email"')->toContain('name="subject"')->toContain('name="message"')->toContain('name="consent"')
         ->toContain('Absenden');
 });
 
-it('sends the message to the chosen recipient with a reply address and stores nothing', function () {
-    $this->post(route('portal.contact.send'), ppContact())->assertRedirect(route('portal.contact'))->assertSessionHas('success');
+it('sends the message to the recipient of the form with a reply address and stores nothing', function () {
+    $this->post(route('portal.contact.send', ['form' => 'vorstand']), ppContact())->assertRedirect(route('portal.contact'))->assertSessionHas('success');
 
-    Mail::assertSent(ContactMessageMail::class, fn (ContactMessageMail $mail): bool => $mail->hasTo('vorstand@vdb.schule')
+    Mail::assertSent(ContactFormMail::class, fn (ContactFormMail $mail): bool => $mail->hasTo('vorstand@vdb.schule')
         && $mail->hasReplyTo('max@beispiel.example')
-        && $mail->senderName === 'Max Mustermann'
+        && $mail->senderName() === 'Max Mustermann'
         && $mail->recipientLabel === 'Vorstand'
-        && str_contains($mail->body, 'ich habe eine Frage')
+        && str_contains((string) $mail->body, 'ich habe eine Frage')
         && str_contains($mail->envelope()->subject, 'Frage zur Mitgliedschaft'));
     Mail::assertSentCount(1);
 });
 
-it('uses the recipient address from the configuration', function () {
-    config(['portal.contact_form.recipients.support.email' => 'hilfe@example.org']);
-
-    $this->post(route('portal.contact.send'), ppContact(['recipient' => 'support']));
-
-    Mail::assertSent(ContactMessageMail::class, fn (ContactMessageMail $mail): bool => $mail->hasTo('hilfe@example.org'));
-});
-
 it('validates the contact form', function () {
-    $this->post(route('portal.contact.send'), [])->assertSessionHasErrors(['first_name', 'last_name', 'email', 'recipient', 'subject', 'message', 'consent']);
-    $this->post(route('portal.contact.send'), ppContact(['email' => 'kaputt']))->assertSessionHasErrors('email');
-    $this->post(route('portal.contact.send'), ppContact(['recipient' => 'nirgendwo']))->assertSessionHasErrors('recipient');
-    $this->post(route('portal.contact.send'), ppContact(['consent' => null]))->assertSessionHasErrors('consent');
-    $this->post(route('portal.contact.send'), ppContact(['message' => str_repeat('x', 5001)]))->assertSessionHasErrors('message');
+    $route = route('portal.contact.send', ['form' => 'vorstand']);
+
+    $this->post($route, [])->assertSessionHasErrors(['first_name', 'last_name', 'email', 'subject', 'message', 'consent']);
+    $this->post($route, ppContact(['email' => 'kaputt']))->assertSessionHasErrors('email');
+    $this->post($route, ppContact(['consent' => null]))->assertSessionHasErrors('consent');
+    $this->post($route, ppContact(['message' => str_repeat('x', 5001)]))->assertSessionHasErrors('message');
 
     Mail::assertNothingSent();
 });
 
 it('answers the hidden bot field like normal and sends nothing', function () {
-    $this->post(route('portal.contact.send'), ppContact(['website' => 'http://spam.example']))->assertRedirect(route('portal.contact'))->assertSessionHas('success');
+    $this->post(route('portal.contact.send', ['form' => 'vorstand']), ppContact(['website' => 'http://spam.example']))->assertRedirect(route('portal.contact'))->assertSessionHas('success');
 
     Mail::assertNothingSent();
 });
 
 it('limits the contact form per visitor', function () {
     foreach (range(1, 5) as $i) {
-        $this->post(route('portal.contact.send'), ppContact(['subject' => 'Frage '.$i]))->assertRedirect(route('portal.contact'));
+        $this->post(route('portal.contact.send', ['form' => 'vorstand']), ppContact(['subject' => 'Frage '.$i]))->assertRedirect(route('portal.contact'));
     }
 
-    $this->post(route('portal.contact.send'), ppContact())->assertStatus(429);
+    $this->post(route('portal.contact.send', ['form' => 'vorstand']), ppContact())->assertStatus(429);
 });
 
 it('keeps the entered values and shows an error when sending fails', function () {
     Mail::shouldReceive('to')->andThrow(new RuntimeException('Mailserver nicht erreichbar'));
 
-    $this->from(route('portal.contact'))->post(route('portal.contact.send'), ppContact())->assertRedirect(route('portal.contact'))->assertSessionHas('error')->assertSessionHasInput('subject', 'Frage zur Mitgliedschaft');
+    $this->from(route('portal.contact.form', ['form' => 'vorstand']))->post(route('portal.contact.send', ['form' => 'vorstand']), ppContact())->assertRedirect(route('portal.contact.form', ['form' => 'vorstand']))->assertSessionHas('error')->assertSessionHasInput('subject', 'Frage zur Mitgliedschaft');
 });
 
 // ---------- Artikel (öffentlich) ----------

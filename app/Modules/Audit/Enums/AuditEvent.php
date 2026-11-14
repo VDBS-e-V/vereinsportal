@@ -124,6 +124,10 @@ enum AuditEvent: string
     case TaskProjectDeleted = 'task.project_deleted';
     case TaskSaved = 'task.saved';
     case TaskDeleted = 'task.deleted';
+    case ContactTopicSaved = 'contact_forms.topic_saved';
+    case ContactTopicDeleted = 'contact_forms.topic_deleted';
+    case ContactFormSaved = 'contact_forms.form_saved';
+    case ContactFormDeleted = 'contact_forms.form_deleted';
 
     public function label(): string
     {
@@ -229,6 +233,10 @@ enum AuditEvent: string
             self::TaskProjectDeleted => 'Aufgabenprojekt gelöscht',
             self::TaskSaved => 'Aufgabe gespeichert',
             self::TaskDeleted => 'Aufgabe gelöscht',
+            self::ContactTopicSaved => 'Kontaktthema gespeichert',
+            self::ContactTopicDeleted => 'Kontaktthema gelöscht',
+            self::ContactFormSaved => 'Kontaktformular gespeichert',
+            self::ContactFormDeleted => 'Kontaktformular gelöscht',
         };
     }
 
@@ -259,6 +267,7 @@ enum AuditEvent: string
             self::LetterTemplateSaved, self::LettersGenerated => 'letters',
             self::BoardCalendarChanged, self::BoardMeetingSaved, self::BoardMeetingDeleted, self::BoardMinutesApproved, self::BoardDocumentAdded, self::BoardDocumentRemoved, self::BoardInvitationSent, self::BoardGuestsChanged, self::BoardResolutionSaved, self::BoardResolutionDeleted => 'board',
             self::TaskProjectSaved, self::TaskProjectDeleted, self::TaskSaved, self::TaskDeleted => 'tasks',
+            self::ContactTopicSaved, self::ContactTopicDeleted, self::ContactFormSaved, self::ContactFormDeleted => 'contact_forms',
         };
     }
 
@@ -290,6 +299,7 @@ enum AuditEvent: string
             'letters' => 'Briefvorlagen',
             'board' => 'Vorstand',
             'tasks' => 'Aufgaben',
+            'contact_forms' => 'Kontaktformular',
         ];
     }
 
@@ -297,7 +307,7 @@ enum AuditEvent: string
     public function tone(): string
     {
         return match ($this) {
-            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::EventDeleted, self::OauthClientDeleted, self::BoardMeetingDeleted, self::BoardResolutionDeleted, self::TaskProjectDeleted => 'error',
+            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::EventDeleted, self::OauthClientDeleted, self::BoardMeetingDeleted, self::BoardResolutionDeleted, self::TaskProjectDeleted, self::ContactTopicDeleted, self::ContactFormDeleted => 'error',
             self::SystemTaskRun, self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
             self::Login, self::UserEnabled, self::TwoFactorEnabled, self::TeamOnboardingCompleted => 'success',
             default => 'neutral',
