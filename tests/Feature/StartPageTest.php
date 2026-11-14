@@ -104,5 +104,5 @@ it('shows the same image on the page about the portal', function () {
 it('spreads the area chips evenly and keeps space above the hero image', function () {
     $html = $this->get(route('home'))->assertOk()->getContent();
 
-    expect($html)->toContain('vdbs-chip-list--spread')->toContain('padding-top: var(--space-8)');
+    expect($html)->toContain('vdbs-chip-list--spread')->toContain('data-vdbs-balance')->toContain('padding-top: var(--space-8)');
 });

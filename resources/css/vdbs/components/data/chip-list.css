@@ -2,7 +2,5 @@
 
 .vdbs-chip-list__list { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
 
-/* Gleichmäßig verteilt: Die Chips behalten ihre Breite nach Textlänge, wachsen aber so, dass jede Zeile die volle Breite füllt (kein loser Rest am Zeilenende). */
-.vdbs-chip-list--spread .vdbs-chip-list__list { max-width: 64rem; margin-inline: auto; }
-.vdbs-chip-list--spread .vdbs-chip-list__list > li { flex: 1 1 auto; }
-.vdbs-chip-list--spread .vdbs-chip__link { display: flex; justify-content: center; width: 100%; height: 100%; text-align: center; }
+/* Ausgeglichen: Chips in natürlicher Breite, zentriert; chip-balance.js setzt max-width so, dass alle Zeilen ungefähr gleich breit werden */
+.vdbs-chip-list--spread .vdbs-chip-list__list { justify-content: center; margin-inline: auto; }
