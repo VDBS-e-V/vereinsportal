@@ -28,44 +28,9 @@
 
     <section id="portal-faq" aria-labelledby="portal-faq-title" style="margin-top:var(--space-8)">
         <h2 id="portal-faq-title">Häufig gestellte Fragen</h2>
-        <p>In diesem Abschnitt beantworten wir die häufigsten Fragen zum VDBS Vereinsportal. Haben Sie weitere Fragen oder Ergänzungen, schreiben Sie uns jederzeit über das <a href="{{ route('portal.contact') }}">Kontaktformular</a>@if ($supportEmail) oder an <a href="mailto:{{ $supportEmail }}">{{ $supportEmail }}</a>@endif.</p>
+        <p>Die häufigsten Fragen zum VDBS Vereinsportal beantworten wir auf einer eigenen Seite, nach Themen geordnet und mit Suche. Haben Sie weitere Fragen oder Ergänzungen, schreiben Sie uns jederzeit über das <a href="{{ route('portal.contact') }}">Kontaktformular</a>@if ($supportEmail) oder an <a href="mailto:{{ $supportEmail }}">{{ $supportEmail }}</a>@endif.</p>
 
-        <x-vdbs.disclosure.accordion>
-            <x-vdbs.disclosure.accordion-item title="Was ist das Vereinsportal und wofür wurde es entwickelt?" :level="3">
-                <p>Das Vereinsportal ist Ihre zentrale Online-Anlaufstelle für alle Belange rund um unseren Verein. Es wurde entwickelt, um die Kommunikation, den Informationsaustausch und die Organisation für Teamer:innen, Vereinsmitglieder, die Verwaltung und Schulen zu vereinfachen und zu optimieren.</p>
-            </x-vdbs.disclosure.accordion-item>
-            <x-vdbs.disclosure.accordion-item title="Welche Themenbereiche deckt der Verein ab, die im Portal relevant sind?" :level="3">
-                <p>Unser Verein ist in den Bereichen <strong>SV-Arbeit, Medienkompetenz, Schulbibliothek</strong> und <strong>Demokratiebildung</strong> aktiv. Alle Informationen, Materialien und Tools zu diesen Schwerpunkten finden Sie gebündelt im Portal.</p>
-            </x-vdbs.disclosure.accordion-item>
-            <x-vdbs.disclosure.accordion-item title="Wer kann das Vereinsportal nutzen?" :level="3">
-                <p>Das Portal richtet sich an alle, die mit unserem Verein in Verbindung stehen:</p>
-                <ul>
-                    <li><strong>Teamer:innen:</strong> für Workshop-Materialien, Planung und Austausch.</li>
-                    <li><strong>Vereinsmitglieder:</strong> für aktuelle Infos, Termine und zur aktiven Teilnahme.</li>
-                    <li><strong>Verwaltung:</strong> für interne Organisation, Mitglieder- und Ressourcenmanagement.</li>
-                    <li><strong>Schulen (Schüler:innen, Lehrkräfte usw.):</strong> für Infos zu Workshops, Anfragen und Lehrmaterialien.</li>
-                </ul>
-            </x-vdbs.disclosure.accordion-item>
-            <x-vdbs.disclosure.accordion-item title="Welche Vorteile bietet mir das Portal?" :level="3">
-                <p>Das Portal bietet Ihnen zahlreiche Vorteile, darunter:</p>
-                <ul>
-                    <li><strong>Zentraler Informationszugang:</strong> alle wichtigen Dokumente und Ansprechpartner an einem Ort.</li>
-                    <li><strong>Effiziente Kommunikation:</strong> vereinfachter Austausch zwischen allen Beteiligten.</li>
-                    <li><strong>Umfassende Ressourcen:</strong> leichter Zugriff auf Workshop-Materialien, Leitfäden und Best Practices.</li>
-                    <li><strong>Transparenz:</strong> immer auf dem neuesten Stand über Vereinsaktivitäten und Projekte.</li>
-                    <li><strong>Vereinfachte Prozesse:</strong> von der Workshop-Anmeldung bis zur internen Verwaltung, alles digital und unkompliziert.</li>
-                </ul>
-            </x-vdbs.disclosure.accordion-item>
-            <x-vdbs.disclosure.accordion-item title="Wie erhalte ich Zugang zum Vereinsportal?" :level="3">
-                <p>Informationen zum Zugang (z. B. Registrierung, Login-Daten) erhalten Sie von der Vereinsverwaltung oder direkt über die Anmeldeoptionen auf der Seite <a href="{{ route('portal.access') }}">Zugang zum Portal</a>. Ihr Passwort vergessen? Fordern Sie über <a href="{{ route('password.request') }}">Passwort vergessen</a> einen Link an.</p>
-            </x-vdbs.disclosure.accordion-item>
-            <x-vdbs.disclosure.accordion-item title="Was ist die Zwei-Faktor-Anmeldung?" :level="3">
-                <p>Neben dem Passwort geben Sie bei der Anmeldung einen Code ein, entweder aus einer Authenticator-App oder per E-Mail. Das schützt Ihr Konto auch dann, wenn jemand Ihr Passwort kennt. Einrichten können Sie sie unter Konto &rarr; Sicherheit.</p>
-            </x-vdbs.disclosure.accordion-item>
-            <x-vdbs.disclosure.accordion-item title="Wo finde ich Hilfe, wenn ich Probleme mit dem Portal habe?" :level="3">
-                <p>Sollten Sie technische Schwierigkeiten haben oder Fragen zur Nutzung des Portals aufkommen, wenden Sie sich bitte über das <a href="{{ route('portal.contact') }}">Kontaktformular</a> an den Support.</p>
-            </x-vdbs.disclosure.accordion-item>
-        </x-vdbs.disclosure.accordion>
+        <p><x-vdbs.actions.button :href="route('portal.faq')" icon="arrow-right" icon-position="end">Alle Fragen und Antworten</x-vdbs.actions.button></p>
     </section>
 
     <x-vdbs.layout.section style="margin-top:var(--space-8)">

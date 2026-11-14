@@ -11,7 +11,7 @@
         <x-vdbs.disclosure.accordion>
             @foreach ($topic->faqs as $faq)
                 <x-vdbs.disclosure.accordion-item :title="$faq->question" :level="2">
-                    <p style="white-space:pre-line">{{ $faq->answer }}</p>
+                    {{ \App\Modules\ContactForms\Support\FaqText::html($faq->answer) }}
                 </x-vdbs.disclosure.accordion-item>
             @endforeach
         </x-vdbs.disclosure.accordion>

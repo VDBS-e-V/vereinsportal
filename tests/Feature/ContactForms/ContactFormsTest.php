@@ -213,7 +213,7 @@ it('creates a topic with faq entries and shows it in the topic selection', funct
 
     $this->put(route('contact-admin.topics.update', $topic), ['title' => 'Wo finde ich Materialien?', 'action' => 'faq', 'is_active' => '1', 'faqs' => [['question' => 'Nur eine Frage', 'answer' => 'Eine Antwort']]])->assertRedirect();
 
-    expect($topic->fresh()->faqs)->toHaveCount(1)->and(ContactFaq::query()->count())->toBe(4);
+    expect($topic->fresh()->faqs)->toHaveCount(1)->and(ContactFaq::query()->where('contact_topic_id', $topic->id)->count())->toBe(1);
 });
 
 it('validates the topics', function () {
@@ -313,4 +313,56 @@ it('hides topics of a deleted form instead of breaking', function () {
     $this->get(route('portal.contact', ['q' => 'technisches']))->assertOk()->assertDontSee('Technisches Problem im Portal');
     $this->get(route('portal.contact.topic', cfTopic('Technisches Problem im Portal')))->assertNotFound();
     $this->get(route('contact-admin.topics.index'))->assertOk()->assertSee('ohne Ziel');
+});
+
+// ---------- Große FAQ-Seite ----------
+
+it('shows all faq entries on one page, grouped by area, with the answers formatted safely', function () {
+    $html = $this->get(route('portal.faq'))->assertOk()->getContent();
+
+    expect($html)->toContain('Häufig gestellte Fragen')
+        ->toContain('Allgemeines zum Portal')->toContain('Zugang und Konto')->toContain('Schulen und Workshops')->toContain('Datenschutz und Rechtliches')
+        ->toContain('Was ist das Vereinsportal und wofür wurde es entwickelt?')->toContain('Wie setze ich mein Passwort zurück?')->toContain('Wie kann ich Teamer:in werden?')
+        // Auszeichnung: Liste, fett und Link auf einen Pfad im Portal
+        ->toContain('<li><strong>Teamer:innen:</strong>')->toContain('<a href="/passwort-vergessen">Passwort vergessen</a>')
+        ->toContain('href="#bereich-')->toContain('Uns schreiben');
+});
+
+it('searches the questions and answers', function () {
+    $html = $this->get(route('portal.faq', ['q' => 'authenticator']))->assertOk()->getContent();
+
+    expect($html)->toContain('Ich habe das Gerät mit meiner Authenticator-App verloren.')->toContain('Was ist die Zwei-Faktor-Anmeldung?')->not->toContain('Wie kann ich Teamer:in werden?');
+
+    $this->get(route('portal.faq', ['q' => 'gibtesnicht']))->assertOk()->assertSee('Nichts gefunden');
+});
+
+it('keeps hidden and switched-off topics off the faq page', function () {
+    cfTopic('Teamarbeit, Verträge und Abrechnung')->update(['in_faq_page' => false]);
+    cfTopic('Mitgliedschaft')->update(['is_active' => false]);
+    cfTopic('Schulen und Workshops')->update(['is_active' => false]);
+
+    $html = $this->get(route('portal.faq'))->assertOk()->getContent();
+
+    expect($html)->not->toContain('Wie kann ich Teamer:in werden?')->not->toContain('Wie werde ich Mitglied?')->not->toContain('Wie frage ich ein Angebot an?')->toContain('Wie setze ich mein Passwort zurück?');
+});
+
+it('escapes html in the answers and allows only safe links', function () {
+    $html = \App\Modules\ContactForms\Support\FaqText::html("<script>alert(1)</script> **fett**\n\n- Eins\n- [Intern](/kontakt)\n\n[Böse](javascript:alert(1)) [Auch böse](//boese.example) [Gut](https://beispiel.example/a?x=1&y=2)")->toHtml();
+
+    expect($html)->not->toContain('<script>')->toContain('&lt;script&gt;')->toContain('<strong>fett</strong>')->toContain('<ul><li>Eins</li><li><a href="/kontakt">Intern</a></li></ul>')
+        ->not->toContain('href="javascript:')->not->toContain('href="//boese.example"')->toContain('<a href="https://beispiel.example/a?x=1&amp;y=2">Gut</a>');
+});
+
+it('lets the office decide which topics feed the faq page', function () {
+    $this->actingAs(cfUser(RoleKey::AdministrationStaff));
+    $topic = cfTopic('Mitgliedschaft');
+
+    $this->put(route('contact-admin.topics.update', $topic), ['title' => 'Mitgliedschaft', 'action' => 'faq', 'is_active' => '1', 'faqs' => [['question' => 'Neue Frage?', 'answer' => 'Neue Antwort.']]])->assertRedirect();
+
+    expect($topic->fresh()->in_faq_page)->toBeFalse();
+    $this->get(route('portal.faq'))->assertDontSee('Neue Frage?');
+
+    $this->put(route('contact-admin.topics.update', $topic), ['title' => 'Mitgliedschaft', 'action' => 'faq', 'is_active' => '1', 'in_faq_page' => '1', 'faqs' => [['question' => 'Neue Frage?', 'answer' => 'Neue Antwort.']]])->assertRedirect();
+
+    $this->get(route('portal.faq'))->assertSee('Neue Frage?');
 });

@@ -39,7 +39,7 @@ final class PortalNavigation
                 'pages' => [
                     ['label' => 'Über das Portal', 'route' => 'portal.about', 'match' => 'portal.about', 'children' => [
                         ['label' => 'Zugang zum Portal', 'route' => 'portal.access', 'match' => 'portal.access*'],
-                        ['label' => 'FAQ', 'route' => 'portal.about', 'fragment' => 'portal-faq', 'match' => null],
+                        ['label' => 'FAQ', 'route' => 'portal.faq', 'match' => 'portal.faq'],
                     ]],
                     ['label' => 'Kontakt', 'route' => 'portal.contact', 'match' => 'portal.contact*'],
                 ],

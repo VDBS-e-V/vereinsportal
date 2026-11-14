@@ -26,3 +26,10 @@ Modul `app/Modules/ContactForms`: Modelle `ContactForm`, `ContactTopic`, `Contac
 
 ## Datenschutz
 Es werden keine Eingaben gespeichert; die Daten liegen nur in der E-Mail beim Empfänger. In der Datenschutzerklärung (Kontaktformular) bleibt der Hinweis auf die Einwilligung. Bei Formularen, die Telefon oder Schule abfragen, genügt der Verweis „zum Zweck der Kontaktaufnahme“; bei eigenen Feldern mit besonders schutzbedürftigen Angaben vorher mit der Datenschutzbeauftragten abstimmen.
+
+## Große FAQ-Seite (`/faq`)
+Alle Fragen und Antworten der **FAQ-Themen** erscheinen gesammelt auf `/faq` (Menü „FAQ“, Knopf „Hilfe“ auf der Startseite), nach Bereichen gegliedert, mit Suche über Fragen und Antworten und Sprungmarken zu den Bereichen. Unter jedem Thema steht „Uns schreiben“. Welche Themen auf der Seite erscheinen, steuert das Kästchen „Die Fragen auch auf der großen FAQ-Seite zeigen“ im Thema. Ein FAQ-Thema kann so nur auf der FAQ-Seite stehen, nur in der Themenwahl oder in beiden (Ausblenden eines Themas in der Themenwahl: Thema ausschalten; dann erscheint es auch nicht auf `/faq`).
+
+**Auszeichnung der Antworten:** Leerzeile = neuer Absatz, Zeilen mit `- ` = Liste, `**fett**`, `[Text](/pfad)` für Links im Portal oder `[Text](https://adresse)`. Anderes HTML wird maskiert; Links auf `javascript:` oder fremde `//`-Adressen funktionieren nicht.
+
+**Ausgangsbestand:** Die Migration `2026_12_28_000002_add_faq_page_to_contact_topics.php` legt einen **Entwurf** an: die bisherigen sieben Fragen von „Über das Portal“ (dort steht jetzt ein Hinweis auf `/faq`) und weitere Fragen zu Zugang und Konto, Mitgliedschaft, Schulen und Workshops, Team (Einarbeitung, Vertrag, Abrechnung) sowie Datenschutz und Barrierefreiheit. Die Antworten sind bewusst allgemein gehalten (keine Fristen oder Beträge). **Bitte inhaltlich prüfen und im Portal anpassen.**

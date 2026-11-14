@@ -20,7 +20,7 @@
                     @else
                         <x-vdbs.cards.quick-link label="Anmelden" :href="route('login')" :tone="1" />
                     @endauth
-                    <x-vdbs.cards.quick-link label="Hilfe" :href="route('portal.about').'#portal-faq'" :tone="6" />
+                    <x-vdbs.cards.quick-link label="Hilfe" :href="route('portal.faq')" :tone="6" />
                 </x-vdbs.cards.quick-links>
             </x-slot:footer>
         </x-vdbs.media.hero>

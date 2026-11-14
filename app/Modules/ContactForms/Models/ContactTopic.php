@@ -18,11 +18,11 @@ class ContactTopic extends Model
         'link' => 'Führt zu einer anderen Seite (Link)',
     ];
 
-    protected $fillable = ['parent_id', 'title', 'description', 'keywords', 'action', 'contact_form_id', 'target_url', 'faq_offer_form', 'sort_order', 'is_active'];
+    protected $fillable = ['parent_id', 'title', 'description', 'keywords', 'action', 'contact_form_id', 'target_url', 'faq_offer_form', 'in_faq_page', 'sort_order', 'is_active'];
 
     protected function casts(): array
     {
-        return ['faq_offer_form' => 'boolean', 'is_active' => 'boolean', 'sort_order' => 'integer'];
+        return ['faq_offer_form' => 'boolean', 'in_faq_page' => 'boolean', 'is_active' => 'boolean', 'sort_order' => 'integer'];
     }
 
     /** @return BelongsTo<ContactTopic, $this> */

@@ -29,7 +29,7 @@ class ContactTopicAdminController extends Controller
 
     public function create(Request $request): View
     {
-        $topic = new ContactTopic(['action' => $request->query('art', 'form'), 'is_active' => true, 'faq_offer_form' => true, 'sort_order' => 0, 'parent_id' => $request->integer('bereich') ?: null]);
+        $topic = new ContactTopic(['action' => $request->query('art', 'form'), 'is_active' => true, 'faq_offer_form' => true, 'in_faq_page' => true, 'sort_order' => 0, 'parent_id' => $request->integer('bereich') ?: null]);
 
         return view('contact-admin.topic-form', $this->formData($topic));
     }
@@ -218,6 +218,7 @@ class ContactTopicAdminController extends Controller
             'contact_form_id' => $action === 'form' || $action === 'faq' ? ($data['contact_form_id'] ?? null) : null,
             'target_url' => $action === 'link' ? trim((string) $data['target_url']) : null,
             'faq_offer_form' => $request->boolean('faq_offer_form'),
+            'in_faq_page' => $request->boolean('in_faq_page'),
             'sort_order' => (int) ($data['sort_order'] ?? 0),
             'is_active' => $request->boolean('is_active'),
         ], $faqs];

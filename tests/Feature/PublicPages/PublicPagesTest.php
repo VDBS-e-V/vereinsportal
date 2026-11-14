@@ -70,21 +70,19 @@ it('shows recommended articles on the start page, featured first, at most three'
 });
 
 it('keeps the placeholder images out of the public pages', function () {
-    foreach (['/', route('portal.about'), route('portal.access'), route('portal.contact'), route('articles.public.index')] as $url) {
+    foreach (['/', route('portal.about'), route('portal.access'), route('portal.contact'), route('portal.faq'), route('articles.public.index')] as $url) {
         $this->get($url)->assertDontSee('/images/placeholder/', false);
     }
 });
 
 // ---------- Über das Portal ----------
 
-it('explains the portal and answers the frequent questions', function () {
+it('explains the portal and points to the frequent questions', function () {
     $html = $this->get(route('portal.about'))->assertOk()->getContent();
 
     expect($html)->toContain('Unser Vereinsportal')->toContain('Smart. Vernetzt. Engagiert.')
         ->toContain('Was erwartet Sie im Portal?')->toContain('Für Teamer:innen')->toContain('Für Vereinsmitglieder')->toContain('Für die Verwaltung')->toContain('Für Schulen')
-        ->toContain('Ihre Vorteile auf einen Blick')->toContain('id="portal-faq"')->toContain('Häufig gestellte Fragen')
-        ->toContain('Was ist das Vereinsportal und wofür wurde es entwickelt?')->toContain('Wo finde ich Hilfe, wenn ich Probleme mit dem Portal habe?')
-        ->and(substr_count($html, 'vdbs-accordion__item'))->toBeGreaterThanOrEqual(7);
+        ->toContain('Ihre Vorteile auf einen Blick')->toContain('id="portal-faq"')->toContain('Häufig gestellte Fragen')->toContain('Alle Fragen und Antworten')->toContain('href="'.route('portal.faq').'"');
 });
 
 // ---------- Kontaktformular ----------

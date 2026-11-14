@@ -218,7 +218,7 @@ it('keeps the pages protected by their capability even when the area is visible'
 // ---------- Start: öffentlich ----------
 
 it('serves the public start pages to guests', function () {
-    foreach (['portal.about', 'portal.access', 'portal.contact'] as $route) {
+    foreach (['portal.about', 'portal.access', 'portal.contact', 'portal.faq'] as $route) {
         $this->get(route($route))->assertOk();
     }
 
@@ -232,7 +232,7 @@ it('serves the public start pages to guests', function () {
 });
 
 it('assigns the public pages to the start area', function () {
-    foreach (['home', 'portal.about', 'portal.access', 'portal.contact'] as $route) {
+    foreach (['home', 'portal.about', 'portal.access', 'portal.contact', 'portal.faq'] as $route) {
         expect(PortalNavigation::areaForRoute($route))->toBe(PortalAreas::Start);
     }
 });
@@ -245,19 +245,20 @@ it('shows the public pages of the start area in row two to guests, also on the l
             ->toContain('aria-label="Seiten im Bereich Start"')
             ->toContain('href="'.route('portal.about').'"')
             ->toContain('href="'.route('portal.access').'"')
-            ->toContain('href="'.route('portal.about').'#portal-faq"')
+            ->toContain('href="'.route('portal.faq').'"')
             ->toContain('href="'.route('portal.contact').'"')
             ->toContain('>FAQ<');
     }
 });
 
-it('marks only the current public page and never the FAQ anchor', function () {
+it('marks only the current public page', function () {
     $html = pnHeader($this->get(route('portal.about'))->getContent());
 
     expect($html)->toMatch('/aria-current="page"\s*>Über das Portal</')
         ->and(substr_count($html, 'aria-current="page"'))->toBe(1);
 
     expect(pnHeader($this->get(route('portal.contact'))->getContent()))->toMatch('/aria-current="page"\s*>Kontakt</');
+    expect(pnHeader($this->get(route('portal.faq'))->getContent()))->toMatch('/aria-current="page"\s*>FAQ</');
 });
 
 it('shows the public pages to logged in users on the start page', function () {
