@@ -50,7 +50,16 @@ final class Capabilities
     /** Rollen, die der Nutzer jetzt hat (Beginn erreicht, Ende nicht überschritten). @return list<string> */
     public static function activeRoleKeys(User $user): array
     {
-        return $user->activeRoleAssignments()
+        // Je Anwendungsinstanz (Anfrage, im Test je Test), Person und Sekunde nur einmal laden: Menü, Bereiche und Hinweise fragen die Rollen sonst dutzendfach ab.
+        // Änderungen an Rollenzuordnungen leeren den Zwischenspeicher (RoleAssignment::booted).
+        $cache = self::cache();
+        $key = $user->getKey().'|'.now()->getTimestamp();
+
+        if (array_key_exists($key, $cache)) {
+            return $cache[$key];
+        }
+
+        $keys = $user->activeRoleAssignments()
             ->with('role:id,key')
             ->get()
             ->map(fn ($assignment): ?string => $assignment->role?->key)
@@ -58,6 +67,30 @@ final class Capabilities
             ->unique()
             ->values()
             ->all();
+
+        $cache[$key] = $keys;
+        self::$store[app()] = $cache;
+
+        return $keys;
+    }
+
+    /** @var \WeakMap<object, array<string, list<string>>>|null */
+    private static ?\WeakMap $store = null;
+
+    /** @return array<string, list<string>> */
+    private static function cache(): array
+    {
+        self::$store ??= new \WeakMap;
+
+        return isset(self::$store[app()]) ? self::$store[app()] : [];
+    }
+
+    /** Leert die geladenen Rollen (nach Änderungen an Rollenzuordnungen). */
+    public static function flush(): void
+    {
+        if (self::$store !== null) {
+            self::$store[app()] = [];
+        }
     }
 
     /** Darf der Nutzer die Rolle vergeben? Administration vergibt nur Administration; Geschäftsführung und Kassenführung nur der Vorstand. */

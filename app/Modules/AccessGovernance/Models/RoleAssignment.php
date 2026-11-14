@@ -21,6 +21,14 @@ class RoleAssignment extends Model
         'comment',
     ];
 
+    protected static function booted(): void
+    {
+        $flush = static fn () => \App\Modules\AccessGovernance\Support\Capabilities::flush();
+
+        static::saved($flush);
+        static::deleted($flush);
+    }
+
     protected function casts(): array
     {
         return [

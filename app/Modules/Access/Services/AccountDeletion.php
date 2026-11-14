@@ -142,6 +142,7 @@ final class AccountDeletion
             $user->roleAssignments()
                 ->where(fn ($open) => $open->whereNull('ends_at')->orWhere('ends_at', '>', now()))
                 ->update(['ends_at' => now()]);
+            \App\Modules\AccessGovernance\Support\Capabilities::flush();
 
             $user->twoFactorMethods()->delete();
             $user->emailChangeRequests()->delete();

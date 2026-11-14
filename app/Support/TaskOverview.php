@@ -22,6 +22,7 @@ use App\Modules\Tasks\Models\Task;
 use App\Modules\Tasks\Services\ProjectAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
 use Throwable;
 
 /**
@@ -111,7 +112,8 @@ final class TaskOverview
         }
 
         // Aufgabensystem: eigene offene und überfällige Aufgaben aus den Projekten, die die Person sehen darf
-        if ($can('tasks.use')) {
+        // Fehlen die Tabellen noch (Paket hochgeladen, Migrationen nicht ausgeführt), entfällt der Hinweis, statt die Seite abstürzen zu lassen
+        if ($can('tasks.use') && Schema::hasTable('tasks') && Schema::hasTable('task_projects')) {
             $mine = Task::query()->whereNull('done_at')
                 ->whereIn('task_project_id', app(ProjectAccess::class)->visible($user)->select('task_projects.id'))
                 ->whereHas('assignees', fn ($assignees) => $assignees->where('users.id', $user->id));

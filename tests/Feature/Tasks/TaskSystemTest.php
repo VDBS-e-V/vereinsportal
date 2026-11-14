@@ -6,6 +6,7 @@ use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
+use App\Modules\AccessGovernance\Support\Capabilities;
 use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\People\Models\Person;
 use App\Modules\System\Services\SystemTasks;
@@ -687,4 +688,25 @@ it('deletes a project with its tasks and attachments', function () {
 
     Storage::disk('local')->assertMissing($path);
     expect(Task::query()->count())->toBe(0);
+});
+
+it('loads the roles of a person only once per request and sees changes immediately', function () {
+    $user = tkUser(RoleKey::Administration);
+    $queries = 0;
+    DB::listen(function ($query) use (&$queries): void {
+        if (str_contains($query->sql, 'role_assignments')) {
+            $queries++;
+        }
+    });
+
+    foreach (range(1, 5) as $ignored) {
+        Capabilities::activeRoleKeys($user);
+    }
+
+    expect($queries)->toBe(1)->and(Capabilities::activeRoleKeys($user))->toContain('administration');
+
+    $assignment = RoleAssignment::query()->where('user_id', $user->id)->firstOrFail();
+    $assignment->forceFill(['ends_at' => now()->subSecond()])->save();
+
+    expect(Capabilities::activeRoleKeys($user))->not->toContain('administration');
 });
