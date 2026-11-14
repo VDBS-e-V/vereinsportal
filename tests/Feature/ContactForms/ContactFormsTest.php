@@ -6,9 +6,10 @@ use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\ContactForms\Mail\ContactFormMail;
-use App\Modules\ContactForms\Models\ContactFaq;
 use App\Modules\ContactForms\Models\ContactForm;
 use App\Modules\ContactForms\Models\ContactTopic;
+use App\Modules\Faq\Models\FaqCategory;
+use App\Modules\Faq\Models\FaqEntry;
 use App\Modules\ContactForms\Support\ContactFormFields;
 use App\Modules\People\Models\Person;
 use Database\Seeders\RoleSeeder;
@@ -193,27 +194,46 @@ it('keeps the administration to administration and the office', function () {
     $this->actingAs(cfUser(RoleKey::AdministrationStaff))->get(route('office.home'))->assertSee('Kontaktformular');
 });
 
-it('creates a topic with faq entries and shows it in the topic selection', function () {
+it('creates a topic that leads to a faq category and shows it in the topic selection', function () {
     $this->actingAs(cfUser(RoleKey::AdministrationStaff));
 
     $area = cfTopic('Sonstiges');
+    $category = FaqCategory::query()->create(['title' => 'Materialien', 'sort_order' => 5]);
+    $category->entries()->create(['question' => 'Wo liegen die Dateien?', 'answer' => 'Im Bereich Mitglieder unter Dokumente.', 'sort_order' => 10]);
 
     $this->post(route('contact-admin.topics.store'), [
-        'title' => 'Wo finde ich Materialien?', 'description' => 'Antworten rund um Materialien', 'keywords' => 'download arbeitsblatt', 'action' => 'faq', 'parent_id' => $area->id, 'sort_order' => 5, 'is_active' => '1', 'faq_offer_form' => '1',
-        'faqs' => [['question' => 'Wo liegen die Dateien?', 'answer' => 'Im Bereich Mitglieder unter Dokumente.'], ['question' => '', 'answer' => ''], ['question' => 'Kosten sie etwas?', 'answer' => 'Nein.']],
+        'title' => 'Wo finde ich Materialien?', 'description' => 'Antworten rund um Materialien', 'keywords' => 'download arbeitsblatt', 'action' => 'faq', 'parent_id' => $area->id, 'faq_category_id' => $category->id, 'sort_order' => 5, 'is_active' => '1', 'faq_offer_form' => '1',
     ])->assertRedirect(route('contact-admin.topics.index'))->assertSessionHas('success');
 
     $topic = cfTopic('Wo finde ich Materialien?');
 
-    expect($topic->action)->toBe('faq')->and($topic->parent_id)->toBe($area->id)->and($topic->faqs)->toHaveCount(2)
-        ->and($topic->faqs->first()->question)->toBe('Wo liegen die Dateien?');
+    expect($topic->action)->toBe('faq')->and($topic->parent_id)->toBe($area->id)->and($topic->faq_category_id)->toBe($category->id);
 
     $this->get(route('portal.contact', ['q' => 'arbeitsblatt']))->assertSee('Wo finde ich Materialien?');
     $this->get(route('portal.contact.topic', $topic))->assertOk()->assertSee('Im Bereich Mitglieder unter Dokumente.');
 
-    $this->put(route('contact-admin.topics.update', $topic), ['title' => 'Wo finde ich Materialien?', 'action' => 'faq', 'is_active' => '1', 'faqs' => [['question' => 'Nur eine Frage', 'answer' => 'Eine Antwort']]])->assertRedirect();
+    // wechselt die Art, bleibt kein Verweis auf die Kategorie zurück
+    $this->put(route('contact-admin.topics.update', $topic), ['title' => 'Wo finde ich Materialien?', 'action' => 'default', 'is_active' => '1'])->assertRedirect();
 
-    expect($topic->fresh()->faqs)->toHaveCount(1)->and(ContactFaq::query()->where('contact_topic_id', $topic->id)->count())->toBe(1);
+    expect($topic->fresh()->faq_category_id)->toBeNull();
+});
+
+it('keeps the faq entries when a topic is deleted and hides a topic whose category is gone', function () {
+    $this->actingAs(cfUser(RoleKey::Administration));
+
+    $topic = cfTopic('Konto, E-Mail-Adresse und Daten');
+    $category = $topic->faqCategory;
+    $entries = $category->entries()->count();
+
+    expect($entries)->toBeGreaterThan(0);
+
+    $this->delete(route('contact-admin.topics.destroy', $topic))->assertRedirect();
+    expect(FaqEntry::query()->where('faq_category_id', $category->id)->count())->toBe($entries);
+
+    $other = cfTopic('Zugang beantragen');
+    $this->delete(route('faq-admin.destroy', $other->faqCategory))->assertRedirect();
+
+    $this->get(route('portal.contact.topic', $other))->assertOk()->assertSee('noch keine Fragen');
 });
 
 it('validates the topics', function () {
@@ -221,7 +241,7 @@ it('validates the topics', function () {
 
     $this->post(route('contact-admin.topics.store'), ['title' => 'A', 'action' => 'form'])->assertSessionHasErrors('contact_form_id');
     $this->post(route('contact-admin.topics.store'), ['title' => 'A', 'action' => 'link', 'target_url' => 'http://unsicher.example'])->assertSessionHasErrors('target_url');
-    $this->post(route('contact-admin.topics.store'), ['title' => 'A', 'action' => 'faq', 'faqs' => [['question' => 'Nur Frage', 'answer' => '']]])->assertSessionHasErrors('faqs');
+    $this->post(route('contact-admin.topics.store'), ['title' => 'A', 'action' => 'faq'])->assertSessionHasErrors('faq_category_id');
     $this->post(route('contact-admin.topics.store'), ['title' => 'A', 'action' => 'category', 'parent_id' => cfTopic('Sonstiges')->id])->assertSessionHasErrors('parent_id');
     $this->post(route('contact-admin.topics.store'), ['title' => '', 'action' => 'default'])->assertSessionHasErrors('title');
 
@@ -313,56 +333,4 @@ it('hides topics of a deleted form instead of breaking', function () {
     $this->get(route('portal.contact', ['q' => 'technisches']))->assertOk()->assertDontSee('Technisches Problem im Portal');
     $this->get(route('portal.contact.topic', cfTopic('Technisches Problem im Portal')))->assertNotFound();
     $this->get(route('contact-admin.topics.index'))->assertOk()->assertSee('ohne Ziel');
-});
-
-// ---------- Große FAQ-Seite ----------
-
-it('shows all faq entries on one page, grouped by area, with the answers formatted safely', function () {
-    $html = $this->get(route('portal.faq'))->assertOk()->getContent();
-
-    expect($html)->toContain('Häufig gestellte Fragen')
-        ->toContain('Allgemeines zum Portal')->toContain('Zugang und Konto')->toContain('Schulen und Workshops')->toContain('Datenschutz und Rechtliches')
-        ->toContain('Was ist das Vereinsportal und wofür wurde es entwickelt?')->toContain('Wie setze ich mein Passwort zurück?')->toContain('Wie kann ich Teamer:in werden?')
-        // Auszeichnung: Liste, fett und Link auf einen Pfad im Portal
-        ->toContain('<li><strong>Teamer:innen:</strong>')->toContain('<a href="/passwort-vergessen">Passwort vergessen</a>')
-        ->toContain('href="#bereich-')->toContain('Uns schreiben');
-});
-
-it('searches the questions and answers', function () {
-    $html = $this->get(route('portal.faq', ['q' => 'authenticator']))->assertOk()->getContent();
-
-    expect($html)->toContain('Ich habe das Gerät mit meiner Authenticator-App verloren.')->toContain('Was ist die Zwei-Faktor-Anmeldung?')->not->toContain('Wie kann ich Teamer:in werden?');
-
-    $this->get(route('portal.faq', ['q' => 'gibtesnicht']))->assertOk()->assertSee('Nichts gefunden');
-});
-
-it('keeps hidden and switched-off topics off the faq page', function () {
-    cfTopic('Teamarbeit, Verträge und Abrechnung')->update(['in_faq_page' => false]);
-    cfTopic('Mitgliedschaft')->update(['is_active' => false]);
-    cfTopic('Schulen und Workshops')->update(['is_active' => false]);
-
-    $html = $this->get(route('portal.faq'))->assertOk()->getContent();
-
-    expect($html)->not->toContain('Wie kann ich Teamer:in werden?')->not->toContain('Wie werde ich Mitglied?')->not->toContain('Wie frage ich ein Angebot an?')->toContain('Wie setze ich mein Passwort zurück?');
-});
-
-it('escapes html in the answers and allows only safe links', function () {
-    $html = \App\Modules\ContactForms\Support\FaqText::html("<script>alert(1)</script> **fett**\n\n- Eins\n- [Intern](/kontakt)\n\n[Böse](javascript:alert(1)) [Auch böse](//boese.example) [Gut](https://beispiel.example/a?x=1&y=2)")->toHtml();
-
-    expect($html)->not->toContain('<script>')->toContain('&lt;script&gt;')->toContain('<strong>fett</strong>')->toContain('<ul><li>Eins</li><li><a href="/kontakt">Intern</a></li></ul>')
-        ->not->toContain('href="javascript:')->not->toContain('href="//boese.example"')->toContain('<a href="https://beispiel.example/a?x=1&amp;y=2">Gut</a>');
-});
-
-it('lets the office decide which topics feed the faq page', function () {
-    $this->actingAs(cfUser(RoleKey::AdministrationStaff));
-    $topic = cfTopic('Mitgliedschaft');
-
-    $this->put(route('contact-admin.topics.update', $topic), ['title' => 'Mitgliedschaft', 'action' => 'faq', 'is_active' => '1', 'faqs' => [['question' => 'Neue Frage?', 'answer' => 'Neue Antwort.']]])->assertRedirect();
-
-    expect($topic->fresh()->in_faq_page)->toBeFalse();
-    $this->get(route('portal.faq'))->assertDontSee('Neue Frage?');
-
-    $this->put(route('contact-admin.topics.update', $topic), ['title' => 'Mitgliedschaft', 'action' => 'faq', 'is_active' => '1', 'in_faq_page' => '1', 'faqs' => [['question' => 'Neue Frage?', 'answer' => 'Neue Antwort.']]])->assertRedirect();
-
-    $this->get(route('portal.faq'))->assertSee('Neue Frage?');
 });

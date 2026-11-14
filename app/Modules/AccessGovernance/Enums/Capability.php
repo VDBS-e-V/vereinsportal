@@ -140,6 +140,9 @@ enum Capability: string
     /** Themen, FAQ-Seiten und Formulare des öffentlichen Kontaktbereichs pflegen (Administration, Geschäftsstelle). */
     case ContactFormsManage = 'contact_forms.manage';
 
+    /** Die große FAQ-Seite pflegen: Kategorien und Fragen (Administration, Geschäftsstelle). */
+    case FaqManage = 'faq.manage';
+
     /** Schreiben aus Word-Vorlagen erzeugen und die Vorlagen ansehen (Koordination, Geschäftsstelle, Vorstand). */
     case LettersUse = 'letters.use';
 

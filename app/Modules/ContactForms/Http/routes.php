@@ -3,15 +3,12 @@
 use App\Modules\ContactForms\Http\Controllers\ContactFlowController;
 use App\Modules\ContactForms\Http\Controllers\ContactFormAdminController;
 use App\Modules\ContactForms\Http\Controllers\ContactTopicAdminController;
-use App\Modules\ContactForms\Http\Controllers\FaqPageController;
 use Illuminate\Support\Facades\Route;
 
 /*
- * Öffentlich (Bereich Start): /faq (große FAQ-Seite), /kontakt (Themenwahl mit Bereichen und Suche), /kontakt/thema/{id} (Ziel eines Themas), /kontakt/formular/{slug} (Angaben und Anfrage).
+ * Öffentlich (Bereich Start): /kontakt (Themenwahl mit Bereichen und Suche), /kontakt/thema/{id} (Ziel eines Themas), /kontakt/formular/{slug} (Angaben und Anfrage).
  * Verwaltung (Geschäftsstelle): Themen, FAQ-Seiten und Formulare unter /verwaltung/kontakt mit der Berechtigung contact_forms.manage.
  */
-Route::middleware('web')->get('/faq', [FaqPageController::class, 'index'])->name('portal.faq');
-
 Route::middleware('web')->prefix('kontakt')->group(function (): void {
     Route::get('/', [ContactFlowController::class, 'index'])->name('portal.contact');
     Route::get('/thema/{topic}', [ContactFlowController::class, 'topic'])->whereNumber('topic')->name('portal.contact.topic');

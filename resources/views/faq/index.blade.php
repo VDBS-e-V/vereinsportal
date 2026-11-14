@@ -1,6 +1,5 @@
 @php
     $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'FAQ']];
-    $standard = \App\Modules\ContactForms\Models\ContactForm::standard();
 @endphp
 
 <x-layouts.app title="Häufig gestellte Fragen" width="medium">
@@ -8,7 +7,7 @@
 
     <x-vdbs.forms.search name="q" label="Fragen durchsuchen" :action="route('portal.faq')" placeholder="Wonach suchen Sie? z. B. Passwort, Mitgliedschaft, Honorar" :value="$query" style="margin-bottom:var(--space-6)" />
 
-    @if ($groups->isEmpty())
+    @if ($categories->isEmpty())
         <x-vdbs.feedback.alert variant="info" :title="$query !== '' ? 'Nichts gefunden' : 'Noch keine Fragen'">
             @if ($query !== '')
                 Zu „{{ $query }}“ gibt es keine Frage. <a href="{{ route('portal.faq') }}">Alle Fragen anzeigen</a> oder <a href="{{ route('portal.contact') }}">uns schreiben</a>.
@@ -21,37 +20,32 @@
             <p>{{ $total }} Treffer zu „{{ $query }}“. <a href="{{ route('portal.faq') }}">Alle Fragen anzeigen</a></p>
         @endif
 
-        @if ($groups->count() > 1)
+        @if ($categories->count() > 1)
             <x-vdbs.data.chip-list label="Themen der Fragen" style="margin-bottom:var(--space-6)">
-                @foreach ($groups as $group)
-                    <x-vdbs.data.chip :label="$group['area']?->title ?? 'Weitere Fragen'" :href="'#bereich-'.($group['area']?->id ?? 'weitere')" />
+                @foreach ($categories as $category)
+                    <x-vdbs.data.chip :label="$category->title" :href="'#kategorie-'.$category->id" />
                 @endforeach
             </x-vdbs.data.chip-list>
         @endif
 
-        @foreach ($groups as $group)
-            @php $areaId = 'bereich-'.($group['area']?->id ?? 'weitere'); @endphp
-            <section id="{{ $areaId }}" aria-labelledby="{{ $areaId }}-title" style="margin-top:var(--space-7, var(--space-6))">
-                <h2 id="{{ $areaId }}-title" style="font-size:var(--font-size-h2)">{{ $group['area']?->title ?? 'Weitere Fragen' }}</h2>
-                @if (filled($group['area']?->description))<p>{{ $group['area']->description }}</p>@endif
+        @foreach ($categories as $category)
+            <section id="kategorie-{{ $category->id }}" aria-labelledby="kategorie-{{ $category->id }}-title" style="margin-top:var(--space-6)">
+                <h2 id="kategorie-{{ $category->id }}-title" style="font-size:var(--font-size-h2)">{{ $category->title }}</h2>
+                @if (filled($category->description))<p>{{ $category->description }}</p>@endif
 
-                @foreach ($group['topics'] as $topic)
-                    <h3 id="thema-{{ $topic->id }}" style="font-size:var(--font-size-h3);margin-top:var(--space-5)">{{ $topic->title }}</h3>
-                    <x-vdbs.disclosure.accordion>
-                        @foreach ($topic->faqs as $faq)
-                            <x-vdbs.disclosure.accordion-item :title="$faq->question" :level="4">
-                                {{ \App\Modules\ContactForms\Support\FaqText::html($faq->answer) }}
-                            </x-vdbs.disclosure.accordion-item>
-                        @endforeach
-                    </x-vdbs.disclosure.accordion>
-                @endforeach
+                <x-vdbs.disclosure.accordion>
+                    @foreach ($category->entries as $entry)
+                        <x-vdbs.disclosure.accordion-item :title="$entry->question" :level="3">
+                            {{ \App\Modules\Faq\Support\FaqText::html($entry->answer) }}
+                        </x-vdbs.disclosure.accordion-item>
+                    @endforeach
+                </x-vdbs.disclosure.accordion>
             </section>
         @endforeach
     @endif
 
     <div style="margin-top:var(--space-8)">
         <p><strong>Ihre Frage ist nicht dabei?</strong></p>
-        <x-vdbs.actions.button :href="$standard ? route('portal.contact.form', ['form' => $standard->slug]) : route('portal.contact')" icon="mail">Uns schreiben</x-vdbs.actions.button>
-        <x-vdbs.actions.button :href="route('portal.contact')" variant="text">Thema wählen</x-vdbs.actions.button>
+        <x-vdbs.actions.button :href="route('portal.contact')" icon="mail">Uns schreiben</x-vdbs.actions.button>
     </div>
 </x-layouts.app>

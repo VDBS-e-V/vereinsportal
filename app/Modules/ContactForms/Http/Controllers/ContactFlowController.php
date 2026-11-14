@@ -26,7 +26,7 @@ class ContactFlowController extends Controller
 
         $reachable = fn ($topics) => $topics->filter(fn (ContactTopic $topic): bool => $topic->isReachable())->values();
 
-        $base = fn () => ContactTopic::query()->active()->with(['form', 'faqs', 'parent'])->orderBy('sort_order')->orderBy('title');
+        $base = fn () => ContactTopic::query()->active()->with(['form', 'faqCategory.entries', 'parent'])->orderBy('sort_order')->orderBy('title');
 
         $results = null;
         $areas = collect();
@@ -47,7 +47,7 @@ class ContactFlowController extends Controller
             $topics = $reachable($base()->where('parent_id', $area->id)->where('action', '!=', 'category')->get());
         } else {
             $areas = $base()->whereNull('parent_id')->where('action', 'category')->get()
-                ->each(fn (ContactTopic $category) => $category->setRelation('children', $reachable($category->children()->active()->with(['form', 'faqs'])->get())))
+                ->each(fn (ContactTopic $category) => $category->setRelation('children', $reachable($category->children()->active()->with(['form', 'faqCategory.entries'])->get())))
                 ->filter(fn (ContactTopic $category): bool => $category->children->isNotEmpty())->values();
             $topics = $reachable($base()->whereNull('parent_id')->where('action', '!=', 'category')->get());
         }
@@ -168,10 +168,12 @@ class ContactFlowController extends Controller
 
     private function faq(ContactTopic $topic): View
     {
-        $topic->load(['faqs', 'form']);
+        $topic->load(['faqCategory.entries', 'form']);
         $follow = $topic->faq_offer_form ? ($topic->targetForm() ?? ContactForm::standard()) : null;
 
-        return view('contact.faq', ['topic' => $topic, 'follow' => $follow]);
+        $category = $topic->faqCategory !== null && $topic->faqCategory->is_active ? $topic->faqCategory : null;
+
+        return view('contact.faq', ['topic' => $topic, 'follow' => $follow, 'category' => $category]);
     }
 
     private function redirectToForm(ContactTopic $topic): RedirectResponse

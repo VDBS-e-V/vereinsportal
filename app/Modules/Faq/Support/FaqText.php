@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\ContactForms\Support;
+namespace App\Modules\Faq\Support;
 
 use Illuminate\Support\HtmlString;
 

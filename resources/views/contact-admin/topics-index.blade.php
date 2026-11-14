@@ -15,7 +15,7 @@
         return match ($topic->action) {
             'form' => $topic->form?->name ?? 'Formular fehlt',
             'default' => $standard?->name ?? 'kein Standardformular',
-            'faq' => 'FAQ ('.$topic->faqs->count().')'.($topic->faq_offer_form ? ' + Formular' : ''),
+            'faq' => ($topic->faqCategory ? 'FAQ: '.$topic->faqCategory->title.' ('.$topic->faqCategory->entries->count().')' : 'FAQ-Kategorie fehlt').($topic->faq_offer_form ? ' + Formular' : ''),
             'link' => $topic->target_url,
             default => $topic->children->count().' Themen',
         };
@@ -23,7 +23,7 @@
 @endphp
 
 <x-layouts.app title="Kontaktformular verwalten" width="wide">
-    <x-vdbs.layout.page-header title="Kontaktformular" lead="Die Themenwahl im öffentlichen Kontaktbereich: Bereiche und Themen, FAQ-Seiten und die Formulare dahinter. Änderungen gelten sofort." :breadcrumb="$crumbs">
+    <x-vdbs.layout.page-header title="Kontaktformular" lead="Die Themenwahl im öffentlichen Kontaktbereich: Bereiche und Themen und die Formulare dahinter. Die FAQ pflegen Sie getrennt unter Geschäftsstelle › FAQ. Änderungen gelten sofort." :breadcrumb="$crumbs">
         <x-slot:actions>
             <x-vdbs.actions.button :href="route('contact-admin.topics.create', ['art' => 'category'])" variant="secondary" icon="plus">Neuer Bereich</x-vdbs.actions.button>
             <x-vdbs.actions.button :href="route('contact-admin.topics.create')" icon="plus">Neues Thema</x-vdbs.actions.button>

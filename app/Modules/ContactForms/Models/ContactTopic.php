@@ -2,6 +2,7 @@
 
 namespace App\Modules\ContactForms\Models;
 
+use App\Modules\Faq\Models\FaqCategory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,11 +19,11 @@ class ContactTopic extends Model
         'link' => 'Führt zu einer anderen Seite (Link)',
     ];
 
-    protected $fillable = ['parent_id', 'title', 'description', 'keywords', 'action', 'contact_form_id', 'target_url', 'faq_offer_form', 'in_faq_page', 'sort_order', 'is_active'];
+    protected $fillable = ['parent_id', 'title', 'description', 'keywords', 'action', 'contact_form_id', 'faq_category_id', 'target_url', 'faq_offer_form', 'sort_order', 'is_active'];
 
     protected function casts(): array
     {
-        return ['faq_offer_form' => 'boolean', 'in_faq_page' => 'boolean', 'is_active' => 'boolean', 'sort_order' => 'integer'];
+        return ['faq_offer_form' => 'boolean', 'is_active' => 'boolean', 'sort_order' => 'integer'];
     }
 
     /** @return BelongsTo<ContactTopic, $this> */
@@ -43,10 +44,10 @@ class ContactTopic extends Model
         return $this->belongsTo(ContactForm::class, 'contact_form_id');
     }
 
-    /** @return HasMany<ContactFaq, $this> */
-    public function faqs(): HasMany
+    /** @return BelongsTo<FaqCategory, $this> Die FAQ-Kategorie, auf die ein FAQ-Thema verweist (gepflegt unter Geschäftsstelle › FAQ). */
+    public function faqCategory(): BelongsTo
     {
-        return $this->hasMany(ContactFaq::class)->orderBy('sort_order')->orderBy('id');
+        return $this->belongsTo(FaqCategory::class, 'faq_category_id');
     }
 
     /** @param Builder<ContactTopic> $query */
@@ -73,7 +74,7 @@ class ContactTopic extends Model
     {
         return match ($this->action) {
             'form', 'default' => $this->targetForm() !== null,
-            'faq' => $this->faqs->isNotEmpty() || ($this->faq_offer_form && ($this->targetForm() ?? ContactForm::standard()) !== null),
+            'faq' => ($this->faqCategory !== null && $this->faqCategory->is_active && $this->faqCategory->entries->isNotEmpty()) || ($this->faq_offer_form && ($this->targetForm() ?? ContactForm::standard()) !== null),
             'link' => filled($this->target_url),
             default => false,
         };

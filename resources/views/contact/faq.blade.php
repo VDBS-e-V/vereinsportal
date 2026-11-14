@@ -5,13 +5,13 @@
 <x-layouts.app :title="$topic->title" width="medium">
     <x-vdbs.layout.page-header :title="$topic->title" :lead="$topic->description" :breadcrumb="$crumbs" />
 
-    @if ($topic->faqs->isEmpty())
+    @if ($category === null || $category->entries->isEmpty())
         <p>Zu diesem Thema gibt es noch keine Fragen und Antworten.</p>
     @else
         <x-vdbs.disclosure.accordion>
-            @foreach ($topic->faqs as $faq)
-                <x-vdbs.disclosure.accordion-item :title="$faq->question" :level="2">
-                    {{ \App\Modules\ContactForms\Support\FaqText::html($faq->answer) }}
+            @foreach ($category->entries as $entry)
+                <x-vdbs.disclosure.accordion-item :title="$entry->question" :level="2">
+                    {{ \App\Modules\Faq\Support\FaqText::html($entry->answer) }}
                 </x-vdbs.disclosure.accordion-item>
             @endforeach
         </x-vdbs.disclosure.accordion>

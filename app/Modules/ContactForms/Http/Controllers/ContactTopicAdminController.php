@@ -6,14 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
-use App\Modules\ContactForms\Models\ContactFaq;
 use App\Modules\ContactForms\Models\ContactForm;
 use App\Modules\ContactForms\Models\ContactTopic;
+use App\Modules\Faq\Models\FaqCategory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -22,28 +21,21 @@ class ContactTopicAdminController extends Controller
 {
     public function index(): View
     {
-        $roots = ContactTopic::query()->whereNull('parent_id')->with(['form', 'faqs', 'children.form', 'children.faqs'])->orderBy('sort_order')->orderBy('title')->get();
+        $roots = ContactTopic::query()->whereNull('parent_id')->with(['form', 'faqCategory.entries', 'children.form', 'children.faqCategory.entries'])->orderBy('sort_order')->orderBy('title')->get();
 
         return view('contact-admin.topics-index', ['roots' => $roots, 'standard' => ContactForm::standard()]);
     }
 
     public function create(Request $request): View
     {
-        $topic = new ContactTopic(['action' => $request->query('art', 'form'), 'is_active' => true, 'faq_offer_form' => true, 'in_faq_page' => true, 'sort_order' => 0, 'parent_id' => $request->integer('bereich') ?: null]);
+        $topic = new ContactTopic(['action' => $request->query('art', 'form'), 'is_active' => true, 'faq_offer_form' => true, 'sort_order' => 0, 'parent_id' => $request->integer('bereich') ?: null]);
 
         return view('contact-admin.topic-form', $this->formData($topic));
     }
 
     public function store(Request $request): RedirectResponse
     {
-        [$attributes, $faqs] = $this->validated($request, null);
-
-        $topic = DB::transaction(function () use ($attributes, $faqs): ContactTopic {
-            $topic = ContactTopic::query()->create($attributes);
-            $this->syncFaqs($topic, $faqs);
-
-            return $topic;
-        });
+        $topic = ContactTopic::query()->create($this->validated($request, null));
 
         AuditLog::record(AuditEvent::ContactTopicSaved, $this->user(), null, ['thema' => $topic->title, 'art' => $topic->action]);
 
@@ -57,12 +49,7 @@ class ContactTopicAdminController extends Controller
 
     public function update(Request $request, ContactTopic $topic): RedirectResponse
     {
-        [$attributes, $faqs] = $this->validated($request, $topic);
-
-        DB::transaction(function () use ($topic, $attributes, $faqs): void {
-            $topic->update($attributes);
-            $this->syncFaqs($topic, $faqs);
-        });
+        $topic->update($this->validated($request, $topic));
 
         AuditLog::record(AuditEvent::ContactTopicSaved, $this->user(), null, ['thema' => $topic->title, 'art' => $topic->action]);
 
@@ -133,12 +120,12 @@ class ContactTopicAdminController extends Controller
             'topic' => $topic,
             'categories' => ContactTopic::query()->where('action', 'category')->when($topic->exists, fn ($query) => $query->whereKeyNot($topic->id))->orderBy('sort_order')->orderBy('title')->pluck('title', 'id')->all(),
             'forms' => ContactForm::query()->orderBy('name')->pluck('name', 'id')->all(),
-            'faqs' => $topic->exists ? $topic->faqs()->get(['question', 'answer'])->map(fn ($faq): array => ['question' => $faq->question, 'answer' => $faq->answer])->all() : [],
+            'faqCategories' => FaqCategory::query()->orderBy('sort_order')->orderBy('title')->pluck('title', 'id')->all(),
             'hasChildren' => $topic->exists && $topic->children()->exists(),
         ];
     }
 
-    /** @return array{0: array<string, mixed>, 1: list<array{question: string, answer: string}>} */
+    /** @return array<string, mixed> */
     private function validated(Request $request, ?ContactTopic $topic): array
     {
         $data = $request->validate([
@@ -150,9 +137,7 @@ class ContactTopicAdminController extends Controller
             'contact_form_id' => ['nullable', 'integer', 'exists:contact_forms,id'],
             'target_url' => ['nullable', 'string', 'max:500'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:9999'],
-            'faqs' => ['nullable', 'array', 'max:50'],
-            'faqs.*.question' => ['nullable', 'string', 'max:250'],
-            'faqs.*.answer' => ['nullable', 'string', 'max:5000'],
+            'faq_category_id' => ['nullable', 'integer', 'exists:faq_categories,id'],
         ], [
             'title.required' => 'Bitte geben Sie eine Bezeichnung ein.',
             'action.required' => 'Bitte wählen Sie, wohin das Thema führt.',
@@ -186,56 +171,27 @@ class ContactTopicAdminController extends Controller
             }
         }
 
-        $faqs = [];
-
-        foreach ((array) ($data['faqs'] ?? []) as $row) {
-            $question = trim((string) ($row['question'] ?? ''));
-            $answer = trim((string) ($row['answer'] ?? ''));
-
-            if ($question === '' && $answer === '') {
-                continue;
-            }
-
-            if ($question === '' || $answer === '') {
-                $errors['faqs'] = 'Zu jeder Frage gehört eine Antwort und umgekehrt.';
-
-                continue;
-            }
-
-            $faqs[] = ['question' => $question, 'answer' => $answer];
+        if ($action === 'faq' && blank($data['faq_category_id'] ?? null)) {
+            $errors['faq_category_id'] = 'Bitte wählen Sie die FAQ-Kategorie, deren Fragen das Thema zeigt. Neue Kategorien legen Sie unter Geschäftsstelle › FAQ an.';
         }
 
         if ($errors !== []) {
             throw ValidationException::withMessages($errors);
         }
 
-        return [[
+        return [
             'title' => trim($data['title']),
             'description' => filled($data['description'] ?? null) ? trim($data['description']) : null,
             'keywords' => filled($data['keywords'] ?? null) ? trim($data['keywords']) : null,
             'action' => $action,
             'parent_id' => $action === 'category' ? null : ($data['parent_id'] ?? null),
             'contact_form_id' => $action === 'form' || $action === 'faq' ? ($data['contact_form_id'] ?? null) : null,
+            'faq_category_id' => $action === 'faq' ? ($data['faq_category_id'] ?? null) : null,
             'target_url' => $action === 'link' ? trim((string) $data['target_url']) : null,
             'faq_offer_form' => $request->boolean('faq_offer_form'),
-            'in_faq_page' => $request->boolean('in_faq_page'),
             'sort_order' => (int) ($data['sort_order'] ?? 0),
             'is_active' => $request->boolean('is_active'),
-        ], $faqs];
-    }
-
-    /** @param list<array{question: string, answer: string}> $faqs */
-    private function syncFaqs(ContactTopic $topic, array $faqs): void
-    {
-        ContactFaq::query()->where('contact_topic_id', $topic->id)->delete();
-
-        if ($topic->action !== 'faq') {
-            return;
-        }
-
-        foreach ($faqs as $index => $faq) {
-            $topic->faqs()->create($faq + ['sort_order' => ($index + 1) * 10]);
-        }
+        ];
     }
 
     private function user(): User

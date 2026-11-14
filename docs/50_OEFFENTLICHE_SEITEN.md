@@ -6,7 +6,7 @@ Alle Seiten sind ohne Anmeldung erreichbar und stehen im Bereich Start (Zeile 2 
 | Seite | Adresse | Inhalt |
 |---|---|---|
 | **Start** | `/` | Hero, Schnellzugriff (Über das Portal, Zugang zum Portal, Mein Konto/Anmelden, Hilfe), Bereiche, **Empfohlene Artikel**, Zugang, Kontakt |
-| **FAQ** | `/faq` | Große FAQ-Seite: alle Fragen und Antworten der FAQ-Themen nach Bereichen, mit Suche; gepflegt unter Kontaktformular › Themen und FAQ (`docs/82`) |
+| **FAQ** | `/faq` | Große FAQ-Seite: alle Fragen und Antworten nach Kategorien, mit Suche; gepflegt unter Geschäftsstelle › FAQ (`docs/83`) |
 | **Über das Portal** | `/ueber-das-portal` | „Unser Vereinsportal“, Was erwartet Sie, Vorteile, Hinweis auf die FAQ (`#portal-faq`), Zugang |
 | **Zugang zum Portal** | `/zugang-zum-portal` | Anmelden, Passwort vergessen, **Antrag auf Zugang** (mehrstufig) |
 | **Kontakt** | `/kontakt` | **Kontaktformular** (Empfänger wählbar), optional Kontaktdaten aus `config/portal.php` |

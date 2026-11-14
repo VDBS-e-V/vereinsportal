@@ -14,22 +14,15 @@ Der öffentliche Kontaktbereich (`/kontakt`) führt in drei Schritten: **1. Them
 Die Angaben gehen **per E-Mail** an den Empfänger des Formulars (Antworten an die absendende Person). **Im Portal wird nichts gespeichert.** Auf Wunsch erhält die absendende Person eine Kopie. Schutz: Bot-Schutz (`docs/51`), höchstens 5 Absendungen je 10 Minuten.
 
 ## Pflege im Portal
-- **Themen und FAQ:** Bereiche (ganz oben) und Themen darunter, jeweils mit Kurzbeschreibung, Stichwörtern, Reihenfolge und Sichtbarkeit. Zwei Ebenen reichen: Bereich › Thema. Bei einer FAQ-Seite pflegen Sie die Fragen und Antworten gleich im Thema. Mehrfachauswahl: mehrere Themen auf einmal sichtbar machen, ausblenden oder löschen.
+- **Themen:** Bereiche (ganz oben) und Themen darunter, jeweils mit Kurzbeschreibung, Stichwörtern, Reihenfolge und Sichtbarkeit. Zwei Ebenen reichen: Bereich › Thema. Führt ein Thema zu einer FAQ-Seite, wählen Sie dort eine **FAQ-Kategorie**; die Fragen pflegen Sie getrennt unter Geschäftsstelle › FAQ (`docs/83`). Mehrfachauswahl: mehrere Themen auf einmal sichtbar machen, ausblenden oder löschen.
 - **Formulare:** Name, Einleitung, Art (Nachricht oder nur Angaben), Empfänger (E-Mail und Name), Kopie an die absendende Person, Text nach dem Absenden, Abfrage von Telefon und Schule (nein/freiwillig/Pflicht) und **eigene Felder** (Kurzer Text, Langer Text, E-Mail, Telefon, Auswahl aus einer Liste, Ja/Nein, Datum; je Pflichtfeld oder freiwillig, mit Hinweis). Ein Formular ist das **Standardformular** (nicht löschbar).
-- Themen ohne erreichbares Ziel (Formular gelöscht oder ausgeschaltet, FAQ ohne Einträge und ohne Formular) bleiben in der öffentlichen Themenwahl verborgen; in der Verwaltung zeigt ein Hinweis „ohne Ziel“.
+- Themen ohne erreichbares Ziel (Formular gelöscht oder ausgeschaltet, FAQ-Kategorie ohne Fragen und ohne Formular) bleiben in der öffentlichen Themenwahl verborgen; in der Verwaltung zeigt ein Hinweis „ohne Ziel“.
 
 ## Ausgangsbestand
-Die Migration `2026_12_28_000001_create_contact_forms.php` legt die bisherigen Empfänger (Allgemeine Anfrage = Standard, Vorstand, Portal-Support, E-Mail-Adressen aus `config/portal.php` bzw. `CONTACT_*_EMAIL`), ein Formular „Rückruf erbeten“ (nur Angaben) und Beispielthemen mit einer FAQ-Seite an. Alles lässt sich im Portal ändern oder löschen.
+Die Migration `2026_12_28_000001_create_contact_forms.php` legt die bisherigen Empfänger (Allgemeine Anfrage = Standard, Vorstand, Portal-Support, E-Mail-Adressen aus `config/portal.php` bzw. `CONTACT_*_EMAIL`), ein Formular „Rückruf erbeten“ (nur Angaben) und Beispielthemen an. Alles lässt sich im Portal ändern oder löschen.
 
 ## Technik
-Modul `app/Modules/ContactForms`: Modelle `ContactForm`, `ContactTopic`, `ContactFaq`; `Support\ContactFormFields` (Feldarten, Aufbereitung, Prüfregeln); Controller `ContactFlowController` (öffentlich), `ContactTopicAdminController`, `ContactFormAdminController`; E-Mail `Mail\ContactFormMail`. Tests: `tests/Feature/ContactForms/ContactFormsTest.php`. Protokoll: Ereignisse `contact_forms.*` (nur Namen, keine Eingaben).
+Modul `app/Modules/ContactForms`: Modelle `ContactForm`, `ContactTopic` (verweist auf `Faq\Models\FaqCategory`); `Support\ContactFormFields` (Feldarten, Aufbereitung, Prüfregeln); Controller `ContactFlowController` (öffentlich), `ContactTopicAdminController`, `ContactFormAdminController`; E-Mail `Mail\ContactFormMail`. Tests: `tests/Feature/ContactForms/ContactFormsTest.php`. Protokoll: Ereignisse `contact_forms.*` (nur Namen, keine Eingaben).
 
 ## Datenschutz
 Es werden keine Eingaben gespeichert; die Daten liegen nur in der E-Mail beim Empfänger. In der Datenschutzerklärung (Kontaktformular) bleibt der Hinweis auf die Einwilligung. Bei Formularen, die Telefon oder Schule abfragen, genügt der Verweis „zum Zweck der Kontaktaufnahme“; bei eigenen Feldern mit besonders schutzbedürftigen Angaben vorher mit der Datenschutzbeauftragten abstimmen.
-
-## Große FAQ-Seite (`/faq`)
-Alle Fragen und Antworten der **FAQ-Themen** erscheinen gesammelt auf `/faq` (Menü „FAQ“, Knopf „Hilfe“ auf der Startseite), nach Bereichen gegliedert, mit Suche über Fragen und Antworten und Sprungmarken zu den Bereichen. Unter jedem Thema steht „Uns schreiben“. Welche Themen auf der Seite erscheinen, steuert das Kästchen „Die Fragen auch auf der großen FAQ-Seite zeigen“ im Thema. Ein FAQ-Thema kann so nur auf der FAQ-Seite stehen, nur in der Themenwahl oder in beiden (Ausblenden eines Themas in der Themenwahl: Thema ausschalten; dann erscheint es auch nicht auf `/faq`).
-
-**Auszeichnung der Antworten:** Leerzeile = neuer Absatz, Zeilen mit `- ` = Liste, `**fett**`, `[Text](/pfad)` für Links im Portal oder `[Text](https://adresse)`. Anderes HTML wird maskiert; Links auf `javascript:` oder fremde `//`-Adressen funktionieren nicht.
-
-**Ausgangsbestand:** Die Migration `2026_12_28_000002_add_faq_page_to_contact_topics.php` legt einen **Entwurf** an: die bisherigen sieben Fragen von „Über das Portal“ (dort steht jetzt ein Hinweis auf `/faq`) und weitere Fragen zu Zugang und Konto, Mitgliedschaft, Schulen und Workshops, Team (Einarbeitung, Vertrag, Abrechnung) sowie Datenschutz und Barrierefreiheit. Die Antworten sind bewusst allgemein gehalten (keine Fristen oder Beträge). **Bitte inhaltlich prüfen und im Portal anpassen.**
