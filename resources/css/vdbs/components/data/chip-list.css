@@ -4,3 +4,6 @@
 
 /* Ausgeglichen: Chips in natürlicher Breite, zentriert; chip-balance.js setzt max-width so, dass alle Zeilen ungefähr gleich breit werden */
 .vdbs-chip-list--spread .vdbs-chip-list__list { justify-content: center; margin-inline: auto; }
+
+/* Seitliches Padding etwa 2 bis 2,5 Mal so groß wie die sichtbare Luft oben und unten (Mindesthöhe 44 px, Zeilenhöhe ca. 20 px => ca. 12 px; 1,75rem = 28 px) */
+.vdbs-chip-list--spread .vdbs-chip__link { padding-inline: 1.75rem; }
