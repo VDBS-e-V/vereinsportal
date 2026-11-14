@@ -9,7 +9,7 @@
 
 <x-layouts.app title="Start" width="full">
     {{-- Einstieg: Bild mit mittigem Titel, darunter die Schnellzugriffe als farbige Kacheln --}}
-    <x-vdbs.layout.container style="padding-top: var(--space-6)">
+    <x-vdbs.layout.container style="padding-top: var(--space-8)">
         <x-vdbs.media.hero variant="image" align="center" :title="$home['title']" :image="asset($home['hero_image']['src'])" :image-alt="$home['hero_image']['alt']" :credit="$home['hero_image']['credit']">
             <x-slot:footer>
                 <x-vdbs.cards.quick-links label="Schnellzugriff" variant="solid">
