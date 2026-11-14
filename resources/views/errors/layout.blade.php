@@ -12,7 +12,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('documentTitle', 'Fehler') · VDBS Portal</title>
+    <title>@yield('documentTitle', 'Fehler') · VDBS Vereinsportal</title>
     <script>
         document.documentElement.classList.add('vdbs-js'); try { var t = localStorage.getItem('vdbs-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
     </script>

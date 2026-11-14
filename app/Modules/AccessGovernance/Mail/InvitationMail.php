@@ -17,7 +17,7 @@ final class InvitationMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Einladung ins VDBS-Portal');
+        return new Envelope(subject: 'Einladung ins Vereinsportal');
     }
 
     public function content(): Content

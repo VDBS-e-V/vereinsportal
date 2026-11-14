@@ -13,7 +13,7 @@ final class RegistrationLinkMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Ihr Zugang zum VDBS-Portal');
+        return new Envelope(subject: 'Ihr Zugang zum Vereinsportal');
     }
 
     public function content(): Content

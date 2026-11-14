@@ -13,7 +13,7 @@ final class NewApplicationMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Neuer Mitgliedschaftsantrag im VDBS-Portal');
+        return new Envelope(subject: 'Neuer Mitgliedschaftsantrag im Vereinsportal');
     }
 
     public function content(): Content

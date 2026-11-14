@@ -13,7 +13,7 @@ final class NewAccessRequestMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Neuer Antrag auf Zugang im VDBS-Portal');
+        return new Envelope(subject: 'Neuer Antrag auf Zugang im Vereinsportal');
     }
 
     public function content(): Content

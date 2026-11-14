@@ -55,7 +55,7 @@ class SecurityController extends Controller
 
         return view('account.security.totp', [
             'secret' => Totp::format($secret),
-            'uri' => Totp::uri($secret, $user->email, 'VDBS Portal'),
+            'uri' => Totp::uri($secret, $user->email, 'VDBS Vereinsportal'),
         ]);
     }
 

@@ -16,7 +16,7 @@ final class TwoFactorCodeMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Ihr Sicherheitscode für das VDBS-Portal');
+        return new Envelope(subject: 'Ihr Sicherheitscode für das Vereinsportal');
     }
 
     public function content(): Content

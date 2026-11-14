@@ -16,7 +16,7 @@ final class TaskAssignedMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: $this->tasks->count() === 1 ? 'Neue Aufgabe: '.$this->tasks->first()->title : $this->tasks->count().' neue Aufgaben im VDBS-Portal');
+        return new Envelope(subject: $this->tasks->count() === 1 ? 'Neue Aufgabe: '.$this->tasks->first()->title : $this->tasks->count().' neue Aufgaben im Vereinsportal');
     }
 
     public function content(): Content

@@ -11,7 +11,7 @@
     <h1>Sicherheitscode eingeben</h1>
 
     @if ($method === 'totp')
-        <p>Öffnen Sie Ihre Authenticator-App und geben Sie den aktuellen sechsstelligen Code für das VDBS-Portal ein.</p>
+        <p>Öffnen Sie Ihre Authenticator-App und geben Sie den aktuellen sechsstelligen Code für das Vereinsportal ein.</p>
     @elseif ($method === 'email')
         <p>Wir haben einen sechsstelligen Code an <strong>{{ $email }}</strong> gesendet. Er ist zehn Minuten gültig.</p>
     @else

@@ -3,7 +3,7 @@
 <h2>Variante „image“</h2>
 <x-vdbs.media.hero
     variant="image"
-    title="Willkommen im VDBS Serviceportal"
+    title="Willkommen im VDBS Vereinsportal"
     lead="Die zentrale Anlaufstelle für alle Informationen und Dienstleistungen rund um den VDBS."
     :image="placeholder('hero', 1)"
     image-alt=""

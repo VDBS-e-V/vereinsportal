@@ -13,7 +13,7 @@ final class AccessRequestReceivedMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Ihr Antrag auf Zugang zum VDBS-Portal ist eingegangen');
+        return new Envelope(subject: 'Ihr Antrag auf Zugang zum Vereinsportal ist eingegangen');
     }
 
     public function content(): Content
