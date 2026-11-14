@@ -15,7 +15,7 @@ final class EmailChangeNoticeMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Änderung Ihrer E-Mail-Adresse im VDBS-Portal beantragt');
+        return new Envelope(subject: 'Änderung Ihrer E-Mail-Adresse im Vereinsportal beantragt');
     }
 
     public function content(): Content

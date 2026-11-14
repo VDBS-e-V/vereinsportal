@@ -19,7 +19,7 @@ final class TaskDueMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Erinnerung: Aufgaben im VDBS-Portal sind fällig');
+        return new Envelope(subject: 'Erinnerung: Aufgaben im Vereinsportal sind fällig');
     }
 
     public function content(): Content

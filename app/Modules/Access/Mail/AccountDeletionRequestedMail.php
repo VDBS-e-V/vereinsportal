@@ -13,7 +13,7 @@ final class AccountDeletionRequestedMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Löschung Ihres Kontos im VDBS-Portal beantragt');
+        return new Envelope(subject: 'Löschung Ihres Kontos im Vereinsportal beantragt');
     }
 
     public function content(): Content

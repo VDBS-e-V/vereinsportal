@@ -2,7 +2,7 @@
 <html lang="de">
 <body style="font-family: Arial, Helvetica, sans-serif; color: #0f172a; line-height: 1.5;">
     <p>Guten Tag,</p>
-    <p>{{ $by }} hat Ihnen im VDBS-Portal {{ $tasks->count() === 1 ? 'eine Aufgabe' : $tasks->count().' Aufgaben' }} zugewiesen:</p>
+    <p>{{ $by }} hat Ihnen im Vereinsportal {{ $tasks->count() === 1 ? 'eine Aufgabe' : $tasks->count().' Aufgaben' }} zugewiesen:</p>
     <ul>
         @foreach ($tasks as $task)
             <li><a href="{{ route('tasks.show', $task) }}">{{ $task->title }}</a> (Projekt „{{ $task->project->name }}“{{ $task->due_on ? ', fällig am '.$task->due_on->format('d.m.Y') : '' }})</li>

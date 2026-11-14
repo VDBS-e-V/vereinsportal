@@ -17,7 +17,7 @@ final class EmailChangeConfirmMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Neue E-Mail-Adresse für das VDBS-Portal bestätigen');
+        return new Envelope(subject: 'Neue E-Mail-Adresse für das Vereinsportal bestätigen');
     }
 
     public function content(): Content

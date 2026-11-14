@@ -16,7 +16,7 @@ final class PasswordResetMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Passwort für das VDBS-Portal zurücksetzen');
+        return new Envelope(subject: 'Passwort für das Vereinsportal zurücksetzen');
     }
 
     public function content(): Content

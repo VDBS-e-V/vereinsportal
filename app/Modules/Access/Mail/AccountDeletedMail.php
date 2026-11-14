@@ -11,7 +11,7 @@ final class AccountDeletedMail extends Mailable
 {
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Ihr Konto im VDBS-Portal wurde gelöscht');
+        return new Envelope(subject: 'Ihr Konto im Vereinsportal wurde gelöscht');
     }
 
     public function content(): Content
