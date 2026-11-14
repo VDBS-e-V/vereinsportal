@@ -1,7 +1,7 @@
 <p>Paket <strong>Layout</strong> · <code>&lt;x-vdbs.layout.section&gt;</code>, <code>&lt;x-vdbs.layout.split&gt;</code>, <code>&lt;x-vdbs.layout.grid&gt;</code></p>
 
 <h2>Abschnitt</h2>
-<x-vdbs.layout.section title="Das VDBS Serviceportal" lead="Die zentrale Anlaufstelle für alle Informationen." align="center">
+<x-vdbs.layout.section title="Das VDBS Vereinsportal" lead="Die zentrale Anlaufstelle für alle Informationen." align="center">
     <p>Inhalt des Abschnitts.</p>
     <x-slot:actions><x-vdbs.actions.button href="#" variant="primary" icon="arrow-right" icon-position="end">Mehr erfahren</x-vdbs.actions.button></x-slot:actions>
 </x-vdbs.layout.section>

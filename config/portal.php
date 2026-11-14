@@ -70,7 +70,7 @@ return [
             ],
         ],
         [
-            'heading' => 'Service-Portal',
+            'heading' => 'Vereinsportal',
             'links' => [
                 ['label' => 'Startseite', 'url' => '/'],
                 ['label' => 'Kontakt', 'url' => '/kontakt'],
@@ -135,11 +135,11 @@ return [
     'events' => ['retention_years' => 3, 'school_reminder_days' => 3],
 
     'home' => [
-        'title' => 'Willkommen im VDBS Serviceportal',
+        'title' => 'Willkommen im VDBS Vereinsportal',
         'lead' => 'Die zentrale Anlaufstelle für Mitglieder, Teamende und Schulen des VDBS.',
         'areas' => [
-            'title' => 'Das VDBS Serviceportal',
-            'lead' => 'Das VDBS Serviceportal ist Ihre zentrale Anlaufstelle für alle Informationen und Dienstleistungen rund um den VDBS. Hier finden Sie alle Bereiche des Portals. Welche Bereiche Sie sehen, richtet sich nach Ihrer Rolle.',
+            'title' => 'Das VDBS Vereinsportal',
+            'lead' => 'Das VDBS Vereinsportal ist Ihre zentrale Anlaufstelle für alle Informationen und Dienstleistungen rund um den VDBS. Hier finden Sie alle Bereiche des Portals. Welche Bereiche Sie sehen, richtet sich nach Ihrer Rolle.',
         ],
         // Bild im Kopf der Startseite (Titel liegt mittig darüber). Die Quelle ist Pflicht; bitte durch das Originalbild samt Urheberangabe ersetzen.
         'hero_image' => [
@@ -156,7 +156,7 @@ return [
         ],
         'access' => [
             'title' => 'Zugang zum Portal',
-            'guest' => 'Hier finden Sie alle Informationen, die Sie benötigen, um auf das VDBS Serviceportal zuzugreifen. Wenn Sie bereits ein Konto haben, können Sie sich hier anmelden. Wenn Sie noch kein Konto haben, können Sie hier den Zugang beantragen.',
+            'guest' => 'Hier finden Sie alle Informationen, die Sie benötigen, um auf das VDBS Vereinsportal zuzugreifen. Wenn Sie bereits ein Konto haben, können Sie sich hier anmelden. Wenn Sie noch kein Konto haben, können Sie hier den Zugang beantragen.',
             'member' => 'Sie sind angemeldet. Ihr Konto, Ihre Sicherheitseinstellungen und Ihre Bereiche finden Sie hier.',
         ],
         'contact' => [

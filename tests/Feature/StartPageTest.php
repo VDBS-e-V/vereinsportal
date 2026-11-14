@@ -12,7 +12,7 @@ it('renders the start page for guests with the structure of the design system', 
         ->toContain('vdbs-hero--image')
         ->toContain('vdbs-main--full')
         ->toContain('Schnellzugriff')
-        ->toContain('Das VDBS Serviceportal')
+        ->toContain('Das VDBS Vereinsportal')
         ->toContain('Zugang zum Portal')
         ->toContain('vdbs-back-to-top')
         ->and(substr_count($html, '<h1'))->toBe(1);
