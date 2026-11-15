@@ -40,11 +40,20 @@ Das Portal ist die einzige Anmeldung. Nextcloud, Moodle und weitere Systeme meld
 5. Scopes: `openid profile email roles groups`.
 6. Gruppenordner (App „Team folders“): Den Gruppen `vdbs-koordination`, `vdbs-vorstand` usw. ordnen Sie Ordner mit eigenen Rechten zu.
 
-### Moodle (OAuth 2 Service, Typ „OpenID Connect“)
-1. Website-Administration › Server › OAuth 2 Services › „OpenID Connect“ anlegen: Basis-URL = Adresse des Portals, Client-ID und Geheimnis.
-2. Umleitungsadresse im Portal: `https://<Ihr-Moodle>/admin/oauth2callback.php`.
-3. Scopes `openid profile email`. Moodle nutzt nur die Anmeldung; Kurse werden nicht aus Rollen abgeleitet.
-4. Plugin „OAuth 2“ als Authentifizierung aktivieren.
+### Moodle (OAuth 2 Service, Typ „OpenID Connect“; ab Moodle 3.11)
+Voraussetzung: Portal und Moodle laufen über `https://`, Moodle erreicht das Portal von seinem Server aus (Token-Abruf geschieht serverseitig), die Uhren stimmen.
+
+**Im Portal** (Admins › Anbindungen › Neue Anbindung)
+1. Name „Moodle“, Umleitungsadresse `https://<Ihr-Moodle>/admin/oauth2callback.php` (genau so, ohne Leerzeichen und ohne `/` am Ende).
+2. Erlaubte Rollen wählen (wer sich in Moodle anmelden darf), vertraulich: ja. Zustimmungsseite: für Vereinssysteme aus.
+3. Client-ID und Geheimnis sofort notieren; das Geheimnis wird nur einmal gezeigt.
+
+**In Moodle** (als Administration)
+1. Website-Administration › Server › OAuth 2-Services › „OpenID Connect“ wählen (bei älteren Versionen „Benutzerdefiniert“). Name „Vereinsportal“, Client-ID, Geheimnis, Basis-URL des Dienstes = Adresse des Portals (`https://<Ihr-Portal>`; Moodle liest daraus die Discovery). „Auf der Anmeldeseite anzeigen“ einschalten; „E-Mail-Bestätigung verlangen“ nur, wenn bestehende Moodle-Konten mit gleicher E-Mail-Adresse verknüpft werden sollen.
+2. Beim Dienst „Benutzerfeld-Zuordnungen“: `preferred_username` → Nutzername, `given_name` → Vorname, `family_name` → Nachname, `email` → E-Mail-Adresse. (Der Nutzername ist die stabile Kennung des Portals; Nutzende sehen ihn nicht.)
+3. Website-Administration › Plugins › Authentifizierung: „OAuth 2“ aktivieren; „Kontoerstellung zulassen“ (Selbstregistrierung über den Dienst) muss an sein, damit neue Konten angelegt werden.
+4. Scopes `openid profile email` (Moodle fordert sie selbst an). Moodle nutzt nur die Anmeldung; Kurse werden nicht aus Rollen abgeleitet.
+5. Testen in einem privaten Fenster: Moodle-Anmeldeseite › „Vereinsportal“ › Anmeldung im Portal › Rückkehr nach Moodle.
 
 ### Weitere Systeme (Prüfliste)
 Discovery-Adresse, Client-ID und Geheimnis, genau eine eingetragene Umleitungsadresse, Scopes, PKCE (S256) wenn unterstützt.
