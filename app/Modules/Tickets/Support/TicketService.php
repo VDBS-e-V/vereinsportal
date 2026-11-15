@@ -40,7 +40,7 @@ final class TicketService
     /** @param array{subject: string, category: string, priority?: string, message: string} $data */
     public function create(User $requester, array $data): Ticket
     {
-        return DB::transaction(function () use ($requester, $data): Ticket {
+        $ticket = DB::transaction(function () use ($requester, $data): Ticket {
             $ticket = Ticket::query()->create([
                 'subject' => trim($data['subject']), 'category' => $data['category'], 'priority' => $data['priority'] ?? 'normal',
                 'status' => 'open', 'requester_id' => $requester->id, 'last_activity_at' => now(),
@@ -52,12 +52,16 @@ final class TicketService
 
             return $ticket;
         });
+
+        app(TicketNotifier::class)->created($ticket, $requester);
+
+        return $ticket;
     }
 
     /** Nachricht im Ticket. Antwort des Teams: Offen wird „In Bearbeitung“; Antwort der anfragenden Person: „Wartet“ oder „Gelöst“ wird wieder „In Bearbeitung“ bzw. „Offen“. */
     public function post(Ticket $ticket, User $author, string $body, bool $internal = false): TicketMessage
     {
-        return DB::transaction(function () use ($ticket, $author, $body, $internal): TicketMessage {
+        $message = DB::transaction(function () use ($ticket, $author, $body, $internal): TicketMessage {
             $message = TicketMessage::query()->create(['ticket_id' => $ticket->id, 'user_id' => $author->id, 'body' => trim($body), 'is_internal' => $internal]);
             $ticket->last_activity_at = now();
 
@@ -76,11 +80,21 @@ final class TicketService
 
             return $message;
         });
+
+        // Hinweise per E-Mail: interne Notizen bleiben im Team und lösen keine Mail aus.
+        if (! $internal) {
+            $ticket->loadMissing(['requester', 'assignee']);
+            $author->id === $ticket->requester_id ? app(TicketNotifier::class)->requesterReplied($ticket, $author) : app(TicketNotifier::class)->teamReplied($ticket, $author);
+        }
+
+        return $message;
     }
 
     /** Status, Priorität und Bearbeitung ändern; nur echte Änderungen werden festgehalten. */
     public function update(Ticket $ticket, User $actor, ?string $status, ?string $priority, ?int $assigneeId, bool $assigneeGiven = true): void
     {
+        $previousAssignee = $ticket->assignee_id;
+
         DB::transaction(function () use ($ticket, $actor, $status, $priority, $assigneeId, $assigneeGiven): void {
             if ($assigneeGiven && $assigneeId !== $ticket->assignee_id) {
                 $name = $assigneeId !== null ? self::name(User::query()->with('person')->find($assigneeId)) : null;
@@ -106,6 +120,14 @@ final class TicketService
             $ticket->last_activity_at = now();
             $ticket->save();
         });
+
+        if ($assigneeGiven && $assigneeId !== null && $assigneeId !== $previousAssignee) {
+            $assignee = User::query()->find($assigneeId);
+
+            if ($assignee !== null) {
+                app(TicketNotifier::class)->assigned($ticket, $assignee, $actor);
+            }
+        }
     }
 
     public function changeStatus(Ticket $ticket, User $actor, string $status): void

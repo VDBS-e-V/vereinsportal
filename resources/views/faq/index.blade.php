@@ -48,5 +48,6 @@
     <div style="margin-top:var(--space-8)">
         <p><strong>Ihre Frage ist nicht dabei?</strong></p>
         <x-vdbs.actions.button :href="route('portal.contact')" icon="mail">Uns schreiben</x-vdbs.actions.button>
+        @auth<x-vdbs.actions.button :href="route('support.create')" variant="secondary" icon="ticket">Ticket erstellen</x-vdbs.actions.button>@endauth
     </div>
 </x-layouts.app>

@@ -63,6 +63,10 @@
         @endif
     @endif
 
+    @auth
+        <p style="margin-top:var(--space-6)">Sie sind angemeldet? Bei Problemen im Portal oder Fragen an das Portal-Team können Sie auch <a href="{{ route('support.create') }}">ein Ticket erstellen</a>. Dort schreiben Sie direkt mit den Bearbeitenden.</p>
+    @endauth
+
     @if ($standard && ! $none)
         <p style="margin-top:var(--space-6)">Ihr Thema ist nicht dabei? <a href="{{ route('portal.contact.form', ['form' => $standard->slug]) }}">Schreiben Sie uns direkt</a>.</p>
     @endif

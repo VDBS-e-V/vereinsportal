@@ -5,6 +5,7 @@ namespace App\Modules\Tickets\Models;
 use App\Modules\Access\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /** Eine Nachricht im Verlauf („Chat“) eines Tickets; interne Notizen sieht nur das Bearbeitungsteam. */
 class TicketMessage extends Model
@@ -14,6 +15,12 @@ class TicketMessage extends Model
     protected function casts(): array
     {
         return ['is_internal' => 'boolean'];
+    }
+
+    /** @return HasMany<TicketAttachment, $this> */
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(TicketAttachment::class);
     }
 
     /** @return BelongsTo<Ticket, $this> */

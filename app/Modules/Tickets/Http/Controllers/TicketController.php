@@ -5,17 +5,21 @@ namespace App\Modules\Tickets\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
 use App\Modules\Tickets\Models\Ticket;
+use App\Modules\Tickets\Models\TicketAttachment;
+use App\Modules\Tickets\Support\TicketAttachments;
 use App\Modules\Tickets\Support\TicketService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /** Tickets aus Sicht der anfragenden Person: eigene Tickets, anlegen, im Ticket schreiben, schließen. Das Team sieht dieselbe Seite mit zusätzlichen Möglichkeiten. */
 class TicketController extends Controller
 {
-    public function __construct(private readonly TicketService $tickets) {}
+    public function __construct(private readonly TicketService $tickets, private readonly TicketAttachments $attachments) {}
 
     public function index(): View
     {
@@ -35,11 +39,15 @@ class TicketController extends Controller
             'subject' => ['required', 'string', 'max:200'],
             'category' => ['required', Rule::in(array_keys(Ticket::CATEGORIES))],
             'message' => ['required', 'string', 'max:10000'],
+            'files' => ['nullable', 'array', 'max:'.TicketAttachments::MAX_FILES], 'files.*' => ['file'],
         ], ['subject.required' => 'Bitte geben Sie einen Betreff ein.', 'message.required' => 'Bitte beschreiben Sie Ihr Anliegen.', 'message.max' => 'Die Nachricht darf höchstens 10.000 Zeichen lang sein.']);
 
         $ticket = $this->tickets->create($this->user(), $data);
+        $problems = $this->attachments->addMany($ticket, $ticket->messages()->first(), $request->file('files', []), $this->user());
 
-        return redirect()->route('support.show', $ticket)->with('success', 'Ihr Ticket '.$ticket->reference().' wurde angelegt. Wir melden uns hier im Ticket bei Ihnen.');
+        $redirect = redirect()->route('support.show', $ticket)->with('success', 'Ihr Ticket '.$ticket->reference().' wurde angelegt. Wir melden uns hier im Ticket bei Ihnen.');
+
+        return $problems === [] ? $redirect : $redirect->withErrors(['files' => implode(' ', $problems)]);
     }
 
     public function show(Ticket $ticket): View
@@ -49,7 +57,7 @@ class TicketController extends Controller
 
         $handler = $user->can('tickets.handle');
         $ticket->load(['requester.person', 'assignee.person']);
-        $messages = $ticket->messages()->with('author.person')->when(! $handler, fn ($query) => $query->where('is_internal', false))->get();
+        $messages = $ticket->messages()->with(['author.person', 'attachments'])->when(! $handler, fn ($query) => $query->where('is_internal', false))->get();
         $events = $ticket->events()->with('actor.person')->get();
 
         // Nachrichten und Verlauf in einer Zeitleiste
@@ -68,12 +76,33 @@ class TicketController extends Controller
         $user = $this->user();
         abort_unless(TicketService::canView($user, $ticket), 404);
 
-        $data = $request->validate(['body' => ['required', 'string', 'max:10000'], 'internal' => ['nullable', 'boolean']], ['body.required' => 'Bitte schreiben Sie eine Nachricht.']);
+        $data = $request->validate([
+            'body' => ['required', 'string', 'max:10000'], 'internal' => ['nullable', 'boolean'],
+            'files' => ['nullable', 'array', 'max:'.TicketAttachments::MAX_FILES], 'files.*' => ['file'],
+        ], ['body.required' => 'Bitte schreiben Sie eine Nachricht.']);
         $internal = $request->boolean('internal') && $user->can('tickets.handle');
 
-        $this->tickets->post($ticket, $user, $data['body'], $internal);
+        $message = $this->tickets->post($ticket, $user, $data['body'], $internal);
+        $problems = $this->attachments->addMany($ticket, $message, $request->file('files', []), $user);
 
-        return redirect()->to(route('support.show', $ticket).'#verlauf')->with('success', $internal ? 'Die interne Notiz wurde gespeichert.' : 'Ihre Nachricht wurde gesendet.');
+        $redirect = redirect()->to(route('support.show', $ticket).'#verlauf')->with('success', $internal ? 'Die interne Notiz wurde gespeichert.' : 'Ihre Nachricht wurde gesendet.');
+
+        return $problems === [] ? $redirect : $redirect->withErrors(['files' => implode(' ', $problems)]);
+    }
+
+    /** Anhang herunterladen: nur für die anfragende Person und das Team; Anhänge interner Notizen nur für das Team. */
+    public function download(Ticket $ticket, TicketAttachment $attachment): StreamedResponse
+    {
+        $user = $this->user();
+        abort_unless(TicketService::canView($user, $ticket) && $attachment->ticket_id === $ticket->id, 404);
+
+        if ($attachment->ticket_message_id !== null && ! $user->can('tickets.handle')) {
+            abort_if($ticket->messages()->whereKey($attachment->ticket_message_id)->where('is_internal', true)->exists(), 404);
+        }
+
+        abort_unless(Storage::disk(TicketAttachment::DISK)->exists($attachment->path), 404);
+
+        return Storage::disk(TicketAttachment::DISK)->download($attachment->path, $attachment->original_name, ['Content-Type' => $attachment->mime, 'X-Content-Type-Options' => 'nosniff']);
     }
 
     /** Die anfragende Person schließt ihr Ticket (z. B. wenn sich die Frage erledigt hat). */

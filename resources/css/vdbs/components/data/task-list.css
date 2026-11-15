@@ -49,3 +49,4 @@
 .vdbs-ticket-message__meta { margin: 0 0 var(--space-1); color: var(--text-muted); font-size: var(--font-size-small); }
 .vdbs-ticket-message__body { margin: 0; overflow-wrap: anywhere; }
 .vdbs-ticket-event { justify-self: center; color: var(--text-muted); font-size: var(--font-size-small); }
+.vdbs-ticket-message__files { margin: var(--space-2) 0 0; padding-left: var(--space-5); font-size: var(--font-size-small); }
