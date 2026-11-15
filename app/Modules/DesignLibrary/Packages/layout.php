@@ -28,6 +28,13 @@ return [
             ],
         ],
         [
+            'name' => 'area-hero',
+            'title' => 'Area Hero',
+            'description' => 'Kopfbereich der Startseite eines Bereichs: Bereichsfarbe, Icon, Titel, Begrüßung, Einleitung, Aktionen und eine Karte rechts.',
+            'status' => 'beta',
+            'width' => 'wide',
+        ],
+        [
             'name' => 'container',
             'title' => 'Container',
             'description' => 'Container: begrenzt die Inhaltsbreite und setzt den Seitenrand.',

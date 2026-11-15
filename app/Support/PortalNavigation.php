@@ -309,6 +309,7 @@ final class PortalNavigation
             $visible[] = [
                 'label' => $page['label'],
                 'description' => $page['description'] ?? null,
+                'icon' => $page['icon'] ?? self::iconFor((string) $page['route']),
                 'href' => $group ? $children[0]['href'] : route($page['route'], $page['params'] ?? []).(isset($page['fragment']) ? '#'.$page['fragment'] : ''),
                 'current' => $current,
                 'active' => $current || array_filter($children, fn (array $child): bool => $child['active']) !== [],
@@ -318,6 +319,24 @@ final class PortalNavigation
         }
 
         return $visible;
+    }
+
+    /** Icon einer Seite für die Karten auf den Startseiten der Bereiche (nach Routenname; null: das Icon des Bereichs). */
+    public static function iconFor(string $routeName): ?string
+    {
+        foreach ([
+            'membership.*' => 'users', 'onboarding.*' => 'clipboard-list', 'team-onboarding.*' => 'clipboard-list', 'mailings.*' => 'mail', 'board.meetings.*' => 'calendar', 'board.resolutions.*' => 'landmark',
+            'board.reports*' => 'file', 'member.membership' => 'users', 'forms.*' => 'file', 'forms-office.*' => 'file', 'seminars.*' => 'graduation-cap', 'seminar-*' => 'file', 'partners.*' => 'school',
+            'feedback.*' => 'star', 'contracts.*' => 'file', 'letters.*' => 'pencil', 'events.*' => 'ticket', 'team.*' => 'user', 'school.*' => 'school', 'admin.users.*' => 'users', 'access-requests.*' => 'key-round',
+            'admin.people.*' => 'user', 'contacts.*' => 'mail', 'articles.*' => 'book-open', 'pages.*' => 'file', 'contact-admin.*' => 'mail', 'faq-admin.*' => 'circle-help', 'system.*' => 'settings',
+            'admin.audit.*' => 'shield', 'admin.oauth.*' => 'link', 'design-library.*' => 'layout-dashboard', 'tasks.*' => 'square-kanban', 'account.*' => 'user', 'education.*' => 'graduation-cap',
+        ] as $pattern => $icon) {
+            if (Str::is($pattern, $routeName)) {
+                return $icon;
+            }
+        }
+
+        return null;
     }
 
     /** Startseite eines Bereichs: erreichbar über den Bereichstitel im Kopfbereich und als erste Brotkrume. */

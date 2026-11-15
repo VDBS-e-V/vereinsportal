@@ -36,12 +36,36 @@ class PortalAreaController extends Controller
 {
     public function __construct(private readonly OnboardingDocuments $documents) {}
 
+    /**
+     * Gemeinsame Angaben der Startseiten der Bereiche: Begrüßung und die Seiten des Bereichs als Karten (Gruppen werden in ihre Seiten aufgelöst, die Übersicht selbst entfällt).
+     *
+     * @return array{greeting: string, cards: list<array{title: string, href: string, text: ?string, icon: string}>}
+     */
+    private function home(PortalAreas $area, Request $request): array
+    {
+        $user = $request->user();
+        $name = trim((string) ($user->person?->first_name ?? ''));
+        $cards = [];
+
+        foreach (PortalNavigation::pages($area, $user, $request->route()?->getName()) as $page) {
+            if ($page['label'] === 'Übersicht') {
+                continue;
+            }
+
+            foreach ($page['group'] ? $page['children'] : [$page] as $entry) {
+                $cards[] = ['title' => $entry['label'], 'href' => $entry['href'], 'text' => $entry['description'], 'icon' => $entry['icon'] ?? $area->icon()];
+            }
+        }
+
+        return ['greeting' => $name !== '' ? 'Guten Tag, '.$name : 'Guten Tag', 'cards' => $cards];
+    }
+
     /** Mitgliederbereich: eigene Mitgliedschaft, Satzung und Willkommensbrief, offene Veranstaltungen, Kontakt zum Vorstand. */
     public function member(Request $request): View
     {
         $user = $request->user();
 
-        return view('portal.member', [
+        return view('portal.member', $this->home(PortalAreas::Mitglieder, $request) + [
             'person' => $user?->person,
             'membership' => $user?->person?->memberships()->orderByRaw("status IN ('requested','active') DESC")->orderByDesc('id')->first(),
             'documents' => collect(OnboardingDocumentKind::forMembers())->map(fn (OnboardingDocumentKind $kind): array => ['kind' => $kind, 'document' => $this->documents->current($kind)])->all(),
@@ -69,14 +93,14 @@ class PortalAreaController extends Controller
     }
 
     /** Vorstand: Kennzahlen zu Mitgliedschaften, Anträgen, Teamenden, Seminaren und Veranstaltungen. */
-    public function board(): View
+    public function board(Request $request): View
     {
         $running = fn ($query) => $query->where('status', MembershipStatus::Active->value)->where(fn ($end) => $end->whereNull('ends_on')->orWhere('ends_on', '>=', today()));
 
         $teamUsers = RoleAssignment::query()->where('starts_at', '<=', now())->where(fn ($query) => $query->whereNull('ends_at')->orWhere('ends_at', '>', now()))
             ->whereHas('role', fn ($query) => $query->where('key', RoleKey::Team->value))->distinct('user_id')->count('user_id');
 
-        return view('portal.board', ['stats' => [
+        return view('portal.board', $this->home(PortalAreas::Vorstand, $request) + ['stats' => [
             'members' => $running(Membership::query())->count(),
             'requested' => Membership::query()->where('status', MembershipStatus::Requested->value)->count(),
             'leaving' => $running(Membership::query())->whereNotNull('ends_on')->count(),

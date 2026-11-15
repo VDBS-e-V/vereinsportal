@@ -1,0 +1,31 @@
+/* Kopfbereich der Startseite eines Bereichs */
+
+.vdbs-area-hero {
+    --area-tone: var(--border-input);
+
+    margin-bottom: var(--space-6);
+    padding-block: var(--space-6);
+    border-top: 8px solid var(--area-tone);
+    border-bottom: var(--border-width) solid var(--border-default);
+    background: var(--bg-surface);
+}
+
+.vdbs-area-hero__inner { display: grid; gap: var(--space-5) var(--space-7, var(--space-6)); align-items: center; }
+@media (min-width: 64rem) { .vdbs-area-hero__inner:has(.vdbs-area-hero__aside) { grid-template-columns: minmax(0, 3fr) minmax(16rem, 2fr); } }
+
+.vdbs-area-hero__eyebrow { display: flex; align-items: center; gap: var(--space-3); margin: 0 0 var(--space-2); color: var(--text-muted); font-size: var(--font-size-small); font-weight: var(--font-weight-bold); text-transform: uppercase; letter-spacing: 0.04em; }
+.vdbs-area-hero__icon { display: inline-grid; place-items: center; width: 2.5rem; height: 2.5rem; background: color-mix(in srgb, var(--area-tone) 22%, var(--bg-page)); border: 2px solid var(--area-tone); color: var(--text-default); }
+
+.vdbs-area-hero__title { margin: 0; font-size: var(--font-size-display); font-weight: var(--font-weight-black); line-height: var(--line-height-heading); }
+.vdbs-area-hero__greeting { margin: var(--space-2) 0 0; font-size: var(--font-size-h4); font-weight: var(--font-weight-bold); }
+.vdbs-area-hero__lead { margin: var(--space-2) 0 0; max-width: var(--max-line-length); color: var(--text-muted); font-size: var(--font-size-body-lg); }
+.vdbs-area-hero__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-5); }
+
+.vdbs-area-hero__aside { padding: var(--space-4); border: var(--border-width) solid var(--border-default); border-left: 6px solid var(--area-tone); background: var(--bg-page); }
+.vdbs-area-hero__aside > :first-child { margin-top: 0; }
+.vdbs-area-hero__aside > :last-child { margin-bottom: 0; }
+
+.vdbs-area-hero__aside-label { margin: 0; color: var(--text-muted); font-size: var(--font-size-small); }
+.vdbs-area-hero__aside-value { margin: var(--space-1) 0 var(--space-2); font-size: var(--font-size-h3); font-weight: 700; }
+.vdbs-area-sections { display: grid; gap: var(--space-8); padding-block: var(--space-8); }
+.vdbs-area-sections > section > h2:first-child { margin-top: 0; }
