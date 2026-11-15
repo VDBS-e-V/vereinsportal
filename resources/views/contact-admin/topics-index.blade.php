@@ -38,12 +38,12 @@
             <x-slot:actions><x-vdbs.actions.button :href="route('contact-admin.topics.create')">Neues Thema</x-vdbs.actions.button></x-slot:actions>
         </x-vdbs.feedback.empty-state>
     @else
-        <form method="post" action="{{ route('contact-admin.topics.bulk') }}">
+        <form method="post" action="{{ route('contact-admin.topics.bulk') }}" id="bulk-contact-topics">
             @csrf
-            <x-vdbs.data.table caption="Themen des Kontaktbereichs" :columns="[['key' => 'sel', 'label' => 'Auswahl'], ['key' => 'title', 'label' => 'Bezeichnung'], ['key' => 'action', 'label' => 'Art'], ['key' => 'target', 'label' => 'Ziel'], ['key' => 'status', 'label' => 'Status']]">
+            <x-vdbs.data.table caption="Themen des Kontaktbereichs" :columns="[['key' => 'sel', 'label' => 'Auswahl', 'selectAll' => 'bulk-contact-topics'], ['key' => 'title', 'label' => 'Bezeichnung'], ['key' => 'action', 'label' => 'Art'], ['key' => 'target', 'label' => 'Ziel'], ['key' => 'status', 'label' => 'Status']]">
                 @foreach ($rows as [$topic, $level])
                     <tr>
-                        <td><input type="checkbox" name="ids[]" value="{{ $topic->id }}" aria-label="{{ $topic->title }} auswählen"></td>
+                        <x-vdbs.data.table-check name="ids[]" :value="$topic->id" :label="$topic->title.' auswählen'" form="bulk-contact-topics" />
                         <td style="padding-left:{{ $level * 1.5 }}rem">
                             <a href="{{ route('contact-admin.topics.edit', $topic) }}"><strong>{{ $topic->title }}</strong></a>
                             @if (filled($topic->description))<br><small>{{ $topic->description }}</small>@endif
@@ -71,6 +71,7 @@
                     <option value="delete">löschen</option>
                 </select>
                 <x-vdbs.actions.button type="submit" variant="secondary" size="s" onclick="return confirm('Aktion für die ausgewählten Themen ausführen?')">Ausführen</x-vdbs.actions.button>
+                <span class="vdbs-hint" role="status" data-vdbs-select-count="bulk-contact-topics"></span>
             </div>
         </form>
     @endif

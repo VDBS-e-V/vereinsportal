@@ -2,14 +2,16 @@
     $editing = $category->exists;
     $title = $editing ? 'Kategorie bearbeiten' : 'Neue Kategorie';
     $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Geschäftsstelle'], ['label' => 'FAQ', 'href' => route('faq-admin.index')], ['label' => $title]];
-    $rows = array_values((array) old('entries', $entries));
-    $next = count($rows);
-    $rows[$next] = [];
-    $nextIndex = $next + 1;
 @endphp
 
-<x-layouts.app :title="$title" width="wide">
-    <x-vdbs.layout.page-header :title="$title" lead="Eine Kategorie fasst zusammen, was zusammengehört (z. B. „Zugang beantragen“). Kontaktthemen können auf eine Kategorie verweisen." :breadcrumb="$crumbs" />
+<x-layouts.app :title="$title" width="medium">
+    <x-vdbs.layout.page-header :title="$title" lead="Eine Kategorie fasst zusammen, was zusammengehört (z. B. „Zugang beantragen“). Kontaktthemen können auf eine Kategorie verweisen." :breadcrumb="$crumbs">
+        @if ($editing)
+            <x-slot:actions>
+                <x-vdbs.actions.button :href="route('faq-admin.entries.index', $category)" variant="secondary" icon="pencil">Fragen bearbeiten</x-vdbs.actions.button>
+            </x-slot:actions>
+        @endif
+    </x-vdbs.layout.page-header>
 
     <x-vdbs.forms.form :action="$editing ? route('faq-admin.update', $category) : route('faq-admin.store')" :method="$editing ? 'put' : 'post'">
         <x-vdbs.forms.form-section title="Kategorie">
@@ -20,24 +22,8 @@
             <x-vdbs.forms.checkbox name="in_faq_page" label="Auf der großen FAQ-Seite zeigen" :checked="(bool) old('in_faq_page', $category->in_faq_page)" hint="Ohne Häkchen erscheinen die Fragen nur dort, wo ein Kontaktthema auf diese Kategorie verweist." />
         </x-vdbs.forms.form-section>
 
-        <x-vdbs.forms.form-section title="Fragen und Antworten" description="Leere Zeilen werden ignoriert, die Reihenfolge ist die der Zeilen. In der Antwort gilt: Leerzeile = neuer Absatz, Zeilen mit „- “ = Liste, **fett**, [Text](/pfad) für Links im Portal oder [Text](https://adresse) für externe Seiten.">
-            <div data-vdbs-repeater data-vdbs-repeater-next="{{ $nextIndex }}">
-                <div data-vdbs-repeater-items>
-                    @foreach ($rows as $i => $row)
-                        <x-faq-admin.entry-row :i="$i" :row="$row" />
-                    @endforeach
-                </div>
-
-                <template data-vdbs-repeater-template>
-                    <x-faq-admin.entry-row i="__INDEX__" />
-                </template>
-
-                <x-vdbs.actions.button type="button" variant="secondary" size="m" class="vdbs-js-only" data-vdbs-repeater-add icon="plus">Weitere Frage hinzufügen</x-vdbs.actions.button>
-            </div>
-        </x-vdbs.forms.form-section>
-
         <x-slot:actions>
-            <x-vdbs.actions.button type="submit" icon="save">Speichern</x-vdbs.actions.button>
+            <x-vdbs.actions.button type="submit" icon="save">{{ $editing ? 'Speichern' : 'Anlegen und Fragen erfassen' }}</x-vdbs.actions.button>
             <x-vdbs.actions.button variant="text" :href="route('faq-admin.index')">Abbrechen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>

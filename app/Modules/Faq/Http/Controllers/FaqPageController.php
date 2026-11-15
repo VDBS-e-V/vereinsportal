@@ -15,7 +15,7 @@ class FaqPageController extends Controller
         $query = trim((string) $request->query('q', ''));
         $words = array_slice(array_values(array_filter(preg_split('/\s+/u', mb_strtolower($query)) ?: [])), 0, 6);
 
-        $categories = FaqCategory::query()->active()->where('in_faq_page', true)->with('entries')->orderBy('sort_order')->orderBy('title')->get();
+        $categories = FaqCategory::query()->active()->where('in_faq_page', true)->with(['entries' => fn ($entries) => $entries->where('is_active', true)])->orderBy('sort_order')->orderBy('title')->get();
 
         if ($words !== []) {
             $categories->each(fn (FaqCategory $category) => $category->setRelation('entries', $category->entries->filter(function ($entry) use ($words): bool {

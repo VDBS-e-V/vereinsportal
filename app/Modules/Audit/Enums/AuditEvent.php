@@ -130,6 +130,8 @@ enum AuditEvent: string
     case ContactFormDeleted = 'contact_forms.form_deleted';
     case FaqCategorySaved = 'faq.category_saved';
     case FaqCategoryDeleted = 'faq.category_deleted';
+    case FaqEntrySaved = 'faq.entry_saved';
+    case FaqEntryDeleted = 'faq.entry_deleted';
 
     public function label(): string
     {
@@ -241,6 +243,8 @@ enum AuditEvent: string
             self::ContactFormDeleted => 'Kontaktformular gelöscht',
             self::FaqCategorySaved => 'FAQ-Kategorie gespeichert',
             self::FaqCategoryDeleted => 'FAQ-Kategorie gelöscht',
+            self::FaqEntrySaved => 'FAQ-Frage gespeichert',
+            self::FaqEntryDeleted => 'FAQ-Frage gelöscht',
         };
     }
 
@@ -272,7 +276,7 @@ enum AuditEvent: string
             self::BoardCalendarChanged, self::BoardMeetingSaved, self::BoardMeetingDeleted, self::BoardMinutesApproved, self::BoardDocumentAdded, self::BoardDocumentRemoved, self::BoardInvitationSent, self::BoardGuestsChanged, self::BoardResolutionSaved, self::BoardResolutionDeleted => 'board',
             self::TaskProjectSaved, self::TaskProjectDeleted, self::TaskSaved, self::TaskDeleted => 'tasks',
             self::ContactTopicSaved, self::ContactTopicDeleted, self::ContactFormSaved, self::ContactFormDeleted => 'contact_forms',
-            self::FaqCategorySaved, self::FaqCategoryDeleted => 'faq',
+            self::FaqCategorySaved, self::FaqCategoryDeleted, self::FaqEntrySaved, self::FaqEntryDeleted => 'faq',
         };
     }
 
@@ -313,7 +317,7 @@ enum AuditEvent: string
     public function tone(): string
     {
         return match ($this) {
-            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::EventDeleted, self::OauthClientDeleted, self::BoardMeetingDeleted, self::BoardResolutionDeleted, self::TaskProjectDeleted, self::ContactTopicDeleted, self::ContactFormDeleted, self::FaqCategoryDeleted => 'error',
+            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::SeminarDeleted, self::SeminarQuoteDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::EventDeleted, self::OauthClientDeleted, self::BoardMeetingDeleted, self::BoardResolutionDeleted, self::TaskProjectDeleted, self::ContactTopicDeleted, self::ContactFormDeleted, self::FaqCategoryDeleted, self::FaqEntryDeleted => 'error',
             self::SystemTaskRun, self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
             self::Login, self::UserEnabled, self::TwoFactorEnabled, self::TeamOnboardingCompleted => 'success',
             default => 'neutral',

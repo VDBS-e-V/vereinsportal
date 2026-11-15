@@ -5,11 +5,12 @@
 <x-layouts.app :title="$topic->title" width="medium">
     <x-vdbs.layout.page-header :title="$topic->title" :lead="$topic->description" :breadcrumb="$crumbs" />
 
-    @if ($category === null || $category->entries->isEmpty())
+    @php $entries = $category?->entries->where('is_active', true) ?? collect(); @endphp
+    @if ($entries->isEmpty())
         <p>Zu diesem Thema gibt es noch keine Fragen und Antworten.</p>
     @else
         <x-vdbs.disclosure.accordion>
-            @foreach ($category->entries as $entry)
+            @foreach ($entries as $entry)
                 <x-vdbs.disclosure.accordion-item :title="$entry->question" :level="2">
                     {{ \App\Modules\Faq\Support\FaqText::html($entry->answer) }}
                 </x-vdbs.disclosure.accordion-item>

@@ -25,12 +25,12 @@
                 <x-slot:actions><x-vdbs.actions.button :href="route('mailings.templates.create')">Neue Vorlage</x-vdbs.actions.button></x-slot:actions>
             </x-vdbs.feedback.empty-state>
         @else
-            <form method="post" action="{{ route('mailings.templates.destroy-many') }}">
+            <form method="post" action="{{ route('mailings.templates.destroy-many') }}" id="bulk-mail-templates">
             @csrf
-            <x-vdbs.data.table caption="Vorlagen für Rundschreiben" :columns="[['key' => 'sel', 'label' => 'Auswahl'], ['key' => 'name', 'label' => 'Name'], ['key' => 'category', 'label' => 'Kategorie'], ['key' => 'subject', 'label' => 'Betreff'], ['key' => 'changed', 'label' => 'Geändert']]">
+            <x-vdbs.data.table caption="Vorlagen für Rundschreiben" :columns="[['key' => 'sel', 'label' => 'Auswahl', 'selectAll' => 'bulk-mail-templates'], ['key' => 'name', 'label' => 'Name'], ['key' => 'category', 'label' => 'Kategorie'], ['key' => 'subject', 'label' => 'Betreff'], ['key' => 'changed', 'label' => 'Geändert']]">
                 @foreach ($templates as $template)
                     <tr class="vdbs-table__row--link">
-                        <td><input type="checkbox" name="ids[]" value="{{ $template->id }}" aria-label="{{ $template->name }} auswählen"></td>
+                        <x-vdbs.data.table-check name="ids[]" :value="$template->id" :label="$template->name.' auswählen'" form="bulk-mail-templates" />
                         <td><a class="vdbs-table__row-link" href="{{ route('mailings.templates.edit', $template) }}">{{ $template->name }}</a>@if (filled($template->description))<br><small>{{ $template->description }}</small>@endif</td>
                         <td>{{ \App\Modules\Mailings\Support\MailCategories::templateLabel($template->category) }}</td>
                         <td>{{ $template->subject }}</td>

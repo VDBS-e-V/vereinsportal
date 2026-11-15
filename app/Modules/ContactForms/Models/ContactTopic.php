@@ -74,7 +74,7 @@ class ContactTopic extends Model
     {
         return match ($this->action) {
             'form', 'default' => $this->targetForm() !== null,
-            'faq' => ($this->faqCategory !== null && $this->faqCategory->is_active && $this->faqCategory->entries->isNotEmpty()) || ($this->faq_offer_form && ($this->targetForm() ?? ContactForm::standard()) !== null),
+            'faq' => ($this->faqCategory !== null && $this->faqCategory->is_active && $this->faqCategory->entries->where('is_active', true)->isNotEmpty()) || ($this->faq_offer_form && ($this->targetForm() ?? ContactForm::standard()) !== null),
             'link' => filled($this->target_url),
             default => false,
         };

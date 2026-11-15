@@ -15,13 +15,13 @@
             <x-slot:actions><x-vdbs.actions.button :href="route('mailings.segments.create')">Neuer Verteiler</x-vdbs.actions.button></x-slot:actions>
         </x-vdbs.feedback.empty-state>
     @else
-        <form method="post" action="{{ route('mailings.segments.destroy-many') }}">
+        <form method="post" action="{{ route('mailings.segments.destroy-many') }}" id="bulk-segments">
             @csrf
-            <x-vdbs.data.table caption="Verteiler" :columns="[['key' => 'sel', 'label' => 'Auswahl'], ['key' => 'name', 'label' => 'Name'], ['key' => 'count', 'label' => 'Erreichbar jetzt'], ['key' => 'visible', 'label' => 'Nutzbar von']]">
+            <x-vdbs.data.table caption="Verteiler" :columns="[['key' => 'sel', 'label' => 'Auswahl', 'selectAll' => 'bulk-segments'], ['key' => 'name', 'label' => 'Name'], ['key' => 'count', 'label' => 'Erreichbar jetzt'], ['key' => 'visible', 'label' => 'Nutzbar von']]">
                 @foreach ($rows as $row)
                     @php $segment = $row['segment']; @endphp
                     <tr class="vdbs-table__row--link">
-                        <td><input type="checkbox" name="ids[]" value="{{ $segment->id }}" aria-label="{{ $segment->name }} auswählen"></td>
+                        <x-vdbs.data.table-check name="ids[]" :value="$segment->id" :label="$segment->name.' auswählen'" form="bulk-segments" />
                         <td><a class="vdbs-table__row-link" href="{{ route('mailings.segments.edit', $segment) }}">{{ $segment->name }}</a>@if (filled($segment->description))<br><small>{{ $segment->description }}</small>@endif</td>
                         <td>{{ $row['count'] }}@if ($row['count'] === 0) <x-vdbs.data.badge tone="warning">Niemand</x-vdbs.data.badge>@endif</td>
                         <td>{{ collect((array) $segment->visible_to)->map(fn ($key) => \App\Modules\Mailings\Models\MailSegment::AREAS[$key] ?? $key)->implode(', ') }}</td>

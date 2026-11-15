@@ -7,14 +7,11 @@ use App\Modules\Access\Models\User;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Faq\Models\FaqCategory;
-use App\Modules\Faq\Models\FaqEntry;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 
 /** Verwaltung der FAQ: Kategorien mit ihren Fragen und Antworten. Berechtigung faq.manage. */
 class FaqAdminController extends Controller
@@ -26,43 +23,28 @@ class FaqAdminController extends Controller
 
     public function create(): View
     {
-        return view('faq-admin.form', ['category' => new FaqCategory(['is_active' => true, 'in_faq_page' => true, 'sort_order' => 0]), 'entries' => []]);
+        return view('faq-admin.form', ['category' => new FaqCategory(['is_active' => true, 'in_faq_page' => true, 'sort_order' => 0])]);
     }
 
     public function store(Request $request): RedirectResponse
     {
-        [$attributes, $entries] = $this->validated($request);
+        $category = FaqCategory::query()->create($this->validated($request));
 
-        $category = DB::transaction(function () use ($attributes, $entries): FaqCategory {
-            $category = FaqCategory::query()->create($attributes);
-            $this->syncEntries($category, $entries);
+        AuditLog::record(AuditEvent::FaqCategorySaved, $this->user(), null, ['kategorie' => $category->title]);
 
-            return $category;
-        });
-
-        AuditLog::record(AuditEvent::FaqCategorySaved, $this->user(), null, ['kategorie' => $category->title, 'fragen' => count($entries)]);
-
-        return redirect()->route('faq-admin.index')->with('success', 'Die Kategorie „'.$category->title.'“ wurde angelegt.');
+        return redirect()->route('faq-admin.entries.index', $category)->with('success', 'Die Kategorie „'.$category->title.'“ wurde angelegt. Legen Sie jetzt die Fragen an.');
     }
 
     public function edit(FaqCategory $category): View
     {
-        return view('faq-admin.form', [
-            'category' => $category,
-            'entries' => $category->entries()->get(['question', 'answer'])->map(fn ($entry): array => ['question' => $entry->question, 'answer' => $entry->answer])->all(),
-        ]);
+        return view('faq-admin.form', ['category' => $category]);
     }
 
     public function update(Request $request, FaqCategory $category): RedirectResponse
     {
-        [$attributes, $entries] = $this->validated($request);
+        $category->update($this->validated($request));
 
-        DB::transaction(function () use ($category, $attributes, $entries): void {
-            $category->update($attributes);
-            $this->syncEntries($category, $entries);
-        });
-
-        AuditLog::record(AuditEvent::FaqCategorySaved, $this->user(), null, ['kategorie' => $category->title, 'fragen' => count($entries)]);
+        AuditLog::record(AuditEvent::FaqCategorySaved, $this->user(), null, ['kategorie' => $category->title]);
 
         return redirect()->route('faq-admin.index')->with('success', 'Die Kategorie „'.$category->title.'“ wurde gespeichert.');
     }
@@ -109,59 +91,22 @@ class FaqAdminController extends Controller
         });
     }
 
-    /** @return array{0: array<string, mixed>, 1: list<array{question: string, answer: string}>} */
+    /** @return array<string, mixed> */
     private function validated(Request $request): array
     {
         $data = $request->validate([
             'title' => ['required', 'string', 'max:150'],
             'description' => ['nullable', 'string', 'max:250'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:9999'],
-            'entries' => ['nullable', 'array', 'max:100'],
-            'entries.*.question' => ['nullable', 'string', 'max:250'],
-            'entries.*.answer' => ['nullable', 'string', 'max:5000'],
         ], ['title.required' => 'Bitte geben Sie eine Bezeichnung ein.']);
 
-        $entries = [];
-        $incomplete = false;
-
-        foreach ((array) ($data['entries'] ?? []) as $row) {
-            $question = trim((string) ($row['question'] ?? ''));
-            $answer = trim((string) ($row['answer'] ?? ''));
-
-            if ($question === '' && $answer === '') {
-                continue;
-            }
-
-            if ($question === '' || $answer === '') {
-                $incomplete = true;
-
-                continue;
-            }
-
-            $entries[] = ['question' => $question, 'answer' => $answer];
-        }
-
-        if ($incomplete) {
-            throw ValidationException::withMessages(['entries' => 'Zu jeder Frage gehört eine Antwort und umgekehrt.']);
-        }
-
-        return [[
+        return [
             'title' => trim($data['title']),
             'description' => filled($data['description'] ?? null) ? trim($data['description']) : null,
             'sort_order' => (int) ($data['sort_order'] ?? 0),
             'in_faq_page' => $request->boolean('in_faq_page'),
             'is_active' => $request->boolean('is_active'),
-        ], $entries];
-    }
-
-    /** @param list<array{question: string, answer: string}> $entries */
-    private function syncEntries(FaqCategory $category, array $entries): void
-    {
-        FaqEntry::query()->where('faq_category_id', $category->id)->delete();
-
-        foreach ($entries as $index => $entry) {
-            $category->entries()->create($entry + ['sort_order' => ($index + 1) * 10]);
-        }
+        ];
     }
 
     private function user(): User

@@ -92,50 +92,126 @@ it('moved the questions of the former contact topics into categories', function 
 // ---------- Verwaltung ----------
 
 it('keeps the faq administration to administration and the office', function () {
+    $category = fqCategory('Zugang beantragen');
+
     $this->get(route('faq-admin.index'))->assertRedirect(route('login'));
     $this->actingAs(fqUser(RoleKey::Team))->get(route('faq-admin.index'))->assertForbidden();
+    $this->actingAs(fqUser(RoleKey::Team))->get(route('faq-admin.entries.index', $category))->assertForbidden();
     $this->actingAs(fqUser(RoleKey::Coordination))->get(route('faq-admin.create'))->assertForbidden();
 
     foreach ([RoleKey::Administration, RoleKey::AdministrationStaff] as $role) {
         $this->actingAs(fqUser($role));
         $this->get(route('faq-admin.index'))->assertOk()->assertSee('Konto, E-Mail-Adresse und Daten');
         $this->get(route('faq-admin.create'))->assertOk();
-        $this->get(route('faq-admin.edit', fqCategory('Zugang beantragen')))->assertOk()->assertSee('Wer kann Zugang zum Portal beantragen?');
+        $this->get(route('faq-admin.edit', $category))->assertOk()->assertSee('Fragen bearbeiten');
+        $this->get(route('faq-admin.entries.index', $category))->assertOk()->assertSee('Wer kann Zugang zum Portal beantragen?');
+        $this->get(route('faq-admin.entries.create', $category))->assertOk();
+        $this->get(route('faq-admin.entries.edit', [$category, $category->entries->first()]))->assertOk()->assertSee('Frage bearbeiten');
     }
 
     $this->actingAs(fqUser(RoleKey::AdministrationStaff))->get(route('office.home'))->assertSee('FAQ');
 });
 
-it('creates a category with questions, changes and deletes it', function () {
+it('shows the questions as a table with the own selection boxes of the design system', function () {
+    $this->actingAs(fqUser(RoleKey::Administration));
+    $category = fqCategory('Zugang beantragen');
+
+    $html = $this->get(route('faq-admin.entries.index', $category))->assertOk()->getContent();
+
+    expect($html)->toContain('<table')->toContain('data-vdbs-select-all="bulk-faq-entries"')->toContain('class="vdbs-table__select"')->toContain('class="vdbs-choice__input" type="checkbox" name="ids[]"')->toContain('form="bulk-faq-entries"')
+        ->toContain(route('faq-admin.entries.edit', [$category, $category->entries->first()]))
+        ->and(substr_count($html, 'name="ids[]"'))->toBe($category->entries->count());
+
+    // keine rohen Kästchen mehr in den Tabellen der Verwaltung
+    foreach ([route('faq-admin.index'), route('contact-admin.topics.index'), route('contact-admin.forms.index')] as $url) {
+        $page = $this->get($url)->assertOk()->getContent();
+
+        expect($page)->toContain('class="vdbs-table__select"')->not->toMatch('/<input type="checkbox" name="ids\[\]"/');
+    }
+});
+
+it('creates a category and then its questions on their own pages', function () {
     $this->actingAs(fqUser(RoleKey::AdministrationStaff));
 
-    $this->post(route('faq-admin.store'), [
-        'title' => 'Veranstaltungen', 'description' => 'Rund um Termine', 'sort_order' => 3, 'is_active' => '1', 'in_faq_page' => '1',
-        'entries' => [['question' => 'Wo finde ich Termine?', 'answer' => "Im Kalender.\n\n- Eins\n- Zwei"], ['question' => '', 'answer' => ''], ['question' => 'Kostet das etwas?', 'answer' => 'Nein.']],
-    ])->assertRedirect(route('faq-admin.index'))->assertSessionHas('success');
-
+    $response = $this->post(route('faq-admin.store'), ['title' => 'Veranstaltungen', 'description' => 'Rund um Termine', 'sort_order' => 3, 'is_active' => '1', 'in_faq_page' => '1']);
     $category = fqCategory('Veranstaltungen');
 
-    expect($category->entries)->toHaveCount(2)->and($category->entries->first()->question)->toBe('Wo finde ich Termine?');
+    $response->assertRedirect(route('faq-admin.entries.index', $category))->assertSessionHas('success');
+
+    $this->post(route('faq-admin.entries.store', $category), ['question' => 'Wo finde ich Termine?', 'answer' => "Im Kalender.\n\n- Eins\n- Zwei", 'sort_order' => 10, 'is_active' => '1'])->assertRedirect(route('faq-admin.entries.index', $category));
+
+    $entry = $category->entries()->firstOrFail();
+
+    expect($entry->question)->toBe('Wo finde ich Termine?')->and($entry->is_active)->toBeTrue();
 
     $this->get(route('portal.faq'))->assertSee('Wo finde ich Termine?')->assertSee('<li>Eins</li>', false);
 
-    $this->put(route('faq-admin.update', $category), ['title' => 'Veranstaltungen und Termine', 'is_active' => '1', 'in_faq_page' => '1', 'entries' => [['question' => 'Nur eine?', 'answer' => 'Ja.']]])->assertRedirect(route('faq-admin.index'));
+    $this->put(route('faq-admin.entries.update', [$category, $entry]), ['question' => 'Wo gibt es Termine?', 'answer' => 'Im Kalender.', 'sort_order' => 20])->assertRedirect(route('faq-admin.entries.index', $category));
 
-    expect($category->fresh()->title)->toBe('Veranstaltungen und Termine')->and($category->fresh()->entries)->toHaveCount(1);
+    expect($entry->fresh()->question)->toBe('Wo gibt es Termine?')->and($entry->fresh()->is_active)->toBeFalse();
+    $this->get(route('portal.faq'))->assertDontSee('Wo gibt es Termine?');
+
+    $this->put(route('faq-admin.update', $category), ['title' => 'Veranstaltungen und Termine', 'is_active' => '1', 'in_faq_page' => '1'])->assertRedirect(route('faq-admin.index'));
+    expect($category->fresh()->title)->toBe('Veranstaltungen und Termine');
+
+    $this->delete(route('faq-admin.entries.destroy', [$category, $entry]))->assertRedirect(route('faq-admin.entries.index', $category));
+    expect(FaqEntry::query()->whereKey($entry->id)->exists())->toBeFalse();
 
     $this->delete(route('faq-admin.destroy', $category))->assertRedirect(route('faq-admin.index'));
-
-    expect(FaqCategory::query()->whereKey($category->id)->exists())->toBeFalse()->and(FaqEntry::query()->where('faq_category_id', $category->id)->count())->toBe(0);
+    expect(FaqCategory::query()->whereKey($category->id)->exists())->toBeFalse();
 });
 
-it('validates the faq categories', function () {
+it('does not touch a question through another category', function () {
     $this->actingAs(fqUser(RoleKey::Administration));
+    $entry = fqCategory('Zugang beantragen')->entries->first();
+    $other = fqCategory('Mitgliedschaft');
+
+    $this->get(route('faq-admin.entries.edit', [$other, $entry]))->assertNotFound();
+    $this->put(route('faq-admin.entries.update', [$other, $entry]), ['question' => 'X', 'answer' => 'Y'])->assertNotFound();
+    $this->delete(route('faq-admin.entries.destroy', [$other, $entry]))->assertNotFound();
+
+    expect($entry->fresh()->question)->not->toBe('X');
+});
+
+it('validates the faq categories and questions', function () {
+    $this->actingAs(fqUser(RoleKey::Administration));
+    $category = fqCategory('Zugang beantragen');
 
     $this->post(route('faq-admin.store'), ['title' => ''])->assertSessionHasErrors('title');
-    $this->post(route('faq-admin.store'), ['title' => 'A', 'entries' => [['question' => 'Nur Frage', 'answer' => '']]])->assertSessionHasErrors('entries');
-    $this->post(route('faq-admin.store'), ['title' => 'A', 'entries' => [['question' => '', 'answer' => 'Nur Antwort']]])->assertSessionHasErrors('entries');
     $this->post(route('faq-admin.store'), ['title' => str_repeat('x', 151)])->assertSessionHasErrors('title');
+    $this->post(route('faq-admin.entries.store', $category), ['question' => '', 'answer' => 'Antwort'])->assertSessionHasErrors('question');
+    $this->post(route('faq-admin.entries.store', $category), ['question' => 'Frage', 'answer' => ''])->assertSessionHasErrors('answer');
+    $this->post(route('faq-admin.entries.store', $category), ['question' => 'Frage', 'answer' => str_repeat('x', 5001)])->assertSessionHasErrors('answer');
+});
+
+it('handles several questions at once: hide, show, move and delete', function () {
+    $this->actingAs(fqUser(RoleKey::Administration));
+    $category = fqCategory('Zugang beantragen');
+    $target = fqCategory('Mitgliedschaft');
+    $ids = $category->entries->take(2)->pluck('id')->all();
+    $questions = $category->entries->take(2)->pluck('question')->all();
+    $route = route('faq-admin.entries.bulk', $category);
+
+    $this->post($route, ['ids' => $ids, 'aktion' => 'deactivate'])->assertRedirect()->assertSessionHas('success');
+    expect(FaqEntry::query()->whereIn('id', $ids)->where('is_active', true)->count())->toBe(0);
+    $this->get(route('portal.faq'))->assertDontSee($questions[0]);
+
+    $this->post($route, ['ids' => $ids, 'aktion' => 'activate'])->assertRedirect();
+    $this->get(route('portal.faq'))->assertSee($questions[0]);
+
+    $this->post($route, ['ids' => $ids, 'aktion' => 'move'])->assertSessionHasErrors('ziel');
+    $this->post($route, ['ids' => $ids, 'aktion' => 'move', 'ziel' => $category->id])->assertSessionHasErrors('ziel');
+    $this->post($route, ['ids' => $ids, 'aktion' => 'move', 'ziel' => $target->id])->assertRedirect();
+    expect(FaqEntry::query()->whereIn('id', $ids)->where('faq_category_id', $target->id)->count())->toBe(2);
+
+    // Fragen anderer Kategorien in der Auswahl bleiben unberührt (sie gehören jetzt nicht mehr zu dieser Kategorie)
+    $this->post($route, ['ids' => $ids, 'aktion' => 'delete'])->assertRedirect();
+    expect(FaqEntry::query()->whereIn('id', $ids)->count())->toBe(2);
+
+    $this->post(route('faq-admin.entries.bulk', $target), ['ids' => $ids, 'aktion' => 'delete'])->assertRedirect();
+    expect(FaqEntry::query()->whereIn('id', $ids)->count())->toBe(0);
+
+    $this->post($route, ['ids' => [], 'aktion' => 'delete'])->assertSessionHasErrors('ids');
 });
 
 it('handles several faq categories at once', function () {
@@ -154,4 +230,20 @@ it('handles several faq categories at once', function () {
     expect(FaqCategory::query()->whereIn('id', $ids)->count())->toBe(0);
 
     $this->post(route('faq-admin.bulk'), ['ids' => []])->assertSessionHasErrors('ids');
+});
+
+it('keeps inactive questions off the contact topic page and counts only active ones', function () {
+    $category = fqCategory('Passwort vergessen oder Anmeldung klappt nicht');
+    $topic = \App\Modules\ContactForms\Models\ContactTopic::query()->where('title', 'Passwort vergessen oder Anmeldung klappt nicht')->firstOrFail();
+    $hidden = $category->entries->first();
+
+    $hidden->update(['is_active' => false]);
+
+    $this->get(route('portal.contact.topic', $topic))->assertOk()->assertDontSee($hidden->question)->assertSee($category->entries->last()->question);
+
+    // ohne aktive Fragen und ohne „Uns schreiben“ ist das Thema nicht erreichbar
+    $category->entries()->update(['is_active' => false]);
+    $topic->update(['faq_offer_form' => false]);
+
+    expect($topic->fresh()->isReachable())->toBeFalse();
 });

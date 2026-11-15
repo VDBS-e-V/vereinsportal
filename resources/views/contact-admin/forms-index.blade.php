@@ -11,12 +11,12 @@
 
     @include('contact-admin._nav', ['active' => 'forms'])
 
-    <form method="post" action="{{ route('contact-admin.forms.destroy-many') }}">
+    <form method="post" action="{{ route('contact-admin.forms.destroy-many') }}" id="bulk-contact-forms">
         @csrf
-        <x-vdbs.data.table caption="Kontaktformulare" :columns="[['key' => 'sel', 'label' => 'Auswahl'], ['key' => 'name', 'label' => 'Name'], ['key' => 'kind', 'label' => 'Art'], ['key' => 'to', 'label' => 'Empfänger'], ['key' => 'topics', 'label' => 'Themen'], ['key' => 'status', 'label' => 'Status']]">
+        <x-vdbs.data.table caption="Kontaktformulare" :columns="[['key' => 'sel', 'label' => 'Auswahl', 'selectAll' => 'bulk-contact-forms'], ['key' => 'name', 'label' => 'Name'], ['key' => 'kind', 'label' => 'Art'], ['key' => 'to', 'label' => 'Empfänger'], ['key' => 'topics', 'label' => 'Themen'], ['key' => 'status', 'label' => 'Status']]">
             @foreach ($forms as $form)
                 <tr>
-                    <td><input type="checkbox" name="ids[]" value="{{ $form->id }}" aria-label="{{ $form->name }} auswählen" @disabled($form->is_default)></td>
+                    <x-vdbs.data.table-check name="ids[]" :value="$form->id" :label="$form->name.' auswählen'" form="bulk-contact-forms" :disabled="$form->is_default" />
                     <td>
                         <a href="{{ route('contact-admin.forms.edit', $form) }}"><strong>{{ $form->name }}</strong></a>
                         @if ($form->is_default) <x-vdbs.data.badge tone="info">Standard</x-vdbs.data.badge>@endif

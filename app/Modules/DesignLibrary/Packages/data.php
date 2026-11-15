@@ -284,6 +284,13 @@ return [
             ],
         ],
         [
+            'name' => 'table-check',
+            'title' => 'Table Check',
+            'description' => 'Auswahlkästchen in einer Tabellenzeile (Zelle mit dem Kästchen des Designsystems), z. B. für Mehrfachauswahl; das Kopfkästchen wählt alle Zeilen.',
+            'status' => 'beta',
+            'width' => 'default',
+        ],
+        [
             'name' => 'kanban',
             'title' => 'Kanban',
             'description' => 'Kanban-Tafel: Spalten nebeneinander, Karten per Ziehen und Ablegen verschieben (JavaScript kanban.js), mit Alternative per Formular.',

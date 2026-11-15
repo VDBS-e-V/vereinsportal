@@ -22,14 +22,14 @@
             @endif
         </x-vdbs.feedback.empty-state>
     @else
-        <form method="post" action="{{ route('letters.destroy-many') }}">
+        <form method="post" action="{{ route('letters.destroy-many') }}" id="bulk-letters">
             @csrf
-            <x-vdbs.data.table caption="Briefvorlagen" :columns="array_values(array_filter([$canManage ? ['key' => 'sel', 'label' => 'Auswahl'] : null, ['key' => 'name', 'label' => 'Name'], ['key' => 'audience', 'label' => 'Für'], ['key' => 'vars', 'label' => 'Platzhalter'], ['key' => 'file', 'label' => 'Datei']]))">
+            <x-vdbs.data.table caption="Briefvorlagen" :columns="array_values(array_filter([$canManage ? ['key' => 'sel', 'label' => 'Auswahl', 'selectAll' => 'bulk-letters'] : null, ['key' => 'name', 'label' => 'Name'], ['key' => 'audience', 'label' => 'Für'], ['key' => 'vars', 'label' => 'Platzhalter'], ['key' => 'file', 'label' => 'Datei']]))">
                 @foreach ($templates as $template)
                     @php $unknown = $service->unknown($template->variableNames()); @endphp
                     <tr>
                         @if ($canManage)
-                            <td><input type="checkbox" name="ids[]" value="{{ $template->id }}" aria-label="{{ $template->name }} auswählen"></td>
+                            <x-vdbs.data.table-check name="ids[]" :value="$template->id" :label="$template->name.' auswählen'" form="bulk-letters" />
                         @endif
                         <td>
                             @if ($canManage)<a href="{{ route('letters.edit', $template) }}">{{ $template->name }}</a>@else {{ $template->name }} @endif

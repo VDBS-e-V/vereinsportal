@@ -3,7 +3,7 @@
 @endphp
 
 <x-layouts.app title="FAQ verwalten" width="wide">
-    <x-vdbs.layout.page-header title="FAQ" lead="Die Fragen und Antworten der FAQ-Seite des Portals, in Kategorien geordnet. Änderungen gelten sofort." :breadcrumb="$crumbs">
+    <x-vdbs.layout.page-header title="FAQ" lead="Die Kategorien der FAQ-Seite des Portals. Öffnen Sie eine Kategorie, um ihre Fragen und Antworten zu bearbeiten. Änderungen gelten sofort." :breadcrumb="$crumbs">
         <x-slot:actions>
             <x-vdbs.actions.button :href="route('portal.faq')" variant="secondary" icon="external-link">FAQ-Seite ansehen</x-vdbs.actions.button>
             <x-vdbs.actions.button :href="route('faq-admin.create')" icon="plus">Neue Kategorie</x-vdbs.actions.button>
@@ -16,14 +16,14 @@
             <x-slot:actions><x-vdbs.actions.button :href="route('faq-admin.create')">Neue Kategorie</x-vdbs.actions.button></x-slot:actions>
         </x-vdbs.feedback.empty-state>
     @else
-        <form method="post" action="{{ route('faq-admin.bulk') }}">
+        <form method="post" action="{{ route('faq-admin.bulk') }}" id="bulk-faq-categories">
             @csrf
-            <x-vdbs.data.table caption="FAQ-Kategorien" :columns="[['key' => 'sel', 'label' => 'Auswahl'], ['key' => 'title', 'label' => 'Kategorie'], ['key' => 'count', 'label' => 'Fragen'], ['key' => 'page', 'label' => 'Auf der FAQ-Seite'], ['key' => 'status', 'label' => 'Status']]">
+            <x-vdbs.data.table caption="FAQ-Kategorien" :columns="[['key' => 'sel', 'label' => 'Auswahl', 'selectAll' => 'bulk-faq-categories'], ['key' => 'title', 'label' => 'Kategorie'], ['key' => 'count', 'label' => 'Fragen'], ['key' => 'page', 'label' => 'Auf der FAQ-Seite'], ['key' => 'status', 'label' => 'Status'], ['key' => 'actions', 'label' => 'Aktionen']]">
                 @foreach ($categories as $category)
                     <tr>
-                        <td><input type="checkbox" name="ids[]" value="{{ $category->id }}" aria-label="{{ $category->title }} auswählen"></td>
+                        <x-vdbs.data.table-check name="ids[]" :value="$category->id" :label="$category->title.' auswählen'" form="bulk-faq-categories" />
                         <td>
-                            <a href="{{ route('faq-admin.edit', $category) }}"><strong>{{ $category->title }}</strong></a>
+                            <a href="{{ route('faq-admin.entries.index', $category) }}"><strong>{{ $category->title }}</strong></a>
                             @if (filled($category->description))<br><small>{{ $category->description }}</small>@endif
                         </td>
                         <td>{{ $category->entries_count }}</td>
@@ -34,6 +34,10 @@
                             @else
                                 <x-vdbs.data.badge tone="neutral">ausgeblendet</x-vdbs.data.badge>
                             @endif
+                        </td>
+                        <td>
+                            <a href="{{ route('faq-admin.entries.index', $category) }}">Fragen</a> ·
+                            <a href="{{ route('faq-admin.edit', $category) }}">Einstellungen</a>
                         </td>
                     </tr>
                 @endforeach
@@ -47,6 +51,7 @@
                     <option value="delete">löschen</option>
                 </select>
                 <x-vdbs.actions.button type="submit" variant="secondary" size="s" onclick="return confirm('Aktion für die ausgewählten Kategorien ausführen? Beim Löschen verschwinden auch ihre Fragen.')">Ausführen</x-vdbs.actions.button>
+                <span class="vdbs-hint" role="status" data-vdbs-select-count="bulk-faq-categories"></span>
             </div>
         </form>
     @endif
