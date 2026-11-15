@@ -15,6 +15,7 @@ use App\Modules\Tasks\Services\ProjectAccess;
 use App\Modules\Tasks\Services\TaskAttachments;
 use App\Modules\Tasks\Services\TaskService;
 use DomainException;
+use App\Support\Html\RichText;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -265,8 +266,10 @@ class TaskController extends Controller
      */
     private function validated(Request $request, TaskProject $project, ?Task $task = null): array
     {
+        $request->merge(['description' => RichText::clean($request->input('description'))]);
+
         $data = $request->validate([
-            'title' => ['required', 'string', 'max:200'], 'description' => ['nullable', 'string', 'max:5000'],
+            'title' => ['required', 'string', 'max:200'], 'description' => ['nullable', 'string', 'max:20000'],
             'priority' => ['nullable', Rule::in(array_keys(Task::PRIORITIES))], 'due_on' => ['nullable', 'date'],
             'assignees' => ['nullable', 'array'], 'assignees.*' => ['integer'],
             'board_meeting_id' => ['nullable', 'integer', Rule::exists('board_meetings', 'id')], 'board_resolution_id' => ['nullable', 'integer', Rule::exists('board_resolutions', 'id')],

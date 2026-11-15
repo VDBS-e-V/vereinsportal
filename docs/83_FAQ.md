@@ -26,7 +26,7 @@ Wer die Kategorie nicht sehen darf, sieht sie **nirgends**: nicht auf `/faq`, ni
 Im Entwurf des Ausgangsbestands ist „Teamarbeit, Verträge und Abrechnung“ auf Teamende und Verwaltung beschränkt und „Konto, E-Mail-Adresse und Daten“ auf Angemeldete (Migration `2027_01_01_000001_add_audience_to_faq_categories.php`); bitte prüfen und anpassen.
 
 ## Antworten formatieren
-Leerzeile = neuer Absatz, Zeilen mit `- ` = Liste, `**fett**`, `[Text](/pfad)` für Links im Portal oder `[Text](https://adresse)`. Anderes HTML wird maskiert; Links auf `javascript:` oder fremde `//`-Adressen funktionieren nicht (`App\Modules\Faq\Support\FaqText`).
+Antworten werden mit dem Editor (TinyMCE) formatiert: Absätze, Listen, fett, kursiv, Überschriften und Links. Das HTML wird beim Speichern und Anzeigen bereinigt (`App\Support\Html\RichText`). Ältere Antworten im einfachen Format (Leerzeile = Absatz, `- ` = Liste, `**fett**`) werden weiter als Markdown angezeigt und beim nächsten Speichern im Editor umgewandelt.
 
 ## Verbindung zum Kontaktbereich
 Im Kontaktbereich (Geschäftsstelle › Kontaktformular › Themen) wählen Sie bei einem Thema der Art „Führt zur FAQ-Seite“ eine FAQ-Kategorie. Das Thema öffnet dann `/faq` an dieser Kategorie; eine eigene Seite unter `/kontakt` gibt es nicht. Wird die Kategorie gelöscht, ausgeblendet oder hat sie keine sichtbare Frage mehr, ist das Thema verborgen.

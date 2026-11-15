@@ -8,6 +8,7 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ### Added
 
+- Formatierte Texte (Editor) bei FAQ-Antworten sowie Beschreibungen von Aufgaben und Aufgabenvorlagen
 - Kontaktformular: Schritt 2 (Angaben zur Person) und Schritt 3 (Anfrage oder weitere Angaben) sind getrennte Seiten
 - Aufgaben: neue Aufgaben auf eigener Seite, kompakte Such- und Filterleiste, Kanban-Spalten mittig und im neuen Design
 - Kontaktformular als geführter Ablauf (Thema wählen, Angaben zur Person, Anfrage oder nur Angaben; Themen ohne Formular führen zur FAQ-Seite, keine Infoseiten unter /kontakt) mit im Portal pflegbaren Themen, FAQ-Seiten, Formularen und eigenen Feldern (Doc 82)

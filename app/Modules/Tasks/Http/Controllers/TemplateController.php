@@ -9,6 +9,7 @@ use App\Modules\Tasks\Models\TaskProject;
 use App\Modules\Tasks\Models\TaskTemplate;
 use App\Modules\Tasks\Services\ProjectAccess;
 use App\Modules\Tasks\Services\TaskTemplates;
+use App\Support\Html\RichText;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -102,9 +103,11 @@ class TemplateController extends Controller
     /** @return array<string, mixed> */
     private function validated(Request $request, TaskProject $project, ?TaskTemplate $template = null): array
     {
+        $request->merge(['description' => RichText::clean($request->input('description'))]);
+
         return $request->validate([
             'name' => ['required', 'string', 'max:120', Rule::unique('task_templates', 'name')->where('task_project_id', $project->id)->ignore($template?->id)],
-            'title' => ['required', 'string', 'max:200'], 'description' => ['nullable', 'string', 'max:5000'],
+            'title' => ['required', 'string', 'max:200'], 'description' => ['nullable', 'string', 'max:20000'],
             'priority' => ['required', Rule::in(array_keys(Task::PRIORITIES))], 'due_in_days' => ['nullable', 'integer', 'min:0', 'max:3650'],
             'subtasks' => ['nullable', 'string', 'max:5000'], 'labels' => ['nullable', 'array'], 'labels.*' => ['integer'],
         ], ['name.required' => 'Bitte geben Sie der Vorlage einen Namen.', 'name.unique' => 'Es gibt schon eine Vorlage mit diesem Namen.', 'title.required' => 'Bitte geben Sie den Titel der Aufgabe an.']);

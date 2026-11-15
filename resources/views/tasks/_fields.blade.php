@@ -1,5 +1,5 @@
 <x-vdbs.forms.input name="title" label="Aufgabe" :required="true" maxlength="200" :value="old('title', $task?->title)" />
-<x-vdbs.forms.textarea name="description" label="Beschreibung" :optional="true" maxlength="5000" :rows="4" :value="old('description', $task?->description)" />
+<x-vdbs.forms.textarea name="description" label="Beschreibung" :optional="true"   :rich="true" :rows="6" :value="old('description', $task?->description)" />
 <x-vdbs.forms.multi-select name="assignees" label="Zuständig" :optional="true" :searchable="true" placeholder="Niemand ausgewählt" search-label="Personen filtern" :options="$assignable" :value="old('assignees', $task ? $task->assignees->pluck('id')->all() : [])" hint="Mehrere Personen möglich." />
 <x-vdbs.forms.select name="priority" label="Priorität" :options="$priorities" :value="old('priority', $task?->priority ?? 'normal')" />
 @if (($labels ?? []) !== [])

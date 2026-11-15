@@ -174,6 +174,18 @@ it('does not touch a question through another category', function () {
     expect($entry->fresh()->question)->not->toBe('X');
 });
 
+it('stores editor html of an answer cleaned and shows it formatted', function () {
+    $this->actingAs(fqUser(RoleKey::Administration));
+    $category = FaqCategory::query()->firstOrFail();
+
+    $this->post(route('faq-admin.entries.store', $category), ['question' => 'Rich?', 'answer' => '<p>Hallo <strong>Welt</strong><script>alert(1)</script></p>', 'sort_order' => 1, 'is_active' => '1'])->assertSessionHasNoErrors();
+
+    $entry = $category->entries()->where('question', 'Rich?')->firstOrFail();
+
+    expect($entry->answer)->toContain('<strong>Welt</strong>')->not->toContain('<script');
+    $this->get(route('portal.faq'))->assertSee('<strong>Welt</strong>', false)->assertDontSee('alert(1)', false);
+});
+
 it('validates the faq categories and questions', function () {
     $this->actingAs(fqUser(RoleKey::Administration));
     $category = fqCategory('Zugang beantragen');
@@ -182,7 +194,7 @@ it('validates the faq categories and questions', function () {
     $this->post(route('faq-admin.store'), ['title' => str_repeat('x', 151)])->assertSessionHasErrors('title');
     $this->post(route('faq-admin.entries.store', $category), ['question' => '', 'answer' => 'Antwort'])->assertSessionHasErrors('question');
     $this->post(route('faq-admin.entries.store', $category), ['question' => 'Frage', 'answer' => ''])->assertSessionHasErrors('answer');
-    $this->post(route('faq-admin.entries.store', $category), ['question' => 'Frage', 'answer' => str_repeat('x', 5001)])->assertSessionHasErrors('answer');
+    $this->post(route('faq-admin.entries.store', $category), ['question' => 'Frage', 'answer' => str_repeat('x', 20001)])->assertSessionHasErrors('answer');
 });
 
 it('handles several questions at once: hide, show, move and delete', function () {

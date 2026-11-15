@@ -10,7 +10,7 @@
     <x-vdbs.forms.form :action="$editing ? route('faq-admin.entries.update', [$category, $entry]) : route('faq-admin.entries.store', $category)" :method="$editing ? 'put' : 'post'">
         <x-vdbs.forms.form-section title="Frage und Antwort">
             <x-vdbs.forms.input name="question" label="Frage" :required="true" maxlength="250" :value="$entry->question" />
-            <x-vdbs.forms.textarea name="answer" label="Antwort" :required="true" :rows="10" maxlength="5000" :counter="true" :value="$entry->answer" hint="Leerzeile = neuer Absatz. Zeilen mit „- “ am Anfang = Liste. **fett**. [Text](/pfad) für Links im Portal, [Text](https://adresse) für externe Seiten." />
+            <x-vdbs.forms.textarea name="answer" label="Antwort" :required="true" :rows="10" :rich="true" :value="$entry->answer" hint="Formatierbar mit Absätzen, Listen, fett und Links. Links im Portal als Pfad (z. B. /kontakt), externe als https-Adresse." />
             <x-vdbs.forms.input name="sort_order" label="Reihenfolge" type="number" :optional="true" :value="$entry->sort_order" hint="Kleine Zahlen stehen oben." />
             <x-vdbs.forms.checkbox name="is_active" label="Sichtbar" :checked="(bool) old('is_active', $entry->is_active)" />
         </x-vdbs.forms.form-section>

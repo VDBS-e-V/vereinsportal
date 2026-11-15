@@ -37,7 +37,7 @@
                 <x-vdbs.disclosure.accordion>
                     @foreach ($category->entries as $entry)
                         <x-vdbs.disclosure.accordion-item :title="$entry->question" :level="3">
-                            {{ \App\Modules\Faq\Support\FaqText::html($entry->answer) }}
+                            <div class="vdbs-prose">{!! \App\Support\Html\RichText::render($entry->answer) !!}</div>
                         </x-vdbs.disclosure.accordion-item>
                     @endforeach
                 </x-vdbs.disclosure.accordion>

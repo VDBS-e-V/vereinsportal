@@ -8,6 +8,7 @@ use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Faq\Models\FaqCategory;
 use App\Modules\Faq\Models\FaqEntry;
+use App\Support\Html\RichText;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -115,19 +116,21 @@ class FaqEntryController extends Controller
     /** @return array<string, mixed> */
     private function validated(Request $request): array
     {
+        $request->merge(['answer' => RichText::normalize($request->input('answer'))]);
+
         $data = $request->validate([
             'question' => ['required', 'string', 'max:250'],
-            'answer' => ['required', 'string', 'max:5000'],
+            'answer' => ['required', 'string', 'max:20000'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:9999'],
         ], [
             'question.required' => 'Bitte geben Sie die Frage ein.',
             'answer.required' => 'Bitte geben Sie die Antwort ein.',
-            'answer.max' => 'Die Antwort darf höchstens 5.000 Zeichen lang sein.',
+            'answer.max' => 'Die Antwort darf höchstens 20.000 Zeichen lang sein.',
         ]);
 
         return [
             'question' => trim($data['question']),
-            'answer' => trim($data['answer']),
+            'answer' => RichText::clean($data['answer']) ?? '',
             'sort_order' => (int) ($data['sort_order'] ?? 0),
             'is_active' => $request->boolean('is_active'),
         ];
