@@ -50,7 +50,7 @@
             <x-vdbs.data.table caption="Beschlüsse der Sitzung" :columns="[['key' => 'select', 'label' => 'Auswahl', 'selectAll' => 'board-resolutions-form'], ['key' => 'number', 'label' => 'Nummer'], ['key' => 'title', 'label' => 'Beschluss'], ['key' => 'outcome', 'label' => 'Ergebnis']]">
                 @foreach ($meeting->resolutions as $resolution)
                     <tr>
-                        <td class="vdbs-table__select"><span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="ids[]" value="{{ $resolution->id }}" form="board-resolutions-form" aria-label="{{ $resolution->number() }} auswählen"></span></td>
+                        <x-vdbs.data.table-check name="ids[]" :value="$resolution->id" :label="$resolution->number().' auswählen'" form="board-resolutions-form" />
                         <td>{{ $resolution->number() }}</td>
                         <td><a href="{{ route('board.resolutions.edit', $resolution) }}">{{ $resolution->title }}</a>@if (filled($resolution->text))<br><span style="white-space:pre-line">{{ $resolution->text }}</span>@endif @if ($resolution->votesLabel() !== '')<br><span class="vdbs-hint">{{ $resolution->votesLabel() }}</span>@endif</td>
                         <td>{{ $resolution->outcomeLabel() }}</td>
@@ -107,7 +107,7 @@
             <x-vdbs.data.table caption="Gäste der Sitzung" :columns="[['key' => 'select', 'label' => 'Auswahl', 'selectAll' => 'board-guests-form'], ['key' => 'name', 'label' => 'Name'], ['key' => 'email', 'label' => 'E-Mail'], ['key' => 'invited', 'label' => 'Eingeladen']]">
                 @foreach ($meeting->guests as $guest)
                     <tr>
-                        <td class="vdbs-table__select"><span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="ids[]" value="{{ $guest->id }}" form="board-guests-form" aria-label="{{ $guest->name }} auswählen"></span></td>
+                        <x-vdbs.data.table-check name="ids[]" :value="$guest->id" :label="$guest->name.' auswählen'" form="board-guests-form" />
                         <td>{{ $guest->label() }}</td>
                         <td>{{ $guest->email }}</td>
                         <td>{{ $guest->invited_at ? $guest->invited_at->format('d.m.Y, H:i').' Uhr' : '–' }}</td>
@@ -145,7 +145,7 @@
             <x-vdbs.data.table caption="Anhänge der Sitzung" :columns="[['key' => 'select', 'label' => 'Auswahl', 'selectAll' => 'board-documents-form'], ['key' => 'title', 'label' => 'Titel'], ['key' => 'date', 'label' => 'Abgelegt'], ['key' => 'by', 'label' => 'Von'], ['key' => 'size', 'label' => 'Größe']]">
                 @foreach ($meeting->documents as $document)
                     <tr>
-                        <td class="vdbs-table__select"><span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="ids[]" value="{{ $document->id }}" form="board-documents-form" aria-label="{{ $document->title }} auswählen"></span></td>
+                        <x-vdbs.data.table-check name="ids[]" :value="$document->id" :label="$document->title.' auswählen'" form="board-documents-form" />
                         <td><a href="{{ route('board.meetings.documents.download', [$meeting, $document]) }}">{{ $document->title }}</a><br><span class="vdbs-hint">{{ $document->original_name }}</span></td>
                         <td>{{ $document->created_at->format('d.m.Y') }}</td>
                         <td>{{ $document->uploadedBy?->person?->fullName() ?: '–' }}</td>

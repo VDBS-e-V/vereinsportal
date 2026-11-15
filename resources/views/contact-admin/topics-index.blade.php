@@ -61,6 +61,7 @@
                     </tr>
                 @endforeach
             </x-vdbs.data.table>
+            <p class="vdbs-table__select-count" role="status" data-vdbs-select-count="bulk-contact-topics">Nichts ausgewählt.</p>
 
             <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;align-items:center;margin-top:var(--space-4)">
                 <label for="aktion">Mit den ausgewählten Themen:</label>
@@ -70,7 +71,6 @@
                     <option value="delete">löschen</option>
                 </select>
                 <x-vdbs.actions.button type="submit" variant="secondary" size="s" onclick="return confirm('Aktion für die ausgewählten Themen ausführen?')">Ausführen</x-vdbs.actions.button>
-                <span class="vdbs-hint" role="status" data-vdbs-select-count="bulk-contact-topics"></span>
             </div>
         </form>
     @endif

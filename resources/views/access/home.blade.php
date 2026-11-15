@@ -29,11 +29,7 @@
                 @foreach ($seminars as $seminar)
                     @php($own = $mineBySeminar->get($seminar->id))
                     <tr>
-                        <td class="vdbs-table__select">
-                            @if ($selectable->contains('id', $seminar->id))
-                                <span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="seminar_ids[]" value="{{ $seminar->id }}" form="apply-form" aria-label="{{ $seminar->title }} auswählen"></span>
-                            @endif
-                        </td>
+                        <x-vdbs.data.table-check name="seminar_ids[]" :value="$seminar->id" :label="$seminar->title.' auswählen'" form="apply-form" :show="$selectable->contains('id', $seminar->id)" />
                         <td>{{ $seminar->number }} {{ $seminar->title }}<br><span class="vdbs-hint">{{ $seminar->type->label() }}</span></td>
                         <td>{{ $seminar->partner?->city ?? '–' }}</td>
                         <td>{{ $seminar->sessions->first()?->starts_at->format('d.m.Y') ?? '–' }}</td>
@@ -76,11 +72,7 @@
             <x-vdbs.data.table caption="Ihre Bewerbungen" :columns="[['key' => 'select', 'label' => 'Auswahl', 'selectAll' => 'withdraw-form'], ['key' => 'title', 'label' => 'Seminar'], ['key' => 'state', 'label' => 'Stand']]">
                 @foreach ($mine as $application)
                     <tr>
-                        <td class="vdbs-table__select">
-                            @if ($withdrawable->contains('id', $application->id))
-                                <span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="application_ids[]" value="{{ $application->id }}" form="withdraw-form" aria-label="Bewerbung auf {{ $application->seminar->title }} auswählen"></span>
-                            @endif
-                        </td>
+                        <x-vdbs.data.table-check name="application_ids[]" :value="$application->id" :label="'Bewerbung auf '.$application->seminar->title.' auswählen'" form="withdraw-form" :show="$withdrawable->contains('id', $application->id)" />
                         <td>{{ $application->seminar->number }} {{ $application->seminar->title }}</td>
                         <td><x-vdbs.data.badge :tone="$application->status->tone()">{{ $application->status->label() }}</x-vdbs.data.badge></td>
                     </tr>

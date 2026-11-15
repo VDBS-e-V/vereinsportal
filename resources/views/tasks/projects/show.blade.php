@@ -57,7 +57,7 @@
                     <x-vdbs.data.table caption="Aufgaben" :columns="[['key' => 'select', 'label' => 'Auswahl', 'selectAll' => 'tasks-form'], ['key' => 'title', 'label' => 'Aufgabe'], ['key' => 'who', 'label' => 'Zuständig'], ['key' => 'due', 'label' => 'Fällig'], ['key' => 'labels', 'label' => 'Labels'], ['key' => 'prio', 'label' => 'Priorität'], ['key' => 'state', 'label' => 'Spalte']]">
                         @foreach ($tasks as $task)
                             <tr>
-                                <td class="vdbs-table__select"><span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="ids[]" value="{{ $task->id }}" aria-label="{{ $task->title }} auswählen"></span></td>
+                                <x-vdbs.data.table-check name="ids[]" :value="$task->id" :label="$task->title.' auswählen'" />
                                 <td><a href="{{ route('tasks.show', $task) }}">{{ $task->title }}</a>@if ($task->subtasks->isNotEmpty()) <span class="vdbs-hint">☑ {{ $task->subtaskProgress() }}</span>@endif</td>
                                 <td>{{ $task->assigneeNames() ?: '–' }}</td>
                                 <td>{{ $task->due_on?->format('d.m.Y') ?? '–' }}@if ($task->isOverdue()) <x-vdbs.data.badge tone="error">überfällig</x-vdbs.data.badge>@endif</td>

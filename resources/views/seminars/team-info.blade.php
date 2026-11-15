@@ -14,7 +14,7 @@
             <x-vdbs.data.table caption="Teammitglieder" :columns="[['key' => 'select', 'label' => 'Auswahl', 'selectAll' => 'team-info-form'], ['key' => 'name', 'label' => 'Name'], ['key' => 'way', 'label' => 'Weg'], ['key' => 'reach', 'label' => 'Erreichbar']]">
                 @foreach ($members as $application)
                     <tr>
-                        <td class="vdbs-table__select"><span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="application_ids[]" value="{{ $application->id }}" form="team-info-form" aria-label="{{ $application->applicantName() }} auswählen" @checked($addresses[$application->id]) @disabled(! $addresses[$application->id])></span></td>
+                        <x-vdbs.data.table-check name="application_ids[]" :value="$application->id" :label="$application->applicantName().' auswählen'" form="team-info-form" :checked="$addresses[$application->id]" :disabled="! $addresses[$application->id]" />
                         <td>{{ $application->applicantName() }}</td>
                         <td>{{ $application->isContact() ? 'Persönlicher Zugang' : 'Konto' }}</td>
                         <td>@if ($addresses[$application->id])<x-vdbs.data.badge tone="success">ja</x-vdbs.data.badge>@else<x-vdbs.data.badge tone="warning">nein (gesperrt, abgemeldet oder abgeschaltet)</x-vdbs.data.badge>@endif</td>

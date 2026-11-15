@@ -32,6 +32,7 @@
                 @endif
             </section>
         @endforeach
+        <p class="vdbs-table__select-count" role="status" data-vdbs-select-count="bulk-meetings">Nichts ausgewählt.</p>
         <p style="margin-top:var(--space-3)"><x-vdbs.actions.button type="submit" variant="danger-text" size="s" onclick="return confirm('Die ausgewählten Sitzungen samt Protokoll, Beschlüssen und Anhängen löschen? Aufgaben bleiben erhalten.')">Ausgewählte löschen</x-vdbs.actions.button></p>
     </form>
 

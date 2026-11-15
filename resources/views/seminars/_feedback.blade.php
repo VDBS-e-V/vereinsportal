@@ -23,7 +23,7 @@
             @foreach ($feedbackLinks as $feedbackLink)
                 @php($state = $linkService->state($feedbackLink))
                 <tr>
-                    <td class="vdbs-table__select"><span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="ids[]" value="{{ $feedbackLink->id }}" form="feedback-close-form" aria-label="Link für {{ $feedbackLink->audienceLabel() }} auswählen"></span></td>
+                    <x-vdbs.data.table-check name="ids[]" :value="$feedbackLink->id" :label="'Link für '.$feedbackLink->audienceLabel().' auswählen'" form="feedback-close-form" />
                     <td>{{ $feedbackLink->audienceLabel() }}@if ($feedbackLink->label)<br><span class="vdbs-hint">{{ $feedbackLink->label }}</span>@endif</td>
                     <td><x-vdbs.data.badge :tone="$state === 'open' ? 'success' : 'neutral'">{{ \App\Modules\Feedback\Services\FeedbackLinks::STATES[$state] }}</x-vdbs.data.badge></td>
                     <td>{{ $feedbackLink->opens_at->format('d.m.Y') }} – {{ $feedbackLink->closes_at->format('d.m.Y') }}</td>
@@ -32,6 +32,7 @@
                 </tr>
             @endforeach
         </x-vdbs.data.table>
+        <p class="vdbs-table__select-count" role="status" data-vdbs-select-count="feedback-close-form">Nichts ausgewählt.</p>
         <x-vdbs.actions.button type="submit" form="feedback-close-form" variant="secondary" icon="x">Ausgewählte Links beenden</x-vdbs.actions.button>
     @endif
 

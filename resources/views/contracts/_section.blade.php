@@ -12,11 +12,7 @@
         @foreach ($rows as $row)
             @php $application = $row['application']; $contract = $row['contract']; @endphp
             <tr>
-                <td class="vdbs-table__select">
-                    @if ($contract === null)
-                        <span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="applications[]" value="{{ $application->id }}" form="contracts-form" aria-label="{{ $application->applicantName() }} auswählen"></span>
-                    @endif
-                </td>
+                <x-vdbs.data.table-check name="applications[]" :value="$application->id" :label="$application->applicantName().' auswählen'" form="contracts-form" :show="$contract === null" />
                 <td>{{ $application->applicantName() }}</td>
                 <td>{{ $contract?->number ?? '–' }}</td>
                 <td>

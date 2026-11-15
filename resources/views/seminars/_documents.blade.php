@@ -29,7 +29,7 @@
         <x-vdbs.data.table caption="Dokumente des Seminars" :columns="[['key' => 'select', 'label' => 'Auswahl', 'selectAll' => 'documents-form'], ['key' => 'kind', 'label' => 'Art'], ['key' => 'title', 'label' => 'Titel'], ['key' => 'date', 'label' => 'Abgelegt'], ['key' => 'by', 'label' => 'Von'], ['key' => 'size', 'label' => 'Größe'], ['key' => 'until', 'label' => 'Aufbewahrt bis']]">
             @foreach ($documents as $document)
                 <tr>
-                    <td class="vdbs-table__select"><span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="ids[]" value="{{ $document->id }}" form="documents-form" aria-label="{{ $document->title }} auswählen"></span></td>
+                    <x-vdbs.data.table-check name="ids[]" :value="$document->id" :label="$document->title.' auswählen'" form="documents-form" />
                     <td>{{ $document->kindLabel() }}@if ($document->isProtected() && $closed) <x-vdbs.data.badge tone="info">geschützt</x-vdbs.data.badge>@endif</td>
                     <td><a href="{{ route('seminars.documents.download', [$seminar, $document]) }}">{{ $document->title }}</a><br><span class="vdbs-hint">{{ $document->original_name }}</span></td>
                     <td>{{ $document->created_at->format('d.m.Y') }}</td>

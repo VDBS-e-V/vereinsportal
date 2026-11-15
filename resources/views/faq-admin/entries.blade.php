@@ -36,6 +36,7 @@
                     </tr>
                 @endforeach
             </x-vdbs.data.table>
+            <p class="vdbs-table__select-count" role="status" data-vdbs-select-count="{{ $formId }}">Nichts ausgewählt.</p>
 
             @error('ziel')<x-vdbs.feedback.alert variant="error">{{ $message }}</x-vdbs.feedback.alert>@enderror
 
@@ -55,7 +56,6 @@
                     @endforeach
                 </select>
                 <x-vdbs.actions.button type="submit" variant="secondary" size="s" onclick="return confirm('Aktion für die ausgewählten Fragen ausführen?')">Ausführen</x-vdbs.actions.button>
-                <span class="vdbs-hint" role="status" data-vdbs-select-count="{{ $formId }}"></span>
             </div>
         </form>
     @endif

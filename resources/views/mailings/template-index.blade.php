@@ -38,6 +38,7 @@
                     </tr>
                 @endforeach
             </x-vdbs.data.table>
+            <p class="vdbs-table__select-count" role="status" data-vdbs-select-count="bulk-mail-templates">Nichts ausgewählt.</p>
             <x-vdbs.actions.button type="submit" variant="danger-text" size="s" onclick="return confirm('Die ausgewählten Vorlagen löschen?')">Ausgewählte löschen</x-vdbs.actions.button>
             </form>
         @endif

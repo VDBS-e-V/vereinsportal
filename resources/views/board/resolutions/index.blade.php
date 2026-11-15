@@ -21,7 +21,7 @@
             <x-vdbs.data.table caption="Beschlüsse" :columns="[['key' => 'select', 'label' => 'Auswahl', 'selectAll' => 'resolutions-form'], ['key' => 'number', 'label' => 'Nummer'], ['key' => 'title', 'label' => 'Beschluss'], ['key' => 'date', 'label' => 'Sitzung'], ['key' => 'outcome', 'label' => 'Ergebnis']]">
                 @foreach ($resolutions as $resolution)
                     <tr>
-                        <td class="vdbs-table__select"><span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="ids[]" value="{{ $resolution->id }}" aria-label="{{ $resolution->number() }} auswählen"></span></td>
+                        <x-vdbs.data.table-check name="ids[]" :value="$resolution->id" :label="$resolution->number().' auswählen'" />
                         <td>{{ $resolution->number() }}</td>
                         <td><a href="{{ route('board.resolutions.edit', $resolution) }}">{{ $resolution->title }}</a>@if ($resolution->votesLabel() !== '')<br><span class="vdbs-hint">{{ $resolution->votesLabel() }}</span>@endif</td>
                         <td>@if ($resolution->meeting)<a href="{{ route('board.meetings.show', $resolution->meeting) }}">{{ $resolution->meeting->starts_at->format('d.m.Y') }}</a>@else – @endif</td>
