@@ -1,5 +1,5 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Aufgaben', 'href' => route('tasks.index')], ['label' => $project->name, 'href' => route('tasks.projects.show', $project)], ['label' => 'Einstellungen']];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Aufgaben', 'href' => route('tasks.area', ['area' => $project->area])], ['label' => $project->name, 'href' => route('tasks.projects.show', $project)], ['label' => 'Einstellungen']];
     $roleEditable = $isAdmin && $project->slug !== \App\Modules\Tasks\Models\TaskProject::BOARD;
 @endphp
 
@@ -7,7 +7,7 @@
     <x-vdbs.layout.page-header :title="$project->name" lead="Einstellungen, Mitglieder und Spalten des Projekts." :breadcrumb="$crumbs" />
 
     <x-vdbs.forms.form :action="route('tasks.projects.update', $project)" method="put">
-        @include('tasks.projects._fields', ['project' => $project, 'roleEditable' => $roleEditable])
+        @include('tasks.projects._fields', ['areas' => $areas, 'project' => $project, 'roleEditable' => $roleEditable])
         @if ($project->role_key && ! $roleEditable)
             <p class="vdbs-hint">Alle Konten mit der Rolle „{{ \App\Modules\AccessGovernance\Enums\RoleKey::tryFrom($project->role_key)?->label() }}“ sind automatisch Mitglieder und verwalten das Projekt.</p>
         @endif

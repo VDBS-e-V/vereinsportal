@@ -53,7 +53,7 @@ final class TaskProjects
             return $project;
         }
 
-        $project = TaskProject::query()->create(['slug' => TaskProject::BOARD, 'name' => 'Vorstand', 'description' => 'Aufgaben aus den Vorstandssitzungen und Beschlüssen.', 'role_key' => 'board_member', 'created_by' => $by?->id]);
+        $project = TaskProject::query()->create(['slug' => TaskProject::BOARD, 'name' => 'Vorstand', 'description' => 'Aufgaben aus den Vorstandssitzungen und Beschlüssen.', 'role_key' => 'board_member', 'area' => 'vorstand', 'created_by' => $by?->id]);
         $this->createDefaultStatuses($project);
 
         return $project;
@@ -239,6 +239,7 @@ final class TaskProjects
      */
     private function attributes(array $data): array
     {
-        return ['name' => trim((string) $data['name']), 'description' => filled($data['description'] ?? null) ? trim((string) $data['description']) : null, 'role_key' => ($data['role_key'] ?? null) ?: null];
+        return ['name' => trim((string) $data['name']), 'description' => filled($data['description'] ?? null) ? trim((string) $data['description']) : null, 'role_key' => ($data['role_key'] ?? null) ?: null]
+            + (filled($data['area'] ?? null) ? ['area' => (string) $data['area']] : []);
     }
 }

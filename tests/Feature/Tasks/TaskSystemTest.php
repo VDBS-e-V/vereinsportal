@@ -16,6 +16,7 @@ use App\Modules\Tasks\Models\Task;
 use App\Modules\Tasks\Models\TaskAttachment;
 use App\Modules\Tasks\Models\TaskComment;
 use App\Modules\Tasks\Models\TaskProject;
+use App\Support\PortalAreas;
 use App\Modules\Tasks\Models\TaskTemplate;
 use App\Modules\Tasks\Services\TaskProjects;
 use Database\Seeders\RoleSeeder;
@@ -80,6 +81,12 @@ it('keeps project creation from everyone without tasks.admin', function () {
     foreach ([RoleKey::Team, RoleKey::Member, RoleKey::School, null] as $role) {
         $this->actingAs(tkUser($role));
         $this->get(route('tasks.index'))->assertForbidden();
+        $this->get(route('tasks.area', ['area' => 'koordination']))->assertForbidden();
+    }
+
+    // die allgemeine Verwaltung aller Projekte gehört zur Geschäftsstelle und braucht tasks.admin
+    foreach ([RoleKey::Coordination, RoleKey::AdministrationStaff, RoleKey::Employee] as $role) {
+        $this->actingAs(tkUser($role))->get(route('tasks.index'))->assertForbidden();
     }
 
     expect(TaskProject::query()->count())->toBe(0);
@@ -88,10 +95,10 @@ it('keeps project creation from everyone without tasks.admin', function () {
 it('shows each person only the projects they belong to', function () {
     $member = tkUser(RoleKey::Coordination);
     $other = tkUser(RoleKey::Coordination);
-    $project = tkProject([$member]);
-    $secret = tkProject([], [], ['name' => 'Geheimprojekt']);
+    $project = tkProject([$member], [], ['area' => 'koordination']);
+    $secret = tkProject([], [], ['name' => 'Geheimprojekt', 'area' => 'koordination']);
 
-    $this->actingAs($member)->get(route('tasks.index'))->assertOk()->assertSee('Entwicklung')->assertDontSee('Geheimprojekt');
+    $this->actingAs($member)->get(route('tasks.area', ['area' => 'koordination']))->assertOk()->assertSee('Entwicklung')->assertDontSee('Geheimprojekt');
     $this->get(route('tasks.projects.show', $project))->assertOk();
     $this->get(route('tasks.projects.show', $secret))->assertForbidden();
 
@@ -321,7 +328,7 @@ it('marks tasks done when a column becomes a done column', function () {
 it('lets only managers edit the project and only administration delete or change the role', function () {
     $manager = tkUser(RoleKey::Coordination);
     $member = tkUser(RoleKey::Employee);
-    $project = tkProject([$member], [$manager]);
+    $project = tkProject([$member], [$manager], ['area' => 'koordination']);
 
     $this->actingAs($member);
     $this->get(route('tasks.projects.edit', $project))->assertForbidden();
@@ -333,10 +340,10 @@ it('lets only managers edit the project and only administration delete or change
     expect($project->fresh()->name)->toBe('Umbenannt')->and($project->fresh()->role_key)->toBeNull();
     $this->delete(route('tasks.projects.destroy', $project))->assertForbidden();
 
-    $this->post(route('tasks.projects.archive', $project))->assertRedirect(route('tasks.index'));
+    $this->post(route('tasks.projects.archive', $project))->assertRedirect(route('tasks.area', ['area' => 'koordination']));
     expect($project->fresh()->is_archived)->toBeTrue();
-    $this->get(route('tasks.index'))->assertDontSee('Umbenannt');
-    $this->get(route('tasks.index', ['archived' => 1]))->assertSee('Umbenannt');
+    $this->get(route('tasks.area', ['area' => 'koordination']))->assertDontSee('Umbenannt');
+    $this->get(route('tasks.area', ['area' => 'koordination', 'archived' => 1]))->assertSee('Umbenannt');
 
     $this->actingAs(tkUser(RoleKey::Administration))->delete(route('tasks.projects.destroy', $project))->assertRedirect(route('tasks.index'));
     expect(TaskProject::query()->count())->toBe(0);
@@ -344,7 +351,7 @@ it('lets only managers edit the project and only administration delete or change
 
 it('protects the project Vorstand from archiving and deleting and gives it to the board automatically', function () {
     $board = tkUser(RoleKey::BoardMember);
-    $this->actingAs($board)->get(route('tasks.index'))->assertOk()->assertSee('Vorstand');
+    $this->actingAs($board)->get(route('tasks.area', ['area' => 'vorstand']))->assertOk()->assertSee('Vorstand');
     $project = TaskProject::query()->where('slug', 'vorstand')->firstOrFail();
 
     expect($project->role_key)->toBe('board_member');
@@ -376,9 +383,104 @@ it('lists my tasks across projects', function () {
     $this->get(route('tasks.mine', ['status' => 'done']))->assertSee('Meine erledigte')->assertDontSee('Meine offene');
 });
 
-it('shows the area Aufgaben to the roles that use the task system', function () {
-    $this->actingAs(tkUser(RoleKey::Coordination))->get(route('tasks.index'))->assertOk()->assertSee('Meine Aufgaben');
-    $this->actingAs(tkUser(RoleKey::Employee))->get(route('tasks.mine'))->assertOk();
+it('has no area of its own: the tasks live in the menu of the areas that use them', function () {
+    expect(array_map(fn ($area): string => $area->value, PortalAreas::cases()))->not->toContain('aufgaben')->and(PortalAreas::cases())->toHaveCount(11);
+
+    foreach ([[RoleKey::Coordination, 'koordination'], [RoleKey::Employee, 'mitarbeitende'], [RoleKey::EducationCoordination, 'bildungsreferenten'], [RoleKey::BoardMember, 'vorstand'], [RoleKey::Administration, 'admins']] as [$role, $area]) {
+        $user = tkUser($role);
+
+        $html = $this->actingAs($user)->get(route('tasks.area', ['area' => $area]))->assertOk()->assertSee('Meine Aufgaben')->getContent();
+
+        // die Seite bleibt im Bereich: Kopfzeile und Menüpunkt „Aufgaben“ dieses Bereichs
+        expect($html)->toContain('aria-label="Seiten im Bereich '.PortalAreas::from($area)->label().'"')->and($html)->toContain('href="'.route('tasks.area', ['area' => $area]).'"');
+    }
+
+    // „Meine Aufgaben“ gehört zum Konto, über alle Bereiche
+    $html = $this->actingAs(tkUser(RoleKey::Employee))->get(route('tasks.mine'))->assertOk()->getContent();
+    expect($html)->toContain('aria-label="Seiten im Bereich Konto"');
+
+    // Bereiche ohne Aufgaben und fremde Bereiche bleiben verschlossen
+    $this->actingAs(tkUser(RoleKey::Coordination))->get(route('tasks.area', ['area' => 'vorstand']))->assertForbidden();
+    $this->actingAs(tkUser(RoleKey::Team))->get(route('tasks.area', ['area' => 'koordination']))->assertForbidden();
+    $this->get('/teamende/aufgaben')->assertNotFound();
+});
+
+it('shows a project in the area it belongs to and keeps the menu of that area', function () {
+    $manager = tkUser(RoleKey::Coordination);
+    $project = tkProject([], [$manager], ['name' => 'Seminarplanung', 'area' => 'koordination']);
+    $task = tkTask($project);
+    $this->actingAs($manager);
+
+    foreach ([route('tasks.projects.show', $project), route('tasks.show', $task), route('tasks.projects.edit', $project), route('tasks.templates.index', $project)] as $url) {
+        $html = $this->get($url)->assertOk()->getContent();
+
+        expect($html)->toContain('aria-label="Seiten im Bereich Koordination"')->and(substr_count($html, 'aria-current="page"'))->toBeGreaterThanOrEqual(1);
+    }
+
+    // das Projekt eines Bereichs erscheint nicht in der Liste eines anderen
+    $employee = tkUser(RoleKey::Employee);
+    $other = tkProject([$employee], [], ['name' => 'Bürohilfe', 'area' => 'mitarbeitende']);
+    $this->actingAs($employee)->get(route('tasks.area', ['area' => 'mitarbeitende']))->assertOk()->assertSee('Bürohilfe')->assertDontSee('Seminarplanung');
+
+    // wer in einem Projekt eines Bereichs Mitglied ist, den er nicht betreten darf, bleibt im eigenen Bereich
+    $guest = tkUser(RoleKey::Employee);
+    $foreign = tkProject([$guest], [], ['name' => 'Fremdbereich', 'area' => 'vorstand']);
+    $html = $this->actingAs($guest)->get(route('tasks.projects.show', $foreign))->assertOk()->getContent();
+
+    expect($html)->toContain('aria-label="Seiten im Bereich Mitarbeitende"');
+});
+
+it('keeps the general administration in the Geschäftsstelle with its own area per project', function () {
+    $admin = tkUser(RoleKey::Administration);
+    $this->actingAs($admin);
+
+    $this->get(route('tasks.projects.create'))->assertOk()->assertSee('name="area"', false)->assertSee('Geschäftsstelle');
+
+    $this->post(route('tasks.projects.store'), ['name' => 'Verwaltungsprojekt', 'area' => 'admins'])->assertRedirect();
+    expect(TaskProject::query()->where('name', 'Verwaltungsprojekt')->firstOrFail()->area)->toBe('admins');
+
+    $this->post(route('tasks.projects.store'), ['name' => 'Ohne Bereich'])->assertRedirect();
+    expect(TaskProject::query()->where('name', 'Ohne Bereich')->firstOrFail()->area)->toBe('geschaeftsstelle');
+
+    $this->post(route('tasks.projects.store'), ['name' => 'Falsch', 'area' => 'teamende'])->assertSessionHasErrors('area');
+
+    $html = $this->get(route('tasks.index'))->assertOk()->assertSee('Aufgaben verwalten')->assertSee('Verwaltungsprojekt')->getContent();
+    expect($html)->toContain('aria-label="Seiten im Bereich Geschäftsstelle"')->toContain('data-vdbs-select-all="bulk-task-projects"')->toContain('class="vdbs-table__select"');
+
+    // Bereich ändern nur mit tasks.admin
+    $rows = fn (TaskProject $project): array => $project->statuses()->get()->mapWithKeys(fn ($s) => [$s->id => ['name' => $s->name, 'position' => $s->position] + ($s->is_done ? ['done' => 1] : [])])->all();
+    $project = TaskProject::query()->where('name', 'Verwaltungsprojekt')->firstOrFail();
+    $this->put(route('tasks.projects.update', $project), ['name' => 'Verwaltungsprojekt', 'area' => 'koordination', 'statuses' => $rows($project)])->assertRedirect();
+    expect($project->fresh()->area)->toBe('koordination');
+
+    $manager = tkUser(RoleKey::Coordination);
+    $managed = tkProject([], [$manager], ['name' => 'Eigenes', 'area' => 'koordination']);
+    $this->actingAs($manager)->put(route('tasks.projects.update', $managed), ['name' => 'Eigenes', 'area' => 'admins', 'statuses' => $rows($managed), 'managers' => [$manager->id]])->assertRedirect();
+    expect($managed->fresh()->area)->toBe('koordination');
+});
+
+it('handles several projects at once in the administration and keeps the project Vorstand', function () {
+    $admin = tkUser(RoleKey::Administration);
+    $this->actingAs($admin);
+
+    $one = tkProject([], [], ['name' => 'Eins']);
+    $two = tkProject([], [], ['name' => 'Zwei']);
+    app(\App\Modules\Tasks\Services\TaskProjects::class)->board($admin);
+    $board = TaskProject::query()->where('slug', 'vorstand')->firstOrFail();
+
+    $this->post(route('tasks.projects.bulk'), ['ids' => [$one->id, $two->id, $board->id], 'aktion' => 'archive'])->assertRedirect(route('tasks.index'))->assertSessionHas('success');
+    expect($one->fresh()->is_archived)->toBeTrue()->and($two->fresh()->is_archived)->toBeTrue()->and($board->fresh()->is_archived)->toBeFalse();
+
+    $this->post(route('tasks.projects.bulk'), ['ids' => [$one->id], 'aktion' => 'reopen'])->assertRedirect();
+    expect($one->fresh()->is_archived)->toBeFalse();
+
+    $this->post(route('tasks.projects.bulk'), ['ids' => [$two->id, $board->id], 'aktion' => 'delete'])->assertRedirect();
+    expect(TaskProject::query()->whereKey($two->id)->exists())->toBeFalse()->and(TaskProject::query()->whereKey($board->id)->exists())->toBeTrue();
+
+    $this->post(route('tasks.projects.bulk'), ['ids' => [], 'aktion' => 'delete'])->assertSessionHasErrors('ids');
+
+    // nur mit tasks.admin
+    $this->actingAs(tkUser(RoleKey::Coordination))->post(route('tasks.projects.bulk'), ['ids' => [$one->id], 'aktion' => 'delete'])->assertForbidden();
 });
 
 function tkFile(string $name, string $content): UploadedFile

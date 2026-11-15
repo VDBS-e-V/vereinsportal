@@ -1,23 +1,21 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Aufgaben']];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => $area->label()], ['label' => 'Aufgaben']];
 @endphp
 
-<x-layouts.app title="Aufgaben" width="wide">
-    <x-vdbs.layout.page-header title="Aufgaben" lead="Projekte mit Kanban-Tafel und Liste. Sie sehen die Projekte, in denen Sie Mitglied sind." :breadcrumb="$crumbs">
+<x-layouts.app :title="'Aufgaben: '.$area->label()" width="wide">
+    <x-vdbs.layout.page-header title="Aufgaben" :lead="'Projekte im Bereich '.$area->label().' mit Kanban-Tafel und Liste. Sie sehen die Projekte, in denen Sie Mitglied sind.'" :breadcrumb="$crumbs">
         <x-slot:actions>
             <x-vdbs.actions.button variant="secondary" :href="route('tasks.mine')" icon="check">Meine Aufgaben</x-vdbs.actions.button>
             @if ($isAdmin)
+                <x-vdbs.actions.button variant="secondary" :href="route('tasks.index')" icon="settings">Aufgaben verwalten</x-vdbs.actions.button>
                 <x-vdbs.actions.button :href="route('tasks.projects.create')" icon="plus">Neues Projekt</x-vdbs.actions.button>
             @endif
         </x-slot:actions>
     </x-vdbs.layout.page-header>
 
-    @include('portal._tasks', ['area' => \App\Support\PortalAreas::Aufgaben])
-
-
     @if ($projects->isEmpty())
         <x-vdbs.feedback.empty-state title="{{ $showArchived ? 'Keine archivierten Projekte' : 'Noch keine Projekte' }}" icon="clipboard-list">
-            <p>{{ $showArchived ? 'Es gibt keine archivierten Projekte.' : 'Sie sind noch in keinem Projekt Mitglied. Neue Projekte legt die Administration oder der Vorstand an.' }}</p>
+            <p>{{ $showArchived ? 'Es gibt keine archivierten Projekte in diesem Bereich.' : 'In diesem Bereich sind Sie noch in keinem Projekt Mitglied. Neue Projekte legt die Administration oder der Vorstand an.' }}</p>
         </x-vdbs.feedback.empty-state>
     @else
         <x-vdbs.data.table caption="Projekte" :columns="[['key' => 'name', 'label' => 'Projekt'], ['key' => 'open', 'label' => 'Offen'], ['key' => 'overdue', 'label' => 'Überfällig'], ['key' => 'mine', 'label' => 'Meine']]">
@@ -33,6 +31,6 @@
     @endif
 
     <p style="margin-top:var(--space-4)">
-        @if ($showArchived)<a href="{{ route('tasks.index') }}">Aktive Projekte anzeigen</a>@else<a href="{{ route('tasks.index', ['archived' => 1]) }}">Archivierte Projekte anzeigen</a>@endif
+        @if ($showArchived)<a href="{{ route('tasks.area', ['area' => $area->value]) }}">Aktive Projekte anzeigen</a>@else<a href="{{ route('tasks.area', ['area' => $area->value, 'archived' => 1]) }}">Archivierte Projekte anzeigen</a>@endif
     </p>
 </x-layouts.app>

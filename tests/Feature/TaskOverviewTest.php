@@ -105,7 +105,7 @@ it('assigns each hint to the area of the page it links to', function () {
         ->and(TaskOverview::forArea($user, PortalAreas::Schulen))->toBe([]);
 });
 
-it('lists the own open and overdue tasks of the task system in the account and the area Aufgaben', function () {
+it('lists the own open and overdue tasks of the task system in the account', function () {
     $user = toUser(RoleKey::Coordination);
     $project = app(TaskProjects::class)->create(['name' => 'Entwicklung', 'description' => null, 'role_key' => null], [], [$user->id], toUser(RoleKey::Administration));
     $open = $project->statuses()->where('is_done', false)->first();
@@ -124,7 +124,6 @@ it('lists the own open and overdue tasks of the task system in the account and t
 
     $this->actingAs($user);
     $this->get(route('account.home'))->assertOk()->assertSee('Offene Aufgaben im Aufgabensystem');
-    $this->get(route('tasks.index'))->assertOk()->assertSee('Überfällige Aufgaben im Aufgabensystem');
     $this->get(route('coordination.home'))->assertOk()->assertDontSee('im Aufgabensystem');
 
     // wer das Aufgabensystem nicht nutzt, sieht die Hinweise nicht

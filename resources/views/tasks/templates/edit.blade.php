@@ -1,5 +1,5 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Aufgaben', 'href' => route('tasks.index')], ['label' => $project->name, 'href' => route('tasks.projects.show', $project)], ['label' => 'Vorlagen', 'href' => route('tasks.templates.index', $project)], ['label' => $template->name]];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Aufgaben', 'href' => route('tasks.area', ['area' => $project->area])], ['label' => $project->name, 'href' => route('tasks.projects.show', $project)], ['label' => 'Vorlagen', 'href' => route('tasks.templates.index', $project)], ['label' => $template->name]];
 @endphp
 
 <x-layouts.app title="Vorlage bearbeiten" width="wide">

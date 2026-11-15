@@ -15,6 +15,8 @@ use App\Modules\Tasks\Models\TaskLabel;
 use App\Modules\Tasks\Models\TaskProject;
 use App\Modules\Tasks\Services\ProjectAccess;
 use App\Modules\Tasks\Services\TaskProjects;
+use App\Support\PortalAreas;
+use App\Support\PortalNavigation;
 use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -30,28 +32,90 @@ class ProjectController extends Controller
 
     public function __construct(private readonly ProjectAccess $access, private readonly TaskProjects $projects) {}
 
+    /** Die Projekte eines Bereichs (Menüpunkt „Aufgaben“ im Bereich): die, in denen die Person Mitglied ist, bzw. alle bei tasks.admin. */
+    public function area(Request $request, string $area): View
+    {
+        $user = $this->user();
+        $portalArea = PortalAreas::tryFrom($area);
+        abort_unless($portalArea !== null && in_array($portalArea, PortalNavigation::taskAreas(), true) && PortalNavigation::canEnter($portalArea, $user), 403);
+        $showArchived = $request->boolean('archived');
+
+        // Das Projekt „Vorstand“ entsteht, sobald ein Vorstandsmitglied das Aufgabensystem im Bereich Vorstand öffnet.
+        if ($portalArea === PortalAreas::Vorstand && in_array(RoleKey::BoardMember->value, Capabilities::activeRoleKeys($user), true)) {
+            $this->projects->board($user);
+        }
+
+        $projects = $this->withCounts($this->access->visible($user)->where('area', $portalArea->value)->where('is_archived', $showArchived), $user)->orderBy('name')->get();
+
+        return view('tasks.index', ['projects' => $projects, 'showArchived' => $showArchived, 'isAdmin' => $this->access->isAdmin($user), 'area' => $portalArea]);
+    }
+
+    /** Allgemeine Verwaltung: alle Projekte aller Bereiche (Geschäftsstelle, nur mit tasks.admin). */
     public function index(Request $request): View
     {
         $user = $this->user();
         $showArchived = $request->boolean('archived');
 
-        // Das Projekt „Vorstand“ entsteht, sobald ein Vorstandsmitglied das Aufgabensystem öffnet.
         if (in_array(RoleKey::BoardMember->value, Capabilities::activeRoleKeys($user), true)) {
             $this->projects->board($user);
         }
 
-        $projects = $this->access->visible($user)->where('is_archived', $showArchived)
-            ->withCount(['tasks as open_count' => fn ($query) => $query->whereNull('done_at'), 'tasks as overdue_count' => fn ($query) => $query->whereNull('done_at')->whereDate('due_on', '<', today()), 'tasks as mine_count' => fn ($query) => $query->whereNull('done_at')->whereHas('assignees', fn ($assignees) => $assignees->where('users.id', $user->id))])
-            ->orderBy('name')->get();
+        $projects = $this->withCounts($this->access->visible($user)->where('is_archived', $showArchived), $user)->orderBy('area')->orderBy('name')->get();
 
-        return view('tasks.index', ['projects' => $projects, 'showArchived' => $showArchived, 'isAdmin' => $this->access->isAdmin($user), 'access' => $this->access]);
+        return view('tasks.admin', ['projects' => $projects, 'showArchived' => $showArchived]);
+    }
+
+    /** Mehrfachauswahl in der Verwaltung: archivieren, wieder öffnen oder löschen (das Projekt „Vorstand“ bleibt stehen). */
+    public function bulk(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'ids' => ['required', 'array', 'min:1', 'max:200'], 'ids.*' => ['integer'],
+            'aktion' => ['required', Rule::in(['archive', 'reopen', 'delete'])],
+        ], ['ids.required' => 'Bitte wählen Sie mindestens ein Projekt aus.']);
+
+        $done = 0;
+        $kept = 0;
+
+        foreach ($this->access->visible($this->user())->whereIn('id', $data['ids'])->get() as $project) {
+            if ($project->slug === TaskProject::BOARD && $data['aktion'] !== 'reopen') {
+                $kept++;
+
+                continue;
+            }
+
+            if ($data['aktion'] === 'delete') {
+                AuditLog::record(AuditEvent::TaskProjectDeleted, $this->user(), null, ['projekt' => $project->name, 'aufgaben' => $project->tasks()->count()]);
+                $project->tasks()->get()->each->delete();
+                $project->delete();
+            } else {
+                $project->update(['is_archived' => $data['aktion'] === 'archive']);
+                AuditLog::record(AuditEvent::TaskProjectSaved, $this->user(), null, ['projekt' => $project->name, 'aktion' => $data['aktion'] === 'archive' ? 'archiviert' : 'wieder geöffnet']);
+            }
+
+            $done++;
+        }
+
+        $noun = $done === 1 ? 'Projekt' : 'Projekte';
+        $message = match ($data['aktion']) {
+            'delete' => $done.' '.$noun.' samt Aufgaben gelöscht.',
+            'archive' => $done.' '.$noun.' archiviert.',
+            default => $done.' '.$noun.' wieder geöffnet.',
+        };
+
+        return redirect()->route('tasks.index')->with('success', $message.($kept > 0 ? ' Das Projekt „Vorstand“ bleibt stehen.' : ''));
+    }
+
+    /** @param \Illuminate\Database\Eloquent\Builder<TaskProject> $query @return \Illuminate\Database\Eloquent\Builder<TaskProject> */
+    private function withCounts($query, User $user)
+    {
+        return $query->withCount(['tasks as open_count' => fn ($tasks) => $tasks->whereNull('done_at'), 'tasks as overdue_count' => fn ($tasks) => $tasks->whereNull('done_at')->whereDate('due_on', '<', today()), 'tasks as mine_count' => fn ($tasks) => $tasks->whereNull('done_at')->whereHas('assignees', fn ($assignees) => $assignees->where('users.id', $user->id))]);
     }
 
     public function create(): View
     {
         abort_unless($this->access->isAdmin($this->user()), 403);
 
-        return view('tasks.projects.create', ['roles' => $this->roleOptions(), 'users' => $this->allUsers()]);
+        return view('tasks.projects.create', ['roles' => $this->roleOptions(), 'users' => $this->allUsers(), 'areas' => $this->areaOptions()]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -101,7 +165,7 @@ class ProjectController extends Controller
         return view('tasks.projects.edit', [
             'project' => $project, 'statuses' => $project->statuses()->withCount('tasks')->get(), 'labelRows' => $project->labels()->withCount('tasks')->get(), 'colors' => TaskLabel::COLORS, 'roles' => $this->roleOptions(), 'users' => $this->allUsers($project->members->pluck('id')->all()),
             'managers' => $project->members->where('pivot.role', 'manager')->pluck('id')->all(), 'members' => $project->members->where('pivot.role', 'member')->pluck('id')->all(),
-            'isAdmin' => $this->access->isAdmin($this->user()),
+            'isAdmin' => $this->access->isAdmin($this->user()), 'areas' => $this->areaOptions(),
         ]);
     }
 
@@ -113,6 +177,11 @@ class ProjectController extends Controller
         // Die Rolle eines Projekts (automatische Mitglieder) ändert nur tasks.admin; das Vorstandsprojekt behält seine Rolle.
         if (! $this->access->isAdmin($this->user()) || $project->slug === TaskProject::BOARD) {
             $data['role_key'] = $project->role_key;
+        }
+
+        // Den Bereich eines Projekts ändert ebenfalls nur tasks.admin; das Vorstandsprojekt bleibt im Bereich Vorstand.
+        if (! $this->access->isAdmin($this->user()) || $project->slug === TaskProject::BOARD) {
+            unset($data['area']);
         }
 
         try {
@@ -134,7 +203,7 @@ class ProjectController extends Controller
         $project->update(['is_archived' => ! $project->is_archived]);
         AuditLog::record(AuditEvent::TaskProjectSaved, $this->user(), null, ['projekt' => $project->name, 'aktion' => $project->is_archived ? 'archiviert' : 'wieder geöffnet']);
 
-        return redirect()->route('tasks.index')->with('success', $project->is_archived ? 'Das Projekt wurde archiviert.' : 'Das Projekt ist wieder aktiv.');
+        return redirect()->route($this->access->isAdmin($this->user()) ? 'tasks.index' : 'tasks.area', $this->access->isAdmin($this->user()) ? [] : ['area' => $project->area])->with('success', $project->is_archived ? 'Das Projekt wurde archiviert.' : 'Das Projekt ist wieder aktiv.');
     }
 
     public function destroy(TaskProject $project): RedirectResponse
@@ -154,6 +223,7 @@ class ProjectController extends Controller
             'name' => ['required', 'string', 'max:120'],
             'description' => ['nullable', 'string', 'max:2000'],
             'role_key' => ['nullable', Rule::in(self::ROLES)],
+            'area' => ['nullable', Rule::in(array_map(fn (PortalAreas $area): string => $area->value, PortalNavigation::taskAreas()))],
             'managers' => ['nullable', 'array'], 'managers.*' => ['integer'],
             'members' => ['nullable', 'array'], 'members.*' => ['integer'],
         ], ['name.required' => 'Bitte geben Sie dem Projekt einen Namen.']);
@@ -166,6 +236,12 @@ class ProjectController extends Controller
     private function ids(array $data, string $key): array
     {
         return array_values(array_unique(array_map('intval', $data[$key] ?? [])));
+    }
+
+    /** Bereiche, in denen ein Projekt erscheinen kann. @return array<string, string> */
+    private function areaOptions(): array
+    {
+        return collect(PortalNavigation::taskAreas())->mapWithKeys(fn (PortalAreas $area): array => [$area->value => $area->label()])->all();
     }
 
     /** @return array<string, string> */

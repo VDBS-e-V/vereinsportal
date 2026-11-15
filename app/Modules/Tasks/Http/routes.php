@@ -4,14 +4,23 @@ use App\Modules\Tasks\Http\Controllers\MyTasksController;
 use App\Modules\Tasks\Http\Controllers\ProjectController;
 use App\Modules\Tasks\Http\Controllers\TaskController;
 use App\Modules\Tasks\Http\Controllers\TemplateController;
+use App\Support\PortalAreas;
+use App\Support\PortalNavigation;
 use Illuminate\Support\Facades\Route;
 
 /*
- * Bereich Aufgaben: /aufgaben (Projekte), /aufgaben/meine, /aufgaben/projekte/{projekt} (Kanban und Liste), /aufgaben/{aufgabe}.
+ * Aufgabensystem: /<bereich>/aufgaben (Projekte des Bereichs), /aufgaben (Verwaltung aller Projekte, Geschäftsstelle), /aufgaben/meine (Konto),
+ * /aufgaben/projekte/{projekt} (Kanban und Liste), /aufgaben/{aufgabe}.
  * Berechtigung tasks.use; was jemand sieht, bestimmt die Mitgliedschaft im Projekt (Support: Services\ProjectAccess), Projekte anlegen und löschen erfordert tasks.admin.
  */
+// Aufgaben sind kein eigener Bereich: Im Menü jedes Bereichs mit Aufgaben steht „Aufgaben“ mit den Projekten dieses Bereichs (/<bereich>/aufgaben).
+Route::middleware(['web', 'auth', 'can:tasks.use'])->get('/{area}/aufgaben', [ProjectController::class, 'area'])
+    ->where('area', implode('|', array_map(fn (PortalAreas $area): string => $area->value, PortalNavigation::taskAreas())))->name('tasks.area');
+
 Route::middleware(['web', 'auth', 'can:tasks.use'])->prefix('aufgaben')->name('tasks.')->group(function (): void {
-    Route::get('/', [ProjectController::class, 'index'])->name('index');
+    // Allgemeine Verwaltung aller Projekte (Geschäftsstelle): nur mit tasks.admin
+    Route::get('/', [ProjectController::class, 'index'])->middleware('can:tasks.admin')->name('index');
+    Route::post('/projekte/aktion', [ProjectController::class, 'bulk'])->middleware(['can:tasks.admin', 'throttle:60,10'])->name('projects.bulk');
     Route::get('/meine', [MyTasksController::class, 'index'])->name('mine');
 
     Route::get('/projekte/neu', [ProjectController::class, 'create'])->name('projects.create');

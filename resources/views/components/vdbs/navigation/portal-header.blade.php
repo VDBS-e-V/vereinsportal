@@ -5,7 +5,7 @@
     $user = (! $safe && auth()->check()) ? auth()->user() : null;
     $routeName = $safe ? null : request()->route()?->getName();
     $visibleAreas = $user ? \App\Support\PortalNavigation::visibleAreas($user) : [];
-    $currentArea = \App\Support\PortalNavigation::areaForRoute($routeName);
+    $currentArea = $safe ? null : \App\Support\PortalNavigation::areaForRequest(request());
     // Ohne Anmeldung (und auf Fehlerseiten) stehen in Zeile 2 die öffentlichen Seiten des Bereichs Start.
     $navArea = $user === null ? \App\Support\PortalAreas::Start : $currentArea;
     // Die Übersicht (Startseite des Bereichs) ist über den Bereichstitel erreichbar und steht nicht noch einmal im Menü.

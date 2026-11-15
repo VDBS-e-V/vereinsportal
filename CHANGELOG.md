@@ -26,6 +26,7 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ### Changed
 
+- Aufgaben sind kein eigener Bereich mehr: Menüpunkt „Aufgaben“ in den Bereichen mit den Projekten des Bereichs (neues Feld „Bereich“ am Projekt), „Meine Aufgaben“ im Konto, allgemeine Verwaltung der Projekte (mit Mehrfachauswahl) in der Geschäftsstelle
 - „Ihre Aufgaben“ von der öffentlichen Startseite ins Konto und in die Bereichsübersichten verschoben; neuer Bereich „Aufgaben“
 - Vorstandsaufgaben ziehen per Migration ins Projekt „Vorstand“ um (Tabellen `board_tasks` und `board_task_user` entfallen; vorher Datenbank sichern)
 - CI prüft die Design-Bibliothek mit `design:check`

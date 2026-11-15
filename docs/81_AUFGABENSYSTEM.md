@@ -1,6 +1,6 @@
 # Aufgabensystem (Projekte, Status, Kanban)
 
-Ein allgemeines Aufgabensystem für das ganze Portal. Eigener Bereich **Aufgaben** in der Kopfleiste (Modul `Tasks`); sichtbar für Vorstand, Administration, Geschäftsstelle, Koordination, Bildungsreferenten, Geschäftsführung, Kassenführung und Mitarbeitende (Berechtigung `tasks.use`). Teamende, Mitglieder und Schulen sehen den Bereich nicht.
+Ein allgemeines Aufgabensystem für das ganze Portal. **Kein eigener Bereich:** Aufgaben erscheinen als Menüpunkt „Aufgaben“ in den Bereichen (Projekte je Bereich), „Meine Aufgaben“ im Konto, die allgemeine Verwaltung in der Geschäftsstelle (`docs/43_BEREICHE.md`, Abschnitt „Aufgaben in den Bereichen“). Modul `Tasks`; nutzbar für Vorstand, Administration, Geschäftsstelle, Koordination, Bildungsreferenten, Geschäftsführung, Kassenführung und Mitarbeitende (Berechtigung `tasks.use`). Teamende, Mitglieder und Schulen sehen den Bereich nicht.
 
 ## Projekte und Zugriff
 

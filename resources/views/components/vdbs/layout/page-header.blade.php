@@ -10,7 +10,7 @@
 
 @php
     // Erste Brotkrume = Startseite des Bereichs (Seiten ohne Bereich bleiben unverändert)
-    $breadcrumb = \App\Support\PortalNavigation::breadcrumb($breadcrumb, request()->route()?->getName());
+    $breadcrumb = \App\Support\PortalNavigation::breadcrumb($breadcrumb, request()->route()?->getName(), \App\Support\PortalNavigation::areaForRequest(request()));
     $tag = 'h'.max(1, min(3, (int) $level));
     $id ??= 'page-'.\Illuminate\Support\Str::slug($title);
 @endphp

@@ -1,5 +1,5 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Aufgaben', 'href' => route('tasks.index')], ['label' => $project->name]];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Aufgaben', 'href' => route('tasks.area', ['area' => $project->area])], ['label' => $project->name]];
     $query = fn (array $extra = []) => array_filter(array_merge(request()->only(['q', 'assignee', 'priority', 'label', 'status', 'overdue']), $extra), fn ($value) => $value !== null && $value !== '');
     $byStatus = $tasks->groupBy('task_status_id');
     $assigneeOptions = ['me' => 'Ich', 'none' => 'Niemand'] + $assignable;

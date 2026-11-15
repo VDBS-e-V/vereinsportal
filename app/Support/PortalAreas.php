@@ -3,10 +3,10 @@
 namespace App\Support;
 
 /**
- * Zentrale Liste der zwölf Portal-Bereiche.
+ * Zentrale Liste der elf Portal-Bereiche.
  *
  * Bereiche sind rollenbasierte UI-/Permission-Scopes, keine eigenen Module.
- * Start und Konto tragen nur Icon und Label; die zehn rollenbasierten Bereiche
+ * Start und Konto tragen nur Icon und Label; die neun rollenbasierten Bereiche
  * erhalten zyklisch eine Gruppen-Marke 1-6 (Styleguide 9.2), danach beginnt der
  * Zyklus wieder bei 1.
  */
@@ -23,7 +23,6 @@ enum PortalAreas: string
     case Geschaeftsstelle = 'geschaeftsstelle';
     case Bildungsreferenten = 'bildungsreferenten';
     case Admins = 'admins';
-    case Aufgaben = 'aufgaben';
 
     public const GROUP_MARK_COUNT = 6;
 
@@ -41,7 +40,6 @@ enum PortalAreas: string
             self::Geschaeftsstelle => 'Geschäftsstelle',
             self::Bildungsreferenten => 'Bildungsreferenten',
             self::Admins => 'Admins',
-            self::Aufgaben => 'Aufgaben',
         };
     }
 
@@ -60,7 +58,6 @@ enum PortalAreas: string
             self::Geschaeftsstelle => 'building-2',
             self::Bildungsreferenten => 'graduation-cap',
             self::Admins => 'shield',
-            self::Aufgaben => 'square-kanban',
         };
     }
 

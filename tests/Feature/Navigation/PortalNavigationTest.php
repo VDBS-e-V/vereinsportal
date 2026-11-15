@@ -56,6 +56,13 @@ it('lists every page of the catalog under exactly one area with an existing rout
 
     foreach (PortalNavigation::catalog() as $key => $definition) {
         foreach ($definition['pages'] as $page) {
+            // Die Aufgaben-Seiten stehen in mehreren Bereichen und gehören zum Bereich ihres Projekts (areaForRequest, siehe TaskSystemTest)
+            if (! empty($page['dynamic'])) {
+                expect(Route::has($page['route']))->toBeTrue()->and(PortalNavigation::taskAreas())->toContain(PortalAreas::from($key));
+
+                continue;
+            }
+
             expect(Route::has($page['route']))->toBeTrue()
                 ->and(PortalNavigation::areaForRoute($page['route']))->toBe(PortalAreas::from($key));
 
@@ -83,7 +90,8 @@ it('assigns every page behind the login to an area', function () {
             continue;
         }
 
-        if (PortalNavigation::areaForRoute($name) === null) {
+        // Aufgaben-Seiten eines Projekts gehören zum Bereich des Projekts (areaForRequest)
+        if (PortalNavigation::areaForRoute($name) === null && ! PortalNavigation::isProjectBoundRoute($name)) {
             $unassigned[] = $name;
         }
     }
@@ -97,7 +105,8 @@ it('makes every page reachable for every role that holds its capability', functi
         $area = PortalAreas::from($key);
 
         foreach ($definition['pages'] as $page) {
-            if (! isset($page['can'])) {
+            // Die Seite „Aufgaben“ eines Bereichs ist an dessen eigene Rollen gebunden (any_role)
+            if (! isset($page['can']) || isset($page['any_role'])) {
                 continue;
             }
 
@@ -124,10 +133,10 @@ it('knows no area for pages outside the portal areas', function () {
 it('shows areas by role and only when the user may see a page in them', function () {
     expect(pnAreaLabels(pnUser()))->toBe([])
         ->and(pnAreaLabels(pnUser(RoleKey::Member)))->toBe(['Mitglieder'])
-        ->and(pnAreaLabels(pnUser(RoleKey::AdministrationStaff)))->toBe(['Koordination', 'Geschäftsstelle', 'Aufgaben'])
-        ->and(pnAreaLabels(pnUser(RoleKey::Administration)))->toBe(['Geschäftsstelle', 'Admins', 'Aufgaben'])
-        ->and(pnAreaLabels(pnUser(RoleKey::Coordination)))->toBe(['Koordination', 'Aufgaben'])
-        ->and(pnAreaLabels(pnUser(RoleKey::BoardMember)))->toBe(['Vorstand', 'Koordination', 'Geschäftsstelle', 'Admins', 'Aufgaben']);
+        ->and(pnAreaLabels(pnUser(RoleKey::AdministrationStaff)))->toBe(['Koordination', 'Geschäftsstelle'])
+        ->and(pnAreaLabels(pnUser(RoleKey::Administration)))->toBe(['Geschäftsstelle', 'Admins'])
+        ->and(pnAreaLabels(pnUser(RoleKey::Coordination)))->toBe(['Koordination'])
+        ->and(pnAreaLabels(pnUser(RoleKey::BoardMember)))->toBe(['Vorstand', 'Koordination', 'Geschäftsstelle', 'Admins']);
 });
 
 it('ignores roles that have ended', function () {

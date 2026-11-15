@@ -5,6 +5,9 @@ namespace App\Support;
 use App\Modules\Access\Models\User;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Support\Capabilities;
+use App\Modules\Tasks\Models\Task;
+use App\Modules\Tasks\Models\TaskProject;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 /**
@@ -30,6 +33,48 @@ final class PortalNavigation
      * @return array<string, array{roles: list<RoleKey>, routes?: list<string>, pages: list<array<string, mixed>>}>
      */
     public static function catalog(): array
+    {
+        $catalog = self::baseCatalog();
+
+        // Aufgaben sind kein eigener Bereich: Jeder Bereich, in dem Aufgaben genutzt werden, hat den Menüpunkt „Aufgaben“ mit den Projekten dieses Bereichs
+        foreach (self::taskAreas() as $area) {
+            $catalog[$area->value]['pages'][] = [
+                'description' => 'Projekte dieses Bereichs mit Kanban-Tafel und Liste.', 'label' => 'Aufgaben', 'route' => 'tasks.area', 'params' => ['area' => $area->value],
+                'match' => ['tasks.area', 'tasks.projects.show', 'tasks.projects.edit', 'tasks.projects.update', 'tasks.templates.*', 'tasks.show', 'tasks.update', 'tasks.store', 'tasks.bulk', 'tasks.move', 'tasks.destroy', 'tasks.comments.*', 'tasks.attachments.*', 'tasks.subtasks.*'],
+                'dynamic' => true, 'can' => 'tasks.use',
+                // „Aufgaben“ erscheint nur für die eigenen Rollen des Bereichs (das Vorstandsmitglied sieht jeden Bereich, bekäme sonst auch leere Aufgabenseiten fremder Bereiche)
+                'any_role' => array_map(fn (RoleKey $role): string => $role->value, $catalog[$area->value]['roles']),
+            ];
+        }
+
+        // Die allgemeine Verwaltung der Aufgabenprojekte gehört zur Geschäftsstelle
+        $catalog[PortalAreas::Geschaeftsstelle->value]['pages'][] = [
+            'description' => 'Alle Projekte anlegen, archivieren und löschen, Bereich und Mitglieder festlegen.', 'label' => 'Aufgaben verwalten', 'route' => 'tasks.index',
+            'match' => ['tasks.index', 'tasks.projects.create', 'tasks.projects.store', 'tasks.projects.archive', 'tasks.projects.destroy'], 'can' => 'tasks.admin',
+        ];
+
+        return $catalog;
+    }
+
+    /**
+     * Bereiche, in denen das Aufgabensystem genutzt wird (Rollen mit der Berechtigung tasks.use).
+     *
+     * @return list<PortalAreas>
+     */
+    public static function taskAreas(): array
+    {
+        return [PortalAreas::Vorstand, PortalAreas::Mitarbeitende, PortalAreas::Koordination, PortalAreas::Geschaeftsstelle, PortalAreas::Bildungsreferenten, PortalAreas::Admins];
+    }
+
+    /** Aufgaben-Routen, die zu genau einem Bereich gehören (alle anderen tasks.*-Routen gehören zum Bereich ihres Projekts, siehe areaForRequest). */
+    private const FIXED_TASK_ROUTES = ['tasks.mine', 'tasks.index', 'tasks.projects.create', 'tasks.projects.store', 'tasks.projects.archive', 'tasks.projects.destroy'];
+
+    /**
+     * Der Katalog ohne die Aufgaben-Seiten, die für jeden Bereich gleich gebaut werden.
+     *
+     * @return array<string, array{roles: list<RoleKey>, routes?: list<string>, pages: list<array<string, mixed>>}>
+     */
+    private static function baseCatalog(): array
     {
         return [
             PortalAreas::Start->value => [
@@ -62,6 +107,7 @@ final class PortalNavigation
                         ['description' => 'Authentifizierungs-App, E-Mail-Code und Wiederherstellungscodes.', 'label' => 'Zwei-Faktor', 'route' => 'account.security.index', 'match' => 'account.security.*'],
                         ['description' => 'Wo Ihr Konto angemeldet ist.', 'label' => 'Sitzungen', 'route' => 'account.sessions', 'match' => 'account.sessions*'],
                     ]],
+                    ['description' => 'Alle Aufgaben, die Ihnen zugewiesen sind, aus allen Projekten.', 'label' => 'Meine Aufgaben', 'route' => 'tasks.mine', 'match' => 'tasks.mine', 'can' => 'tasks.use'],
                     ['description' => 'Systeme, bei denen Sie sich über das Portal angemeldet haben.', 'label' => 'Verbundene Anwendungen', 'route' => 'account.apps', 'match' => 'account.apps*'],
                     ['description' => 'Ihre Rollen und die Bereiche, die Ihnen offenstehen.', 'label' => 'Rollen & Bereiche', 'route' => 'account.roles', 'match' => 'account.roles'],
                     ['label' => 'Einstellungen', 'group' => true, 'route' => 'account.notifications', 'children' => [
@@ -199,15 +245,6 @@ final class PortalNavigation
                     ['description' => 'Komponenten und Muster des Designsystems.', 'label' => 'Design-Bibliothek', 'route' => 'design-library.index', 'match' => 'design-library.*', 'can' => 'design.view'],
                 ],
             ],
-            PortalAreas::Aufgaben->value => [
-                'home' => 'tasks.index',
-                'routes' => ['tasks.projects.*', 'tasks.show', 'tasks.update', 'tasks.store', 'tasks.bulk', 'tasks.move', 'tasks.destroy', 'tasks.comments.*', 'tasks.templates.*', 'tasks.attachments.*', 'tasks.subtasks.*'],
-                'roles' => [RoleKey::BoardMember, RoleKey::Administration, RoleKey::AdministrationStaff, RoleKey::Coordination, RoleKey::EducationCoordination, RoleKey::ManagingDirector, RoleKey::Treasury, RoleKey::Employee],
-                'pages' => [
-                    ['description' => 'Projekte mit Kanban-Tafel und Liste.', 'label' => 'Projekte', 'route' => 'tasks.index', 'match' => 'tasks.index', 'can' => 'tasks.use'],
-                    ['description' => 'Alle Aufgaben, die Ihnen zugewiesen sind.', 'label' => 'Meine Aufgaben', 'route' => 'tasks.mine', 'match' => 'tasks.mine', 'can' => 'tasks.use'],
-                ],
-            ],
         ];
     }
 
@@ -257,6 +294,11 @@ final class PortalNavigation
                 continue;
             }
 
+            // „any_role“: Seite nur für Konten mit einer dieser Rollen
+            if (isset($page['any_role']) && ($user === null || array_intersect($page['any_role'], Capabilities::activeRoleKeys($user)) === [])) {
+                continue;
+            }
+
             // „unless“: Seite entfällt für Nutzer mit dieser Berechtigung (z. B. kein Profil für Schulkonten)
             if (isset($page['unless']) && $user !== null && $user->can($page['unless'])) {
                 continue;
@@ -267,7 +309,7 @@ final class PortalNavigation
             $visible[] = [
                 'label' => $page['label'],
                 'description' => $page['description'] ?? null,
-                'href' => $group ? $children[0]['href'] : route($page['route']).(isset($page['fragment']) ? '#'.$page['fragment'] : ''),
+                'href' => $group ? $children[0]['href'] : route($page['route'], $page['params'] ?? []).(isset($page['fragment']) ? '#'.$page['fragment'] : ''),
                 'current' => $current,
                 'active' => $current || array_filter($children, fn (array $child): bool => $child['active']) !== [],
                 'group' => $group,
@@ -297,9 +339,9 @@ final class PortalNavigation
      * @param  list<array{label: string, href?: ?string}>  $items
      * @return list<array{label: string, href?: ?string}>
      */
-    public static function breadcrumb(array $items, ?string $routeName): array
+    public static function breadcrumb(array $items, ?string $routeName, ?PortalAreas $area = null): array
     {
-        $area = self::areaForRoute($routeName);
+        $area ??= self::areaForRoute($routeName);
 
         if ($area === null || $items === []) {
             return $items;
@@ -323,10 +365,58 @@ final class PortalNavigation
         return [$first, ...array_values($items)];
     }
 
-    /** Zu welchem Bereich gehört eine Seite (Routenname)? Null für Seiten ohne Bereich (Anmeldung, Fehlerseiten). */
+    /**
+     * Zu welchem Bereich gehört die aktuelle Seite? Wie areaForRoute, aber auch für die Seiten des Aufgabensystems, die zum Bereich ihres Projekts gehören
+     * (Projekt, Aufgabe, Vorlagen) oder des Menüpunkts „Aufgaben“ (tasks.area). Kann die Person diesen Bereich nicht betreten (z. B. Mitglied in einem
+     * fremden Projekt), bleibt sie in einem ihrer Bereiche mit Aufgaben, sonst im Konto.
+     */
+    public static function areaForRequest(?Request $request): ?PortalAreas
+    {
+        $route = $request?->route();
+        $name = $route?->getName();
+
+        if ($name === null) {
+            return null;
+        }
+
+        if (! self::isProjectBoundRoute($name)) {
+            return self::areaForRoute($name);
+        }
+
+        if ($name === 'tasks.area') {
+            $area = PortalAreas::tryFrom((string) $route->parameter('area'));
+        } else {
+            $model = $route->parameter('project') ?? $route->parameter('task');
+            $model = $model instanceof Task ? $model->project : $model;
+            $area = $model instanceof TaskProject ? $model->portalArea() : null;
+        }
+
+        $user = $request->user();
+
+        if ($area !== null && ($user === null || self::canEnter($area, $user))) {
+            return $area;
+        }
+
+        // Ohne Zutritt: ein eigener Bereich mit Aufgaben, sonst das Konto
+        foreach ($user === null ? [] : self::visibleAreas($user) as $own) {
+            if (in_array($own, self::taskAreas(), true)) {
+                return $own;
+            }
+        }
+
+        return PortalAreas::Konto;
+    }
+
+    /** Gehört die Aufgaben-Route zum Bereich eines Projekts (nicht zu einem festen Bereich wie „Meine Aufgaben“ im Konto)? */
+    public static function isProjectBoundRoute(string $routeName): bool
+    {
+        return Str::is('tasks.*', $routeName) && ! in_array($routeName, self::FIXED_TASK_ROUTES, true);
+    }
+
+    /** Zu welchem Bereich gehört eine Seite (Routenname)? Null für Seiten ohne Bereich (Anmeldung, Fehlerseiten) und für Aufgaben-Seiten, die zum Bereich ihres Projekts gehören (areaForRequest). */
     public static function areaForRoute(?string $routeName): ?PortalAreas
     {
-        if ($routeName === null) {
+        if ($routeName === null || self::isProjectBoundRoute($routeName)) {
             return null;
         }
 
@@ -351,8 +441,10 @@ final class PortalNavigation
 
         $collect = function (array $pages) use (&$patterns, &$collect): void {
             foreach ($pages as $page) {
-                if (isset($page['match'])) {
-                    $patterns[] = $page['match'];
+                if (isset($page['match']) && empty($page['dynamic'])) {
+                    foreach ((array) $page['match'] as $match) {
+                        $patterns[] = $match;
+                    }
                 }
 
                 $collect($page['children'] ?? []);

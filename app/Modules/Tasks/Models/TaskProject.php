@@ -3,6 +3,7 @@
 namespace App\Modules\Tasks\Models;
 
 use App\Modules\Access\Models\User;
+use App\Support\PortalAreas;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -18,11 +19,17 @@ class TaskProject extends Model
     /** Voreingestellte Spalten: Name => erledigt? */
     public const DEFAULT_STATUSES = ['Offen' => false, 'In Arbeit' => false, 'Wartet' => false, 'Erledigt' => true];
 
-    protected $fillable = ['slug', 'name', 'description', 'role_key', 'is_archived', 'created_by'];
+    protected $fillable = ['slug', 'name', 'description', 'role_key', 'area', 'is_archived', 'created_by'];
 
     protected function casts(): array
     {
         return ['is_archived' => 'boolean'];
+    }
+
+    /** Der Bereich, in dessen Menü „Aufgaben“ das Projekt erscheint (Standard: Geschäftsstelle). */
+    public function portalArea(): PortalAreas
+    {
+        return PortalAreas::tryFrom((string) $this->area) ?? PortalAreas::Geschaeftsstelle;
     }
 
     /** @return HasMany<TaskStatus, $this> */
