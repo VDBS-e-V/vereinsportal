@@ -9,11 +9,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /** Eine Gruppe von Fragen auf der FAQ-Seite (z. B. „Zugang beantragen“). Im Portal pflegbar. */
 class FaqCategory extends Model
 {
-    protected $fillable = ['title', 'description', 'sort_order', 'in_faq_page', 'is_active'];
+    protected $fillable = ['title', 'description', 'sort_order', 'is_active'];
 
     protected function casts(): array
     {
-        return ['in_faq_page' => 'boolean', 'is_active' => 'boolean', 'sort_order' => 'integer'];
+        return ['is_active' => 'boolean', 'sort_order' => 'integer'];
     }
 
     /** @return HasMany<FaqEntry, $this> */

@@ -18,8 +18,7 @@
             <x-vdbs.forms.input name="title" label="Bezeichnung" :required="true" maxlength="150" :value="$category->title" />
             <x-vdbs.forms.input name="description" label="Kurzbeschreibung" :optional="true" maxlength="250" :value="$category->description" hint="Steht unter der Überschrift auf der FAQ-Seite." />
             <x-vdbs.forms.input name="sort_order" label="Reihenfolge" type="number" :optional="true" :value="$category->sort_order" hint="Kleine Zahlen stehen oben." />
-            <x-vdbs.forms.checkbox name="is_active" label="Sichtbar" :checked="(bool) old('is_active', $category->is_active)" hint="Ausgeblendete Kategorien erscheinen nirgends, auch nicht über Kontaktthemen." />
-            <x-vdbs.forms.checkbox name="in_faq_page" label="Auf der großen FAQ-Seite zeigen" :checked="(bool) old('in_faq_page', $category->in_faq_page)" hint="Ohne Häkchen erscheinen die Fragen nur dort, wo ein Kontaktthema auf diese Kategorie verweist." />
+            <x-vdbs.forms.checkbox name="is_active" label="Sichtbar" :checked="(bool) old('is_active', $category->is_active)" hint="Ausgeblendete Kategorien erscheinen nirgends, auch nicht über Kontaktthemen, die zu ihnen führen." />
         </x-vdbs.forms.form-section>
 
         <x-slot:actions>

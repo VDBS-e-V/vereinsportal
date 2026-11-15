@@ -8,7 +8,7 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ### Added
 
-- Kontaktformular als geführter Ablauf (Thema wählen, Angaben zur Person, Anfrage oder nur Angaben) mit im Portal pflegbaren Themen, FAQ-Seiten, Formularen und eigenen Feldern (Doc 82)
+- Kontaktformular als geführter Ablauf (Thema wählen, Angaben zur Person, Anfrage oder nur Angaben; Themen ohne Formular führen zur FAQ-Seite, keine Infoseiten unter /kontakt) mit im Portal pflegbaren Themen, FAQ-Seiten, Formularen und eigenen Feldern (Doc 82)
 - FAQ als eigenes Modul: große FAQ-Seite `/faq` mit Suche, eigene Verwaltung (Geschäftsstelle › FAQ) mit Kategorien und Fragen, vom Kontaktformular getrennt; Entwurf der Fragen und Antworten als Ausgangsbestand (Doc 83)
 - Designsystem: Auswahlkästchen für Tabellenzeilen (`x-vdbs.data.table-check`) mit Kopfkästchen „Alle auswählen“; alle Tabellen mit Mehrfachauswahl nutzen es
 - Briefvorlagen aus Word mit Platzhaltern, Wenn-/Ohne-Blöcken, Platzhalterliste und sieben Beispielvorlagen (Docs 77, 78)

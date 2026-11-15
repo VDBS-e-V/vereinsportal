@@ -15,7 +15,7 @@ use Throwable;
 
 /**
  * Öffentlicher Ablauf des Kontaktbereichs: 1. Thema wählen (Bereiche, Suche), 2. Angaben zur Person, 3. Anfrage oder weitere Angaben.
- * Ein Thema führt zu einem Formular, zum Standardformular, zu einer FAQ-Seite oder zu einem Link. Gespeichert wird nichts, die Angaben gehen per E-Mail an die Stelle des Formulars.
+ * Ein Thema führt zu einem Formular oder zum Standardformular, alle anderen Themen zur FAQ-Seite (/faq). Gespeichert wird nichts, die Angaben gehen per E-Mail an die Stelle des Formulars.
  */
 class ContactFlowController extends Controller
 {
@@ -63,14 +63,13 @@ class ContactFlowController extends Controller
     }
 
     /** Ein Thema: führt je nach Art zum Formular, zur FAQ-Seite oder zum Link. */
-    public function topic(ContactTopic $topic): View|RedirectResponse
+    public function topic(ContactTopic $topic): RedirectResponse
     {
         abort_unless($topic->is_active && ($topic->parent === null || $topic->parent->is_active), 404);
 
         return match ($topic->action) {
             'category' => redirect()->route('portal.contact', ['bereich' => $topic->id]),
-            'link' => $this->redirectToLink($topic),
-            'faq' => $this->faq($topic),
+            'faq' => $this->redirectToFaq($topic),
             default => $this->redirectToForm($topic),
         };
     }
@@ -166,14 +165,12 @@ class ContactFlowController extends Controller
         return redirect()->route('portal.contact')->with('success', $success);
     }
 
-    private function faq(ContactTopic $topic): View
+    /** Zur FAQ-Seite, zur Kategorie des Themas. */
+    private function redirectToFaq(ContactTopic $topic): RedirectResponse
     {
-        $topic->load(['faqCategory.entries', 'form']);
-        $follow = $topic->faq_offer_form ? ($topic->targetForm() ?? ContactForm::standard()) : null;
+        abort_unless($topic->isReachable(), 404);
 
-        $category = $topic->faqCategory !== null && $topic->faqCategory->is_active ? $topic->faqCategory : null;
-
-        return view('contact.faq', ['topic' => $topic, 'follow' => $follow, 'category' => $category]);
+        return redirect()->to(route('portal.faq').'#kategorie-'.$topic->faq_category_id);
     }
 
     private function redirectToForm(ContactTopic $topic): RedirectResponse
@@ -182,15 +179,5 @@ class ContactFlowController extends Controller
         abort_if($form === null, 404);
 
         return redirect()->route('portal.contact.form', ['form' => $form->slug, 'thema' => $topic->id]);
-    }
-
-    private function redirectToLink(ContactTopic $topic): RedirectResponse
-    {
-        $url = (string) $topic->target_url;
-
-        // Nur eigene Pfade oder https-Adressen
-        abort_unless(preg_match('#^(/(?!/)|https://)#', $url) === 1, 404);
-
-        return str_starts_with($url, '/') ? redirect($url) : redirect()->away($url);
     }
 }

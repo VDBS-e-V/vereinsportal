@@ -6,7 +6,7 @@
 @endphp
 
 <x-layouts.app :title="$title" width="wide">
-    <x-vdbs.layout.page-header :title="$title" lead="Ein Thema führt zu einem Formular, zum Standardformular, zu einer FAQ-Seite oder zu einer anderen Seite. Bereiche fassen Themen zusammen." :breadcrumb="$crumbs" />
+    <x-vdbs.layout.page-header :title="$title" lead="Ein Thema führt zu einem Kontaktformular oder zum Standardformular. Alle anderen Themen führen zur FAQ-Seite. Bereiche fassen Themen zusammen." :breadcrumb="$crumbs" />
 
     <x-vdbs.forms.form :action="$editing ? route('contact-admin.topics.update', $topic) : route('contact-admin.topics.store')" :method="$editing ? 'put' : 'post'">
         <x-vdbs.forms.form-section title="Thema">
@@ -22,10 +22,8 @@
 
         <x-vdbs.forms.form-section title="Wohin führt das Thema?">
             <x-vdbs.forms.select name="action" label="Art" :required="true" :options="\App\Modules\ContactForms\Models\ContactTopic::ACTIONS" :value="$topic->action" :hint="$hasChildren ? 'Dieser Bereich enthält Themen und bleibt ein Bereich.' : null" />
-            <x-vdbs.forms.select name="faq_category_id" label="FAQ-Kategorie" :optional="true" placeholder="-- bitte wählen --" :options="$faqCategories" :value="$topic->faq_category_id" hint="Für „Führt zu einer FAQ-Seite“: Die Fragen dieser Kategorie erscheinen auf der Themenseite. Fragen und Kategorien pflegen Sie unter Geschäftsstelle › FAQ." />
-            <x-vdbs.forms.select name="contact_form_id" label="Formular" :optional="true" placeholder="-- bitte wählen --" :options="$forms" :value="$topic->contact_form_id" hint="Für „Führt zu einem Formular“. Bei einer FAQ-Seite: das Formular für Rückfragen (sonst das Standardformular)." />
-            <x-vdbs.forms.input name="target_url" label="Link" :optional="true" maxlength="500" :value="$topic->target_url" hint="Für „Führt zu einer anderen Seite“: ein Pfad im Portal wie /zugang-zum-portal oder eine Adresse mit https://." />
-            <x-vdbs.forms.checkbox name="faq_offer_form" label="Auf der FAQ-Seite „Uns schreiben“ anbieten" :checked="(bool) old('faq_offer_form', $topic->faq_offer_form)" />
+            <x-vdbs.forms.select name="faq_category_id" label="FAQ-Kategorie" :optional="true" placeholder="-- bitte wählen --" :options="$faqCategories" :value="$topic->faq_category_id" hint="Für „Führt zur FAQ-Seite“: Das Thema öffnet die FAQ-Seite an dieser Kategorie. Fragen und Kategorien pflegen Sie unter Geschäftsstelle › FAQ." />
+            <x-vdbs.forms.select name="contact_form_id" label="Formular" :optional="true" placeholder="-- bitte wählen --" :options="$forms" :value="$topic->contact_form_id" hint="Für „Führt zu einem Formular“." />
         </x-vdbs.forms.form-section>
 
         <x-slot:actions>

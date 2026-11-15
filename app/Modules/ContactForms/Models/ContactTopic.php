@@ -8,22 +8,21 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/** Ein Thema der Themenwahl im Kontaktbereich: Bereich (Kategorie) oder ein Ziel (Formular, FAQ-Seite, Standardformular, Link). */
+/** Ein Thema der Themenwahl im Kontaktbereich: Bereich (Kategorie) oder ein Ziel (Formular oder Standardformular; sonst die FAQ-Seite). Unter /kontakt gibt es keine Infoseiten. */
 class ContactTopic extends Model
 {
     public const ACTIONS = [
         'category' => 'Bereich (fasst Themen zusammen)',
         'form' => 'Führt zu einem Formular',
         'default' => 'Führt zum Standard-Kontaktformular',
-        'faq' => 'Führt zu einer FAQ-Seite',
-        'link' => 'Führt zu einer anderen Seite (Link)',
+        'faq' => 'Führt zur FAQ-Seite',
     ];
 
-    protected $fillable = ['parent_id', 'title', 'description', 'keywords', 'action', 'contact_form_id', 'faq_category_id', 'target_url', 'faq_offer_form', 'sort_order', 'is_active'];
+    protected $fillable = ['parent_id', 'title', 'description', 'keywords', 'action', 'contact_form_id', 'faq_category_id', 'sort_order', 'is_active'];
 
     protected function casts(): array
     {
-        return ['faq_offer_form' => 'boolean', 'is_active' => 'boolean', 'sort_order' => 'integer'];
+        return ['is_active' => 'boolean', 'sort_order' => 'integer'];
     }
 
     /** @return BelongsTo<ContactTopic, $this> */
@@ -74,8 +73,7 @@ class ContactTopic extends Model
     {
         return match ($this->action) {
             'form', 'default' => $this->targetForm() !== null,
-            'faq' => ($this->faqCategory !== null && $this->faqCategory->is_active && $this->faqCategory->entries->where('is_active', true)->isNotEmpty()) || ($this->faq_offer_form && ($this->targetForm() ?? ContactForm::standard()) !== null),
-            'link' => filled($this->target_url),
+            'faq' => $this->faqCategory !== null && $this->faqCategory->is_active && $this->faqCategory->entries->where('is_active', true)->isNotEmpty(),
             default => false,
         };
     }

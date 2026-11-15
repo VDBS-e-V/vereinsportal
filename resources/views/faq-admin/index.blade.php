@@ -18,7 +18,7 @@
     @else
         <form method="post" action="{{ route('faq-admin.bulk') }}" id="bulk-faq-categories">
             @csrf
-            <x-vdbs.data.table caption="FAQ-Kategorien" :columns="[['key' => 'sel', 'label' => 'Auswahl', 'selectAll' => 'bulk-faq-categories'], ['key' => 'title', 'label' => 'Kategorie'], ['key' => 'count', 'label' => 'Fragen'], ['key' => 'page', 'label' => 'Auf der FAQ-Seite'], ['key' => 'status', 'label' => 'Status'], ['key' => 'actions', 'label' => 'Aktionen']]">
+            <x-vdbs.data.table caption="FAQ-Kategorien" :columns="[['key' => 'sel', 'label' => 'Auswahl', 'selectAll' => 'bulk-faq-categories'], ['key' => 'title', 'label' => 'Kategorie'], ['key' => 'count', 'label' => 'Fragen'], ['key' => 'status', 'label' => 'Status'], ['key' => 'actions', 'label' => 'Aktionen']]">
                 @foreach ($categories as $category)
                     <tr>
                         <x-vdbs.data.table-check name="ids[]" :value="$category->id" :label="$category->title.' auswählen'" form="bulk-faq-categories" />
@@ -27,7 +27,6 @@
                             @if (filled($category->description))<br><small>{{ $category->description }}</small>@endif
                         </td>
                         <td>{{ $category->entries_count }}</td>
-                        <td>{{ $category->in_faq_page ? 'ja' : 'nein, nur über Kontaktthemen' }}</td>
                         <td>
                             @if ($category->is_active)
                                 <x-vdbs.data.badge tone="success">sichtbar</x-vdbs.data.badge>

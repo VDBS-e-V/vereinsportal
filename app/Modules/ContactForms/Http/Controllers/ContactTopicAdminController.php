@@ -28,7 +28,7 @@ class ContactTopicAdminController extends Controller
 
     public function create(Request $request): View
     {
-        $topic = new ContactTopic(['action' => $request->query('art', 'form'), 'is_active' => true, 'faq_offer_form' => true, 'sort_order' => 0, 'parent_id' => $request->integer('bereich') ?: null]);
+        $topic = new ContactTopic(['action' => $request->query('art', 'form'), 'is_active' => true, 'sort_order' => 0, 'parent_id' => $request->integer('bereich') ?: null]);
 
         return view('contact-admin.topic-form', $this->formData($topic));
     }
@@ -135,7 +135,6 @@ class ContactTopicAdminController extends Controller
             'action' => ['required', Rule::in(array_keys(ContactTopic::ACTIONS))],
             'parent_id' => ['nullable', 'integer', Rule::exists('contact_topics', 'id')->where('action', 'category')],
             'contact_form_id' => ['nullable', 'integer', 'exists:contact_forms,id'],
-            'target_url' => ['nullable', 'string', 'max:500'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:9999'],
             'faq_category_id' => ['nullable', 'integer', 'exists:faq_categories,id'],
         ], [
@@ -163,16 +162,8 @@ class ContactTopicAdminController extends Controller
             $errors['contact_form_id'] = 'Bitte wählen Sie das Formular, zu dem das Thema führt.';
         }
 
-        if ($action === 'link') {
-            $url = trim((string) ($data['target_url'] ?? ''));
-
-            if (preg_match('#^(/(?!/)|https://)#', $url) !== 1) {
-                $errors['target_url'] = 'Bitte geben Sie einen Pfad im Portal (z. B. /zugang-zum-portal) oder eine Adresse mit https:// ein.';
-            }
-        }
-
         if ($action === 'faq' && blank($data['faq_category_id'] ?? null)) {
-            $errors['faq_category_id'] = 'Bitte wählen Sie die FAQ-Kategorie, deren Fragen das Thema zeigt. Neue Kategorien legen Sie unter Geschäftsstelle › FAQ an.';
+            $errors['faq_category_id'] = 'Bitte wählen Sie die FAQ-Kategorie, zu der das Thema führt. Neue Kategorien legen Sie unter Geschäftsstelle › FAQ an.';
         }
 
         if ($errors !== []) {
@@ -185,10 +176,8 @@ class ContactTopicAdminController extends Controller
             'keywords' => filled($data['keywords'] ?? null) ? trim($data['keywords']) : null,
             'action' => $action,
             'parent_id' => $action === 'category' ? null : ($data['parent_id'] ?? null),
-            'contact_form_id' => $action === 'form' || $action === 'faq' ? ($data['contact_form_id'] ?? null) : null,
+            'contact_form_id' => $action === 'form' ? ($data['contact_form_id'] ?? null) : null,
             'faq_category_id' => $action === 'faq' ? ($data['faq_category_id'] ?? null) : null,
-            'target_url' => $action === 'link' ? trim((string) $data['target_url']) : null,
-            'faq_offer_form' => $request->boolean('faq_offer_form'),
             'sort_order' => (int) ($data['sort_order'] ?? 0),
             'is_active' => $request->boolean('is_active'),
         ];

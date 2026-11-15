@@ -64,7 +64,7 @@ it('searches the questions and answers', function () {
 });
 
 it('keeps hidden categories off the page', function () {
-    fqCategory('Teamarbeit, Verträge und Abrechnung')->update(['in_faq_page' => false]);
+    fqCategory('Teamarbeit, Verträge und Abrechnung')->update(['is_active' => false]);
     fqCategory('Mitgliedschaft')->update(['is_active' => false]);
 
     $html = $this->get(route('portal.faq'))->assertOk()->getContent();
@@ -133,7 +133,7 @@ it('shows the questions as a table with the own selection boxes of the design sy
 it('creates a category and then its questions on their own pages', function () {
     $this->actingAs(fqUser(RoleKey::AdministrationStaff));
 
-    $response = $this->post(route('faq-admin.store'), ['title' => 'Veranstaltungen', 'description' => 'Rund um Termine', 'sort_order' => 3, 'is_active' => '1', 'in_faq_page' => '1']);
+    $response = $this->post(route('faq-admin.store'), ['title' => 'Veranstaltungen', 'description' => 'Rund um Termine', 'sort_order' => 3, 'is_active' => '1']);
     $category = fqCategory('Veranstaltungen');
 
     $response->assertRedirect(route('faq-admin.entries.index', $category))->assertSessionHas('success');
@@ -151,7 +151,7 @@ it('creates a category and then its questions on their own pages', function () {
     expect($entry->fresh()->question)->toBe('Wo gibt es Termine?')->and($entry->fresh()->is_active)->toBeFalse();
     $this->get(route('portal.faq'))->assertDontSee('Wo gibt es Termine?');
 
-    $this->put(route('faq-admin.update', $category), ['title' => 'Veranstaltungen und Termine', 'is_active' => '1', 'in_faq_page' => '1'])->assertRedirect(route('faq-admin.index'));
+    $this->put(route('faq-admin.update', $category), ['title' => 'Veranstaltungen und Termine', 'is_active' => '1'])->assertRedirect(route('faq-admin.index'));
     expect($category->fresh()->title)->toBe('Veranstaltungen und Termine');
 
     $this->delete(route('faq-admin.entries.destroy', [$category, $entry]))->assertRedirect(route('faq-admin.entries.index', $category));
@@ -232,18 +232,16 @@ it('handles several faq categories at once', function () {
     $this->post(route('faq-admin.bulk'), ['ids' => []])->assertSessionHasErrors('ids');
 });
 
-it('keeps inactive questions off the contact topic page and counts only active ones', function () {
+it('keeps inactive questions off the page and makes a topic without visible questions unreachable', function () {
     $category = fqCategory('Passwort vergessen oder Anmeldung klappt nicht');
     $topic = \App\Modules\ContactForms\Models\ContactTopic::query()->where('title', 'Passwort vergessen oder Anmeldung klappt nicht')->firstOrFail();
     $hidden = $category->entries->first();
 
     $hidden->update(['is_active' => false]);
 
-    $this->get(route('portal.contact.topic', $topic))->assertOk()->assertDontSee($hidden->question)->assertSee($category->entries->last()->question);
+    $this->get(route('portal.faq'))->assertOk()->assertDontSee($hidden->question)->assertSee($category->entries->last()->question);
 
-    // ohne aktive Fragen und ohne „Uns schreiben“ ist das Thema nicht erreichbar
     $category->entries()->update(['is_active' => false]);
-    $topic->update(['faq_offer_form' => false]);
 
     expect($topic->fresh()->isReachable())->toBeFalse();
 });

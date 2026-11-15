@@ -23,7 +23,7 @@ class FaqAdminController extends Controller
 
     public function create(): View
     {
-        return view('faq-admin.form', ['category' => new FaqCategory(['is_active' => true, 'in_faq_page' => true, 'sort_order' => 0])]);
+        return view('faq-admin.form', ['category' => new FaqCategory(['is_active' => true, 'sort_order' => 0])]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -104,7 +104,6 @@ class FaqAdminController extends Controller
             'title' => trim($data['title']),
             'description' => filled($data['description'] ?? null) ? trim($data['description']) : null,
             'sort_order' => (int) ($data['sort_order'] ?? 0),
-            'in_faq_page' => $request->boolean('in_faq_page'),
             'is_active' => $request->boolean('is_active'),
         ];
     }

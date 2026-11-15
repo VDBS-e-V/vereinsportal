@@ -78,31 +78,29 @@ it('hides topics that are switched off or have no target', function () {
 it('leads each kind of topic to its target', function () {
     $this->get(route('portal.contact.topic', cfTopic('Frage an den Vorstand')))->assertRedirect(route('portal.contact.form', ['form' => 'vorstand', 'thema' => cfTopic('Frage an den Vorstand')->id]));
     $this->get(route('portal.contact.topic', cfTopic('Mein Thema ist nicht dabei')))->assertRedirect(route('portal.contact.form', ['form' => 'allgemeine-anfrage', 'thema' => cfTopic('Mein Thema ist nicht dabei')->id]));
-    $this->get(route('portal.contact.topic', cfTopic('Mitglied werden')))->assertRedirect('/mitglied-werden');
+    $this->get(route('portal.contact.topic', cfTopic('Mitglied werden')))->assertRedirect(route('portal.faq').'#kategorie-'.FaqCategory::query()->where('title', 'Mitgliedschaft')->value('id'));
     $this->get(route('portal.contact.topic', cfTopic('Verein und Mitgliedschaft')))->assertRedirect(route('portal.contact', ['bereich' => cfTopic('Verein und Mitgliedschaft')->id]));
 });
 
-it('shows a faq page with questions, answers and the way to the form', function () {
+it('sends every topic that has no form to the faq page and has no info pages of its own', function () {
     $topic = cfTopic('Passwort vergessen oder Anmeldung klappt nicht');
+    $category = FaqCategory::query()->where('title', 'Passwort vergessen oder Anmeldung klappt nicht')->firstOrFail();
 
-    $html = $this->get(route('portal.contact.topic', $topic))->assertOk()->getContent();
+    $this->get(route('portal.contact.topic', $topic))->assertRedirect(route('portal.faq').'#kategorie-'.$category->id);
 
-    expect($html)->toContain('Wie setze ich mein Passwort zurück?')->toContain('Ihre Frage ist nicht dabei?')
-        ->toContain(route('portal.contact.form', ['form' => 'portal-support', 'thema' => $topic->id]));
+    // die Antworten stehen auf der FAQ-Seite, an der Kategorie des Themas
+    $this->get(route('portal.faq'))->assertOk()->assertSee('id="kategorie-'.$category->id.'"', false)->assertSee('Wie setze ich mein Passwort zurück?');
 
-    $topic->update(['faq_offer_form' => false]);
-
-    $this->get(route('portal.contact.topic', $topic))->assertOk()->assertDontSee('Ihre Frage ist nicht dabei?');
+    // unter /kontakt gibt es nur die Themenwahl und die Formulare, keine Seiten für Links oder Fragen
+    expect(ContactTopic::query()->where('action', 'link')->count())->toBe(0);
 });
 
-it('never follows a link topic to an unsafe address', function () {
-    $topic = cfTopic('Mitglied werden');
+it('hides a faq topic whose category has no visible questions', function () {
+    $topic = cfTopic('Zugang beantragen');
+    $topic->faqCategory->entries()->update(['is_active' => false]);
 
-    $topic->update(['target_url' => '//boese.example']);
+    expect($topic->fresh()->isReachable())->toBeFalse();
     $this->get(route('portal.contact.topic', $topic))->assertNotFound();
-
-    $topic->update(['target_url' => 'https://www.beispiel.example/seite']);
-    $this->get(route('portal.contact.topic', $topic))->assertRedirect('https://www.beispiel.example/seite');
 });
 
 it('points to the standard form when there are no topics', function () {
@@ -202,7 +200,7 @@ it('creates a topic that leads to a faq category and shows it in the topic selec
     $category->entries()->create(['question' => 'Wo liegen die Dateien?', 'answer' => 'Im Bereich Mitglieder unter Dokumente.', 'sort_order' => 10]);
 
     $this->post(route('contact-admin.topics.store'), [
-        'title' => 'Wo finde ich Materialien?', 'description' => 'Antworten rund um Materialien', 'keywords' => 'download arbeitsblatt', 'action' => 'faq', 'parent_id' => $area->id, 'faq_category_id' => $category->id, 'sort_order' => 5, 'is_active' => '1', 'faq_offer_form' => '1',
+        'title' => 'Wo finde ich Materialien?', 'description' => 'Antworten rund um Materialien', 'keywords' => 'download arbeitsblatt', 'action' => 'faq', 'parent_id' => $area->id, 'faq_category_id' => $category->id, 'sort_order' => 5, 'is_active' => '1',
     ])->assertRedirect(route('contact-admin.topics.index'))->assertSessionHas('success');
 
     $topic = cfTopic('Wo finde ich Materialien?');
@@ -210,7 +208,8 @@ it('creates a topic that leads to a faq category and shows it in the topic selec
     expect($topic->action)->toBe('faq')->and($topic->parent_id)->toBe($area->id)->and($topic->faq_category_id)->toBe($category->id);
 
     $this->get(route('portal.contact', ['q' => 'arbeitsblatt']))->assertSee('Wo finde ich Materialien?');
-    $this->get(route('portal.contact.topic', $topic))->assertOk()->assertSee('Im Bereich Mitglieder unter Dokumente.');
+    $this->get(route('portal.contact.topic', $topic))->assertRedirect(route('portal.faq').'#kategorie-'.$category->id);
+    $this->get(route('portal.faq'))->assertSee('Im Bereich Mitglieder unter Dokumente.');
 
     // wechselt die Art, bleibt kein Verweis auf die Kategorie zurück
     $this->put(route('contact-admin.topics.update', $topic), ['title' => 'Wo finde ich Materialien?', 'action' => 'default', 'is_active' => '1'])->assertRedirect();
@@ -233,14 +232,14 @@ it('keeps the faq entries when a topic is deleted and hides a topic whose catego
     $other = cfTopic('Zugang beantragen');
     $this->delete(route('faq-admin.destroy', $other->faqCategory))->assertRedirect();
 
-    $this->get(route('portal.contact.topic', $other))->assertOk()->assertSee('noch keine Fragen');
+    $this->get(route('portal.contact.topic', $other))->assertNotFound();
 });
 
 it('validates the topics', function () {
     $this->actingAs(cfUser(RoleKey::Administration));
 
     $this->post(route('contact-admin.topics.store'), ['title' => 'A', 'action' => 'form'])->assertSessionHasErrors('contact_form_id');
-    $this->post(route('contact-admin.topics.store'), ['title' => 'A', 'action' => 'link', 'target_url' => 'http://unsicher.example'])->assertSessionHasErrors('target_url');
+    $this->post(route('contact-admin.topics.store'), ['title' => 'A', 'action' => 'link'])->assertSessionHasErrors('action');
     $this->post(route('contact-admin.topics.store'), ['title' => 'A', 'action' => 'faq'])->assertSessionHasErrors('faq_category_id');
     $this->post(route('contact-admin.topics.store'), ['title' => 'A', 'action' => 'category', 'parent_id' => cfTopic('Sonstiges')->id])->assertSessionHasErrors('parent_id');
     $this->post(route('contact-admin.topics.store'), ['title' => '', 'action' => 'default'])->assertSessionHasErrors('title');

@@ -1,6 +1,6 @@
 @php
     $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Geschäftsstelle'], ['label' => 'Kontaktformular']];
-    $actionLabels = ['category' => 'Bereich', 'form' => 'Formular', 'default' => 'Standardformular', 'faq' => 'FAQ-Seite', 'link' => 'Link'];
+    $actionLabels = ['category' => 'Bereich', 'form' => 'Formular', 'default' => 'Standardformular', 'faq' => 'FAQ-Seite'];
     $rows = [];
 
     foreach ($roots as $root) {
@@ -15,8 +15,7 @@
         return match ($topic->action) {
             'form' => $topic->form?->name ?? 'Formular fehlt',
             'default' => $standard?->name ?? 'kein Standardformular',
-            'faq' => ($topic->faqCategory ? 'FAQ: '.$topic->faqCategory->title.' ('.$topic->faqCategory->entries->count().')' : 'FAQ-Kategorie fehlt').($topic->faq_offer_form ? ' + Formular' : ''),
-            'link' => $topic->target_url,
+            'faq' => $topic->faqCategory ? 'FAQ: '.$topic->faqCategory->title.' ('.$topic->faqCategory->entries->count().')' : 'FAQ-Kategorie fehlt',
             default => $topic->children->count().' Themen',
         };
     };
