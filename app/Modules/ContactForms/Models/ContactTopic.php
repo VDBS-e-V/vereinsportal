@@ -2,6 +2,7 @@
 
 namespace App\Modules\ContactForms\Models;
 
+use App\Modules\Access\Models\User;
 use App\Modules\Faq\Models\FaqCategory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -69,11 +70,13 @@ class ContactTopic extends Model
     }
 
     /** Ob das Thema zurzeit ein erreichbares Ziel hat (sonst bleibt es in der Themenwahl verborgen). */
-    public function isReachable(): bool
+    public function isReachable(?User $user = null, bool $anyAudience = false): bool
     {
         return match ($this->action) {
             'form', 'default' => $this->targetForm() !== null,
-            'faq' => $this->faqCategory !== null && $this->faqCategory->is_active && $this->faqCategory->entries->where('is_active', true)->isNotEmpty(),
+            // FAQ-Themen führen zur FAQ-Seite: Die Kategorie muss für die Person sichtbar sein (anyAudience: Verwaltung, unabhängig von Rollen)
+            'faq' => $this->faqCategory !== null && $this->faqCategory->is_active && $this->faqCategory->entries->where('is_active', true)->isNotEmpty()
+                && ($anyAudience || $this->faqCategory->isVisibleTo($user)),
             default => false,
         };
     }

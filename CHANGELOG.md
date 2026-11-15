@@ -9,7 +9,7 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 ### Added
 
 - Kontaktformular als geführter Ablauf (Thema wählen, Angaben zur Person, Anfrage oder nur Angaben; Themen ohne Formular führen zur FAQ-Seite, keine Infoseiten unter /kontakt) mit im Portal pflegbaren Themen, FAQ-Seiten, Formularen und eigenen Feldern (Doc 82)
-- FAQ als eigenes Modul: große FAQ-Seite `/faq` mit Suche, eigene Verwaltung (Geschäftsstelle › FAQ) mit Kategorien und Fragen, vom Kontaktformular getrennt; Entwurf der Fragen und Antworten als Ausgangsbestand (Doc 83)
+- FAQ als eigenes Modul: große FAQ-Seite `/faq` mit Suche, eigene Verwaltung (Geschäftsstelle › FAQ) mit Kategorien und Fragen, vom Kontaktformular getrennt; Entwurf der Fragen und Antworten als Ausgangsbestand (Doc 83); Kategorien lassen sich auf Angemeldete oder bestimmte Rollen beschränken (z. B. Honorare nur für Teamende und Verwaltung)
 - Designsystem: Auswahlkästchen für Tabellenzeilen (`x-vdbs.data.table-check`) mit Kopfkästchen „Alle auswählen“; alle Tabellen mit Mehrfachauswahl nutzen es
 - Briefvorlagen aus Word mit Platzhaltern, Wenn-/Ohne-Blöcken, Platzhalterliste und sieben Beispielvorlagen (Docs 77, 78)
 - Vorstandssitzungen: Planung, Tagesordnung, Anwesenheit, Protokoll, Anhänge, nummerierte Beschlüsse, Kalender-Abo (.ics), abschaltbare Einladungen, externe Gäste mit automatischer Löschung (Docs 79, 80)
@@ -26,6 +26,7 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ### Changed
 
+- Profilmenü neu gegliedert (Kopf mit Name und Rolle; Mein Profil, Kontoeinstellungen, Meine Tickets; Kontakt, FAQ, Hilfe; Abmelden), neue Seite „Meine Tickets“ im Konto; Startmenü zeigt flach Über das Portal, Zugang zum Portal, FAQ, Kontakt
 - Aufgaben sind kein eigener Bereich mehr: Menüpunkt „Aufgaben“ in den Bereichen mit den Projekten des Bereichs (neues Feld „Bereich“ am Projekt), „Meine Aufgaben“ im Konto, allgemeine Verwaltung der Projekte (mit Mehrfachauswahl) in der Geschäftsstelle
 - „Ihre Aufgaben“ von der öffentlichen Startseite ins Konto und in die Bereichsübersichten verschoben; neuer Bereich „Aufgaben“
 - Vorstandsaufgaben ziehen per Migration ins Projekt „Vorstand“ um (Tabellen `board_tasks` und `board_task_user` entfallen; vorher Datenbank sichern)

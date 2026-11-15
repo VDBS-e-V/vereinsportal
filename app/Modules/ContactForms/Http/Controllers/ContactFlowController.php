@@ -24,7 +24,8 @@ class ContactFlowController extends Controller
         $query = trim((string) $request->query('q', ''));
         $area = $request->filled('bereich') ? ContactTopic::query()->active()->where('action', 'category')->find((int) $request->query('bereich')) : null;
 
-        $reachable = fn ($topics) => $topics->filter(fn (ContactTopic $topic): bool => $topic->isReachable())->values();
+        $user = $request->user();
+        $reachable = fn ($topics) => $topics->filter(fn (ContactTopic $topic): bool => $topic->isReachable($user))->values();
 
         $base = fn () => ContactTopic::query()->active()->with(['form', 'faqCategory.entries', 'parent'])->orderBy('sort_order')->orderBy('title');
 
@@ -63,13 +64,13 @@ class ContactFlowController extends Controller
     }
 
     /** Ein Thema: führt je nach Art zum Formular, zur FAQ-Seite oder zum Link. */
-    public function topic(ContactTopic $topic): RedirectResponse
+    public function topic(Request $request, ContactTopic $topic): RedirectResponse
     {
         abort_unless($topic->is_active && ($topic->parent === null || $topic->parent->is_active), 404);
 
         return match ($topic->action) {
             'category' => redirect()->route('portal.contact', ['bereich' => $topic->id]),
-            'faq' => $this->redirectToFaq($topic),
+            'faq' => $this->redirectToFaq($request, $topic),
             default => $this->redirectToForm($topic),
         };
     }
@@ -166,9 +167,9 @@ class ContactFlowController extends Controller
     }
 
     /** Zur FAQ-Seite, zur Kategorie des Themas. */
-    private function redirectToFaq(ContactTopic $topic): RedirectResponse
+    private function redirectToFaq(Request $request, ContactTopic $topic): RedirectResponse
     {
-        abort_unless($topic->isReachable(), 404);
+        abort_unless($topic->isReachable($request->user()), 404);
 
         return redirect()->to(route('portal.faq').'#kategorie-'.$topic->faq_category_id);
     }

@@ -31,6 +31,7 @@
         @foreach ($categories as $category)
             <section id="kategorie-{{ $category->id }}" aria-labelledby="kategorie-{{ $category->id }}-title" style="margin-top:var(--space-6)">
                 <h2 id="kategorie-{{ $category->id }}-title" style="font-size:var(--font-size-h2)">{{ $category->title }}</h2>
+                @if ($category->audienceLabel())<p><x-vdbs.data.badge tone="info">{{ $category->audienceLabel() }}</x-vdbs.data.badge></p>@endif
                 @if (filled($category->description))<p>{{ $category->description }}</p>@endif
 
                 <x-vdbs.disclosure.accordion>

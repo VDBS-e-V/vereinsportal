@@ -18,6 +18,8 @@
             <x-vdbs.forms.input name="title" label="Bezeichnung" :required="true" maxlength="150" :value="$category->title" />
             <x-vdbs.forms.input name="description" label="Kurzbeschreibung" :optional="true" maxlength="250" :value="$category->description" hint="Steht unter der Überschrift auf der FAQ-Seite." />
             <x-vdbs.forms.input name="sort_order" label="Reihenfolge" type="number" :optional="true" :value="$category->sort_order" hint="Kleine Zahlen stehen oben." />
+            <x-vdbs.forms.radio-group name="audience" legend="Sichtbar für" :required="true" :options="\App\Modules\Faq\Models\FaqCategory::AUDIENCES" :value="old('audience', $category->audience ?: 'public')" hint="Daten, die nicht öffentlich sein sollen (z. B. Honorare), beschränken Sie auf Rollen. Wer nicht berechtigt ist, sieht die Kategorie nirgends, auch nicht über Kontaktthemen." />
+            <x-vdbs.forms.checkbox-group name="roles" legend="Rollen (nur bei „Bestimmte Rollen“)" :optional="true" :options="$roleOptions" :value="old('roles', $category->roles ?? [])" hint="Mehrfachauswahl. Wer die FAQ pflegt, sieht zur Kontrolle jede Kategorie." />
             <x-vdbs.forms.checkbox name="is_active" label="Sichtbar" :checked="(bool) old('is_active', $category->is_active)" hint="Ausgeblendete Kategorien erscheinen nirgends, auch nicht über Kontaktthemen, die zu ihnen führen." />
         </x-vdbs.forms.form-section>
 

@@ -52,7 +52,7 @@
                         <td>
                             @if (! $topic->is_active)
                                 <x-vdbs.data.badge tone="neutral">ausgeblendet</x-vdbs.data.badge>
-                            @elseif (! $topic->isCategory() && ! $topic->isReachable())
+                            @elseif (! $topic->isCategory() && ! $topic->isReachable(null, true))
                                 <x-vdbs.data.badge tone="warning">ohne Ziel</x-vdbs.data.badge>
                             @else
                                 <x-vdbs.data.badge tone="success">sichtbar</x-vdbs.data.badge>

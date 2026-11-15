@@ -15,6 +15,16 @@ Berechtigung `faq.manage` (Administration, Geschäftsstelle). Drei Ebenen, jede 
 
 Alle sichtbaren Kategorien stehen auf der FAQ-Seite. Ausgeblendete Kategorien und ausgeblendete Fragen erscheinen nirgends.
 
+## Sichtbarkeit nach Rollen
+Nicht alles gehört in die Öffentlichkeit (z. B. Honorare). Jede Kategorie hat die Einstellung **„Sichtbar für“**:
+- **Alle (öffentlich):** auch Gäste ohne Anmeldung.
+- **Alle Angemeldeten:** jedes Konto.
+- **Bestimmte Rollen:** nur Konten, die mindestens eine der gewählten Rollen haben (Mehrfachauswahl).
+
+Wer die Kategorie nicht sehen darf, sieht sie **nirgends**: nicht auf `/faq`, nicht in der Suche und nicht über Kontaktthemen, die darauf verweisen (ein solches Thema ist dann verborgen). Auf `/faq` steht bei eingeschränkten Kategorien ein Hinweis („Nur für Teamende, …“). Wer die FAQ pflegt (`faq.manage`), sieht zur Kontrolle alle sichtbaren Kategorien. Die Prüfung läuft auf dem Server bei jedem Aufruf, nicht nur im Menü.
+
+Im Entwurf des Ausgangsbestands ist „Teamarbeit, Verträge und Abrechnung“ auf Teamende und Verwaltung beschränkt und „Konto, E-Mail-Adresse und Daten“ auf Angemeldete (Migration `2027_01_01_000001_add_audience_to_faq_categories.php`); bitte prüfen und anpassen.
+
 ## Antworten formatieren
 Leerzeile = neuer Absatz, Zeilen mit `- ` = Liste, `**fett**`, `[Text](/pfad)` für Links im Portal oder `[Text](https://adresse)`. Anderes HTML wird maskiert; Links auf `javascript:` oder fremde `//`-Adressen funktionieren nicht (`App\Modules\Faq\Support\FaqText`).
 

@@ -39,7 +39,8 @@ function fqCategory(string $title): FaqCategory
 // ---------- Öffentliche Seite ----------
 
 it('shows all faq categories and entries on one page with a safe formatting of the answers', function () {
-    $html = $this->get(route('portal.faq'))->assertOk()->getContent();
+    // als Teamende:r sieht man die öffentlichen, die Angemeldeten- und die Rollen-Kategorien
+    $html = $this->actingAs(fqUser(RoleKey::Team))->get(route('portal.faq'))->assertOk()->getContent();
 
     expect($html)->toContain('Häufig gestellte Fragen')
         ->toContain('Das Vereinsportal im Überblick')->toContain('Konto, E-Mail-Adresse und Daten')->toContain('Workshops und Seminare für Schulen')->toContain('Datenschutz und Barrierefreiheit')
@@ -244,4 +245,74 @@ it('keeps inactive questions off the page and makes a topic without visible ques
     $category->entries()->update(['is_active' => false]);
 
     expect($topic->fresh()->isReachable())->toBeFalse();
+});
+
+// ---------- Sichtbarkeit nach Rollen ----------
+
+it('shows each person only the categories the audience allows', function () {
+    $team = 'Wie kann ich Teamer:in werden?';
+    $login = 'Wie ändere ich meine E-Mail-Adresse?';
+    $public = 'Wie setze ich mein Passwort zurück?';
+
+    // Gäste: nur Öffentliches
+    $guest = $this->get(route('portal.faq'))->assertOk()->getContent();
+    expect($guest)->toContain($public)->not->toContain($login)->not->toContain($team)->not->toContain('Honorarvertrag');
+
+    // Angemeldete ohne Teamrolle: dazu die Angemeldeten-Kategorien
+    $member = $this->actingAs(fqUser(RoleKey::Member))->get(route('portal.faq'))->assertOk()->getContent();
+    expect($member)->toContain($public)->toContain($login)->not->toContain($team)->not->toContain('Honorarvertrag');
+
+    // Teamende und Verwaltung: auch die Rollen-Kategorie, mit Hinweis für wen sie gedacht ist
+    foreach ([RoleKey::Team, RoleKey::AdministrationStaff, RoleKey::Treasury] as $role) {
+        $html = $this->actingAs(fqUser($role))->get(route('portal.faq'))->assertOk()->getContent();
+
+        expect($html)->toContain($team)->toContain('Honorarvertrag')->toContain('Nur für Teamende');
+    }
+
+    // Schulen gehören nicht dazu
+    expect($this->actingAs(fqUser(RoleKey::School))->get(route('portal.faq'))->getContent())->not->toContain($team);
+});
+
+it('keeps restricted questions out of the search for people who may not see them', function () {
+    $guest = $this->get(route('portal.faq', ['q' => 'honorarvertrag']))->assertOk()->getContent();
+    expect($guest)->toContain('Nichts gefunden')->not->toContain('Wie komme ich zu meinem Honorarvertrag?');
+
+    $team = $this->actingAs(fqUser(RoleKey::Team))->get(route('portal.faq', ['q' => 'honorarvertrag']))->assertOk()->getContent();
+    expect($team)->toContain('Wie komme ich zu meinem Honorarvertrag?');
+});
+
+it('hides contact topics that lead to a category the person may not see', function () {
+    \App\Modules\ContactForms\Models\ContactTopic::query()->create(['title' => 'Honorar und Abrechnung', 'action' => 'faq', 'faq_category_id' => fqCategory('Teamarbeit, Verträge und Abrechnung')->id, 'keywords' => 'honorar abrechnung', 'sort_order' => 5, 'is_active' => true]);
+    $topic = \App\Modules\ContactForms\Models\ContactTopic::query()->where('title', 'Honorar und Abrechnung')->firstOrFail();
+
+    $this->get(route('portal.contact', ['q' => 'abrechnung']))->assertOk()->assertDontSee('Honorar und Abrechnung');
+    $this->get(route('portal.contact.topic', $topic))->assertNotFound();
+
+    $this->actingAs(fqUser(RoleKey::Team))->get(route('portal.contact', ['q' => 'abrechnung']))->assertOk()->assertSee('Honorar und Abrechnung');
+    $this->get(route('portal.contact.topic', $topic))->assertRedirect(route('portal.faq').'#kategorie-'.fqCategory('Teamarbeit, Verträge und Abrechnung')->id);
+
+    // in der Verwaltung ist das Thema trotzdem „mit Ziel“
+    $this->actingAs(fqUser(RoleKey::Administration))->get(route('contact-admin.topics.index'))->assertOk()->assertSee('Honorar und Abrechnung')->assertDontSee('ohne Ziel');
+});
+
+it('lets the office restrict a category to roles and validates the choice', function () {
+    $this->actingAs(fqUser(RoleKey::AdministrationStaff));
+    $category = fqCategory('Zugang beantragen');
+
+    $this->get(route('faq-admin.edit', $category))->assertOk()->assertSee('Sichtbar für')->assertSee('Bestimmte Rollen')->assertSee('Teamende');
+
+    $base = ['title' => 'Zugang beantragen', 'is_active' => '1'];
+
+    $this->put(route('faq-admin.update', $category), $base + ['audience' => 'roles'])->assertSessionHasErrors('roles');
+    $this->put(route('faq-admin.update', $category), $base + ['audience' => 'roles', 'roles' => ['team', 'erfunden']])->assertSessionHasErrors('roles.1');
+    $this->put(route('faq-admin.update', $category), $base + ['audience' => 'alle'])->assertSessionHasErrors('audience');
+
+    $this->put(route('faq-admin.update', $category), $base + ['audience' => 'roles', 'roles' => ['team', 'school']])->assertRedirect(route('faq-admin.index'));
+    expect($category->fresh()->audience)->toBe('roles')->and($category->fresh()->roles)->toBe(['team', 'school']);
+
+    // wechselt die Einstellung, bleiben keine Rollen zurück
+    $this->put(route('faq-admin.update', $category), $base + ['audience' => 'login', 'roles' => ['team']])->assertRedirect();
+    expect($category->fresh()->roles)->toBeNull();
+
+    $this->get(route('faq-admin.index'))->assertOk()->assertSee('Sichtbar für')->assertSee('Nur für Teamende');
 });
