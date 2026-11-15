@@ -352,3 +352,15 @@ it('hides topics of a deleted form instead of breaking', function () {
     $this->get(route('portal.contact.topic', cfTopic('Technisches Problem im Portal')))->assertNotFound();
     $this->get(route('contact-admin.topics.index'))->assertOk()->assertSee('ohne Ziel');
 });
+
+it('lets signed-in people enter their data in step 3, prefilled from the account', function () {
+    $user = cfUser(RoleKey::Member);
+
+    $this->actingAs($user)->get(route('portal.contact.form', ['form' => 'rueckruf']))->assertRedirect(route('portal.contact.request', ['form' => 'rueckruf']));
+
+    $html = $this->actingAs($user)->get(route('portal.contact.request', ['form' => 'rueckruf']))->assertOk()->getContent();
+    expect($html)->toContain('name="first_name"')->toContain('name="answers[anliegen]"')->toContain('name="consent"')->toContain($user->email);
+
+    $this->actingAs($user)->post(route('portal.contact.send', ['form' => 'rueckruf']), cfPerson(['phone' => '0151 1234567', 'answers' => ['anliegen' => 'Frage']]))->assertRedirect(route('portal.contact'))->assertSessionHas('success');
+    Mail::assertSent(ContactFormMail::class);
+});

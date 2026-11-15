@@ -75,9 +75,14 @@ class ContactFlowController extends Controller
         };
     }
 
-    public function form(Request $request, ContactForm $form): View
+    public function form(Request $request, ContactForm $form): View|RedirectResponse
     {
         abort_unless($form->is_active, 404);
+
+        // Angemeldete geben ihre Daten im Schritt 3 an (vorbelegt aus dem Konto): Schritt 2 entfällt.
+        if ($request->user() !== null && $form->hasRequestStep()) {
+            return redirect()->route('portal.contact.request', array_filter(['form' => $form->slug, 'thema' => $request->query('thema')]));
+        }
 
         $topic = $request->filled('thema') ? ContactTopic::query()->active()->find((int) $request->query('thema')) : null;
 
@@ -110,6 +115,12 @@ class ContactFlowController extends Controller
         abort_unless($form->is_active, 404);
         abort_unless($form->hasRequestStep(), 404);
 
+        if ($request->user() !== null) {
+            $topic = $request->filled('thema') ? ContactTopic::query()->active()->find((int) $request->query('thema')) : null;
+
+            return view('contact.request', ['form' => $form, 'topic' => $topic, 'person' => self::prefill($request->user()), 'account' => true]);
+        }
+
         $saved = $request->session()->get($this->sessionKey($form));
 
         if (! is_array($saved)) {
@@ -118,7 +129,7 @@ class ContactFlowController extends Controller
 
         $topic = filled($saved['thema'] ?? null) ? ContactTopic::query()->active()->find((int) $saved['thema']) : null;
 
-        return view('contact.request', ['form' => $form, 'topic' => $topic, 'person' => $saved]);
+        return view('contact.request', ['form' => $form, 'topic' => $topic, 'person' => $saved, 'account' => false]);
     }
 
     public function send(Request $request, ContactForm $form): RedirectResponse
@@ -192,6 +203,22 @@ class ContactFlowController extends Controller
         $request->session()->forget($this->sessionKey($form));
 
         return redirect()->route('portal.contact')->with('success', $success);
+    }
+
+    /**
+     * Angaben zur Person aus dem Konto, zum Vorbelegen des Formulars (leer für Gäste).
+     *
+     * @return array<string, ?string>
+     */
+    public static function prefill(?\App\Modules\Access\Models\User $user): array
+    {
+        if ($user === null) {
+            return [];
+        }
+
+        $person = $user->person;
+
+        return ['first_name' => $person?->first_name, 'last_name' => $person?->last_name, 'email' => $user->email, 'phone' => $person?->phone];
     }
 
     /** @return array<string, list<string>> */

@@ -117,6 +117,14 @@
                     @endunless
                     <x-vdbs.navigation.dropdown-item :href="route('account.home')" icon="settings" :current="request()->routeIs('account.*') && ! request()->routeIs('account.profile*') && ! request()->routeIs('account.tickets')">Kontoeinstellungen</x-vdbs.navigation.dropdown-item>
                     <x-vdbs.navigation.dropdown-item :href="route('account.tickets')" icon="ticket" :current="request()->routeIs('account.tickets')">Meine Tickets</x-vdbs.navigation.dropdown-item>
+                    @php $quickLinks = \App\Modules\QuickLinks\Support\QuickLinks::forUser($user); @endphp
+                    @if ($quickLinks->isNotEmpty())
+                        <hr class="vdbs-dropdown__divider">
+                        <p class="vdbs-dropdown__heading">Wichtige Links</p>
+                        @foreach ($quickLinks as $quickLink)
+                            <x-vdbs.navigation.dropdown-item :href="$quickLink->url" icon="link" :current="request()->is(ltrim($quickLink->url, '/'))">{{ $quickLink->label }}</x-vdbs.navigation.dropdown-item>
+                        @endforeach
+                    @endif
                     <hr class="vdbs-dropdown__divider">
                     <x-vdbs.navigation.dropdown-item :href="route('portal.contact')" icon="mail" :current="request()->routeIs('portal.contact*')">Kontakt</x-vdbs.navigation.dropdown-item>
                     <x-vdbs.navigation.dropdown-item :href="route('portal.faq')" icon="book-open" :current="request()->routeIs('portal.faq')">FAQ</x-vdbs.navigation.dropdown-item>

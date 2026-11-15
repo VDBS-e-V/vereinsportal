@@ -1,4 +1,5 @@
 @php
+    $prefill = \App\Modules\ContactForms\Http\Controllers\ContactFlowController::prefill(auth()->user());
     $steps = ['Thema wählen', 'Ihre Daten'];
 
     if ($form->isMessage()) {
@@ -26,17 +27,7 @@
         <input type="hidden" name="thema" value="{{ $topic?->id }}">
 
         <x-vdbs.forms.form-section title="Schritt 2: Ihre Daten">
-            <x-vdbs.forms.form-grid :columns="2">
-                <x-vdbs.forms.input name="first_name" label="Vorname" :required="true" placeholder="Max" autocomplete="given-name" />
-                <x-vdbs.forms.input name="last_name" label="Nachname" :required="true" placeholder="Mustermann" autocomplete="family-name" />
-            </x-vdbs.forms.form-grid>
-            <x-vdbs.forms.input name="email" label="E-Mail-Adresse" type="email" :required="true" placeholder="max.mustermann@beispiel.example" autocomplete="email" hint="Dorthin senden wir die Antwort." />
-            @if ($form->ask_phone !== 'no')
-                <x-vdbs.forms.input name="phone" label="Telefon" type="tel" :required="$form->ask_phone === 'required'" :optional="$form->ask_phone === 'optional'" autocomplete="tel" />
-            @endif
-            @if ($form->ask_organization !== 'no')
-                <x-vdbs.forms.input name="organization" label="Schule oder Organisation" :required="$form->ask_organization === 'required'" :optional="$form->ask_organization === 'optional'" maxlength="150" autocomplete="organization" />
-            @endif
+            @include('contact._person', ['form' => $form, 'prefill' => $prefill])
         </x-vdbs.forms.form-section>
 
         @unless ($split)

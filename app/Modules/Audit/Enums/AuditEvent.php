@@ -132,6 +132,7 @@ enum AuditEvent: string
     case FaqCategoryDeleted = 'faq.category_deleted';
     case FaqEntrySaved = 'faq.entry_saved';
     case FaqEntryDeleted = 'faq.entry_deleted';
+    case RoleLinksSaved = 'role_links.saved';
 
     public function label(): string
     {
@@ -245,6 +246,7 @@ enum AuditEvent: string
             self::FaqCategoryDeleted => 'FAQ-Kategorie gelöscht',
             self::FaqEntrySaved => 'FAQ-Frage gespeichert',
             self::FaqEntryDeleted => 'FAQ-Frage gelöscht',
+            self::RoleLinksSaved => 'Schnellzugriffe gespeichert',
         };
     }
 
@@ -277,6 +279,7 @@ enum AuditEvent: string
             self::TaskProjectSaved, self::TaskProjectDeleted, self::TaskSaved, self::TaskDeleted => 'tasks',
             self::ContactTopicSaved, self::ContactTopicDeleted, self::ContactFormSaved, self::ContactFormDeleted => 'contact_forms',
             self::FaqCategorySaved, self::FaqCategoryDeleted, self::FaqEntrySaved, self::FaqEntryDeleted => 'faq',
+            self::RoleLinksSaved => 'role_links',
         };
     }
 
@@ -310,6 +313,7 @@ enum AuditEvent: string
             'tasks' => 'Aufgaben',
             'contact_forms' => 'Kontaktformular',
             'faq' => 'FAQ',
+            'role_links' => 'Schnellzugriffe',
         ];
     }
 

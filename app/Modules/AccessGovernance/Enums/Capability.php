@@ -143,6 +143,9 @@ enum Capability: string
     /** Die große FAQ-Seite pflegen: Kategorien und Fragen (Administration, Geschäftsstelle). */
     case FaqManage = 'faq.manage';
 
+    /** Wichtige Links je Rolle für das Profilmenü pflegen (Administration, Geschäftsstelle). */
+    case RoleLinksManage = 'role_links.manage';
+
     /** Schreiben aus Word-Vorlagen erzeugen und die Vorlagen ansehen (Koordination, Geschäftsstelle, Vorstand). */
     case LettersUse = 'letters.use';
 

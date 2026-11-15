@@ -76,3 +76,5 @@
 .vdbs-dropdown__divider { width: 100%; height: 0; margin: var(--space-2) 0; border: 0; border-top: var(--border-width) solid var(--text-default); }
 .vdbs-dropdown--profile .vdbs-dropdown__item { gap: var(--space-4); }
 .vdbs-dropdown__item--logout { color: var(--text-link); font-weight: var(--font-weight-bold); }
+
+.vdbs-dropdown__heading { margin: 0; padding: var(--space-2) var(--space-4) 0; color: var(--text-muted); font-size: var(--font-size-small); }

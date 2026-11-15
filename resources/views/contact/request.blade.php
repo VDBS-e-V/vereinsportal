@@ -1,6 +1,6 @@
 @php
     $custom = $form->customFields();
-    $steps = ['Thema wählen', 'Ihre Daten', $form->isMessage() ? 'Ihre Anfrage' : 'Weitere Angaben'];
+    $steps = $account ? ['Thema wählen', $form->isMessage() ? 'Ihre Anfrage' : 'Weitere Angaben'] : ['Thema wählen', 'Ihre Daten', $form->isMessage() ? 'Ihre Anfrage' : 'Weitere Angaben'];
     $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Kontakt', 'href' => route('portal.contact')], ['label' => $form->name]];
     $section = $form->isMessage() ? 'Ihre Anfrage' : 'Weitere Angaben';
 @endphp
@@ -8,15 +8,25 @@
 <x-layouts.app :title="$form->name" width="medium">
     <x-vdbs.layout.page-header :title="$form->name" lead="Fast geschafft: Noch Ihre Anfrage, dann können Sie absenden." :breadcrumb="$crumbs" />
 
-    <x-vdbs.navigation.stepper :steps="$steps" :current="3" label="Ablauf der Kontaktaufnahme" />
+    <x-vdbs.navigation.stepper :steps="$steps" :current="$account ? 2 : 3" label="Ablauf der Kontaktaufnahme" />
 
-    <p style="margin-top:var(--space-5)">
-        @if ($topic)Ihr Thema: <strong>{{ $topic->title }}</strong> · @endif
-        Ihre Angaben: <strong>{{ $person['first_name'] }} {{ $person['last_name'] }}</strong> ({{ $person['email'] }}) · <a href="{{ route('portal.contact.form', ['form' => $form->slug, 'thema' => $topic?->id]) }}">Angaben ändern</a>
-    </p>
+    @if ($account)
+        @if ($topic)<p style="margin-top:var(--space-5)">Ihr Thema: <strong>{{ $topic->title }}</strong> · <a href="{{ route('portal.contact') }}">Thema ändern</a></p>@endif
+    @else
+        <p style="margin-top:var(--space-5)">
+            @if ($topic)Ihr Thema: <strong>{{ $topic->title }}</strong> · @endif
+            Ihre Angaben: <strong>{{ $person['first_name'] }} {{ $person['last_name'] }}</strong> ({{ $person['email'] }}) · <a href="{{ route('portal.contact.form', ['form' => $form->slug, 'thema' => $topic?->id]) }}">Angaben ändern</a>
+        </p>
+    @endif
 
     <x-vdbs.forms.form :action="route('portal.contact.send', ['form' => $form->slug])">
         <x-vdbs.forms.bot-guard />
+        @if ($account)
+            <input type="hidden" name="thema" value="{{ $topic?->id }}">
+            <x-vdbs.forms.form-section title="Ihre Daten">
+                @include('contact._person', ['form' => $form, 'prefill' => $person])
+            </x-vdbs.forms.form-section>
+        @endif
 
         <x-vdbs.forms.form-section :title="'Schritt 3: '.$section">
             @foreach ($custom as $field)
@@ -55,7 +65,11 @@
 
         <x-slot:actions>
             <x-vdbs.actions.button type="submit" icon="send">Absenden</x-vdbs.actions.button>
-            <x-vdbs.actions.button variant="text" :href="route('portal.contact.form', ['form' => $form->slug, 'thema' => $topic?->id])">Zurück zu Schritt 2</x-vdbs.actions.button>
+            @if ($account)
+                <x-vdbs.actions.button variant="text" :href="route('portal.contact')">Anderes Thema wählen</x-vdbs.actions.button>
+            @else
+                <x-vdbs.actions.button variant="text" :href="route('portal.contact.form', ['form' => $form->slug, 'thema' => $topic?->id])">Zurück zu Schritt 2</x-vdbs.actions.button>
+            @endif
         </x-slot:actions>
     </x-vdbs.forms.form>
 </x-layouts.app>
