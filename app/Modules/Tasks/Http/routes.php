@@ -30,6 +30,7 @@ Route::middleware(['web', 'auth', 'can:tasks.use'])->prefix('aufgaben')->name('t
     Route::put('/projekte/{project}', [ProjectController::class, 'update'])->whereNumber('project')->name('projects.update');
     Route::post('/projekte/{project}/archivieren', [ProjectController::class, 'archive'])->whereNumber('project')->name('projects.archive');
     Route::delete('/projekte/{project}', [ProjectController::class, 'destroy'])->whereNumber('project')->name('projects.destroy');
+    Route::get('/projekte/{project}/aufgaben/neu', [TaskController::class, 'create'])->whereNumber('project')->name('create');
     Route::post('/projekte/{project}/aufgaben', [TaskController::class, 'store'])->whereNumber('project')->middleware('throttle:120,10')->name('store');
     Route::post('/projekte/{project}/aktion', [TaskController::class, 'bulk'])->whereNumber('project')->name('bulk');
 

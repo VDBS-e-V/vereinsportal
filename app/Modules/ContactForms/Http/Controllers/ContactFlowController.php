@@ -84,42 +84,68 @@ class ContactFlowController extends Controller
         return view('contact.form', ['form' => $form, 'topic' => $topic]);
     }
 
+    /** Schritt 2 gespeichert: Angaben zur Person merken (nur in der Sitzung), weiter zu Schritt 3. */
+    public function details(Request $request, ContactForm $form): RedirectResponse
+    {
+        abort_unless($form->is_active, 404);
+        abort_unless($form->hasRequestStep(), 404);
+
+        $data = $request->validate($this->personRules($form), $this->personMessages());
+
+        $request->session()->put($this->sessionKey($form), [
+            'first_name' => trim($data['first_name']),
+            'last_name' => trim($data['last_name']),
+            'email' => mb_strtolower(trim($data['email'])),
+            'phone' => $data['phone'] ?? null,
+            'organization' => $data['organization'] ?? null,
+            'thema' => $data['thema'] ?? null,
+        ]);
+
+        return redirect()->route('portal.contact.request', ['form' => $form->slug]);
+    }
+
+    /** Schritt 3: Anfrage schreiben oder weitere Angaben machen. Ohne Schritt 2 geht es zurück dorthin. */
+    public function request(Request $request, ContactForm $form): View|RedirectResponse
+    {
+        abort_unless($form->is_active, 404);
+        abort_unless($form->hasRequestStep(), 404);
+
+        $saved = $request->session()->get($this->sessionKey($form));
+
+        if (! is_array($saved)) {
+            return redirect()->route('portal.contact.form', ['form' => $form->slug]);
+        }
+
+        $topic = filled($saved['thema'] ?? null) ? ContactTopic::query()->active()->find((int) $saved['thema']) : null;
+
+        return view('contact.request', ['form' => $form, 'topic' => $topic, 'person' => $saved]);
+    }
+
     public function send(Request $request, ContactForm $form): RedirectResponse
     {
         abort_unless($form->is_active, 404);
 
-        $person = fn (string $mode, array $rules): array => match ($mode) {
-            'required' => ['required', ...$rules],
-            'optional' => ['nullable', ...$rules],
-            default => ['prohibited'],
-        };
+        // Mit getrenntem Schritt 3 liegen die Angaben zur Person in der Sitzung.
+        if ($form->hasRequestStep() && ! $request->filled('first_name')) {
+            $saved = $request->session()->get($this->sessionKey($form));
+
+            if (! is_array($saved)) {
+                return redirect()->route('portal.contact.form', ['form' => $form->slug]);
+            }
+
+            $request->merge($saved);
+        }
 
         [$answerRules, $answerMessages, $answerAttributes] = ContactFormFields::rules($form);
 
-        $rules = [
-            'first_name' => ['required', 'string', 'max:100'],
-            'last_name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'string', 'email', 'max:254'],
-            'phone' => $person($form->ask_phone, ['string', 'max:50', 'regex:/^[0-9+()\/ .\-]{3,50}$/']),
-            'organization' => $person($form->ask_organization, ['string', 'max:150']),
-            'thema' => ['nullable', 'integer'],
-            'consent' => ['accepted'],
-            'website' => ['nullable'],
-        ] + $answerRules;
+        $rules = $this->personRules($form) + ['consent' => ['accepted'], 'website' => ['nullable']] + $answerRules;
 
         if ($form->isMessage()) {
             $rules['subject'] = ['required', 'string', 'max:150'];
             $rules['message'] = ['required', 'string', 'max:5000'];
         }
 
-        $data = $request->validate($rules, [
-            'first_name.required' => 'Bitte geben Sie Ihren Vornamen ein.',
-            'last_name.required' => 'Bitte geben Sie Ihren Nachnamen ein.',
-            'email.required' => 'Bitte geben Sie Ihre E-Mail-Adresse ein.',
-            'email.email' => 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
-            'phone.required' => 'Bitte geben Sie Ihre Telefonnummer ein.',
-            'phone.regex' => 'Bitte geben Sie eine gültige Telefonnummer ein.',
-            'organization.required' => 'Bitte geben Sie Ihre Schule oder Organisation an.',
+        $data = $request->validate($rules, $this->personMessages() + [
             'subject.required' => 'Bitte geben Sie einen Betreff ein.',
             'message.required' => 'Bitte schreiben Sie Ihre Nachricht.',
             'message.max' => 'Die Nachricht darf höchstens 5.000 Zeichen lang sein.',
@@ -163,7 +189,47 @@ class ContactFlowController extends Controller
             return back()->withInput()->with('error', 'Ihre Nachricht konnte gerade nicht gesendet werden. Bitte versuchen Sie es später erneut.');
         }
 
+        $request->session()->forget($this->sessionKey($form));
+
         return redirect()->route('portal.contact')->with('success', $success);
+    }
+
+    /** @return array<string, list<string>> */
+    private function personRules(ContactForm $form): array
+    {
+        $person = fn (string $mode, array $rules): array => match ($mode) {
+            'required' => ['required', ...$rules],
+            'optional' => ['nullable', ...$rules],
+            default => ['prohibited'],
+        };
+
+        return [
+            'first_name' => ['required', 'string', 'max:100'],
+            'last_name' => ['required', 'string', 'max:100'],
+            'email' => ['required', 'string', 'email', 'max:254'],
+            'phone' => $person($form->ask_phone, ['string', 'max:50', 'regex:/^[0-9+()\/ .\-]{3,50}$/']),
+            'organization' => $person($form->ask_organization, ['string', 'max:150']),
+            'thema' => ['nullable', 'integer'],
+        ];
+    }
+
+    /** @return array<string, string> */
+    private function personMessages(): array
+    {
+        return [
+            'first_name.required' => 'Bitte geben Sie Ihren Vornamen ein.',
+            'last_name.required' => 'Bitte geben Sie Ihren Nachnamen ein.',
+            'email.required' => 'Bitte geben Sie Ihre E-Mail-Adresse ein.',
+            'email.email' => 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
+            'phone.required' => 'Bitte geben Sie Ihre Telefonnummer ein.',
+            'phone.regex' => 'Bitte geben Sie eine gültige Telefonnummer ein.',
+            'organization.required' => 'Bitte geben Sie Ihre Schule oder Organisation an.',
+        ];
+    }
+
+    private function sessionKey(ContactForm $form): string
+    {
+        return 'contact_flow.'.$form->slug;
     }
 
     /** Zur FAQ-Seite, zur Kategorie des Themas. */

@@ -1,6 +1,6 @@
 # Kontaktformular: Themenwahl, FAQ-Seiten und Formulare
 
-Der öffentliche Kontaktbereich (`/kontakt`) führt in drei Schritten: **1. Thema wählen**, **2. Angaben zur Person**, **3. Anfrage oder weitere Angaben**. Themen, FAQ-Seiten und Formulare lassen sich im Portal ändern (Geschäftsstelle › Inhalte › Kontaktformular, `/verwaltung/kontakt`, Berechtigung `contact_forms.manage` für Administration und Geschäftsstelle).
+Der öffentliche Kontaktbereich (`/kontakt`) führt in drei Schritten: **1. Thema wählen**, **2. Angaben zur Person**, **3. Anfrage oder weitere Angaben**; Schritt 2 und 3 sind zwei getrennte Seiten (die Angaben zur Person liegen dazwischen nur in der Sitzung). Formulare ohne Schritt 3 (nur Person) senden direkt von Schritt 2. Themen, FAQ-Seiten und Formulare lassen sich im Portal ändern (Geschäftsstelle › Inhalte › Kontaktformular, `/verwaltung/kontakt`, Berechtigung `contact_forms.manage` für Administration und Geschäftsstelle).
 
 ## Ablauf für Besucherinnen und Besucher
 1. **Themenwahl** (`/kontakt`): Bereiche (z. B. „Zugang und Konto“) und darin die Themen, dazu ein Suchfeld. Die Suche findet Titel, Kurzbeschreibung und Stichwörter; jedes Wort muss vorkommen. Ist das Thema nicht dabei, führt „Schreiben Sie uns direkt“ zum Standardformular.

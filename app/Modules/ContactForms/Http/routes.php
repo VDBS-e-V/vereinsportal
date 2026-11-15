@@ -13,6 +13,8 @@ Route::middleware('web')->prefix('kontakt')->group(function (): void {
     Route::get('/', [ContactFlowController::class, 'index'])->name('portal.contact');
     Route::get('/thema/{topic}', [ContactFlowController::class, 'topic'])->whereNumber('topic')->name('portal.contact.topic');
     Route::get('/formular/{form:slug}', [ContactFlowController::class, 'form'])->name('portal.contact.form');
+    Route::post('/formular/{form:slug}/daten', [ContactFlowController::class, 'details'])->middleware(['bot.guard', 'throttle:10,10'])->name('portal.contact.details');
+    Route::get('/formular/{form:slug}/anfrage', [ContactFlowController::class, 'request'])->name('portal.contact.request');
     Route::post('/formular/{form:slug}', [ContactFlowController::class, 'send'])->middleware(['bot.guard', 'throttle:5,10'])->name('portal.contact.send');
 });
 

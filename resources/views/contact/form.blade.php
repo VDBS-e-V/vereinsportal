@@ -1,17 +1,15 @@
 @php
-    $custom = $form->customFields();
     $steps = ['Thema wählen', 'Ihre Daten'];
 
     if ($form->isMessage()) {
         $steps[] = 'Ihre Anfrage';
-    } elseif ($custom !== []) {
+    } elseif ($form->customFields() !== []) {
         $steps[] = 'Weitere Angaben';
     }
 
     $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Kontakt', 'href' => route('portal.contact')], ['label' => $form->name]];
     $lead = filled($form->description) ? $form->description : 'Bitte geben Sie Ihre Daten ein, wir melden uns bei Ihnen.';
-    $section = $form->isMessage() ? 'Ihre Anfrage' : 'Weitere Angaben';
-    $number = 3;
+    $split = $form->hasRequestStep();
 @endphp
 
 <x-layouts.app :title="$form->name" width="medium">
@@ -23,7 +21,7 @@
         <p style="margin-top:var(--space-5)">Ihr Thema: <strong>{{ $topic->title }}</strong> · <a href="{{ route('portal.contact') }}">Thema ändern</a></p>
     @endif
 
-    <x-vdbs.forms.form :action="route('portal.contact.send', ['form' => $form->slug])">
+    <x-vdbs.forms.form :action="$split ? route('portal.contact.details', ['form' => $form->slug]) : route('portal.contact.send', ['form' => $form->slug])">
         <x-vdbs.forms.bot-guard />
         <input type="hidden" name="thema" value="{{ $topic?->id }}">
 
@@ -41,45 +39,22 @@
             @endif
         </x-vdbs.forms.form-section>
 
-        @if ($form->isMessage() || $custom !== [])
-            <x-vdbs.forms.form-section :title="'Schritt '.$number.': '.$section">
-                @foreach ($custom as $field)
-                    @php
-                        $name = 'answers['.$field['key'].']';
-                        $id = 'answer-'.$field['key'];
-                        $required = (bool) $field['required'];
-                    @endphp
-                    @switch($field['type'])
-                        @case('textarea')
-                            <x-vdbs.forms.textarea :id="$id" :name="$name" :label="$field['label']" :required="$required" :optional="! $required" :hint="$field['hint']" :rows="4" maxlength="5000" />
-                            @break
-                        @case('select')
-                            <x-vdbs.forms.select :id="$id" :name="$name" :label="$field['label']" :required="$required" :optional="! $required" :hint="$field['hint']" placeholder="-- Bitte wählen --" :options="array_combine($field['options'], $field['options'])" />
-                            @break
-                        @case('checkbox')
-                            <x-vdbs.forms.checkbox :id="$id" :name="$name" :label="$field['label']" :required="$required" :hint="$field['hint']" />
-                            @break
-                        @default
-                            <x-vdbs.forms.input :id="$id" :name="$name" :label="$field['label']" :type="in_array($field['type'], ['email', 'tel', 'date'], true) ? $field['type'] : 'text'" :required="$required" :optional="! $required" :hint="$field['hint']" />
-                    @endswitch
-                @endforeach
-
-                @if ($form->isMessage())
-                    <x-vdbs.forms.input name="subject" label="Betreff" :required="true" maxlength="150" placeholder="Geben Sie Ihrem Anliegen einen Betreff" :value="$topic?->title" />
-                    <x-vdbs.forms.textarea name="message" label="Inhalt" :required="true" maxlength="5000" :counter="true" :rows="6" placeholder="Ihre Nachricht …" />
-                @endif
-            </x-vdbs.forms.form-section>
-        @endif
-
-        <x-vdbs.forms.checkbox name="consent" :required="true" label="Ich willige ein, dass meine Daten zum Zweck der Kontaktaufnahme gespeichert und verarbeitet werden. Ich kann diese Einwilligung jederzeit widerrufen. Weitere Informationen finden Sie in unserer Datenschutzerklärung (siehe Fußzeile)." />
+        @unless ($split)
+            <x-vdbs.forms.checkbox name="consent" :required="true" label="Ich willige ein, dass meine Daten zum Zweck der Kontaktaufnahme gespeichert und verarbeitet werden. Ich kann diese Einwilligung jederzeit widerrufen. Weitere Informationen finden Sie in unserer Datenschutzerklärung (siehe Fußzeile)." />
 
         {{-- Köder für Programme: Menschen sehen und füllen das Feld nicht aus. --}}
         <div style="position:absolute;left:-10000px" aria-hidden="true">
             <label>Website <input type="text" name="website" value="" tabindex="-1" autocomplete="off"></label>
         </div>
 
+        @endunless
+
         <x-slot:actions>
-            <x-vdbs.actions.button type="submit" icon="send">Absenden</x-vdbs.actions.button>
+            @if ($split)
+                <x-vdbs.actions.button type="submit" icon="arrow-right">Weiter zu Schritt 3</x-vdbs.actions.button>
+            @else
+                <x-vdbs.actions.button type="submit" icon="send">Absenden</x-vdbs.actions.button>
+            @endif
             <x-vdbs.actions.button variant="text" :href="route('portal.contact')">Anderes Thema wählen</x-vdbs.actions.button>
         </x-slot:actions>
     </x-vdbs.forms.form>

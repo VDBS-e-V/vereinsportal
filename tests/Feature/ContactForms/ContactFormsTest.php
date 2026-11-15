@@ -114,7 +114,12 @@ it('points to the standard form when there are no topics', function () {
 it('asks only the personal data a data-only form needs and sends the answers by mail', function () {
     $html = $this->get(route('portal.contact.form', ['form' => 'rueckruf']))->assertOk()->getContent();
 
-    expect($html)->toContain('name="phone"')->toContain('name="answers[anliegen]"')->toContain('name="answers[erreichbarkeit]"')->not->toContain('name="message"')->not->toContain('name="subject"')->not->toContain('name="organization"');
+    // Schritt 2 fragt nur die Person, die weiteren Angaben stehen auf der Seite von Schritt 3
+    expect($html)->toContain('name="phone"')->not->toContain('name="answers[anliegen]"')->not->toContain('name="organization"')->not->toContain('name="consent"');
+
+    $this->post(route('portal.contact.details', ['form' => 'rueckruf']), cfPerson(['phone' => '0151 1234567']))->assertRedirect(route('portal.contact.request', ['form' => 'rueckruf']));
+    $step3 = $this->get(route('portal.contact.request', ['form' => 'rueckruf']))->assertOk()->getContent();
+    expect($step3)->toContain('name="answers[anliegen]"')->toContain('name="answers[erreichbarkeit]"')->toContain('name="consent"')->not->toContain('name="message"')->not->toContain('name="subject"')->not->toContain('name="phone"');
 
     $this->post(route('portal.contact.send', ['form' => 'rueckruf']), cfPerson(['phone' => '0151 1234567', 'answers' => ['anliegen' => 'Frage zum Seminar', 'erreichbarkeit' => 'nach 15 Uhr']]))
         ->assertRedirect(route('portal.contact'))->assertSessionHas('success', 'Danke, wir rufen Sie zurück.');
@@ -125,6 +130,18 @@ it('asks only the personal data a data-only form needs and sends the answers by 
         && $mail->subjectLine === null
         && $mail->answers === [['label' => 'Worum geht es kurz?', 'value' => 'Frage zum Seminar'], ['label' => 'Wann sind Sie erreichbar?', 'value' => 'nach 15 Uhr']]
         && str_contains($mail->envelope()->subject, 'Rückruf erbeten'));
+});
+
+it('splits the flow in two pages: personal data first, then the request, and needs step 2 before step 3', function () {
+    $this->get(route('portal.contact.request', ['form' => 'rueckruf']))->assertRedirect(route('portal.contact.form', ['form' => 'rueckruf']));
+    $this->post(route('portal.contact.details', ['form' => 'rueckruf']), cfPerson())->assertSessionHasErrors('phone');
+    $this->post(route('portal.contact.send', ['form' => 'rueckruf']), ['answers' => ['anliegen' => 'x'], 'consent' => '1'])->assertRedirect(route('portal.contact.form', ['form' => 'rueckruf']));
+
+    $this->post(route('portal.contact.details', ['form' => 'rueckruf']), cfPerson(['phone' => '0151 1234567']))->assertSessionHasNoErrors();
+    $this->post(route('portal.contact.send', ['form' => 'rueckruf']), ['answers' => ['anliegen' => 'Frage'], 'consent' => '1'])->assertRedirect(route('portal.contact'))->assertSessionHas('success');
+
+    Mail::assertSent(ContactFormMail::class, fn (ContactFormMail $mail): bool => $mail->person['phone'] === '0151 1234567' && $mail->hasReplyTo('erika@beispiel.example'));
+    $this->get(route('portal.contact.request', ['form' => 'rueckruf']))->assertRedirect(route('portal.contact.form', ['form' => 'rueckruf']));
 });
 
 it('validates required personal data and custom fields', function () {
@@ -282,7 +299,9 @@ it('creates and changes a form with custom fields in the editor', function () {
     expect($form->recipient_email)->toBe('seminare@beispiel.example')->and($form->send_copy)->toBeTrue()->and($form->is_default)->toBeFalse()
         ->and($form->customFields())->toHaveCount(1)->and($form->customFields()[0]['options'])->toBe(['Grundschule', 'Gymnasium'])->and($form->customFields()[0]['required'])->toBeTrue();
 
-    $this->get(route('portal.contact.form', ['form' => 'seminaranfrage']))->assertOk()->assertSee('name="organization"', false)->assertSee('Gymnasium');
+    $this->get(route('portal.contact.form', ['form' => 'seminaranfrage']))->assertOk()->assertSee('name="organization"', false);
+    $this->post(route('portal.contact.details', ['form' => 'seminaranfrage']), cfPerson(['organization' => 'Schule']))->assertRedirect();
+    $this->get(route('portal.contact.request', ['form' => 'seminaranfrage']))->assertOk()->assertSee('Gymnasium');
 
     $this->put(route('contact-admin.forms.update', $form), ['name' => 'Seminaranfrage neu', 'kind' => 'message', 'recipient_email' => 'seminare@beispiel.example', 'recipient_label' => 'Koordination', 'ask_phone' => 'no', 'ask_organization' => 'no', 'is_active' => '1'])->assertRedirect();
 

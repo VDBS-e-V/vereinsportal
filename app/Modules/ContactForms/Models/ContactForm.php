@@ -38,6 +38,12 @@ class ContactForm extends Model
         return static::query()->where('is_default', true)->where('is_active', true)->first();
     }
 
+    /** Ob nach den Angaben zur Person (Schritt 2) noch eine eigene Seite folgt: Anfrage schreiben oder weitere Angaben. */
+    public function hasRequestStep(): bool
+    {
+        return $this->isMessage() || $this->customFields() !== [];
+    }
+
     public function isMessage(): bool
     {
         return $this->kind !== 'data';

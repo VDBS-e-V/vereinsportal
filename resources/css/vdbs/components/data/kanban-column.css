@@ -1,27 +1,51 @@
-/* Spalte der Kanban-Tafel (Paket "Daten"). */
+/* Spalte der Kanban-Tafel (Paket "Daten"): weiße Fläche mit farbigem Kopfstreifen, Zähler als Plakette. */
 
 .vdbs-kanban-column {
-    flex: 0 0 18rem;
-    min-height: 8rem;
-    padding: var(--space-3);
+    flex: 1 1 20rem;
+    min-width: 16rem;
+    max-width: 28rem;
+    min-height: 10rem;
+    padding: 0 var(--space-3) var(--space-3);
     border: var(--border-width) solid var(--border-default);
+    border-top: 6px solid var(--group-3);
     border-radius: var(--radius-md);
-    background: var(--bg-accent-soft);
+    background: var(--bg-surface);
     color: var(--text-default);
+    scroll-snap-align: center;
 }
+
+.vdbs-kanban-column:nth-child(6n+2) { border-top-color: var(--group-1); }
+.vdbs-kanban-column:nth-child(6n+3) { border-top-color: var(--group-6); }
+.vdbs-kanban-column:nth-child(6n+4) { border-top-color: var(--group-4); }
+.vdbs-kanban-column:nth-child(6n+5) { border-top-color: var(--group-2); }
+.vdbs-kanban-column:nth-child(6n+6) { border-top-color: var(--group-5); }
+.vdbs-kanban-column[data-done] { border-top-color: var(--border-success); }
 
 .vdbs-kanban-column__head {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: var(--space-2);
-    margin: 0 0 var(--space-3);
+    margin: 0;
+    padding: var(--space-3) 0;
     font-size: var(--font-size-body);
     font-weight: var(--font-weight-bold);
 }
 
 .vdbs-kanban-column__done { color: var(--text-muted); font-size: var(--font-size-small); font-weight: var(--font-weight-regular); }
-.vdbs-kanban-column__count { color: var(--text-muted); font-size: var(--font-size-small); }
+
+.vdbs-kanban-column__count {
+    min-width: 1.75rem;
+    padding: 0 var(--space-2);
+    border-radius: 999px;
+    background: var(--bg-page);
+    border: var(--border-width) solid var(--border-default);
+    color: var(--text-default);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-bold);
+    text-align: center;
+}
+
 .vdbs-kanban-column__list { display: grid; gap: var(--space-2); min-height: var(--space-8); margin: 0; padding: 0; list-style: none; }
 .vdbs-kanban-column__footer { margin-top: var(--space-3); }
 

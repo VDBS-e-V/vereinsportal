@@ -8,6 +8,8 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ### Added
 
+- Kontaktformular: Schritt 2 (Angaben zur Person) und Schritt 3 (Anfrage oder weitere Angaben) sind getrennte Seiten
+- Aufgaben: neue Aufgaben auf eigener Seite, kompakte Such- und Filterleiste, Kanban-Spalten mittig und im neuen Design
 - Kontaktformular als geführter Ablauf (Thema wählen, Angaben zur Person, Anfrage oder nur Angaben; Themen ohne Formular führen zur FAQ-Seite, keine Infoseiten unter /kontakt) mit im Portal pflegbaren Themen, FAQ-Seiten, Formularen und eigenen Feldern (Doc 82)
 - FAQ als eigenes Modul: große FAQ-Seite `/faq` mit Suche, eigene Verwaltung (Geschäftsstelle › FAQ) mit Kategorien und Fragen, vom Kontaktformular getrennt; Entwurf der Fragen und Antworten als Ausgangsbestand (Doc 83); Kategorien lassen sich auf Angemeldete oder bestimmte Rollen beschränken (z. B. Honorare nur für Teamende und Verwaltung)
 - Designsystem: Auswahlkästchen für Tabellenzeilen (`x-vdbs.data.table-check`) mit Kopfkästchen „Alle auswählen“; alle Tabellen mit Mehrfachauswahl nutzen es

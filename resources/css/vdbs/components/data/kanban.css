@@ -1,9 +1,18 @@
 /* Kanban-Tafel (Paket "Daten"). Nur Tokens aus tokens.css verwenden, keine Farbcodes. */
 
+/* Spalten stehen mittig und teilen sich die Breite; bei vielen Spalten oder auf dem Handy scrollt die Tafel seitlich. */
 .vdbs-kanban {
     display: flex;
-    gap: var(--space-4);
+    justify-content: center;
+    gap: var(--space-5);
     align-items: flex-start;
     overflow-x: auto;
-    padding: var(--space-4) var(--space-4) var(--space-6);
+    max-width: 90rem;
+    margin-inline: auto;
+    padding: var(--space-4) var(--space-4) var(--space-8);
+    scroll-snap-type: x proximity;
+}
+
+@media (max-width: 47.99rem) {
+    .vdbs-kanban { justify-content: flex-start; }
 }

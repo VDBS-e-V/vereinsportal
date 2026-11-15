@@ -30,6 +30,19 @@ class TaskController extends Controller
 {
     public function __construct(private readonly ProjectAccess $access, private readonly TaskService $tasks, private readonly TaskAttachments $attachments) {}
 
+    /** Eigene Seite zum Anlegen einer Aufgabe (auch aus einer Vorlage); ?spalte=<Spalte> wählt die Spalte vor. */
+    public function create(Request $request, TaskProject $project): View
+    {
+        $this->authorizeView($project);
+        $statuses = $project->statuses()->get();
+
+        return view('tasks.create', [
+            'project' => $project, 'statuses' => $statuses, 'defaultStatus' => $statuses->firstWhere('id', (int) $request->query('spalte'))?->id,
+            'assignable' => $this->access->assignable($project), 'labels' => $project->labels()->pluck('name', 'id')->all(),
+            'templates' => $project->templates()->pluck('name', 'id')->all(), 'priorities' => Task::PRIORITIES,
+        ]);
+    }
+
     public function store(Request $request, TaskProject $project): RedirectResponse
     {
         $this->authorizeView($project);

@@ -9,6 +9,7 @@
     <x-vdbs.layout.container>
         <x-vdbs.layout.page-header :title="$project->name" :lead="$project->description ?: 'Aufgaben des Projekts.'" :breadcrumb="$crumbs">
             <x-slot:actions>
+                <x-vdbs.actions.button :href="route('tasks.create', $project)" icon="plus">Neue Aufgabe</x-vdbs.actions.button>
                 <x-vdbs.actions.button :variant="$view === 'board' ? 'primary' : 'secondary'" :href="route('tasks.projects.show', [$project] + $query(['view' => 'board']))" icon="square-kanban">Kanban</x-vdbs.actions.button>
                 <x-vdbs.actions.button :variant="$view === 'list' ? 'primary' : 'secondary'" :href="route('tasks.projects.show', [$project] + $query(['view' => 'list']))" icon="clipboard-list">Liste</x-vdbs.actions.button>
                 <x-vdbs.actions.button variant="secondary" :href="route('tasks.templates.index', $project)" icon="copy">Vorlagen</x-vdbs.actions.button>
@@ -16,7 +17,7 @@
             </x-slot:actions>
         </x-vdbs.layout.page-header>
 
-        <form method="get" action="{{ route('tasks.projects.show', $project) }}" class="vdbs-form">
+        <form method="get" action="{{ route('tasks.projects.show', $project) }}" class="vdbs-task-filter" aria-label="Aufgaben suchen und filtern">
             <input type="hidden" name="view" value="{{ $view }}">
             <x-vdbs.forms.input name="q" label="Suchen" type="search" :optional="true" maxlength="100" :value="$filters['q'] ?? ''" />
             <x-vdbs.forms.select name="assignee" label="Zuständig" :optional="true" placeholder="Alle" :options="$assigneeOptions" :value="$filters['assignee'] ?? ''" />
@@ -36,13 +37,7 @@
                         @include('tasks._card', ['task' => $task, 'statuses' => $statuses])
                     @endforeach
                     <x-slot:footer>
-                        <form method="post" action="{{ route('tasks.store', $project) }}">
-                            @csrf
-                            <input type="hidden" name="task_status_id" value="{{ $status->id }}">
-                            <label class="vdbs-sr-only" for="add-{{ $status->id }}">Neue Aufgabe in {{ $status->name }}</label>
-                            <input id="add-{{ $status->id }}" class="vdbs-input" type="text" name="title" maxlength="200" placeholder="Neue Aufgabe" required>
-                            <x-vdbs.actions.button type="submit" size="s" variant="secondary" icon="plus">Hinzufügen</x-vdbs.actions.button>
-                        </form>
+                        <x-vdbs.actions.button :href="route('tasks.create', [$project, 'spalte' => $status->id])" size="s" variant="text" icon="plus">Aufgabe hinzufügen</x-vdbs.actions.button>
                     </x-slot:footer>
                 </x-vdbs.data.kanban-column>
             @endforeach
@@ -92,24 +87,4 @@
             @endif
         </x-vdbs.layout.container>
     @endif
-
-    <x-vdbs.layout.container>
-        <x-vdbs.layout.section title="Neue Aufgabe">
-            <x-vdbs.forms.form :action="route('tasks.store', $project)" method="post" :summary="false">
-                @include('tasks._fields', ['task' => null, 'resolutions' => [], 'statuses' => $statuses, 'showStatus' => true, 'labels' => $labels])
-                <x-slot:actions><x-vdbs.actions.button type="submit" icon="plus">Aufgabe anlegen</x-vdbs.actions.button></x-slot:actions>
-            </x-vdbs.forms.form>
-        </x-vdbs.layout.section>
-        @if ($templates !== [])
-            <x-vdbs.layout.section title="Neue Aufgabe aus Vorlage">
-                <x-vdbs.forms.form :action="route('tasks.templates.use', $project)" method="post" :summary="false">
-                    <x-vdbs.forms.select name="template" label="Vorlage" :required="true" placeholder="Vorlage wählen" :options="$templates" :value="old('template')" />
-                    <x-vdbs.forms.input name="title" label="Titel (leer = Titel der Vorlage)" :optional="true" maxlength="200" />
-                    <x-vdbs.forms.multi-select name="assignees" label="Zuständig" :optional="true" :searchable="true" placeholder="Niemand ausgewählt" search-label="Personen filtern" :options="$assignable" :value="[]" />
-                    <x-vdbs.forms.input name="due_on" label="Fällig am (leer = laut Vorlage)" type="date" :optional="true" />
-                    <x-slot:actions><x-vdbs.actions.button type="submit" icon="plus">Aus Vorlage anlegen</x-vdbs.actions.button></x-slot:actions>
-                </x-vdbs.forms.form>
-            </x-vdbs.layout.section>
-        @endif
-    </x-vdbs.layout.container>
 </x-layouts.app>

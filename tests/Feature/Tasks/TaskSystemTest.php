@@ -653,7 +653,7 @@ it('creates, edits and uses task templates with labels, subtasks and a due date'
 
     // Mitglieder legen Aufgaben aus der Vorlage an, ändern sie aber nicht
     $this->actingAs($member);
-    $this->get(route('tasks.projects.show', $project))->assertOk()->assertSee('Neue Aufgabe aus Vorlage');
+    $this->get(route('tasks.create', $project))->assertOk()->assertSee('Neue Aufgabe aus Vorlage');
     $this->post(route('tasks.templates.use', $project), ['template' => $template->id, 'assignees' => [$member->id]])->assertRedirect();
 
     $task = Task::query()->firstOrFail();

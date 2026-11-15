@@ -8,7 +8,7 @@
 @endif
 <x-vdbs.forms.input name="due_on" label="Fällig am" type="date" :optional="true" :value="old('due_on', $task?->due_on?->format('Y-m-d'))" />
 @if ($showStatus ?? false)
-    <x-vdbs.forms.select name="task_status_id" label="Spalte" :options="$statuses->pluck('name', 'id')->all()" :value="old('task_status_id', $task?->task_status_id ?? $statuses->first()?->id)" />
+    <x-vdbs.forms.select name="task_status_id" label="Spalte" :options="$statuses->pluck('name', 'id')->all()" :value="old('task_status_id', $task?->task_status_id ?? ($defaultStatus ?? $statuses->first()?->id))" />
 @endif
 @if (($resolutions ?? []) !== [])
     <x-vdbs.forms.select name="board_resolution_id" label="Zu Beschluss" :optional="true" placeholder="Kein Beschluss" :options="$resolutions" :value="old('board_resolution_id', $task?->board_resolution_id)" />
