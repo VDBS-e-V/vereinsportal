@@ -12,7 +12,8 @@ Das Portal ist die einzige Anmeldung. Nextcloud, Moodle und weitere Systeme meld
 ## Teil 2: Anmeldung (OpenID Connect)
 - **Discovery:** `/.well-known/openid-configuration`; **Schlüssel:** `/oauth/jwks`; **Anmelden:** `/oauth/authorize`; **Token:** `/oauth/token`; **Benutzerangaben:** `/oauth/userinfo`; **Abmelden:** `/oauth/logout`.
 - Ablauf: Authorization Code mit PKCE (S256), RS256-signiertes ID-Token. Kein Password-Grant, kein Implicit.
-- **Scopes:** `openid`, `profile` (Name), `email` (Adresse, bestätigt ja/nein), `roles` (Rollenschlüssel), `groups` (Gruppen). Nie dabei: Anschrift, Geburtsdatum, Telefon.
+- **Scopes:** `openid`, `profile` (Name), `email` (Adresse, bestätigt ja/nein), `roles` (Rollenschlüssel), `groups` (Gruppen), `portal_profile` (Funktion `headline`, Kurzvorstellung `bio` als bereinigtes HTML, Profilbild `picture`). Nie dabei: Anschrift, Geburtsdatum, Telefon.
+- **`portal_profile`:** Es gilt die Sichtbarkeit „Angemeldete Portalnutzer“ aus dem Profil der Person (Konto › Mein Profil › Sichtbarkeit). Was die Person nur für sich behält, geht nicht raus. Das Bild lädt das System über `/oauth/photo/{id}` mit signierter, zehn Minuten gültiger Adresse (`picture`). Schulkonten haben kein Profil und liefern nichts.
 - **Kennung (`sub`):** `users.public_uuid`, nicht die Datenbank-ID.
 - **Gruppen:** `vdbs-administration`, `vdbs-vorstand`, `vdbs-geschaeftsstelle`, `vdbs-koordination`, `vdbs-bildungsreferenten`, `vdbs-teamende`, `vdbs-mitglieder`, `vdbs-schulen`.
 - **Rollenprüfung:** Vor der Anmeldung prüft das Portal, ob das Konto aktiv ist und eine der erlaubten Rollen der Anbindung hat; sonst Seite „Für diese Anwendung nicht freigegeben“ (403).
@@ -50,9 +51,9 @@ Voraussetzung: Portal und Moodle laufen über `https://`, Moodle erreicht das Po
 
 **In Moodle** (als Administration)
 1. Website-Administration › Server › OAuth 2-Services › „OpenID Connect“ wählen (bei älteren Versionen „Benutzerdefiniert“). Name „Vereinsportal“, Client-ID, Geheimnis, Basis-URL des Dienstes = Adresse des Portals (`https://<Ihr-Portal>`; Moodle liest daraus die Discovery). „Auf der Anmeldeseite anzeigen“ einschalten; „E-Mail-Bestätigung verlangen“ nur, wenn bestehende Moodle-Konten mit gleicher E-Mail-Adresse verknüpft werden sollen.
-2. Beim Dienst „Benutzerfeld-Zuordnungen“: `preferred_username` → Nutzername, `given_name` → Vorname, `family_name` → Nachname, `email` → E-Mail-Adresse. (Der Nutzername ist die stabile Kennung des Portals; Nutzende sehen ihn nicht.)
+2. Beim Dienst „Benutzerfeld-Zuordnungen“: `preferred_username` → Nutzername, `given_name` → Vorname, `family_name` → Nachname, `email` → E-Mail-Adresse, `bio` → Beschreibung, `picture` → Profilbild (Moodle lädt das Bild bei der Anmeldung herunter), `headline` → Institution (freiwillig). (Der Nutzername ist die stabile Kennung des Portals; Nutzende sehen ihn nicht.)
 3. Website-Administration › Plugins › Authentifizierung: „OAuth 2“ aktivieren; „Kontoerstellung zulassen“ (Selbstregistrierung über den Dienst) muss an sein, damit neue Konten angelegt werden.
-4. Scopes `openid profile email` (Moodle fordert sie selbst an). Moodle nutzt nur die Anmeldung; Kurse werden nicht aus Rollen abgeleitet.
+4. Scopes `openid profile email portal_profile` (beim Dienst „Scopes in der Anmeldeanfrage“ ergänzen). Moodle nutzt nur die Anmeldung; Kurse werden nicht aus Rollen abgeleitet.
 5. Testen in einem privaten Fenster: Moodle-Anmeldeseite › „Vereinsportal“ › Anmeldung im Portal › Rückkehr nach Moodle.
 
 ### Weitere Systeme (Prüfliste)

@@ -225,3 +225,27 @@ it('shows only the own applications and schedules the token cleanup', function (
     $this->actingAs(odUser(null))->get(route('account.apps'))->assertOk()->assertDontSee('Nextcloud');
     expect(file_get_contents(base_path('routes/console.php')))->toContain("Schedule::command('passport:purge')->daily()");
 });
+
+it('hands over headline, short bio and photo only with the portal_profile scope and only as released for logged-in users', function () {
+    \Illuminate\Support\Facades\Storage::fake(\App\Modules\Access\Services\ProfilePhotos::DISK);
+    \Illuminate\Support\Facades\Storage::disk(\App\Modules\Access\Services\ProfilePhotos::DISK)->put('profile-photos/x.png', 'png');
+
+    $user = odUser(RoleKey::Team);
+    $user->forceFill(['avatar_path' => 'profile-photos/x.png'])->save();
+    $user->profile()->create(['headline' => 'Teamerin', 'bio' => '<p>Hallo <strong>Welt</strong></p>', 'visibility' => ['headline' => 'portal', 'bio' => 'portal', 'photo' => 'private']]);
+
+    $claims = app(OidcClaims::class);
+
+    expect($claims->forUser($user->fresh(), ['openid', 'profile']))->not->toHaveKeys(['headline', 'bio', 'picture']);
+
+    $with = $claims->forUser($user->fresh(), ['openid', 'portal_profile']);
+    expect($with['headline'])->toBe('Teamerin')->and($with['bio'])->toContain('<strong>Welt</strong>')->and($with)->not->toHaveKey('picture'); // Foto ist privat
+
+    $user->profile->update(['visibility' => ['photo' => 'portal', 'bio' => 'private']]);
+    $with = $claims->forUser($user->fresh(), ['portal_profile']);
+    expect($with)->toHaveKey('picture')->and($with)->not->toHaveKey('bio');
+
+    // das Bild gibt es nur über die signierte Adresse
+    $this->get(route('oidc.photo', ['user' => $user->id]))->assertForbidden();
+    $this->get($with['picture'])->assertOk();
+});

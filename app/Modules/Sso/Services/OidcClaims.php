@@ -3,21 +3,28 @@
 namespace App\Modules\Sso\Services;
 
 use App\Modules\Access\Enums\UserStatus;
+use App\Modules\Access\Services\Profiles;
 use App\Modules\Access\Models\User;
 use App\Modules\AccessGovernance\Support\Capabilities;
+use App\Support\Html\RichText;
+use Illuminate\Support\Facades\URL;
 
 /**
  * Angaben, die ein angebundenes System über eine Person erfährt – nur nach Zustimmung zum jeweiligen Bereich (Scope).
  * Bewusst nicht dabei: Anschrift, Geburtsdatum, Telefonnummer.
+ * Der Scope portal_profile gibt Profilbild, Funktion und Kurzvorstellung weiter, aber nur, was die Person für „Angemeldete Portalnutzer“ freigegeben hat.
  */
 final class OidcClaims
 {
+    public function __construct(private readonly Profiles $profiles) {}
+
     public const SCOPES = [
         'openid' => 'Sie anmelden',
         'profile' => 'Ihren Namen sehen',
         'email' => 'Ihre E-Mail-Adresse sehen',
         'roles' => 'Ihre Rolle im Verein sehen',
         'groups' => 'Ihre Gruppen im Verein sehen',
+        'portal_profile' => 'Ihr Profilbild, Ihre Funktion und Ihre Kurzvorstellung sehen (nur, was Sie für Angemeldete freigegeben haben)',
     ];
 
     /** Stabile Gruppennamen je Rolle; in Nextcloud werden ihnen Gruppenordner zugeordnet. */
@@ -73,6 +80,24 @@ final class OidcClaims
 
             if (in_array('groups', $scopes, true)) {
                 $claims['groups'] = array_values(array_unique(array_filter(array_map(fn (string $role): ?string => self::GROUPS[$role] ?? null, $roles))));
+            }
+        }
+
+        if (in_array('portal_profile', $scopes, true) && $this->profiles->allowedFor($user)) {
+            // Es gilt die Sichtbarkeit „Angemeldete Portalnutzer“ aus dem Profil der Person.
+            $shown = $this->profiles->preview($user, true);
+
+            if (isset($shown['headline'])) {
+                $claims['headline'] = $shown['headline'];
+            }
+
+            if (isset($shown['bio'])) {
+                $claims['bio'] = RichText::render($shown['bio']);
+            }
+
+            if (isset($shown['photo'])) {
+                // Das System lädt das Bild selbst herunter: Adresse mit Signatur, zehn Minuten gültig.
+                $claims['picture'] = URL::temporarySignedRoute('oidc.photo', now()->addMinutes(10), ['user' => $user->id]);
             }
         }
 

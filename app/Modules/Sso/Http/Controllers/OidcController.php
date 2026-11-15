@@ -3,6 +3,9 @@
 namespace App\Modules\Sso\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Access\Models\User;
+use App\Modules\Access\Services\ProfilePhotos;
+use App\Modules\Access\Services\Profiles;
 use App\Modules\Sso\Services\OAuthClients;
 use App\Modules\Sso\Services\OAuthKeys;
 use App\Modules\Sso\Services\OidcClaims;
@@ -11,6 +14,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /** Öffentliche Schnittstellen für angebundene Systeme: Discovery, Schlüssel, Benutzerangaben, Abmeldung. */
 class OidcController extends Controller
@@ -35,7 +40,19 @@ class OidcController extends Controller
             'scopes_supported' => array_keys(OidcClaims::SCOPES),
             'token_endpoint_auth_methods_supported' => ['client_secret_post', 'client_secret_basic', 'none'],
             'code_challenge_methods_supported' => ['S256'],
-            'claims_supported' => ['sub', 'iss', 'aud', 'exp', 'iat', 'auth_time', 'nonce', 'name', 'given_name', 'family_name', 'preferred_username', 'email', 'email_verified', 'roles', 'groups'],
+            'claims_supported' => ['sub', 'iss', 'aud', 'exp', 'iat', 'auth_time', 'nonce', 'name', 'given_name', 'family_name', 'preferred_username', 'email', 'email_verified', 'roles', 'groups', 'headline', 'bio', 'picture'],
+        ]);
+    }
+
+    /** Profilbild für ein angebundenes System: nur mit gültiger Signatur und nur, wenn die Person es für Angemeldete freigegeben hat. */
+    public function photo(User $user): StreamedResponse
+    {
+        abort_unless(filled($user->avatar_path) && isset(app(Profiles::class)->preview($user, true)['photo']), 404);
+        abort_unless(Storage::disk(ProfilePhotos::DISK)->exists($user->avatar_path), 404);
+
+        return Storage::disk(ProfilePhotos::DISK)->response($user->avatar_path, null, [
+            'Content-Type' => ['png' => 'image/png', 'webp' => 'image/webp'][pathinfo($user->avatar_path, PATHINFO_EXTENSION)] ?? 'image/jpeg',
+            'Cache-Control' => 'private, max-age=600',
         ]);
     }
 

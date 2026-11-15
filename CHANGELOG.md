@@ -8,6 +8,7 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ### Added
 
+- Anbindungen: neuer Scope `portal_profile` gibt Funktion, Kurzvorstellung und Profilbild an angebundene Systeme (z. B. Moodle) weiter, nur soweit für Angemeldete freigegeben (Doc 72)
 - Ticket-System: Tickets anlegen, im Ticket schreiben (Chat mit internen Notizen), Zuweisung an Bearbeitende, Status und Priorität, Verlauf je Ticket und Protokoll im Portal, Warteschlange mit Mehrfachauswahl (Doc 84); die bisherigen „Meine Tickets“ (Veranstaltungen) heißen „Meine Anmeldungen“
 - Schnellzugriffe: je Rolle drei Links mit Wichtigkeit, die wichtigsten Links aller Rollen im Profilmenü (Doc 84)
 - Kontaktformular: Angemeldete geben ihre Daten (vorbelegt aus dem Konto) in Schritt 3 an
