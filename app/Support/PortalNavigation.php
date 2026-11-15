@@ -107,7 +107,8 @@ final class PortalNavigation
                         ['description' => 'Wo Ihr Konto angemeldet ist.', 'label' => 'Sitzungen', 'route' => 'account.sessions', 'match' => 'account.sessions*'],
                     ]],
                     ['description' => 'Alle Aufgaben, die Ihnen zugewiesen sind, aus allen Projekten.', 'label' => 'Meine Aufgaben', 'route' => 'tasks.mine', 'match' => 'tasks.mine', 'can' => 'tasks.use'],
-                    ['description' => 'Ihre Anmeldungen zu Veranstaltungen mit Ticketcode.', 'label' => 'Meine Tickets', 'route' => 'account.tickets', 'match' => 'account.tickets'],
+                    ['description' => 'Ihre Anfragen und Meldungen an das Portal-Team, mit Verlauf und Nachrichten.', 'label' => 'Meine Tickets', 'route' => 'support.mine', 'match' => 'support.*'],
+                    ['description' => 'Ihre Anmeldungen zu Veranstaltungen mit Ticketcode.', 'label' => 'Meine Anmeldungen', 'route' => 'account.tickets', 'match' => 'account.tickets'],
                     ['description' => 'Systeme, bei denen Sie sich über das Portal angemeldet haben.', 'label' => 'Verbundene Anwendungen', 'route' => 'account.apps', 'match' => 'account.apps*'],
                     ['description' => 'Ihre Rollen und die Bereiche, die Ihnen offenstehen.', 'label' => 'Rollen & Bereiche', 'route' => 'account.roles', 'match' => 'account.roles'],
                     ['label' => 'Einstellungen', 'group' => true, 'route' => 'account.notifications', 'children' => [
@@ -204,6 +205,7 @@ final class PortalNavigation
                         ['description' => 'Importierte Mailingliste und persönliche Zugänge für Bewerbungen.', 'label' => 'Teamkontakte', 'route' => 'contacts.index', 'match' => 'contacts.*', 'can' => 'contacts.manage'],
                     ]],
                     ['description' => 'Anträge prüfen, freigeben und die Sammelliste für die Auszahlung erstellen.', 'label' => 'Anträge', 'route' => 'forms-office.index', 'match' => 'forms-office.*', 'can' => 'forms.view'],
+                    ['description' => 'Anfragen und Meldungen aller Personen: zuweisen, bearbeiten, im Ticket antworten.', 'label' => 'Tickets', 'route' => 'tickets-admin.index', 'match' => 'tickets-admin.*', 'can' => 'tickets.handle'],
                     ['label' => 'Inhalte', 'group' => true, 'route' => 'articles.admin.index', 'children' => [
                         ['description' => 'Artikel für Startseite und Artikelliste.', 'label' => 'Artikel', 'route' => 'articles.admin.index', 'match' => 'articles.admin.*', 'can' => 'articles.manage'],
                         ['description' => 'Rechtstexte und andere Seiten.', 'label' => 'Seiten', 'route' => 'pages.admin.index', 'match' => 'pages.admin.*', 'can' => 'pages.manage'],
@@ -329,7 +331,7 @@ final class PortalNavigation
             'membership.*' => 'users', 'onboarding.*' => 'clipboard-list', 'team-onboarding.*' => 'clipboard-list', 'mailings.*' => 'mail', 'board.meetings.*' => 'calendar', 'board.resolutions.*' => 'landmark',
             'board.reports*' => 'file', 'member.membership' => 'users', 'forms.*' => 'file', 'forms-office.*' => 'file', 'seminars.*' => 'graduation-cap', 'seminar-*' => 'file', 'partners.*' => 'school',
             'feedback.*' => 'star', 'contracts.*' => 'file', 'letters.*' => 'pencil', 'events.*' => 'ticket', 'team.*' => 'user', 'school.*' => 'school', 'admin.users.*' => 'users', 'access-requests.*' => 'key-round',
-            'admin.people.*' => 'user', 'contacts.*' => 'mail', 'articles.*' => 'book-open', 'pages.*' => 'file', 'contact-admin.*' => 'mail', 'faq-admin.*' => 'circle-help', 'role-links.*' => 'link', 'system.*' => 'settings',
+            'admin.people.*' => 'user', 'contacts.*' => 'mail', 'articles.*' => 'book-open', 'pages.*' => 'file', 'contact-admin.*' => 'mail', 'faq-admin.*' => 'circle-help', 'role-links.*' => 'link', 'support.*' => 'ticket', 'tickets-admin.*' => 'ticket', 'system.*' => 'settings',
             'admin.audit.*' => 'shield', 'admin.oauth.*' => 'link', 'design-library.*' => 'layout-dashboard', 'tasks.*' => 'square-kanban', 'account.*' => 'user', 'education.*' => 'graduation-cap',
         ] as $pattern => $icon) {
             if (Str::is($pattern, $routeName)) {

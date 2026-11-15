@@ -8,6 +8,9 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ### Added
 
+- Ticket-System: Tickets anlegen, im Ticket schreiben (Chat mit internen Notizen), Zuweisung an Bearbeitende, Status und Priorität, Verlauf je Ticket und Protokoll im Portal, Warteschlange mit Mehrfachauswahl (Doc 84); die bisherigen „Meine Tickets“ (Veranstaltungen) heißen „Meine Anmeldungen“
+- Schnellzugriffe: je Rolle drei Links mit Wichtigkeit, die wichtigsten Links aller Rollen im Profilmenü (Doc 84)
+- Kontaktformular: Angemeldete geben ihre Daten (vorbelegt aus dem Konto) in Schritt 3 an
 - Formatierte Texte (Editor) bei FAQ-Antworten sowie Beschreibungen von Aufgaben und Aufgabenvorlagen
 - Kontaktformular: Schritt 2 (Angaben zur Person) und Schritt 3 (Anfrage oder weitere Angaben) sind getrennte Seiten
 - Aufgaben: neue Aufgaben auf eigener Seite, kompakte Such- und Filterleiste, Kanban-Spalten mittig und im neuen Design

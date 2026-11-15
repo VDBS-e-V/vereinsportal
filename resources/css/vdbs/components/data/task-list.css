@@ -32,3 +32,20 @@
 .vdbs-task-filter > * { margin: 0; }
 .vdbs-task-filter > .vdbs-field, .vdbs-task-filter > div { flex: 0 1 12rem; min-width: 9rem; }
 .vdbs-task-filter > div:first-of-type:not(:has(select)) { flex: 1 1 16rem; }
+/* Verlauf und Nachrichten eines Tickets (Seite "Ticket"): Chat-Blasen, Systemeinträge in einer Zeile. */
+
+.vdbs-ticket-thread { display: grid; gap: var(--space-3); margin: var(--space-4) 0; padding: 0; list-style: none; }
+
+.vdbs-ticket-message {
+    max-width: 44rem;
+    padding: var(--space-3) var(--space-4);
+    border: var(--border-width) solid var(--border-default);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+}
+
+.vdbs-ticket-message--mine { justify-self: end; background: var(--bg-accent-soft); }
+.vdbs-ticket-message--internal { border-style: dashed; border-color: var(--border-warning); background: var(--bg-warning-soft); }
+.vdbs-ticket-message__meta { margin: 0 0 var(--space-1); color: var(--text-muted); font-size: var(--font-size-small); }
+.vdbs-ticket-message__body { margin: 0; overflow-wrap: anywhere; }
+.vdbs-ticket-event { justify-self: center; color: var(--text-muted); font-size: var(--font-size-small); }

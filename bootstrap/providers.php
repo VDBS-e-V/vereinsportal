@@ -9,6 +9,7 @@ use App\Modules\Board\BoardServiceProvider;
 use App\Modules\ContactForms\ContactFormsServiceProvider;
 use App\Modules\Faq\FaqServiceProvider;
 use App\Modules\QuickLinks\QuickLinksServiceProvider;
+use App\Modules\Tickets\TicketsServiceProvider;
 use App\Modules\Contacts\ContactsServiceProvider;
 use App\Modules\Contracts\ContractsServiceProvider;
 use App\Modules\DesignLibrary\DesignLibraryServiceProvider;
@@ -53,6 +54,7 @@ return [
     ContactFormsServiceProvider::class,
     FaqServiceProvider::class,
     QuickLinksServiceProvider::class,
+    TicketsServiceProvider::class,
     PeopleServiceProvider::class,
     MembershipServiceProvider::class,
     OnboardingServiceProvider::class,

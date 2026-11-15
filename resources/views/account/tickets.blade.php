@@ -1,16 +1,16 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Konto', 'href' => route('account.home')], ['label' => 'Meine Tickets']];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Konto', 'href' => route('account.home')], ['label' => 'Meine Anmeldungen']];
 @endphp
 
-<x-layouts.app title="Meine Tickets" width="wide">
-    <x-vdbs.layout.page-header title="Meine Tickets" lead="Ihre Anmeldungen zu Veranstaltungen. Den Ticketcode brauchen Sie beim Einlass und für die Teilnahmebestätigung." :breadcrumb="$crumbs" />
+<x-layouts.app title="Meine Anmeldungen" width="wide">
+    <x-vdbs.layout.page-header title="Meine Anmeldungen" lead="Ihre Anmeldungen zu Veranstaltungen. Den Ticketcode brauchen Sie beim Einlass und für die Teilnahmebestätigung." :breadcrumb="$crumbs" />
 
     @if ($registrations->isEmpty())
         <x-vdbs.feedback.empty-state title="Noch keine Tickets" icon="ticket">
             <p>Zu Ihrer E-Mail-Adresse gibt es noch keine Anmeldung. Anmelden können Sie sich bei den <a href="{{ route('events.public.index') }}">Veranstaltungen</a>.</p>
         </x-vdbs.feedback.empty-state>
     @else
-        <x-vdbs.data.table caption="Meine Tickets" :columns="[['key' => 'event', 'label' => 'Veranstaltung'], ['key' => 'dates', 'label' => 'Termine'], ['key' => 'ticket', 'label' => 'Ticketcode'], ['key' => 'status', 'label' => 'Stand']]">
+        <x-vdbs.data.table caption="Meine Anmeldungen" :columns="[['key' => 'event', 'label' => 'Veranstaltung'], ['key' => 'dates', 'label' => 'Termine'], ['key' => 'ticket', 'label' => 'Ticketcode'], ['key' => 'status', 'label' => 'Stand']]">
             @foreach ($registrations as $registration)
                 <tr>
                     <td><a href="{{ route('events.public.show', $registration->event->slug) }}">{{ $registration->event->title }}</a>@if (filled($registration->event->location))<br><span class="vdbs-hint">{{ $registration->event->location }}</span>@endif</td>

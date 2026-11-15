@@ -116,7 +116,8 @@
                         <x-vdbs.navigation.dropdown-item :href="route('account.profile')" icon="user" :current="request()->routeIs('account.profile*')">Mein Profil</x-vdbs.navigation.dropdown-item>
                     @endunless
                     <x-vdbs.navigation.dropdown-item :href="route('account.home')" icon="settings" :current="request()->routeIs('account.*') && ! request()->routeIs('account.profile*') && ! request()->routeIs('account.tickets')">Kontoeinstellungen</x-vdbs.navigation.dropdown-item>
-                    <x-vdbs.navigation.dropdown-item :href="route('account.tickets')" icon="ticket" :current="request()->routeIs('account.tickets')">Meine Tickets</x-vdbs.navigation.dropdown-item>
+                    <x-vdbs.navigation.dropdown-item :href="route('support.mine')" icon="ticket" :current="request()->routeIs('support.*')">Meine Tickets</x-vdbs.navigation.dropdown-item>
+                    <x-vdbs.navigation.dropdown-item :href="route('account.tickets')" icon="calendar" :current="request()->routeIs('account.tickets')">Meine Anmeldungen</x-vdbs.navigation.dropdown-item>
                     @php $quickLinks = \App\Modules\QuickLinks\Support\QuickLinks::forUser($user); @endphp
                     @if ($quickLinks->isNotEmpty())
                         <hr class="vdbs-dropdown__divider">

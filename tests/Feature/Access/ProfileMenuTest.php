@@ -17,6 +17,7 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->withoutVite();
     $this->seed(RoleSeeder::class);
+    \App\Modules\QuickLinks\Models\RoleLink::query()->delete(); // die Ausgangs-Schnellzugriffe aus der Migration würden eine weitere Gruppe im Menü zeigen
 });
 
 function pmUser(?RoleKey $role = null, array $person = []): User
