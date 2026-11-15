@@ -26,7 +26,7 @@
                         <x-vdbs.forms.input :name="'q['.$qid.'][position]'" :id="'q-'.$qid.'-pos'" type="number" label="Platz" min="1" max="99" :value="$i + 1" />
                     </x-vdbs.forms.form-grid>
                     @if (in_array($question['type'], ['choice', 'multi'], true))
-                        <x-vdbs.forms.textarea :name="'q['.$qid.'][options]'" :id="'q-'.$qid.'-opt'" label="Antworten (eine pro Zeile)" :rows="4" :value="implode("\n", $question['options'] ?? [])" />
+                        <x-vdbs.forms.textarea :name="'q['.$qid.'][options]'" :id="'q-'.$qid.'-opt'" label="Antworten (eine pro Zeile)" :rows="4" :value="implode(PHP_EOL, $question['options'] ?? [])" />
                     @endif
                     @if ($question['type'] !== 'name')
                         <x-vdbs.forms.checkbox :name="'q['.$qid.'][required]'" :id="'q-'.$qid.'-req'" label="Pflichtfrage" :checked="! empty($question['required'])" />

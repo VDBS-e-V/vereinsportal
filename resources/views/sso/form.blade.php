@@ -10,7 +10,7 @@
         @error('form') <x-vdbs.feedback.alert variant="error">{{ $message }}</x-vdbs.feedback.alert> @enderror
         <x-vdbs.forms.form-section title="Das System">
             <x-vdbs.forms.input name="name" label="Name" :required="true" maxlength="100" :value="$client?->name" hint="z. B. Nextcloud oder Moodle" />
-            <x-vdbs.forms.textarea name="redirect_uris" label="Umleitungsadressen (eine pro Zeile)" :required="true" :rows="3" :value="$client ? implode("\n", $client->redirect_uris) : null" hint="Die Adresse, zu der das andere System nach der Anmeldung zurückkehrt. Nur https://, ohne Platzhalter." />
+            <x-vdbs.forms.textarea name="redirect_uris" label="Umleitungsadressen (eine pro Zeile)" :required="true" :rows="3" :value="$client ? implode(PHP_EOL, $client->redirect_uris) : null" hint="Die Adresse, zu der das andere System nach der Anmeldung zurückkehrt. Nur https://, ohne Platzhalter." />
             <x-vdbs.forms.textarea name="description" label="Beschreibung" :optional="true" :rows="2" maxlength="1000" :value="$setting?->description" />
             <x-vdbs.forms.input name="contact" label="Ansprechperson beim System" :optional="true" maxlength="190" :value="$setting?->contact" />
         </x-vdbs.forms.form-section>
