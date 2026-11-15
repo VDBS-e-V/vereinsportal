@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Events\Http\Controllers\AccountTicketController;
 use App\Modules\Events\Http\Controllers\EventAdminController;
 use App\Modules\Events\Http\Controllers\PublicEventController;
 use Illuminate\Support\Facades\Route;
@@ -8,6 +9,9 @@ use Illuminate\Support\Facades\Route;
  * Öffentlich (Bereich Start): /veranstaltungen (Liste, Anmeldung, Bestätigungslink) und /veranstaltungen/teilnahmebestaetigung.
  * Koordination: /koordination/veranstaltungen mit den Berechtigungen events.view und events.manage (Support\Capabilities).
  */
+// Konto: „Meine Tickets“ (Anmeldungen zu Veranstaltungen mit der E-Mail-Adresse des Kontos)
+Route::middleware(['web', 'auth'])->get('/konto/tickets', [AccountTicketController::class, 'index'])->name('account.tickets');
+
 Route::middleware('web')->prefix('veranstaltungen')->name('events.public.')->group(function (): void {
     Route::get('/', [PublicEventController::class, 'index'])->name('index');
     Route::get('/teilnahmebestaetigung', [PublicEventController::class, 'certificateForm'])->name('certificate');

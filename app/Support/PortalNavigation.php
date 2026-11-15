@@ -82,10 +82,9 @@ final class PortalNavigation
                 'roles' => [],
                 'routes' => ['home', 'join.*', 'events.public.*', 'articles.public.*', 'pages.show', 'portal.design-packages'],
                 'pages' => [
-                    ['label' => 'Über das Portal', 'route' => 'portal.about', 'match' => 'portal.about', 'children' => [
-                        ['label' => 'Zugang zum Portal', 'route' => 'portal.access', 'match' => 'portal.access*'],
-                        ['label' => 'FAQ', 'route' => 'portal.faq', 'match' => 'portal.faq'],
-                    ]],
+                    ['label' => 'Über das Portal', 'route' => 'portal.about', 'match' => 'portal.about'],
+                    ['label' => 'Zugang zum Portal', 'route' => 'portal.access', 'match' => 'portal.access*'],
+                    ['label' => 'FAQ', 'route' => 'portal.faq', 'match' => 'portal.faq'],
                     ['label' => 'Kontakt', 'route' => 'portal.contact', 'match' => 'portal.contact*'],
                 ],
             ],
@@ -108,6 +107,7 @@ final class PortalNavigation
                         ['description' => 'Wo Ihr Konto angemeldet ist.', 'label' => 'Sitzungen', 'route' => 'account.sessions', 'match' => 'account.sessions*'],
                     ]],
                     ['description' => 'Alle Aufgaben, die Ihnen zugewiesen sind, aus allen Projekten.', 'label' => 'Meine Aufgaben', 'route' => 'tasks.mine', 'match' => 'tasks.mine', 'can' => 'tasks.use'],
+                    ['description' => 'Ihre Anmeldungen zu Veranstaltungen mit Ticketcode.', 'label' => 'Meine Tickets', 'route' => 'account.tickets', 'match' => 'account.tickets'],
                     ['description' => 'Systeme, bei denen Sie sich über das Portal angemeldet haben.', 'label' => 'Verbundene Anwendungen', 'route' => 'account.apps', 'match' => 'account.apps*'],
                     ['description' => 'Ihre Rollen und die Bereiche, die Ihnen offenstehen.', 'label' => 'Rollen & Bereiche', 'route' => 'account.roles', 'match' => 'account.roles'],
                     ['label' => 'Einstellungen', 'group' => true, 'route' => 'account.notifications', 'children' => [

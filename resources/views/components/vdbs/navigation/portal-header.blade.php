@@ -94,19 +94,37 @@
             @endif
 
             @if ($user)
-                @php $displayName = $user->person?->fullName() ?: $user->email; @endphp
-                <x-vdbs.navigation.dropdown variant="plain" align="end" :label="$displayName">
+                @php
+                    $displayName = $user->person?->fullName() ?: $user->email;
+                    $roleLabel = collect(\App\Modules\AccessGovernance\Support\Capabilities::activeRoleKeys($user))->map(fn (string $key): ?string => \App\Modules\AccessGovernance\Enums\RoleKey::tryFrom($key)?->label())->filter()->first();
+                @endphp
+                {{-- Profilmenü: Kopf mit Avatar, Name und Rolle; Konto; Hilfe; Abmelden (Gruppen durch Linien getrennt) --}}
+                <x-vdbs.navigation.dropdown variant="plain" align="end" :label="$displayName" class="vdbs-dropdown--profile">
                     <x-slot:trigger>
                         <x-vdbs.data.avatar :name="$displayName" :src="$user->avatarUrl()" size="s" aria-hidden="true" />
                         <span class="vdbs-header__user-name">{{ $displayName }}</span>
                     </x-slot:trigger>
+                    <div class="vdbs-dropdown__head">
+                        <x-vdbs.data.avatar :name="$displayName" :src="$user->avatarUrl()" size="m" aria-hidden="true" />
+                        <div>
+                            <p class="vdbs-dropdown__head-name">{{ $displayName }}</p>
+                            @if ($roleLabel)<p class="vdbs-dropdown__head-meta"><x-vdbs.icon name="user" :size="16" />{{ $roleLabel }}</p>@endif
+                        </div>
+                    </div>
+                    <hr class="vdbs-dropdown__divider">
                     @unless ($user->can('school.area'))
                         <x-vdbs.navigation.dropdown-item :href="route('account.profile')" icon="user" :current="request()->routeIs('account.profile*')">Mein Profil</x-vdbs.navigation.dropdown-item>
                     @endunless
-                    <x-vdbs.navigation.dropdown-item :href="route('account.home')" icon="settings" :current="request()->routeIs('account.*') && ! request()->routeIs('account.profile*')">Mein Konto</x-vdbs.navigation.dropdown-item>
+                    <x-vdbs.navigation.dropdown-item :href="route('account.home')" icon="settings" :current="request()->routeIs('account.*') && ! request()->routeIs('account.profile*') && ! request()->routeIs('account.tickets')">Kontoeinstellungen</x-vdbs.navigation.dropdown-item>
+                    <x-vdbs.navigation.dropdown-item :href="route('account.tickets')" icon="ticket" :current="request()->routeIs('account.tickets')">Meine Tickets</x-vdbs.navigation.dropdown-item>
+                    <hr class="vdbs-dropdown__divider">
+                    <x-vdbs.navigation.dropdown-item :href="route('portal.contact')" icon="mail" :current="request()->routeIs('portal.contact*')">Kontakt</x-vdbs.navigation.dropdown-item>
+                    <x-vdbs.navigation.dropdown-item :href="route('portal.faq')" icon="book-open" :current="request()->routeIs('portal.faq')">FAQ</x-vdbs.navigation.dropdown-item>
+                    <x-vdbs.navigation.dropdown-item :href="route('portal.about')" icon="circle-help" :current="request()->routeIs('portal.about')">Hilfe</x-vdbs.navigation.dropdown-item>
+                    <hr class="vdbs-dropdown__divider">
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <x-vdbs.navigation.dropdown-item type="submit" icon="log-out">Abmelden</x-vdbs.navigation.dropdown-item>
+                        <x-vdbs.navigation.dropdown-item type="submit" icon="log-out" class="vdbs-dropdown__item--logout">Abmelden</x-vdbs.navigation.dropdown-item>
                     </form>
                 </x-vdbs.navigation.dropdown>
             @elseif ($routeName !== 'login')
