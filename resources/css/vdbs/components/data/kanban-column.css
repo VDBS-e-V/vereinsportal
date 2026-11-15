@@ -1,4 +1,4 @@
-/* Spalte der Kanban-Tafel (Paket "Daten"): weiße Fläche mit farbigem Kopfstreifen, Zähler als Plakette. */
+/* Spalte der Kanban-Tafel (Paket "Daten"): graue Fläche mit grünem Kopfstreifen (Markengrün), Zähler als Plakette. Gruppenfarben bleiben Kategorien vorbehalten. */
 
 .vdbs-kanban-column {
     flex: 1 1 20rem;
@@ -7,18 +7,13 @@
     min-height: 10rem;
     padding: 0 var(--space-3) var(--space-3);
     border: var(--border-width) solid var(--border-default);
-    border-top: 6px solid var(--group-3);
+    border-top: calc(var(--border-width-strong) * 2) solid var(--bg-brand);
     border-radius: var(--radius-md);
     background: var(--bg-surface);
     color: var(--text-default);
     scroll-snap-align: center;
 }
 
-.vdbs-kanban-column:nth-child(6n+2) { border-top-color: var(--group-1); }
-.vdbs-kanban-column:nth-child(6n+3) { border-top-color: var(--group-6); }
-.vdbs-kanban-column:nth-child(6n+4) { border-top-color: var(--group-4); }
-.vdbs-kanban-column:nth-child(6n+5) { border-top-color: var(--group-2); }
-.vdbs-kanban-column:nth-child(6n+6) { border-top-color: var(--group-5); }
 .vdbs-kanban-column[data-done] { border-top-color: var(--border-success); }
 
 .vdbs-kanban-column__head {
@@ -37,7 +32,7 @@
 .vdbs-kanban-column__count {
     min-width: 1.75rem;
     padding: 0 var(--space-2);
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: var(--bg-page);
     border: var(--border-width) solid var(--border-default);
     color: var(--text-default);

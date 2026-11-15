@@ -2,7 +2,7 @@
             <p class="vdbs-hint">{{ $deadlineNote }} Zu jeder Position gehört ein Beleg (PDF, JPEG oder PNG, je höchstens 15 MB).</p>
             @for ($i = 0; $i < $rows; $i++)
                 @php($item = $items[$i] ?? null)
-                <fieldset style="margin-bottom:var(--space-5);padding:var(--space-4);border:1px solid var(--color-border,#ccc)">
+                <fieldset class="vdbs-fieldset" style="margin-bottom:var(--space-5)">
                     <legend>Position {{ $i + 1 }}</legend>
                     @if ($item) <input type="hidden" name="items[{{ $i }}][id]" value="{{ $item->id }}"> @endif
                     <x-vdbs.forms.form-grid :columns="2">

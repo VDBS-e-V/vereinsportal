@@ -18,7 +18,7 @@
             <p class="vdbs-hint">Die Zahl in „Platz“ bestimmt die Reihenfolge. Fragen mit „Entfernen“ fallen beim Speichern weg.</p>
             @foreach ($form->questions as $i => $question)
                 @php($qid = $question['id'])
-                <fieldset style="margin-bottom:var(--space-5);padding:var(--space-4);border:1px solid var(--color-border,#ccc)">
+                <fieldset class="vdbs-fieldset" style="margin-bottom:var(--space-5)">
                     <legend>{{ $types[$question['type']] ?? $question['type'] }}</legend>
                     <x-vdbs.forms.form-grid :columns="2">
                         <x-vdbs.forms.input :name="'q['.$qid.'][text]'" :id="'q-'.$qid.'-text'" label="Fragetext" :required="true" maxlength="300" :value="$question['text']" />
