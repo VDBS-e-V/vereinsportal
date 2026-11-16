@@ -99,6 +99,8 @@ enum AuditEvent: string
     case OauthClientChanged = 'oauth.client_changed';
     case OauthClientDeleted = 'oauth.client_deleted';
     case OauthKeysRenewed = 'oauth.keys_renewed';
+    case OauthConsentGiven = 'oauth.consent_given';
+    case OauthConsentWithdrawn = 'oauth.consent_withdrawn';
 
     case FormStatusChanged = 'form.status_changed';
     case FormExported = 'form.exported';
@@ -218,6 +220,8 @@ enum AuditEvent: string
             self::OauthClientChanged => 'Anbindung geändert',
             self::OauthClientDeleted => 'Anbindung gelöscht',
             self::OauthKeysRenewed => 'Anmeldeschlüssel erneuert',
+            self::OauthConsentGiven => 'Zustimmung zur Datenweitergabe erteilt',
+            self::OauthConsentWithdrawn => 'Zustimmung zur Datenweitergabe widerrufen',
             self::FormStatusChanged => 'Antrag bearbeitet',
             self::FormExported => 'Sammelliste der Anträge erstellt',
             self::FormSettingsChanged => 'Einstellungen der Anträge geändert',
@@ -279,7 +283,7 @@ enum AuditEvent: string
             self::MailingSent, self::MailSuppressionChanged, self::MailingWorkflow, self::MailSegmentSaved => 'mailings',
             self::ContactsImported => 'contacts',
             self::FeedbackFormSaved, self::FeedbackLinkCreated, self::FeedbackLinkClosed, self::FeedbackLinkAnonymized => 'feedback',
-            self::OauthClientCreated, self::OauthClientChanged, self::OauthClientDeleted, self::OauthKeysRenewed => 'sso',
+            self::OauthClientCreated, self::OauthClientChanged, self::OauthClientDeleted, self::OauthKeysRenewed, self::OauthConsentGiven, self::OauthConsentWithdrawn => 'sso',
             self::FormStatusChanged, self::FormExported, self::FormSettingsChanged => 'forms',
             self::ContractsCreated, self::ContractSigned, self::ContractSettingsChanged, self::ContractTemplateSaved => 'contracts',
             self::LetterTemplateSaved, self::LettersGenerated => 'letters',

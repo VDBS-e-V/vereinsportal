@@ -35,3 +35,14 @@ items.forEach((item) => {
 
     window.setTimeout(() => finish(false), 8000);
 });
+
+// Zustimmungsseite: „Alles einblenden“ öffnet oder schließt alle Abschnitte.
+document.querySelectorAll('[data-sso-expand]').forEach((button) => {
+    button.addEventListener('click', () => {
+        const sections = Array.from(document.querySelectorAll('details.sso-section'));
+        const open = sections.some((section) => !section.open);
+
+        sections.forEach((section) => { section.open = open; });
+        button.textContent = open ? 'Alles ausblenden' : 'Alles einblenden';
+    });
+});

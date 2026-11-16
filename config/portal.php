@@ -32,6 +32,16 @@ return [
         'privacy_url' => env('LEGAL_PRIVACY_URL', '/datenschutz'),
     ],
 
+    /*
+     * Zustimmungsseite der Anbindungen (Single Sign-On): Datenschutzbeauftragte und Aufsichtsbehörde. Verantwortliche Stelle und Anschrift stammen aus letter.footer.
+     * Ohne dpo_email verweist die Seite auf die verantwortliche Stelle.
+     */
+    'sso_privacy' => [
+        'dpo_email' => env('PORTAL_DPO_EMAIL'),
+        'authority_name' => env('PORTAL_PRIVACY_AUTHORITY', 'Berliner Beauftragte für Datenschutz und Informationsfreiheit'),
+        'authority_url' => env('PORTAL_PRIVACY_AUTHORITY_URL', 'https://www.datenschutz-berlin.de/'),
+    ],
+
     /* Konto löschen: Wartefrist in Tagen zwischen Antrag und Anonymisierung (Abbruch ist bis dahin möglich). */
     'offboarding' => [
         'grace_days' => (int) env('ACCOUNT_DELETION_GRACE_DAYS', 14),

@@ -2,12 +2,18 @@
 
 namespace App\Modules\Sso;
 
+use App\Modules\Access\Models\User;
 use App\Modules\Sso\Console\EnsureOAuthKeys;
 use App\Modules\Sso\Http\Middleware\GuardAuthorization;
 use App\Modules\Sso\Models\OAuthClient;
+use App\Modules\Sso\Services\OAuthConsents;
 use App\Modules\Sso\Services\OidcClaims;
 use App\Modules\Sso\Support\IdTokenResponse;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Passport\Events\AccessTokenCreated;
 use Laravel\Passport\Passport;
 
 /**
@@ -54,6 +60,26 @@ class SsoServiceProvider extends ServiceProvider
         Passport::authorizationView('sso.authorize');
         Passport::useClientModel(OAuthClient::class);
         Passport::useAuthorizationServerResponseType(new IdTokenResponse);
+
+        // Zustimmung festhalten, sobald ein System ein Token bekommt (Passport meldet das mit Person, System und Bereichen).
+        Event::listen(AccessTokenCreated::class, function (AccessTokenCreated $event): void {
+            if ($event->userId === null) {
+                return;
+            }
+
+            $scopes = json_decode((string) DB::table('oauth_access_tokens')->where('id', $event->tokenId)->value('scopes'), true);
+            app(OAuthConsents::class)->grant($event->userId, (string) $event->clientId, is_array($scopes) ? array_map('strval', $scopes) : []);
+        });
+
+        // Wer sich auf der Anmeldeseite für ein System gegen die Datenweitergabe entschieden hat, widerruft die Zustimmung unmittelbar nach der Anmeldung.
+        Event::listen(Login::class, function (Login $event): void {
+            $clientId = session('sso_withdraw_client');
+
+            if (is_string($clientId) && $clientId !== '' && $event->user instanceof User) {
+                app(OAuthConsents::class)->withdraw($event->user, $clientId);
+                session()->forget('sso_withdraw_client');
+            }
+        });
 
         $this->app['router']->pushMiddlewareToGroup('web', GuardAuthorization::class);
 

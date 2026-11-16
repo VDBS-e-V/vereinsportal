@@ -10,6 +10,7 @@ use App\Modules\Sso\Models\OAuthClientSetting;
 use DomainException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Passport\Client;
 use Laravel\Passport\ClientRepository;
@@ -59,6 +60,7 @@ final class OAuthClients
     {
         [$name, $uris, $roles] = $this->checked($input);
         $input['frontchannel_logout_uri'] = $this->checkedLogoutUri($input['frontchannel_logout_uri'] ?? null, $uris);
+        $input['privacy_url'] = $this->checkedPrivacyUrl($input['privacy_url'] ?? null);
 
         $client = $this->clients->createAuthorizationCodeGrantClient($name, $uris, ! array_key_exists('confidential', $input) || (bool) $input['confidential']);
 
@@ -77,6 +79,7 @@ final class OAuthClients
     {
         [$name, $uris, $roles] = $this->checked($input);
         $input['frontchannel_logout_uri'] = $this->checkedLogoutUri($input['frontchannel_logout_uri'] ?? null, $uris);
+        $input['privacy_url'] = $this->checkedPrivacyUrl($input['privacy_url'] ?? null);
 
         $this->clients->update($client, $name, $uris);
         $setting = $this->settings($client);
@@ -112,6 +115,9 @@ final class OAuthClients
     {
         $name = (string) $client->name;
         $id = (string) $client->getKey();
+
+        $this->removeLogo($client);
+        DB::table('oauth_consents')->where('client_id', $id)->delete();
 
         DB::transaction(function () use ($client, $id): void {
             $this->revokeTokens($client);
@@ -175,6 +181,60 @@ final class OAuthClients
     }
 
     /**
+     * Adresse der Datenschutzinformationen des Systems: leer oder https.
+     *
+     * @throws DomainException
+     */
+    private function checkedPrivacyUrl(mixed $value): ?string
+    {
+        $url = trim((string) $value);
+
+        if ($url === '') {
+            return null;
+        }
+
+        if (strlen($url) > 255 || ! str_starts_with(strtolower($url), 'https://') || filter_var($url, FILTER_VALIDATE_URL) === false) {
+            throw new DomainException('Die Adresse der Datenschutzinformationen muss mit https:// beginnen.');
+        }
+
+        return $url;
+    }
+
+    /** Logo des Systems speichern (PNG, JPEG oder WebP). Es erscheint auf der Anmelde- und Zustimmungsseite. */
+    public function saveLogo(Client $client, \Illuminate\Http\UploadedFile $file): void
+    {
+        $extension = strtolower((string) $file->extension());
+        $extension = $extension === 'jpeg' ? 'jpg' : $extension;
+
+        if (! in_array($extension, ['png', 'jpg', 'webp'], true)) {
+            throw new DomainException('Das Logo muss ein PNG, JPEG oder WebP sein.');
+        }
+
+        $setting = $this->settings($client);
+        $this->deleteLogoFile($setting);
+        $path = 'sso-logos/'.$client->getKey().'-'.Str::random(8).'.'.$extension;
+        Storage::disk('local')->putFileAs('sso-logos', $file, basename($path));
+        $setting->fill(['client_id' => (string) $client->getKey(), 'logo_path' => $path])->save();
+    }
+
+    public function removeLogo(Client $client): void
+    {
+        $setting = $this->settings($client);
+        $this->deleteLogoFile($setting);
+
+        if ($setting->exists) {
+            $setting->update(['logo_path' => null]);
+        }
+    }
+
+    private function deleteLogoFile(OAuthClientSetting $setting): void
+    {
+        if (filled($setting->logo_path)) {
+            Storage::disk('local')->delete($setting->logo_path);
+        }
+    }
+
+    /**
      * Die Abmelde-Adresse (Front-Channel): leer oder eine https-Adresse auf derselben Domain wie eine Umleitungsadresse.
      * So kann niemand das Portal dazu bringen, beim Abmelden beliebige fremde Adressen aufzurufen.
      *
@@ -232,6 +292,8 @@ final class OAuthClients
             'client_id' => (string) $client->getKey(),
             'allowed_roles' => $roles,
             'description' => Str::limit(trim((string) ($input['description'] ?? '')), 1000, '') ?: null,
+            'purpose' => Str::limit(trim((string) ($input['purpose'] ?? '')), 2000, '') ?: null,
+            'privacy_url' => $input['privacy_url'] ?? null,
             'contact' => Str::limit(trim((string) ($input['contact'] ?? '')), 190, '') ?: null,
             'frontchannel_logout_uri' => $input['frontchannel_logout_uri'] ?? null,
             'show_consent' => ! array_key_exists('show_consent', $input) || (bool) $input['show_consent'],

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
 use App\Modules\Access\Services\ProfilePhotos;
 use App\Modules\Access\Services\Profiles;
+use App\Modules\Sso\Models\OAuthClientSetting;
 use App\Modules\Sso\Services\ConnectedServices;
 use App\Modules\Sso\Services\OAuthClients;
 use App\Modules\Sso\Services\OAuthKeys;
@@ -45,6 +46,20 @@ class OidcController extends Controller
             'frontchannel_logout_supported' => true,
             'frontchannel_logout_session_supported' => false,
             'claims_supported' => ['sub', 'iss', 'aud', 'exp', 'iat', 'auth_time', 'nonce', 'name', 'given_name', 'family_name', 'preferred_username', 'email', 'email_verified', 'roles', 'groups', 'headline', 'bio', 'picture'],
+        ]);
+    }
+
+    /** Logo eines angebundenen Systems für die Anmelde- und Zustimmungsseite (öffentlich, da es vor der Anmeldung erscheint). */
+    public function logo(string $client): StreamedResponse
+    {
+        $path = OAuthClientSetting::query()->where('client_id', $client)->value('logo_path');
+
+        abort_unless(filled($path) && Storage::disk('local')->exists((string) $path), 404);
+
+        return Storage::disk('local')->response((string) $path, null, [
+            'Content-Type' => ['png' => 'image/png', 'webp' => 'image/webp'][pathinfo((string) $path, PATHINFO_EXTENSION)] ?? 'image/jpeg',
+            'Cache-Control' => 'public, max-age=86400',
+            'X-Content-Type-Options' => 'nosniff',
         ]);
     }
 

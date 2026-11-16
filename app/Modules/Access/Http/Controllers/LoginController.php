@@ -28,7 +28,7 @@ class LoginController extends Controller
      * Für welchen Dienst meldet sich die Person gerade an? Kommt sie von einer Anmeldeanfrage eines angebundenen Systems (/oauth/authorize),
      * zeigt die Seite dessen Namen und Beschreibung („Beschreibung des Dienstes“).
      *
-     * @return array{name: string, description: ?string}|null
+     * @return array{id: string, name: string, description: ?string, logo: ?string}|null
      */
     private function service(Request $request, OAuthClients $clients): ?array
     {
@@ -46,18 +46,30 @@ class LoginController extends Controller
             return null;
         }
 
-        return ['name' => (string) $client->name, 'description' => $clients->settings($client)->description];
+        $setting = $clients->settings($client);
+
+        return [
+            'id' => (string) $client->getKey(), 'name' => (string) $client->name, 'description' => $setting->description,
+            'logo' => filled($setting->logo_path) ? route('oidc.logo', $client->getKey()) : null,
+        ];
     }
 
     /**
      * Anmeldung mit E-Mail und Passwort. Hat das Konto eine Zwei-Faktor-Methode, ist der Nutzer danach noch nicht
      * angemeldet: Die Sitzung merkt sich nur, wer sich gerade anmeldet (zehn Minuten), bis der Code bestätigt ist.
      */
-    public function store(LoginRequest $request, TwoFactorManager $twoFactor, EmailChallenges $emailChallenges): RedirectResponse
+    public function store(LoginRequest $request, TwoFactorManager $twoFactor, EmailChallenges $emailChallenges, OAuthClients $clients): RedirectResponse
     {
         $user = $request->validatedUser();
 
+        // „Meine Zustimmung zur Weitergabe meiner Daten an dieses System widerrufen“: Das Widerrufen geschieht nach der vollständigen Anmeldung (auch nach Zwei-Faktor).
+        $service = $request->boolean('revoke_consent') ? $this->service($request, $clients) : null;
+
         $request->session()->regenerate();
+
+        if ($service !== null) {
+            $request->session()->put('sso_withdraw_client', $service['id']);
+        }
 
         if ($twoFactor->isEnabled($user)) {
             $request->session()->put('two_factor', [

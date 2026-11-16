@@ -14,7 +14,7 @@
         </x-vdbs.layout.aside-layout>
     </x-layouts.app>
 @else
-    <x-sso.page title="Anmelden" :heading="$service['name'] ?? 'Anmeldung am Vereinsportal'" :lead="$service ? 'Sie melden sich über das Vereinsportal an.' : null">
+    <x-sso.page title="Anmelden" :heading="$service['name'] ?? 'Anmeldung am Vereinsportal'" :lead="$service ? 'Sie melden sich über das Vereinsportal an.' : null" :logo="$service['logo'] ?? null" :logo-alt="$service ? 'Logo von '.$service['name'] : ''">
         @include('access._login-form')
 
         <div class="sso-notes">
@@ -22,6 +22,9 @@
             <ul>
                 <li>Bitte verwenden Sie die Zugangsdaten Ihres Vereinsportal-Kontos.</li>
                 <li>Nach der Anmeldung können Sie weitere an das Vereinsportal angeschlossene Systeme nutzen, <strong>ohne</strong> erneut nach Passwort gefragt zu werden.</li>
+                @if ($service)
+                    <li>Beim ersten Mal in diesem Dienst fragen wir Sie, ob Sie der Weitergabe Ihrer Daten zustimmen, und erklären Ihnen genau, welche Daten das sind. Danach nicht mehr. Ihre Zustimmung können Sie jederzeit widerrufen: hier bei der Anmeldung oder in Ihrem Konto unter „Verbundene Anwendungen“.</li>
+                @endif
                 <li>Warnung vor Phishing: Der Verein bittet Sie niemals, Ihr Passwort auf Seiten außerhalb von {{ $host }} einzugeben.</li>
             </ul>
         </div>

@@ -74,3 +74,10 @@ Discovery-Adresse, Client-ID und Geheimnis, genau eine eingetragene Umleitungsad
 - **Umleitung abgelehnt:** Die Adresse muss genau mit der eingetragenen übereinstimmen (https, ohne Platzhalter).
 - **Anmeldung nach Zeit ungültig:** Die Uhren der Server müssen stimmen (Toleranz 60 Sekunden).
 - **Nach „Schlüssel erneuern“** melden sich alle einmal neu an.
+
+## Zustimmung zur Datenweitergabe und Widerruf
+
+- Die Zustimmungsseite erscheint nur bei der ersten Anmeldung in einem Dienst (Tabelle `oauth_consents`, je Konto und Dienst die zugestimmten Bereiche). Verlangt der Dienst später weitere Bereiche, fragt das Portal erneut. Anbindungen mit ausgeschalteter Zustimmungsseite überspringen sie.
+- Die Seite erklärt in Abschnitten (§ 1 Verantwortliche, § 2 Begriffe, § 3 Verarbeitung mit Rechtsgrundlage Art. 6 Abs. 1 lit. a DSGVO und Speicherdauer, § 4 Empfänger, § 5 Rechte) und zeigt in der Tabelle „Beabsichtigte Datenübertragung“ die echten Werte des Kontos. Logo, Zweck und Datenschutz-Adresse pflegt die Verwaltung je Anbindung (Logo: PNG, JPG oder WebP, öffentlich unter `/oauth/logo/{Anbindung}`).
+- Datenschutzbeauftragte und Aufsichtsbehörde: `PORTAL_DPO_EMAIL`, `PORTAL_PRIVACY_AUTHORITY`, `PORTAL_PRIVACY_AUTHORITY_URL` (`config/portal.php`, Schlüssel `sso_privacy`). Rechtlich prüfen lassen.
+- Widerruf: im Konto unter „Verbundene Anwendungen“ oder auf der Anmeldeseite des Dienstes per Häkchen „Meine Zustimmung … widerrufen“. Der Widerruf löscht die Zustimmung, widerruft alle Tokens des Dienstes und wird im Protokoll festgehalten.

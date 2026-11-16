@@ -308,3 +308,32 @@ it('hands over headline, short bio and photo only with the portal_profile scope 
     $this->get(route('oidc.photo', ['user' => $user->id]))->assertForbidden();
     $this->get($with['picture'])->assertOk();
 });
+
+it('asks for consent only on the first login to a service, then skips it until the consent is withdrawn', function () {
+    $client = odClient(['show_consent' => true]);
+    $user = odUser();
+    $params = ['client_id' => $client->getKey(), 'redirect_uri' => 'https://cloud.example.org/cb', 'response_type' => 'code', 'scope' => 'openid email', 'state' => 'xyz', 'code_challenge' => odB64(hash('sha256', 'v', true)), 'code_challenge_method' => 'S256'];
+
+    $this->actingAs($user)->get('/oauth/authorize?'.http_build_query($params))->assertOk()->assertSee('Beabsichtigte Datenübertragung')->assertSee($user->email);
+
+    app(\App\Modules\Sso\Services\OAuthConsents::class)->grant($user->id, (string) $client->getKey(), ['openid', 'email']);
+
+    $this->actingAs($user)->get('/oauth/authorize?'.http_build_query($params))->assertRedirect();
+
+    $this->actingAs($user)->get('/oauth/authorize?'.http_build_query(['scope' => 'openid email roles'] + $params))->assertOk();
+
+    $this->actingAs($user)->delete(route('account.apps.destroy', $client->getKey()))->assertRedirect(route('account.apps'));
+    expect(\App\Modules\Sso\Models\OAuthConsent::query()->count())->toBe(0);
+    $this->actingAs($user)->get('/oauth/authorize?'.http_build_query($params))->assertOk();
+});
+
+it('serves the service logo publicly', function () {
+    \Illuminate\Support\Facades\Storage::fake('local');
+    \Illuminate\Support\Facades\Storage::disk('local')->put('sso-logos/x.png', 'png');
+    $client = odClient();
+    $user = odUser();
+    \App\Modules\Sso\Models\OAuthClientSetting::query()->where('client_id', (string) $client->getKey())->update(['logo_path' => 'sso-logos/x.png']);
+    app(\App\Modules\Sso\Services\OAuthConsents::class)->grant($user->id, (string) $client->getKey(), ['openid']);
+
+    $this->get(route('oidc.logo', $client->getKey()))->assertOk();
+});
