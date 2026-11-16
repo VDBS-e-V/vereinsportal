@@ -7,8 +7,7 @@
     ])->filter();
 @endphp
 
-<x-layouts.app title="Zwei-Faktor-Anmeldung" width="narrow">
-    <h1>Sicherheitscode eingeben</h1>
+<x-sso.page title="Zwei-Faktor-Anmeldung" heading="Sicherheitscode eingeben" lead="2-stufige Verifizierung: Zusätzlich zum Passwort brauchen Sie einen zweiten Nachweis.">
 
     @if ($method === 'totp')
         <p>Öffnen Sie Ihre Authenticator-App und geben Sie den aktuellen sechsstelligen Code für das Vereinsportal ein.</p>
@@ -52,4 +51,4 @@
     @endif
 
     <p style="margin-top:var(--space-6)"><x-vdbs.actions.button variant="text" :href="route('login')" icon="arrow-left">Zurück zur Anmeldung</x-vdbs.actions.button></p>
-</x-layouts.app>
+</x-sso.page>

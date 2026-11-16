@@ -187,16 +187,75 @@ it('rejects userinfo without a valid token and for a blocked connection or disab
     $this->withHeader('Authorization', 'Bearer '.$body['access_token'])->getJson('/oauth/userinfo')->assertUnauthorized();
 });
 
-it('logs out of the portal, revokes the tokens and redirects only to known addresses', function () {
-    $client = odClient();
+it('asks on a client-initiated logout where else the person is signed in, and ends everything only after yes', function () {
+    $client = odClient(['frontchannel_logout_uri' => 'https://cloud.example.org/logout']);
+    $other = odClient(['name' => 'Moodle', 'redirect_uris' => 'https://moodle.example.org/cb', 'frontchannel_logout_uri' => 'https://moodle.example.org/auth/oidc/logout.php']);
     $user = odUser();
     odFlow($this, $user, $client);
-    expect(DB::table('oauth_access_tokens')->where('user_id', $user->id)->where('revoked', false)->count())->toBeGreaterThan(0);
+    // zweites System: Token direkt anlegen
+    DB::table('oauth_access_tokens')->insert(['id' => 'tok-other', 'user_id' => $user->id, 'client_id' => $other->getKey(), 'scopes' => '[]', 'revoked' => false, 'created_at' => now(), 'updated_at' => now(), 'expires_at' => now()->addHour()]);
+    expect(DB::table('oauth_access_tokens')->where('user_id', $user->id)->where('revoked', false)->count())->toBeGreaterThan(1);
 
-    $this->actingAs($user)->get('/oauth/logout?post_logout_redirect_uri='.urlencode('https://cloud.example.org/bye'))->assertRedirect('https://cloud.example.org/bye');
+    // Nextcloud meldet sich ab: Seite mit den übrigen Diensten, Portalsitzung bleibt bestehen
+    $this->actingAs($user)->get('/oauth/logout?post_logout_redirect_uri='.urlencode('https://cloud.example.org/bye'))
+        ->assertOk()->assertSee('Sie haben sich erfolgreich vom Dienst')->assertSee('Nextcloud')->assertSee('Vereinsportal')->assertSee('Moodle')->assertSee('Ja, abmelden');
+    $this->assertAuthenticatedAs($user);
+    expect(DB::table('oauth_access_tokens')->where('user_id', $user->id)->where('client_id', $client->getKey())->where('revoked', false)->count())->toBe(0)
+        ->and(DB::table('oauth_access_tokens')->where('id', 'tok-other')->value('revoked'))->toBe(0);
+
+    // Ja: alles beenden, der Browser ruft die Abmelde-Adresse des anderen Systems auf
+    $this->post(route('oidc.logout.perform'))->assertOk()->assertSee('Es wird versucht')->assertSee('data-sso-logout="https://moodle.example.org/auth/oidc/logout.php?iss=', false);
+    $this->assertGuest();
+    expect(DB::table('oauth_access_tokens')->where('user_id', $user->id)->where('revoked', false)->count())->toBe(0);
+});
+
+it('redirects back at once without a portal session and lists nothing for unknown return addresses', function () {
+    odClient();
+
+    $this->get('/oauth/logout?post_logout_redirect_uri='.urlencode('https://cloud.example.org/bye'))->assertRedirect('https://cloud.example.org/bye');
+    $this->get('/oauth/logout?post_logout_redirect_uri='.urlencode('https://evil.example.com/x'))->assertRedirect(route('home'));
+
+    // angemeldet, aber fremde Adresse: Seite ohne Dienstnamen, „Nein“ führt nur ins Portal
+    $this->actingAs(odUser())->get('/oauth/logout?post_logout_redirect_uri='.urlencode('https://evil.example.com/x'))
+        ->assertOk()->assertDontSee('Sie haben sich erfolgreich vom Dienst')->assertSee(route('home'), false);
+});
+
+it('signs out of the connected systems when the person logs out of the portal itself', function () {
+    $client = odClient(['frontchannel_logout_uri' => 'https://cloud.example.org/logout']);
+    $user = odUser();
+    odFlow($this, $user, $client);
+
+    $this->actingAs($user)->post(route('logout'))->assertOk()->assertSee('Sie haben sich vom Vereinsportal abgemeldet')->assertSee('Nextcloud')->assertSee('data-sso-logout', false);
+    $this->assertGuest();
     expect(DB::table('oauth_access_tokens')->where('user_id', $user->id)->where('revoked', false)->count())->toBe(0);
 
-    $this->actingAs(odUser())->get('/oauth/logout?post_logout_redirect_uri='.urlencode('https://evil.example.com/x'))->assertRedirect(route('home'));
+    // ohne verbundenes System bleibt es bei der Weiterleitung zur Anmeldung
+    $this->actingAs(odUser())->post(route('logout'))->assertRedirect(route('login'));
+});
+
+it('accepts a front-channel logout address only on the domain of a redirect address', function () {
+    $admin = odUser(RoleKey::Administration);
+    $clients = app(OAuthClients::class);
+
+    $client = $clients->create(['name' => 'Moodle', 'redirect_uris' => 'https://moodle.example.org/auth/oidc/', 'roles' => ['coordination'], 'frontchannel_logout_uri' => 'https://moodle.example.org/auth/oidc/logout.php'], $admin);
+    expect($clients->settings($client)->frontchannel_logout_uri)->toBe('https://moodle.example.org/auth/oidc/logout.php');
+
+    expect(fn () => $clients->update($client, ['name' => 'Moodle', 'redirect_uris' => 'https://moodle.example.org/auth/oidc/', 'roles' => ['coordination'], 'frontchannel_logout_uri' => 'https://evil.example.com/x'], $admin))->toThrow(DomainException::class);
+    expect(fn () => $clients->update($client, ['name' => 'Moodle', 'redirect_uris' => 'https://moodle.example.org/auth/oidc/', 'roles' => ['coordination'], 'frontchannel_logout_uri' => 'http://moodle.example.org/x'], $admin))->toThrow(DomainException::class);
+
+    $clients->update($client, ['name' => 'Moodle', 'redirect_uris' => 'https://moodle.example.org/auth/oidc/', 'roles' => ['coordination'], 'frontchannel_logout_uri' => ''], $admin);
+    expect($clients->settings($client->refresh())->frontchannel_logout_uri)->toBeNull();
+
+    expect($this->getJson('/.well-known/openid-configuration')->json('frontchannel_logout_supported'))->toBeTrue();
+});
+
+it('shows the service name and description on the login page when a connected system asks for the login', function () {
+    $client = odClient(['description' => 'Die Lernplattform des Vereins.']);
+
+    $this->withSession(['url.intended' => url('/oauth/authorize?client_id='.$client->getKey().'&response_type=code')])->get('/login')
+        ->assertOk()->assertSee('Single Sign-On')->assertSee('Nextcloud')->assertSee('Beschreibung des Dienstes:')->assertSee('Die Lernplattform des Vereins.')->assertSee('Wichtige Hinweise');
+
+    $this->get('/login')->assertOk()->assertSee('Anmeldung am Vereinsportal')->assertDontSee('Beschreibung des Dienstes:');
 });
 
 it('maps every role to a stable group name', function () {

@@ -21,6 +21,16 @@ Das Portal ist die einzige Anmeldung. Nextcloud, Moodle und weitere Systeme meld
 - **Abmeldung:** `/oauth/logout` beendet die Portalsitzung, widerruft alle Tokens des Kontos und leitet nur auf Adressen weiter, deren Herkunft zu einer eingetragenen Umleitungsadresse passt.
 - Gesperrte Anbindungen und nicht aktive Konten bekommen von `/oauth/userinfo` ein 401.
 
+## Anmelde- und Abmeldeseiten des Identity Providers
+Die Seiten des Portals als Anmeldestelle folgen einem gemeinsamen Gerüst (`<x-sso.page>`, CSS `resources/css/sso.css`): Band „Single Sign-On“, Logo links, Überschrift mit Linie und Inhalt in der Mitte, rechts eine graue Box.
+- **Anmeldeseite:** Kommt die Person von einer Anmeldeanfrage eines angebundenen Systems (`/oauth/authorize`), zeigt sie den Namen des Dienstes als Überschrift und rechts „Beschreibung des Dienstes“ (die Beschreibung der Anbindung). Dazu „Wichtige Hinweise“ (u. a. Warnung vor Phishing mit dem Namen der Portal-Domain). Ohne Dienst steht dort „Anmeldung am Vereinsportal“. Ist `portal.login_image` gesetzt, bleibt die bisherige Darstellung mit Bild.
+- **Zwei-Faktor-Seite, Zustimmungsseite und „nicht freigegeben“** nutzen dasselbe Gerüst.
+- **Abmeldung durch ein System** (`/oauth/logout`, end_session): Das System hat sich selbst abgemeldet. Das Portal zeigt „Sie haben sich erfolgreich vom Dienst X abgemeldet. Sie sind zusätzlich noch bei folgenden Diensten angemeldet: Vereinsportal, …“ und fragt, ob die Person sich auch dort abmelden will. „Ja, abmelden“ beendet die Portalsitzung, widerruft alle Tokens und zeigt die Fortschrittsseite; „Nein“ führt zurück (zur Rücksprung-Adresse des Systems oder ins Portal).
+- **Abmeldung im Portal** („Abmelden“ im Profilmenü): Sind angebundene Systeme mit Abmelde-Adresse angemeldet, zeigt die Fortschrittsseite die Liste; sonst geht es wie bisher zur Anmeldung.
+- **Fortschrittsseite (Front-Channel Logout):** Der Browser ruft die Abmelde-Adresse jedes Systems in einem unsichtbaren Rahmen auf (`resources/js/sso-logout.js`, ohne JavaScript über `<noscript>`). Dabei geht die Anmeldung des Systems mit; es meldet die Person ab. Der Haken heißt „aufgerufen“: Ob das System tatsächlich abgemeldet hat, sieht der Browser nicht. Das funktioniert nur, wenn Portal und System auf derselben Hauptdomain liegen (z. B. `portal.vdb.schule` und `moodle.vdb.schule`), weil der Browser sonst die Anmeldung des Systems nicht mitsendet.
+- **Abmelde-Adresse je Anbindung** (Admins › Anbindungen › Anbindung bearbeiten): Pflicht ist nur `https://` und dieselbe Domain wie eine Umleitungsadresse. Für Moodle (`auth_oidc`): `https://<Moodle>/auth/oidc/logout.php`. Die Discovery meldet `frontchannel_logout_supported`. Das Portal hängt `iss` (Adresse des Portals) an; eine Sitzungskennung (`sid`) liefert es nicht.
+- Migration `2027_01_05_000001_add_frontchannel_logout_to_oauth_client_settings.php`.
+
 ## Teil 3: Konto, Aufräumen, Einrichtung
 - **Konto › Verbundene Anwendungen:** Jedes Konto sieht die Systeme, bei denen es angemeldet ist, und kann die Freigabe widerrufen.
 - **Zustimmungsseite:** Sie nennt in einfacher Sprache, was das System sehen möchte (Name, E-Mail, Rolle, Gruppen).

@@ -3,8 +3,7 @@
     $person = $user->person?->fullName();
     $wants = collect($scopes)->map(fn ($scope) => $labels[$scope->id] ?? $scope->description ?? $scope->id)->values();
 @endphp
-<x-layouts.app title="Anmeldung bei {{ $client->name }}" width="narrow">
-    <x-vdbs.layout.page-header title="{{ $client->name }} möchte sich über das Portal anmelden" lead="Sie sind als {{ $person ?: $user->email }} angemeldet." />
+<x-sso.page title="Anmeldung bei {{ $client->name }}" heading="{{ $client->name }} möchte sich über das Portal anmelden" lead="Sie sind als {{ $person ?: $user->email }} angemeldet.">
 
     <p><strong>{{ $client->name }}</strong> möchte:</p>
     <ul>
@@ -28,4 +27,4 @@
             <x-vdbs.actions.button type="submit" variant="secondary" icon="x">Ablehnen</x-vdbs.actions.button>
         </form>
     </div>
-</x-layouts.app>
+</x-sso.page>

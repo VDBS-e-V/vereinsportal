@@ -19,6 +19,7 @@
         <x-vdbs.data.detail-item label="Erlaubte Rollen">{{ collect($setting->allowed_roles ?? [])->map(fn ($key) => $roleOptions[$key] ?? $key)->implode(', ') ?: 'alle' }}</x-vdbs.data.detail-item>
         <x-vdbs.data.detail-item label="Zustimmungsseite">{{ $setting->show_consent ? 'ja' : 'nein' }}</x-vdbs.data.detail-item>
         <x-vdbs.data.detail-item label="Ansprechperson">{{ $setting->contact ?: '–' }}</x-vdbs.data.detail-item>
+        <x-vdbs.data.detail-item label="Abmelde-Adresse">{{ $setting->frontchannel_logout_uri ?: '–' }}</x-vdbs.data.detail-item>
     </x-vdbs.data.detail-list>
 
     <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Anbindung pflegen</h2>

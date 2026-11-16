@@ -9,7 +9,7 @@ class OAuthClientSetting extends Model
 {
     protected $table = 'oauth_client_settings';
 
-    protected $fillable = ['client_id', 'allowed_roles', 'description', 'contact', 'show_consent', 'created_by_user_id'];
+    protected $fillable = ['client_id', 'allowed_roles', 'description', 'contact', 'frontchannel_logout_uri', 'show_consent', 'created_by_user_id'];
 
     protected function casts(): array
     {

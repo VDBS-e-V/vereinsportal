@@ -1,4 +1,4 @@
-<h1>Anmelden</h1>
+@if (config('portal.login_image'))<h1>Anmelden</h1>@endif
 
 <x-vdbs.forms.form :action="route('login.store')">
     <x-vdbs.forms.bot-guard />

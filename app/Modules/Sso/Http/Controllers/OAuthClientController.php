@@ -127,6 +127,7 @@ class OAuthClientController extends Controller
             'roles' => (array) $request->input('roles', []),
             'description' => $request->input('description'),
             'contact' => $request->input('contact'),
+            'frontchannel_logout_uri' => $request->input('frontchannel_logout_uri'),
             'show_consent' => $request->boolean('show_consent'),
         ];
     }

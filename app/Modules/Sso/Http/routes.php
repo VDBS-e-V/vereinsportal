@@ -30,6 +30,7 @@ Route::get('/oauth/jwks', [OidcController::class, 'jwks'])->middleware('throttle
 Route::get('/oauth/photo/{user}', [OidcController::class, 'photo'])->whereNumber('user')->middleware(['signed', 'throttle:60,1'])->name('oidc.photo');
 Route::match(['get', 'post'], '/oauth/userinfo', [OidcController::class, 'userinfo'])->middleware(['auth:api', 'throttle:120,1'])->name('oidc.userinfo');
 Route::get('/oauth/logout', [OidcController::class, 'logout'])->middleware(['web', 'throttle:30,1'])->name('oidc.logout');
+Route::post('/oauth/logout', [OidcController::class, 'logoutPerform'])->middleware(['web', 'throttle:30,1'])->name('oidc.logout.perform');
 
 // Konto: verbundene Anwendungen ansehen und widerrufen (jedes angemeldete Konto).
 Route::middleware(['web', 'auth'])->prefix('konto/anwendungen')->group(function (): void {

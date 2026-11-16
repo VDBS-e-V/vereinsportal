@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
 use App\Modules\Access\Services\ProfilePhotos;
 use App\Modules\Access\Services\Profiles;
+use App\Modules\Sso\Services\ConnectedServices;
 use App\Modules\Sso\Services\OAuthClients;
 use App\Modules\Sso\Services\OAuthKeys;
 use App\Modules\Sso\Services\OidcClaims;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,7 +22,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 /** Öffentliche Schnittstellen für angebundene Systeme: Discovery, Schlüssel, Benutzerangaben, Abmeldung. */
 class OidcController extends Controller
 {
-    public function __construct(private readonly OAuthKeys $keys, private readonly OAuthClients $clients, private readonly OidcClaims $claims) {}
+    public function __construct(private readonly OAuthKeys $keys, private readonly OAuthClients $clients, private readonly OidcClaims $claims, private readonly ConnectedServices $services) {}
 
     public function discovery(): JsonResponse
     {
@@ -40,6 +42,8 @@ class OidcController extends Controller
             'scopes_supported' => array_keys(OidcClaims::SCOPES),
             'token_endpoint_auth_methods_supported' => ['client_secret_post', 'client_secret_basic', 'none'],
             'code_challenge_methods_supported' => ['S256'],
+            'frontchannel_logout_supported' => true,
+            'frontchannel_logout_session_supported' => false,
             'claims_supported' => ['sub', 'iss', 'aud', 'exp', 'iat', 'auth_time', 'nonce', 'name', 'given_name', 'family_name', 'preferred_username', 'email', 'email_verified', 'roles', 'groups', 'headline', 'bio', 'picture'],
         ]);
     }
@@ -76,26 +80,101 @@ class OidcController extends Controller
         return response()->json($this->claims->forUser($user, $scopes))->header('Cache-Control', 'no-store');
     }
 
-    public function logout(Request $request): RedirectResponse
+    /**
+     * Abmeldung, die ein angebundenes System anstößt (end_session). Das System hat sich selbst schon abgemeldet; das Portal zeigt, wo die Person noch
+     * angemeldet ist, und fragt, ob sie sich dort auch abmelden möchte. Ohne Portalsitzung geht es sofort zurück.
+     */
+    public function logout(Request $request): RedirectResponse|View
     {
         $user = $request->user();
+        $requested = (string) $request->input('post_logout_redirect_uri', '');
+        $target = $this->allowedTarget($requested) ? $requested : null;
 
-        if ($user !== null) {
-            $ids = DB::table('oauth_access_tokens')->where('user_id', $user->getKey())->pluck('id')->all();
-
-            if ($ids !== []) {
-                DB::table('oauth_access_tokens')->whereIn('id', $ids)->update(['revoked' => true]);
-                DB::table('oauth_refresh_tokens')->whereIn('access_token_id', $ids)->update(['revoked' => true]);
-            }
-
-            Auth::guard('web')->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+        if ($user === null) {
+            return redirect()->to($target ?? route('home'));
         }
 
-        $target = (string) $request->input('post_logout_redirect_uri', '');
+        $initiator = $this->initiator($request, $target);
 
-        return redirect()->to($this->allowedTarget($target) ? $target : route('home'));
+        if ($initiator !== null) {
+            $this->services->revokeFor($user, (string) $initiator->getKey());
+        }
+
+        $request->session()->put('sso_logout', ['target' => $target, 'initiator' => $initiator?->getKey()]);
+
+        return view('sso.logout', [
+            'initiator' => $initiator?->name,
+            'others' => $this->services->withLogout($user, $initiator !== null ? (string) $initiator->getKey() : null),
+            'stay' => $target ?? route('home'),
+        ]);
+    }
+
+    /** „Ja, abmelden“: Portalsitzung beenden, alle Tokens widerrufen und den Browser die Abmelde-Adressen der anderen Systeme aufrufen lassen. */
+    public function logoutPerform(Request $request): RedirectResponse|View
+    {
+        $user = $request->user();
+        $pending = (array) $request->session()->get('sso_logout', []);
+        $target = is_string($pending['target'] ?? null) ? $pending['target'] : null;
+
+        if ($user === null) {
+            return redirect()->to($target ?? route('login'));
+        }
+
+        $others = $this->services->withLogout($user, isset($pending['initiator']) ? (string) $pending['initiator'] : null);
+        $this->services->revokeAll($user);
+
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return view('sso.logout-done', ['services' => $others, 'next' => $target ?? route('login')]);
+    }
+
+    /** Welches System meldet sich ab? Aus dem id_token_hint (Empfänger) oder, ohne den, aus der Herkunft der Rücksprung-Adresse. */
+    private function initiator(Request $request, ?string $target): ?\Laravel\Passport\Client
+    {
+        $hint = (string) $request->input('id_token_hint', '');
+        $audience = $hint !== '' ? $this->audience($hint) : null;
+        $client = $audience !== null ? $this->clients->find($audience) : null;
+
+        if ($client !== null && ! $client->revoked) {
+            return $client;
+        }
+
+        $origin = $target !== null ? $this->origin($target) : null;
+
+        if ($origin === null) {
+            return null;
+        }
+
+        foreach ($this->clients->all() as $candidate) {
+            if ($candidate->revoked) {
+                continue;
+            }
+
+            foreach ($candidate->redirect_uris as $uri) {
+                if ($this->origin((string) $uri) === $origin) {
+                    return $candidate;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function audience(string $jwt): ?string
+    {
+        $parts = explode('.', $jwt);
+
+        if (count($parts) !== 3) {
+            return null;
+        }
+
+        $payload = strtr($parts[1], '-_', '+/');
+        $data = json_decode((string) base64_decode($payload.str_repeat('=', (4 - strlen($payload) % 4) % 4), true), true);
+        $aud = is_array($data) ? ($data['aud'] ?? null) : null;
+
+        return is_array($aud) ? (isset($aud[0]) ? (string) $aud[0] : null) : (is_string($aud) ? $aud : null);
     }
 
     /** Nur Adressen, deren Herkunft zu einer eingetragenen Umleitungsadresse einer aktiven Anbindung gehört. */

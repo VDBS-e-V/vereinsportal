@@ -21,6 +21,7 @@
             @unless ($editing)
                 <x-vdbs.forms.checkbox name="confidential" label="Vertraulicher Client (mit Geheimnis)" :checked="true" hint="Für Nextcloud und Moodle richtig. Nur Apps ohne eigenen Server brauchen die öffentliche Art." />
             @endunless
+            <x-vdbs.forms.input name="frontchannel_logout_uri" label="Abmelde-Adresse (Front-Channel)" :optional="true" maxlength="255" :value="$setting?->frontchannel_logout_uri" hint="Meldet sich jemand beim Portal ab, ruft der Browser diese Adresse auf, damit auch dieses System abmeldet. Muss auf derselben Domain liegen wie die Umleitungsadressen. Für Moodle: https://<Moodle>/auth/oidc/logout.php" />
             <x-vdbs.forms.checkbox name="show_consent" label="Zustimmungsseite anzeigen" :checked="old('show_consent', $setting?->show_consent ?? true)" hint="Für Systeme des Vereins können Sie die Seite abschalten." />
         </x-vdbs.forms.form-section>
         <x-slot:actions><x-vdbs.actions.button type="submit" icon="check">Speichern</x-vdbs.actions.button></x-slot:actions>

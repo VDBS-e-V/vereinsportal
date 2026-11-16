@@ -58,6 +58,7 @@ final class OAuthClients
     public function create(array $input, User $by): Client
     {
         [$name, $uris, $roles] = $this->checked($input);
+        $input['frontchannel_logout_uri'] = $this->checkedLogoutUri($input['frontchannel_logout_uri'] ?? null, $uris);
 
         $client = $this->clients->createAuthorizationCodeGrantClient($name, $uris, ! array_key_exists('confidential', $input) || (bool) $input['confidential']);
 
@@ -75,6 +76,7 @@ final class OAuthClients
     public function update(Client $client, array $input, User $by): Client
     {
         [$name, $uris, $roles] = $this->checked($input);
+        $input['frontchannel_logout_uri'] = $this->checkedLogoutUri($input['frontchannel_logout_uri'] ?? null, $uris);
 
         $this->clients->update($client, $name, $uris);
         $setting = $this->settings($client);
@@ -172,6 +174,40 @@ final class OAuthClients
         return [Str::limit($name, 100, ''), $uris, $roles];
     }
 
+    /**
+     * Die Abmelde-Adresse (Front-Channel): leer oder eine https-Adresse auf derselben Domain wie eine Umleitungsadresse.
+     * So kann niemand das Portal dazu bringen, beim Abmelden beliebige fremde Adressen aufzurufen.
+     *
+     * @param  list<string>  $redirectUris
+     *
+     * @throws DomainException
+     */
+    private function checkedLogoutUri(mixed $value, array $redirectUris): ?string
+    {
+        $uri = trim((string) $value);
+
+        if ($uri === '') {
+            return null;
+        }
+
+        $parts = parse_url($uri);
+        $host = strtolower((string) ($parts['host'] ?? ''));
+        $scheme = strtolower((string) ($parts['scheme'] ?? ''));
+        $local = in_array($host, ['localhost', '127.0.0.1'], true) && app()->environment(['local', 'testing']);
+
+        if ($parts === false || $host === '' || isset($parts['fragment']) || str_contains($uri, '*') || strlen($uri) > 255 || ! ($scheme === 'https' || ($scheme === 'http' && $local))) {
+            throw new DomainException('Die Abmelde-Adresse muss mit https:// beginnen und darf kein # und keinen Platzhalter enthalten.');
+        }
+
+        $hosts = array_map(fn (string $redirect): string => strtolower((string) parse_url($redirect, PHP_URL_HOST)), $redirectUris);
+
+        if (! in_array($host, $hosts, true)) {
+            throw new DomainException('Die Abmelde-Adresse muss auf derselben Domain liegen wie eine Umleitungsadresse.');
+        }
+
+        return $uri;
+    }
+
     /** @throws DomainException */
     private function assertRedirect(string $uri): void
     {
@@ -197,6 +233,7 @@ final class OAuthClients
             'allowed_roles' => $roles,
             'description' => Str::limit(trim((string) ($input['description'] ?? '')), 1000, '') ?: null,
             'contact' => Str::limit(trim((string) ($input['contact'] ?? '')), 190, '') ?: null,
+            'frontchannel_logout_uri' => $input['frontchannel_logout_uri'] ?? null,
             'show_consent' => ! array_key_exists('show_consent', $input) || (bool) $input['show_consent'],
         ];
     }
