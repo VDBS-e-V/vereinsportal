@@ -45,7 +45,7 @@ function mlUser(?RoleKey $role = null, array $person = []): User
 
 function mlSeminar(array $attributes = []): Seminar
 {
-    $seminar = Seminar::factory()->create($attributes + ['status' => SeminarStatus::Scheduled, 'title' => 'SV-Tage Nord']);
+    $seminar = Seminar::factory()->create($attributes + ['status' => SeminarStatus::Tendered, 'title' => 'SV-Tage Nord']);
     SeminarSession::query()->create(['seminar_id' => $seminar->id, 'starts_at' => now()->addMonth()->setTime(9, 0), 'ends_at' => now()->addMonth()->setTime(15, 0), 'location' => 'Aula']);
 
     return $seminar->fresh();

@@ -79,7 +79,7 @@ it('shows the board key figures without personal data and keeps others out', fun
     Membership::factory()->create(['ends_on' => now()->addMonth()->toDateString()]);
     Membership::factory()->ended()->create();
     Membership::factory()->requested()->create();
-    Seminar::factory()->create(['status' => SeminarStatus::Planning]);
+    Seminar::factory()->create(['status' => SeminarStatus::InReview]);
 
     $response = $this->actingAs($board)->get(route('board.overview'))->assertOk()->assertSee('Aktive Mitglieder')->assertSee('Geplante Austritte');
     $stats = $response->viewData('stats');
@@ -92,7 +92,7 @@ it('shows the board key figures without personal data and keeps others out', fun
 
 it('shows Bildungsreferenten an overview and lets them read but not change seminars and events', function () {
     $education = aoUser(RoleKey::EducationCoordination);
-    $seminar = Seminar::factory()->create(['title' => 'SV-Tage Süd', 'status' => SeminarStatus::Confirmed]);
+    $seminar = Seminar::factory()->create(['title' => 'SV-Tage Süd', 'status' => SeminarStatus::TeamConfirmed]);
     app(SeminarAdministration::class)->addSession($seminar, ['date' => now()->addMonth()->toDateString(), 'start' => '09:00', 'end' => '15:00'], aoUser(RoleKey::Coordination));
     Event::query()->create(['slug' => 'tag-eins', 'title' => 'Demokratietag', 'status' => 'open']);
 

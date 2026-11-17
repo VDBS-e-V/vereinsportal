@@ -165,8 +165,8 @@ it('lets a school request a seminar and tells the coordination', function () {
 
 it('shows a school only its own seminars and quotes', function () {
     $account = scSchoolAccount();
-    $mine = Seminar::factory()->create(['partner_id' => $account->partner_id, 'title' => 'Eigenes Seminar', 'status' => SeminarStatus::Planning]);
-    Seminar::factory()->create(['title' => 'Fremdes Seminar', 'status' => SeminarStatus::Planning]);
+    $mine = Seminar::factory()->create(['partner_id' => $account->partner_id, 'title' => 'Eigenes Seminar', 'status' => SeminarStatus::InReview]);
+    Seminar::factory()->create(['title' => 'Fremdes Seminar', 'status' => SeminarStatus::InReview]);
     Seminar::factory()->create(['partner_id' => $account->partner_id, 'title' => 'Abgesagtes Seminar', 'status' => SeminarStatus::Cancelled]);
 
     $this->actingAs($account->user)->get(route('school.home'))->assertOk()->assertSee('Eigenes Seminar')->assertDontSee('Fremdes Seminar')->assertDontSee('Abgesagtes Seminar');
@@ -180,7 +180,7 @@ it('shows a school only its own seminars and quotes', function () {
 it('lets a school confirm date and quote once, and send feedback', function () {
     $account = scSchoolAccount();
     $coordination = scUser(RoleKey::Coordination);
-    $seminar = Seminar::factory()->create(['partner_id' => $account->partner_id, 'title' => 'SV-Tage Herbst', 'status' => SeminarStatus::Scheduled]);
+    $seminar = Seminar::factory()->create(['partner_id' => $account->partner_id, 'title' => 'SV-Tage Herbst', 'status' => SeminarStatus::QuoteSent]);
 
     // ohne Kostenvoranschlag lässt sich nichts bestätigen
     $this->actingAs($account->user)->post(route('school.seminars.confirm', $seminar))->assertSessionHasErrors('school');
@@ -210,8 +210,8 @@ it('lets a school confirm date and quote once, and send feedback', function () {
 it('lets a school print only its own quote and without the version history', function () {
     $account = scSchoolAccount();
     $coordination = scUser(RoleKey::Coordination);
-    $mine = scQuote(Seminar::factory()->create(['partner_id' => $account->partner_id, 'status' => SeminarStatus::Scheduled]), $coordination);
-    $foreign = scQuote(Seminar::factory()->create(['status' => SeminarStatus::Scheduled]), $coordination);
+    $mine = scQuote(Seminar::factory()->create(['partner_id' => $account->partner_id, 'status' => SeminarStatus::QuoteSent]), $coordination);
+    $foreign = scQuote(Seminar::factory()->create(['status' => SeminarStatus::QuoteSent]), $coordination);
 
     $this->actingAs($account->user)->get(route('school.quotes.print', $mine))->assertOk()->assertSee('Kostenvoranschlag')->assertSee(route('school.home'), false);
     $this->actingAs($account->user)->get(route('school.quotes.print', [$mine, 'fassung' => 1]))->assertOk();
@@ -223,7 +223,7 @@ it('shows school accounts a task for seminars waiting for their confirmation', f
     $account = scSchoolAccount();
     expect(TaskOverview::for($account->user))->toBe([]);
 
-    $seminar = Seminar::factory()->create(['partner_id' => $account->partner_id, 'status' => SeminarStatus::Scheduled]);
+    $seminar = Seminar::factory()->create(['partner_id' => $account->partner_id, 'status' => SeminarStatus::QuoteSent]);
     scQuote($seminar, scUser(RoleKey::Coordination));
 
     $labels = array_column(TaskOverview::for($account->user), 'label');
@@ -232,7 +232,7 @@ it('shows school accounts a task for seminars waiting for their confirmation', f
 
 it('keeps the log free of the message text', function () {
     $account = scSchoolAccount();
-    $seminar = Seminar::factory()->create(['partner_id' => $account->partner_id, 'status' => SeminarStatus::Planning]);
+    $seminar = Seminar::factory()->create(['partner_id' => $account->partner_id, 'status' => SeminarStatus::InReview]);
     $this->actingAs($account->user)->post(route('school.seminars.feedback', $seminar), ['note' => 'Vertrauliche Rückmeldung']);
 
     foreach (AuditEntry::query()->get() as $entry) {

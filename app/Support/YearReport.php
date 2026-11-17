@@ -29,7 +29,7 @@ final class YearReport
     {
         $from = Carbon::create($year, 1, 1)->startOfDay();
         $to = Carbon::create($year, 12, 31)->endOfDay();
-        $done = [SeminarStatus::Done->value, SeminarStatus::Completed->value];
+        $done = SeminarStatus::values(SeminarStatus::finished());
 
         $sessions = SeminarSession::query()->whereBetween('starts_at', [$from, $to])->whereHas('seminar', fn ($query) => $query->whereIn('status', $done));
         $seminarIds = (clone $sessions)->pluck('seminar_id')->unique();

@@ -53,8 +53,8 @@ it('lists nothing for guests of any role and for accounts without tasks', functi
 it('shows Teamende their onboarding, profile and open seminars with counts only', function () {
     $team = toUser(RoleKey::Team);
     app(TeamOnboardings::class)->ensure($team);
-    Seminar::factory()->create(['status' => SeminarStatus::Scheduled, 'team_needed' => 2, 'application_deadline' => now()->addWeek()->toDateString(), 'title' => 'Geheimer Titel']);
-    $taken = Seminar::factory()->create(['status' => SeminarStatus::Scheduled, 'team_needed' => 2, 'application_deadline' => now()->addWeek()->toDateString()]);
+    Seminar::factory()->create(['status' => SeminarStatus::Tendered, 'team_needed' => 2, 'application_deadline' => now()->addWeek()->toDateString(), 'title' => 'Geheimer Titel']);
+    $taken = Seminar::factory()->create(['status' => SeminarStatus::Tendered, 'team_needed' => 2, 'application_deadline' => now()->addWeek()->toDateString()]);
     SeminarApplication::query()->create(['seminar_id' => $taken->id, 'user_id' => $team->id, 'status' => ApplicationStatus::Applied]);
 
     $tasks = TaskOverview::for($team);
@@ -69,7 +69,7 @@ it('shows Teamende their onboarding, profile and open seminars with counts only'
 it('shows the coordination seminar requests and teams waiting after the deadline', function () {
     $coordination = toUser(RoleKey::Coordination);
     Seminar::factory()->create(['status' => SeminarStatus::Request]);
-    $waiting = Seminar::factory()->create(['status' => SeminarStatus::Scheduled, 'team_needed' => 2, 'application_deadline' => now()->subDay()->toDateString()]);
+    $waiting = Seminar::factory()->create(['status' => SeminarStatus::Tendered, 'team_needed' => 2, 'application_deadline' => now()->subDay()->toDateString()]);
     SeminarApplication::query()->create(['seminar_id' => $waiting->id, 'user_id' => toUser(RoleKey::Team)->id, 'status' => ApplicationStatus::Applied]);
 
     $byLabel = collect(TaskOverview::for($coordination))->keyBy('label');

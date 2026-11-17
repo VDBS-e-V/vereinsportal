@@ -123,7 +123,7 @@ Ziel: Ordnerstruktur und Rechte automatisch, Ergebnislink mit Ablaufdatum.
 - `SeminarAdministration::changeStatus` und die Status-Route
 - Sofort-Entscheidung in `SeminarTeamController::decide` und `TeamApplications::decide` (Zusage und Absage einzeln) durch Entwurf plus „Team bestätigen“
 - `TeamInfo` („Team informieren“) wird Teil der Teambestätigung und des Onboarding-Versands
-- Seminarmappe als ZIP (`SeminarFolder`, Route `seminars.folder`): ersetzt durch den Nextcloud-Ordner
+- Seminarmappe als ZIP (`SeminarFolder`, Route `seminars.folder`): **bleibt** (Entscheidung), zusätzlich kommt der Online-Druckplaner (Abschnitt 12)
 - Abschluss-Checkliste als eigener Weg (`SeminarClosures`): Inhalt geht in die Übergänge `held`, `reported`, `completed` ein. Der Kennzahlen-Schnappschuss bleibt Teil von `completed`
 - Seminarseiten und -ansichten: `seminars/index`, `show`, `_team`, `form`, `closure` werden neu gebaut
 - Alte Verlaufstexte bleiben lesbar (Ereignistypen werden nur ergänzt)
@@ -154,7 +154,7 @@ Jede Phase ist für sich lauffähig, hat Tests (Pest) und wird gepusht. Die Reih
 | 2 | Geschäftsstelle: Seminarliste, Prüfung, KVA-Freigabe, Freigabe mit Vertrag oder Zusage, Ablehnung, Teamverträge von dort, Schulseite angepasst | Ablauf Schritte 1 bis 2c durchspielbar |
 | 3 | Koordination: Meine Seminare, Planen, Ausschreiben, Auswahl als Entwurf, „Team bestätigen“, Warteliste und Nachrücken, Seminarleitung | Schritte 3 bis 6c durchspielbar |
 | 4 | Mitteilungen: Dienst, Pflicht-Mails, Vorlagen, Einstellung im Konto, Verlaufsvermerke | alle Mails der Tabelle in Abschnitt 5 |
-| 5 | Seminarleitung und Abschluss: Durchführung, Uploads, Stichtag, Erinnerung, Prüfung, Bericht an die Schule, Feedback, Ereignis `SeminarCompleted` | Schritte 8c bis 12 durchspielbar |
+| 5 | Seminarleitung und Abschluss (danach Phase 5a: Online-Druckplaner): Durchführung, Uploads, Stichtag, Erinnerung, Prüfung, Bericht an die Schule, Feedback, Ereignis `SeminarCompleted` | Schritte 8c bis 12 durchspielbar |
 | 6 | Nextcloud: Client, Ordner, Rechte, Ergebnislink, Aufträge, Ausfallverhalten | Ordner entstehen automatisch, Link läuft mit Ablaufdatum |
 | 7 | Fristen: Löschläufe, Ergebnisordner, Verlängerung | Läufe nach den beschlossenen Werten |
 | 8 | Aufräumen: alte Klassen, Routen und Ansichten löschen, Dokumentation und Changelog, Handbuch-Texte | nichts Altes bleibt übrig |
@@ -169,8 +169,32 @@ Tests je Phase: jeder erlaubte und jeder verbotene Übergang, Rechte je Rolle (a
 - **Recht:** Löschfristen für Verträge und Belege vor Phase 7 mit der Steuerberatung klären. Texte der Schul- und Teammails vor dem Produktivbetrieb prüfen lassen.
 - **Nicht umsetzbar von hier aus:** Alles ist nur syntaxgeprüft. Tests laufen in der CI, Nextcloud erst gegen Ihre Instanz.
 
-## 11. Offene Fragen vor Phase 1
+## 11. Entscheidungen zu den offenen Fragen (bestätigt)
 
-1. Gibt es Seminare im Produktivsystem, die erhalten bleiben müssen, oder nur Testdaten?
-2. Wird die Seminarmappe als ZIP noch gebraucht, oder ersetzt der Nextcloud-Ordner sie ganz?
-3. Das Vertragsverhältnis mit der Schule: reicht als Nachweis eine hochgeladene Datei mit Datum der Unterschrift, oder soll das Portal den Schulvertrag selbst erzeugen?
+1. **Testbetrieb:** Alle Systeme laufen nur im Testbetrieb. Es gibt keine Daten, die erhalten bleiben müssen. Die Datenübernahme im Plan ist trotzdem als saubere Migration umgesetzt (Abschnitt 8), eine Sicherung ist erst bei echten Daten nötig.
+2. **Seminarmappe bleibt**, als ZIP **und** als **Online-Druckplaner**. Das ersetzt den Eintrag „Seminarmappe entfernen“ in Abschnitt 8 (siehe Abschnitt 12).
+3. **Der Vertrag mit der Schule wird im Portal erstellt.** Das ersetzt die Annahme „Datei hochladen“ (siehe Abschnitt 12).
+
+## 12. Ergänzungen aus den Entscheidungen
+
+### Seminarmappe als ZIP und Druckplaner
+
+- **ZIP bleibt** (`SeminarFolder`): alle Dokumente eines Seminars nach Art in Unterordnern, mit Inhaltsverzeichnis und Prüfsummen.
+- **Neu: Online-Druckplaner** am Seminar. Die Person (Koordination, Seminarleitung, Team) wählt dort **welche Seite wie oft gedruckt wird**:
+  - je Dokument der Mappe: Seiten (alle oder Bereich wie „1-3, 5“), Anzahl der Exemplare
+  - je Dokument: **Schwarzweiß oder Farbe**
+  - je Dokument: **Elemente pro Blatt** (1, 2, 4 Seiten pro Blatt), einseitig oder doppelseitig
+  - Ergebnis: eine Zusammenfassung (Blätter, Seiten Schwarzweiß und Farbe, Gesamtzahl) und eine **Druckliste als PDF** für Druckerei oder Büro. Der Druckplan wird am Seminar gespeichert und lässt sich ändern.
+  - Je Dokument braucht der Planer die Seitenzahl. Das Portal liest sie beim Hochladen aus den PDF-Dateien (Word-Dateien werden beim Erzeugen als PDF abgelegt oder die Seitenzahl wird von Hand eingetragen).
+- Phase: Der Druckplaner gehört in eine eigene **Phase 5a** nach der Seminarleitung (er braucht die Dokumente der Seminarleitung).
+
+### Vertrag mit der Schule im Portal
+
+- Das Portal erzeugt den **Schulvertrag** aus einer Vorlage mit den Daten des Seminars (Schule, Leistung, Termine, Preis aus dem freigegebenen KVA). Die Vorlage pflegt die Geschäftsstelle wie die Briefvorlagen und Vertragstexte. Das ist ein eigener Bereich neben dem Vertrag der Teamenden.
+- Ablauf: Geschäftsstelle erzeugt den Vertrag aus der Seminarliste, druckt oder sendet ihn, die Schule unterschreibt, die Geschäftsstelle erfasst die Unterschrift (Datum, Scan als Dokument). Erst dann ist die Freigabe mit Basis „Vertrag“ möglich. Die Freigabe auf Zusage bleibt als Ausnahme.
+- Phase: **Phase 2** (Geschäftsstelle) um die Vertragsvorlage und -erzeugung erweitert.
+
+## 13. Stand der Umsetzung
+
+- **Phase 1 umgesetzt** (nicht ausgeführt, nur Syntax geprüft, Tests laufen in der CI): neues Statusmodell, `SeminarWorkflow`, Migration `2027_01_10`, Koordinationsgebiet an der Schule, alle Stellen und Tests auf die neuen Status umgestellt, alte Statuslogik entfernt.
+- Noch **nicht** geändert: Wer welchen Status setzen darf (alle Wechsel laufen noch über `seminars.manage`, Phase 2 und 3 trennen die Rechte), KVA-Freigabe, Teamauswahl als Entwurf.

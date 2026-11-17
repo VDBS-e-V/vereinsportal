@@ -13,7 +13,7 @@ use Carbon\Carbon;
 use DomainException;
 use Illuminate\Support\Facades\DB;
 
-/** Schulseminare anlegen, ändern, löschen, Status wechseln und Termine pflegen. Jede Änderung steht im Verlauf des Seminars. */
+/** Schulseminare anlegen, ändern, löschen und Termine pflegen (der Status wechselt nur über SeminarWorkflow). Jede Änderung steht im Verlauf des Seminars. */
 final class SeminarAdministration
 {
     /** @param  array<string, mixed>  $data  validierte Formulardaten */
@@ -50,40 +50,13 @@ final class SeminarAdministration
     /** @throws DomainException wenn das Seminar schon weiter ist */
     public function delete(Seminar $seminar, User $by): void
     {
-        if (! in_array($seminar->status, [SeminarStatus::Request, SeminarStatus::Cancelled], true)) {
-            throw new DomainException('Nur Anfragen und abgesagte Seminare lassen sich löschen. Sagen Sie das Seminar stattdessen ab.');
+        if (! in_array($seminar->status, [SeminarStatus::Request, SeminarStatus::Cancelled, SeminarStatus::Rejected], true)) {
+            throw new DomainException('Nur Anfragen sowie abgelehnte und abgesagte Seminare lassen sich löschen. Sagen Sie das Seminar stattdessen ab.');
         }
 
         AuditLog::record(AuditEvent::SeminarDeleted, $by, $seminar);
 
         $seminar->delete();
-    }
-
-    /** @throws DomainException bei einem nicht erlaubten Wechsel */
-    public function changeStatus(Seminar $seminar, SeminarStatus $target, User $by, ?string $comment = null): void
-    {
-        $from = $seminar->status;
-
-        if (! $from->canChangeTo($target)) {
-            throw new DomainException("Von „{$from->label()}“ lässt sich nicht zu „{$target->label()}“ wechseln.");
-        }
-
-        if (in_array($target, [SeminarStatus::Scheduled, SeminarStatus::Confirmed], true) && ! $seminar->sessions()->exists()) {
-            throw new DomainException('Tragen Sie zuerst mindestens einen Termin ein.');
-        }
-
-        if ($target === SeminarStatus::Confirmed && ! $seminar->quotes()->exists()) {
-            throw new DomainException('Erstellen Sie zuerst einen Kostenvoranschlag.');
-        }
-
-        $seminar->forceFill(['status' => $target, 'updated_by_user_id' => $by->id])->save();
-
-        $this->record($seminar, SeminarEventType::StatusChanged, $by, $comment, ['von' => $from->value, 'nach' => $target->value]);
-        AuditLog::record(AuditEvent::SeminarStatusChanged, $by, $seminar, ['von' => $from->label(), 'nach' => $target->label()]);
-
-        if ($target === SeminarStatus::Cancelled) {
-            app(TeamApplications::class)->notifyCancelled($seminar);
-        }
     }
 
     /** @param  array{date: string, start: string, end: string, location?: ?string, notes?: ?string}  $data */

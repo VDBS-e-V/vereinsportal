@@ -39,7 +39,7 @@ function sdUser(?RoleKey $role = RoleKey::Coordination): User
     return $user;
 }
 
-function sdSeminar(SeminarStatus $status = SeminarStatus::Done): Seminar
+function sdSeminar(SeminarStatus $status = SeminarStatus::Held): Seminar
 {
     $seminar = Seminar::factory()->create(['status' => $status, 'expected_participants' => 40]);
     app(SeminarAdministration::class)->addSession($seminar, ['date' => now()->subMonth()->toDateString(), 'start' => '09:00', 'end' => '15:00'], sdUser());
@@ -190,7 +190,7 @@ it('shows the checklist with automatic points and refuses a closure without reas
 
     $this->get(route('seminars.closure', $seminar))->assertOk()->assertSee('Checkliste')->assertSee('Kostenvoranschlag liegt vor');
     $this->post(route('seminars.closure.store', $seminar), [])->assertSessionHasErrors('closure');
-    expect($seminar->fresh()->status)->toBe(SeminarStatus::Done);
+    expect($seminar->fresh()->status)->toBe(SeminarStatus::Held);
 
     sdUpload($this, $seminar, [sdPdf('r.pdf')], 'invoice');
     $checklist = app(SeminarClosures::class)->checklist($seminar->fresh());
@@ -217,15 +217,15 @@ it('closes with confirmations and reasons, keeps numbers only in the snapshot an
 
 it('lets only durchgeführte seminars be closed and sends the status change to the closure page', function () {
     $this->actingAs(sdUser());
-    $planned = sdSeminar(SeminarStatus::Confirmed);
+    $planned = sdSeminar(SeminarStatus::TeamConfirmed);
 
     $this->get(route('seminars.closure', $planned))->assertRedirect(route('seminars.show', $planned));
     $this->post(route('seminars.closure.store', $planned), ['skip_reason' => ['quote' => 'x', 'invoice' => 'x', 'team' => 'x', 'evaluation' => 'x', 'payments' => 'x']]);
-    expect($planned->fresh()->status)->toBe(SeminarStatus::Confirmed);
+    expect($planned->fresh()->status)->toBe(SeminarStatus::TeamConfirmed);
 
     $done = sdSeminar();
     $this->post(route('seminars.status', $done), ['status' => 'completed'])->assertRedirect(route('seminars.closure', $done));
-    expect($done->fresh()->status)->toBe(SeminarStatus::Done);
+    expect($done->fresh()->status)->toBe(SeminarStatus::Held);
 });
 
 it('protects contracts, quotes and invoices after the closure and lets only the board delete them with a reason', function () {
@@ -263,7 +263,7 @@ it('lets only the board reopen with a reason and keeps the old closure as a vers
     $this->post(route('seminars.closure.reopen', $seminar), ['reason' => 'Abrechnung fehlte'])->assertSessionHas('success');
 
     $closure = SeminarClosure::query()->first();
-    expect($seminar->fresh()->status)->toBe(SeminarStatus::Done)->and($closure->reopened_at)->not->toBeNull()->and($closure->reopen_reason)->toBe('Abrechnung fehlte')
+    expect($seminar->fresh()->status)->toBe(SeminarStatus::Held)->and($closure->reopened_at)->not->toBeNull()->and($closure->reopen_reason)->toBe('Abrechnung fehlte')
         ->and($seminar->fresh()->currentClosure())->toBeNull();
 
     sdClose($seminar->fresh(), $board);

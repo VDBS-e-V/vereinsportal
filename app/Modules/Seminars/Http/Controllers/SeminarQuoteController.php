@@ -152,7 +152,7 @@ class SeminarQuoteController extends Controller
 
         $seminar = $quote->seminar;
 
-        if ($seminar !== null && $seminar->status === SeminarStatus::Confirmed && $seminar->quotes()->count() === 1) {
+        if ($seminar !== null && in_array($seminar->status, SeminarStatus::planning(), true) && $seminar->quotes()->count() === 1) {
             return redirect()->route('seminar-quotes.show', $quote)->with('warning', 'Dieses Seminar ist bestätigt und hat nur diesen Kostenvoranschlag. Ändern Sie zuerst den Status des Seminars.');
         }
 
@@ -217,7 +217,7 @@ class SeminarQuoteController extends Controller
             'units' => collect(SeminarType::cases())->mapWithKeys(fn (SeminarType $type): array => [$type->value => $type->unit()])->all(),
             'partnerOptions' => Partner::query()->where('type', PartnerType::School->value)->orderBy('name')->get()
                 ->mapWithKeys(fn (Partner $partner): array => [$partner->id => $partner->name.($partner->city ? ' ('.$partner->city.')' : '')])->all(),
-            'seminarOptions' => Seminar::query()->with('partner')->whereNot('status', SeminarStatus::Cancelled->value)->orderByDesc('id')->limit(300)->get()
+            'seminarOptions' => Seminar::query()->with('partner')->whereNotIn('status', [SeminarStatus::Cancelled->value, SeminarStatus::Rejected->value])->orderByDesc('id')->limit(300)->get()
                 ->mapWithKeys(fn (Seminar $seminar): array => [$seminar->id => $seminar->title.' – '.$seminar->partner->name])->all(),
         ]);
     }

@@ -107,8 +107,8 @@ class PortalAreaController extends Controller
             'accessRequests' => AccessRequest::query()->where('status', AccessRequestStatus::New->value)->count(),
             'team' => $teamUsers,
             'onboarding' => TeamOnboarding::query()->whereNull('completed_at')->count(),
-            'seminarsPlanning' => Seminar::query()->whereIn('status', [SeminarStatus::Request->value, SeminarStatus::Planning->value])->count(),
-            'seminarsPlanned' => Seminar::query()->whereIn('status', [SeminarStatus::Scheduled->value, SeminarStatus::Confirmed->value])->count(),
+            'seminarsPlanning' => Seminar::query()->whereIn('status', SeminarStatus::values(SeminarStatus::intake()))->count(),
+            'seminarsPlanned' => Seminar::query()->whereIn('status', SeminarStatus::values(SeminarStatus::planning()))->count(),
             'events' => Event::query()->where('status', EventStatus::Open->value)->count(),
             'boardTasksOpen' => Task::query()->whereHas('project', fn ($project) => $project->where('slug', 'vorstand'))->whereNull('done_at')->count(),
             'boardTasksOverdue' => Task::query()->whereHas('project', fn ($project) => $project->where('slug', 'vorstand'))->whereNull('done_at')->whereDate('due_on', '<', today())->count(),
@@ -151,7 +151,7 @@ class PortalAreaController extends Controller
     {
         return view('portal.education', [
             'byStatus' => collect(SeminarStatus::cases())->mapWithKeys(fn (SeminarStatus $status): array => [$status->value => Seminar::query()->where('status', $status->value)->count()])->all(),
-            'sessions' => SeminarSession::query()->where('starts_at', '>', now())->whereHas('seminar', fn ($query) => $query->whereNotIn('status', [SeminarStatus::Cancelled->value, SeminarStatus::Request->value]))
+            'sessions' => SeminarSession::query()->where('starts_at', '>', now())->whereHas('seminar', fn ($query) => $query->whereNotIn('status', [SeminarStatus::Rejected->value, SeminarStatus::Cancelled->value, SeminarStatus::Request->value]))
                 ->with('seminar.partner')->orderBy('starts_at')->limit(8)->get(),
             'events' => Event::query()->where('status', EventStatus::Open->value)->with('sessions')->withCount(['registrations as confirmed_count' => fn ($query) => $query->whereNotNull('verified_at')->where('waitlisted', false)])->get()
                 ->sortBy(fn (Event $event): string => (string) $event->sessions->first()?->starts_at)->values(),

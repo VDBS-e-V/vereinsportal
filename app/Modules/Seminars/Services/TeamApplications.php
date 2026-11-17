@@ -33,7 +33,7 @@ final class TeamApplications
 {
     public function isOpen(Seminar $seminar): bool
     {
-        return $seminar->status === SeminarStatus::Scheduled && (int) $seminar->team_needed > 0 && ! $seminar->deadlinePassed();
+        return $seminar->status === SeminarStatus::Tendered && (int) $seminar->team_needed > 0 && ! $seminar->deadlinePassed();
     }
 
     public function confirmedCount(Seminar $seminar): int
@@ -45,7 +45,7 @@ final class TeamApplications
     public function open(): Collection
     {
         return Seminar::query()
-            ->where('status', SeminarStatus::Scheduled->value)->where('team_needed', '>', 0)
+            ->where('status', SeminarStatus::Tendered->value)->where('team_needed', '>', 0)
             ->with(['partner', 'sessions', 'quotes'])->withCount(['applications as confirmed_count' => fn ($query) => $query->where('status', ApplicationStatus::Confirmed->value)])
             ->get()
             ->reject(fn (Seminar $seminar): bool => $seminar->deadlinePassed())
@@ -221,12 +221,12 @@ final class TeamApplications
         $contactIds = $applications->pluck('contact_id')->filter()->all();
 
         $contactExperience = SeminarApplication::query()->whereIn('contact_id', $contactIds)->where('status', ApplicationStatus::Confirmed->value)
-            ->whereHas('seminar', fn ($query) => $query->whereIn('status', [SeminarStatus::Done->value, SeminarStatus::Completed->value]))
+            ->whereHas('seminar', fn ($query) => $query->whereIn('status', SeminarStatus::values(SeminarStatus::finished())))
             ->selectRaw('contact_id, count(*) as aggregate')->groupBy('contact_id')->pluck('aggregate', 'contact_id');
 
         $profiles = TeamProfile::query()->whereIn('user_id', $userIds)->get()->keyBy('user_id');
         $experience = SeminarApplication::query()->whereIn('user_id', $userIds)->where('status', ApplicationStatus::Confirmed->value)
-            ->whereHas('seminar', fn ($query) => $query->whereIn('status', [SeminarStatus::Done->value, SeminarStatus::Completed->value]))
+            ->whereHas('seminar', fn ($query) => $query->whereIn('status', SeminarStatus::values(SeminarStatus::finished())))
             ->selectRaw('user_id, count(*) as aggregate')->groupBy('user_id')->pluck('aggregate', 'user_id');
 
         $rows = $applications->map(function (SeminarApplication $application) use ($profiles, $experience, $contactExperience, $seminar): array {
@@ -368,7 +368,7 @@ final class TeamApplications
     {
         $count = 0;
 
-        $seminars = Seminar::query()->where('status', SeminarStatus::Scheduled->value)->where('team_needed', '>', 0)->whereNotNull('application_deadline')->whereNull('deadline_notified_at')
+        $seminars = Seminar::query()->where('status', SeminarStatus::Tendered->value)->where('team_needed', '>', 0)->whereNotNull('application_deadline')->whereNull('deadline_notified_at')
             ->withCount(['applications as interested_count' => fn ($query) => $query->where('status', ApplicationStatus::Applied->value)])->get()
             ->filter(fn (Seminar $seminar): bool => $seminar->deadlinePassed());
 
@@ -417,7 +417,7 @@ final class TeamApplications
         return Seminar::query()
             ->whereKeyNot($seminar->id)
             ->whereIn('id', SeminarApplication::query()->where($column, $id)->where('status', ApplicationStatus::Confirmed->value)->select('seminar_id'))
-            ->whereNotIn('status', [SeminarStatus::Cancelled->value])
+            ->whereNotIn('status', [SeminarStatus::Cancelled->value, SeminarStatus::Rejected->value])
             ->with('sessions')
             ->get()
             ->filter(fn (Seminar $other): bool => $other->sessions->contains(fn ($theirs): bool => $mine->contains(fn ($session): bool => $session->starts_at < $theirs->ends_at && $theirs->starts_at < $session->ends_at)))
@@ -436,7 +436,7 @@ final class TeamApplications
     {
         $seminars = Seminar::query()
             ->whereIn('id', SeminarApplication::query()->where('user_id', $user->id)->where('status', ApplicationStatus::Confirmed->value)->select('seminar_id'))
-            ->whereNotIn('status', [SeminarStatus::Cancelled->value])
+            ->whereNotIn('status', [SeminarStatus::Cancelled->value, SeminarStatus::Rejected->value])
             ->with(['partner', 'sessions'])->get();
 
         $host = parse_url((string) config('app.url'), PHP_URL_HOST) ?: 'vdbs.portal';

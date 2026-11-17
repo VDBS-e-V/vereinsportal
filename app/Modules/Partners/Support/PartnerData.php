@@ -56,6 +56,7 @@ final class PartnerData
             'house_number' => ['nullable', 'string', 'max:30'],
             'postal_code' => ['nullable', 'string', 'max:20'],
             'city' => ['nullable', 'string', 'max:120'],
+            'coordination_area' => ['nullable', 'string', 'max:120'],
             'email' => ['nullable', 'string', 'email', 'max:254'],
             'phone' => ['nullable', 'string', 'max:50', 'regex:/^[0-9+()\/\-.\s]+$/'],
             'website' => ['nullable', 'string', 'url:http,https', 'max:255'],
@@ -105,7 +106,7 @@ final class PartnerData
 
         $columns = [];
 
-        foreach (['name', 'legal_name', 'street', 'house_number', 'postal_code', 'city', 'email', 'phone', 'website', 'notes'] as $field) {
+        foreach (['name', 'legal_name', 'street', 'house_number', 'postal_code', 'city', 'coordination_area', 'email', 'phone', 'website', 'notes'] as $field) {
             $columns[$field] = $clean($data[$field] ?? null);
         }
 
@@ -198,6 +199,7 @@ final class PartnerData
             'house_number' => $partner->house_number,
             'postal_code' => $partner->postal_code,
             'city' => $partner->city,
+            'coordination_area' => $partner->coordination_area,
             'email' => $partner->email,
             'phone' => $partner->phone,
             'website' => $partner->website,

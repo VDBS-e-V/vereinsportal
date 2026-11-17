@@ -36,7 +36,7 @@
                 @if ($quote)<x-vdbs.data.detail-item label="Kostenvoranschlag">{{ \App\Modules\Seminars\Support\Money::format($quote->total_cents) }} <a href="{{ route('school.quotes.print', $quote) }}">ansehen und drucken</a></x-vdbs.data.detail-item>@endif
             </x-vdbs.data.detail-list>
 
-            @if ($seminar->status === \App\Modules\Seminars\Enums\SeminarStatus::Scheduled && $quote)
+            @if ($seminar->status === \App\Modules\Seminars\Enums\SeminarStatus::QuoteSent && $quote)
                 @if ($confirmed[$seminar->id])
                     <p><x-vdbs.data.badge tone="success">Von Ihnen bestätigt</x-vdbs.data.badge> Die Koordination bestätigt das Seminar endgültig.</p>
                 @else

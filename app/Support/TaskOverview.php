@@ -61,21 +61,21 @@ final class TaskOverview
             $add('Seminare mit offenem Stichtag, für die Sie Interesse bekunden können', app(TeamApplications::class)->open()->reject(fn (Seminar $seminar): bool => $mine->contains($seminar->id))->count(), route('seminar-applications.index'));
 
             $upcoming = Seminar::query()->whereIn('id', SeminarApplication::query()->where('user_id', $user->id)->where('status', ApplicationStatus::Confirmed->value)->select('seminar_id'))
-                ->whereIn('status', [SeminarStatus::Scheduled->value, SeminarStatus::Confirmed->value])->whereHas('sessions', fn ($query) => $query->where('starts_at', '>', now()))->count();
+                ->whereIn('status', SeminarStatus::values(SeminarStatus::planning()))->whereHas('sessions', fn ($query) => $query->where('starts_at', '>', now()))->count();
             $add('Bevorstehende Seminare, bei denen Sie im Team sind', $upcoming, route('seminar-applications.index'), 'success');
         }
 
         // Schulen
         if ($can('school.area')) {
             $partnerId = PartnerUser::query()->where('user_id', $user->id)->value('partner_id');
-            $waiting = $partnerId === null ? 0 : Seminar::query()->where('partner_id', $partnerId)->where('status', SeminarStatus::Scheduled->value)->whereHas('quotes')
+            $waiting = $partnerId === null ? 0 : Seminar::query()->where('partner_id', $partnerId)->where('status', SeminarStatus::QuoteSent->value)->whereHas('quotes')
                 ->whereDoesntHave('events', fn ($query) => $query->where('type', SeminarEventType::SchoolConfirmed->value))->count();
             $add('Seminare warten auf Ihre Bestätigung von Termin und Kostenvoranschlag', $waiting, route('school.home'));
         }
 
         // Koordination
         if ($can('seminars.manage')) {
-            $waiting = Seminar::query()->where('status', SeminarStatus::Scheduled->value)->where('team_needed', '>', 0)->whereNotNull('application_deadline')->whereDate('application_deadline', '<', now()->toDateString())
+            $waiting = Seminar::query()->where('status', SeminarStatus::Tendered->value)->where('team_needed', '>', 0)->whereNotNull('application_deadline')->whereDate('application_deadline', '<', now()->toDateString())
                 ->whereHas('applications', fn ($query) => $query->where('status', ApplicationStatus::Applied->value))->count();
             $add('Seminare, deren Team nach dem Stichtag noch zusammengestellt werden muss', $waiting, route('seminars.index'));
             $add('Neue Seminaranfragen', Seminar::query()->where('status', SeminarStatus::Request->value)->count(), route('seminars.index', ['status' => 'request']), 'info');

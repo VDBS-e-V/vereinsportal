@@ -18,10 +18,10 @@
                 Stichtag für Interesse: <strong>{{ $deadline->format('d.m.Y') }}</strong>
                 @if ($passed) (vorbei, die Koordination kann jetzt sichten und das Team zusammenstellen). @else (bis dahin können Teamende Interesse bekunden; zusammengestellt wird danach). @endif
             @endif
-            @unless ($seminar->status === \App\Modules\Seminars\Enums\SeminarStatus::Scheduled) Das Seminar erscheint erst im Status „Terminiert“ bei den Teamenden (jetzt: {{ $statusLabel }}). @endunless
-            @if ($passed && $summary['size'] >= $needed && $seminar->status === \App\Modules\Seminars\Enums\SeminarStatus::Scheduled) Das Team ist vollständig: Sie können das Seminar jetzt bestätigen. @endif
+            @unless ($seminar->status === \App\Modules\Seminars\Enums\SeminarStatus::Tendered) Das Seminar erscheint erst im Status „Ausgeschrieben“ bei den Teamenden (jetzt: {{ $statusLabel }}). @endunless
+            @if ($passed && $summary['size'] >= $needed && $seminar->status === \App\Modules\Seminars\Enums\SeminarStatus::Tendered) Das Team ist vollständig: Sie können das Seminar jetzt bestätigen. @endif
         @else
-            Noch kein Bedarf eingetragen. Mit Bedarf, Stichtag und dem Status „Terminiert“ erscheint das Seminar bei den Teamenden.
+            Noch kein Bedarf eingetragen. Mit Bedarf, Stichtag und dem Status „Ausgeschrieben“ erscheint das Seminar bei den Teamenden.
         @endif
     </p>
 

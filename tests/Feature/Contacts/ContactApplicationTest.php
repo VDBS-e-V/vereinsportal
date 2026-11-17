@@ -37,7 +37,7 @@ function caUser(RoleKey $role): User
 
 function caSeminar(array $attributes = []): Seminar
 {
-    $seminar = Seminar::factory()->create($attributes + ['status' => SeminarStatus::Scheduled, 'team_needed' => 2, 'application_deadline' => now()->addWeek()->toDateString()]);
+    $seminar = Seminar::factory()->create($attributes + ['status' => SeminarStatus::Tendered, 'team_needed' => 2, 'application_deadline' => now()->addWeek()->toDateString()]);
     app(SeminarAdministration::class)->addSession($seminar, ['date' => now()->addMonth()->toDateString(), 'start' => '09:00', 'end' => '15:00'], caUser(RoleKey::Coordination));
 
     return $seminar;
@@ -181,7 +181,7 @@ it('takes applicants with a personal access into the team suggestion', function 
 
 it('warns about overlaps with a confirmed seminar of the same contact', function () {
     $first = caSeminar(['title' => 'Erstes']);
-    $second = Seminar::factory()->create(['title' => 'Zweites', 'status' => SeminarStatus::Scheduled, 'team_needed' => 2, 'application_deadline' => now()->addWeek()->toDateString()]);
+    $second = Seminar::factory()->create(['title' => 'Zweites', 'status' => SeminarStatus::Tendered, 'team_needed' => 2, 'application_deadline' => now()->addWeek()->toDateString()]);
     app(SeminarAdministration::class)->addSession($second, ['date' => now()->addMonth()->toDateString(), 'start' => '10:00', 'end' => '14:00'], caUser(RoleKey::Coordination));
     $contact = TeamContact::query()->create(['email' => 'doppelt@example.org']);
     SeminarApplication::query()->create(['seminar_id' => $first->id, 'contact_id' => $contact->id, 'status' => 'confirmed', 'guest_name' => 'Dora Doppelt']);

@@ -42,7 +42,7 @@ function ssUser(?RoleKey $role = RoleKey::Coordination): User
 /** Ein abgeschlossenes Seminar. */
 function ssClosed(array $attributes = [], string $day = '2026-03-10', ?User $by = null): Seminar
 {
-    $seminar = Seminar::factory()->create($attributes + ['status' => SeminarStatus::Done, 'expected_participants' => 30]);
+    $seminar = Seminar::factory()->create($attributes + ['status' => SeminarStatus::Held, 'expected_participants' => 30]);
     $by ??= ssUser();
     app(SeminarAdministration::class)->addSession($seminar, ['date' => $day, 'start' => '09:00', 'end' => '15:00'], $by);
     app(SeminarClosures::class)->close($seminar->fresh(), [], ['quote' => 'x', 'invoice' => 'x', 'team' => 'x', 'evaluation' => 'x', 'payments' => 'x'], $by);
@@ -53,7 +53,7 @@ function ssClosed(array $attributes = [], string $day = '2026-03-10', ?User $by 
 it('lists closed seminars with their figures and sums and keeps others out', function () {
     $a = ssClosed(['title' => 'Erstes Seminar'], '2026-03-10');
     $b = ssClosed(['title' => 'Zweites Seminar'], '2027-04-12');
-    Seminar::factory()->create(['title' => 'Noch offen', 'status' => SeminarStatus::Done]);
+    Seminar::factory()->create(['title' => 'Noch offen', 'status' => SeminarStatus::Held]);
 
     $this->actingAs(ssUser())->get(route('seminar-stats.index'))->assertOk()->assertSee('Erstes Seminar')->assertSee('Zweites Seminar')->assertDontSee('Noch offen')
         ->assertSee('Summe (2 Seminare)');
@@ -127,7 +127,7 @@ it('stores the year and the figures in the snapshot', function () {
 });
 
 it('generates the schedule and the team overview as html and keeps contact data to those who agreed', function () {
-    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Done, 'location_notes' => 'Raum 12']);
+    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Held, 'location_notes' => 'Raum 12']);
     $by = ssUser();
     app(SeminarAdministration::class)->addSession($seminar, ['date' => '2026-03-10', 'start' => '09:00', 'end' => '15:00', 'location' => 'Aula'], $by);
     $with = TeamContact::query()->create(['email' => 'mit@example.org']);
@@ -149,7 +149,7 @@ it('generates the schedule and the team overview as html and keeps contact data 
 });
 
 it('refuses the pdf when the package is missing and rejects unknown types', function () {
-    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Done]);
+    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Held]);
     $this->actingAs(ssUser());
 
     if (! GeneratedDocuments::pdfAvailable()) {
@@ -177,7 +177,7 @@ it('creates the schedule and the team overview automatically at the closure and 
 });
 
 it('offers the pdf buttons only when the package exists and always the html buttons', function () {
-    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Done]);
+    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Held]);
 
     $response = $this->actingAs(ssUser())->get(route('seminars.show', $seminar))->assertOk()->assertSee('Terminübersicht (HTML)')->assertSee('Teamübersicht (HTML)');
     GeneratedDocuments::pdfAvailable() ? $response->assertSee('Terminübersicht (PDF)') : $response->assertDontSee('(PDF)');

@@ -159,7 +159,7 @@ it('edits a seminar and records only the changed field names', function () {
 it('deletes only requests and cancelled seminars', function () {
     $this->actingAs(smUser(RoleKey::Coordination));
     $request = Seminar::factory()->create();
-    $planning = Seminar::factory()->create(['status' => SeminarStatus::Planning]);
+    $planning = Seminar::factory()->create(['status' => SeminarStatus::InReview]);
 
     $this->delete(route('seminars.destroy', $planning))->assertRedirect(route('seminars.show', $planning))->assertSessionHas('warning');
     expect(Seminar::query()->whereKey($planning->id)->exists())->toBeTrue();
@@ -184,13 +184,13 @@ it('lists seminars with stats, search and filters', function () {
     $coordinator = smUser(RoleKey::Coordination);
     $a = Partner::factory()->create(['name' => 'Berliner Schule', 'city' => 'Berlin']);
     $b = Partner::factory()->create(['name' => 'Leipziger Schule', 'city' => 'Leipzig']);
-    Seminar::factory()->create(['title' => 'Tage Eins', 'partner_id' => $a->id, 'type' => 'sv_days', 'status' => SeminarStatus::Planning]);
-    Seminar::factory()->create(['title' => 'Coaching Zwei', 'partner_id' => $b->id, 'type' => 'coaching', 'status' => SeminarStatus::Confirmed]);
+    Seminar::factory()->create(['title' => 'Tage Eins', 'partner_id' => $a->id, 'type' => 'sv_days', 'status' => SeminarStatus::InReview]);
+    Seminar::factory()->create(['title' => 'Coaching Zwei', 'partner_id' => $b->id, 'type' => 'coaching', 'status' => SeminarStatus::TeamConfirmed]);
 
     $this->actingAs($coordinator);
     $this->get(route('seminars.index'))->assertOk()->assertSee('Tage Eins')->assertSee('Coaching Zwei');
     $this->get(route('seminars.index', ['q' => 'Leipzig']))->assertSee('Coaching Zwei')->assertDontSee('Tage Eins');
-    $this->get(route('seminars.index', ['status' => 'planning']))->assertSee('Tage Eins')->assertDontSee('Coaching Zwei');
+    $this->get(route('seminars.index', ['status' => 'in_review']))->assertSee('Tage Eins')->assertDontSee('Coaching Zwei');
     $this->get(route('seminars.index', ['type' => 'coaching']))->assertSee('Coaching Zwei')->assertDontSee('Tage Eins');
     $this->get(route('seminars.index'))->assertSee('<a class="vdbs-table__row-link" href="'.route('seminars.show', Seminar::query()->where('title', 'Tage Eins')->first()).'">', false);
 });
@@ -230,61 +230,110 @@ it('validates the session and keeps sessions of other seminars apart', function 
 
 // ---------- Status ----------
 
-it('walks through the status pipeline with history entries', function () {
+it('walks through the whole seminar workflow with history entries', function () {
     $coordinator = smUser(RoleKey::Coordination);
     $seminar = Seminar::factory()->create();
+    $status = fn (string $to, array $extra = []) => $this->post(route('seminars.status', $seminar), ['status' => $to] + $extra);
 
     $this->actingAs($coordinator);
-    $this->post(route('seminars.status', $seminar), ['status' => 'planning', 'comment' => 'Schule hat zugesagt'])->assertSessionHasNoErrors();
-    expect($seminar->fresh()->status)->toBe(SeminarStatus::Planning);
-
-    smSession($seminar);
-    $this->post(route('seminars.status', $seminar), ['status' => 'scheduled']);
-    expect($seminar->fresh()->status)->toBe(SeminarStatus::Scheduled);
+    $status('in_review', ['comment' => 'Schule hat zugesagt'])->assertSessionHasNoErrors();
+    expect($seminar->fresh()->status)->toBe(SeminarStatus::InReview);
 
     $this->post(route('seminar-quotes.store'), smQuote($seminar));
-    $this->post(route('seminars.status', $seminar), ['status' => 'confirmed']);
-    $this->post(route('seminars.status', $seminar), ['status' => 'done']);
-    $this->post(route('seminars.status', $seminar), ['status' => 'completed'])->assertRedirect(route('seminars.closure', $seminar));
+    $status('quote_sent');
+    $status('released', ['basis' => 'commitment', 'reason' => 'Rektorin hat am Telefon zugesagt']);
+    expect($seminar->fresh())->status->toBe(SeminarStatus::Released)->release_basis->toBe('commitment');
+
+    smSession($seminar);
+    $status('planned');
+    $seminar->forceFill(['team_needed' => 2, 'application_deadline' => now()->addWeek()->toDateString()])->save();
+    foreach (['tendered', 'team_selected', 'team_confirmed', 'prepared'] as $step) {
+        $status($step);
+    }
+
+    $seminar->sessions()->update(['starts_at' => now()->subDays(3), 'ends_at' => now()->subDays(3)->addHours(6)]);
+    $status('held');
+    $status('completed')->assertRedirect(route('seminars.closure', $seminar));
     $this->post(route('seminars.closure.store', $seminar), ['skip_reason' => ['invoice' => 'Keine Rechnung nötig', 'team' => 'Team folgt nicht', 'evaluation' => 'Keine Auswertung', 'payments' => 'Entfällt']])->assertSessionHasNoErrors();
 
     expect($seminar->fresh()->status)->toBe(SeminarStatus::Completed)
-        ->and($seminar->events()->where('type', 'status_changed')->count())->toBe(5);
+        ->and($seminar->events()->where('type', 'status_changed')->count())->toBe(10);
 
     $entry = AuditEntry::query()->where('event', 'seminar.status_changed')->orderBy('id')->firstOrFail();
-    expect($entry->context)->toEqual(['von' => 'Anfrage', 'nach' => 'In Planung']);
+    expect($entry->context)->toEqual(['von' => 'Anfrage', 'nach' => 'In Prüfung']);
 
     $this->get(route('seminars.show', $seminar))->assertSee('Schule hat zugesagt')->assertSee('Abgeschlossen');
 });
 
-it('refuses jumps, missing sessions and a missing quote', function () {
+it('releases with a signed contract only with the date and on a commitment only with a reason', function () {
+    $this->actingAs(smUser(RoleKey::Coordination));
+    $seminar = Seminar::factory()->create(['status' => SeminarStatus::InReview]);
+
+    $this->post(route('seminars.status', $seminar), ['status' => 'released'])->assertSessionHas('warning');
+    $this->post(route('seminars.status', $seminar), ['status' => 'released', 'basis' => 'contract'])->assertSessionHas('warning');
+    $this->post(route('seminars.status', $seminar), ['status' => 'released', 'basis' => 'commitment'])->assertSessionHas('warning');
+    expect($seminar->fresh()->status)->toBe(SeminarStatus::InReview);
+
+    $this->post(route('seminars.status', $seminar), ['status' => 'released', 'basis' => 'contract', 'signed_at' => '2026-12-01'])->assertSessionHas('success');
+    expect($seminar->fresh())->status->toBe(SeminarStatus::Released)->release_basis->toBe('contract')->and($seminar->fresh()->school_contract_signed_at->toDateString())->toBe('2026-12-01');
+});
+
+it('refuses jumps, missing sessions, a missing quote and a missing tender setup', function () {
     $this->actingAs(smUser(RoleKey::Coordination));
     $seminar = Seminar::factory()->create();
 
-    $this->post(route('seminars.status', $seminar), ['status' => 'done'])->assertSessionHas('warning');
+    $this->post(route('seminars.status', $seminar), ['status' => 'held'])->assertSessionHas('warning');
     expect($seminar->fresh()->status)->toBe(SeminarStatus::Request);
 
-    $seminar->forceFill(['status' => SeminarStatus::Planning])->save();
-    $this->post(route('seminars.status', $seminar), ['status' => 'scheduled'])->assertSessionHas('warning');
-    expect($seminar->fresh()->status)->toBe(SeminarStatus::Planning);
+    $seminar->forceFill(['status' => SeminarStatus::InReview])->save();
+    $this->post(route('seminars.status', $seminar), ['status' => 'quote_sent'])->assertSessionHas('warning');
+    expect($seminar->fresh()->status)->toBe(SeminarStatus::InReview);
+
+    $seminar->forceFill(['status' => SeminarStatus::Released])->save();
+    $this->post(route('seminars.status', $seminar), ['status' => 'planned'])->assertSessionHas('warning');
 
     smSession($seminar);
-    $seminar->forceFill(['status' => SeminarStatus::Scheduled])->save();
-    $this->post(route('seminars.status', $seminar), ['status' => 'confirmed'])->assertSessionHas('warning');
-    expect($seminar->fresh()->status)->toBe(SeminarStatus::Scheduled);
+    $seminar->forceFill(['status' => SeminarStatus::Planned])->save();
+    $this->post(route('seminars.status', $seminar), ['status' => 'tendered'])->assertSessionHas('warning');
+    expect($seminar->fresh()->status)->toBe(SeminarStatus::Planned);
+
+    $seminar->forceFill(['status' => SeminarStatus::Prepared])->save();
+    $this->post(route('seminars.status', $seminar), ['status' => 'held'])->assertSessionHas('warning');
+    expect($seminar->fresh()->status)->toBe(SeminarStatus::Prepared);
 
     $this->post(route('seminars.status', $seminar), ['status' => 'weg'])->assertSessionHasErrors('status');
 });
 
-it('cancels a seminar at any time and reopens it as a request', function () {
+it('rejects and cancels only with a reason, and reopens a cancelled seminar as a request', function () {
     $this->actingAs(smUser(RoleKey::Coordination));
-    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Confirmed]);
+    $seminar = Seminar::factory()->create(['status' => SeminarStatus::TeamConfirmed]);
+
+    $this->post(route('seminars.status', $seminar), ['status' => 'cancelled'])->assertSessionHas('warning');
+    expect($seminar->fresh()->status)->toBe(SeminarStatus::TeamConfirmed);
 
     $this->post(route('seminars.status', $seminar), ['status' => 'cancelled', 'comment' => 'Schule sagt ab']);
     expect($seminar->fresh()->status)->toBe(SeminarStatus::Cancelled);
 
     $this->post(route('seminars.status', $seminar), ['status' => 'request']);
     expect($seminar->fresh()->status)->toBe(SeminarStatus::Request);
+
+    $rejected = Seminar::factory()->create(['status' => SeminarStatus::Request]);
+    $this->post(route('seminars.status', $rejected), ['status' => 'rejected'])->assertSessionHas('warning');
+    $this->post(route('seminars.status', $rejected), ['status' => 'rejected', 'comment' => 'Außerhalb unseres Angebots']);
+    expect($rejected->fresh()->status)->toBe(SeminarStatus::Rejected);
+});
+
+it('keeps the transition table consistent and the groups free of overlaps', function () {
+    foreach (SeminarStatus::cases() as $status) {
+        foreach ($status->next() as $target) {
+            expect($target)->not->toBe($status);
+        }
+    }
+
+    expect(SeminarStatus::Completed->next())->toBe([])
+        ->and(array_intersect(SeminarStatus::values(SeminarStatus::planning()), SeminarStatus::values(SeminarStatus::finished())))->toBe([])
+        ->and(SeminarStatus::Rejected->isEnded())->toBeTrue()
+        ->and(SeminarStatus::Held->isEnded())->toBeFalse();
 });
 
 it('adds notes to the history', function () {
@@ -432,7 +481,7 @@ it('lists quotes with school, positions and total and searches by school', funct
 
 it('deletes a quote with a log entry but protects the only quote of a confirmed seminar', function () {
     $this->actingAs(smUser(RoleKey::Coordination));
-    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Confirmed]);
+    $seminar = Seminar::factory()->create(['status' => SeminarStatus::TeamConfirmed]);
     $this->post(route('seminar-quotes.store'), smQuote($seminar));
     $quote = SeminarQuote::query()->firstOrFail();
 

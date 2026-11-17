@@ -1,7 +1,7 @@
 @php
     $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Koordination'], ['label' => 'Seminare', 'href' => route('seminars.index')], ['label' => $seminar->title]];
     $statusChoices = collect($nextStatuses)->mapWithKeys(fn ($case): array => [$case->value => $case->label()])->all();
-    $deletable = in_array($seminar->status, [\App\Modules\Seminars\Enums\SeminarStatus::Request, \App\Modules\Seminars\Enums\SeminarStatus::Cancelled], true);
+    $deletable = in_array($seminar->status, [\App\Modules\Seminars\Enums\SeminarStatus::Request, \App\Modules\Seminars\Enums\SeminarStatus::Cancelled, \App\Modules\Seminars\Enums\SeminarStatus::Rejected], true);
     $person = fn ($user) => $user ? ($user->person?->fullName() ?: $user->email) : null;
     $eventText = function ($event): string {
         $data = $event->data ?? [];
@@ -162,10 +162,15 @@
     @if ($canManage)
         @if ($statusChoices !== [])
             <x-vdbs.overlays.confirm-dialog id="change-status" title="Status ändern?" :action="route('seminars.status', $seminar)" confirm-label="Status ändern">
-                <p>Der Wechsel steht im Verlauf. Für „Terminiert“ und „Bestätigt“ braucht das Seminar einen Termin, für „Bestätigt“ zusätzlich einen Kostenvoranschlag.</p>
+                <p>Der Wechsel steht im Verlauf. „KVA gesendet“ braucht einen Kostenvoranschlag, „Geplant“ und „Ausgeschrieben“ brauchen einen Termin (Ausschreibung zusätzlich Teamgröße und Stichtag), „Durchgeführt“ erst nach dem letzten Termin. „Abgelehnt“ und „Abgesagt“ brauchen eine Begründung.</p>
                 <x-slot:fields>
                     <x-vdbs.forms.select id="status-new" name="status" label="Neuer Status" :required="true" :options="$statusChoices" />
-                    <x-vdbs.forms.textarea id="status-comment" name="comment" label="Notiz" :optional="true" maxlength="500" :rows="2" />
+                    <x-vdbs.forms.textarea id="status-comment" name="comment" label="Notiz oder Begründung" :optional="true" maxlength="500" :rows="2" />
+                    @if (in_array(\App\Modules\Seminars\Enums\SeminarStatus::Released, $nextStatuses, true))
+                        <x-vdbs.forms.select id="status-basis" name="basis" label="Nur für „Freigegeben“: Grundlage" :optional="true" placeholder="Bitte wählen" :options="['contract' => 'Vertrag der Schule unterschrieben', 'commitment' => 'Verbindliche Zusage der Schule (Vertrag folgt)']" />
+                        <x-vdbs.forms.input id="status-signed" name="signed_at" type="date" label="Datum der Unterschrift (bei Vertrag)" :optional="true" />
+                        <x-vdbs.forms.textarea id="status-reason" name="reason" label="Begründung (bei Zusage)" :optional="true" maxlength="500" :rows="2" />
+                    @endif
                 </x-slot:fields>
             </x-vdbs.overlays.confirm-dialog>
         @endif

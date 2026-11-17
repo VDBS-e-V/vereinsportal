@@ -77,7 +77,7 @@ function ltXml(string $path): string
 function ltSeminar(): array
 {
     $partner = Partner::factory()->create(['name' => 'Müller & Söhne Schule', 'street' => 'Schulweg', 'house_number' => '3', 'postal_code' => '12345', 'city' => 'Berlin']);
-    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Scheduled, 'title' => 'SV-Tage <Nord>', 'partner_id' => $partner->id]);
+    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Tendered, 'title' => 'SV-Tage <Nord>', 'partner_id' => $partner->id]);
     app(SeminarAdministration::class)->addSession($seminar, ['date' => now()->addMonth()->toDateString(), 'start' => '09:00', 'end' => '15:00'], ltUser(RoleKey::Coordination));
 
     $applications = [];

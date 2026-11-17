@@ -19,7 +19,7 @@ class SeminarClosureController extends Controller
 
     public function show(Seminar $seminar): View|RedirectResponse
     {
-        if ($seminar->status !== SeminarStatus::Done) {
+        if (! in_array($seminar->status, [SeminarStatus::Held, SeminarStatus::Reported], true)) {
             return redirect()->route('seminars.show', $seminar)->withErrors(['team' => 'Nur ein durchgeführtes Seminar lässt sich abschließen.']);
         }
 

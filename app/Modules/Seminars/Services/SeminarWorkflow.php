@@ -1,0 +1,113 @@
+<?php
+
+namespace App\Modules\Seminars\Services;
+
+use App\Modules\Access\Models\User;
+use App\Modules\Audit\Enums\AuditEvent;
+use App\Modules\Audit\Support\AuditLog;
+use App\Modules\Seminars\Enums\SeminarEventType;
+use App\Modules\Seminars\Enums\SeminarStatus;
+use App\Modules\Seminars\Models\Seminar;
+use DomainException;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+
+/**
+ * Der Ablauf eines Seminars: die einzige Stelle, die den Status ändert (docs/87_SEMINARABLAUF_UMSETZUNGSPLAN.md). Die erlaubten Übergänge stehen in
+ * SeminarStatus::next(), hier stehen die Bedingungen je Zielstatus. Jeder Wechsel steht im Verlauf des Seminars und im Protokoll.
+ */
+final class SeminarWorkflow
+{
+    /**
+     * @param  array{basis?: ?string, signed_at?: ?string, reason?: ?string}  $extra  Angaben zur Freigabe (basis: contract|commitment)
+     *
+     * @throws DomainException bei einem nicht erlaubten Wechsel oder fehlenden Bedingungen
+     */
+    public function change(Seminar $seminar, SeminarStatus $target, User $by, ?string $comment = null, array $extra = []): void
+    {
+        $from = $seminar->status;
+
+        if (! $from->canChangeTo($target)) {
+            throw new DomainException("Von „{$from->label()}“ lässt sich nicht zu „{$target->label()}“ wechseln.");
+        }
+
+        $comment = filled($comment) ? trim((string) $comment) : null;
+        $release = $target === SeminarStatus::Released ? $this->release($extra) : [];
+
+        $this->require($seminar, $target, $comment);
+
+        DB::transaction(function () use ($seminar, $target, $by, $from, $comment, $release): void {
+            $seminar->forceFill(['status' => $target, 'updated_by_user_id' => $by->id] + $release + ($release !== [] ? ['released_by_user_id' => $by->id, 'released_at' => now()] : []))->save();
+
+            $seminar->events()->create([
+                'type' => SeminarEventType::StatusChanged,
+                'occurred_at' => now(),
+                'actor_user_id' => $by->id,
+                'actor_label' => AuditLog::label($by),
+                'comment' => $comment,
+                'data' => ['von' => $from->value, 'nach' => $target->value] + ($release !== [] ? ['basis' => $release['release_basis']] : []),
+            ]);
+
+            AuditLog::record(AuditEvent::SeminarStatusChanged, $by, $seminar, ['von' => $from->label(), 'nach' => $target->label()]);
+        });
+
+        if ($target === SeminarStatus::Cancelled) {
+            app(TeamApplications::class)->notifyCancelled($seminar);
+        }
+    }
+
+    /**
+     * Freigabe: entweder mit unterschriebenem Vertrag der Schule (Datum der Unterschrift) oder auf verbindliche Zusage der Schule (Begründung Pflicht, Vertrag folgt).
+     *
+     * @param  array{basis?: ?string, signed_at?: ?string, reason?: ?string}  $extra
+     * @return array<string, mixed>
+     *
+     * @throws DomainException
+     */
+    private function release(array $extra): array
+    {
+        $basis = $extra['basis'] ?? null;
+
+        if ($basis === 'contract') {
+            if (blank($extra['signed_at'] ?? null)) {
+                throw new DomainException('Bitte tragen Sie das Datum der Unterschrift des Schulvertrags ein.');
+            }
+
+            return ['release_basis' => 'contract', 'school_contract_signed_at' => Carbon::parse($extra['signed_at'])->toDateString(), 'release_reason' => null];
+        }
+
+        if ($basis === 'commitment') {
+            if (blank($extra['reason'] ?? null)) {
+                throw new DomainException('Bitte begründen Sie die Freigabe auf Zusage (z. B. wer wann zugesagt hat).');
+            }
+
+            return ['release_basis' => 'commitment', 'release_reason' => trim((string) $extra['reason'])];
+        }
+
+        throw new DomainException('Bitte wählen Sie, ob das Seminar mit Vertrag oder auf verbindliche Zusage der Schule freigegeben wird.');
+    }
+
+    /** @throws DomainException */
+    private function require(Seminar $seminar, SeminarStatus $target, ?string $comment): void
+    {
+        if (in_array($target, [SeminarStatus::Rejected, SeminarStatus::Cancelled], true) && $comment === null) {
+            throw new DomainException('Bitte nennen Sie eine Begründung.');
+        }
+
+        if ($target === SeminarStatus::QuoteSent && ! $seminar->quotes()->exists()) {
+            throw new DomainException('Erstellen Sie zuerst einen Kostenvoranschlag.');
+        }
+
+        if (in_array($target, [SeminarStatus::Planned, SeminarStatus::Tendered], true) && ! $seminar->sessions()->exists()) {
+            throw new DomainException('Tragen Sie zuerst mindestens einen Termin ein.');
+        }
+
+        if ($target === SeminarStatus::Tendered && ((int) $seminar->team_needed <= 0 || $seminar->application_deadline === null)) {
+            throw new DomainException('Für die Ausschreibung brauchen Sie die Teamgröße und den Stichtag für Interesse.');
+        }
+
+        if ($target === SeminarStatus::Held && ($seminar->sessions()->where('starts_at', '>', now())->exists() || ! $seminar->sessions()->exists())) {
+            throw new DomainException('Ein Seminar gilt erst als durchgeführt, wenn alle Termine vorbei sind.');
+        }
+    }
+}

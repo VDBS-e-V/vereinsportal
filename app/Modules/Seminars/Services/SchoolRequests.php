@@ -47,13 +47,13 @@ final class SchoolRequests
     }
 
     /**
-     * Die Schule bestätigt Termin und Kostenvoranschlag. Möglich im Status „Terminiert“ mit mindestens einem Kostenvoranschlag, einmal je Seminar.
+     * Die Schule bestätigt Termin und Kostenvoranschlag. Möglich im Status „KVA gesendet“ mit mindestens einem Kostenvoranschlag, einmal je Seminar.
      *
      * @throws DomainException
      */
     public function confirm(Seminar $seminar, PartnerUser $account): void
     {
-        if ($seminar->status !== SeminarStatus::Scheduled || ! $seminar->quotes()->exists()) {
+        if ($seminar->status !== SeminarStatus::QuoteSent || ! $seminar->quotes()->exists()) {
             throw new DomainException('Dieses Seminar lässt sich zurzeit nicht bestätigen.');
         }
 

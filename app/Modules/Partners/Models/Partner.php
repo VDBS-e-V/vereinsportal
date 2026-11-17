@@ -39,6 +39,7 @@ class Partner extends Model
         'house_number',
         'postal_code',
         'city',
+        'coordination_area',
         'country_code',
         'email',
         'phone',

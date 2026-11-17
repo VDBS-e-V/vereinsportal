@@ -82,7 +82,7 @@ class TeamMailingController extends Controller
     /** Seminare, zu denen Teamende angeschrieben werden können (in Planung, terminiert oder bestätigt). @return \Illuminate\Support\Collection<int, Seminar> */
     private function seminars()
     {
-        return Seminar::query()->whereIn('status', [SeminarStatus::Planning->value, SeminarStatus::Scheduled->value, SeminarStatus::Confirmed->value])->with('partner')->orderBy('title')->get();
+        return Seminar::query()->whereIn('status', SeminarStatus::values(SeminarStatus::inProgress()))->with('partner')->orderBy('title')->get();
     }
 
     /** @return array{0: array<string, mixed>, 1: Seminar} */

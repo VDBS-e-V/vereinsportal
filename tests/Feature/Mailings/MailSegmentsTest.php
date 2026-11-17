@@ -171,12 +171,12 @@ it('filters by competences and by the number of conducted seminars', function ()
     TeamProfile::query()->create(['user_id' => $skilled->id, 'competences' => [$keys[0]], 'experience' => 'x']);
     TeamProfile::query()->create(['user_id' => $other->id, 'competences' => [], 'experience' => 'y']);
 
-    foreach ([SeminarStatus::Done, SeminarStatus::Done] as $status) {
+    foreach ([SeminarStatus::Held, SeminarStatus::Held] as $status) {
         $seminar = Seminar::factory()->create(['status' => $status]);
         SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $skilled->id, 'status' => 'confirmed']);
     }
 
-    $upcoming = Seminar::factory()->create(['status' => SeminarStatus::Scheduled]);
+    $upcoming = Seminar::factory()->create(['status' => SeminarStatus::Tendered]);
     SeminarApplication::query()->create(['seminar_id' => $upcoming->id, 'user_id' => $other->id, 'status' => 'confirmed']);
 
     $resolver = app(SegmentResolver::class);
@@ -189,7 +189,7 @@ it('filters by competences and by the number of conducted seminars', function ()
 });
 
 it('fills the team placeholder with the names of the confirmed team', function () {
-    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Scheduled]);
+    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Tendered]);
     $anna = sgUser(RoleKey::Team, ['first_name' => 'Anna', 'last_name' => 'Alt']);
     $ben = sgUser(RoleKey::Team, ['first_name' => 'Ben', 'last_name' => 'Bunt']);
     $declined = sgUser(RoleKey::Team, ['first_name' => 'Cora', 'last_name' => 'Cäsar']);

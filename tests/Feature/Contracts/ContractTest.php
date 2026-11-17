@@ -48,7 +48,7 @@ function ctrUser(?RoleKey $role, array $person = []): User
 /** @return array{0: Seminar, 1: list<SeminarApplication>} */
 function ctrSeminar(int $team = 2): array
 {
-    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Scheduled, 'title' => 'SV-Tage Nord']);
+    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Tendered, 'title' => 'SV-Tage Nord']);
     app(SeminarAdministration::class)->addSession($seminar, ['date' => now()->addMonth()->toDateString(), 'start' => '09:00', 'end' => '15:00'], ctrUser(RoleKey::Coordination));
     SeminarQuote::query()->create(['partner_id' => $seminar->partner_id, 'seminar_id' => $seminar->id, 'price_list_id' => SeminarPriceList::current()->id, 'version' => 1, 'total_cents' => 30000,
         'positions' => [['lines' => [['key' => 'honorarium', 'label' => 'Honorar', 'quantity' => 2.0, 'unit' => 'Teamende', 'unit_cents' => 15000, 'per_day' => true, 'total_cents' => 30000]]]]]);

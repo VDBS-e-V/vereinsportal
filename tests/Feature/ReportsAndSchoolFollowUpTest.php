@@ -67,18 +67,18 @@ it('computes the year report from seminars, events, teams and members', function
     $date = $year.'-03-10';
 
     $school = Partner::factory()->create();
-    foreach ([['sv_days', SeminarStatus::Done], ['coaching', SeminarStatus::Completed], ['sv_days', SeminarStatus::Planning]] as [$type, $status]) {
+    foreach ([['sv_days', SeminarStatus::Held], ['coaching', SeminarStatus::Completed], ['sv_days', SeminarStatus::InReview]] as [$type, $status]) {
         $seminar = Seminar::factory()->create(['type' => $type, 'status' => $status, 'partner_id' => $school->id]);
         app(SeminarAdministration::class)->addSession($seminar, ['date' => $date, 'start' => '09:00', 'end' => '15:00'], $coordination);
         app(SeminarAdministration::class)->addSession($seminar, ['date' => $year.'-03-11', 'start' => '09:00', 'end' => '15:00'], $coordination);
 
-        if ($status === SeminarStatus::Done) {
+        if ($status === SeminarStatus::Held) {
             SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => rfUser(RoleKey::Team)->id, 'status' => ApplicationStatus::Confirmed]);
         }
     }
 
     // Seminar aus dem Vorjahr zählt nicht
-    $old = Seminar::factory()->create(['status' => SeminarStatus::Done]);
+    $old = Seminar::factory()->create(['status' => SeminarStatus::Held]);
     app(SeminarAdministration::class)->addSession($old, ['date' => ($year - 1).'-05-05', 'start' => '09:00', 'end' => '12:00'], $coordination);
 
     $event = app(EventAdministration::class)->create(['title' => 'Demokratietag', 'status' => 'done'], $coordination);

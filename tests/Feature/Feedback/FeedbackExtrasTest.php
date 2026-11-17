@@ -42,7 +42,7 @@ function fxUser(?RoleKey $role = RoleKey::Coordination): User
 
 function fxSeminar(int $daysAgo = 9): Seminar
 {
-    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Done, 'expected_participants' => 20]);
+    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Held, 'expected_participants' => 20]);
     app(SeminarAdministration::class)->addSession($seminar, ['date' => now()->subDays($daysAgo)->toDateString(), 'start' => '09:00', 'end' => '15:00'], fxUser());
 
     return $seminar->fresh(['sessions', 'partner']);

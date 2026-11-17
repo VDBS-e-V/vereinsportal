@@ -40,7 +40,7 @@ function feUser(?RoleKey $role = RoleKey::Coordination): User
 
 function feSeminar(int $expected = 20): Seminar
 {
-    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Done, 'expected_participants' => $expected]);
+    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Held, 'expected_participants' => $expected]);
     app(SeminarAdministration::class)->addSession($seminar, ['date' => now()->toDateString(), 'start' => '09:00', 'end' => '15:00'], feUser());
 
     return $seminar->fresh('sessions');

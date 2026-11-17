@@ -47,7 +47,7 @@ function taUser(?RoleKey $role = null): User
 
 function taSeminar(array $attributes = [], ?string $start = null): Seminar
 {
-    $seminar = Seminar::factory()->create($attributes + ['status' => SeminarStatus::Scheduled, 'team_needed' => 2, 'application_deadline' => now()->addWeek()->toDateString()]);
+    $seminar = Seminar::factory()->create($attributes + ['status' => SeminarStatus::Tendered, 'team_needed' => 2, 'application_deadline' => now()->addWeek()->toDateString()]);
     $day = $start ?? now()->addMonth()->toDateString();
     app(SeminarAdministration::class)->addSession($seminar, ['date' => $day, 'start' => '09:00', 'end' => '15:00'], taUser(RoleKey::Coordination));
 
@@ -98,7 +98,7 @@ it('lets Teamende apply, blocks duplicates, allows withdrawing and applying agai
 });
 
 it('does not accept applications for seminars that are closed', function () {
-    $seminar = taSeminar(['status' => SeminarStatus::Planning]);
+    $seminar = taSeminar(['status' => SeminarStatus::InReview]);
 
     $this->actingAs(taUser(RoleKey::Team))->post(route('seminar-applications.apply', $seminar))->assertSessionHasErrors('apply');
     expect(SeminarApplication::query()->count())->toBe(0);
@@ -179,7 +179,7 @@ it('shows age, gender, competences, experience and the team composition to the c
     TeamProfile::query()->create(['user_id' => $a->id, 'competences' => ['moderation'], 'experience' => 'Drei Jahre SV-Beratung', 'lead_experience' => true, 'gender' => 'female']);
     TeamProfile::query()->create(['user_id' => $b->id, 'competences' => ['elections'], 'gender' => 'male']);
 
-    $done = taSeminar(['title' => 'Früher', 'status' => SeminarStatus::Done]);
+    $done = taSeminar(['title' => 'Früher', 'status' => SeminarStatus::Held]);
     SeminarApplication::query()->create(['seminar_id' => $done->id, 'user_id' => $a->id, 'status' => ApplicationStatus::Confirmed]);
 
     SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $a->id, 'status' => ApplicationStatus::Confirmed, 'wants_lead' => true]);
@@ -289,7 +289,7 @@ it('notifies applicants and confirmed Teamende when a seminar is cancelled', fun
     SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $a->id, 'status' => ApplicationStatus::Confirmed]);
     SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $b->id, 'status' => ApplicationStatus::Applied]);
 
-    app(SeminarAdministration::class)->changeStatus($seminar, SeminarStatus::Cancelled, taUser(RoleKey::Coordination));
+    app(\App\Modules\Seminars\Services\SeminarWorkflow::class)->change($seminar, SeminarStatus::Cancelled, taUser(RoleKey::Coordination), 'Schule sagt ab');
 
     Mail::assertSent(SeminarTeamMail::class, fn (SeminarTeamMail $mail): bool => $mail->kind === 'cancelled' && $mail->hasTo($a->email));
     Mail::assertSent(SeminarTeamMail::class, fn (SeminarTeamMail $mail): bool => $mail->kind === 'cancelled' && $mail->hasTo($b->email));
@@ -337,10 +337,10 @@ it('suggests a team by competences, leadership and experience, skips overlaps an
     TeamProfile::query()->create(['user_id' => $b->id, 'competences' => ['elections'], 'gender' => 'female']);
     TeamProfile::query()->create(['user_id' => $d->id, 'competences' => ['moderation', 'elections'], 'lead_experience' => true]);
 
-    $done = taSeminar(['title' => 'Früher', 'status' => SeminarStatus::Done], now()->subMonths(2)->toDateString());
+    $done = taSeminar(['title' => 'Früher', 'status' => SeminarStatus::Held], now()->subMonths(2)->toDateString());
     SeminarApplication::query()->create(['seminar_id' => $done->id, 'user_id' => $b->id, 'status' => ApplicationStatus::Confirmed]);
 
-    $clash = taSeminar(['title' => 'Gleicher Tag', 'status' => SeminarStatus::Confirmed], $day);
+    $clash = taSeminar(['title' => 'Gleicher Tag', 'status' => SeminarStatus::TeamConfirmed], $day);
     SeminarApplication::query()->create(['seminar_id' => $clash->id, 'user_id' => $d->id, 'status' => ApplicationStatus::Confirmed]);
 
     foreach ([$a, $b, $c, $d] as $user) {

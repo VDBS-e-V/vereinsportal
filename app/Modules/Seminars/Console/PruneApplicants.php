@@ -31,7 +31,7 @@ class PruneApplicants extends Command
         $withdrawn = SeminarApplication::query()->whereNotNull('contact_id')->where('status', ApplicationStatus::Withdrawn->value)->where('updated_at', '<', now()->subDays(30));
         $finished = SeminarApplication::query()->whereNotNull('contact_id')->whereHas('seminar', fn ($seminar) => $seminar->where(fn ($group) => $group
             ->where(fn ($inner) => $inner->whereHas('sessions')->whereDoesntHave('sessions', fn ($sessions) => $sessions->where('ends_at', '>=', $cut)))
-            ->orWhere(fn ($inner) => $inner->where('status', SeminarStatus::Cancelled->value)->where('updated_at', '<', $cut))));
+            ->orWhere(fn ($inner) => $inner->whereIn('status', [SeminarStatus::Cancelled->value, SeminarStatus::Rejected->value])->where('updated_at', '<', $cut))));
 
         $counts = ['deleted' => (clone $unconfirmed)->count(), 'withdrawn' => (clone $withdrawn)->count(), 'finished' => (clone $finished)->count()];
 

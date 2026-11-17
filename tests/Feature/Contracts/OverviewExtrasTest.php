@@ -29,7 +29,7 @@ function ovUser(RoleKey $role): User
 }
 
 it('shows counts of forms waiting for review and approval and of contracts waiting for the scan', function () {
-    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Done]);
+    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Held]);
     SeminarSession::query()->create(['seminar_id' => $seminar->id, 'starts_at' => now()->subDays(3)->setTime(9, 0), 'ends_at' => now()->subDays(3)->setTime(15, 0), 'location' => 'Aula']);
     SeminarContract::query()->create(['number' => 'K-2026-0001', 'seminar_id' => $seminar->id, 'data' => ['name' => 'X'], 'status' => 'created']);
 
@@ -43,7 +43,7 @@ it('shows counts of forms waiting for review and approval and of contracts waiti
 });
 
 it('shows the sums of forms on the seminar page only to those who may see forms and only numbers', function () {
-    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Scheduled]);
+    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Tendered]);
     FormApplication::query()->create(['number' => 'E-2026-0001', 'type' => 'expense', 'applicant_name' => 'Geheime Person', 'seminar_id' => $seminar->id, 'status' => 'submitted', 'total_cents' => 4500, 'purpose' => 'x']);
 
     $this->actingAs(ovUser(RoleKey::AdministrationStaff))->get(route('seminars.show', $seminar))->assertOk()->assertSee('Kostenerstattungen zu diesem Seminar')->assertSee('45,00')->assertDontSee('Geheime Person');

@@ -59,7 +59,7 @@ final class SeminarClosures
      */
     public function close(Seminar $seminar, array $done, array $reasons, User $by): SeminarClosure
     {
-        if ($seminar->status !== SeminarStatus::Done) {
+        if (! in_array($seminar->status, [SeminarStatus::Held, SeminarStatus::Reported], true)) {
             throw new DomainException('Nur ein durchgeführtes Seminar lässt sich abschließen.');
         }
 
@@ -93,7 +93,7 @@ final class SeminarClosures
                 'snapshot' => $this->snapshot($seminar),
             ]);
 
-            app(SeminarAdministration::class)->changeStatus($seminar, SeminarStatus::Completed, $by, 'Abschluss mit Checkliste');
+            app(SeminarWorkflow::class)->change($seminar, SeminarStatus::Completed, $by, 'Abschluss mit Checkliste');
 
             // Terminübersicht und Teamübersicht als unveränderliche Schnappschüsse ablegen (ein Fehler hier verhindert den Abschluss nicht).
             foreach (array_keys(GeneratedDocuments::types()) as $type) {
@@ -128,8 +128,8 @@ final class SeminarClosures
 
         DB::transaction(function () use ($seminar, $closure, $reason, $by): void {
             $closure->forceFill(['reopened_at' => now(), 'reopened_by_user_id' => $by->id, 'reopen_reason' => Str::limit(trim($reason), 500, '')])->save();
-            $seminar->forceFill(['status' => SeminarStatus::Done, 'updated_by_user_id' => $by->id])->save();
-            $seminar->events()->create(['type' => SeminarEventType::StatusChanged, 'occurred_at' => now(), 'actor_user_id' => $by->id, 'actor_label' => AuditLog::label($by), 'comment' => 'Abschluss wieder geöffnet: '.Str::limit(trim($reason), 200, ''), 'data' => ['von' => SeminarStatus::Completed->value, 'nach' => SeminarStatus::Done->value]]);
+            $seminar->forceFill(['status' => SeminarStatus::Held, 'updated_by_user_id' => $by->id])->save();
+            $seminar->events()->create(['type' => SeminarEventType::StatusChanged, 'occurred_at' => now(), 'actor_user_id' => $by->id, 'actor_label' => AuditLog::label($by), 'comment' => 'Abschluss wieder geöffnet: '.Str::limit(trim($reason), 200, ''), 'data' => ['von' => SeminarStatus::Completed->value, 'nach' => SeminarStatus::Held->value]]);
             AuditLog::record(AuditEvent::SeminarReopened, $by, $seminar, ['nummer' => (string) $seminar->number]);
         });
     }

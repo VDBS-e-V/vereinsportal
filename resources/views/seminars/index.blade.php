@@ -17,7 +17,7 @@
     <x-vdbs.layout.grid :columns="3" style="margin-bottom:var(--space-6)">
         <x-vdbs.data.stat label="Seminare" value="{{ $stats['total'] }}" icon="calendar" />
         <x-vdbs.data.stat label="Anfrage oder in Planung" value="{{ $stats['open'] }}" icon="clock" :tone="$stats['open'] > 0 ? 'warning' : 'neutral'" />
-        <x-vdbs.data.stat label="Terminiert oder bestätigt" value="{{ $stats['planned'] }}" icon="check" tone="success" />
+        <x-vdbs.data.stat label="Freigegeben bis vorbereitet" value="{{ $stats['planned'] }}" icon="check" tone="success" />
     </x-vdbs.layout.grid>
 
     <x-vdbs.data.toolbar label="Seminare filtern" :count="$count" :active="$active" :reset-href="route('seminars.index')" search-placeholder="Nummer, Titel, Schule oder Ort suchen">

@@ -12,6 +12,7 @@ use App\Modules\Seminars\Enums\SeminarType;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarSession;
 use App\Modules\Seminars\Services\SeminarAdministration;
+use App\Modules\Seminars\Services\SeminarWorkflow;
 use App\Modules\Seminars\Services\TeamApplications;
 use App\Modules\Seminars\Support\CoordinationRecipients;
 use App\Support\Html\RichText;
@@ -27,7 +28,7 @@ class SeminarController extends Controller
 {
     private const PER_PAGE = 20;
 
-    public function __construct(private readonly SeminarAdministration $seminars) {}
+    public function __construct(private readonly SeminarAdministration $seminars, private readonly SeminarWorkflow $workflow) {}
 
     public function index(Request $request): View
     {
@@ -61,8 +62,8 @@ class SeminarController extends Controller
             'typeOptions' => SeminarType::options(),
             'stats' => [
                 'total' => Seminar::query()->count(),
-                'open' => Seminar::query()->whereIn('status', [SeminarStatus::Request->value, SeminarStatus::Planning->value])->count(),
-                'planned' => Seminar::query()->whereIn('status', [SeminarStatus::Scheduled->value, SeminarStatus::Confirmed->value])->count(),
+                'open' => Seminar::query()->whereIn('status', SeminarStatus::values(SeminarStatus::intake()))->count(),
+                'planned' => Seminar::query()->whereIn('status', SeminarStatus::values(SeminarStatus::planning()))->count(),
             ],
             'canManage' => Gate::allows('seminars.manage'),
         ]);
@@ -79,7 +80,7 @@ class SeminarController extends Controller
             'canManage' => Gate::allows('seminars.manage'),
             'teamOpen' => $team->isOpen($seminar),
             'review' => $team->review($seminar),
-            'suggestion' => Gate::allows('seminars.manage') && $seminar->status === SeminarStatus::Scheduled && $seminar->deadlinePassed() ? $team->suggest($seminar) : null,
+            'suggestion' => Gate::allows('seminars.manage') && $seminar->status === SeminarStatus::Tendered && $seminar->deadlinePassed() ? $team->suggest($seminar) : null,
             'competenceLabels' => (array) config('portal.team.competences', []),
         ]);
     }
@@ -126,6 +127,9 @@ class SeminarController extends Controller
         $data = $request->validate([
             'status' => ['required', Rule::enum(SeminarStatus::class)],
             'comment' => ['nullable', 'string', 'max:500'],
+            'basis' => ['nullable', 'in:contract,commitment'],
+            'signed_at' => ['nullable', 'date'],
+            'reason' => ['nullable', 'string', 'max:500'],
         ], ['status.required' => 'Bitte wählen Sie den neuen Status.', 'status.enum' => 'Bitte wählen Sie einen gültigen Status.']);
 
         if ($data['status'] === SeminarStatus::Completed->value) {
@@ -133,7 +137,7 @@ class SeminarController extends Controller
         }
 
         try {
-            $this->seminars->changeStatus($seminar, SeminarStatus::from($data['status']), $this->actor($request), $data['comment'] ?? null);
+            $this->workflow->change($seminar, SeminarStatus::from($data['status']), $this->actor($request), $data['comment'] ?? null, ['basis' => $data['basis'] ?? null, 'signed_at' => $data['signed_at'] ?? null, 'reason' => $data['reason'] ?? null]);
         } catch (DomainException $exception) {
             return redirect()->route('seminars.show', $seminar)->with('warning', $exception->getMessage());
         }

@@ -35,7 +35,7 @@ class SchoolAreaController extends Controller
     {
         $account = $this->account($request);
 
-        $seminars = Seminar::query()->where('partner_id', $account->partner_id)->whereNotIn('status', [SeminarStatus::Cancelled->value])->with(['sessions', 'quotes'])
+        $seminars = Seminar::query()->where('partner_id', $account->partner_id)->whereNotIn('status', [SeminarStatus::Cancelled->value, SeminarStatus::Rejected->value])->with(['sessions', 'quotes'])
             ->orderByDesc('updated_at')->get();
 
         return view('school.home', [

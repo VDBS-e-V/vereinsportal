@@ -42,7 +42,7 @@ function tiUser(RoleKey $role = RoleKey::Coordination): User
 
 function tiSeminar(array $attributes = []): Seminar
 {
-    $seminar = Seminar::factory()->create($attributes + ['status' => SeminarStatus::Scheduled, 'team_needed' => 2, 'application_deadline' => now()->addWeek()->toDateString()]);
+    $seminar = Seminar::factory()->create($attributes + ['status' => SeminarStatus::Tendered, 'team_needed' => 2, 'application_deadline' => now()->addWeek()->toDateString()]);
     app(SeminarAdministration::class)->addSession($seminar, ['date' => now()->addMonth()->toDateString(), 'start' => '09:00', 'end' => '15:00'], tiUser());
 
     return $seminar;
