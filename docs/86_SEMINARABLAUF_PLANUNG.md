@@ -68,14 +68,15 @@ Vorschlag je Seminar: zwei Unterordner „Unterlagen (Team)“ und „Ergebnisse
 ## Weitere Festlegungen
 
 - **Koordinationsgebiet:** wird in den Stammdaten der Schule gepflegt (Schulen werden im System gepflegt). Das Seminar übernimmt es von der Schule.
+- **Mitteilungen:** Grundsätzlich immer per E-Mail. Personen mit Konto stellen unter „Benachrichtigungen“ selbst ein, was sie per E-Mail bekommen (vorhandene Einstellungen im Konto). Personen ohne Konto (z. B. Schulen vor der Anmeldung) bekommen immer die E-Mail.
 - **Seminarliste der Geschäftsstelle:** eine Seite mit allen Seminaren; dort erstellt die Geschäftsstelle die Verträge im Portal (Anbindung an die vorhandene Vertragsfunktion ist zu prüfen).
 
 ## Empfehlungen (noch nicht entschieden)
 
-- **Mitteilungen per E-Mail:** alles, was zum Handeln auffordert oder rechtlich betrifft (Zu- und Absagen, KVA und Vertrag, Bericht und Link, Fristen, Absage und Verlegung). Nur im Portal: Eingangsbestätigungen und interne Hinweise (später als tägliche Zusammenfassung).
 - **Löschfristen:** Ergebnisordner 2 Jahre ab Seminarende, verlängerbar. Anfragen ohne Vertrag 1 Jahr nach Abschluss. Verträge und Belege mit Geldbezug: gesetzliche Fristen (meist 6 bis 10 Jahre), mit Steuerberatung klären. Keine Daten von Schülerinnen und Schülern im Ordner.
 - **Neuer Termin nach Absage:** Die Koordination darf neu ansetzen, wenn Vertrag und Preis gleich bleiben. Bei geänderter Leistung oder Preis entscheidet die Geschäftsstelle (neuer KVA oder Vertrag). Das Team wird für den neuen Termin neu angefragt.
 
 ## Offen
 
-1. Entscheidung zu den drei Empfehlungen oben.
+1. Entscheidung zu den zwei Empfehlungen oben (Löschfristen, neuer Termin).
+2. Sollen rechtlich wichtige Mails (KVA, Vertrag, Zu- und Absage) von der Abschaltung ausgenommen sein? Empfehlung: ja, die bekommt jede Person immer.
