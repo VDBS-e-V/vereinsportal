@@ -1,5 +1,7 @@
 # 47 Seminarplanung (Konzept, Entwurf)
 
+> **Hinweis:** Der Seminarablauf und die Status in diesem Dokument sind durch `docs/86_SEMINARABLAUF_PLANUNG.md` und `docs/87_SEMINARABLAUF_UMSETZUNGSPLAN.md` ersetzt (neue Status: Anfrage, In Prüfung, KVA gesendet, Freigegeben, Geplant, Ausgeschrieben, Team gewählt, Team bestätigt, Vorbereitet, Durchgeführt, Berichtet, Abgeschlossen, Abgelehnt, Abgesagt). Altes „Terminiert“ entspricht „Ausgeschrieben“, „Bestätigt“ entspricht „Team bestätigt“.
+
 Stand: Entwurf. Stufe 1 und 2 sind für SV-Tage, SV-Coaching und SV-Wahl umgesetzt (siehe `docs/48_SEMINARE.md`); der Rest ist noch nicht gebaut. Grundlage sind die Antworten des Vorstands/der Koordination und die
 Excel-Tabelle „Preisberechnungstabelle VDBS“. Offene Punkte stehen am Ende.
 

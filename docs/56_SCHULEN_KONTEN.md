@@ -1,5 +1,7 @@
 # 56 – Konten für Schulen (Bereich Schulen)
 
+> **Hinweis:** Der Seminarablauf und die Status in diesem Dokument sind durch `docs/86_SEMINARABLAUF_PLANUNG.md` und `docs/87_SEMINARABLAUF_UMSETZUNGSPLAN.md` ersetzt (neue Status: Anfrage, In Prüfung, KVA gesendet, Freigegeben, Geplant, Ausgeschrieben, Team gewählt, Team bestätigt, Vorbereitet, Durchgeführt, Berichtet, Abgeschlossen, Abgelehnt, Abgesagt). Altes „Terminiert“ entspricht „Ausgeschrieben“, „Bestätigt“ entspricht „Team bestätigt“.
+
 Lehrkräfte und Schulleitungen bekommen ein eigenes Konto mit der neuen Systemrolle **Schule** (`school`, Berechtigung `school.area`). Jedes Schulkonto gehört zu **genau einer Schule** und sieht nur deren Daten.
 
 ## Konto anlegen

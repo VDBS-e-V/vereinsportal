@@ -1,5 +1,7 @@
 # 48 Seminare (Schulseminare und Kostenrechner)
 
+> **Hinweis:** Der Seminarablauf und die Status in diesem Dokument sind durch `docs/86_SEMINARABLAUF_PLANUNG.md` und `docs/87_SEMINARABLAUF_UMSETZUNGSPLAN.md` ersetzt (neue Status: Anfrage, In Prüfung, KVA gesendet, Freigegeben, Geplant, Ausgeschrieben, Team gewählt, Team bestätigt, Vorbereitet, Durchgeführt, Berichtet, Abgeschlossen, Abgelehnt, Abgesagt). Altes „Terminiert“ entspricht „Ausgeschrieben“, „Bestätigt“ entspricht „Team bestätigt“.
+
 Bereich **Koordination**, Seiten **Seminare** (`/koordination/seminare`) und **Preise** (`/koordination/preise`). Umgesetzt sind die Stufen 1 und 2
 aus `docs/47_SEMINARPLANUNG.md` für vier Produkte: **SV-Tage**, **SV-Coaching**, **SV-Wahl** und **Begleitung GSV-Sitzungen**. SV-Fahrt, das Anmeldesystem
 für Großveranstaltungen folgen später.

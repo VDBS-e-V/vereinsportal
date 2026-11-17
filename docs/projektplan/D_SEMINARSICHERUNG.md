@@ -1,5 +1,7 @@
 # Paket D: Sicherung des Seminars (Dokumente, Statistiken, Ergebnisse)
 
+> **Hinweis:** Der Seminarablauf und die Status in diesem Dokument sind durch `docs/86_SEMINARABLAUF_PLANUNG.md` und `docs/87_SEMINARABLAUF_UMSETZUNGSPLAN.md` ersetzt (neue Status: Anfrage, In Prüfung, KVA gesendet, Freigegeben, Geplant, Ausgeschrieben, Team gewählt, Team bestätigt, Vorbereitet, Durchgeführt, Berichtet, Abgeschlossen, Abgelehnt, Abgesagt). Altes „Terminiert“ entspricht „Ausgeschrieben“, „Bestätigt“ entspricht „Team bestätigt“.
+
 Aufwand: **8 ET**. Ziel: Alles, was zu einem Seminar gehört, liegt an einem Ort, ist vollständig, geschützt und nach Abschluss als **Seminarmappe** abrufbar. **Keine Fotos von Teilnehmenden.**
 
 ## 1 Ausgangslage

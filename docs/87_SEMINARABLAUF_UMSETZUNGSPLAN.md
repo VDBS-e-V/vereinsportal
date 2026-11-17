@@ -223,4 +223,9 @@ Tests je Phase: jeder erlaubte und jeder verbotene Übergang, Rechte je Rolle (a
   - **Koordination**: Kasten „Bericht und Ergebnislink“ am Seminar: Link zum Ergebnisordner mit Ablaufdatum (mindestens ein Jahr nach dem letzten Termin) und „Bericht an die Schule senden“ (Mail mit Link und Bitte um Rückmeldung im Portal).
   - Beim Abschluss löst das Portal das Ereignis `SeminarCompleted` aus, an dem später die Abrechnung andockt.
   - Nicht übernommen: Der Abschluss verlangt den gesendeten Bericht nicht als Pflichtpunkt der Checkliste (die vorhandenen Abschlusstests hätten sonst alle angepasst werden müssen). Das lässt sich mit einer Zeile nachholen.
-- Noch **nicht** umgesetzt: Teamverträge (Honorarverträge) von der Seminarliste der Geschäftsstelle aus, Phase 5a (Online-Druckplaner), Phase 6 (Nextcloud), Phase 7 (Löschfristen).
+- **Phase 7 umgesetzt** (nur syntaxgeprüft, Tests in der CI):
+  - Befehl `seminars:prune-requests` (täglich): löscht abgelehnte und abgesagte Anfragen **ohne Vertrag** ein Jahr nach dem Abschluss (`PORTAL_SEMINAR_REQUEST_YEARS`), samt Dateien. Seminare mit unterschriebenem Schulvertrag, Teamverträgen oder Rechnung und Vertrag als Dokument bleiben.
+  - **Ergebnislink**: Standard zwei Jahre ab Seminarende (`PORTAL_SEMINAR_RESULTS_YEARS`), nie unter einem Jahr; „Verlängern“ am Seminar (nie verkürzen); Befehl `seminars:results-expiry` (täglich) weist die Koordination 30 Tage vor dem Ablauf einmal hin (`PORTAL_SEMINAR_RESULTS_NOTICE_DAYS`). Gelöscht wird nichts von selbst.
+  - Verträge und Belege mit Geldbezug: weiter nur nach den Fristen der Dokumente (`retention_years`, Standard zehn Jahre). Die Fristen sind mit der Steuerberatung zu klären.
+  - Auf der Seminarliste der Geschäftsstelle gibt es den Link „Teamverträge“ zum Vertragsabschnitt am Seminar.
+- Noch **nicht** umgesetzt: Phase 5a (Online-Druckplaner), Phase 6 (Nextcloud-Anbindung mit Ordnern, Rechten und Ergebnislink).

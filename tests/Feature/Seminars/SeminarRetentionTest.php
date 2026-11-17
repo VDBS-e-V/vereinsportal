@@ -45,7 +45,7 @@ it('deletes rejected and cancelled requests without a contract after a year and 
     $fresh = Seminar::factory()->create(['status' => SeminarStatus::Rejected]);
     $running = rtOld(SeminarStatus::Held);
     $withInvoice = rtOld(SeminarStatus::Cancelled);
-    $withInvoice->documents()->create(['kind' => 'invoice', 'title' => 'Rechnung', 'original_name' => 'r.pdf', 'path' => 'seminars/x/r.pdf', 'mime' => 'application/pdf', 'size' => 10, 'uploaded_by_user_id' => rtUser(RoleKey::AdministrationStaff)->id]);
+    $withInvoice->documents()->create(['kind' => 'invoice', 'title' => 'Rechnung', 'original_name' => 'r.pdf', 'path' => 'seminars/x/r.pdf', 'mime' => 'application/pdf', 'size' => 10, 'retention_until' => now()->addYears(10)->toDateString(), 'uploaded_by_user_id' => rtUser(RoleKey::AdministrationStaff)->id]);
 
     $this->artisan('seminars:prune-requests', ['--dry-run' => true])->assertSuccessful();
     expect(Seminar::query()->count())->toBe(6);
