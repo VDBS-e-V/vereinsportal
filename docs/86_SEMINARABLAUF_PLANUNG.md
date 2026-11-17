@@ -59,10 +59,24 @@ Anfrage → in Prüfung → KVA gesendet → verhandelt → Vertrag unterschrieb
 - **Seminarleitung:** nur das eigene Seminar: Durchführung, Berichte, Verträge.
 - **Teamende:** Ausschreibungen, eigene Zusagen, Ordner ihrer Seminare.
 
+## Nextcloud-Ordnerstruktur (festgelegt)
+
+Team folder „Koordination“ → Koordinationsgebiet (z. B. Neukölln) → Schule → Schuljahr (z. B. 2026/27) → Seminar oder Veranstaltungsreihe → ggf. Tag (bei Reihen mit nicht aufeinanderfolgenden Tagen).
+
+Vorschlag je Seminar: zwei Unterordner „Unterlagen (Team)“ und „Ergebnisse (Schule)“. Nur „Ergebnisse“ wird per Link mit der Schule geteilt. Teamende sehen nur die Ordner ihrer Seminare (Nextcloud-ACL für Team folders, vom Portal per Schnittstelle gesetzt). Folgen für das Portal: Feld „Koordinationsgebiet“ je Schule, Schuljahr aus dem Seminardatum, Einzeltage je Reihe.
+
+## Weitere Festlegungen
+
+- **Seminarliste der Geschäftsstelle:** eine Seite mit allen Seminaren; dort erstellt die Geschäftsstelle die Verträge im Portal (Anbindung an die vorhandene Vertragsfunktion ist zu prüfen).
+
+## Empfehlungen (noch nicht entschieden)
+
+- **Mitteilungen per E-Mail:** alles, was zum Handeln auffordert oder rechtlich betrifft (Zu- und Absagen, KVA und Vertrag, Bericht und Link, Fristen, Absage und Verlegung). Nur im Portal: Eingangsbestätigungen und interne Hinweise (später als tägliche Zusammenfassung).
+- **Löschfristen:** Ergebnisordner 2 Jahre ab Seminarende, verlängerbar. Anfragen ohne Vertrag 1 Jahr nach Abschluss. Verträge und Belege mit Geldbezug: gesetzliche Fristen (meist 6 bis 10 Jahre), mit Steuerberatung klären. Keine Daten von Schülerinnen und Schülern im Ordner.
+- **Neuer Termin nach Absage:** Die Koordination darf neu ansetzen, wenn Vertrag und Preis gleich bleiben. Bei geänderter Leistung oder Preis entscheidet die Geschäftsstelle (neuer KVA oder Vertrag). Das Team wird für den neuen Termin neu angefragt.
+
 ## Offen
 
-1. Welche Mitteilungen gehen per E-Mail, welche nur im Portal?
-2. Löschfristen für Anfragen, Berichte und Ordner.
-3. Wer darf einen abgesagten Termin neu ansetzen?
-4. Wie genau werden Verträge der Teamenden erzeugt (vorhandene Vertragsfunktion nutzen)?
-5. Welche Ordnerstruktur legt das System in Nextcloud an?
+1. Entscheidung zu den drei Empfehlungen oben.
+2. Wo wird das Koordinationsgebiet gepflegt (an der Schule oder am Seminar)?
+3. Wer legt Reihen und deren Einzeltage an, und gilt für jede Reihe eine Seminarleitung?
