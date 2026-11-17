@@ -246,15 +246,11 @@ final class PortalNavigation
                         ['description' => 'Fristen, E-Mail und Betrieb zum Nachlesen, Testmail senden.', 'label' => 'Einstellungen', 'route' => 'system.settings', 'match' => 'system.settings*', 'can' => 'system.manage'],
                     ]],
                     ['description' => 'Nextcloud, Moodle und andere Systeme, die sich über das Portal anmelden.', 'label' => 'Anbindungen', 'route' => 'admin.oauth.index', 'match' => 'admin.oauth.*', 'can' => 'oauth.manage'],
+                    ['label' => 'Web-Control', 'group' => true, 'route' => 'navigation.edit', 'children' => [
+                        ['description' => 'Reihenfolge, Name und Sichtbarkeit der Bereiche im Kopfmenü.', 'label' => 'Bereiche', 'route' => 'navigation.edit', 'match' => ['navigation.edit', 'navigation.area', 'navigation.area.*'], 'can' => 'navigation.manage'],
+                        ['description' => 'Header der Bereiche: Anzahl, Titel und Position der Seiten und Links.', 'label' => 'Header', 'route' => 'navigation.headers', 'match' => ['navigation.headers', 'navigation.header', 'navigation.header.*'], 'can' => 'navigation.manage'],
+                    ]],
                     ['description' => 'Komponenten und Muster des Designsystems.', 'label' => 'Design-Bibliothek', 'route' => 'design-library.index', 'match' => 'design-library.*', 'can' => 'design.view'],
-                ],
-            ],
-            PortalAreas::WebControl->value => [
-                'home' => 'navigation.edit',
-                'roles' => [RoleKey::Administration],
-                'pages' => [
-                    ['description' => 'Reihenfolge, Name und Sichtbarkeit der Bereiche im Kopfmenü.', 'label' => 'Bereiche', 'route' => 'navigation.edit', 'match' => ['navigation.edit', 'navigation.area', 'navigation.area.*'], 'can' => 'navigation.manage'],
-                    ['description' => 'Header der Bereiche: Anzahl, Titel und Position der Seiten und Links.', 'label' => 'Header', 'route' => 'navigation.headers', 'match' => ['navigation.headers', 'navigation.header', 'navigation.header.*'], 'can' => 'navigation.manage'],
                 ],
             ],
         ];

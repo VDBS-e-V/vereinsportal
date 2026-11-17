@@ -1,5 +1,5 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Web-Control'], ['label' => 'Header', 'href' => route('navigation.headers')], ['label' => $area->label()]];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Admins'], ['label' => 'Web-Control'], ['label' => 'Header', 'href' => route('navigation.headers')], ['label' => $area->label()]];
 @endphp
 
 <x-layouts.app title="Header bearbeiten" width="wide">

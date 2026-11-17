@@ -35,7 +35,7 @@ final class NavigationControl
     /** Bereiche, die sich bearbeiten lassen. @return list<PortalAreas> */
     public static function togglableAreas(): array
     {
-        return array_values(array_filter(PortalAreas::cases(), fn (PortalAreas $area): bool => ! in_array($area, [PortalAreas::Start, PortalAreas::Konto, PortalAreas::Admins, PortalAreas::WebControl], true)));
+        return array_values(array_filter(PortalAreas::cases(), fn (PortalAreas $area): bool => ! in_array($area, [PortalAreas::Start, PortalAreas::Konto, PortalAreas::Admins], true)));
     }
 
     /** Seiten, die nie ausgeblendet werden. @param  array<string, mixed>  $page */

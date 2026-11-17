@@ -80,9 +80,10 @@ it('rejects an invalid header layout', function () {
     $this->actingAs($admin)->put(route('navigation.header.update', 'vorstand'), ['layout' => 'kein json'])->assertSessionHasErrors('layout');
 });
 
-it('shows the web control as its own area only to administration', function () {
-    expect(PortalNavigation::visibleAreas(ncUser(RoleKey::Administration)))->toContain(PortalAreas::WebControl)
-        ->and(PortalNavigation::visibleAreas(ncUser(RoleKey::BoardMember)))->not->toContain(PortalAreas::WebControl);
+it('lists the web control in the area Admins only for administration', function () {
+    $labels = fn (RoleKey $role): array => collect(PortalNavigation::pages(PortalAreas::Admins, ncUser($role)))->pluck('label')->all();
+
+    expect($labels(RoleKey::Administration))->toContain('Web-Control')->and($labels(RoleKey::BoardMember))->not->toContain('Web-Control');
 });
 
 it('lets only administration use the web control, orders and renames areas', function () {
