@@ -22,6 +22,7 @@ final class SeminarNoticeMail extends Mailable
         'school_report' => 'Bericht zu Ihrem Seminar',
         'report_reminder' => 'Erinnerung: Verträge und Bericht',
         'report_overdue' => 'Bericht überfällig',
+        'results_expiring' => 'Ergebnislink läuft bald ab',
         'released' => 'Seminar freigegeben',
         'tender' => 'Neues Seminar zur Mitarbeit',
         'lead' => 'Sie leiten das Seminar',

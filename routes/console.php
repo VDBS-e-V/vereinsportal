@@ -32,6 +32,10 @@ Schedule::command('seminars:team-deadlines')->daily();
 // Seminarleitung erinnern, wenn Verträge und Bericht bald fällig sind; Koordination informieren, wenn sie überfällig sind.
 Schedule::command('seminars:remind-reports')->daily();
 
+// Aufbewahrung der Seminare (docs/87): Anfragen ohne Vertrag nach einem Jahr löschen, Koordination vor dem Ablauf eines Ergebnislinks informieren.
+Schedule::command('seminars:prune-requests')->daily();
+Schedule::command('seminars:results-expiry')->daily();
+
 // Bewerbungen ohne Konto: Fristen der Aufbewahrung
 Schedule::command('seminars:prune-applicants')->daily();
 Schedule::command('seminars:prune-documents')->daily();

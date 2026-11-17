@@ -24,7 +24,7 @@ class Seminar extends Model
 
     protected $attributes = ['status' => 'request'];
 
-    protected $fillable = ['title', 'classes_count', 'location_notes', 'cost_center', 'coordinator_user_id', 'type', 'partner_id', 'status', 'release_basis', 'release_reason', 'released_by_user_id', 'released_at', 'school_contract_signed_at', 'quote_approved_by_user_id', 'quote_approved_at', 'team_confirmed_at', 'team_confirmed_by_user_id', 'onboarding_at', 'onboarding_link', 'briefing_sent_at', 'report_due_at', 'reported_at', 'report_reminded_at', 'report_overdue_notified_at', 'report_sent_at', 'results_share_url', 'results_expires_at', 'grade_level', 'expected_participants', 'team_needed', 'application_deadline', 'team_competences', 'deadline_notified_at', 'team_informed_at', 'team_informed_key', 'notes', 'created_by_user_id', 'updated_by_user_id'];
+    protected $fillable = ['title', 'classes_count', 'location_notes', 'cost_center', 'coordinator_user_id', 'type', 'partner_id', 'status', 'release_basis', 'release_reason', 'released_by_user_id', 'released_at', 'school_contract_signed_at', 'quote_approved_by_user_id', 'quote_approved_at', 'team_confirmed_at', 'team_confirmed_by_user_id', 'onboarding_at', 'onboarding_link', 'briefing_sent_at', 'report_due_at', 'reported_at', 'report_reminded_at', 'report_overdue_notified_at', 'report_sent_at', 'results_share_url', 'results_expires_at', 'results_expiry_notified_at', 'grade_level', 'expected_participants', 'team_needed', 'application_deadline', 'team_competences', 'deadline_notified_at', 'team_informed_at', 'team_informed_key', 'notes', 'created_by_user_id', 'updated_by_user_id'];
 
     /** Jedes Seminar bekommt beim Anlegen eine Nummer; eine vergebene Nummer lässt sich nicht mehr ändern. */
     protected static function booted(): void
@@ -44,7 +44,7 @@ class Seminar extends Model
 
     protected function casts(): array
     {
-        return ['type' => SeminarType::class, 'status' => SeminarStatus::class, 'application_deadline' => 'date', 'team_competences' => 'array', 'released_at' => 'datetime', 'school_contract_signed_at' => 'date', 'quote_approved_at' => 'datetime', 'team_confirmed_at' => 'datetime', 'onboarding_at' => 'datetime', 'report_due_at' => 'date', 'reported_at' => 'datetime', 'report_reminded_at' => 'datetime', 'report_overdue_notified_at' => 'datetime', 'report_sent_at' => 'datetime', 'results_expires_at' => 'date', 'briefing_sent_at' => 'datetime', 'deadline_notified_at' => 'datetime', 'team_informed_at' => 'datetime'];
+        return ['type' => SeminarType::class, 'status' => SeminarStatus::class, 'application_deadline' => 'date', 'team_competences' => 'array', 'released_at' => 'datetime', 'school_contract_signed_at' => 'date', 'quote_approved_at' => 'datetime', 'team_confirmed_at' => 'datetime', 'onboarding_at' => 'datetime', 'report_due_at' => 'date', 'reported_at' => 'datetime', 'report_reminded_at' => 'datetime', 'report_overdue_notified_at' => 'datetime', 'report_sent_at' => 'datetime', 'results_expires_at' => 'date', 'results_expiry_notified_at' => 'datetime', 'briefing_sent_at' => 'datetime', 'deadline_notified_at' => 'datetime', 'team_informed_at' => 'datetime'];
     }
 
     /** Der Stichtag für Interessenbekundungen ist vorbei (der Stichtag selbst zählt noch mit). */

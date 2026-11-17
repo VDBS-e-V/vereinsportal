@@ -30,6 +30,7 @@
                         <td>
                             <x-vdbs.actions.button :href="route('seminars.show', $seminar)" variant="secondary" size="s" icon="eye">Öffnen</x-vdbs.actions.button>
                             <x-vdbs.actions.button :href="route('school-contracts.show', $seminar)" variant="secondary" size="s" icon="file-text">Schulvertrag</x-vdbs.actions.button>
+                            <x-vdbs.actions.button :href="route('seminars.show', $seminar).'#contracts-heading'" variant="secondary" size="s" icon="users">Teamverträge</x-vdbs.actions.button>
                         </td>
                     </tr>
                 @endforeach

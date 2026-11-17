@@ -40,6 +40,8 @@ Route::middleware(['web', 'auth'])->group(function (): void {
     // Koordination: Bericht und Ergebnislink an die Schule
     Route::post('koordination/seminare/{seminar}/bericht-senden', [SeminarReportController::class, 'send'])->whereNumber('seminar')->middleware(['can:seminars.manage', 'throttle:10,10'])->name('seminars.report.send');
 
+    Route::post('koordination/seminare/{seminar}/ergebnislink-verlaengern', [SeminarReportController::class, 'extend'])->whereNumber('seminar')->middleware(['can:seminars.manage', 'throttle:10,10'])->name('seminars.report.extend');
+
     // Mitteilungen von Hand im Seminarablauf
     Route::post('koordination/seminare/{seminar}/rueckfrage', [SeminarNoticeController::class, 'question'])->whereNumber('seminar')->middleware(['can:seminars.review', 'throttle:20,10'])->name('seminars.notice.question');
     Route::middleware(['can:seminars.manage', 'throttle:20,10'])->prefix('koordination/seminare/{seminar}/mitteilung')->whereNumber('seminar')->name('seminars.notice.')->group(function (): void {

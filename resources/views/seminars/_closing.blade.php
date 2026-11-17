@@ -21,6 +21,13 @@
                 <x-vdbs.forms.textarea id="rs-text" name="text" label="Nachricht an die Schule" :optional="true" :rows="3" maxlength="1500" />
                 <x-slot:actions><x-vdbs.actions.button type="submit" icon="mail">Bericht an die Schule senden</x-vdbs.actions.button></x-slot:actions>
             </x-vdbs.forms.form>
+
+            @if ($seminar->results_share_url)
+                <form method="post" action="{{ route('seminars.report.extend', $seminar) }}" class="vdbs-task-filter">@csrf
+                    <x-vdbs.forms.input id="rs-ext" name="results_expires_at" type="date" label="Ergebnislink verlängern bis" :required="true" />
+                    <x-vdbs.actions.button type="submit" variant="secondary" icon="calendar">Verlängern</x-vdbs.actions.button>
+                </form>
+            @endif
         </section>
     @endcan
 @endif

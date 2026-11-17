@@ -44,6 +44,9 @@
         @case ('report_reminder')
             <p>als Seminarleitung laden Sie für das Seminar <strong>{{ $seminar->title }}</strong> bitte bis zum <strong>{{ $seminar->report_due_at?->format('d.m.Y') }}</strong> die Verträge und den Ergebnisbericht im Portal hoch.</p>
             @break
+        @case ('results_expiring')
+            <p>der Ergebnislink für die Schule zum Seminar <strong>{{ $seminar->title }}</strong> läuft am <strong>{{ $seminar->results_expires_at?->format('d.m.Y') }}</strong> ab. Bitte klären Sie, ob er verlängert oder der Ordner danach gelöscht werden soll. Gelöscht wird nichts von selbst.</p>
+            @break
         @case ('report_overdue')
             <p>für das Seminar <strong>{{ $seminar->title }}</strong> fehlen Verträge und Ergebnisbericht. Der Stichtag war der {{ $seminar->report_due_at?->format('d.m.Y') }}. Bitte fragen Sie bei der Seminarleitung nach.</p>
             @break

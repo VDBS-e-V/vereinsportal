@@ -76,6 +76,12 @@ final class SeminarNotifications
         $this->toApplications($seminar, [$lead], 'report_reminder', null, 'Erinnerung an die Seminarleitung');
     }
 
+    /** Hinweis an die Koordination: Der Ergebnislink für die Schule läuft bald ab. */
+    public function resultsExpiring(Seminar $seminar): void
+    {
+        $this->toCoordination($seminar, 'results_expiring', 'Ablauf des Ergebnislinks an die Koordination');
+    }
+
     /** Hinweis an die Koordination: Der Stichtag für die Berichte ist verstrichen. */
     public function reportOverdue(Seminar $seminar): void
     {
