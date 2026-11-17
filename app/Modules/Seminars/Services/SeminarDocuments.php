@@ -109,6 +109,7 @@ final class SeminarDocuments
             'is_snapshot' => $isSnapshot,
             'uploaded_by_user_id' => $by->id,
             'retention_until' => $this->retentionFor($seminar, $kind),
+            'pages' => $extension === 'pdf' ? \App\Modules\Seminars\Support\PdfPages::count((string) $file->getRealPath()) : null,
         ]);
 
         AuditLog::record(AuditEvent::SeminarDocumentAdded, $by, $seminar, ['art' => $document->kindLabel(), 'nummer' => (string) $seminar->number]);

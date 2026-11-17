@@ -7,6 +7,7 @@ use App\Modules\Seminars\Http\Controllers\SeminarPriceController;
 use App\Modules\Seminars\Http\Controllers\MySeminarsController;
 use App\Modules\Seminars\Http\Controllers\SeminarLeadController;
 use App\Modules\Seminars\Http\Controllers\SeminarNoticeController;
+use App\Modules\Seminars\Http\Controllers\SeminarPrintPlanController;
 use App\Modules\Seminars\Http\Controllers\SeminarReportController;
 use App\Modules\Seminars\Http\Controllers\SeminarOfficeController;
 use App\Modules\Seminars\Http\Controllers\SeminarQuoteController;
@@ -27,6 +28,13 @@ Route::middleware(['web', 'auth'])->group(function (): void {
     // Geschäftsstelle: alle Seminare mit KVA, Freigabe und Verträgen; interne KVA-Freigabe durch Vorstand oder Koordination
     Route::get('geschaeftsstelle/seminare', [SeminarOfficeController::class, 'index'])->middleware('can:seminars.review')->name('seminar-office.index');
     Route::post('koordination/seminare/{seminar}/kva-freigabe', [SeminarOfficeController::class, 'approveQuote'])->whereNumber('seminar')->middleware(['can:seminars.quote_approve', 'throttle:20,10'])->name('seminars.quote.approve');
+
+    // Druckplaner der Seminarmappe (Prüfung in SeminarPrintPlanController)
+    Route::prefix('seminare/{seminar}/druckplaner')->name('seminar-print.')->whereNumber('seminar')->group(function (): void {
+        Route::get('/', [SeminarPrintPlanController::class, 'show'])->name('show');
+        Route::put('/', [SeminarPrintPlanController::class, 'update'])->middleware('throttle:30,10')->name('update');
+        Route::get('/druckliste', [SeminarPrintPlanController::class, 'list'])->name('list');
+    });
 
     // Seminarleitung: nur das eigene Seminar (Prüfung in SeminarLeadController)
     Route::prefix('teamende/leitung')->name('seminar-lead.')->middleware('can:seminars.apply')->group(function (): void {

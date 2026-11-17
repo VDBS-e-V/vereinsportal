@@ -77,6 +77,7 @@
             <x-vdbs.actions.button type="submit" icon="upload">Ablegen</x-vdbs.actions.button>
             @if ($documents->isNotEmpty() || $closure)
                 <x-vdbs.actions.button variant="secondary" :href="route('seminars.folder', $seminar)" icon="download">Seminarmappe herunterladen (ZIP)</x-vdbs.actions.button>
+                <x-vdbs.actions.button variant="secondary" :href="route('seminar-print.show', $seminar)" icon="printer">Druckplaner</x-vdbs.actions.button>
             @endif
         </x-slot:actions>
     </x-vdbs.forms.form>

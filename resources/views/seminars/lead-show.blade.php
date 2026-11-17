@@ -18,6 +18,8 @@
         @if ($seminar->report_due_at)<x-vdbs.data.detail-item label="Verträge und Bericht bis">{{ $seminar->report_due_at->format('d.m.Y') }}</x-vdbs.data.detail-item>@endif
     </x-vdbs.data.detail-list>
 
+    <p><x-vdbs.actions.button :href="route('seminar-print.show', $seminar)" variant="secondary" icon="printer">Druckplaner für die Seminarmappe</x-vdbs.actions.button></p>
+
     @if (in_array($status, [SeminarStatus::TeamConfirmed, SeminarStatus::Prepared], true))
         <section aria-labelledby="held-heading">
             <h2 id="held-heading" style="font-size:var(--font-size-h3)">Durchführung</h2>

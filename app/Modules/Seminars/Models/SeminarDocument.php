@@ -28,7 +28,7 @@ class SeminarDocument extends Model
     /** Nach dem Abschluss geschützt: Löschen nur durch den Vorstand mit Begründung. */
     public const PROTECTED_KINDS = ['contract', 'quote', 'invoice'];
 
-    protected $fillable = ['seminar_id', 'kind', 'title', 'original_name', 'path', 'mime', 'size', 'is_snapshot', 'uploaded_by_user_id', 'retention_until'];
+    protected $fillable = ['seminar_id', 'kind', 'title', 'original_name', 'path', 'mime', 'size', 'is_snapshot', 'uploaded_by_user_id', 'retention_until', 'pages'];
 
     protected function casts(): array
     {
