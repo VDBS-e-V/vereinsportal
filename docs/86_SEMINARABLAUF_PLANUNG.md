@@ -67,6 +67,7 @@ Vorschlag je Seminar: zwei Unterordner „Unterlagen (Team)“ und „Ergebnisse
 
 ## Weitere Festlegungen
 
+- **Koordinationsgebiet:** wird in den Stammdaten der Schule gepflegt (Schulen werden im System gepflegt). Das Seminar übernimmt es von der Schule.
 - **Seminarliste der Geschäftsstelle:** eine Seite mit allen Seminaren; dort erstellt die Geschäftsstelle die Verträge im Portal (Anbindung an die vorhandene Vertragsfunktion ist zu prüfen).
 
 ## Empfehlungen (noch nicht entschieden)
@@ -78,5 +79,3 @@ Vorschlag je Seminar: zwei Unterordner „Unterlagen (Team)“ und „Ergebnisse
 ## Offen
 
 1. Entscheidung zu den drei Empfehlungen oben.
-2. Wo wird das Koordinationsgebiet gepflegt (an der Schule oder am Seminar)?
-3. Wer legt Reihen und deren Einzeltage an, und gilt für jede Reihe eine Seminarleitung?
