@@ -65,7 +65,7 @@ it('lets the seminar lead confirm the performance and sets the deadline for the 
     $this->actingAs($lead)->post(route('seminar-lead.held', $seminar))->assertSessionHas('success');
 
     $seminar = $seminar->fresh();
-    expect($seminar->status)->toBe(SeminarStatus::Held)->and($seminar->report_due_at->toDateString())->toBe(now()->subDays(5)->addDays(14)->toDateString());
+    expect($seminar->status)->toBe(SeminarStatus::Held)->and($seminar->report_due_at->toDateString())->toBe($seminar->sessions()->first()->ends_at->copy()->addDays(14)->toDateString());
 });
 
 it('shows the own seminar only and refuses the performance while dates are still ahead', function () {
