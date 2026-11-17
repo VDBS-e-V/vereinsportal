@@ -31,6 +31,10 @@ final class SeminarWorkflow
             throw new DomainException("Von „{$from->label()}“ lässt sich nicht zu „{$target->label()}“ wechseln.");
         }
 
+        if (in_array($target, [SeminarStatus::InReview, SeminarStatus::QuoteSent, SeminarStatus::Released, SeminarStatus::Rejected], true) && ! $by->can('seminars.review')) {
+            throw new DomainException('Prüfung, KVA-Versand, Freigabe und Ablehnung sind Aufgaben der Geschäftsstelle.');
+        }
+
         $comment = filled($comment) ? trim((string) $comment) : null;
         $release = $target === SeminarStatus::Released ? $this->release($extra) : [];
 
@@ -87,6 +91,30 @@ final class SeminarWorkflow
         throw new DomainException('Bitte wählen Sie, ob das Seminar mit Vertrag oder auf verbindliche Zusage der Schule freigegeben wird.');
     }
 
+    /** Ist der aktuelle Kostenvoranschlag intern freigegeben? Eine Änderung nach der Freigabe macht sie ungültig. */
+    public function quoteApproved(Seminar $seminar): bool
+    {
+        $latest = $seminar->quotes()->max('updated_at');
+
+        return $seminar->quote_approved_at !== null && $latest !== null && $seminar->quote_approved_at->greaterThanOrEqualTo(Carbon::parse($latest));
+    }
+
+    /** Interne Freigabe des Kostenvoranschlags (Vorstand oder Koordination). @throws DomainException */
+    public function approveQuote(Seminar $seminar, User $by): void
+    {
+        if (! $by->can('seminars.quote_approve')) {
+            throw new DomainException('Die Freigabe des Kostenvoranschlags ist Sache von Vorstand oder Koordination.');
+        }
+
+        if (! $seminar->quotes()->exists()) {
+            throw new DomainException('Erstellen Sie zuerst einen Kostenvoranschlag.');
+        }
+
+        $seminar->forceFill(['quote_approved_by_user_id' => $by->id, 'quote_approved_at' => now(), 'updated_by_user_id' => $by->id])->save();
+        $seminar->events()->create(['type' => SeminarEventType::Note, 'occurred_at' => now(), 'actor_user_id' => $by->id, 'actor_label' => AuditLog::label($by), 'comment' => 'Kostenvoranschlag intern freigegeben.', 'data' => null]);
+        AuditLog::record(AuditEvent::SeminarQuoteApproved, $by, $seminar);
+    }
+
     /** @throws DomainException */
     private function require(Seminar $seminar, SeminarStatus $target, ?string $comment): void
     {
@@ -96,6 +124,10 @@ final class SeminarWorkflow
 
         if ($target === SeminarStatus::QuoteSent && ! $seminar->quotes()->exists()) {
             throw new DomainException('Erstellen Sie zuerst einen Kostenvoranschlag.');
+        }
+
+        if ($target === SeminarStatus::QuoteSent && ! $this->quoteApproved($seminar)) {
+            throw new DomainException('Der Kostenvoranschlag ist noch nicht intern freigegeben (Vorstand oder Koordination), oder er wurde nach der Freigabe geändert.');
         }
 
         if (in_array($target, [SeminarStatus::Planned, SeminarStatus::Tendered], true) && ! $seminar->sessions()->exists()) {

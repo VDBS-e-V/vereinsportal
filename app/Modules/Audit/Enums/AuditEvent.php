@@ -88,6 +88,11 @@ enum AuditEvent: string
     case SeminarDocumentRemoved = 'seminar.document_removed';
     case SeminarClosed = 'seminar.closed';
     case SeminarReopened = 'seminar.reopened';
+    case SeminarQuoteApproved = 'seminar.quote_approved';
+    case SchoolContractCreated = 'school_contract.created';
+    case SchoolContractSigned = 'school_contract.signed';
+    case SchoolContractCancelled = 'school_contract.cancelled';
+    case SchoolContractTemplateSaved = 'school_contract.template_saved';
     case SeminarFolderDownloaded = 'seminar.folder_downloaded';
 
     case FeedbackFormSaved = 'feedback.form_saved';
@@ -212,6 +217,11 @@ enum AuditEvent: string
             self::SeminarDocumentRemoved => 'Seminardokument entfernt',
             self::SeminarClosed => 'Seminar abgeschlossen',
             self::SeminarReopened => 'Seminarabschluss wieder geöffnet',
+            self::SeminarQuoteApproved => 'Kostenvoranschlag intern freigegeben',
+            self::SchoolContractCreated => 'Schulvertrag erzeugt',
+            self::SchoolContractSigned => 'Schulvertrag unterschrieben erfasst',
+            self::SchoolContractCancelled => 'Schulvertrag storniert',
+            self::SchoolContractTemplateSaved => 'Vorlage des Schulvertrags gespeichert',
             self::SeminarFolderDownloaded => 'Seminarmappe heruntergeladen',
             self::FeedbackFormSaved => 'Feedbackformular gespeichert',
             self::FeedbackLinkCreated => 'Feedbacklink angelegt',
@@ -274,7 +284,7 @@ enum AuditEvent: string
             self::RoleAssigned, self::RoleEnded => 'roles',
             self::PersonCreated, self::PersonUpdated, self::PersonDeleted => 'people',
             self::PartnerCreated, self::PartnerUpdated, self::PartnerDeleted, self::PartnersImported => 'partners',
-            self::SeminarCreated, self::SeminarUpdated, self::SeminarDeleted, self::SeminarStatusChanged, self::SeminarQuoteCreated, self::SeminarQuoteUpdated, self::SeminarQuoteDeleted, self::SeminarPricesChanged, self::SeminarTextsChanged, self::SeminarTeamDecided, self::SeminarDocumentAdded, self::SeminarDocumentRemoved, self::SeminarClosed, self::SeminarReopened, self::SeminarFolderDownloaded => 'seminars',
+            self::SeminarCreated, self::SeminarUpdated, self::SeminarDeleted, self::SeminarStatusChanged, self::SeminarQuoteCreated, self::SeminarQuoteUpdated, self::SeminarQuoteDeleted, self::SeminarPricesChanged, self::SeminarTextsChanged, self::SeminarTeamDecided, self::SeminarDocumentAdded, self::SeminarDocumentRemoved, self::SeminarClosed, self::SeminarReopened, self::SeminarFolderDownloaded, self::SeminarQuoteApproved, self::SchoolContractCreated, self::SchoolContractSigned, self::SchoolContractCancelled, self::SchoolContractTemplateSaved => 'seminars',
             self::ArticleCreated, self::ArticleUpdated, self::ArticleDeleted => 'articles',
             self::PageUpdated => 'pages',
             self::EventCreated, self::EventUpdated, self::EventDeleted, self::EventRegistrationsImported, self::EventRegistrationRemoved, self::EventMessageSent => 'events',

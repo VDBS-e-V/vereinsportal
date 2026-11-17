@@ -235,15 +235,20 @@ it('walks through the whole seminar workflow with history entries', function () 
     $seminar = Seminar::factory()->create();
     $status = fn (string $to, array $extra = []) => $this->post(route('seminars.status', $seminar), ['status' => $to] + $extra);
 
-    $this->actingAs($coordinator);
+    $staff = smUser(RoleKey::AdministrationStaff);
+    $this->actingAs($staff);
     $status('in_review', ['comment' => 'Schule hat zugesagt'])->assertSessionHasNoErrors();
     expect($seminar->fresh()->status)->toBe(SeminarStatus::InReview);
 
     $this->post(route('seminar-quotes.store'), smQuote($seminar));
+    $status('quote_sent')->assertSessionHas('warning');
+    $this->actingAs($coordinator)->post(route('seminars.quote.approve', $seminar))->assertSessionHas('success');
+    $this->actingAs($staff);
     $status('quote_sent');
     $status('released', ['basis' => 'commitment', 'reason' => 'Rektorin hat am Telefon zugesagt']);
     expect($seminar->fresh())->status->toBe(SeminarStatus::Released)->release_basis->toBe('commitment');
 
+    $this->actingAs($coordinator);
     smSession($seminar);
     $status('planned');
     $seminar->forceFill(['team_needed' => 2, 'application_deadline' => now()->addWeek()->toDateString()])->save();
@@ -266,7 +271,7 @@ it('walks through the whole seminar workflow with history entries', function () 
 });
 
 it('releases with a signed contract only with the date and on a commitment only with a reason', function () {
-    $this->actingAs(smUser(RoleKey::Coordination));
+    $this->actingAs(smUser(RoleKey::AdministrationStaff));
     $seminar = Seminar::factory()->create(['status' => SeminarStatus::InReview]);
 
     $this->post(route('seminars.status', $seminar), ['status' => 'released'])->assertSessionHas('warning');
@@ -279,7 +284,7 @@ it('releases with a signed contract only with the date and on a commitment only 
 });
 
 it('refuses jumps, missing sessions, a missing quote and a missing tender setup', function () {
-    $this->actingAs(smUser(RoleKey::Coordination));
+    $this->actingAs(smUser(RoleKey::AdministrationStaff));
     $seminar = Seminar::factory()->create();
 
     $this->post(route('seminars.status', $seminar), ['status' => 'held'])->assertSessionHas('warning');
@@ -318,6 +323,10 @@ it('rejects and cancels only with a reason, and reopens a cancelled seminar as a
     expect($seminar->fresh()->status)->toBe(SeminarStatus::Request);
 
     $rejected = Seminar::factory()->create(['status' => SeminarStatus::Request]);
+    $this->post(route('seminars.status', $rejected), ['status' => 'rejected', 'comment' => 'Nicht unser Angebot'])->assertSessionHas('warning');
+    expect($rejected->fresh()->status)->toBe(SeminarStatus::Request);
+
+    $this->actingAs(smUser(RoleKey::AdministrationStaff));
     $this->post(route('seminars.status', $rejected), ['status' => 'rejected'])->assertSessionHas('warning');
     $this->post(route('seminars.status', $rejected), ['status' => 'rejected', 'comment' => 'Außerhalb unseres Angebots']);
     expect($rejected->fresh()->status)->toBe(SeminarStatus::Rejected);

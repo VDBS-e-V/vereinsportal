@@ -47,6 +47,12 @@ enum Capability: string
     /** Einen abgeschlossenen Seminarabschluss wieder öffnen und geschützte Dokumente nach dem Abschluss löschen (Vorstand). */
     case SeminarsReopen = 'seminars.reopen';
 
+    /** Anfragen prüfen, KVA senden, Seminare freigeben oder ablehnen, Schulverträge erzeugen (Geschäftsstelle, Vorstand). */
+    case SeminarsReview = 'seminars.review';
+
+    /** Den Kostenvoranschlag eines Seminars intern freigeben (Vorstand, Koordination). */
+    case SeminarsQuoteApprove = 'seminars.quote_approve';
+
     /** Feedbackformulare bearbeiten und Feedbacklinks zu Seminaren anlegen. */
     case FeedbackManage = 'feedback.manage';
 

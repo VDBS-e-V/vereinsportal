@@ -197,4 +197,10 @@ Tests je Phase: jeder erlaubte und jeder verbotene Übergang, Rechte je Rolle (a
 ## 13. Stand der Umsetzung
 
 - **Phase 1 umgesetzt** (nicht ausgeführt, nur Syntax geprüft, Tests laufen in der CI): neues Statusmodell, `SeminarWorkflow`, Migration `2027_01_10`, Koordinationsgebiet an der Schule, alle Stellen und Tests auf die neuen Status umgestellt, alte Statuslogik entfernt.
-- Noch **nicht** geändert: Wer welchen Status setzen darf (alle Wechsel laufen noch über `seminars.manage`, Phase 2 und 3 trennen die Rechte), KVA-Freigabe, Teamauswahl als Entwurf.
+- **Phase 2 umgesetzt** (ebenfalls nur syntaxgeprüft, Tests in der CI):
+  - Seite **Geschäftsstelle › Seminare** (`/geschaeftsstelle/seminare`) mit allen Seminaren, Filter nach Status und Koordinationsgebiet, Stand von KVA, Freigabe und Vertrag
+  - neue Rechte `seminars.review` (Geschäftsstelle, Vorstand) und `seminars.quote_approve` (Vorstand, Koordination); Prüfung, KVA-Versand, Freigabe und Ablehnung nur noch mit `seminars.review`
+  - **interne KVA-Freigabe** am Seminar; „KVA gesendet“ setzt sie voraus; eine Änderung des Kostenvoranschlags danach macht sie ungültig
+  - Kasten „Prüfung und Freigabe“ am Seminar (Freigabegrund, Datum, Vertrag)
+  - **Vertrag mit der Schule**: Vorlage mit Platzhaltern (versioniert, Seite „Vorlage Schulvertrag“), Erzeugen aus dem Seminar, Druckansicht, Unterschrift mit Datum erfassen, Stornieren; die Unterschrift füllt das Datum für die Freigabe mit Basis „Vertrag“
+- Noch **nicht** umgesetzt: Teamverträge (Honorarverträge) von der Seminarliste der Geschäftsstelle aus (bisher am Seminar), Teamauswahl als Entwurf (Phase 3), Mails (Phase 4), Seminarleitung (Phase 5).

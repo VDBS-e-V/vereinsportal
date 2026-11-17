@@ -4,6 +4,7 @@ use App\Modules\Seminars\Http\Controllers\SeminarClosureController;
 use App\Modules\Seminars\Http\Controllers\SeminarController;
 use App\Modules\Seminars\Http\Controllers\SeminarDocumentController;
 use App\Modules\Seminars\Http\Controllers\SeminarPriceController;
+use App\Modules\Seminars\Http\Controllers\SeminarOfficeController;
 use App\Modules\Seminars\Http\Controllers\SeminarQuoteController;
 use App\Modules\Seminars\Http\Controllers\SeminarStatisticsController;
 use App\Modules\Seminars\Http\Controllers\SeminarTeamController;
@@ -19,6 +20,10 @@ use Illuminate\Support\Facades\Route;
  * /koordination/kostenvoranschlaege (Kostenvoranschläge mit Positionen) /koordination/texte (Titel und Standardbeschreibung der Produkte) und /koordination/preise (Preisliste). Berechtigungen seminars.view, seminars.manage und seminars.prices (Support\Capabilities).
  */
 Route::middleware(['web', 'auth'])->group(function (): void {
+    // Geschäftsstelle: alle Seminare mit KVA, Freigabe und Verträgen; interne KVA-Freigabe durch Vorstand oder Koordination
+    Route::get('geschaeftsstelle/seminare', [SeminarOfficeController::class, 'index'])->middleware('can:seminars.review')->name('seminar-office.index');
+    Route::post('koordination/seminare/{seminar}/kva-freigabe', [SeminarOfficeController::class, 'approveQuote'])->whereNumber('seminar')->middleware(['can:seminars.quote_approve', 'throttle:20,10'])->name('seminars.quote.approve');
+
     Route::prefix('koordination/seminare')->name('seminars.')->group(function (): void {
         Route::middleware('can:seminars.manage')->group(function (): void {
             Route::get('/neu', [SeminarController::class, 'create'])->name('create');

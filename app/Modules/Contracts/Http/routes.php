@@ -3,6 +3,7 @@
 use App\Modules\Contracts\Http\Controllers\ContractAdminController;
 use App\Modules\Contracts\Http\Controllers\ContractController;
 use App\Modules\Contracts\Http\Controllers\ContractorProfileController;
+use App\Modules\Contracts\Http\Controllers\SchoolContractController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,6 +25,19 @@ Route::middleware(['web', 'auth'])->group(function (): void {
         Route::get('/', [ContractAdminController::class, 'index'])->name('index');
         Route::put('/vereinsdaten', [ContractAdminController::class, 'updateSettings'])->name('settings');
         Route::post('/vertragstext', [ContractAdminController::class, 'storeVersion'])->middleware(['can:contracts.template', 'throttle:20,10'])->name('version');
+    });
+
+    // Vertrag mit der Schule (Geschäftsstelle)
+    Route::middleware('can:seminars.review')->group(function (): void {
+        Route::prefix('geschaeftsstelle/seminare/{seminar}/schulvertrag')->name('school-contracts.')->whereNumber('seminar')->group(function (): void {
+            Route::get('/', [SchoolContractController::class, 'show'])->name('show');
+            Route::post('/', [SchoolContractController::class, 'store'])->middleware('throttle:20,10')->name('store');
+            Route::get('/{contract}/drucken', [SchoolContractController::class, 'print'])->whereNumber('contract')->name('print');
+            Route::post('/{contract}/unterschrift', [SchoolContractController::class, 'sign'])->whereNumber('contract')->middleware('throttle:20,10')->name('sign');
+            Route::post('/{contract}/stornieren', [SchoolContractController::class, 'cancel'])->whereNumber('contract')->middleware('throttle:20,10')->name('cancel');
+        });
+        Route::get('geschaeftsstelle/schulvertrag-vorlage', [SchoolContractController::class, 'template'])->name('school-contracts.template');
+        Route::put('geschaeftsstelle/schulvertrag-vorlage', [SchoolContractController::class, 'updateTemplate'])->middleware('throttle:20,10')->name('school-contracts.template.update');
     });
 
     Route::prefix('teamende/vertragsdaten')->name('contractor.')->middleware('can:seminars.apply')->group(function (): void {

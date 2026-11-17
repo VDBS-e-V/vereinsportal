@@ -120,6 +120,8 @@
         @endif
     </section>
 
+    @include('seminars._review')
+
     @include('seminars._team')
 
     @can('seminars.documents')
