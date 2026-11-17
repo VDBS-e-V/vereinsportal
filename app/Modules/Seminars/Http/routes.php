@@ -4,6 +4,7 @@ use App\Modules\Seminars\Http\Controllers\SeminarClosureController;
 use App\Modules\Seminars\Http\Controllers\SeminarController;
 use App\Modules\Seminars\Http\Controllers\SeminarDocumentController;
 use App\Modules\Seminars\Http\Controllers\SeminarPriceController;
+use App\Modules\Seminars\Http\Controllers\MySeminarsController;
 use App\Modules\Seminars\Http\Controllers\SeminarOfficeController;
 use App\Modules\Seminars\Http\Controllers\SeminarQuoteController;
 use App\Modules\Seminars\Http\Controllers\SeminarStatisticsController;
@@ -24,6 +25,8 @@ Route::middleware(['web', 'auth'])->group(function (): void {
     Route::get('geschaeftsstelle/seminare', [SeminarOfficeController::class, 'index'])->middleware('can:seminars.review')->name('seminar-office.index');
     Route::post('koordination/seminare/{seminar}/kva-freigabe', [SeminarOfficeController::class, 'approveQuote'])->whereNumber('seminar')->middleware(['can:seminars.quote_approve', 'throttle:20,10'])->name('seminars.quote.approve');
 
+    Route::get('koordination/meine-seminare', [MySeminarsController::class, 'index'])->middleware('can:seminars.view')->name('seminar-mine.index');
+
     Route::prefix('koordination/seminare')->name('seminars.')->group(function (): void {
         Route::middleware('can:seminars.manage')->group(function (): void {
             Route::get('/neu', [SeminarController::class, 'create'])->name('create');
@@ -42,7 +45,9 @@ Route::middleware(['web', 'auth'])->group(function (): void {
             Route::post('/{seminar}/team/vorschlag', [SeminarTeamController::class, 'suggestion'])->whereNumber('seminar')->name('team.suggestion');
             Route::put('/{seminar}/bewerbungen/{application}/notiz', [SeminarTeamController::class, 'note'])->whereNumber(['seminar', 'application'])->name('team.note');
             Route::post('/{seminar}/bewerbungen/{application}/leitung', [SeminarTeamController::class, 'lead'])->whereNumber(['seminar', 'application'])->name('team.lead');
-            Route::post('/{seminar}/bewerbungen/{application}/{decision}', [SeminarTeamController::class, 'decide'])->whereNumber(['seminar', 'application'])->where('decision', 'bestaetigen|ablehnen')->name('team.decide');
+            Route::post('/{seminar}/bewerbungen/{application}/nachruecken', [SeminarTeamController::class, 'promote'])->whereNumber(['seminar', 'application'])->name('team.promote');
+            Route::post('/{seminar}/bewerbungen/{application}/{decision}', [SeminarTeamController::class, 'mark'])->whereNumber(['seminar', 'application'])->where('decision', 'zusage|absage|zuruecksetzen')->name('team.mark');
+            Route::post('/{seminar}/team/bestaetigen', [SeminarTeamController::class, 'confirm'])->whereNumber('seminar')->middleware('throttle:10,10')->name('team.confirm');
             Route::delete('/{seminar}/termine/{session}', [SeminarController::class, 'destroySession'])->whereNumber(['seminar', 'session'])->name('sessions.destroy');
         });
 

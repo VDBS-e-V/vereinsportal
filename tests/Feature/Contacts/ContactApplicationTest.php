@@ -163,7 +163,9 @@ it('shows applicants with a personal access in the review of the coordination an
     $this->actingAs($coordination)->get(route('seminars.show', $seminar))->assertOk()->assertSee('Bea Bewerber')->assertSee('Persönlicher Zugang')->assertSee('möchte leiten');
 
     $this->travel(2)->days();
-    $this->post(route('seminars.team.decide', [$seminar, $application, 'bestaetigen']))->assertSessionHas('success');
+    $this->post(route('seminars.team.mark', [$seminar, $application, 'zusage']))->assertSessionHas('success');
+    $this->post(route('seminars.team.lead', [$seminar, $application]))->assertSessionHas('success');
+    $this->post(route('seminars.team.confirm', $seminar))->assertSessionHasNoErrors();
 
     expect($application->fresh()->status)->toBe(ApplicationStatus::Confirmed);
     Mail::assertSent(SeminarTeamMail::class, fn (SeminarTeamMail $mail): bool => $mail->hasTo($contact->email) && $mail->kind === 'confirmed' && str_contains($mail->url, '/zugang'));

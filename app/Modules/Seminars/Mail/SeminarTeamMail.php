@@ -17,6 +17,7 @@ final class SeminarTeamMail extends Mailable
         return new Envelope(subject: match ($this->kind) {
             'confirmed' => 'Sie sind im Team: '.$this->seminar->title,
             'cancelled' => 'Seminar abgesagt: '.$this->seminar->title,
+            'waitlist' => 'Warteliste: '.$this->seminar->title,
             default => 'Ihr Interesse an '.$this->seminar->title,
         });
     }

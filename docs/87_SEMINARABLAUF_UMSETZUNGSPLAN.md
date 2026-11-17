@@ -203,4 +203,11 @@ Tests je Phase: jeder erlaubte und jeder verbotene Übergang, Rechte je Rolle (a
   - **interne KVA-Freigabe** am Seminar; „KVA gesendet“ setzt sie voraus; eine Änderung des Kostenvoranschlags danach macht sie ungültig
   - Kasten „Prüfung und Freigabe“ am Seminar (Freigabegrund, Datum, Vertrag)
   - **Vertrag mit der Schule**: Vorlage mit Platzhaltern (versioniert, Seite „Vorlage Schulvertrag“), Erzeugen aus dem Seminar, Druckansicht, Unterschrift mit Datum erfassen, Stornieren; die Unterschrift füllt das Datum für die Freigabe mit Basis „Vertrag“
-- Noch **nicht** umgesetzt: Teamverträge (Honorarverträge) von der Seminarliste der Geschäftsstelle aus (bisher am Seminar), Teamauswahl als Entwurf (Phase 3), Mails (Phase 4), Seminarleitung (Phase 5).
+- **Phase 3 umgesetzt** (nur syntaxgeprüft, Tests in der CI):
+  - Teamauswahl als **Entwurf**: je Interessent „Zusage“, „Absage“ oder „Zurücksetzen“ (nichts wird gesendet). Mit der ersten Zusage wechselt das Seminar auf „Team gewählt“.
+  - **„Team bestätigen“**: Seminarleitung Pflicht, Warnung und ausdrückliche Bestätigung, wenn weniger Zusagen als die Sollzahl; setzt alle Entscheidungen um und sendet alle Mails gleichzeitig (Zusage, Absage, Warteliste); Seminar wechselt auf „Team bestätigt“.
+  - **Warteliste und Nachrücken**: Wer ohne Markierung bleibt, kommt mit Platznummer auf die Warteliste; „Nachrücken“ bei freiem Platz sendet die Zusage.
+  - Zusage, Absage und Wartelisten-Mail sind **Pflicht-Mails** und ignorieren die Einstellung im Konto.
+  - Seite **Koordination › Meine Seminare** mit dem nächsten Schritt je Status.
+  - Der alte Weg mit sofortiger Zu- oder Absage (`decide`, Route `team.decide`) ist entfernt; der Teamvorschlag legt jetzt Entwürfe an.
+- Noch **nicht** umgesetzt: Teamverträge (Honorarverträge) von der Seminarliste der Geschäftsstelle aus (bisher am Seminar), Mails und Vorlagen der übrigen Schritte (Phase 4), Seminarleitung mit Upload (Phase 5).

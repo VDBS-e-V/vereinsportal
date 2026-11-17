@@ -20,7 +20,7 @@ final class NotificationPreferences
     public static function catalog(): array
     {
         return [
-            'seminar_team' => ['label' => 'Entscheidungen zu Seminaren', 'description' => 'Wenn Sie ins Team eines Seminars aufgenommen werden oder ein Seminar abgesagt wird.', 'group' => 'Seminare', 'ability' => 'seminars.apply'],
+            'seminar_team' => ['label' => 'Entscheidungen zu Seminaren', 'description' => 'Wenn ein Seminar abgesagt wird, an dem Sie beteiligt sind. Zusage, Absage und Warteliste erhalten Sie immer.', 'group' => 'Seminare', 'ability' => 'seminars.apply'],
             'team_mailings' => ['label' => 'Mitteilungen an Teamende', 'description' => 'Mitteilungen der Koordination zu Seminaren sowie Schreiben von Geschäftsstelle und Vorstand an Teamende.', 'group' => 'Seminare', 'ability' => 'seminars.apply'],
             'school_mailings' => ['label' => 'Mitteilungen an Schulen', 'description' => 'Schreiben von Geschäftsstelle und Vorstand an Schulkonten.', 'group' => 'Schulen', 'ability' => 'school.area'],
             'onboarding_reminders' => ['label' => 'Erinnerungen an Ihre Einarbeitung', 'description' => 'Wenn Schritte der Einarbeitung länger offen sind.', 'group' => 'Teamende', 'ability' => 'team.onboarding'],

@@ -8,6 +8,7 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ### Added
 
+- Seminarablauf Phase 3: Teamauswahl als Entwurf mit „Team bestätigen“, Warteliste mit Nachrücken, Pflicht-Mails für Zusage und Absage, Seite „Meine Seminare“ der Koordination (Doc 87)
 - Seminarablauf Phase 2: Seite „Seminare“ der Geschäftsstelle, interne KVA-Freigabe, Rechte für Prüfung und Freigabe, Vertrag mit der Schule aus einer Vorlage (erzeugen, drucken, Unterschrift erfassen) (Doc 87)
 - Seminarablauf Phase 1: neues Statusmodell (Anfrage bis Abgeschlossen, Abgelehnt, Abgesagt) mit Dienst `SeminarWorkflow`, Freigabe mit Vertrag oder Zusage der Schule, Koordinationsgebiet in den Stammdaten der Schule (Doc 86 und 87)
 - Web-Control im Bereich Admins (Bereiche und Header); Header-Editor interaktiv mit Anzahl, Titel sowie waagerechter und senkrechter Position der Seiten, eigene Links und Unterseiten (Doc 85)

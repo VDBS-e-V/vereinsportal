@@ -138,43 +138,6 @@ final class TeamApplications
         $this->record($application->seminar, SeminarEventType::TeamWithdrawn, $user, $this->name($user));
     }
 
-    /** @throws DomainException */
-    public function decide(SeminarApplication $application, ApplicationStatus $target, User $by): void
-    {
-        $seminar = $application->seminar;
-
-        if (! in_array($target, [ApplicationStatus::Confirmed, ApplicationStatus::Declined], true)) {
-            throw new DomainException('Ungültige Entscheidung.');
-        }
-
-        if ($application->status === ApplicationStatus::Withdrawn) {
-            throw new DomainException('Die Interessenbekundung wurde zurückgezogen.');
-        }
-
-        if (! $application->isConfirmedApplicant()) {
-            throw new DomainException('Die E-Mail-Adresse der Person ist noch nicht bestätigt.');
-        }
-
-        if ($application->status === $target) {
-            return;
-        }
-
-        if ($seminar->application_deadline !== null && ! $seminar->deadlinePassed()) {
-            throw new DomainException('Der Stichtag ('.$seminar->application_deadline->format('d.m.Y').') ist noch nicht erreicht. Die Koordination sichtet die Interessenbekundungen danach.');
-        }
-
-        if ($target === ApplicationStatus::Confirmed && $this->confirmedCount($seminar) >= (int) $seminar->team_needed) {
-            throw new DomainException('Der Bedarf an Teamenden ist bereits gedeckt. Erhöhen Sie zuerst den Bedarf.');
-        }
-
-        $application->forceFill(['status' => $target, 'decided_by_user_id' => $by->id, 'decided_at' => now()])->save();
-
-        $this->record($seminar, $target === ApplicationStatus::Confirmed ? SeminarEventType::TeamConfirmed : SeminarEventType::TeamDeclined, $by, $application->applicantName());
-        AuditLog::record(AuditEvent::SeminarTeamDecided, $by, $seminar, ['entscheidung' => $target->label()]);
-
-        $this->notify($application, $target === ApplicationStatus::Confirmed ? 'confirmed' : 'declined', $seminar);
-    }
-
     /**
      * Bedarf, Stichtag und gesuchte Kompetenzen setzen (Bedarf 0 oder leer = kein Interesse mehr möglich).
      *
@@ -264,7 +227,7 @@ final class TeamApplications
             ];
         })->all();
 
-        $team = collect($rows)->filter(fn (array $row): bool => $row['application']->status === ApplicationStatus::Confirmed);
+        $team = collect($rows)->filter(fn (array $row): bool => $row['application']->status === ApplicationStatus::Confirmed || $row['application']->decision_draft === TeamSelection::CONFIRM);
         $wanted = (array) ($seminar->team_competences ?? []);
         $covered = $team->flatMap(fn (array $row): array => $row['competences'])->unique()->all();
         $ages = $team->pluck('age')->filter(fn ($age): bool => $age !== null);
@@ -291,9 +254,9 @@ final class TeamApplications
     public function suggest(Seminar $seminar): array
     {
         $rows = collect($this->review($seminar)['rows']);
-        $team = $rows->filter(fn (array $row): bool => $row['application']->status === ApplicationStatus::Confirmed);
+        $team = $rows->filter(fn (array $row): bool => $row['application']->status === ApplicationStatus::Confirmed || $row['application']->decision_draft === TeamSelection::CONFIRM);
         $slots = max(0, (int) $seminar->team_needed - $team->count());
-        $pool = $rows->filter(fn (array $row): bool => $row['application']->status === ApplicationStatus::Applied);
+        $pool = $rows->filter(fn (array $row): bool => $row['application']->status === ApplicationStatus::Applied && $row['application']->decision_draft === null);
         $candidates = $pool->filter(fn (array $row): bool => $row['conflicts'] === [])->values();
         $labels = (array) config('portal.team.competences', []);
         $wanted = (array) ($seminar->team_competences ?? []);
@@ -347,7 +310,7 @@ final class TeamApplications
     }
 
     /**
-     * Übernimmt den aktuellen Teamvorschlag (berechnet ihn neu). Gibt die Zahl der Aufgenommenen zurück.
+     * Übernimmt den aktuellen Teamvorschlag (berechnet ihn neu) als Entwurf „Zusage“. Gibt die Zahl der markierten Personen zurück; gesendet wird erst mit „Team bestätigen“.
      *
      * @throws DomainException wenn der Stichtag noch nicht erreicht ist
      */
@@ -356,7 +319,7 @@ final class TeamApplications
         $count = 0;
 
         foreach ($this->suggest($seminar)['picks'] as $pick) {
-            $this->decide($pick['application'], ApplicationStatus::Confirmed, $by);
+            app(TeamSelection::class)->mark($pick['application'], TeamSelection::CONFIRM, $by);
             $count++;
         }
 
@@ -476,7 +439,7 @@ final class TeamApplications
     }
 
     /** Nachricht an Konto oder (über den persönlichen Zugang) an den Kontakt. Gesperrte und abgemeldete Adressen bekommen nichts. */
-    private function notify(SeminarApplication $application, string $kind, Seminar $seminar): void
+    public function notify(SeminarApplication $application, string $kind, Seminar $seminar): void
     {
         if (! $application->isContact()) {
             $this->send($application->user, $kind, $seminar);
@@ -497,9 +460,12 @@ final class TeamApplications
         }
     }
 
+    /** Zusage, Absage und Warteliste sind Pflicht-Mails: Die Einstellung im Konto gilt dafür nicht. */
     private function send(User $user, string $kind, Seminar $seminar): void
     {
-        if (! app(NotificationPreferences::class)->allows($user, 'seminar_team')) {
+        $mandatory = in_array($kind, ['confirmed', 'declined', 'waitlist'], true);
+
+        if (! $mandatory && ! app(NotificationPreferences::class)->allows($user, 'seminar_team')) {
             return;
         }
 

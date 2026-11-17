@@ -73,6 +73,18 @@
             <x-vdbs.feedback.alert variant="info">Der Stichtag ist noch nicht erreicht. Entscheiden können Sie danach (oder Sie setzen den Stichtag auf heute oder früher).</x-vdbs.feedback.alert>
         @endif
 
+        @if ($canManage && $seminar->status === \App\Modules\Seminars\Enums\SeminarStatus::TeamSelected)
+            @php $drafted = $rows->filter(fn ($row) => $row['application']->decision_draft === 'confirm')->count(); @endphp
+            <aside aria-labelledby="team-confirm-heading" style="margin-bottom:var(--space-5);padding:var(--space-4);background:var(--bg-surface)">
+                <h3 id="team-confirm-heading" style="margin-top:0;font-size:var(--font-size-h4)">Team bestätigen</h3>
+                <p>Im Entwurf: <strong>{{ $drafted }}</strong> von <strong>{{ $needed }}</strong> Plätzen. Mit „Team bestätigen“ gehen alle Zusagen und Absagen gleichzeitig per E-Mail raus. Personen ohne Markierung kommen auf die Warteliste. Vorher bestimmen Sie die Seminarleitung.</p>
+                <form method="post" action="{{ route('seminars.team.confirm', $seminar) }}">@csrf
+                    @if ($drafted < $needed)<x-vdbs.forms.checkbox id="accept-shortfall" name="accept_shortfall" label="Das Team bleibt kleiner als die Sollzahl, das ist gewollt." />@endif
+                    <x-vdbs.actions.button type="submit" icon="check">Team bestätigen und Mails senden</x-vdbs.actions.button>
+                </form>
+            </aside>
+        @endif
+
         <x-vdbs.data.table caption="Interessenbekundungen auf das Seminar" :columns="[['key' => 'person', 'label' => 'Person'], ['key' => 'profile', 'label' => 'Alter und Geschlecht'], ['key' => 'competences', 'label' => 'Kompetenzen'], ['key' => 'experience', 'label' => 'Erfahrung'], ['key' => 'note', 'label' => 'Nachricht und Notiz'], ['key' => 'status', 'label' => 'Stand'], ['key' => 'action', 'label' => 'Aktion']]">
             @foreach ($rows as $row)
                 @php($application = $row['application'])
@@ -109,18 +121,32 @@
                             <br><small>Notiz: {{ $application->internal_note }}</small>
                         @endif
                     </td>
-                    <td><x-vdbs.data.badge :tone="$application->status->tone()">{{ $application->status->label() }}</x-vdbs.data.badge>@if ($application->is_lead) <x-vdbs.data.badge tone="info">Leitung</x-vdbs.data.badge>@endif</td>
+                    <td><x-vdbs.data.badge :tone="$application->status->tone()">{{ $application->status->label() }}</x-vdbs.data.badge>@if ($application->decision_draft === 'confirm') <x-vdbs.data.badge tone="warning">Entwurf: Zusage</x-vdbs.data.badge>@elseif ($application->decision_draft === 'decline') <x-vdbs.data.badge tone="warning">Entwurf: Absage</x-vdbs.data.badge>@endif @if ($application->waitlist_position !== null) <x-vdbs.data.badge tone="info">Warteliste {{ $application->waitlist_position }}</x-vdbs.data.badge>@endif @if ($application->is_lead) <x-vdbs.data.badge tone="info">Leitung</x-vdbs.data.badge>@endif</td>
                     <td>
                         @if ($canManage)
+                            @php
+                                $applied = $application->status === \App\Modules\Seminars\Enums\ApplicationStatus::Applied;
+                                $draft = $application->decision_draft;
+                                $confirmed = $application->status === \App\Modules\Seminars\Enums\ApplicationStatus::Confirmed;
+                                $selecting = in_array($seminar->status, [\App\Modules\Seminars\Enums\SeminarStatus::Tendered, \App\Modules\Seminars\Enums\SeminarStatus::TeamSelected], true);
+                            @endphp
                             <div class="vdbs-btn-group">
-                                @if ($application->status !== \App\Modules\Seminars\Enums\ApplicationStatus::Confirmed)
-                                    <form method="post" action="{{ route('seminars.team.decide', [$seminar, $application, 'bestaetigen']) }}">@csrf<x-vdbs.actions.button type="submit" size="s" icon="check">Ins Team</x-vdbs.actions.button></form>
+                                @if ($applied && $selecting)
+                                    @if ($draft !== 'confirm')
+                                        <form method="post" action="{{ route('seminars.team.mark', [$seminar, $application, 'zusage']) }}">@csrf<x-vdbs.actions.button type="submit" size="s" icon="check">Zusage</x-vdbs.actions.button></form>
+                                    @endif
+                                    @if ($draft !== 'decline')
+                                        <form method="post" action="{{ route('seminars.team.mark', [$seminar, $application, 'absage']) }}">@csrf<x-vdbs.actions.button type="submit" size="s" variant="tertiary">Absage</x-vdbs.actions.button></form>
+                                    @endif
+                                    @if ($draft !== null)
+                                        <form method="post" action="{{ route('seminars.team.mark', [$seminar, $application, 'zuruecksetzen']) }}">@csrf<x-vdbs.actions.button type="submit" size="s" variant="text">Zurücksetzen</x-vdbs.actions.button></form>
+                                    @endif
                                 @endif
-                                @if ($application->status === \App\Modules\Seminars\Enums\ApplicationStatus::Confirmed)
+                                @if ($confirmed || $draft === 'confirm')
                                     <form method="post" action="{{ route('seminars.team.lead', [$seminar, $application]) }}">@csrf<x-vdbs.actions.button type="submit" size="s" variant="secondary" icon="star">{{ $application->is_lead ? 'Leitung abgeben' : 'Als Leitung' }}</x-vdbs.actions.button></form>
                                 @endif
-                                @if ($application->status !== \App\Modules\Seminars\Enums\ApplicationStatus::Declined)
-                                    <form method="post" action="{{ route('seminars.team.decide', [$seminar, $application, 'ablehnen']) }}">@csrf<x-vdbs.actions.button type="submit" size="s" variant="tertiary">Nicht berücksichtigen</x-vdbs.actions.button></form>
+                                @if ($application->waitlist_position !== null && in_array($seminar->status, [\App\Modules\Seminars\Enums\SeminarStatus::TeamConfirmed, \App\Modules\Seminars\Enums\SeminarStatus::Prepared], true))
+                                    <form method="post" action="{{ route('seminars.team.promote', [$seminar, $application]) }}">@csrf<x-vdbs.actions.button type="submit" size="s" icon="arrow-up">Nachrücken</x-vdbs.actions.button></form>
                                 @endif
                             </div>
                         @endif

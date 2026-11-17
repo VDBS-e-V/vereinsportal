@@ -106,7 +106,7 @@ it('takes the application only after the confirmation of the address', function 
     // unbestätigt: nicht in der Auswertung, nicht entscheidbar
     $review = app(TeamApplications::class)->review($seminar->fresh('applications'));
     expect($review['rows'])->toBe([]);
-    expect(fn () => app(TeamApplications::class)->decide($application, ApplicationStatus::Confirmed, tiUser()))->toThrow(DomainException::class);
+    expect(fn () => app(\App\Modules\Seminars\Services\TeamSelection::class)->mark($application, 'confirm', tiUser()))->toThrow(DomainException::class);
 
     $url = URL::temporarySignedRoute('team-invite.confirm', now()->addDay(), ['application' => $application->id]);
     $this->get($url)->assertOk()->assertSee('Ihre Bewerbung zählt');

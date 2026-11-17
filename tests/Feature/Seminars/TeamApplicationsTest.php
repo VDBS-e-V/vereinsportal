@@ -130,41 +130,101 @@ it('lets the coordination set need, deadline and wanted competences and requires
     expect($seminar->fresh()->team_needed)->toBeNull();
 });
 
-it('lets the coordination decide only after the deadline, with notifications and a log without names', function () {
+it('lets the coordination select only after the deadline, as a draft, and sends everything with „Team bestätigen“', function () {
     $seminar = taSeminar(['team_needed' => 1]);
     $coordination = taUser(RoleKey::Coordination);
     $a = taUser(RoleKey::Team);
     $b = taUser(RoleKey::Team);
+    $c = taUser(RoleKey::Team);
 
     $this->actingAs($a)->post(route('seminar-applications.apply', $seminar));
     $this->actingAs($b)->post(route('seminar-applications.apply', $seminar));
+    $this->actingAs($c)->post(route('seminar-applications.apply', $seminar));
 
     $first = SeminarApplication::query()->where('user_id', $a->id)->first();
     $second = SeminarApplication::query()->where('user_id', $b->id)->first();
+    $third = SeminarApplication::query()->where('user_id', $c->id)->first();
 
-    $this->actingAs($coordination)->post(route('seminars.team.decide', [$seminar, $first, 'bestaetigen']))->assertSessionHasErrors('team');
-    expect($first->fresh()->status)->toBe(ApplicationStatus::Applied);
+    $this->actingAs($coordination)->post(route('seminars.team.mark', [$seminar, $first, 'zusage']))->assertSessionHasErrors('team');
+    expect($first->fresh()->decision_draft)->toBeNull();
 
     $seminar->forceFill(['application_deadline' => now()->subDay()->toDateString()])->save();
 
-    $this->actingAs(taUser(RoleKey::Team))->post(route('seminars.team.decide', [$seminar, $first, 'bestaetigen']))->assertForbidden();
+    $this->actingAs(taUser(RoleKey::Team))->post(route('seminars.team.mark', [$seminar, $first, 'zusage']))->assertForbidden();
 
-    $this->actingAs($coordination)->post(route('seminars.team.decide', [$seminar, $first, 'bestaetigen']))->assertSessionHasNoErrors();
+    $this->actingAs($coordination)->post(route('seminars.team.mark', [$seminar, $first, 'zusage']))->assertSessionHasNoErrors();
+    Mail::assertNotSent(SeminarTeamMail::class);
+    expect($first->fresh()->decision_draft)->toBe('confirm')->and($first->fresh()->status)->toBe(ApplicationStatus::Applied)->and($seminar->fresh()->status)->toBe(SeminarStatus::TeamSelected);
+
+    // Sollzahl im Entwurf erreicht
+    $this->actingAs($coordination)->post(route('seminars.team.mark', [$seminar, $second, 'zusage']))->assertSessionHasErrors('team');
+    $this->actingAs($coordination)->post(route('seminars.team.mark', [$seminar, $second, 'absage']))->assertSessionHasNoErrors();
+
+    // ohne Seminarleitung keine Bestätigung
+    $this->actingAs($coordination)->post(route('seminars.team.confirm', $seminar))->assertSessionHasErrors('team');
+    $this->actingAs($coordination)->post(route('seminars.team.lead', [$seminar, $first]))->assertSessionHas('success');
+
+    $this->actingAs($coordination)->post(route('seminars.team.confirm', $seminar))->assertSessionHasNoErrors();
+
     Mail::assertSent(SeminarTeamMail::class, fn (SeminarTeamMail $mail): bool => $mail->hasTo($a->email) && $mail->kind === 'confirmed');
-
-    // Bedarf gedeckt: weitere Aufnahme nicht möglich, Absage schon
-    $this->actingAs($coordination)->post(route('seminars.team.decide', [$seminar, $second, 'bestaetigen']))->assertSessionHasErrors('team');
-    $this->actingAs($coordination)->post(route('seminars.team.decide', [$seminar, $second, 'ablehnen']))->assertSessionHasNoErrors();
     Mail::assertSent(SeminarTeamMail::class, fn (SeminarTeamMail $mail): bool => $mail->hasTo($b->email) && $mail->kind === 'declined');
+    Mail::assertSent(SeminarTeamMail::class, fn (SeminarTeamMail $mail): bool => $mail->hasTo($c->email) && $mail->kind === 'waitlist');
 
-    expect($first->fresh()->status)->toBe(ApplicationStatus::Confirmed)->and($second->fresh()->status)->toBe(ApplicationStatus::Declined);
+    expect($first->fresh()->status)->toBe(ApplicationStatus::Confirmed)->and($second->fresh()->status)->toBe(ApplicationStatus::Declined)->and($second->fresh()->waitlist_position)->toBeNull()
+        ->and($third->fresh()->status)->toBe(ApplicationStatus::Declined)->and($third->fresh()->waitlist_position)->toBe(1)
+        ->and($seminar->fresh()->status)->toBe(SeminarStatus::TeamConfirmed)->and($seminar->fresh()->team_confirmed_at)->not->toBeNull();
 
     $this->actingAs($coordination)->get(route('seminars.show', $seminar))->assertOk()->assertSee('Interessenbekundungen')->assertSee($a->person->fullName());
 
     foreach (AuditEntry::query()->where('event', 'seminar.team_decided')->get() as $entry) {
         expect(json_encode($entry->context, JSON_UNESCAPED_UNICODE))->not->toContain($a->person->fullName())->not->toContain($a->email);
     }
-    expect(AuditEntry::query()->where('event', 'seminar.team_decided')->count())->toBe(2);
+});
+
+it('warns when the team stays smaller than planned and lets people move up from the waitlist', function () {
+    $seminar = taSeminar(['team_needed' => 2]);
+    $coordination = taUser(RoleKey::Coordination);
+    $a = taUser(RoleKey::Team);
+    $b = taUser(RoleKey::Team);
+    $this->actingAs($a)->post(route('seminar-applications.apply', $seminar));
+    $this->actingAs($b)->post(route('seminar-applications.apply', $seminar));
+    $first = SeminarApplication::query()->where('user_id', $a->id)->first();
+    $second = SeminarApplication::query()->where('user_id', $b->id)->first();
+    $seminar->forceFill(['application_deadline' => now()->subDay()->toDateString()])->save();
+
+    $this->actingAs($coordination);
+    $this->post(route('seminars.team.mark', [$seminar, $first, 'zusage']));
+    $this->post(route('seminars.team.lead', [$seminar, $first]));
+
+    $this->post(route('seminars.team.confirm', $seminar))->assertSessionHasErrors('team');
+    expect($seminar->fresh()->status)->toBe(SeminarStatus::TeamSelected);
+
+    $this->post(route('seminars.team.confirm', $seminar), ['accept_shortfall' => '1'])->assertSessionHasNoErrors();
+    expect($second->fresh()->waitlist_position)->toBe(1);
+
+    // Platz ist noch frei (Soll 2, im Team 1): Nachrücken geht, danach ist das Team voll
+    $this->post(route('seminars.team.promote', [$seminar, $second]))->assertSessionHasNoErrors();
+    expect($second->fresh()->status)->toBe(ApplicationStatus::Confirmed)->and($second->fresh()->waitlist_position)->toBeNull();
+    Mail::assertSent(SeminarTeamMail::class, fn (SeminarTeamMail $mail): bool => $mail->hasTo($b->email) && $mail->kind === 'confirmed');
+
+    $this->post(route('seminars.team.promote', [$seminar, $second]))->assertSessionHasErrors('team');
+});
+
+it('sends the confirmation mails even when the person switched the seminar mails off', function () {
+    $seminar = taSeminar(['team_needed' => 1]);
+    $a = taUser(RoleKey::Team);
+    $this->actingAs($a)->post(route('seminar-applications.apply', $seminar));
+    $this->actingAs($a)->put(route('account.notifications.update'), []);
+    expect(app(\App\Modules\Access\Services\NotificationPreferences::class)->allows($a, 'seminar_team'))->toBeFalse();
+    $application = SeminarApplication::query()->first();
+    $seminar->forceFill(['application_deadline' => now()->subDay()->toDateString()])->save();
+
+    $coordination = taUser(RoleKey::Coordination);
+    $this->actingAs($coordination)->post(route('seminars.team.mark', [$seminar, $application, 'zusage']));
+    $this->post(route('seminars.team.lead', [$seminar, $application]));
+    $this->post(route('seminars.team.confirm', $seminar));
+
+    Mail::assertSent(SeminarTeamMail::class, fn (SeminarTeamMail $mail): bool => $mail->hasTo($a->email) && $mail->kind === 'confirmed');
 });
 
 it('shows age, gender, competences, experience and the team composition to the coordination', function () {
@@ -357,9 +417,9 @@ it('suggests a team by competences, leadership and experience, skips overlaps an
 
     $this->actingAs($coordination)->post(route('seminars.team.suggestion', $seminar))->assertSessionHasNoErrors();
 
-    expect(SeminarApplication::query()->where('seminar_id', $seminar->id)->where('status', ApplicationStatus::Confirmed->value)->pluck('user_id')->sort()->values()->all())->toBe(collect([$a->id, $b->id])->sort()->values()->all());
-    Mail::assertSent(SeminarTeamMail::class, fn (SeminarTeamMail $mail): bool => $mail->kind === 'confirmed' && $mail->hasTo($a->email));
-    Mail::assertNotSent(SeminarTeamMail::class, fn (SeminarTeamMail $mail): bool => $mail->hasTo($c->email) || $mail->hasTo($d->email));
+    expect(SeminarApplication::query()->where('seminar_id', $seminar->id)->where('decision_draft', 'confirm')->pluck('user_id')->sort()->values()->all())->toBe(collect([$a->id, $b->id])->sort()->values()->all())
+        ->and(SeminarApplication::query()->where('seminar_id', $seminar->id)->where('status', ApplicationStatus::Confirmed->value)->count())->toBe(0);
+    Mail::assertNotSent(SeminarTeamMail::class);
 });
 
 it('does not show or apply a team suggestion before the deadline', function () {
@@ -371,4 +431,15 @@ it('does not show or apply a team suggestion before the deadline', function () {
     $this->actingAs($coordination)->get(route('seminars.show', $seminar))->assertDontSee('Teamvorschlag für');
     $this->actingAs($coordination)->post(route('seminars.team.suggestion', $seminar))->assertSessionHasErrors('team');
     expect(SeminarApplication::query()->first()->status)->toBe(ApplicationStatus::Applied);
+});
+
+it('lists the seminars of the coordination with the next step', function () {
+    $coordination = taUser(RoleKey::Coordination);
+    $mine = Seminar::factory()->create(['title' => 'Mein Seminar', 'status' => SeminarStatus::Tendered, 'coordinator_user_id' => $coordination->id]);
+    Seminar::factory()->create(['title' => 'Fremdes Seminar', 'status' => SeminarStatus::Tendered]);
+    Seminar::factory()->create(['title' => 'Noch Anfrage', 'status' => SeminarStatus::Request, 'coordinator_user_id' => $coordination->id]);
+
+    $this->actingAs(taUser(RoleKey::Team))->get(route('seminar-mine.index'))->assertForbidden();
+    $this->actingAs($coordination)->get(route('seminar-mine.index'))->assertOk()->assertSee('Mein Seminar')->assertSee('Zusagen und Absagen markieren')->assertDontSee('Fremdes Seminar')->assertDontSee('Noch Anfrage');
+    $this->actingAs($coordination)->get(route('seminar-mine.index', ['all' => 1]))->assertSee('Fremdes Seminar');
 });

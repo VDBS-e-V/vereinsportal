@@ -182,6 +182,7 @@ final class PortalNavigation
                     ['label' => 'Übersicht', 'route' => 'coordination.home', 'match' => 'coordination.home'],
                     ['description' => 'Partnerschulen, Ansprechpersonen und Anfragen.', 'label' => 'Schulen', 'route' => 'partners.index', 'match' => 'partners.*', 'can' => 'partners.view'],
                     ['description' => 'Teamende und ihre Einarbeitung.', 'label' => 'Teamende', 'route' => 'team-onboarding.index', 'match' => 'team-onboarding.*', 'can' => 'team.view'],
+                    ['description' => 'Freigegebene Seminare bis zum Abschluss mit dem nächsten Schritt.', 'label' => 'Meine Seminare', 'route' => 'seminar-mine.index', 'match' => 'seminar-mine.*', 'can' => 'seminars.view'],
                     ['description' => 'Seminare planen, Bewerbungen sichten, Teams zusammenstellen.', 'label' => 'Seminare', 'route' => 'seminars.index', 'match' => 'seminars.*', 'can' => 'seminars.view'],
                     ['description' => 'Abgeschlossene Seminare mit Kennzahlen und CSV-Export.', 'label' => 'Statistik', 'route' => 'seminar-stats.index', 'match' => 'seminar-stats.*', 'can' => 'seminars.view'],
                     ['description' => 'Fragebögen für Schulklassen, Lehrkräfte und Teamende bearbeiten.', 'label' => 'Feedbackformulare', 'route' => 'feedback-forms.index', 'match' => 'feedback-forms.*', 'can' => 'feedback.manage'],

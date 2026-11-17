@@ -9,6 +9,7 @@ use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
 use App\Modules\Seminars\Services\TeamApplications;
 use App\Modules\Seminars\Services\TeamInvites;
+use App\Modules\Seminars\Services\TeamSelection;
 use Carbon\Carbon;
 use DomainException;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +19,7 @@ use Illuminate\Validation\Rule;
 /** Bedarf an Teamenden und Entscheidung über Bewerbungen (Bereich Koordination, Berechtigung seminars.manage). */
 class SeminarTeamController extends Controller
 {
-    public function __construct(private readonly TeamApplications $team) {}
+    public function __construct(private readonly TeamApplications $team, private readonly TeamSelection $selection) {}
 
     public function need(Request $request, Seminar $seminar): RedirectResponse
     {
@@ -88,7 +89,7 @@ class SeminarTeamController extends Controller
     {
         abort_unless($application->seminar_id === $seminar->id, 404);
 
-        if ($application->status !== ApplicationStatus::Confirmed) {
+        if ($application->status !== ApplicationStatus::Confirmed && $application->decision_draft !== TeamSelection::CONFIRM) {
             return redirect()->route('seminars.show', $seminar)->with('error', 'Die Seminarleitung kann nur eine Person im Team übernehmen.');
         }
 
@@ -97,17 +98,46 @@ class SeminarTeamController extends Controller
         return redirect()->route('seminars.show', $seminar)->with('success', $application->is_lead ? 'Die Person leitet das Seminar.' : 'Die Person leitet das Seminar nicht mehr.');
     }
 
-    public function decide(Request $request, Seminar $seminar, SeminarApplication $application, string $decision): RedirectResponse
+    /** Entwurf der Auswahl: Zusage, Absage oder zurücksetzen. Gesendet wird erst mit „Team bestätigen“. */
+    public function mark(Request $request, Seminar $seminar, SeminarApplication $application, string $decision): RedirectResponse
     {
-        abort_unless($application->seminar_id === $seminar->id && in_array($decision, ['bestaetigen', 'ablehnen'], true), 404);
+        abort_unless($application->seminar_id === $seminar->id && in_array($decision, ['zusage', 'absage', 'zuruecksetzen'], true), 404);
 
         try {
-            $this->team->decide($application, $decision === 'bestaetigen' ? ApplicationStatus::Confirmed : ApplicationStatus::Declined, $this->actor($request));
+            $this->selection->mark($application, match ($decision) {
+                'zusage' => TeamSelection::CONFIRM,
+                'absage' => TeamSelection::DECLINE,
+                default => null,
+            }, $this->actor($request));
         } catch (DomainException $exception) {
             return redirect()->route('seminars.show', $seminar)->withErrors(['team' => $exception->getMessage()]);
         }
 
-        return redirect()->route('seminars.show', $seminar)->with('success', $decision === 'bestaetigen' ? 'Die Person ist im Team und wird benachrichtigt.' : 'Die Person wurde nicht berücksichtigt und wird benachrichtigt.');
+        return redirect()->route('seminars.show', $seminar)->with('success', 'Der Entwurf ist gespeichert. Die Person wird erst mit „Team bestätigen“ benachrichtigt.');
+    }
+
+    public function confirm(Request $request, Seminar $seminar): RedirectResponse
+    {
+        try {
+            $result = $this->selection->confirmTeam($seminar, $this->actor($request), $request->boolean('accept_shortfall'));
+        } catch (DomainException $exception) {
+            return redirect()->route('seminars.show', $seminar)->withErrors(['team' => $exception->getMessage()]);
+        }
+
+        return redirect()->route('seminars.show', $seminar)->with('success', 'Das Team ist bestätigt: '.$result['confirmed'].' Zusagen, '.$result['declined'].' Absagen und '.$result['waitlisted'].' Personen auf der Warteliste wurden benachrichtigt.');
+    }
+
+    public function promote(Request $request, Seminar $seminar, SeminarApplication $application): RedirectResponse
+    {
+        abort_unless($application->seminar_id === $seminar->id, 404);
+
+        try {
+            $this->selection->promote($application, $this->actor($request));
+        } catch (DomainException $exception) {
+            return redirect()->route('seminars.show', $seminar)->withErrors(['team' => $exception->getMessage()]);
+        }
+
+        return redirect()->route('seminars.show', $seminar)->with('success', 'Die Person ist nachgerückt und wurde benachrichtigt.');
     }
 
     private function actor(Request $request): User

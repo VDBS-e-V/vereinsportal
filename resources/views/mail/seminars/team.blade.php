@@ -10,6 +10,8 @@
             <ul>@foreach ($seminar->sessions as $session)<li>{{ $session->period() }}@if ($session->location), {{ $session->location }}@endif</li>@endforeach</ul>
         @endif
         <p>Im Portal können Sie Ihre bestätigten Termine als Kalenderdatei herunterladen.</p>
+    @elseif ($kind === 'waitlist')
+        <p>Für das Seminar <strong>{{ $seminar->title }}</strong> ist das Team jetzt bestätigt. Sie sind diesmal nicht dabei, stehen aber auf der Warteliste. Wird ein Platz frei, rückt die Koordination Sie nach und wir melden uns bei Ihnen. Vielen Dank für Ihr Interesse!</p>
     @elseif ($kind === 'cancelled')
         <p>Das Seminar <strong>{{ $seminar->title }}</strong> wurde abgesagt. Ihr Interesse bzw. Ihre Aufnahme ins Team ist damit hinfällig. Wir melden uns, wenn es einen neuen Termin gibt.</p>
     @else
