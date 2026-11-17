@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Modules\Access\Models\User;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Support\Capabilities;
+use App\Modules\NavigationControl\Support\NavigationControl;
 use App\Modules\Tasks\Models\Task;
 use App\Modules\Tasks\Models\TaskProject;
 use Illuminate\Http\Request;
@@ -245,6 +246,7 @@ final class PortalNavigation
                         ['description' => 'Fristen, E-Mail und Betrieb zum Nachlesen, Testmail senden.', 'label' => 'Einstellungen', 'route' => 'system.settings', 'match' => 'system.settings*', 'can' => 'system.manage'],
                     ]],
                     ['description' => 'Nextcloud, Moodle und andere Systeme, die sich über das Portal anmelden.', 'label' => 'Anbindungen', 'route' => 'admin.oauth.index', 'match' => 'admin.oauth.*', 'can' => 'oauth.manage'],
+                    ['description' => 'Bereiche und Seiten des Kopfmenüs ein- und ausblenden.', 'label' => 'Navigation', 'route' => 'navigation.edit', 'match' => 'navigation.*', 'can' => 'navigation.manage'],
                     ['description' => 'Komponenten und Muster des Designsystems.', 'label' => 'Design-Bibliothek', 'route' => 'design-library.index', 'match' => 'design-library.*', 'can' => 'design.view'],
                 ],
             ],
@@ -262,7 +264,7 @@ final class PortalNavigation
 
         return array_values(array_filter(
             PortalAreas::withGroupMark(),
-            fn (PortalAreas $area): bool => self::roleAllows($area, $held) && self::pages($area, $user) !== [],
+            fn (PortalAreas $area): bool => NavigationControl::areaEnabled($area) && self::roleAllows($area, $held) && self::pages($area, $user) !== [],
         ));
     }
 
@@ -273,19 +275,24 @@ final class PortalNavigation
      */
     public static function pages(PortalAreas $area, ?User $user, ?string $routeName = null): array
     {
-        return self::visiblePages(self::catalog()[$area->value]['pages'], $user, $routeName);
+        return self::visiblePages(self::catalog()[$area->value]['pages'], $user, $routeName, $area);
     }
 
     /**
      * @param  list<array<string, mixed>>  $pages
      * @return list<array{label: string, href: string, current: bool, children: list<array<string, mixed>>}>
      */
-    private static function visiblePages(array $pages, ?User $user, ?string $routeName): array
+    private static function visiblePages(array $pages, ?User $user, ?string $routeName, PortalAreas $area): array
     {
         $visible = [];
 
         foreach ($pages as $page) {
-            $children = self::visiblePages($page['children'] ?? [], $user, $routeName);
+            // Im Web-Control (Admins › Navigation) ausgeblendete Seiten erscheinen nicht; Gruppen entscheiden über ihre Seiten
+            if (! ($page['group'] ?? false) && ! NavigationControl::pinned($page) && ! NavigationControl::pageEnabled($area, $page)) {
+                continue;
+            }
+
+            $children = self::visiblePages($page['children'] ?? [], $user, $routeName, $area);
             $group = (bool) ($page['group'] ?? false);
 
             // Eine Gruppe ist nur ein Sammelpunkt im Menü: sie erscheint, wenn der Nutzer mindestens eine Seite darin sehen darf, und führt zur ersten davon.

@@ -8,6 +8,7 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ### Added
 
+- Navigation-Web-Control (Admins › Navigation): Bereiche und Seiten des Kopfmenüs ein- und ausblenden; Produktions-Migration blendet nicht bestätigte Bereiche aus (Doc 85)
 - Zustimmung zur Datenweitergabe an Anbindungen nur bei der ersten Anmeldung in einem Dienst, ausführliche Erklärung (Verantwortliche, Rechtsgrundlage, Empfänger, Rechte, Tabelle der übertragenen Daten), Logo, Zweck und Datenschutz-Adresse je Dienst, Widerruf im Konto („Verbundene Anwendungen“) und per Häkchen auf der Anmeldeseite (Doc 72)
 - Identity Provider im Stil einer zentralen Anmeldestelle: Anmeldeseite mit Dienstname und „Beschreibung des Dienstes“, gemeinsames Seitengerüst (Single Sign-On) für Anmeldung, Zwei-Faktor, Zustimmung und Abmeldung; Abmeldung mit Liste der Dienste, Frage und Fortschrittsseite (Front-Channel Logout), Abmelde-Adresse je Anbindung (Doc 72)
 - Tickets: E-Mail-Hinweise (ohne Nachrichtentext), Dateianhänge und Links „Ticket erstellen“ in FAQ und Kontaktbereich (Doc 84)

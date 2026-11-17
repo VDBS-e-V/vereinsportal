@@ -135,6 +135,7 @@ enum AuditEvent: string
     case FaqEntrySaved = 'faq.entry_saved';
     case FaqEntryDeleted = 'faq.entry_deleted';
     case RoleLinksSaved = 'role_links.saved';
+    case NavigationSaved = 'navigation.saved';
     case TicketCreated = 'tickets.created';
     case TicketMessagePosted = 'tickets.message_posted';
     case TicketAssigned = 'tickets.assigned';
@@ -255,6 +256,7 @@ enum AuditEvent: string
             self::FaqEntrySaved => 'FAQ-Frage gespeichert',
             self::FaqEntryDeleted => 'FAQ-Frage gelöscht',
             self::RoleLinksSaved => 'Schnellzugriffe gespeichert',
+            self::NavigationSaved => 'Navigation gespeichert',
             self::TicketCreated => 'Ticket angelegt',
             self::TicketMessagePosted => 'Ticket: Nachricht geschrieben',
             self::TicketAssigned => 'Ticket zugewiesen',
@@ -292,6 +294,7 @@ enum AuditEvent: string
             self::ContactTopicSaved, self::ContactTopicDeleted, self::ContactFormSaved, self::ContactFormDeleted => 'contact_forms',
             self::FaqCategorySaved, self::FaqCategoryDeleted, self::FaqEntrySaved, self::FaqEntryDeleted => 'faq',
             self::RoleLinksSaved => 'role_links',
+            self::NavigationSaved => 'navigation',
             self::TicketCreated, self::TicketMessagePosted, self::TicketAssigned, self::TicketStatusChanged => 'tickets',
         };
     }
@@ -327,6 +330,7 @@ enum AuditEvent: string
             'contact_forms' => 'Kontaktformular',
             'faq' => 'FAQ',
             'role_links' => 'Schnellzugriffe',
+            'navigation' => 'Navigation',
             'tickets' => 'Tickets',
         ];
     }

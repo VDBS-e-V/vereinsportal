@@ -8,6 +8,7 @@ use App\Modules\Audit\AuditServiceProvider;
 use App\Modules\Board\BoardServiceProvider;
 use App\Modules\ContactForms\ContactFormsServiceProvider;
 use App\Modules\Faq\FaqServiceProvider;
+use App\Modules\NavigationControl\NavigationControlServiceProvider;
 use App\Modules\QuickLinks\QuickLinksServiceProvider;
 use App\Modules\Tickets\TicketsServiceProvider;
 use App\Modules\Contacts\ContactsServiceProvider;
@@ -54,6 +55,7 @@ return [
     ContactFormsServiceProvider::class,
     FaqServiceProvider::class,
     QuickLinksServiceProvider::class,
+    NavigationControlServiceProvider::class,
     TicketsServiceProvider::class,
     PeopleServiceProvider::class,
     MembershipServiceProvider::class,

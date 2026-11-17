@@ -146,6 +146,9 @@ enum Capability: string
     /** Wichtige Links je Rolle für das Profilmenü pflegen (Administration, Geschäftsstelle). */
     case RoleLinksManage = 'role_links.manage';
 
+    /** Bereiche und Seiten des Kopfmenüs ein- und ausblenden (Administration). */
+    case NavigationManage = 'navigation.manage';
+
     /** Tickets aller Personen sehen, zuweisen und bearbeiten (Administration, Geschäftsstelle). */
     case TicketsHandle = 'tickets.handle';
 
