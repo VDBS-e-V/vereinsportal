@@ -18,9 +18,7 @@ use Illuminate\Validation\ValidationException;
 /** Web-Control: Bereiche (Reihenfolge, Sichtbarkeit, Rollen) und Header (Seiten und eigene Links je Bereich). Berechtigung navigation.manage. */
 class NavigationController extends Controller
 {
-    private const CUSTOM_SLOTS = 3;
-
-    private const CHILD_SLOTS = 3;
+    private const MAX_ENTRIES = 40;
 
     public function edit(Request $request): View
     {
@@ -85,7 +83,7 @@ class NavigationController extends Controller
 
     public function headers(): View
     {
-        $rows = collect($this->orderedAreas())->map(fn (PortalAreas $area): array => ['area' => $area, 'pages' => collect($this->catalogRows($area))->pluck('title')->implode(', ')]);
+        $rows = collect($this->orderedAreas())->map(fn (PortalAreas $area): array => ['area' => $area, 'pages' => collect(NavigationControl::layout($area, PortalNavigation::catalog()[$area->value]['pages']))->where('visible', true)->map(fn (array $row): string => $row['label'] !== '' ? $row['label'] : $row['title'])->implode(', ')]);
 
         return view('navigation.headers', ['rows' => $rows]);
     }
@@ -94,66 +92,68 @@ class NavigationController extends Controller
     {
         $area = PortalAreas::from($area);
 
-        return view('navigation.header', ['area' => $area, 'rows' => $this->catalogRows($area), 'custom' => $this->customRows($area), 'customSlots' => self::CUSTOM_SLOTS, 'childSlots' => self::CHILD_SLOTS]);
+        return view('navigation.header', ['area' => $area, 'layout' => NavigationControl::layout($area, PortalNavigation::catalog()[$area->value]['pages'])]);
     }
 
     public function updateHeader(Request $request, string $area): RedirectResponse
     {
         $area = PortalAreas::from($area);
-        $request->validate([
-            'items' => ['nullable', 'array'],
-            'items.*.label' => ['nullable', 'string', 'max:60'],
-            'items.*.sort' => ['nullable', 'integer', 'min:0', 'max:999'],
-            'custom' => ['nullable', 'array', 'max:'.self::CUSTOM_SLOTS],
-            'custom.*.label' => ['nullable', 'string', 'max:60'],
-            'custom.*.url' => ['nullable', 'string', 'max:255', 'regex:#^(/(?!/)|https://)\S*$#'],
-            'custom.*.children' => ['nullable', 'array', 'max:'.self::CHILD_SLOTS],
-            'custom.*.children.*.label' => ['nullable', 'string', 'max:60'],
-            'custom.*.children.*.url' => ['nullable', 'string', 'max:255', 'regex:#^(/(?!/)|https://)\S*$#'],
-        ], ['custom.*.url.regex' => 'Die Adresse muss mit / (Seite im Portal) oder https:// beginnen.', 'custom.*.children.*.url.regex' => 'Die Adresse muss mit / (Seite im Portal) oder https:// beginnen.']);
+        $catalog = collect(NavigationControl::layout($area, PortalNavigation::catalog()[$area->value]['pages']))->where('kind', 'catalog')->keyBy('ref');
+        $input = json_decode((string) $request->input('layout'), true);
 
-        $catalog = [];
-
-        foreach ($this->catalogRows($area) as $row) {
-            $input = (array) $request->input('items.'.$row['token'], []);
-            $catalog[] = ['key' => $row['key'], 'label' => filled($input['label'] ?? null) ? trim((string) $input['label']) : null, 'sort' => ($input['sort'] ?? '') === '' ? null : (int) $input['sort'], 'visible' => $row['pinned'] || isset($input['visible'])];
+        if (! is_array($input) || count($input) > self::MAX_ENTRIES) {
+            throw ValidationException::withMessages(['layout' => 'Der Aufbau des Headers ist ungültig. Bitte laden Sie die Seite neu.']);
         }
 
-        $custom = [];
+        $rows = [];
+        $seen = [];
 
-        foreach ((array) $request->input('custom', []) as $index => $entry) {
+        foreach ($input as $entry) {
+            $entry = (array) $entry;
+            $ref = (string) ($entry['ref'] ?? '');
+            $kind = (string) ($entry['kind'] ?? '');
             $label = trim((string) ($entry['label'] ?? ''));
             $url = trim((string) ($entry['url'] ?? ''));
-            $children = [];
 
-            foreach ((array) ($entry['children'] ?? []) as $childIndex => $child) {
-                $childLabel = trim((string) ($child['label'] ?? ''));
-                $childUrl = trim((string) ($child['url'] ?? ''));
-
-                if ($childLabel === '' && $childUrl === '') {
-                    continue;
-                }
-
-                if ($childLabel === '' || $childUrl === '') {
-                    throw ValidationException::withMessages(['custom.'.$index.'.children.'.$childIndex.'.label' => 'Bitte geben Sie Titel und Adresse der Unterseite an (oder lassen Sie beides leer).']);
-                }
-
-                $children[] = ['label' => $childLabel, 'url' => $childUrl];
+            if ($ref === '' || isset($seen[$ref]) || ! in_array($kind, ['catalog', 'custom'], true) || mb_strlen($label) > 60 || ($kind === 'catalog' && ! $catalog->has($ref))) {
+                throw ValidationException::withMessages(['layout' => 'Der Aufbau des Headers ist ungültig. Bitte laden Sie die Seite neu.']);
             }
 
-            if ($label === '' && $url === '' && $children === []) {
-                continue;
+            if ($kind === 'custom' && ($label === '' || $url === '')) {
+                throw ValidationException::withMessages(['layout' => 'Bitte geben Sie bei jedem eigenen Link Titel und Adresse an.']);
             }
 
-            if ($label === '' || $url === '') {
-                throw ValidationException::withMessages(['custom.'.$index.'.label' => 'Bitte geben Sie Titel und Adresse an (oder lassen Sie beides leer).']);
+            if ($kind === 'custom' && (! preg_match('#^(/(?!/)|https://)\S*$#', $url) || mb_strlen($url) > 255)) {
+                throw ValidationException::withMessages(['layout' => 'Die Adresse von „'.$label.'“ muss mit / (Seite im Portal) oder https:// beginnen.']);
             }
 
-            $custom[] = ['label' => $label, 'url' => $url, 'children' => $children];
+            $seen[$ref] = true;
+            $rows[] = ['ref' => $ref, 'kind' => $kind, 'label' => $label, 'url' => $url, 'visible' => $kind === 'catalog' && $catalog[$ref]['pinned'] ? true : (bool) ($entry['visible'] ?? true), 'parent' => filled($entry['parent'] ?? null) ? (string) $entry['parent'] : null];
         }
 
-        NavigationControl::saveItems($area, $catalog, $custom);
-        AuditLog::record(AuditEvent::NavigationSaved, $request->user(), null, ['bereich' => $area->value, 'eigene_links' => count($custom)]);
+        // Nicht gesendete Seiten des Katalogs bleiben, wie sie sind
+        foreach ($catalog as $ref => $row) {
+            if (! isset($seen[$ref])) {
+                $rows[] = ['ref' => (string) $ref, 'kind' => 'catalog', 'label' => $row['label'], 'url' => '', 'visible' => $row['visible'], 'parent' => null];
+            }
+        }
+
+        // Unterseiten: nur eine Ebene, die übergeordnete Seite muss vorhanden sein und darf selbst keine sein
+        $byRef = collect($rows)->keyBy('ref');
+        $nested = collect($rows)->filter(fn (array $row): bool => $row['parent'] !== null);
+
+        foreach ($nested as $row) {
+            $parent = $byRef->get($row['parent']);
+            $isParent = $nested->contains(fn (array $other): bool => $other['parent'] === $row['ref']);
+            $allowed = $parent !== null && $parent['parent'] === null && $row['parent'] !== $row['ref'] && ! $isParent && ($row['kind'] !== 'catalog' || $catalog[$row['ref']]['nestable']) && ($parent['kind'] !== 'catalog' || $catalog[$parent['ref']]['parentable']);
+
+            if (! $allowed) {
+                throw ValidationException::withMessages(['layout' => 'Eine Seite kann nur unter einer Hauptseite stehen, und Gruppen oder Seiten mit eigenen Unterseiten lassen sich nicht einordnen.']);
+            }
+        }
+
+        NavigationControl::saveLayout($area, $rows);
+        AuditLog::record(AuditEvent::NavigationSaved, $request->user(), null, ['bereich' => $area->value, 'eintraege' => count($rows)]);
 
         return redirect()->route('navigation.header', $area->value)->with('success', 'Der Header „'.NavigationControl::areaLabel($area).'“ wurde gespeichert.');
     }
@@ -177,31 +177,5 @@ class NavigationController extends Controller
     private function roles(): array
     {
         return collect(RoleKey::cases())->reject(fn (RoleKey $role): bool => $role === RoleKey::Guest)->mapWithKeys(fn (RoleKey $role): array => [$role->value => $role->label()])->all();
-    }
-
-    /**
-     * Seiten des Katalogs für einen Bereich (Gruppen aufgelöst) mit den gespeicherten Änderungen.
-     *
-     * @return list<array{key: string, token: string, title: string, label: ?string, sort: ?int, visible: bool, pinned: bool}>
-     */
-    private function catalogRows(PortalAreas $area): array
-    {
-        $rows = [];
-
-        foreach (PortalNavigation::catalog()[$area->value]['pages'] as $page) {
-            $key = NavigationControl::pageKey($page);
-            $item = NavigationControl::item($area, $key);
-            $rows[] = ['key' => $key, 'token' => substr(md5($key), 0, 12), 'title' => (string) $page['label'], 'label' => $item?->label, 'sort' => $item?->sort, 'visible' => $item?->visible ?? true, 'pinned' => NavigationControl::pinned($page) || ($page['group'] ?? false) === true];
-        }
-
-        return $rows;
-    }
-
-    /** @return list<array{label: string, url: string, children: list<array{label: string, url: string}>}> */
-    private function customRows(PortalAreas $area): array
-    {
-        $items = \App\Modules\NavigationControl\Models\NavigationItem::query()->where('area', $area->value)->whereNull('page_key')->orderBy('sort')->get();
-
-        return $items->whereNull('parent_id')->values()->map(fn ($item): array => ['label' => (string) $item->label, 'url' => (string) $item->url, 'children' => $items->where('parent_id', $item->id)->sortBy('sort')->values()->map(fn ($child): array => ['label' => (string) $child->label, 'url' => (string) $child->url])->all()])->all();
     }
 }

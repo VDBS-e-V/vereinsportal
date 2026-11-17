@@ -1,10 +1,10 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Admins'], ['label' => 'Navigation']];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Web-Control']];
     $tab = 'areas';
     $count = $areas->count();
 @endphp
 
-<x-layouts.app title="Navigation" width="wide">
+<x-layouts.app title="Web-Control" width="wide">
     <x-vdbs.layout.page-header title="Übersicht der Bereiche" lead="Reihenfolge, Name und Sichtbarkeit der Bereiche im Kopfmenü. Das Ausblenden betrifft nur die Menüs: Wer eine Adresse kennt und die Rolle dafür hat, erreicht die Seite weiterhin." :breadcrumb="$crumbs" />
 
     <nav class="vdbs-task-filter" aria-label="Web-Control">

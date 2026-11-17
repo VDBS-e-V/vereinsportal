@@ -1,5 +1,5 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Admins'], ['label' => 'Navigation', 'href' => route('navigation.edit')], ['label' => $area->label()]];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Web-Control', 'href' => route('navigation.edit')], ['label' => $area->label()]];
     $selected = (array) old('roles', $row?->roles ?? []);
 @endphp
 

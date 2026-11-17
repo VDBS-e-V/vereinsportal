@@ -18,4 +18,5 @@ import './mailings';
 import './select-all';
 import './chip-balance';
 import './kanban';
+import './navigation-editor';
 import './sso-logout';

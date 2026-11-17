@@ -1,9 +1,9 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Admins'], ['label' => 'Navigation']];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Web-Control']];
     $tab = 'headers';
 @endphp
 
-<x-layouts.app title="Navigation" width="wide">
+<x-layouts.app title="Web-Control" width="wide">
     <x-vdbs.layout.page-header title="Übersicht der Header" lead="Die Seiten im Kopfmenü je Bereich. Titel, Reihenfolge und Sichtbarkeit ändern Sie je Bereich, dazu eigene Links mit Unterseiten." :breadcrumb="$crumbs" />
 
     <nav class="vdbs-task-filter" aria-label="Web-Control">
