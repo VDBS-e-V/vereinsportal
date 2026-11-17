@@ -155,7 +155,7 @@ class ContactFormAdminController extends Controller
 
         return [
             'name' => trim($data['name']),
-            'slug' => $form?->slug ?? $this->slugFor($data['name']),
+            'slug' => data_get($form, 'slug') ?? $this->slugFor($data['name']),
             'description' => filled($data['description'] ?? null) ? trim($data['description']) : null,
             'kind' => $data['kind'],
             'recipient_email' => mb_strtolower(trim($data['recipient_email'])),

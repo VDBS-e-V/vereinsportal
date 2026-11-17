@@ -44,7 +44,7 @@ class PortalAreaController extends Controller
     private function home(PortalAreas $area, Request $request): array
     {
         $user = $request->user();
-        $name = trim((string) ($user->person?->first_name ?? ''));
+        $name = trim((string) data_get($user, 'person.first_name', ''));
         $cards = [];
 
         foreach (PortalNavigation::pages($area, $user, $request->route()?->getName()) as $page) {

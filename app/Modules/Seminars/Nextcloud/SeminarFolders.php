@@ -16,14 +16,14 @@ final class SeminarFolders
     public static function root(Seminar $seminar): string
     {
         $seminar->loadMissing(['partner', 'sessions']);
-        $first = $seminar->sessions->sortBy('starts_at')->first()?->starts_at ?? now();
+        $first = data_get($seminar->sessions->sortBy('starts_at')->first(), 'starts_at') ?? now();
         $year = (int) $first->format('Y');
         $schoolYear = (int) $first->format('n') >= 8 ? $year.'-'.substr((string) ($year + 1), 2) : ($year - 1).'-'.substr((string) $year, 2);
 
         return implode('/', [
             self::clean((string) config('services.nextcloud.root', 'Koordination'), 'Koordination'),
-            self::clean((string) ($seminar->partner?->coordination_area ?? ''), 'Ohne Gebiet'),
-            self::clean((string) ($seminar->partner?->name ?? ''), 'Schule'),
+            self::clean((string) data_get($seminar, 'partner.coordination_area', ''), 'Ohne Gebiet'),
+            self::clean((string) data_get($seminar, 'partner.name', ''), 'Schule'),
             $schoolYear,
             self::clean(trim((string) $seminar->number.' '.$seminar->title), 'Seminar'),
         ]);
@@ -52,7 +52,7 @@ final class SeminarFolders
     /** Entfernt Zeichen, die in Ordnernamen Ärger machen, und kürzt. */
     public static function clean(string $name, string $fallback): string
     {
-        $name = trim((string) preg_replace('/[\\\/:*?"<>|\x00-\x1F]+/u', ' ', $name));
+        $name = trim((string) preg_replace('~[\\\\/:*?"<>|\x00-\x1F]+~u', ' ', $name));
         $name = trim((string) preg_replace('/\s+/u', ' ', $name), ' .');
 
         return $name === '' ? $fallback : Str::limit($name, 80, '');

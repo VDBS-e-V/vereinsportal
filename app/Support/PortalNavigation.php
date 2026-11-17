@@ -31,7 +31,7 @@ final class PortalNavigation
      * einer anderen Seite), can (Berechtigung; ohne can ist die Seite öffentlich oder für alle Angemeldeten), fragment (Anker),
      * children (Untermenü, gleiche Form).
      *
-     * @return array<string, array{roles: list<RoleKey>, routes?: list<string>, pages: list<array<string, mixed>>}>
+     * @return array<string, array{home: string, roles: list<RoleKey>, routes?: list<string>, pages: list<array<string, mixed>>}>
      */
     public static function catalog(): array
     {
@@ -73,7 +73,7 @@ final class PortalNavigation
     /**
      * Der Katalog ohne die Aufgaben-Seiten, die für jeden Bereich gleich gebaut werden.
      *
-     * @return array<string, array{roles: list<RoleKey>, routes?: list<string>, pages: list<array<string, mixed>>}>
+     * @return array<string, array{home: string, roles: list<RoleKey>, routes?: list<string>, pages: list<array<string, mixed>>}>
      */
     private static function baseCatalog(): array
     {
@@ -283,7 +283,7 @@ final class PortalNavigation
     /**
      * Seiten eines Bereichs, die der Nutzer sehen darf (ohne Nutzer: nur Seiten ohne Berechtigung, also die öffentlichen).
      *
-     * @return list<array{label: string, href: string, current: bool, children: list<array<string, mixed>>}>
+     * @return list<array<string, mixed>>
      */
     public static function pages(PortalAreas $area, ?User $user, ?string $routeName = null): array
     {
@@ -292,7 +292,7 @@ final class PortalNavigation
 
     /**
      * @param  list<array<string, mixed>>  $pages
-     * @return list<array{label: string, href: string, current: bool, children: list<array<string, mixed>>}>
+     * @return list<array<string, mixed>>
      */
     private static function visiblePages(array $pages, ?User $user, ?string $routeName, PortalAreas $area): array
     {

@@ -206,7 +206,7 @@ class OidcController extends Controller
                 continue;
             }
 
-            foreach ($client->redirect_uris as $uri) {
+            foreach ((array) $client->getAttribute('redirect_uris') as $uri) {
                 if ($this->origin((string) $uri) === $origin) {
                     return true;
                 }

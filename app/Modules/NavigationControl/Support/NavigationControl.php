@@ -16,10 +16,10 @@ use Throwable;
  */
 final class NavigationControl
 {
-    /** @var Collection<string, NavigationArea>|null */
+    /** @var Collection<array-key, mixed>|null */
     private static ?Collection $areas = null;
 
-    /** @var Collection<string, Collection<int, NavigationItem>>|null */
+    /** @var Collection<array-key, mixed>|null */
     private static ?Collection $items = null;
 
     /** Schlüssel einer Seite innerhalb ihres Bereichs (Route und Parameter; Gruppen: group:<Titel>). @param  array<string, mixed>  $page */
@@ -67,7 +67,7 @@ final class NavigationControl
 
     public static function areaSort(PortalAreas $area, int $default): int
     {
-        return self::areas()->get($area->value)?->sort ?? ($default * 10);
+        return data_get(self::areas()->get($area->value), 'sort') ?? ($default * 10);
     }
 
     /** Eintrag der Verwaltung zu einer Seite des Katalogs. */
@@ -79,7 +79,7 @@ final class NavigationControl
     /** @param  array<string, mixed>  $page */
     public static function pageEnabled(PortalAreas $area, array $page): bool
     {
-        return self::item($area, self::pageKey($page))?->visible ?? true;
+        return data_get(self::item($area, self::pageKey($page)), 'visible') ?? true;
     }
 
     /**
@@ -101,7 +101,7 @@ final class NavigationControl
                 $page['label'] = $item->label;
             }
 
-            $entries[(string) $page['key']] = ['page' => $page, 'sort' => $item?->sort ?? ($index * 10), 'parent' => $item?->parent_ref];
+            $entries[(string) $page['key']] = ['page' => $page, 'sort' => data_get($item, 'sort') ?? ($index * 10), 'parent' => data_get($item, 'parent_ref')];
         }
 
         foreach ($items as $ref => $item) {
@@ -165,7 +165,7 @@ final class NavigationControl
             $key = self::pageKey($page);
             $item = $items->get($key);
             $group = ($page['group'] ?? false) === true;
-            $entries[$key] = ['sort' => $item?->sort ?? ($index * 10), 'parent' => $item?->parent_ref, 'row' => ['ref' => $key, 'kind' => 'catalog', 'title' => (string) $page['label'], 'label' => (string) ($item?->label ?? ''), 'url' => '', 'visible' => $item?->visible ?? true, 'parent' => $item?->parent_ref, 'pinned' => self::pinned($page) || $group, 'nestable' => ! $group && ($page['children'] ?? []) === [], 'parentable' => ! $group]];
+            $entries[$key] = ['sort' => data_get($item, 'sort') ?? ($index * 10), 'parent' => data_get($item, 'parent_ref'), 'row' => ['ref' => $key, 'kind' => 'catalog', 'title' => (string) $page['label'], 'label' => (string) (data_get($item, 'label') ?? ''), 'url' => '', 'visible' => data_get($item, 'visible') ?? true, 'parent' => data_get($item, 'parent_ref'), 'pinned' => self::pinned($page) || $group, 'nestable' => ! $group && ($page['children'] ?? []) === [], 'parentable' => ! $group]];
         }
 
         foreach ($items as $ref => $item) {

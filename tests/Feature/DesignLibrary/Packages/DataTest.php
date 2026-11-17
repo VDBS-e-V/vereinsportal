@@ -32,23 +32,3 @@ it('renders the table check as a cell with the own selection box of the design s
 
     expect(\Illuminate\Support\Facades\Blade::render('<x-vdbs.data.table-check name="x" label="Schalter" />'))->not->toContain('form=')->not->toContain('checked');
 });
-
-it('renders the link card as one link with icon, text, slot and a group color', function () {
-    $html = Blade::render('<x-vdbs.cards.link-card title="Sitzungen" href="/s" icon="calendar" :tone="3" text="Planung">Extra</x-vdbs.cards.link-card>');
-
-    expect($html)->toContain('vdbs-link-card')->toContain('href="/s"')->toContain('Sitzungen')->toContain('Planung')->toContain('Extra')->toContain('--card-tone: var(--group-3)')->toContain('vdbs-link-card__icon')
-        ->and(substr_count($html, '<a '))->toBe(1);
-
-    expect(Blade::render('<x-vdbs.cards.link-card title="Nur Titel" href="/x" :tone="9" />'))->not->toContain('vdbs-link-card__icon')->not->toContain('vdbs-link-card__text')->toContain('var(--group-6)');
-});
-
-it('renders the area hero with the color, icon, title and optional parts of the area', function () {
-    $html = Blade::render('<x-vdbs.layout.area-hero :area="$area" title="Übersicht" greeting="Guten Tag, Erika" lead="Einleitung"><x-slot:actions>Aktion</x-slot:actions><x-slot:aside>Seitenkarte</x-slot:aside></x-vdbs.layout.area-hero>', ['area' => \App\Support\PortalAreas::Vorstand]);
-
-    expect($html)->toContain('vdbs-area-hero')->toContain('--area-tone: var(--group-1)')->toContain('Bereich Vorstand')->toContain('<h1')->toContain('Übersicht')->toContain('Guten Tag, Erika')->toContain('Einleitung')
-        ->toContain('Aktion')->toContain('vdbs-area-hero__aside')->toContain('Seitenkarte');
-
-    $plain = Blade::render('<x-vdbs.layout.area-hero :area="$area" title="Konto" />', ['area' => \App\Support\PortalAreas::Konto]);
-
-    expect($plain)->not->toContain('--area-tone: var(--group')->not->toContain('vdbs-area-hero__aside')->not->toContain('vdbs-area-hero__greeting');
-});

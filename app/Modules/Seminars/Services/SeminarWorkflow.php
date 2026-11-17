@@ -42,7 +42,7 @@ final class SeminarWorkflow
 
         $this->require($seminar, $target, $comment);
 
-        DB::transaction(function () use ($seminar, $target, $by, $from, $comment, $release): void {
+        DB::transaction(function () use ($seminar, $target, $by, $from, $comment, $release, $report): void {
             $seminar->forceFill(['status' => $target, 'updated_by_user_id' => $by->id] + $report + $release + ($release !== [] ? ['released_by_user_id' => $by->id, 'released_at' => now()] : []))->save();
 
             $seminar->events()->create([

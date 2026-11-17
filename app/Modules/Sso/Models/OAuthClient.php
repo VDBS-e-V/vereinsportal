@@ -20,6 +20,6 @@ class OAuthClient extends Client
             return true;
         }
 
-        return app(OAuthConsents::class)->covers($user, (string) $this->getKey(), array_map('strval', $scopes));
+        return app(OAuthConsents::class)->covers($user, (string) $this->getKey(), array_map(fn ($scope): string => is_object($scope) ? (string) data_get($scope, 'id') : (string) $scope, $scopes));
     }
 }

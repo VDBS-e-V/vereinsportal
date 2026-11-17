@@ -43,7 +43,7 @@ class SeminarPrintPlanController extends Controller
         return redirect()->route('seminar-print.show', $seminar)->with('success', 'Der Druckplan ist gespeichert.');
     }
 
-    public function list(Request $request, Seminar $seminar): View|Response
+    public function list(Request $request, Seminar $seminar): View|Response|RedirectResponse
     {
         $this->authorizeUser($request, $seminar);
         $plan = $this->plans->plan($seminar);

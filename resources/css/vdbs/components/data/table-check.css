@@ -1,0 +1,9 @@
+/* Auswahlspalte: größere Kästchen (Zielgröße 44 px) und Kopfkästchen „alle auswählen“ */
+.vdbs-table th.vdbs-table__select,
+.vdbs-table td.vdbs-table__select { width: 3.5rem; padding-inline: var(--space-2); text-align: center; vertical-align: middle; }
+
+.vdbs-table__select .vdbs-choice { margin: 0; display: inline-grid; place-items: center; min-width: 2.75rem; min-height: 2.75rem; }
+
+.vdbs-table__select .vdbs-choice__input { width: 1.75rem; height: 1.75rem; margin: 0; }
+
+.vdbs-table__select .vdbs-choice__input::before { width: 1rem; height: 1rem; }

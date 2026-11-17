@@ -3,7 +3,6 @@
 namespace App\Modules\Sso\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Sso\Services\OAuthClients;
 use App\Modules\Sso\Services\OAuthConsents;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -12,7 +11,7 @@ use Illuminate\Http\Request;
 /** Konto › Verbundene Anwendungen: Systeme, an die das Portal Daten weitergibt (Zustimmung), mit Widerruf. */
 class ConnectedAppController extends Controller
 {
-    public function __construct(private readonly OAuthClients $clients, private readonly OAuthConsents $consents) {}
+    public function __construct(private readonly OAuthConsents $consents) {}
 
     public function index(Request $request): View
     {

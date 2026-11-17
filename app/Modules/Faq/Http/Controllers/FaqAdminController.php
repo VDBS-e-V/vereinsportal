@@ -106,9 +106,9 @@ class FaqAdminController extends Controller
         ], ['title.required' => 'Bitte geben Sie eine Bezeichnung ein.']);
 
         // Ohne Angabe bleibt die bisherige Einstellung (neue Kategorien: öffentlich)
-        $audience = $data['audience'] ?? $category?->audience ?? 'public';
+        $audience = $data['audience'] ?? data_get($category, 'audience') ?? 'public';
 
-        if ($audience === 'roles' && blank($data['roles'] ?? $category?->roles ?? [])) {
+        if ($audience === 'roles' && blank($data['roles'] ?? data_get($category, 'roles') ?? [])) {
             throw ValidationException::withMessages(['roles' => 'Bitte wählen Sie mindestens eine Rolle, die die Kategorie sehen darf.']);
         }
 
@@ -116,7 +116,7 @@ class FaqAdminController extends Controller
             'title' => trim($data['title']),
             'description' => filled($data['description'] ?? null) ? trim($data['description']) : null,
             'audience' => $audience,
-            'roles' => $audience === 'roles' ? array_values(array_unique($data['roles'] ?? $category?->roles ?? [])) : null,
+            'roles' => $audience === 'roles' ? array_values(array_unique($data['roles'] ?? data_get($category, 'roles') ?? [])) : null,
             'sort_order' => (int) ($data['sort_order'] ?? 0),
             'is_active' => $request->boolean('is_active'),
         ];
