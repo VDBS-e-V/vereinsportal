@@ -63,6 +63,11 @@ final class SeminarWorkflow
 
         app(SeminarNotifications::class)->statusChanged($seminar->fresh(), $target, $comment);
 
+        // Nextcloud: Ordner und Zugriff entstehen mit der Teambestätigung (im Hintergrund, wiederholbar)
+        if ($target === SeminarStatus::TeamConfirmed && app(\App\Modules\Seminars\Nextcloud\SeminarNextcloud::class)->enabled()) {
+            \App\Modules\Seminars\Jobs\SyncSeminarFolder::dispatch($seminar->fresh());
+        }
+
         if ($target === SeminarStatus::Completed) {
             event(new SeminarCompleted($seminar->fresh()));
         }
@@ -156,6 +161,10 @@ final class SeminarWorkflow
 
         if ($target === SeminarStatus::Tendered && ((int) $seminar->team_needed <= 0 || $seminar->application_deadline === null)) {
             throw new DomainException('Für die Ausschreibung brauchen Sie die Teamgröße und den Stichtag für Interesse.');
+        }
+
+        if ($target === SeminarStatus::Prepared && $seminar->nextcloud_folder_path === null && ! $seminar->nextcloud_manual && app(\App\Modules\Seminars\Nextcloud\SeminarNextcloud::class)->enabled()) {
+            throw new DomainException('Der Nextcloud-Ordner ist noch nicht angelegt. Legen Sie ihn an oder vermerken Sie, dass Sie ihn von Hand anlegen.');
         }
 
         if ($target === SeminarStatus::Prepared && $seminar->onboarding_at === null) {

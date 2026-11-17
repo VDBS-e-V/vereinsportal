@@ -171,6 +171,11 @@ final class TeamSelection
         });
 
         $this->team->notify($application->fresh(), 'confirmed', $seminar);
+
+        // Zugriff in der Nextcloud nachziehen
+        if (app(\App\Modules\Seminars\Nextcloud\SeminarNextcloud::class)->enabled() && $seminar->nextcloud_folder_path !== null) {
+            \App\Modules\Seminars\Jobs\SyncSeminarFolder::dispatch($seminar->fresh());
+        }
     }
 
     /** Der Status folgt dem Entwurf: mit mindestens einer Zusage „Team gewählt“, sonst wieder „Ausgeschrieben“. */

@@ -6,6 +6,7 @@ use App\Modules\Seminars\Http\Controllers\SeminarDocumentController;
 use App\Modules\Seminars\Http\Controllers\SeminarPriceController;
 use App\Modules\Seminars\Http\Controllers\MySeminarsController;
 use App\Modules\Seminars\Http\Controllers\SeminarLeadController;
+use App\Modules\Seminars\Http\Controllers\SeminarNextcloudController;
 use App\Modules\Seminars\Http\Controllers\SeminarNoticeController;
 use App\Modules\Seminars\Http\Controllers\SeminarPrintPlanController;
 use App\Modules\Seminars\Http\Controllers\SeminarReportController;
@@ -43,6 +44,13 @@ Route::middleware(['web', 'auth'])->group(function (): void {
         Route::post('/{seminar}/durchgefuehrt', [SeminarLeadController::class, 'held'])->whereNumber('seminar')->middleware('throttle:10,10')->name('held');
         Route::post('/{seminar}/dokumente', [SeminarLeadController::class, 'upload'])->whereNumber('seminar')->middleware('throttle:30,10')->name('upload');
         Route::post('/{seminar}/abgeben', [SeminarLeadController::class, 'report'])->whereNumber('seminar')->middleware('throttle:10,10')->name('report');
+    });
+
+    // Nextcloud-Ordner und Ergebnislink
+    Route::middleware(['can:seminars.manage', 'throttle:10,10'])->prefix('koordination/seminare/{seminar}/nextcloud')->whereNumber('seminar')->name('seminars.nextcloud.')->group(function (): void {
+        Route::post('/ordner', [SeminarNextcloudController::class, 'sync'])->name('sync');
+        Route::post('/manuell', [SeminarNextcloudController::class, 'manual'])->name('manual');
+        Route::post('/ergebnislink', [SeminarNextcloudController::class, 'link'])->name('link');
     });
 
     // Koordination: Bericht und Ergebnislink an die Schule

@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 /** Koordination: Ergebnislink festhalten und den Bericht an die Schule senden (nach der Prüfung der abgegebenen Unterlagen). */
 class SeminarReportController extends Controller
 {
-    public function __construct(private readonly SeminarNotifications $notices) {}
+    public function __construct(private readonly SeminarNotifications $notices, private readonly \App\Modules\Seminars\Nextcloud\SeminarNextcloud $nextcloud) {}
 
     public function send(Request $request, Seminar $seminar): RedirectResponse
     {
@@ -30,6 +30,18 @@ class SeminarReportController extends Controller
             'results_expires_at' => ['nullable', 'date'],
             'text' => ['nullable', 'string', 'max:1500'],
         ], ['results_share_url.url' => 'Der Link muss mit https:// beginnen.']);
+
+        // Mit eingerichteter Nextcloud und angelegtem Ordner entsteht der Link dort, wenn keiner eingetragen ist
+        if (blank($data['results_share_url'] ?? null) && $seminar->results_share_url === null && $this->nextcloud->enabled() && $seminar->nextcloud_folder_path !== null) {
+            try {
+                $this->nextcloud->createResultsLink($seminar, $data['results_expires_at'] ?? null, $user);
+                $seminar = $seminar->fresh();
+            } catch (\Throwable $exception) {
+                report($exception);
+
+                return back()->with('warning', 'Der Ergebnislink konnte in der Nextcloud nicht erzeugt werden: '.$exception->getMessage());
+            }
+        }
 
         if (filled($data['results_share_url'] ?? null)) {
             $last = $seminar->sessions()->max('ends_at');
@@ -61,6 +73,14 @@ class SeminarReportController extends Controller
 
         if (Carbon::parse($data['results_expires_at'])->lte($seminar->results_expires_at)) {
             return back()->withErrors(['results_expires_at' => 'Das neue Datum muss nach dem bisherigen ('.$seminar->results_expires_at->format('d.m.Y').') liegen.']);
+        }
+
+        try {
+            $this->nextcloud->extendResultsLink($seminar, $data['results_expires_at']);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return back()->with('warning', 'Das neue Datum konnte nicht an die Nextcloud übergeben werden: '.$exception->getMessage());
         }
 
         $seminar->forceFill(['results_expires_at' => $data['results_expires_at'], 'results_expiry_notified_at' => null])->save();

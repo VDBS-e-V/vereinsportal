@@ -10,6 +10,17 @@ use Illuminate\Support\ServiceProvider;
 
 class SeminarsServiceProvider extends ServiceProvider
 {
+    public function register(): void
+    {
+        // Nextcloud: echte Anbindung nur mit Zugangsdaten in der Umgebung, sonst die Variante, die „nicht eingerichtet“ meldet
+        $this->app->bind(\App\Modules\Seminars\Nextcloud\NextcloudClient::class, function (): \App\Modules\Seminars\Nextcloud\NextcloudClient {
+            $config = (array) config('services.nextcloud');
+            $client = new \App\Modules\Seminars\Nextcloud\HttpNextcloudClient((string) ($config['url'] ?? ''), (string) ($config['user'] ?? ''), (string) ($config['password'] ?? ''), (int) ($config['timeout'] ?? 20));
+
+            return $client->enabled() ? $client : new \App\Modules\Seminars\Nextcloud\NullNextcloudClient;
+        });
+    }
+
     public function boot(): void
     {
         $this->loadRoutesFrom(__DIR__.'/Http/routes.php');

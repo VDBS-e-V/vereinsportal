@@ -28,6 +28,16 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // Nextcloud für die Seminarordner (docs/87, Phase 6). Dienstkonto mit App-Passwort; ohne Eintrag legt das Portal keine Ordner an und zeigt „Ordner manuell anlegen“.
+    'nextcloud' => [
+        'url' => env('NEXTCLOUD_URL'),
+        'user' => env('NEXTCLOUD_SERVICE_USER'),
+        'password' => env('NEXTCLOUD_SERVICE_PASSWORD'),
+        // Name des Team folders („Koordination“) so, wie er im Dateibaum des Dienstkontos steht
+        'root' => env('NEXTCLOUD_TEAM_FOLDER', 'Koordination'),
+        'timeout' => (int) env('NEXTCLOUD_TIMEOUT', 20),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
