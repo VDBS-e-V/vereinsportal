@@ -80,3 +80,44 @@ Vorschlag je Seminar: zwei Unterordner „Unterlagen (Team)“ und „Ergebnisse
 ## Offen
 
 Keine offenen Entscheidungen. Nächster Schritt: Abgleich mit dem vorhandenen Portal (Lücken und Umsetzungsreihenfolge).
+
+## Abgleich mit dem vorhandenen Portal
+
+Gelesen aus Routen, Modellen und Diensten (Module Seminars, Contracts, Partners). Nichts davon wurde ausgeführt oder im Browser geprüft.
+
+| Nr. | Schritt | Stand | Anmerkung |
+|---|---|---|---|
+| 1 | Schule stellt Anfrage | vorhanden | `SchoolRequests`, Bereich Schulen, Seminar mit Status „Anfrage“ |
+| 1a | Eingangsprüfung, Rückfrage | teilweise | Verlauf und Notizen gibt es, aber kein Status „abgelehnt“ vor „Abgesagt“ und keine Rückfrage an die Schule als eigener Schritt |
+| 2 | KVA | vorhanden | `SeminarQuote` mit Versionen, Preislisten, Druck. Schule kann bestätigen |
+| 2a | KVA intern freigeben | fehlt | keine Freigabe durch Vorstand oder Koordination |
+| 2b/2c | Annahme, Vertrag, Freigabe auf Zusage | teilweise | Status „Bestätigt“ verlangt einen KVA. Es fehlt „freigegeben auf Zusage“ mit Begründung und „Vertrag der Schule unterschrieben“ |
+| 3 | Konkretes Seminar mit Terminen, Ort | vorhanden | Termine (`SeminarSession`), Ort, Typ, Nummer |
+| 4 | Ausschreibung mit Frist | vorhanden | Teambedarf, Bewerbungsfrist, Bewerbungslink für Personen ohne Konto, Fristerinnerung |
+| 5 | Interesse melden | vorhanden | `SeminarApplication` mit Wunsch Leitung |
+| 6 | Auswahl, Bestätigung per Klick | teilweise | Zusage und Absage gehen **sofort einzeln** mit Mail. Fehlt: Entwurf plus „Team bestätigen“ mit Versand an alle, Warnung bei Sollzahl, Nachrücken |
+| 6b | Seminarleitung | vorhanden | `is_lead` |
+| 6c | Verträge der Teamenden | vorhanden, falscher Ort | Vertrag je bestätigter Person, Druck, Scan. Er liegt am Seminar im Bereich Koordination, gewünscht ist eine Seite der Geschäftsstelle mit allen Seminaren |
+| 7 | Unterlagen und Nextcloud-Ordner | teilweise | Dokumente im Portal und Seminarmappe als ZIP. Es gibt **keine** Nextcloud-Anbindung für Ordner und Rechte |
+| 8 | Onboarding-Videokonferenz | fehlt | Nur „Team informieren“ (Mail mit Terminen). Kein Termin für das Onboarding |
+| 8a | Schule briefen | teilweise | Nachrichten an die Schule gibt es, kein fester Briefing-Schritt |
+| 8b | Absage, Verlegung | teilweise | Status „Abgesagt“ vorhanden. Fehlen: neuer Termin mit Regel Koordination oder Geschäftsstelle und erneute Teamanfrage |
+| 8c/9 | Durchführung, Berichte und Verträge hochladen | teilweise | Dokumente hochladen und Abschluss-Checkliste gibt es. Fehlen: Rolle „Seminarleitung“ für den Upload, Stichtag und Erinnerung |
+| 9a | Bericht prüfen | teilweise | Teil der Abschluss-Checkliste |
+| 10 | Teamende laden Ergebnisse in Nextcloud hoch | fehlt | hängt an der Nextcloud-Anbindung |
+| 11 | Bericht und Link per Portal an die Schule | teilweise | Nachricht an die Schule gibt es. Der Ordner-Link mit Ablaufdatum fehlt |
+| 11a | Feedback der Schule | vorhanden | Feedbackformulare und Auswertung |
+| 12 | Abschluss | vorhanden | `SeminarClosures`, Ereignis für spätere Abrechnung noch nicht ausgewiesen |
+| – | Löschfristen | teilweise | `PruneApplicants` und `PruneDocuments` laufen schon. Fristen sind an die beschlossenen Werte anzupassen |
+| – | Koordinationsgebiet an der Schule | fehlt | kein Feld in den Stammdaten der Schule |
+| – | Pflicht-Mails, Einstellung im Konto | teilweise | Benachrichtigungseinstellungen gibt es. Pflichtmails ausnehmen ist neu |
+
+## Vorgeschlagene Reihenfolge
+
+1. **Statusverlauf und Freigabe:** neue Status („Vertrag unterschrieben“, „Freigegeben auf Zusage“, „Abgelehnt“), KVA-Freigabe, Begründung im Verlauf.
+2. **Geschäftsstelle: Seminarliste mit Verträgen:** Liste aller Seminare mit Status und Vertragsaktion. Dazu Feld „Koordinationsgebiet“ an der Schule.
+3. **Teamauswahl als Entwurf:** Zusage und Absage markieren, „Team bestätigen“ sendet alle Mails, Sollzahl-Warnung, Nachrücken.
+4. **Seminarleitung:** Upload-Rechte für Verträge und Berichte, Stichtag, Erinnerung.
+5. **Nextcloud-Ordner:** Ordnerstruktur, Rechte, Ergebnislink mit Ablaufdatum. Größter Aufwand, braucht Entscheidung zur Schnittstelle (WebDAV oder OCS mit Dienstkonto).
+6. **Mitteilungen:** Pflicht-Mails, Vorlagen, Absage und Verlegung, Briefing, Onboarding-Termin.
+7. **Löschfristen** auf die beschlossenen Werte anpassen.
