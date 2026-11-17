@@ -225,6 +225,8 @@ return [
     ],
 
     'seminars' => [
+        // Tage nach dem letzten Termin, bis zu denen Seminarleitung Verträge und Ergebnisbericht hochlädt
+        'report_days' => (int) env('PORTAL_SEMINAR_REPORT_DAYS', 14),
         // Format der Seminarnummer: {Y} = Jahr, {N:4} = laufende Nummer mit vier Stellen.
         'number_format' => env('SEMINAR_NUMBER_FORMAT', 'S-{Y}-{N:4}'),
         // Dokumente je Seminar: Größe einer Datei und aller Dateien zusammen (in KB), Aufbewahrung in Jahren je Art (nach dem letzten Termin).

@@ -150,6 +150,7 @@ final class PortalNavigation
                 'pages' => [
                     ['label' => 'Übersicht', 'route' => 'team.home', 'match' => 'team.home', 'can' => 'seminars.apply'],
                     ['description' => 'Seminare mit Stichtag, Ihr Interesse und Ihr Team.', 'label' => 'Seminare', 'route' => 'seminar-applications.index', 'match' => 'seminar-applications.*', 'can' => 'seminars.apply'],
+                    ['description' => 'Seminare, die Sie leiten: Durchführung bestätigen, Verträge und Bericht hochladen.', 'label' => 'Meine Leitung', 'route' => 'seminar-lead.index', 'match' => 'seminar-lead.*', 'can' => 'seminars.apply'],
                     ['description' => 'Ihre Angaben für die Teamzusammenstellung.', 'label' => 'Profil', 'route' => 'team-profile.edit', 'match' => 'team-profile.*', 'can' => 'seminars.apply'],
                     ['description' => 'Ihre Schritte der Einarbeitung.', 'label' => 'Einarbeitung', 'route' => 'team-self.index', 'match' => 'team-self.*', 'can' => 'team.onboarding'],
                     ['description' => 'Auslagen und Fahrtkosten zu Ihren Seminaren erstatten lassen.', 'label' => 'Anträge', 'route' => 'team-forms.index', 'match' => 'team-forms.*', 'can' => 'forms.submit_team'],

@@ -5,7 +5,9 @@ use App\Modules\Seminars\Http\Controllers\SeminarController;
 use App\Modules\Seminars\Http\Controllers\SeminarDocumentController;
 use App\Modules\Seminars\Http\Controllers\SeminarPriceController;
 use App\Modules\Seminars\Http\Controllers\MySeminarsController;
+use App\Modules\Seminars\Http\Controllers\SeminarLeadController;
 use App\Modules\Seminars\Http\Controllers\SeminarNoticeController;
+use App\Modules\Seminars\Http\Controllers\SeminarReportController;
 use App\Modules\Seminars\Http\Controllers\SeminarOfficeController;
 use App\Modules\Seminars\Http\Controllers\SeminarQuoteController;
 use App\Modules\Seminars\Http\Controllers\SeminarStatisticsController;
@@ -25,6 +27,18 @@ Route::middleware(['web', 'auth'])->group(function (): void {
     // Geschäftsstelle: alle Seminare mit KVA, Freigabe und Verträgen; interne KVA-Freigabe durch Vorstand oder Koordination
     Route::get('geschaeftsstelle/seminare', [SeminarOfficeController::class, 'index'])->middleware('can:seminars.review')->name('seminar-office.index');
     Route::post('koordination/seminare/{seminar}/kva-freigabe', [SeminarOfficeController::class, 'approveQuote'])->whereNumber('seminar')->middleware(['can:seminars.quote_approve', 'throttle:20,10'])->name('seminars.quote.approve');
+
+    // Seminarleitung: nur das eigene Seminar (Prüfung in SeminarLeadController)
+    Route::prefix('teamende/leitung')->name('seminar-lead.')->middleware('can:seminars.apply')->group(function (): void {
+        Route::get('/', [SeminarLeadController::class, 'index'])->name('index');
+        Route::get('/{seminar}', [SeminarLeadController::class, 'show'])->whereNumber('seminar')->name('show');
+        Route::post('/{seminar}/durchgefuehrt', [SeminarLeadController::class, 'held'])->whereNumber('seminar')->middleware('throttle:10,10')->name('held');
+        Route::post('/{seminar}/dokumente', [SeminarLeadController::class, 'upload'])->whereNumber('seminar')->middleware('throttle:30,10')->name('upload');
+        Route::post('/{seminar}/abgeben', [SeminarLeadController::class, 'report'])->whereNumber('seminar')->middleware('throttle:10,10')->name('report');
+    });
+
+    // Koordination: Bericht und Ergebnislink an die Schule
+    Route::post('koordination/seminare/{seminar}/bericht-senden', [SeminarReportController::class, 'send'])->whereNumber('seminar')->middleware(['can:seminars.manage', 'throttle:10,10'])->name('seminars.report.send');
 
     // Mitteilungen von Hand im Seminarablauf
     Route::post('koordination/seminare/{seminar}/rueckfrage', [SeminarNoticeController::class, 'question'])->whereNumber('seminar')->middleware(['can:seminars.review', 'throttle:20,10'])->name('seminars.notice.question');

@@ -124,6 +124,8 @@
 
     @include('seminars._notices')
 
+    @include('seminars._closing')
+
     @include('seminars._team')
 
     @can('seminars.documents')

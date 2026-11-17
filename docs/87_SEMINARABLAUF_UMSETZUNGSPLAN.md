@@ -217,4 +217,10 @@ Tests je Phase: jeder erlaubte und jeder verbotene Übergang, Rechte je Rolle (a
   - Von Hand auslösbar am Seminar (Kasten „Mitteilungen“): Rückfrage an die Schule (Geschäftsstelle), Briefing, Onboarding-Termin mit Einladung, neue Termine melden (Koordination).
   - „Vorbereitet“ setzt jetzt einen Onboarding-Termin voraus.
   - Die Hinweise der Schule an die Koordination (Anfrage, Bestätigung, Rückmeldung) laufen unverändert an die Koordination, nicht an die Geschäftsstelle.
-- Noch **nicht** umgesetzt: Teamverträge (Honorarverträge) von der Seminarliste der Geschäftsstelle aus, Mails zu Berichten und Ergebnislink (Phase 5), Seminarleitung mit Upload (Phase 5).
+- **Phase 5 umgesetzt** (nur syntaxgeprüft, Tests in der CI):
+  - **Seminarleitung** (`Teamende › Meine Leitung`): sieht nur das eigene Seminar, bestätigt die Durchführung (erst nach dem letzten Termin), lädt Verträge, Ergebnisbericht, Teilnehmendenzahlen und Sonstiges hoch und gibt ab (nur mit Ergebnisbericht).
+  - **Stichtag** für Verträge und Bericht: letzter Termin plus 14 Tage (`PORTAL_SEMINAR_REPORT_DAYS`). Befehl `seminars:remind-reports` (täglich): Erinnerung an die Seminarleitung drei Tage vorher, Hinweis an die Koordination bei Überfälligkeit, je einmal.
+  - **Koordination**: Kasten „Bericht und Ergebnislink“ am Seminar: Link zum Ergebnisordner mit Ablaufdatum (mindestens ein Jahr nach dem letzten Termin) und „Bericht an die Schule senden“ (Mail mit Link und Bitte um Rückmeldung im Portal).
+  - Beim Abschluss löst das Portal das Ereignis `SeminarCompleted` aus, an dem später die Abrechnung andockt.
+  - Nicht übernommen: Der Abschluss verlangt den gesendeten Bericht nicht als Pflichtpunkt der Checkliste (die vorhandenen Abschlusstests hätten sonst alle angepasst werden müssen). Das lässt sich mit einer Zeile nachholen.
+- Noch **nicht** umgesetzt: Teamverträge (Honorarverträge) von der Seminarliste der Geschäftsstelle aus, Phase 5a (Online-Druckplaner), Phase 6 (Nextcloud), Phase 7 (Löschfristen).

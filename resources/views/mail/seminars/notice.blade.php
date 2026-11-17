@@ -35,6 +35,18 @@
             <p>die Termine für das Seminar <strong>{{ $seminar->title }}</strong> haben sich geändert. Die neuen Termine:</p>
             <ul>@foreach ($sessions as $session)<li>{{ $session->period() }}@if ($session->location), {{ $session->location }}@endif</li>@endforeach</ul>
             @break
+        @case ('school_report')
+            <p>das Seminar <strong>{{ $seminar->title }}</strong> ist durchgeführt. Wir senden Ihnen den Ergebnisbericht.</p>
+            @if ($seminar->results_share_url)<p>Die Ergebnisse finden Sie hier: <a href="{{ $seminar->results_share_url }}">{{ $seminar->results_share_url }}</a>@if ($seminar->results_expires_at) (verfügbar bis {{ $seminar->results_expires_at->format('d.m.Y') }})@endif</p>@endif
+            @if (filled($extra))<p>{!! nl2br(e((string) $extra)) !!}</p>@endif
+            <p>Wir freuen uns über Ihre Rückmeldung zum Seminar. Sie finden das Formular im Portal.</p>
+            @break
+        @case ('report_reminder')
+            <p>als Seminarleitung laden Sie für das Seminar <strong>{{ $seminar->title }}</strong> bitte bis zum <strong>{{ $seminar->report_due_at?->format('d.m.Y') }}</strong> die Verträge und den Ergebnisbericht im Portal hoch.</p>
+            @break
+        @case ('report_overdue')
+            <p>für das Seminar <strong>{{ $seminar->title }}</strong> fehlen Verträge und Ergebnisbericht. Der Stichtag war der {{ $seminar->report_due_at?->format('d.m.Y') }}. Bitte fragen Sie bei der Seminarleitung nach.</p>
+            @break
         @case ('released')
             <p>das Seminar <strong>{{ $seminar->title }}</strong> ({{ $school }}) ist freigegeben. Sie können es jetzt planen: Termine, Teamgröße und Ausschreibung.</p>
             @break

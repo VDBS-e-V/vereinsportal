@@ -29,6 +29,9 @@ Schedule::command('access-requests:prune')->daily();
 // Koordination informieren, wenn der Stichtag für Interessenbekundungen auf ein Seminar vorbei ist.
 Schedule::command('seminars:team-deadlines')->daily();
 
+// Seminarleitung erinnern, wenn Verträge und Bericht bald fällig sind; Koordination informieren, wenn sie überfällig sind.
+Schedule::command('seminars:remind-reports')->daily();
+
 // Bewerbungen ohne Konto: Fristen der Aufbewahrung
 Schedule::command('seminars:prune-applicants')->daily();
 Schedule::command('seminars:prune-documents')->daily();

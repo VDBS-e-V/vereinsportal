@@ -6,6 +6,7 @@ use App\Modules\Access\Models\User;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Seminars\Enums\SeminarEventType;
+use App\Modules\Seminars\Events\SeminarCompleted;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
 use DomainException;
@@ -37,11 +38,12 @@ final class SeminarWorkflow
 
         $comment = filled($comment) ? trim((string) $comment) : null;
         $release = $target === SeminarStatus::Released ? $this->release($extra) : [];
+        $report = $this->reportFields($seminar, $target);
 
         $this->require($seminar, $target, $comment);
 
         DB::transaction(function () use ($seminar, $target, $by, $from, $comment, $release): void {
-            $seminar->forceFill(['status' => $target, 'updated_by_user_id' => $by->id] + $release + ($release !== [] ? ['released_by_user_id' => $by->id, 'released_at' => now()] : []))->save();
+            $seminar->forceFill(['status' => $target, 'updated_by_user_id' => $by->id] + $report + $release + ($release !== [] ? ['released_by_user_id' => $by->id, 'released_at' => now()] : []))->save();
 
             $seminar->events()->create([
                 'type' => SeminarEventType::StatusChanged,
@@ -60,6 +62,10 @@ final class SeminarWorkflow
         }
 
         app(SeminarNotifications::class)->statusChanged($seminar->fresh(), $target, $comment);
+
+        if ($target === SeminarStatus::Completed) {
+            event(new SeminarCompleted($seminar->fresh()));
+        }
     }
 
     /**
@@ -117,6 +123,18 @@ final class SeminarWorkflow
         AuditLog::record(AuditEvent::SeminarQuoteApproved, $by, $seminar);
     }
 
+    /** Spalten, die ein Wechsel nach „Durchgeführt“ (Stichtag für die Berichte) oder „Berichtet“ setzt. @return array<string, mixed> */
+    private function reportFields(Seminar $seminar, SeminarStatus $target): array
+    {
+        if ($target === SeminarStatus::Held) {
+            $last = $seminar->sessions()->max('ends_at');
+
+            return ['report_due_at' => ($last !== null ? Carbon::parse($last) : now())->startOfDay()->addDays((int) config('portal.seminars.report_days', 14))->toDateString(), 'report_reminded_at' => null, 'report_overdue_notified_at' => null];
+        }
+
+        return $target === SeminarStatus::Reported ? ['reported_at' => now()] : [];
+    }
+
     /** @throws DomainException */
     private function require(Seminar $seminar, SeminarStatus $target, ?string $comment): void
     {
@@ -142,6 +160,10 @@ final class SeminarWorkflow
 
         if ($target === SeminarStatus::Prepared && $seminar->onboarding_at === null) {
             throw new DomainException('Planen Sie zuerst den Termin für das Onboarding des Teams.');
+        }
+
+        if ($target === SeminarStatus::Reported && ! $seminar->documents()->where('kind', 'report')->exists()) {
+            throw new DomainException('Laden Sie zuerst den Ergebnisbericht hoch (Art „Bericht“).');
         }
 
         if ($target === SeminarStatus::Held && ($seminar->sessions()->where('starts_at', '>', now())->exists() || ! $seminar->sessions()->exists())) {

@@ -64,6 +64,24 @@ final class SeminarNotifications
         $this->toTeam($seminar, 'team_rescheduled', null, 'Neue Termine an das Team', $by);
     }
 
+    /** Bericht und Ergebnislink an die Schule, mit Bitte um Rückmeldung. */
+    public function reportToSchool(Seminar $seminar, ?string $text, User $by): void
+    {
+        $this->toSchool($seminar, 'school_report', $text, 'Bericht und Ergebnislink an die Schule', $by);
+    }
+
+    /** Erinnerung an die Seminarleitung (Stichtag für Verträge und Bericht naht). */
+    public function reportReminder(Seminar $seminar, SeminarApplication $lead): void
+    {
+        $this->toApplications($seminar, [$lead], 'report_reminder', null, 'Erinnerung an die Seminarleitung');
+    }
+
+    /** Hinweis an die Koordination: Der Stichtag für die Berichte ist verstrichen. */
+    public function reportOverdue(Seminar $seminar): void
+    {
+        $this->toCoordination($seminar, 'report_overdue', 'Bericht überfällig an die Koordination');
+    }
+
     /** Onboarding-Einladung an das bestätigte Team. */
     public function onboarding(Seminar $seminar, ?string $text, User $by): void
     {

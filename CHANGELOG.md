@@ -8,6 +8,7 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ### Added
 
+- Seminarablauf Phase 5: Seminarleitung (Durchführung, Uploads, Abgabe), Stichtag und Erinnerung für Berichte, Bericht und Ergebnislink an die Schule, Ereignis „Seminar abgeschlossen“ (Doc 87)
 - Seminarablauf Phase 4: Mitteilungen im Ablauf (Eingangsbestätigung, Rückfrage, KVA, Briefing, Ausschreibung, Onboarding, Absage, neue Termine) mit Pflicht-Mails und Einstellungen im Konto (Doc 87)
 - Seminarablauf Phase 3: Teamauswahl als Entwurf mit „Team bestätigen“, Warteliste mit Nachrücken, Pflicht-Mails für Zusage und Absage, Seite „Meine Seminare“ der Koordination (Doc 87)
 - Seminarablauf Phase 2: Seite „Seminare“ der Geschäftsstelle, interne KVA-Freigabe, Rechte für Prüfung und Freigabe, Vertrag mit der Schule aus einer Vorlage (erzeugen, drucken, Unterschrift erfassen) (Doc 87)
