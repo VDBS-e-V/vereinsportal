@@ -1,9 +1,13 @@
-# Navigation: Web-Control für Bereiche und Kopfmenü
+# Navigation: Web-Control für Bereiche und Header
 
-Unter **Admins › Navigation** (`/verwaltung/navigation`, Berechtigung `navigation.manage`, nur Administration) legen Sie fest, welche Bereiche und Seiten im Kopfmenü und auf den Startseiten der Bereiche erscheinen.
+Unter **Admins › Navigation** (`/verwaltung/navigation`, Berechtigung `navigation.manage`, nur Administration) steuern Sie das Kopfmenü. Zwei Ansichten:
 
-- Standard: alles sichtbar. Ausgeblendete Einträge stehen in der Tabelle `navigation_hidden` (`area:<Bereich>` oder `page:<Bereich>:<Route>`).
-- Nicht ausblendbar: Start, Konto, der Bereich Admins, die Übersichtsseite jedes Bereichs und die Seite „Navigation“ (kein Aussperren).
-- Das Ausblenden betrifft **nur die Darstellung**. Rollen und Berechtigungen prüft weiterhin jede Seite selbst. Eine bekannte Adresse bleibt für berechtigte Personen erreichbar.
-- Minimale Produktionsversion: Die Migration `2027_01_07_000001_create_navigation_hidden` blendet in der Umgebung `production` die Bereiche Mitarbeitende, Schulen, Geschäftsstelle und Bildungsreferenten aus. Sichtbar bleiben Vorstand, Mitglieder, Teamende, Koordination und Admins. Einzelne Seiten dieser Bereiche schalten Sie im Web-Control nach Bestätigung aus oder ein.
+- **Bereiche** („Übersicht der Bereiche“): Reihenfolge (▲ ▼), Name, Adresse, Sichtbarkeit in der **Kopfzeile** und in **Listen** (Ja/Nein per Klick), Bearbeiten. Das Formular setzt einen eigenen Anzeigenamen und schränkt optional auf Rollen ein (keine Auswahl: Regeln des Katalogs).
+- **Header** („Übersicht der Header“): je Bereich die Seiten des Kopfmenüs. Im Formular ändern Sie Titel, Reihenfolge und Sichtbarkeit jeder Seite und legen bis zu drei **eigene Links** mit je drei **Unterseiten** an (Adresse `/…` oder `https://…`).
+
+Grundlage ist der Katalog in `PortalNavigation`. Die Verwaltung speichert nur Abweichungen (`navigation_areas`, `navigation_items`). Ohne Einträge gilt der Katalog unverändert.
+
+- Nicht änderbar: Start, Konto, der Bereich Admins, die Übersicht jedes Bereichs, Gruppen und die Seite „Navigation“ (kein Aussperren).
+- Das Ausblenden betrifft **nur die Darstellung**. Rollen und Berechtigungen prüft weiterhin jede Seite selbst. Eine bekannte Adresse bleibt für berechtigte Personen erreichbar. Den Bereichs-Icon ändert die Verwaltung nicht.
+- Minimale Produktionsversion: In der Umgebung `production` blenden die Migrationen Mitarbeitende, Schulen, Geschäftsstelle und Bildungsreferenten aus (Kopfzeile und Listen).
 - Jede Änderung steht im Protokoll („Navigation gespeichert“).

@@ -17,7 +17,7 @@
 
     <section aria-labelledby="areas-heading" style="margin-top:var(--space-8)">
         <h2 id="areas-heading" style="font-size:var(--font-size-h3)">Bereiche</h2>
-        @php $areas = \App\Support\PortalNavigation::visibleAreas($user); @endphp
+        @php $areas = \App\Support\PortalNavigation::visibleAreas($user, 'lists'); @endphp
 
         @if ($areas === [])
             <p>Für Sie sind keine Bereiche freigeschaltet.</p>

@@ -5,7 +5,8 @@ use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
-use App\Modules\NavigationControl\Models\NavigationHidden;
+use App\Modules\NavigationControl\Models\NavigationArea;
+use App\Modules\NavigationControl\Models\NavigationItem;
 use App\Modules\NavigationControl\Support\NavigationControl;
 use App\Modules\People\Models\Person;
 use App\Support\PortalAreas;
@@ -18,7 +19,8 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->withoutVite();
     $this->seed(RoleSeeder::class);
-    NavigationHidden::query()->delete();
+    NavigationArea::query()->delete();
+    NavigationItem::query()->delete();
     NavigationControl::reset();
 });
 
@@ -34,34 +36,51 @@ function ncUser(RoleKey ...$roles): User
     return $user;
 }
 
-it('shows every area and page until something is hidden', function () {
-    $user = ncUser(RoleKey::Administration);
-
-    expect(PortalNavigation::visibleAreas($user))->toContain(PortalAreas::Admins);
+it('shows every area until something is changed', function () {
+    expect(PortalNavigation::visibleAreas(ncUser(RoleKey::Administration)))->toContain(PortalAreas::Admins);
 });
 
-it('hides an area and a page from the menus without touching the permissions', function () {
+it('hides an area from the header and the lists without touching the permissions', function () {
     $user = ncUser(RoleKey::BoardMember);
     expect(PortalNavigation::visibleAreas($user))->toContain(PortalAreas::Vorstand);
 
-    NavigationControl::replace(['area:vorstand']);
-    expect(PortalNavigation::visibleAreas($user))->not->toContain(PortalAreas::Vorstand);
+    NavigationArea::query()->create(['area' => 'vorstand', 'show_header' => false, 'show_lists' => true]);
+    NavigationControl::reset();
 
-    NavigationControl::replace(['page:vorstand:board.reports']);
-    $labels = collect(PortalNavigation::pages(PortalAreas::Vorstand, $user))->pluck('label');
-    expect($labels)->not->toContain('Berichte')->and($labels)->toContain('Sitzungen');
+    expect(PortalNavigation::visibleAreas($user))->not->toContain(PortalAreas::Vorstand)
+        ->and(PortalNavigation::visibleAreas($user, 'lists'))->toContain(PortalAreas::Vorstand);
 });
 
-it('lets only administration edit the navigation and saves what stays visible', function () {
+it('hides, renames and reorders pages and adds own links with sub pages', function () {
+    $user = ncUser(RoleKey::BoardMember);
+    $admin = ncUser(RoleKey::Administration);
+
+    $this->actingAs($admin)->put(route('navigation.header.update', 'vorstand'), [
+        'items' => [substr(md5('board.reports'), 0, 12) => ['label' => '', 'sort' => ''], substr(md5('board.meetings.index'), 0, 12) => ['label' => 'Vorstandssitzungen', 'sort' => '1', 'visible' => '1']],
+        'custom' => [['label' => 'Handbuch', 'url' => 'https://example.org/handbuch', 'children' => [['label' => 'Kapitel 1', 'url' => '/faq']]]],
+    ])->assertRedirect(route('navigation.header', 'vorstand'));
+
+    $pages = collect(PortalNavigation::pages(PortalAreas::Vorstand, $user));
+    expect($pages->pluck('label'))->not->toContain('Berichte')->and($pages->pluck('label'))->toContain('Vorstandssitzungen')->toContain('Handbuch')
+        ->and($pages->firstWhere('label', 'Handbuch')['children'][0]['href'])->toBe('/faq');
+});
+
+it('lets only administration use the web control, orders and renames areas', function () {
     $this->actingAs(ncUser(RoleKey::Member))->get(route('navigation.edit'))->assertForbidden();
 
     $admin = ncUser(RoleKey::Administration);
     $this->actingAs($admin)->get(route('navigation.edit'))->assertOk()->assertSee('Koordination');
+    $this->actingAs($admin)->get(route('navigation.headers'))->assertOk();
+    $this->actingAs($admin)->get(route('navigation.header', 'koordination'))->assertOk();
+    $this->actingAs($admin)->get(route('navigation.area', 'koordination'))->assertOk();
 
-    // Nur Bereich Vorstand angehakt: alle anderen werden ausgeblendet
-    $this->actingAs($admin)->put(route('navigation.update'), ['areas' => ['vorstand' => '1']])->assertRedirect(route('navigation.edit'));
+    $this->actingAs($admin)->post(route('navigation.area.toggle', 'koordination'), ['field' => 'show_header'])->assertRedirect(route('navigation.edit'));
+    expect(NavigationArea::query()->where('area', 'koordination')->value('show_header'))->toBeFalse();
 
-    expect(NavigationHidden::query()->where('key', 'area:vorstand')->exists())->toBeFalse()
-        ->and(NavigationHidden::query()->where('key', 'area:koordination')->exists())->toBeTrue()
-        ->and(NavigationHidden::query()->where('key', 'area:admins')->exists())->toBeFalse();
+    $this->actingAs($admin)->put(route('navigation.area.update', 'teamende'), ['label' => 'Team', 'show_header' => '1', 'show_lists' => '1', 'roles' => ['member']])->assertRedirect(route('navigation.edit'));
+    NavigationControl::reset();
+    expect(NavigationControl::areaLabel(PortalAreas::Teamende))->toBe('Team');
+
+    $this->actingAs($admin)->post(route('navigation.area.move', 'teamende'), ['direction' => 'up'])->assertRedirect(route('navigation.edit'));
+    expect(NavigationArea::query()->where('area', 'teamende')->value('sort'))->not->toBeNull();
 });

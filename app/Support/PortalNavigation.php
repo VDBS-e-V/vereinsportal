@@ -258,14 +258,20 @@ final class PortalNavigation
      *
      * @return list<PortalAreas>
      */
-    public static function visibleAreas(User $user): array
+    public static function visibleAreas(User $user, string $context = 'header'): array
     {
         $held = Capabilities::activeRoleKeys($user);
 
-        return array_values(array_filter(
+        $areas = array_values(array_filter(
             PortalAreas::withGroupMark(),
-            fn (PortalAreas $area): bool => NavigationControl::areaEnabled($area) && self::roleAllows($area, $held) && self::pages($area, $user) !== [],
+            fn (PortalAreas $area): bool => NavigationControl::areaEnabled($area, $context) && NavigationControl::rolesAllow($area, $held) && self::roleAllows($area, $held) && self::pages($area, $user) !== [],
         ));
+
+        // Reihenfolge laut Web-Control (Standard: wie im Katalog)
+        $order = array_flip(array_map(fn (PortalAreas $area): string => $area->value, $areas));
+        usort($areas, fn (PortalAreas $a, PortalAreas $b): int => NavigationControl::areaSort($a, $order[$a->value]) <=> NavigationControl::areaSort($b, $order[$b->value]));
+
+        return $areas;
     }
 
     /**
@@ -275,7 +281,7 @@ final class PortalNavigation
      */
     public static function pages(PortalAreas $area, ?User $user, ?string $routeName = null): array
     {
-        return self::visiblePages(self::catalog()[$area->value]['pages'], $user, $routeName, $area);
+        return NavigationControl::decorate($area, self::visiblePages(self::catalog()[$area->value]['pages'], $user, $routeName, $area));
     }
 
     /**
@@ -317,6 +323,7 @@ final class PortalNavigation
             $current = ! $group && $routeName !== null && isset($page['match']) && Str::is($page['match'], $routeName);
 
             $visible[] = [
+                'key' => NavigationControl::pageKey($page),
                 'label' => $page['label'],
                 'description' => $page['description'] ?? null,
                 'icon' => $page['icon'] ?? self::iconFor((string) $page['route']),

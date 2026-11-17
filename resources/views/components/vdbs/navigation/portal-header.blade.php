@@ -38,7 +38,7 @@
                 <nav id="portal-menu-areas" class="vdbs-header__menu-panel" aria-label="Bereiche und externe Systeme">
                     <ul class="vdbs-header__links vdbs-header__links--areas" data-vdbs-overflow data-vdbs-overflow-max="8">
                         @foreach ($visibleAreas as $topArea)
-                            <li><a href="{{ \App\Support\PortalNavigation::home($topArea, $user) }}" @if ($topArea === $currentArea) aria-current="true" @endif>{{ $topArea->label() }}</a></li>
+                            <li><a href="{{ \App\Support\PortalNavigation::home($topArea, $user) }}" @if ($topArea === $currentArea) aria-current="true" @endif>{{ \App\Modules\NavigationControl\Support\NavigationControl::areaLabel($topArea) }}</a></li>
                         @endforeach
                         @foreach ($systems as $system)
                             <li><a href="{{ $system['url'] }}">{{ $system['label'] }}</a></li>
