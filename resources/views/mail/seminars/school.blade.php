@@ -5,7 +5,7 @@
     @if ($kind === 'request')
         <p>über das Portal ist eine neue Seminaranfrage der Schule <strong>{{ $seminar->partner->name }}</strong> eingegangen: {{ $seminar->title }}.</p>
     @elseif ($kind === 'confirmed')
-        <p>Die Schule <strong>{{ $seminar->partner->name }}</strong> hat Termin und Kostenvoranschlag für das Seminar <strong>{{ $seminar->title }}</strong> bestätigt. Sie können das Seminar jetzt auf „Bestätigt“ setzen.</p>
+        <p>Die Schule <strong>{{ $seminar->partner->name }}</strong> hat Termin und Kostenvoranschlag für das Seminar <strong>{{ $seminar->title }}</strong> bestätigt. Die Geschäftsstelle kann das Seminar jetzt freigeben.</p>
     @else
         <p>Die Schule <strong>{{ $seminar->partner->name }}</strong> hat eine Nachricht zum Seminar <strong>{{ $seminar->title }}</strong> geschickt. Sie steht im Verlauf des Seminars.</p>
     @endif

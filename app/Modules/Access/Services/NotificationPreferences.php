@@ -21,6 +21,8 @@ final class NotificationPreferences
     {
         return [
             'seminar_team' => ['label' => 'Entscheidungen zu Seminaren', 'description' => 'Wenn ein Seminar abgesagt wird, an dem Sie beteiligt sind. Zusage, Absage und Warteliste erhalten Sie immer.', 'group' => 'Seminare', 'ability' => 'seminars.apply'],
+            'seminar_tender' => ['label' => 'Neue Ausschreibungen', 'description' => 'Wenn ein Seminar zur Mitarbeit ausgeschrieben wird.', 'group' => 'Seminare', 'ability' => 'seminars.apply'],
+            'seminar_workflow' => ['label' => 'Freigegebene Seminare', 'description' => 'Wenn die Geschäftsstelle ein Seminar freigibt und die Koordination es planen kann.', 'group' => 'Koordination', 'ability' => 'seminars.manage'],
             'team_mailings' => ['label' => 'Mitteilungen an Teamende', 'description' => 'Mitteilungen der Koordination zu Seminaren sowie Schreiben von Geschäftsstelle und Vorstand an Teamende.', 'group' => 'Seminare', 'ability' => 'seminars.apply'],
             'school_mailings' => ['label' => 'Mitteilungen an Schulen', 'description' => 'Schreiben von Geschäftsstelle und Vorstand an Schulkonten.', 'group' => 'Schulen', 'ability' => 'school.area'],
             'onboarding_reminders' => ['label' => 'Erinnerungen an Ihre Einarbeitung', 'description' => 'Wenn Schritte der Einarbeitung länger offen sind.', 'group' => 'Teamende', 'ability' => 'team.onboarding'],

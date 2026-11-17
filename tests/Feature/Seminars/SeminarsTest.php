@@ -252,9 +252,12 @@ it('walks through the whole seminar workflow with history entries', function () 
     smSession($seminar);
     $status('planned');
     $seminar->forceFill(['team_needed' => 2, 'application_deadline' => now()->addWeek()->toDateString()])->save();
-    foreach (['tendered', 'team_selected', 'team_confirmed', 'prepared'] as $step) {
+    foreach (['tendered', 'team_selected', 'team_confirmed'] as $step) {
         $status($step);
     }
+    $status('prepared')->assertSessionHas('warning');
+    $seminar->forceFill(['onboarding_at' => now()->addDays(3)])->save();
+    $status('prepared');
 
     $seminar->sessions()->update(['starts_at' => now()->subDays(3), 'ends_at' => now()->subDays(3)->addHours(6)]);
     $status('held');

@@ -5,6 +5,7 @@ use App\Modules\Seminars\Http\Controllers\SeminarController;
 use App\Modules\Seminars\Http\Controllers\SeminarDocumentController;
 use App\Modules\Seminars\Http\Controllers\SeminarPriceController;
 use App\Modules\Seminars\Http\Controllers\MySeminarsController;
+use App\Modules\Seminars\Http\Controllers\SeminarNoticeController;
 use App\Modules\Seminars\Http\Controllers\SeminarOfficeController;
 use App\Modules\Seminars\Http\Controllers\SeminarQuoteController;
 use App\Modules\Seminars\Http\Controllers\SeminarStatisticsController;
@@ -24,6 +25,14 @@ Route::middleware(['web', 'auth'])->group(function (): void {
     // Geschäftsstelle: alle Seminare mit KVA, Freigabe und Verträgen; interne KVA-Freigabe durch Vorstand oder Koordination
     Route::get('geschaeftsstelle/seminare', [SeminarOfficeController::class, 'index'])->middleware('can:seminars.review')->name('seminar-office.index');
     Route::post('koordination/seminare/{seminar}/kva-freigabe', [SeminarOfficeController::class, 'approveQuote'])->whereNumber('seminar')->middleware(['can:seminars.quote_approve', 'throttle:20,10'])->name('seminars.quote.approve');
+
+    // Mitteilungen von Hand im Seminarablauf
+    Route::post('koordination/seminare/{seminar}/rueckfrage', [SeminarNoticeController::class, 'question'])->whereNumber('seminar')->middleware(['can:seminars.review', 'throttle:20,10'])->name('seminars.notice.question');
+    Route::middleware(['can:seminars.manage', 'throttle:20,10'])->prefix('koordination/seminare/{seminar}/mitteilung')->whereNumber('seminar')->name('seminars.notice.')->group(function (): void {
+        Route::post('/briefing', [SeminarNoticeController::class, 'briefing'])->name('briefing');
+        Route::post('/onboarding', [SeminarNoticeController::class, 'onboarding'])->name('onboarding');
+        Route::post('/termine', [SeminarNoticeController::class, 'rescheduled'])->name('rescheduled');
+    });
 
     Route::get('koordination/meine-seminare', [MySeminarsController::class, 'index'])->middleware('can:seminars.view')->name('seminar-mine.index');
 

@@ -42,6 +42,7 @@ final class SchoolRequests
         $this->seminars->note($seminar, 'Anfrage über das Schulportal von '.$account->name.'. Wunschzeitraum: '.(filled($data['wished_period'] ?? null) ? trim($data['wished_period']) : 'keine Angabe'), $account->user);
 
         $this->notify('request', $seminar);
+        app(SeminarNotifications::class)->requestReceived($seminar, $account->user);
 
         return $seminar;
     }

@@ -210,4 +210,11 @@ Tests je Phase: jeder erlaubte und jeder verbotene Übergang, Rechte je Rolle (a
   - Zusage, Absage und Wartelisten-Mail sind **Pflicht-Mails** und ignorieren die Einstellung im Konto.
   - Seite **Koordination › Meine Seminare** mit dem nächsten Schritt je Status.
   - Der alte Weg mit sofortiger Zu- oder Absage (`decide`, Route `team.decide`) ist entfernt; der Teamvorschlag legt jetzt Entwürfe an.
-- Noch **nicht** umgesetzt: Teamverträge (Honorarverträge) von der Seminarliste der Geschäftsstelle aus (bisher am Seminar), Mails und Vorlagen der übrigen Schritte (Phase 4), Seminarleitung mit Upload (Phase 5).
+- **Phase 4 umgesetzt** (nur syntaxgeprüft, Tests in der CI):
+  - Dienst `SeminarNotifications` mit einer Mail-Art `SeminarNoticeMail`: Eingangsbestätigung, Rückfrage, Ablehnung mit Begründung, KVA (Pflicht), Briefing, Absage, neue Termine an die Schule; Freigabe an die Koordination; Ausschreibung an Teamende; Hinweis an die Seminarleitung; Onboarding-Einladung und neue Termine an das Team.
+  - Pflicht-Mails: KVA an die Schule, Zusage, Absage und Warteliste. Alles andere folgt den Einstellungen im Konto (neu: „Neue Ausschreibungen“, „Freigegebene Seminare“).
+  - Jede gesendete Mail steht im Verlauf („Mail gesendet: … (n Empfänger)“), ohne Adressen.
+  - Von Hand auslösbar am Seminar (Kasten „Mitteilungen“): Rückfrage an die Schule (Geschäftsstelle), Briefing, Onboarding-Termin mit Einladung, neue Termine melden (Koordination).
+  - „Vorbereitet“ setzt jetzt einen Onboarding-Termin voraus.
+  - Die Hinweise der Schule an die Koordination (Anfrage, Bestätigung, Rückmeldung) laufen unverändert an die Koordination, nicht an die Geschäftsstelle.
+- Noch **nicht** umgesetzt: Teamverträge (Honorarverträge) von der Seminarliste der Geschäftsstelle aus, Mails zu Berichten und Ergebnislink (Phase 5), Seminarleitung mit Upload (Phase 5).

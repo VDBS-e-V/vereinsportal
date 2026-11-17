@@ -58,6 +58,8 @@ final class SeminarWorkflow
         if ($target === SeminarStatus::Cancelled) {
             app(TeamApplications::class)->notifyCancelled($seminar);
         }
+
+        app(SeminarNotifications::class)->statusChanged($seminar->fresh(), $target, $comment);
     }
 
     /**
@@ -136,6 +138,10 @@ final class SeminarWorkflow
 
         if ($target === SeminarStatus::Tendered && ((int) $seminar->team_needed <= 0 || $seminar->application_deadline === null)) {
             throw new DomainException('Für die Ausschreibung brauchen Sie die Teamgröße und den Stichtag für Interesse.');
+        }
+
+        if ($target === SeminarStatus::Prepared && $seminar->onboarding_at === null) {
+            throw new DomainException('Planen Sie zuerst den Termin für das Onboarding des Teams.');
         }
 
         if ($target === SeminarStatus::Held && ($seminar->sessions()->where('starts_at', '>', now())->exists() || ! $seminar->sessions()->exists())) {
