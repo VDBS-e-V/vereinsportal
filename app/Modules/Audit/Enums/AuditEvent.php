@@ -105,6 +105,8 @@ enum AuditEvent: string
     case FaqEntryDeleted = 'faq.entry_deleted';
     case RoleLinksSaved = 'role_links.saved';
     case CoordinationSaved = 'coordinations.saved';
+    case SeminarRequested = 'seminars.requested';
+    case SeminarStatusChanged = 'seminars.status_changed';
     case CoordinationDeleted = 'coordinations.deleted';
     case NavigationSaved = 'navigation.saved';
     case TicketCreated = 'tickets.created';
@@ -197,6 +199,8 @@ enum AuditEvent: string
             self::FaqEntryDeleted => 'FAQ-Frage gelöscht',
             self::RoleLinksSaved => 'Schnellzugriffe gespeichert',
             self::CoordinationSaved => 'Koordination gespeichert',
+            self::SeminarRequested => 'Seminar angefragt',
+            self::SeminarStatusChanged => 'Seminar: Status geändert',
             self::CoordinationDeleted => 'Koordination gelöscht',
             self::NavigationSaved => 'Navigation gespeichert',
             self::TicketCreated => 'Ticket angelegt',
@@ -232,6 +236,7 @@ enum AuditEvent: string
             self::FaqCategorySaved, self::FaqCategoryDeleted, self::FaqEntrySaved, self::FaqEntryDeleted => 'faq',
             self::RoleLinksSaved => 'role_links',
             self::CoordinationSaved, self::CoordinationDeleted => 'coordinations',
+            self::SeminarRequested, self::SeminarStatusChanged => 'seminars',
             self::NavigationSaved => 'navigation',
             self::TicketCreated, self::TicketMessagePosted, self::TicketAssigned, self::TicketStatusChanged => 'tickets',
         };
@@ -264,6 +269,7 @@ enum AuditEvent: string
             'faq' => 'FAQ',
             'role_links' => 'Schnellzugriffe',
             'coordinations' => 'Koordinationen',
+            'seminars' => 'Seminare',
             'navigation' => 'Navigation',
             'tickets' => 'Tickets',
         ];

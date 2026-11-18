@@ -18,6 +18,7 @@ use App\Modules\Partners\Services\PartnerAdministration;
 use App\Modules\Partners\Services\PartnerImporter;
 use App\Modules\Partners\Services\SchoolAccounts;
 use App\Modules\Partners\Support\PartnerData;
+use App\Modules\Seminars\Models\Seminar;
 use App\Support\CsvCell;
 use App\Support\Html\RichText;
 use DomainException;
@@ -152,6 +153,10 @@ class PartnerController extends Controller
 
         if ($partner->accounts()->exists()) {
             return redirect()->route('partners.show', $partner)->with('warning', 'Zu dieser Schule gibt es Konten. Sperren Sie die Konten in der Nutzerverwaltung und setzen Sie den Status der Schule stattdessen auf „Pausiert“ oder „Vergangen“.');
+        }
+
+        if (Seminar::query()->where('partner_id', $partner->id)->exists()) {
+            return redirect()->route('partners.show', $partner)->with('warning', 'Zu dieser Schule gibt es Seminare. Setzen Sie den Status der Schule stattdessen auf „Vergangen“.');
         }
 
         $this->partners->delete($partner, $this->actor($request));

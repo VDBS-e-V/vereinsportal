@@ -107,6 +107,15 @@ enum Capability: string
     /** Wichtige Links je Rolle für das Profilmenü pflegen (Administration, Geschäftsstelle). */
     case RoleLinksManage = 'role_links.manage';
 
+    /** Seminare der Schulen prüfen, KVA und Schulvertrag bearbeiten, freigeben oder ablehnen (Geschäftsstelle, Vorstand). */
+    case SeminarsReview = 'seminars.review';
+
+    /** Seminare planen, ausschreiben, Team auswählen, vorbereiten und abschließen (Koordination). */
+    case SeminarsPlan = 'seminars.plan';
+
+    /** Abgeschlossene Seminare wieder öffnen (Vorstand). */
+    case SeminarsReopen = 'seminars.reopen';
+
     /** Koordinationen anlegen, ändern und deaktivieren (Administration, Geschäftsstelle, Vorstand). */
     case CoordinationsManage = 'coordinations.manage';
 
