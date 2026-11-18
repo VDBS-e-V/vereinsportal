@@ -18,7 +18,7 @@ beforeEach(function () {
     $this->seed(RoleSeeder::class);
 });
 
-function tkUser(?RoleKey $role = null): User
+function ticketUser(?RoleKey $role = null): User
 {
     $person = Person::factory()->create();
     $user = User::factory()->create(['person_id' => $person->id, 'email' => $person->email]);
@@ -41,7 +41,7 @@ it('needs a login', function () {
 });
 
 it('creates a ticket with a first message, history and audit entry', function () {
-    $user = tkUser(RoleKey::Member);
+    $user = ticketUser(RoleKey::Member);
 
     $this->actingAs($user)->get(route('support.create'))->assertOk();
     $response = $this->actingAs($user)->post(route('support.store'), ['subject' => 'Kein Zugriff', 'category' => 'account', 'message' => 'Ich komme nicht in den Mitgliederbereich.']);
@@ -56,23 +56,23 @@ it('creates a ticket with a first message, history and audit entry', function ()
 });
 
 it('validates new tickets', function () {
-    $this->actingAs(tkUser())->post(route('support.store'), ['subject' => '', 'category' => 'x', 'message' => ''])->assertSessionHasErrors(['subject', 'category', 'message']);
+    $this->actingAs(ticketUser())->post(route('support.store'), ['subject' => '', 'category' => 'x', 'message' => ''])->assertSessionHasErrors(['subject', 'category', 'message']);
 });
 
 it('shows a ticket only to its requester and to the team', function () {
-    $owner = tkUser(RoleKey::Member);
+    $owner = ticketUser(RoleKey::Member);
     $ticket = tkTicket($owner);
 
     $this->actingAs($owner)->get(route('support.show', $ticket))->assertOk()->assertSee('Passwort geht nicht');
-    $this->actingAs(tkUser(RoleKey::Member))->get(route('support.show', $ticket))->assertNotFound();
-    $this->actingAs(tkUser(RoleKey::Member))->post(route('support.message', $ticket), ['body' => 'Hallo'])->assertNotFound();
-    $this->actingAs(tkUser(RoleKey::AdministrationStaff))->get(route('support.show', $ticket))->assertOk();
-    $this->actingAs(tkUser(RoleKey::Member))->get(route('tickets-admin.index'))->assertForbidden();
+    $this->actingAs(ticketUser(RoleKey::Member))->get(route('support.show', $ticket))->assertNotFound();
+    $this->actingAs(ticketUser(RoleKey::Member))->post(route('support.message', $ticket), ['body' => 'Hallo'])->assertNotFound();
+    $this->actingAs(ticketUser(RoleKey::AdministrationStaff))->get(route('support.show', $ticket))->assertOk();
+    $this->actingAs(ticketUser(RoleKey::Member))->get(route('tickets-admin.index'))->assertForbidden();
 });
 
 it('lets the team reply, assign and change the status, and logs every change', function () {
-    $owner = tkUser(RoleKey::Member);
-    $staff = tkUser(RoleKey::AdministrationStaff);
+    $owner = ticketUser(RoleKey::Member);
+    $staff = ticketUser(RoleKey::AdministrationStaff);
     $ticket = tkTicket($owner);
 
     $this->actingAs($staff)->post(route('support.message', $ticket), ['body' => 'Wir kümmern uns.'])->assertRedirect();
@@ -93,8 +93,8 @@ it('lets the team reply, assign and change the status, and logs every change', f
 });
 
 it('hides internal notes from the requester', function () {
-    $owner = tkUser(RoleKey::Member);
-    $staff = tkUser(RoleKey::Administration);
+    $owner = ticketUser(RoleKey::Member);
+    $staff = ticketUser(RoleKey::Administration);
     $ticket = tkTicket($owner);
 
     $this->actingAs($staff)->post(route('support.message', $ticket), ['body' => 'Geheime Notiz', 'internal' => '1'])->assertRedirect();
@@ -109,10 +109,10 @@ it('hides internal notes from the requester', function () {
 });
 
 it('lets the requester close the ticket and reopen it by writing', function () {
-    $owner = tkUser(RoleKey::Member);
+    $owner = ticketUser(RoleKey::Member);
     $ticket = tkTicket($owner);
 
-    $this->actingAs(tkUser(RoleKey::Member))->post(route('support.close', $ticket))->assertNotFound();
+    $this->actingAs(ticketUser(RoleKey::Member))->post(route('support.close', $ticket))->assertNotFound();
     $this->actingAs($owner)->post(route('support.close', $ticket))->assertRedirect();
     expect($ticket->fresh()->status)->toBe('closed')->and($ticket->fresh()->closed_at)->not->toBeNull();
 
@@ -121,8 +121,8 @@ it('lets the requester close the ticket and reopen it by writing', function () {
 });
 
 it('filters the queue and changes several tickets at once', function () {
-    $owner = tkUser(RoleKey::Member);
-    $staff = tkUser(RoleKey::AdministrationStaff);
+    $owner = ticketUser(RoleKey::Member);
+    $staff = ticketUser(RoleKey::AdministrationStaff);
     $a = tkTicket($owner, ['subject' => 'Erstes']);
     $b = tkTicket($owner, ['subject' => 'Zweites']);
     tkTicket($owner, ['subject' => 'Erledigtes', 'status' => 'closed']);
@@ -141,15 +141,15 @@ it('filters the queue and changes several tickets at once', function () {
 });
 
 it('shows the ticket pages in the right places of the menu', function () {
-    $this->actingAs(tkUser(RoleKey::AdministrationStaff))->get(route('office.home'))->assertOk()->assertSee('Tickets');
-    $this->actingAs(tkUser(RoleKey::Member))->get(route('account.home'))->assertSee('Meine Tickets')->assertSee('Meine Anmeldungen');
+    $this->actingAs(ticketUser(RoleKey::AdministrationStaff))->get(route('office.home'))->assertOk()->assertSee('Tickets');
+    $this->actingAs(ticketUser(RoleKey::Member))->get(route('account.home'))->assertSee('Meine Tickets')->assertSee('Meine Anmeldungen');
 });
 
 it('sends mails without the message text: new ticket to the team, replies to the requester, never for internal notes', function () {
     \Illuminate\Support\Facades\Mail::fake();
 
-    $owner = tkUser(RoleKey::Member);
-    $staff = tkUser(RoleKey::AdministrationStaff);
+    $owner = ticketUser(RoleKey::Member);
+    $staff = ticketUser(RoleKey::AdministrationStaff);
 
     $this->actingAs($owner)->post(route('support.store'), ['subject' => 'Hilfe', 'category' => 'question', 'message' => 'Geheimer Text']);
     $ticket = Ticket::query()->firstOrFail();
@@ -169,7 +169,7 @@ it('sends mails without the message text: new ticket to the team, replies to the
     \Illuminate\Support\Facades\Mail::assertNothingSent();
 
     // Zuweisung: Mail an die neue Bearbeiter:in, nicht bei Selbstzuweisung
-    $other = tkUser(RoleKey::Administration);
+    $other = ticketUser(RoleKey::Administration);
     $this->actingAs($staff)->put(route('tickets-admin.update', $ticket), ['assignee_id' => $other->id])->assertRedirect();
     \Illuminate\Support\Facades\Mail::assertSent(\App\Modules\Tickets\Mail\TicketMail::class, fn ($mail): bool => $mail->hasTo($other->email) && $mail->kind === 'assigned');
 
@@ -182,10 +182,10 @@ it('sends mails without the message text: new ticket to the team, replies to the
 it('lets the team switch the ticket mails off', function () {
     \Illuminate\Support\Facades\Mail::fake();
 
-    $staff = tkUser(RoleKey::AdministrationStaff);
+    $staff = ticketUser(RoleKey::AdministrationStaff);
     \Illuminate\Support\Facades\DB::table('notification_preferences')->insert(['user_id' => $staff->id, 'key' => 'tickets_team', 'enabled' => false, 'created_at' => now(), 'updated_at' => now()]);
 
-    $this->actingAs(tkUser(RoleKey::Member))->post(route('support.store'), ['subject' => 'Hilfe', 'category' => 'question', 'message' => 'Text']);
+    $this->actingAs(ticketUser(RoleKey::Member))->post(route('support.store'), ['subject' => 'Hilfe', 'category' => 'question', 'message' => 'Text']);
     \Illuminate\Support\Facades\Mail::assertNotSent(\App\Modules\Tickets\Mail\TicketMail::class, fn ($mail): bool => $mail->hasTo($staff->email));
 });
 
@@ -193,8 +193,8 @@ it('stores attachments with a ticket or a message and serves them only to those 
     \Illuminate\Support\Facades\Mail::fake();
     \Illuminate\Support\Facades\Storage::fake(\App\Modules\Tickets\Models\TicketAttachment::DISK);
 
-    $owner = tkUser(RoleKey::Member);
-    $staff = tkUser(RoleKey::AdministrationStaff);
+    $owner = ticketUser(RoleKey::Member);
+    $staff = ticketUser(RoleKey::AdministrationStaff);
 
     $this->actingAs($owner)->post(route('support.store'), ['subject' => 'Mit Anhang', 'category' => 'problem', 'message' => 'Siehe Datei', 'files' => [\Illuminate\Http\UploadedFile::fake()->createWithContent('fehler.txt', 'Fehlertext')]])->assertSessionHasNoErrors();
     $ticket = Ticket::query()->firstOrFail();
@@ -204,7 +204,7 @@ it('stores attachments with a ticket or a message and serves them only to those 
     $this->actingAs($owner)->get(route('support.show', $ticket))->assertSee('fehler.txt');
     $this->actingAs($owner)->get(route('support.attachments.download', [$ticket, $attachment]))->assertOk();
     $this->actingAs($staff)->get(route('support.attachments.download', [$ticket, $attachment]))->assertOk();
-    $this->actingAs(tkUser(RoleKey::Member))->get(route('support.attachments.download', [$ticket, $attachment]))->assertNotFound();
+    $this->actingAs(ticketUser(RoleKey::Member))->get(route('support.attachments.download', [$ticket, $attachment]))->assertNotFound();
 
     // Anhang einer internen Notiz: nur das Team
     $this->actingAs($staff)->post(route('support.message', $ticket), ['body' => 'Notiz', 'internal' => '1', 'files' => [\Illuminate\Http\UploadedFile::fake()->createWithContent('intern.txt', 'x')]]);
@@ -218,6 +218,6 @@ it('stores attachments with a ticket or a message and serves them only to those 
 
 it('points signed-in people to tickets from the faq and the contact area', function () {
     $this->get(route('portal.faq'))->assertDontSee('Ticket erstellen');
-    $this->actingAs(tkUser(RoleKey::Member))->get(route('portal.faq'))->assertSee('Ticket erstellen');
-    $this->actingAs(tkUser(RoleKey::Member))->get(route('portal.contact'))->assertSee(route('support.create'), false);
+    $this->actingAs(ticketUser(RoleKey::Member))->get(route('portal.faq'))->assertSee('Ticket erstellen');
+    $this->actingAs(ticketUser(RoleKey::Member))->get(route('portal.contact'))->assertSee(route('support.create'), false);
 });

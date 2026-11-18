@@ -115,7 +115,7 @@ class FormOfficeController extends Controller
     public function exportPayout(Request $request): StreamedResponse|RedirectResponse
     {
         $ids = array_map('intval', (array) $request->input('ids', []));
-        $applications = FormApplication::query()->whereIn('id', $ids)->where('status', 'approved')->whereIn('type', ['expense', 'travel'])->with(['seminar', 'checkedBy.person', 'approvedBy.person'])->orderBy('number')->get();
+        $applications = FormApplication::query()->whereIn('id', $ids)->where('status', 'approved')->whereIn('type', ['expense', 'travel'])->with(['checkedBy.person', 'approvedBy.person'])->orderBy('number')->get();
 
         if ($applications->isEmpty()) {
             return back()->with('warning', 'Bitte wählen Sie mindestens einen freigegebenen Antrag aus.');
