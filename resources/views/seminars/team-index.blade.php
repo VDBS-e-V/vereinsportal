@@ -9,6 +9,31 @@
         <x-vdbs.feedback.alert variant="error">{{ $message }}</x-vdbs.feedback.alert>
     @enderror
 
+    @if ($mine->isNotEmpty())
+        <h2 style="font-size:var(--font-size-h3)">Ihre Seminare</h2>
+        <x-vdbs.data.table caption="Ihre Seminare" :columns="[['key' => 'title', 'label' => 'Seminar'], ['key' => 'date', 'label' => 'Erster Termin'], ['key' => 'outcome', 'label' => 'Ergebnis']]">
+            @foreach ($mine as $application)
+                <tr>
+                    <td>{{ $application->seminar->title }} · {{ $application->seminar->partner->name }}</td>
+                    <td>{{ $application->seminar->sessions->first()?->starts_at->format('d.m.Y') ?? '–' }}</td>
+                    <td>
+                        @if ($application->outcome === 'confirmed')
+                            <x-vdbs.data.badge tone="success">Zusage{{ $application->seminar->lead_user_id === $application->user_id ? ' (Seminarleitung)' : '' }}</x-vdbs.data.badge>
+                        @elseif ($application->outcome === 'waitlist')
+                            <x-vdbs.data.badge tone="warning">Warteliste, Platz {{ $application->waitlist_position }}</x-vdbs.data.badge>
+                        @elseif ($application->outcome === 'dropped')
+                            <x-vdbs.data.badge tone="neutral">Ausgeschieden</x-vdbs.data.badge>
+                        @else
+                            <x-vdbs.data.badge tone="neutral">Absage</x-vdbs.data.badge>
+                        @endif
+                    </td>
+                </tr>
+            @endforeach
+        </x-vdbs.data.table>
+
+        <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Ausgeschrieben</h2>
+    @endif
+
     @forelse ($seminars as $seminar)
         @php $application = $applications->get($seminar->id); $applied = $application?->status === 'applied'; @endphp
         <section aria-labelledby="sem-{{ $seminar->id }}" style="margin-bottom:var(--space-8)">

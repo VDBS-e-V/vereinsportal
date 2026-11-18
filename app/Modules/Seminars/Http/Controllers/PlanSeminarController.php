@@ -7,12 +7,15 @@ use App\Modules\Access\Models\User;
 use App\Modules\Coordinations\Models\Coordination;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
+use App\Modules\Seminars\Models\SeminarApplication;
 use App\Modules\Seminars\Services\SeminarWorkflow;
+use App\Modules\Seminars\Services\TeamSelection;
 use Carbon\Carbon;
 use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 /** Koordination: freigegebene Seminare planen, ausschreiben und absagen. */
@@ -20,7 +23,7 @@ class PlanSeminarController extends Controller
 {
     public const SESSION_ROWS = 8;
 
-    public function __construct(private readonly SeminarWorkflow $workflow) {}
+    public function __construct(private readonly SeminarWorkflow $workflow, private readonly TeamSelection $selection) {}
 
     public function index(Request $request): View
     {
@@ -83,6 +86,51 @@ class PlanSeminarController extends Controller
         }
 
         return redirect()->route('seminars.plan.show', $seminar)->with('success', 'Das Seminar ist für das Team ausgeschrieben.');
+    }
+
+    /** Zusage, Absage oder Zurücksetzen für eine Meldung (Entwurf, es wird nichts gesendet). */
+    public function decide(Request $request, Seminar $seminar, SeminarApplication $application): RedirectResponse
+    {
+        $data = $request->validate(['decision' => ['required', Rule::in(['confirm', 'decline', 'reset'])]]);
+
+        return $this->team($seminar, fn () => $this->selection->draft($seminar, $application, $data['decision'] === 'reset' ? null : $data['decision'], $this->user($request)), 'Der Entwurf ist gespeichert. Gesendet wird erst mit „Team bestätigen“.');
+    }
+
+    public function confirmTeam(Request $request, Seminar $seminar): RedirectResponse
+    {
+        $data = $request->validate(['lead' => ['required', 'integer'], 'acknowledge' => ['nullable', 'boolean']], ['lead.required' => 'Bitte bestimmen Sie die Seminarleitung.']);
+
+        return $this->team($seminar, fn () => $this->selection->confirm($seminar, $this->user($request), (int) $data['lead'], $request->boolean('acknowledge')), 'Das Team ist bestätigt. Zusagen, Absagen und Wartelistenplätze sind unterwegs.');
+    }
+
+    public function promote(Request $request, Seminar $seminar, SeminarApplication $application): RedirectResponse
+    {
+        return $this->team($seminar, fn () => $this->selection->promote($seminar, $application, $this->user($request)), 'Die Person ist nachgerückt und hat die Zusage erhalten.');
+    }
+
+    public function drop(Request $request, Seminar $seminar, SeminarApplication $application): RedirectResponse
+    {
+        $data = $request->validate(['reason' => ['required', 'string', 'max:2000']], ['reason.required' => 'Bitte geben Sie eine Begründung an.']);
+
+        return $this->team($seminar, fn () => $this->selection->drop($seminar, $application, $this->user($request), $data['reason']), 'Die Person ist aus dem Team ausgeschieden.');
+    }
+
+    public function lead(Request $request, Seminar $seminar): RedirectResponse
+    {
+        $data = $request->validate(['lead' => ['required', 'integer']], ['lead.required' => 'Bitte wählen Sie die Seminarleitung.']);
+
+        return $this->team($seminar, fn () => $this->selection->setLead($seminar, (int) $data['lead'], $this->user($request)), 'Die Seminarleitung ist geändert.');
+    }
+
+    private function team(Seminar $seminar, callable $action, string $success): RedirectResponse
+    {
+        try {
+            $action();
+        } catch (DomainException $exception) {
+            return back()->withErrors(['team' => $exception->getMessage()]);
+        }
+
+        return redirect()->route('seminars.plan.show', $seminar)->with('success', $success);
     }
 
     public function cancel(Request $request, Seminar $seminar): RedirectResponse

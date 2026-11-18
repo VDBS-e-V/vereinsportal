@@ -31,6 +31,11 @@ Route::middleware(['web', 'auth', 'can:seminars.plan'])->prefix('koordination/se
     Route::get('/{seminar}', [PlanSeminarController::class, 'show'])->whereNumber('seminar')->name('show');
     Route::post('/{seminar}/planen', [PlanSeminarController::class, 'plan'])->whereNumber('seminar')->middleware('throttle:30,10')->name('plan');
     Route::post('/{seminar}/ausschreiben', [PlanSeminarController::class, 'tender'])->whereNumber('seminar')->middleware('throttle:30,10')->name('tender');
+    Route::post('/{seminar}/team/{application}/entscheidung', [PlanSeminarController::class, 'decide'])->whereNumber(['seminar', 'application'])->middleware('throttle:120,10')->name('decide');
+    Route::post('/{seminar}/team/bestaetigen', [PlanSeminarController::class, 'confirmTeam'])->whereNumber('seminar')->middleware('throttle:20,10')->name('confirm-team');
+    Route::post('/{seminar}/team/{application}/nachruecken', [PlanSeminarController::class, 'promote'])->whereNumber(['seminar', 'application'])->middleware('throttle:30,10')->name('promote');
+    Route::post('/{seminar}/team/{application}/ausscheiden', [PlanSeminarController::class, 'drop'])->whereNumber(['seminar', 'application'])->middleware('throttle:30,10')->name('drop');
+    Route::post('/{seminar}/team/leitung', [PlanSeminarController::class, 'lead'])->whereNumber('seminar')->middleware('throttle:30,10')->name('lead');
     Route::post('/{seminar}/absagen', [PlanSeminarController::class, 'cancel'])->whereNumber('seminar')->middleware('throttle:30,10')->name('cancel');
 });
 

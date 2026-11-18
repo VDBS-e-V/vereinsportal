@@ -21,6 +21,7 @@ class TeamSeminarController extends Controller
         return view('seminars.team-index', [
             'seminars' => Seminar::query()->where('status', SeminarStatus::Tendered->value)->with(['partner', 'sessions'])->orderBy('application_deadline')->get(),
             'applications' => SeminarApplication::query()->where('user_id', $user->id)->get()->keyBy('seminar_id'),
+            'mine' => SeminarApplication::query()->where('user_id', $user->id)->whereNotNull('outcome')->with('seminar.partner', 'seminar.sessions')->orderByDesc('id')->get(),
         ]);
     }
 

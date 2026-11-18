@@ -23,12 +23,12 @@ class Seminar extends Model
 
     protected $fillable = [
         'number', 'title', 'status', 'partner_id', 'coordination_id', 'school_year', 'format', 'participants', 'desired_period', 'request_note',
-        'contact_name', 'contact_email', 'requested_by_user_id', 'release_basis', 'release_reason', 'released_at', 'released_by_user_id', 'school_contract_signed_on', 'team_target', 'application_deadline',
+        'contact_name', 'contact_email', 'requested_by_user_id', 'release_basis', 'release_reason', 'released_at', 'released_by_user_id', 'school_contract_signed_on', 'team_target', 'application_deadline', 'lead_user_id', 'team_confirmed_at', 'team_confirmed_by_user_id',
     ];
 
     protected function casts(): array
     {
-        return ['status' => SeminarStatus::class, 'participants' => 'integer', 'released_at' => 'datetime', 'school_contract_signed_on' => 'date', 'team_target' => 'integer', 'application_deadline' => 'date'];
+        return ['status' => SeminarStatus::class, 'participants' => 'integer', 'released_at' => 'datetime', 'school_contract_signed_on' => 'date', 'team_target' => 'integer', 'application_deadline' => 'date', 'team_confirmed_at' => 'datetime'];
     }
 
     /** @return BelongsTo<Partner, $this> */
@@ -53,6 +53,12 @@ class Seminar extends Model
     public function sessions(): HasMany
     {
         return $this->hasMany(SeminarSession::class)->orderBy('starts_at');
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function lead(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'lead_user_id');
     }
 
     /** @return HasMany<SeminarApplication, $this> */

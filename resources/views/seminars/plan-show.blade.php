@@ -60,17 +60,82 @@
         </x-vdbs.forms.form>
     @endif
 
-    @if ($seminar->applications->isNotEmpty())
-        <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Interessierte ({{ $seminar->applications->where('status', 'applied')->count() }})</h2>
-        <x-vdbs.data.table caption="Interessierte Teamende" :columns="[['key' => 'name', 'label' => 'Name'], ['key' => 'availability', 'label' => 'Verfügbarkeit'], ['key' => 'status', 'label' => 'Stand']]">
-            @foreach ($seminar->applications as $application)
+    @error('team')
+        <x-vdbs.feedback.alert variant="error">{{ $message }}</x-vdbs.feedback.alert>
+    @enderror
+
+    @php
+        $applications = $seminar->applications;
+        $selecting = in_array($seminar->status, [SeminarStatus::Tendered, SeminarStatus::TeamSelected], true);
+        $teamPhase = in_array($seminar->status, [SeminarStatus::TeamConfirmed, SeminarStatus::Prepared], true);
+        $active = $applications->where('status', 'applied');
+        $confirms = $active->where('decision', 'confirm');
+        $personName = fn ($application): string => $application->user->person?->fullName() ?: (string) $application->user->email;
+        $decisionLabel = ['confirm' => 'Zusage', 'decline' => 'Absage'];
+        $outcomeLabel = ['confirmed' => 'Zusage', 'declined' => 'Absage', 'waitlist' => 'Warteliste', 'dropped' => 'Ausgeschieden'];
+    @endphp
+
+    @if ($selecting && $applications->isNotEmpty())
+        <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Auswahl des Teams ({{ $confirms->count() }} von {{ $seminar->team_target }} Zusagen im Entwurf)</h2>
+        <p>Zusage und Absage sind zunächst nur ein Entwurf. Erst „Team bestätigen“ sendet alle Zusagen, Absagen und Wartelistenplätze zugleich.</p>
+
+        <x-vdbs.data.table caption="Interessierte Teamende" :columns="[['key' => 'name', 'label' => 'Name'], ['key' => 'availability', 'label' => 'Verfügbarkeit'], ['key' => 'draft', 'label' => 'Entwurf'], ['key' => 'actions', 'label' => 'Entscheidung']]">
+            @foreach ($active as $application)
                 <tr>
-                    <td>{{ $application->user->person?->fullName() ?: $application->user->email }}</td>
+                    <td>{{ $personName($application) }}</td>
                     <td>{{ $application->availability }}</td>
-                    <td>{{ $application->status === 'applied' ? 'gemeldet' : 'zurückgenommen' }}</td>
+                    <td>{{ $decisionLabel[$application->decision] ?? 'offen (Warteliste)' }}</td>
+                    <td>
+                        @foreach (['confirm' => 'Zusage', 'decline' => 'Absage', 'reset' => 'Zurücksetzen'] as $value => $label)
+                            <form method="post" action="{{ route('seminars.plan.decide', [$seminar, $application]) }}" style="display:inline">@csrf
+                                <input type="hidden" name="decision" value="{{ $value }}">
+                                <x-vdbs.actions.button type="submit" size="s" :variant="$value === 'reset' ? 'text' : 'secondary'">{{ $label }}</x-vdbs.actions.button>
+                            </form>
+                        @endforeach
+                    </td>
                 </tr>
             @endforeach
         </x-vdbs.data.table>
+
+        @if ($seminar->status === SeminarStatus::TeamSelected)
+            <x-vdbs.forms.form :action="route('seminars.plan.confirm-team', $seminar)" :summary="false" style="margin-top:var(--space-5)">
+                <x-vdbs.forms.select name="lead" label="Seminarleitung" placeholder="Bitte wählen" :required="true" :options="$confirms->mapWithKeys(fn ($application): array => [$application->user_id => $personName($application)])->all()" :value="old('lead')" />
+                @if ($confirms->count() < $seminar->team_target)
+                    <x-vdbs.forms.checkbox name="acknowledge" label="Es sind weniger Zusagen als die Sollzahl. Ich bestätige das Team trotzdem." value="1" />
+                @endif
+                <x-slot:actions><x-vdbs.actions.button type="submit" icon="check">Team bestätigen und Mails senden</x-vdbs.actions.button></x-slot:actions>
+            </x-vdbs.forms.form>
+        @endif
+    @elseif ($applications->isNotEmpty() && ! $selecting)
+        <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Team</h2>
+        <x-vdbs.data.table caption="Team und Warteliste" :columns="[['key' => 'name', 'label' => 'Name'], ['key' => 'outcome', 'label' => 'Ergebnis'], ['key' => 'actions', 'label' => 'Aktion']]">
+            @foreach ($applications->whereNotNull('outcome')->sortBy(fn ($application): string => ($application->outcome === 'confirmed' ? '0' : ($application->outcome === 'waitlist' ? '1' : '2')).str_pad((string) $application->waitlist_position, 4, '0', STR_PAD_LEFT)) as $application)
+                <tr>
+                    <td>{{ $personName($application) }}@if ($seminar->lead_user_id === $application->user_id) <x-vdbs.data.badge tone="success">Seminarleitung</x-vdbs.data.badge>@endif</td>
+                    <td>{{ $outcomeLabel[$application->outcome] ?? $application->outcome }}@if ($application->outcome === 'waitlist') (Platz {{ $application->waitlist_position }})@endif</td>
+                    <td>
+                        @if ($teamPhase && $application->outcome === 'waitlist')
+                            <form method="post" action="{{ route('seminars.plan.promote', [$seminar, $application]) }}" style="display:inline">@csrf
+                                <x-vdbs.actions.button type="submit" size="s" variant="secondary">Nachrücken lassen</x-vdbs.actions.button>
+                            </form>
+                        @elseif ($teamPhase && $application->outcome === 'confirmed')
+                            <form method="post" action="{{ route('seminars.plan.drop', [$seminar, $application]) }}" style="display:inline">@csrf
+                                <label class="vdbs-sr-only" for="drop-{{ $application->id }}">Begründung für das Ausscheiden von {{ $personName($application) }}</label>
+                                <input id="drop-{{ $application->id }}" class="vdbs-control" name="reason" placeholder="Begründung" maxlength="2000" required>
+                                <x-vdbs.actions.button type="submit" size="s" variant="danger-text">Ausscheiden</x-vdbs.actions.button>
+                            </form>
+                        @endif
+                    </td>
+                </tr>
+            @endforeach
+        </x-vdbs.data.table>
+
+        @if ($teamPhase)
+            <x-vdbs.forms.form :action="route('seminars.plan.lead', $seminar)" :summary="false" style="margin-top:var(--space-5)">
+                <x-vdbs.forms.select name="lead" label="Seminarleitung ändern" placeholder="Bitte wählen" :required="true" :options="$applications->where('outcome', 'confirmed')->mapWithKeys(fn ($application): array => [$application->user_id => $personName($application)])->all()" :value="$seminar->lead_user_id" />
+                <x-slot:actions><x-vdbs.actions.button type="submit" variant="secondary">Seminarleitung festlegen</x-vdbs.actions.button></x-slot:actions>
+            </x-vdbs.forms.form>
+        @endif
     @endif
 
     @if ($canCancel)

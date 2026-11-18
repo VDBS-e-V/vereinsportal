@@ -13,7 +13,12 @@ class SeminarApplication extends Model
 
     public const WITHDRAWN = 'withdrawn';
 
-    protected $fillable = ['seminar_id', 'user_id', 'availability', 'status'];
+    protected $fillable = ['seminar_id', 'user_id', 'availability', 'status', 'decision', 'outcome', 'waitlist_position', 'notified_at'];
+
+    protected function casts(): array
+    {
+        return ['notified_at' => 'datetime', 'waitlist_position' => 'integer'];
+    }
 
     /** @return BelongsTo<Seminar, $this> */
     public function seminar(): BelongsTo
