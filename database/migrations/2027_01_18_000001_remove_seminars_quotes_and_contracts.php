@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -26,10 +25,8 @@ return new class extends Migration
         foreach (['form_applications', 'mailings'] as $table) {
             if (Schema::hasColumn($table, 'seminar_id')) {
                 Schema::table($table, function (Blueprint $blueprint): void {
-                    if (DB::getDriverName() !== 'sqlite') {
-                        $blueprint->dropForeign(['seminar_id']);
-                    }
-
+                    // Auch unter SQLite zuerst die Fremdschlüssel-Definition entfernen, sonst scheitert das Entfernen der Spalte.
+                    $blueprint->dropForeign(['seminar_id']);
                     $blueprint->dropColumn('seminar_id');
                 });
             }
