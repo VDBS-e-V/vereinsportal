@@ -77,7 +77,7 @@ it('refuses pictures and other file types as contract', function () {
     [$seminar] = rlSeminar();
     $this->actingAs(rlUser(RoleKey::AdministrationStaff));
 
-    $this->post(route('seminars.office.contract', $seminar), ['file' => UploadedFile::fake()->image('scan.png'), 'signed_on' => now()->toDateString()])->assertSessionHasErrors('contract');
+    $this->post(route('seminars.office.contract', $seminar), ['file' => UploadedFile::fake()->createWithContent('scan.png', "\x89PNG\r\n"), 'signed_on' => now()->toDateString()])->assertSessionHasErrors('contract');
     $this->post(route('seminars.office.contract', $seminar), ['file' => UploadedFile::fake()->createWithContent('vertrag.exe', 'MZ'), 'signed_on' => now()->toDateString()])->assertSessionHasErrors('contract');
 
     expect($seminar->documents()->count())->toBe(0);
