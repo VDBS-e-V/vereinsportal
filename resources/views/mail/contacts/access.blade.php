@@ -2,7 +2,7 @@
 <html lang="de">
 <body style="font-family: Arial, Helvetica, sans-serif; color: #0f172a; line-height: 1.5;">
     <p>{{ $greetingName !== '' ? 'Guten Tag '.$greetingName.',' : 'Guten Tag,' }}</p>
-    <p>mit Ihrem persönlichen Zugang sehen Sie die Seminare, für die der Verband für Demokratiebildung und Bibliotheken an Schulen e. V. ein Team sucht, und bewerben sich ohne eigenes Konto.</p>
+    <p>für Sie wurde ein persönlicher Zugang des Verbands für Demokratiebildung und Bibliotheken an Schulen e. V. eingerichtet, ohne eigenes Konto.</p>
     <p><strong>So melden Sie sich an:</strong></p>
     <p>Klicken Sie auf diesen Link:<br><a href="{{ $accessLink }}">{{ $accessLink }}</a></p>
     <p>Oder öffnen Sie <a href="{{ route('access.code') }}">{{ route('access.code') }}</a> und geben Sie dort Ihre E-Mail-Adresse und diesen Code ein:<br><strong style="font-size:20px;letter-spacing:2px">{{ $accessCode }}</strong></p>

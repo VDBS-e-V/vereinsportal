@@ -14,7 +14,7 @@ final class ContactAccessMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Ihr persönlicher Zugang für Seminarbewerbungen');
+        return new Envelope(subject: 'Ihr persönlicher Zugang');
     }
 
     public function headers(): Headers

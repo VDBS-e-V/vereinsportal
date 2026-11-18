@@ -20,14 +20,9 @@ final class NotificationPreferences
     public static function catalog(): array
     {
         return [
-            'seminar_team' => ['label' => 'Entscheidungen zu Seminaren', 'description' => 'Wenn ein Seminar abgesagt wird, an dem Sie beteiligt sind. Zusage, Absage und Warteliste erhalten Sie immer.', 'group' => 'Seminare', 'ability' => 'seminars.apply'],
-            'seminar_tender' => ['label' => 'Neue Ausschreibungen', 'description' => 'Wenn ein Seminar zur Mitarbeit ausgeschrieben wird.', 'group' => 'Seminare', 'ability' => 'seminars.apply'],
-            'seminar_workflow' => ['label' => 'Freigegebene Seminare', 'description' => 'Wenn die Geschäftsstelle ein Seminar freigibt und die Koordination es planen kann.', 'group' => 'Koordination', 'ability' => 'seminars.manage'],
-            'team_mailings' => ['label' => 'Mitteilungen an Teamende', 'description' => 'Mitteilungen der Koordination zu Seminaren sowie Schreiben von Geschäftsstelle und Vorstand an Teamende.', 'group' => 'Seminare', 'ability' => 'seminars.apply'],
+            'team_mailings' => ['label' => 'Mitteilungen an Teamende', 'description' => 'Schreiben von Geschäftsstelle und Vorstand an Teamende.', 'group' => 'Teamende', 'ability' => 'team.onboarding'],
             'school_mailings' => ['label' => 'Mitteilungen an Schulen', 'description' => 'Schreiben von Geschäftsstelle und Vorstand an Schulkonten.', 'group' => 'Schulen', 'ability' => 'school.area'],
             'onboarding_reminders' => ['label' => 'Erinnerungen an Ihre Einarbeitung', 'description' => 'Wenn Schritte der Einarbeitung länger offen sind.', 'group' => 'Teamende', 'ability' => 'team.onboarding'],
-            'seminar_deadline' => ['label' => 'Stichtag für Interessenbekundungen abgelaufen', 'description' => 'Wenn Sie ein Team zusammenstellen können, weil der Stichtag vorbei ist.', 'group' => 'Koordination', 'ability' => 'seminars.manage'],
-            'school_requests' => ['label' => 'Nachrichten von Schulen', 'description' => 'Anfragen, Bestätigungen und Hinweise von Schulkonten zu Seminaren.', 'group' => 'Koordination', 'ability' => 'seminars.manage'],
             'mailing_approvals' => ['label' => 'Schreiben zur Freigabe', 'description' => 'Wenn die Geschäftsstelle ein Schreiben an viele Personen zur Freigabe vorlegt.', 'group' => 'Vorstand', 'ability' => 'mailings.approve'],
             'new_applications' => ['label' => 'Neue Mitgliedsanträge', 'description' => 'Wenn jemand seine E-Mail-Adresse bestätigt hat und über den Antrag zu entscheiden ist.', 'group' => 'Vorstand', 'ability' => 'memberships.manage'],
             'board_meetings' => ['label' => 'Einladungen zu Vorstandssitzungen', 'description' => 'Wenn der Vorstand eine Einladung zu einer Sitzung per E-Mail verschickt, mit Kalenderdatei im Anhang.', 'group' => 'Vorstand', 'ability' => 'board.meetings'],

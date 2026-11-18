@@ -148,13 +148,9 @@ final class PortalNavigation
                 'roles' => [RoleKey::Team],
                 'routes' => ['onboarding.documents.*'],
                 'pages' => [
-                    ['label' => 'Übersicht', 'route' => 'team.home', 'match' => 'team.home', 'can' => 'seminars.apply'],
-                    ['description' => 'Seminare mit Stichtag, Ihr Interesse und Ihr Team.', 'label' => 'Seminare', 'route' => 'seminar-applications.index', 'match' => 'seminar-applications.*', 'can' => 'seminars.apply'],
-                    ['description' => 'Seminare, die Sie leiten: Durchführung bestätigen, Verträge und Bericht hochladen.', 'label' => 'Meine Leitung', 'route' => 'seminar-lead.index', 'match' => 'seminar-lead.*', 'can' => 'seminars.apply'],
-                    ['description' => 'Ihre Angaben für die Teamzusammenstellung.', 'label' => 'Profil', 'route' => 'team-profile.edit', 'match' => 'team-profile.*', 'can' => 'seminars.apply'],
+                    ['label' => 'Übersicht', 'route' => 'team.home', 'match' => 'team.home', 'can' => 'team.onboarding'],
                     ['description' => 'Ihre Schritte der Einarbeitung.', 'label' => 'Einarbeitung', 'route' => 'team-self.index', 'match' => 'team-self.*', 'can' => 'team.onboarding'],
-                    ['description' => 'Auslagen und Fahrtkosten zu Ihren Seminaren erstatten lassen.', 'label' => 'Anträge', 'route' => 'team-forms.index', 'match' => 'team-forms.*', 'can' => 'forms.submit_team'],
-                    ['description' => 'Steuernummer, Umsatzsteuer und Bankverbindung für Ihre Verträge.', 'label' => 'Vertragsdaten', 'route' => 'contractor.edit', 'match' => 'contractor.*', 'can' => 'seminars.apply'],
+                    ['description' => 'Auslagen und Fahrtkosten erstatten lassen.', 'label' => 'Anträge', 'route' => 'team-forms.index', 'match' => 'team-forms.*', 'can' => 'forms.submit_team'],
                 ],
             ],
             PortalAreas::Mitarbeitende->value => [
@@ -168,30 +164,19 @@ final class PortalNavigation
             PortalAreas::Schulen->value => [
                 'home' => 'school.home',
                 'roles' => [RoleKey::School],
-                'routes' => ['school.quotes.*', 'school.seminars.*'],
-                'pages' => [
+                                'pages' => [
                     ['label' => 'Übersicht', 'route' => 'school.home', 'match' => 'school.home', 'can' => 'school.area'],
-                    ['label' => 'Seminar anfragen', 'route' => 'school.requests.create', 'match' => 'school.requests.*', 'can' => 'school.area'],
                     ['label' => 'Veranstaltungen', 'route' => 'school.events.index', 'match' => 'school.events.*', 'can' => 'school.area'],
                 ],
             ],
             PortalAreas::Koordination->value => [
                 'home' => 'coordination.home',
                 'roles' => [RoleKey::Coordination, RoleKey::AdministrationStaff, RoleKey::EducationCoordination],
-                'routes' => ['contracts.show', 'contracts.edit', 'contracts.print'],
-                'pages' => [
+                                'pages' => [
                     ['label' => 'Übersicht', 'route' => 'coordination.home', 'match' => 'coordination.home'],
                     ['description' => 'Partnerschulen, Ansprechpersonen und Anfragen.', 'label' => 'Schulen', 'route' => 'partners.index', 'match' => 'partners.*', 'can' => 'partners.view'],
                     ['description' => 'Teamende und ihre Einarbeitung.', 'label' => 'Teamende', 'route' => 'team-onboarding.index', 'match' => 'team-onboarding.*', 'can' => 'team.view'],
-                    ['description' => 'Freigegebene Seminare bis zum Abschluss mit dem nächsten Schritt.', 'label' => 'Meine Seminare', 'route' => 'seminar-mine.index', 'match' => 'seminar-mine.*', 'can' => 'seminars.view'],
-                    ['description' => 'Seminare planen, Bewerbungen sichten, Teams zusammenstellen.', 'label' => 'Seminare', 'route' => 'seminars.index', 'match' => 'seminars.*', 'can' => 'seminars.view'],
-                    ['description' => 'Abgeschlossene Seminare mit Kennzahlen und CSV-Export.', 'label' => 'Statistik', 'route' => 'seminar-stats.index', 'match' => 'seminar-stats.*', 'can' => 'seminars.view'],
-                    ['description' => 'Fragebögen für Schulklassen, Lehrkräfte und Teamende bearbeiten.', 'label' => 'Feedbackformulare', 'route' => 'feedback-forms.index', 'match' => 'feedback-forms.*', 'can' => 'feedback.manage'],
-                    ['description' => 'Rückmeldungen zu Seminaren auswerten und vergleichen.', 'label' => 'Feedback-Auswertung', 'route' => 'feedback-eval.index', 'match' => 'feedback-eval.*', 'can' => 'feedback.view'],
-                    ['description' => 'E-Mails an Teamende zu anstehenden Seminaren.', 'label' => 'Mitteilungen an Teamende', 'route' => 'mailings.team.index', 'match' => 'mailings.team.*', 'can' => 'mailings.team'],
                     ['description' => 'E-Mails an Teamende, Schulen, Koordination und Bildungsreferenten.', 'label' => 'Rundschreiben', 'route' => 'mailings.coordination.index', 'match' => 'mailings.coordination.*', 'can' => 'mailings.send_limited'],
-                    ['description' => 'Vertragstext, Vereinsdaten und Verträge der Seminare.', 'label' => 'Verträge', 'route' => 'contracts.admin.index', 'match' => 'contracts.admin.*', 'can' => 'contracts.manage'],
-                    ['description' => 'Word-Vorlagen mit Platzhaltern für Schreiben an Schulen und Teamende.', 'label' => 'Briefvorlagen', 'route' => 'letters.index', 'match' => 'letters.*', 'can' => 'letters.use'],
                     ['description' => 'Veranstaltungen, Anmeldungen und Nachrichten.', 'label' => 'Veranstaltungen', 'route' => 'events.admin.index', 'match' => 'events.admin.*', 'can' => 'events.view'],
                 ],
             ],
@@ -207,7 +192,6 @@ final class PortalNavigation
                         ['description' => 'Personen und ihre Kontaktdaten.', 'label' => 'Personen', 'route' => 'admin.people.index', 'match' => 'admin.people.*', 'can' => 'people.view'],
                         ['description' => 'Importierte Mailingliste und persönliche Zugänge für Bewerbungen.', 'label' => 'Teamkontakte', 'route' => 'contacts.index', 'match' => 'contacts.*', 'can' => 'contacts.manage'],
                     ]],
-                    ['description' => 'Alle Seminare mit KVA, Freigabe und Vertrag mit der Schule prüfen, senden und freigeben.', 'label' => 'Seminare', 'route' => 'seminar-office.index', 'match' => ['seminar-office.*', 'school-contracts.*'], 'can' => 'seminars.review'],
                     ['description' => 'Anträge prüfen, freigeben und die Sammelliste für die Auszahlung erstellen.', 'label' => 'Anträge', 'route' => 'forms-office.index', 'match' => 'forms-office.*', 'can' => 'forms.view'],
                     ['description' => 'Anfragen und Meldungen aller Personen: zuweisen, bearbeiten, im Ticket antworten.', 'label' => 'Tickets', 'route' => 'tickets-admin.index', 'match' => 'tickets-admin.*', 'can' => 'tickets.handle'],
                     ['label' => 'Inhalte', 'group' => true, 'route' => 'articles.admin.index', 'children' => [
@@ -220,11 +204,6 @@ final class PortalNavigation
                         ['description' => 'Gespeicherte Empfängerkreise mit Filtern für Rundschreiben.', 'label' => 'Verteiler', 'route' => 'mailings.segments.index', 'match' => 'mailings.segments.*', 'can' => 'mail_segments.manage'],
                         ['description' => 'Vorlagen für Rundschreiben und für Mitteilungen an Teamende.', 'label' => 'Mailvorlagen', 'route' => 'mailings.templates.index', 'match' => 'mailings.templates.*', 'can' => 'mail_templates.manage'],
                         ['description' => 'Fehlerquote, Sperren und Abmeldungen der Rundschreiben, Prüfung der Absenderdomain.', 'label' => 'Zustellqualität', 'route' => 'mailings.quality.index', 'match' => 'mailings.quality.*', 'can' => 'mail_templates.manage'],
-                    ]],
-                    ['label' => 'Preise & Angebote', 'group' => true, 'route' => 'seminar-quotes.index', 'children' => [
-                        ['description' => 'Kostenvoranschläge für Seminare.', 'label' => 'Kostenvoranschläge', 'route' => 'seminar-quotes.index', 'match' => 'seminar-quotes.*', 'can' => 'seminars.view'],
-                        ['description' => 'Preislisten für Kostenvoranschläge.', 'label' => 'Preise', 'route' => 'seminar-prices.index', 'match' => 'seminar-prices.*', 'can' => 'seminars.view'],
-                        ['description' => 'Textbausteine für Kostenvoranschläge.', 'label' => 'Texte', 'route' => 'seminar-texts.index', 'match' => 'seminar-texts.*', 'can' => 'seminars.view'],
                     ]],
                 ],
             ],
@@ -349,8 +328,8 @@ final class PortalNavigation
     {
         foreach ([
             'membership.*' => 'users', 'onboarding.*' => 'clipboard-list', 'team-onboarding.*' => 'clipboard-list', 'mailings.*' => 'mail', 'board.meetings.*' => 'calendar', 'board.resolutions.*' => 'landmark',
-            'board.reports*' => 'file', 'member.membership' => 'users', 'forms.*' => 'file', 'forms-office.*' => 'file', 'seminars.*' => 'graduation-cap', 'seminar-*' => 'file', 'partners.*' => 'school',
-            'feedback.*' => 'star', 'contracts.*' => 'file', 'letters.*' => 'pencil', 'events.*' => 'ticket', 'team.*' => 'user', 'school.*' => 'school', 'admin.users.*' => 'users', 'access-requests.*' => 'key-round',
+            'board.reports*' => 'file', 'member.membership' => 'users', 'forms.*' => 'file', 'forms-office.*' => 'file', 'partners.*' => 'school',
+            'events.*' => 'ticket', 'team.*' => 'user', 'school.*' => 'school', 'admin.users.*' => 'users', 'access-requests.*' => 'key-round',
             'admin.people.*' => 'user', 'contacts.*' => 'mail', 'articles.*' => 'book-open', 'pages.*' => 'file', 'contact-admin.*' => 'mail', 'faq-admin.*' => 'circle-help', 'role-links.*' => 'link', 'support.*' => 'ticket', 'tickets-admin.*' => 'ticket', 'system.*' => 'settings',
             'admin.audit.*' => 'shield', 'admin.oauth.*' => 'link', 'design-library.*' => 'layout-dashboard', 'tasks.*' => 'square-kanban', 'account.*' => 'user', 'education.*' => 'graduation-cap',
         ] as $pattern => $icon) {

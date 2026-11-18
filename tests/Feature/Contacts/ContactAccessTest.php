@@ -14,7 +14,6 @@ use App\Modules\Contacts\Services\ContactImporter;
 use App\Modules\Mailings\Services\MailSuppressions;
 use App\Modules\Mailings\Services\MailUnsubscribes;
 use App\Modules\People\Models\Person;
-use App\Modules\Seminars\Models\Seminar;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
@@ -235,30 +234,6 @@ it('keeps an older access valid for the grace time and then lets it expire', fun
     expect($service->findByToken($old['token']))->toBeNull();
 });
 
-it('opens only the pages for applications and no area of the portal', function () {
-    $contact = kcContact();
-    $issued = app(AccessCredentials::class)->issue($contact);
-    $this->get(route('access.link', ['token' => $issued['token']]));
-
-    $this->get(route('team.home'))->assertRedirect(route('login'));
-    $this->get(route('seminars.index'))->assertRedirect(route('login'));
-    $this->get(route('contacts.index'))->assertRedirect(route('login'));
-});
-
-it('saves the details only with the tick and otherwise only for the visit', function () {
-    $contact = kcContact();
-    $issued = app(AccessCredentials::class)->issue($contact);
-    $this->get(route('access.link', ['token' => $issued['token']]));
-
-    $this->post(route('access.profile'), ['first_name' => '', 'last_name' => ''])->assertSessionHasErrors(['first_name', 'last_name']);
-
-    $this->post(route('access.profile'), ['first_name' => 'Nur', 'last_name' => 'Besuch', 'city' => 'Berlin'])->assertSessionHas('contact_access.draft');
-    expect($contact->fresh()->first_name)->toBeNull();
-
-    $this->post(route('access.profile'), ['first_name' => 'Dauer', 'last_name' => 'Haft', 'street' => 'Weg', 'save' => '1']);
-    expect($contact->fresh())->first_name->toBe('Dauer')->street->toBe('Weg')->profile_saved->toBeTrue();
-});
-
 it('sends the access mail with link and code and stores nothing in clear', function () {
     $user = kcUser();
     $contact = kcContact('post@example.org', ['first_name' => 'Pia']);
@@ -267,7 +242,7 @@ it('sends the access mail with link and code and stores nothing in clear', funct
 
     Mail::assertSent(ContactAccessMail::class, function (ContactAccessMail $mail): bool {
         $mail->assertSeeInHtml('/z/');
-        $mail->assertHasSubject('Ihr persönlicher Zugang für Seminarbewerbungen');
+        $mail->assertHasSubject('Ihr persönlicher Zugang');
 
         return $mail->hasTo('post@example.org') && str_contains($mail->accessLink, '/z/') && preg_match('/^[A-Z2-9]{5}-[A-Z2-9]{5}$/', $mail->accessCode) === 1;
     });
@@ -336,15 +311,6 @@ it('revokes an access and deletes a contact with its credentials', function () {
 
     $this->delete(route('contacts.destroy', $contact))->assertRedirect(route('contacts.index'));
     expect(TeamContact::query()->count())->toBe(0)->and(AccessCredential::query()->count())->toBe(0);
-});
-
-it('shows open seminars read-only on the access page', function () {
-    $contact = kcContact();
-    $seminar = Seminar::factory()->create(['title' => 'Offenes Seminar', 'status' => 'scheduled', 'team_needed' => 3, 'application_deadline' => now()->addWeek()]);
-    $issued = app(AccessCredentials::class)->issue($contact);
-
-    $this->get(route('access.link', ['token' => $issued['token']]));
-    $this->get(route('access.home'))->assertOk()->assertSee('Offenes Seminar')->assertSee($seminar->number);
 });
 
 it('filters by several access states at once', function () {

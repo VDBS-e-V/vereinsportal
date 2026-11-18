@@ -7,22 +7,14 @@ use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Events\Mail\SchoolEventReminderMail;
-use App\Modules\Events\Models\EventAttendance;
 use App\Modules\Events\Services\EventAdministration;
-use App\Modules\Membership\Models\Membership;
 use App\Modules\Partners\Models\Partner;
 use App\Modules\Partners\Models\PartnerContact;
 use App\Modules\Partners\Models\PartnerUser;
 use App\Modules\Partners\Services\SchoolAccounts;
 use App\Modules\People\Models\Person;
-use App\Modules\Seminars\Enums\ApplicationStatus;
-use App\Modules\Seminars\Enums\SeminarStatus;
-use App\Modules\Seminars\Models\Seminar;
-use App\Modules\Seminars\Models\SeminarApplication;
-use App\Modules\Seminars\Services\SeminarAdministration;
 use App\Support\PortalAreas;
 use App\Support\PortalNavigation;
-use App\Support\YearReport;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Mail;
 
@@ -61,61 +53,6 @@ function rfValue(array $rows, string $group, string $label): int|string
 
 // ---------- Jahresbericht ----------
 
-it('computes the year report from seminars, events, teams and members', function () {
-    $coordination = rfUser(RoleKey::Coordination);
-    $year = (int) now()->year;
-    $date = $year.'-03-10';
-
-    $school = Partner::factory()->create();
-    foreach ([['sv_days', SeminarStatus::Held], ['coaching', SeminarStatus::Completed], ['sv_days', SeminarStatus::InReview]] as [$type, $status]) {
-        $seminar = Seminar::factory()->create(['type' => $type, 'status' => $status, 'partner_id' => $school->id]);
-        app(SeminarAdministration::class)->addSession($seminar, ['date' => $date, 'start' => '09:00', 'end' => '15:00'], $coordination);
-        app(SeminarAdministration::class)->addSession($seminar, ['date' => $year.'-03-11', 'start' => '09:00', 'end' => '15:00'], $coordination);
-
-        if ($status === SeminarStatus::Held) {
-            SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => rfUser(RoleKey::Team)->id, 'status' => ApplicationStatus::Confirmed]);
-        }
-    }
-
-    // Seminar aus dem Vorjahr zählt nicht
-    $old = Seminar::factory()->create(['status' => SeminarStatus::Held]);
-    app(SeminarAdministration::class)->addSession($old, ['date' => ($year - 1).'-05-05', 'start' => '09:00', 'end' => '12:00'], $coordination);
-
-    $event = app(EventAdministration::class)->create(['title' => 'Demokratietag', 'status' => 'done'], $coordination);
-    $session = app(EventAdministration::class)->addSession($event, ['date' => $date, 'start' => '09:00', 'end' => '15:00']);
-    foreach (['A', 'B', 'C'] as $i => $name) {
-        $registration = $event->registrations()->create(['name' => $name, 'school' => $i === 2 ? 'Schule Zwei' : 'Schule Eins', 'class_name' => '9', 'birth_date' => '2010-01-01', 'email' => $name.'@example.org', 'ticket_code' => 'RPT'.$i.'12345', 'verified_at' => now(), 'waitlisted' => false]);
-
-        if ($i < 2) {
-            EventAttendance::query()->create(['registration_id' => $registration->id, 'session_id' => $session->id]);
-        }
-    }
-    $event->registrations()->create(['name' => 'W', 'school' => 'Schule Drei', 'class_name' => '9', 'birth_date' => '2010-01-01', 'email' => 'w@example.org', 'ticket_code' => 'RPTW12345', 'verified_at' => now(), 'waitlisted' => true]);
-
-    Membership::factory()->create(['starts_on' => ($year - 2).'-01-01']);
-    Membership::factory()->create(['starts_on' => $year.'-02-01']);
-    Membership::factory()->create(['starts_on' => ($year - 3).'-01-01', 'ends_on' => $year.'-06-30']);
-    Membership::factory()->create(['starts_on' => ($year - 3).'-01-01', 'ends_on' => ($year - 1).'-06-30', 'status' => 'ended']);
-
-    $rows = YearReport::rows($year);
-
-    expect(rfValue($rows, 'Seminare', 'Durchgeführte Seminare'))->toBe(2)
-        ->and(rfValue($rows, 'Seminare', 'Seminartage (Termine)'))->toBe(4)
-        ->and(rfValue($rows, 'Seminare', 'Beteiligte Schulen'))->toBe(1)
-        ->and(rfValue($rows, 'Seminare', 'SV-Tage'))->toBe(1)
-        ->and(rfValue($rows, 'Teamende', 'Teamende im Einsatz'))->toBe(1)
-        ->and(rfValue($rows, 'Veranstaltungen', 'Großveranstaltungen'))->toBe(1)
-        ->and(rfValue($rows, 'Veranstaltungen', 'Bestätigte Anmeldungen'))->toBe(3)
-        ->and(rfValue($rows, 'Veranstaltungen', 'Beteiligte Schulen'))->toBe(2)
-        ->and(rfValue($rows, 'Veranstaltungen', 'Teilnehmende mit Anwesenheit'))->toBe(2)
-        ->and(rfValue($rows, 'Veranstaltungen', 'Anwesenheiten (Teilnahmen je Tag)'))->toBe(2)
-        ->and(rfValue($rows, 'Mitglieder', 'Mitglieder am 31.12.'))->toBe(2)
-        ->and(rfValue($rows, 'Mitglieder', 'Neue Mitglieder im Jahr'))->toBe(1)
-        ->and(rfValue($rows, 'Mitglieder', 'Ausgetreten im Jahr'))->toBe(1);
-
-    expect(rfValue(YearReport::rows($year - 1), 'Seminare', 'Durchgeführte Seminare'))->toBe(1);
-});
-
 it('shows the report to the board only, with the year switch and a csv export', function () {
     $this->get(route('board.reports'))->assertRedirect(route('login'));
 
@@ -127,11 +64,11 @@ it('shows the report to the board only, with the year switch and a csv export', 
     $board = rfUser(RoleKey::BoardMember);
     $year = now()->year;
 
-    $this->actingAs($board)->get(route('board.reports'))->assertOk()->assertSee('Jahresbericht '.$year)->assertSee('Durchgeführte Seminare')->assertSee('Mitglieder am 31.12.');
+    $this->actingAs($board)->get(route('board.reports'))->assertOk()->assertSee('Jahresbericht '.$year)->assertSee('Großveranstaltungen')->assertSee('Mitglieder am 31.12.');
     $this->actingAs($board)->get(route('board.reports', ['jahr' => 1999]))->assertOk()->assertSee('Jahresbericht '.$year);
 
     $body = $this->actingAs($board)->get(route('board.reports.export'))->assertOk()->streamedContent();
-    expect($body)->toContain('Jahr;Bereich;Kennzahl;Wert')->toContain('Durchgeführte Seminare')->toContain((string) $year);
+    expect($body)->toContain('Jahr;Bereich;Kennzahl;Wert')->toContain('Großveranstaltungen')->toContain((string) $year);
 });
 
 it('lists the report in the board navigation', function () {

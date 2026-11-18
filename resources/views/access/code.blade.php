@@ -1,7 +1,7 @@
 @php($crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Persönlicher Zugang']])
 
 <x-layouts.app title="Persönlicher Zugang" width="narrow">
-    <x-vdbs.layout.page-header title="Persönlicher Zugang" lead="Mit Ihrem Zugang sehen Sie offene Seminare und bewerben sich ohne eigenes Konto." :breadcrumb="$crumbs" />
+    <x-vdbs.layout.page-header title="Persönlicher Zugang" lead="Mit Ihrem Zugang nutzen Sie Angebote des Verbands ohne eigenes Konto." :breadcrumb="$crumbs" />
 
     <x-vdbs.forms.form :action="route('access.verify')">
         <x-vdbs.forms.input name="email" type="email" label="E-Mail-Adresse" :required="true" autocomplete="email" />

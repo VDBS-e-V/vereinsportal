@@ -68,7 +68,7 @@ it('lists the public events for school accounts, without drafts, and keeps other
     $this->actingAs(slCoordination())->get(route('school.events.index'))->assertForbidden();
 
     $this->actingAs($account->user)->get(route('school.events.index'))->assertOk()->assertSee('Öffentlicher Tag')->assertDontSee('Interner Entwurf');
-    expect(array_column(PortalNavigation::pages(PortalAreas::Schulen, $account->user), 'label'))->toBe(['Übersicht', 'Seminar anfragen', 'Veranstaltungen']);
+    expect(array_column(PortalNavigation::pages(PortalAreas::Schulen, $account->user), 'label'))->toBe(['Übersicht', 'Veranstaltungen']);
 
     $draft = Event::query()->where('title', 'Interner Entwurf')->firstOrFail();
     $this->actingAs($account->user)->get(route('school.events.show', $draft))->assertNotFound();

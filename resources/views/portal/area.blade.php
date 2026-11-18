@@ -1,8 +1,8 @@
 @php
     $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => $area->label()]];
     $lead = match ($area) {
-        \App\Support\PortalAreas::Teamende => 'Seminare, Ihr Profil und Ihre Einarbeitung.',
-        \App\Support\PortalAreas::Koordination => 'Schulen, Teamende, Seminare und Veranstaltungen.',
+        \App\Support\PortalAreas::Teamende => 'Ihre Einarbeitung und Ihre Anträge.',
+        \App\Support\PortalAreas::Koordination => 'Schulen, Teamende und Veranstaltungen.',
         \App\Support\PortalAreas::Geschaeftsstelle => 'Nutzer, Anträge, Artikel, Seiten und Personen.',
         \App\Support\PortalAreas::Admins => 'Technischer Betrieb: Zustand, Aufgaben, Protokoll und Design-Bibliothek.',
         default => 'Die Seiten dieses Bereichs.',

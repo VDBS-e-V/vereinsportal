@@ -10,7 +10,6 @@ use App\Modules\Mailings\Models\MailSegment;
 use App\Modules\Mailings\Services\SegmentResolver;
 use App\Modules\Mailings\Support\MailGroups;
 use App\Modules\Mailings\Support\SegmentFilters;
-use App\Modules\Seminars\Models\Seminar;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -113,7 +112,6 @@ class MailSegmentController extends Controller
             'federalStates' => SegmentFilters::federalStates(),
             'schoolTypes' => SegmentFilters::schoolTypes(),
             'ageGroups' => array_combine(array_keys(SegmentFilters::AGE_GROUPS), array_map(fn (string $key): string => $key.' Jahre', array_keys(SegmentFilters::AGE_GROUPS))),
-            'seminars' => Seminar::query()->orderByDesc('id')->limit(300)->get()->mapWithKeys(fn (Seminar $seminar): array => [$seminar->id => trim(($seminar->number ? $seminar->number.' · ' : '').$seminar->title)])->all(),
             'preview' => $preview,
         ]);
     }
@@ -153,7 +151,7 @@ class MailSegmentController extends Controller
         $groups = array_values($data['groups'] ?? []);
         $filters = SegmentFilters::normalize($request->all());
 
-        if ($groups === [] && ! isset($filters['seminar_id'])) {
+        if ($groups === []) {
             throw ValidationException::withMessages(['groups' => 'Bitte wählen Sie mindestens eine Gruppe.']);
         }
 

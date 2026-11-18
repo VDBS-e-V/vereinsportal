@@ -30,8 +30,8 @@ function nsUser(?RoleKey $role = null): User
 }
 
 it('offers only the notifications that fit the roles of the account', function () {
-    $this->actingAs(nsUser(RoleKey::Coordination))->get(route('account.notifications'))->assertOk()
-        ->assertSee('Nachrichten von Schulen')->assertSee('Stichtag für Interessenbekundungen abgelaufen')->assertDontSee('Neue Mitgliedsanträge')->assertSee('Immer aktiv');
+    $this->actingAs(nsUser(RoleKey::Team))->get(route('account.notifications'))->assertOk()
+        ->assertSee('Mitteilungen an Teamende')->assertSee('Erinnerungen an Ihre Einarbeitung')->assertDontSee('Neue Mitgliedsanträge')->assertSee('Immer aktiv');
 
     $this->actingAs(nsUser(RoleKey::BoardMember))->get(route('account.notifications'))->assertOk()->assertSee('Neue Mitgliedsanträge')->assertSee('Neue Zugangsanträge');
 
@@ -39,46 +39,46 @@ it('offers only the notifications that fit the roles of the account', function (
 });
 
 it('has every notification on by default and saves the choice per entry', function () {
-    $user = nsUser(RoleKey::Coordination);
+    $user = nsUser(RoleKey::Team);
     $preferences = app(NotificationPreferences::class);
 
-    expect($preferences->allows($user, 'school_requests'))->toBeTrue()->and($preferences->allows($user, 'seminar_deadline'))->toBeTrue();
+    expect($preferences->allows($user, 'team_mailings'))->toBeTrue()->and($preferences->allows($user, 'onboarding_reminders'))->toBeTrue();
 
-    $this->actingAs($user)->put(route('account.notifications.update'), ['notifications' => ['seminar_deadline']])->assertRedirect(route('account.notifications'))->assertSessionHas('success');
+    $this->actingAs($user)->put(route('account.notifications.update'), ['notifications' => ['onboarding_reminders']])->assertRedirect(route('account.notifications'))->assertSessionHas('success');
 
-    expect($preferences->allows($user, 'seminar_deadline'))->toBeTrue()->and($preferences->allows($user, 'school_requests'))->toBeFalse();
+    expect($preferences->allows($user, 'onboarding_reminders'))->toBeTrue()->and($preferences->allows($user, 'team_mailings'))->toBeFalse();
 
     $this->put(route('account.notifications.update'), [])->assertSessionHasNoErrors();
-    expect($preferences->allows($user, 'seminar_deadline'))->toBeFalse();
+    expect($preferences->allows($user, 'onboarding_reminders'))->toBeFalse();
 
     $this->get(route('account.notifications'))->assertOk();
 });
 
 it('ignores keys that do not belong to the account and unknown keys', function () {
-    $user = nsUser(RoleKey::Coordination);
+    $user = nsUser(RoleKey::Team);
     $this->actingAs($user)->put(route('account.notifications.update'), ['notifications' => ['new_applications', 'erfunden']]);
 
-    expect(DB::table('notification_preferences')->where('user_id', $user->id)->pluck('key')->all())->toContain('school_requests')->toContain('seminar_deadline')->not->toContain('new_applications')->not->toContain('erfunden')
+    expect(DB::table('notification_preferences')->where('user_id', $user->id)->pluck('key')->all())->toContain('team_mailings')->toContain('onboarding_reminders')->not->toContain('new_applications')->not->toContain('erfunden')
         ->and(app(NotificationPreferences::class)->allows($user, 'erfunden'))->toBeTrue();
 });
 
 it('filters recipients by their choice and keeps mandatory mails out of the catalog', function () {
-    $wants = nsUser(RoleKey::Coordination);
-    $declines = nsUser(RoleKey::Coordination);
-    DB::table('notification_preferences')->insert(['user_id' => $declines->id, 'key' => 'school_requests', 'enabled' => false, 'created_at' => now(), 'updated_at' => now()]);
+    $wants = nsUser(RoleKey::Team);
+    $declines = nsUser(RoleKey::Team);
+    DB::table('notification_preferences')->insert(['user_id' => $declines->id, 'key' => 'team_mailings', 'enabled' => false, 'created_at' => now(), 'updated_at' => now()]);
 
-    $kept = app(NotificationPreferences::class)->filter([$wants, $declines], 'school_requests');
+    $kept = app(NotificationPreferences::class)->filter([$wants, $declines], 'team_mailings');
 
     expect(array_map(fn (User $user): int => $user->id, $kept))->toBe([$wants->id])
         ->and(array_keys(NotificationPreferences::catalog()))->not->toContain('two_factor')->not->toContain('password_reset');
 });
 
 it('logs a change of the settings without any content', function () {
-    $user = nsUser(RoleKey::Coordination);
+    $user = nsUser(RoleKey::Team);
     $this->actingAs($user)->put(route('account.notifications.update'), ['notifications' => []]);
 
     $entry = AuditEntry::query()->where('event', 'account.notifications_changed')->firstOrFail();
-    expect(json_encode($entry->context))->not->toContain('school_requests');
+    expect(json_encode($entry->context))->not->toContain('team_mailings');
 });
 
 it('offers the appearance page', function () {

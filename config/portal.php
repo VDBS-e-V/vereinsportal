@@ -224,25 +224,10 @@ return [
         'remind_after_days' => (int) env('FEEDBACK_REMIND_AFTER_DAYS', 7),
     ],
 
-    'seminars' => [
-        // Tage nach dem letzten Termin, bis zu denen Seminarleitung Verträge und Ergebnisbericht hochlädt
-        'report_days' => (int) env('PORTAL_SEMINAR_REPORT_DAYS', 14),
-        // Aufbewahrung (docs/87): Ergebnislink für Schulen in Jahren ab Seminarende (mindestens 1, Standard 2, verlängerbar), Hinweis an die Koordination vor dem Ablauf,
-        // Anfragen ohne Vertrag (abgelehnt oder abgesagt) in Jahren nach dem Abschluss. Verträge und Belege mit Geldbezug löscht nichts automatisch außer nach retention_years der Dokumente.
-        'retention' => [
-            'results_years' => max(1, (int) env('PORTAL_SEMINAR_RESULTS_YEARS', 2)),
-            'results_notice_days' => (int) env('PORTAL_SEMINAR_RESULTS_NOTICE_DAYS', 30),
-            'request_years' => max(1, (int) env('PORTAL_SEMINAR_REQUEST_YEARS', 1)),
-        ],
-        // Format der Seminarnummer: {Y} = Jahr, {N:4} = laufende Nummer mit vier Stellen.
-        'number_format' => env('SEMINAR_NUMBER_FORMAT', 'S-{Y}-{N:4}'),
-        // Dokumente je Seminar: Größe einer Datei und aller Dateien zusammen (in KB), Aufbewahrung in Jahren je Art (nach dem letzten Termin).
-        'documents' => [
-            'max_kb' => (int) env('SEMINAR_DOCUMENT_MAX_KB', 25600),
-            'max_total_kb' => (int) env('SEMINAR_DOCUMENTS_MAX_TOTAL_KB', 512000),
-            'folder_max_mb' => (int) env('SEMINAR_FOLDER_MAX_MB', 100),
-            'retention_years' => ['contract' => 10, 'quote' => 10, 'invoice' => 10, 'default' => 3],
-        ],
+    // Hochgeladene, privat gespeicherte Dateien (Aufgaben, Tickets, Vorstandssitzungen): Größe einer Datei und aller Dateien zusammen in KB.
+    'uploads' => [
+        'max_kb' => (int) env('UPLOAD_MAX_KB', 25600),
+        'max_total_kb' => (int) env('UPLOAD_MAX_TOTAL_KB', 512000),
     ],
 
     'mailings' => [

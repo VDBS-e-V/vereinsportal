@@ -4,7 +4,6 @@ namespace App\Modules\Forms\Models;
 
 use App\Modules\Access\Models\User;
 use App\Modules\Forms\Support\FormTypes;
-use App\Modules\Seminars\Models\Seminar;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -64,12 +63,6 @@ class FormApplication extends Model
     public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by_user_id');
-    }
-
-    /** @return BelongsTo<Seminar, $this> */
-    public function seminar(): BelongsTo
-    {
-        return $this->belongsTo(Seminar::class);
     }
 
     public function typeLabel(): string

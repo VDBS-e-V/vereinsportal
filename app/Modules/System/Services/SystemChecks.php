@@ -101,7 +101,7 @@ final class SystemChecks
             ? $this->check('PHP', 'Erweiterung gd', 'ok', 'Vorhanden: Profilfotos werden zugeschnitten und verkleinert.')
             : $this->check('PHP', 'Erweiterung gd', 'warning', 'Fehlt: Profilfotos werden unverändert gespeichert. In der php.ini extension=gd aktivieren.');
 
-        foreach (['zip' => 'Seminarmappe als ZIP-Datei', 'intl' => 'Sortierung und Formate'] as $extension => $purpose) {
+        foreach (['intl' => 'Sortierung und Formate'] as $extension => $purpose) {
             $checks[] = extension_loaded($extension)
                 ? $this->check('PHP', 'Erweiterung '.$extension, 'ok', 'Vorhanden.')
                 : $this->check('PHP', 'Erweiterung '.$extension, 'warning', 'Fehlt ('.$purpose.'). Im Kundenmenü des Hosters aktivieren.');

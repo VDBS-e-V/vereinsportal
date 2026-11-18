@@ -12,7 +12,6 @@ use App\Modules\Forms\Services\FormApplications;
 use App\Modules\Forms\Services\FormSettings;
 use App\Modules\Forms\Services\Iban;
 use App\Modules\Forms\Support\FormTypes;
-use App\Modules\Seminars\Models\Seminar;
 use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -88,7 +87,6 @@ class FormApplicationController extends Controller
             'audience' => $audience,
             'config' => FormTypes::audience($audience),
             'rows' => min($rows, 30),
-            'seminars' => Seminar::query()->orderByDesc('id')->limit(300)->get()->mapWithKeys(fn (Seminar $seminar): array => [$seminar->id => trim(($seminar->number ? $seminar->number.' ' : '').$seminar->title)])->all(),
             'costCenters' => CostCenter::query()->where('active', true)->orderBy('code')->get()->mapWithKeys(fn (CostCenter $center): array => [$center->code => $center->label()])->all(),
             'iban' => $application->iban_encrypted ? Iban::pretty((string) $application->iban_encrypted) : '',
             'items' => $application->items->values(),
@@ -133,7 +131,7 @@ class FormApplicationController extends Controller
     public function show(Request $request, FormApplication $application): View
     {
         $this->readable($request, $application);
-        $application->load(['items.files', 'events', 'seminar']);
+        $application->load(['items.files', 'events']);
 
         return view('forms.show', ['application' => $application, 'office' => false, 'iban' => null, 'audience' => $this->audience($request)]);
     }

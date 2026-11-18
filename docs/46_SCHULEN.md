@@ -1,6 +1,6 @@
 # Schulen als Partner (Modul Partners)
 
-> **Hinweis:** Der Seminarablauf und die Status in diesem Dokument sind durch `docs/86_SEMINARABLAUF_PLANUNG.md` und `docs/87_SEMINARABLAUF_UMSETZUNGSPLAN.md` ersetzt (neue Status: Anfrage, In Prüfung, KVA gesendet, Freigegeben, Geplant, Ausgeschrieben, Team gewählt, Team bestätigt, Vorbereitet, Durchgeführt, Berichtet, Abgeschlossen, Abgelehnt, Abgesagt). Altes „Terminiert“ entspricht „Ausgeschrieben“, „Bestätigt“ entspricht „Team bestätigt“.
+> **Hinweis:** Die Seminar-, Kostenvoranschlags- und Vertragsfunktionen wurden aus dem Portal entfernt (siehe `docs/88_ENTFERNTE_FUNKTIONEN.md`). Aussagen dazu in diesem Dokument gelten nicht mehr.
 
 Bereich **Koordination**, Seite **Schulen** (`/koordination/schulen`). Pflege der Partnerschulen mit Ansprechperson, Angaben zur Schule,
 CSV-Export und CSV-Import. Grundlage ist die generische Tabelle `partners` (Typ `school`; weitere Partnertypen später als Case in `PartnerType`).

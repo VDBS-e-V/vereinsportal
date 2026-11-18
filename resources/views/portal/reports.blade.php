@@ -28,5 +28,5 @@
         </section>
     @endforeach
 
-    <p style="color:var(--text-muted);font-size:var(--font-size-small)">Seminare und Veranstaltungen zählen in dem Jahr, in dem ihre Termine liegen. Als durchgeführt gelten Seminare im Status „Durchgeführt“ oder „Abgeschlossen“. Mitglieder am 31.12. sind alle mit laufender Mitgliedschaft an diesem Tag.</p>
+    <p style="color:var(--text-muted);font-size:var(--font-size-small)">Veranstaltungen zählen in dem Jahr, in dem ihre Termine liegen. Mitglieder am 31.12. sind alle mit laufender Mitgliedschaft an diesem Tag.</p>
 </x-layouts.app>

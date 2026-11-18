@@ -13,4 +13,4 @@
 </x-vdbs.layout.area-hero>
 
 <h2>Ohne Zusätze, andere Bereichsfarbe</h2>
-<x-vdbs.layout.area-hero :area="\App\Support\PortalAreas::Teamende" title="Teamende" lead="Seminare, Ihr Profil und Ihre Einarbeitung." />
+<x-vdbs.layout.area-hero :area="\App\Support\PortalAreas::Teamende" title="Teamende" lead="Ihre Einarbeitung und Ihre Anträge." />

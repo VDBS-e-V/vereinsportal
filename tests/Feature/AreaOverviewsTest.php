@@ -10,9 +10,6 @@ use App\Modules\Membership\Models\Membership;
 use App\Modules\Onboarding\Enums\OnboardingDocumentKind;
 use App\Modules\Onboarding\Services\OnboardingDocuments;
 use App\Modules\People\Models\Person;
-use App\Modules\Seminars\Enums\SeminarStatus;
-use App\Modules\Seminars\Models\Seminar;
-use App\Modules\Seminars\Services\SeminarAdministration;
 use App\Support\PortalAreas;
 use App\Support\PortalNavigation;
 use Database\Seeders\RoleSeeder;
@@ -71,41 +68,6 @@ it('delivers only the current statute and welcome letter to members', function (
     $this->actingAs($member)->get(route('member.documents.download', $old))->assertNotFound();
     $this->actingAs($member)->get(route('member.documents.download', $team))->assertNotFound();
     $this->actingAs(aoUser(RoleKey::Team))->get(route('member.documents.download', $current))->assertForbidden();
-});
-
-it('shows the board key figures without personal data and keeps others out', function () {
-    $board = aoUser(RoleKey::BoardMember);
-    Membership::factory()->count(2)->create();
-    Membership::factory()->create(['ends_on' => now()->addMonth()->toDateString()]);
-    Membership::factory()->ended()->create();
-    Membership::factory()->requested()->create();
-    Seminar::factory()->create(['status' => SeminarStatus::InReview]);
-
-    $response = $this->actingAs($board)->get(route('board.overview'))->assertOk()->assertSee('Aktive Mitglieder')->assertSee('Geplante Austritte');
-    $stats = $response->viewData('stats');
-
-    expect($stats['members'])->toBe(3)->and($stats['requested'])->toBe(1)->and($stats['leaving'])->toBe(1)->and($stats['seminarsPlanning'])->toBe(1);
-
-    $this->actingAs(aoUser(RoleKey::Coordination))->get(route('board.overview'))->assertForbidden();
-    $this->actingAs(aoUser(RoleKey::Member))->get(route('board.overview'))->assertForbidden();
-});
-
-it('shows Bildungsreferenten an overview and lets them read but not change seminars and events', function () {
-    $education = aoUser(RoleKey::EducationCoordination);
-    $seminar = Seminar::factory()->create(['title' => 'SV-Tage Süd', 'status' => SeminarStatus::TeamConfirmed]);
-    app(SeminarAdministration::class)->addSession($seminar, ['date' => now()->addMonth()->toDateString(), 'start' => '09:00', 'end' => '15:00'], aoUser(RoleKey::Coordination));
-    Event::query()->create(['slug' => 'tag-eins', 'title' => 'Demokratietag', 'status' => 'open']);
-
-    $this->actingAs($education)->get(route('education.overview'))->assertOk()->assertSee('SV-Tage Süd')->assertSee('Demokratietag')->assertSee('Seminare nach Stand');
-
-    $this->actingAs($education)->get(route('seminars.index'))->assertOk();
-    $this->actingAs($education)->get(route('seminars.show', $seminar))->assertOk()->assertDontSee('Bearbeiten');
-    $this->actingAs($education)->get(route('events.admin.index'))->assertOk();
-    $this->actingAs($education)->get(route('seminars.create'))->assertForbidden();
-    $this->actingAs($education)->get(route('events.admin.create'))->assertForbidden();
-    $this->actingAs($education)->get(route('partners.index'))->assertForbidden();
-
-    $this->actingAs(aoUser(RoleKey::Coordination))->get(route('education.overview'))->assertForbidden();
 });
 
 it('lists the new areas in the navigation and links the area chips on the start page', function () {

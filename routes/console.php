@@ -26,24 +26,7 @@ Schedule::command('membership:sync')->daily();
 Schedule::command('membership:prune')->daily();
 Schedule::command('access-requests:prune')->daily();
 
-// Koordination informieren, wenn der Stichtag für Interessenbekundungen auf ein Seminar vorbei ist.
-Schedule::command('seminars:team-deadlines')->daily();
-
-// Seminarleitung erinnern, wenn Verträge und Bericht bald fällig sind; Koordination informieren, wenn sie überfällig sind.
-Schedule::command('seminars:remind-reports')->daily();
-
-// Aufbewahrung der Seminare (docs/87): Anfragen ohne Vertrag nach einem Jahr löschen, Koordination vor dem Ablauf eines Ergebnislinks informieren.
-Schedule::command('seminars:prune-requests')->daily();
-Schedule::command('seminars:results-expiry')->daily();
-
-// Bewerbungen ohne Konto: Fristen der Aufbewahrung
-Schedule::command('seminars:prune-applicants')->daily();
-Schedule::command('seminars:prune-documents')->daily();
-Schedule::command('feedback:prune')->daily();
-Schedule::command('feedback:remind')->daily();
 Schedule::command('forms:prune')->daily();
-Schedule::command('contracts:prune')->daily();
-Schedule::command('contracts:remind')->daily();
 
 // Abgelaufene und widerrufene Tokens der Anbindungen (SSO) entfernen.
 Schedule::command('passport:purge')->daily();

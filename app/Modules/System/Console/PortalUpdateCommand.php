@@ -75,10 +75,8 @@ class PortalUpdateCommand extends Command
             return self::FAILURE;
         }
 
-        $this->callSilently('seminars:number-existing');
         $this->callSilently('sso:ensure-keys');
         $this->callSilently('mail:load-defaults');
-        $this->callSilently('letters:load-defaults');
 
         $this->components->info('5/5 Zwischenspeicher leeren und Wartungsmodus beenden');
         $this->callSilently('optimize:clear');

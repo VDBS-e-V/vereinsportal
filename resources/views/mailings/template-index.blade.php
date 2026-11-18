@@ -43,11 +43,4 @@
             </form>
         @endif
     </section>
-
-    <section aria-labelledby="team-title" style="margin-top:var(--space-8)">
-        <h2 id="team-title" style="font-size:var(--font-size-h3)">Mitteilungen an Teamende zu Seminaren</h2>
-        <p>Dieser Rahmen gilt für die Mitteilungen der Koordination. Sie ergänzt ihren eigenen Textabschnitt an der Stelle <code>{eigener_text}</code>.</p>
-        <p>Betreff: <strong>{{ $team['subject'] }}</strong> <x-vdbs.data.badge :tone="$teamCustomized ? 'success' : 'neutral'">{{ $teamCustomized ? 'Angepasst' : 'Eingebaute Vorlage' }}</x-vdbs.data.badge></p>
-        <x-vdbs.actions.button variant="secondary" :href="route('mailings.templates.team')" icon="pencil">Vorlage bearbeiten</x-vdbs.actions.button>
-    </section>
 </x-layouts.app>

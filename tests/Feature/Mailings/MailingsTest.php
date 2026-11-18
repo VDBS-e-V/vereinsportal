@@ -16,11 +16,6 @@ use App\Modules\Mailings\Support\MailGroups;
 use App\Modules\Mailings\Support\MailPlaceholders;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\People\Models\Person;
-use App\Modules\Seminars\Enums\ApplicationStatus;
-use App\Modules\Seminars\Enums\SeminarStatus;
-use App\Modules\Seminars\Models\Seminar;
-use App\Modules\Seminars\Models\SeminarApplication;
-use App\Modules\Seminars\Models\SeminarSession;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -43,14 +38,6 @@ function mlUser(?RoleKey $role = null, array $person = []): User
     return $user;
 }
 
-function mlSeminar(array $attributes = []): Seminar
-{
-    $seminar = Seminar::factory()->create($attributes + ['status' => SeminarStatus::Tendered, 'title' => 'SV-Tage Nord']);
-    SeminarSession::query()->create(['seminar_id' => $seminar->id, 'starts_at' => now()->addMonth()->setTime(9, 0), 'ends_at' => now()->addMonth()->setTime(15, 0), 'location' => 'Aula']);
-
-    return $seminar->fresh();
-}
-
 function mlMeeting(array $overrides = []): array
 {
     return $overrides + ['groups' => ['members'], 'subject' => 'Einladung zur {versammlung}', 'body' => '<p>Liebe {vorname}, wir laden Sie für den {termin} in {ort} ein. Von {absender}.</p>', 'meeting_title' => 'Mitgliederversammlung 2026', 'meeting_date' => '2026-12-12', 'meeting_time' => '10:00', 'meeting_place' => 'Berlin, Haus der Demokratie'];
@@ -70,40 +57,6 @@ it('finds, renders and escapes placeholders and refuses unknown ones', function 
 });
 
 // ---------- Rechte ----------
-
-it('lets each role use only its own pages', function () {
-    $this->get(route('mailings.board.index'))->assertRedirect(route('login'));
-
-    $this->actingAs(mlUser(RoleKey::BoardMember));
-    $this->get(route('mailings.board.index'))->assertOk();
-    $this->get(route('mailings.board.create'))->assertOk()->assertSee('Platzhalter')->assertSee('Mitglieder');
-    $this->get(route('mailings.office.index'))->assertOk();
-    $this->get(route('mailings.team.index'))->assertForbidden();
-    $this->get(route('mailings.templates.index'))->assertOk();
-
-    $this->actingAs(mlUser(RoleKey::AdministrationStaff));
-    $this->get(route('mailings.office.index'))->assertOk();
-    $this->get(route('mailings.office.create'))->assertOk();
-    $this->get(route('mailings.board.index'))->assertForbidden();
-    $this->get(route('mailings.templates.index'))->assertOk();
-    $this->get(route('mailings.templates.team'))->assertOk()->assertSee('{eigener_text}');
-    $this->get(route('mailings.team.index'))->assertForbidden();
-
-    $this->actingAs(mlUser(RoleKey::Coordination));
-    $this->get(route('mailings.team.index'))->assertOk();
-    $this->get(route('mailings.team.create'))->assertOk();
-    $this->get(route('mailings.board.index'))->assertForbidden();
-    $this->get(route('mailings.office.index'))->assertForbidden();
-    $this->get(route('mailings.templates.index'))->assertForbidden();
-
-    foreach ([RoleKey::Member, RoleKey::Team, RoleKey::Administration] as $role) {
-        $this->actingAs(mlUser($role));
-        $this->get(route('mailings.board.index'))->assertForbidden();
-        $this->post(route('mailings.office.store'), mlMeeting())->assertForbidden();
-        $this->get(route('mailings.team.index'))->assertForbidden();
-        $this->get(route('mailings.templates.index'))->assertForbidden();
-    }
-});
 
 it('lists the new pages in the menus of the three areas', function () {
     $this->actingAs(mlUser(RoleKey::BoardMember))->get(route('board.overview'))->assertOk()->assertSee('Rundschreiben');
@@ -267,96 +220,6 @@ it('does not let the system template be opened or deleted as a general one', fun
 });
 
 // ---------- Teamende ----------
-
-it('writes to Teamende with the template of the office and the own passage of the coordination', function () {
-    $coordination = mlUser(RoleKey::Coordination, ['first_name' => 'Karla', 'last_name' => 'Koordination']);
-    $team = mlUser(RoleKey::Team, ['first_name' => 'Timo', 'last_name' => 'Team']);
-    mlUser(RoleKey::Member);
-    $seminar = mlSeminar();
-
-    $this->actingAs($coordination)->post(route('mailings.team.store'), ['seminar_id' => $seminar->id, 'audience' => 'all', 'own_text' => '<p>Bitte Moderationsmaterial mitbringen.</p>'])
-        ->assertRedirectContains('/koordination/mitteilungen/')->assertSessionHas('success');
-
-    Mail::assertSent(MailingMail::class, 1);
-    Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($team->email)
-        && $mail->subjectLine === 'Seminar SV-Tage Nord: Informationen für Teamende'
-        && str_contains($mail->bodyHtml, 'Hallo Timo')
-        && str_contains($mail->bodyHtml, 'SV-Tage Nord')
-        && str_contains($mail->bodyHtml, 'Aula')
-        && str_contains($mail->bodyHtml, 'Bitte Moderationsmaterial mitbringen.')
-        && str_contains($mail->bodyHtml, 'Karla Koordination')
-        && ! str_contains($mail->bodyHtml, '{'));
-
-    $mailing = Mailing::query()->firstOrFail();
-    expect($mailing->kind)->toBe('team')->and($mailing->seminar_id)->toBe($seminar->id)->and($mailing->recipients_count)->toBe(1)->and($mailing->own_text)->toContain('Moderationsmaterial');
-});
-
-it('uses a changed template and appends the own passage when the template has no place for it', function () {
-    $staff = mlUser(RoleKey::AdministrationStaff);
-    $team = mlUser(RoleKey::Team);
-    $seminar = mlSeminar();
-
-    $this->actingAs($staff)->put(route('mailings.templates.team.update'), ['subject' => 'Neu: {seminar}', 'body' => '<p>Hallo {vorname}, es geht um {seminar}.</p>'])->assertSessionHasNoErrors();
-
-    $this->actingAs(mlUser(RoleKey::Coordination))->post(route('mailings.team.store'), ['seminar_id' => $seminar->id, 'audience' => 'all', 'own_text' => '<p>Mein Zusatz</p>']);
-
-    Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($team->email) && $mail->subjectLine === 'Neu: SV-Tage Nord' && str_ends_with(trim(strip_tags($mail->bodyHtml)), 'Mein Zusatz'));
-});
-
-it('picks the audience by interest or team and respects an opted out account', function () {
-    $coordination = mlUser(RoleKey::Coordination);
-    $interested = mlUser(RoleKey::Team);
-    $inTeam = mlUser(RoleKey::Team);
-    $outsider = mlUser(RoleKey::Team);
-    $optedOut = mlUser(RoleKey::Team);
-    $seminar = mlSeminar();
-
-    SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $interested->id, 'status' => ApplicationStatus::Applied]);
-    SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $inTeam->id, 'status' => ApplicationStatus::Confirmed]);
-    SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $optedOut->id, 'status' => ApplicationStatus::Confirmed]);
-    DB::table('notification_preferences')->insert(['user_id' => $optedOut->id, 'key' => 'team_mailings', 'enabled' => false, 'created_at' => now(), 'updated_at' => now()]);
-
-    $recipients = app(MailRecipients::class);
-    $emails = fn (string $audience) => collect($recipients->team($seminar, $audience))->pluck('email')->sort()->values()->all();
-
-    expect($emails('applied'))->toBe([mb_strtolower($interested->email)])
-        ->and($emails('confirmed'))->toBe([mb_strtolower($inTeam->email)])
-        ->and($emails('all'))->toHaveCount(3)->not->toContain(mb_strtolower($optedOut->email));
-
-    $this->actingAs($coordination)->post(route('mailings.team.store'), ['seminar_id' => $seminar->id, 'audience' => 'confirmed', 'own_text' => ''])->assertSessionHas('success');
-    Mail::assertSent(MailingMail::class, 1);
-    Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($inTeam->email));
-});
-
-it('offers only seminars in planning, scheduled or confirmed and validates the form', function () {
-    $this->actingAs(mlUser(RoleKey::Coordination));
-    mlUser(RoleKey::Team);
-    $cancelled = mlSeminar(['status' => SeminarStatus::Cancelled, 'title' => 'Abgesagt']);
-    mlSeminar(['title' => 'Terminiert']);
-
-    $this->get(route('mailings.team.create'))->assertOk()->assertSee('Terminiert')->assertDontSee('Abgesagt');
-
-    $this->post(route('mailings.team.store'), ['seminar_id' => $cancelled->id, 'audience' => 'all'])->assertSessionHasErrors('seminar_id');
-    $this->post(route('mailings.team.store'), ['audience' => 'all'])->assertSessionHasErrors('seminar_id');
-    $this->post(route('mailings.team.store'), ['seminar_id' => Seminar::query()->where('title', 'Terminiert')->value('id'), 'audience' => 'alle-welt'])->assertSessionHasErrors('audience');
-
-    Mail::assertNothingSent();
-});
-
-it('shows a team preview and a test mail only to the sender', function () {
-    $coordination = mlUser(RoleKey::Coordination, ['first_name' => 'Karla']);
-    $seminar = mlSeminar();
-    $this->actingAs($coordination);
-
-    $this->followingRedirects()->post(route('mailings.team.preview'), ['seminar_id' => $seminar->id, 'audience' => 'all', 'own_text' => '<p>Zusatz</p>'])->assertSee('Vorschau')->assertSee('Hallo Karla')->assertSee('Zusatz');
-
-    $this->post(route('mailings.team.test'), ['seminar_id' => $seminar->id, 'audience' => 'all', 'own_text' => ''])->assertSessionHas('success');
-    Mail::assertSent(MailingMail::class, 1);
-    Mail::assertSent(MailingMail::class, fn (MailingMail $mail) => $mail->hasTo($coordination->email));
-    expect(Mailing::query()->count())->toBe(0);
-});
-
-// ---------- Vorlage ----------
 
 it('refuses unknown placeholders in the template, keeps an old text until saved and can fall back to the built-in one', function () {
     $staff = mlUser(RoleKey::AdministrationStaff);

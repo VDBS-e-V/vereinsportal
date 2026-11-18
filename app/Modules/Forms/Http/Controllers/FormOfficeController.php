@@ -14,7 +14,7 @@ use App\Modules\Forms\Services\FormApplications;
 use App\Modules\Forms\Services\FormSettings;
 use App\Modules\Forms\Services\Iban;
 use App\Modules\Forms\Support\FormTypes;
-use App\Modules\Seminars\Support\Money;
+use App\Support\Money;
 use App\Support\CsvCell;
 use DomainException;
 use Illuminate\Contracts\View\View;
@@ -66,7 +66,7 @@ class FormOfficeController extends Controller
     public function show(Request $request, FormApplication $application): View
     {
         abort_if($application->status === 'draft', 404);
-        $application->load(['items.files', 'events', 'seminar', 'checkedBy.person', 'approvedBy.person']);
+        $application->load(['items.files', 'events', 'checkedBy.person', 'approvedBy.person']);
         $user = $request->user();
 
         return view('forms.show', [
@@ -131,14 +131,14 @@ class FormOfficeController extends Controller
         return response()->streamDownload(function () use ($applications): void {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, ['Antragsnummer', 'Art', 'Eingereicht am', 'Freigegeben am', 'Antragsteller:in', 'E-Mail', 'Kontoinhaber:in', 'IBAN', 'Betrag gesamt (EUR)', 'Verwendungszweck', 'Kostenstelle', 'Seminar-Nr.', 'Geprüft von', 'Freigegeben von', 'Ausnahme Belegfrist'], ';', '"', '\\');
+            fputcsv($out, ['Antragsnummer', 'Art', 'Eingereicht am', 'Freigegeben am', 'Antragsteller:in', 'E-Mail', 'Kontoinhaber:in', 'IBAN', 'Betrag gesamt (EUR)', 'Verwendungszweck', 'Kostenstelle', 'Geprüft von', 'Freigegeben von', 'Ausnahme Belegfrist'], ';', '"', '\\');
 
             foreach ($applications as $application) {
                 fputcsv($out, array_map([CsvCell::class, 'safe'], [
                     $application->number, $application->typeLabel(), $application->submitted_at?->format('d.m.Y'), $application->approved_at?->format('d.m.Y'),
                     $application->applicant_name, (string) $application->applicant_email, (string) $application->account_holder, Iban::pretty((string) $application->iban_encrypted),
-                    number_format($application->total_cents / 100, 2, ',', ''), Str::limit($application->number.' '.$application->typeLabel().($application->seminar?->number ? ' Seminar '.$application->seminar->number : ''), 140, ''),
-                    (string) $application->cost_center, (string) ($application->seminar?->number ?? ''),
+                    number_format($application->total_cents / 100, 2, ',', ''), Str::limit($application->number.' '.$application->typeLabel(), 140, ''),
+                    (string) $application->cost_center,
                     (string) ($application->checkedBy?->person?->fullName() ?? ''), (string) ($application->approvedBy?->person?->fullName() ?? ''), $application->exception_by_user_id ? 'ja' : 'nein',
                 ]), ';', '"', '\\');
             }
@@ -163,12 +163,12 @@ class FormOfficeController extends Controller
     /** Buchungsliste: eine Zeile je Position, filterbar nach Zeitraum, Art und Stand. */
     public function exportBookings(Request $request): StreamedResponse
     {
-        $applications = $this->filteredForExport($request)->with(['items.files', 'seminar'])->orderBy('number')->get();
+        $applications = $this->filteredForExport($request)->with(['items.files'])->orderBy('number')->get();
 
         return response()->streamDownload(function () use ($applications): void {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, ['Antragsnummer', 'Position', 'Belegdatum', 'Art', 'Beschreibung', 'Menge', 'Einzelbetrag (EUR)', 'Betrag (EUR)', 'Kilometer', 'Start', 'Ziel', 'Verkehrsmittel', 'Lieferant', 'Kostenstelle', 'Seminar-Nr.', 'Seminar-Titel', 'Antragsteller:in', 'Freigabe-Datum', 'Auszahlungsdatum', 'Auszahlungsreferenz', 'Beleg'], ';', '"', '\\');
+            fputcsv($out, ['Antragsnummer', 'Position', 'Belegdatum', 'Art', 'Beschreibung', 'Menge', 'Einzelbetrag (EUR)', 'Betrag (EUR)', 'Kilometer', 'Start', 'Ziel', 'Verkehrsmittel', 'Lieferant', 'Kostenstelle', 'Antragsteller:in', 'Freigabe-Datum', 'Auszahlungsdatum', 'Auszahlungsreferenz', 'Beleg'], ';', '"', '\\');
 
             foreach ($applications as $application) {
                 foreach ($application->items as $item) {
@@ -176,7 +176,7 @@ class FormOfficeController extends Controller
                     fputcsv($out, array_map([CsvCell::class, 'safe'], [
                         $application->number, $item->position, $item->date->format('d.m.Y'), $item->kindLabel(), $item->description, rtrim(rtrim(number_format($item->quantity, 2, ',', ''), '0'), ','),
                         number_format($item->unit_cents / 100, 2, ',', ''), number_format($item->amount_cents / 100, 2, ',', ''), isset($extra['km']) ? str_replace('.', ',', (string) $extra['km']) : '', (string) ($extra['from'] ?? ''), (string) ($extra['to'] ?? ''),
-                        (string) ($extra['mode'] ?? ''), (string) ($extra['supplier'] ?? ''), (string) $application->cost_center, (string) ($application->seminar?->number ?? ''), (string) ($application->seminar?->title ?? ''),
+                        (string) ($extra['mode'] ?? ''), (string) ($extra['supplier'] ?? ''), (string) $application->cost_center,
                         $application->applicant_name, $application->approved_at?->format('d.m.Y'), $application->paid_at?->format('d.m.Y'), (string) $application->paid_reference, $item->files->pluck('original_name')->implode(', '),
                     ]), ';', '"', '\\');
                 }

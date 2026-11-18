@@ -3,7 +3,7 @@
 namespace App\Modules\Tasks\Services;
 
 use App\Modules\Access\Models\User;
-use App\Modules\Seminars\Services\SeminarDocuments;
+use App\Support\Files\PrivateUploads;
 use App\Modules\Tasks\Models\Task;
 use App\Modules\Tasks\Models\TaskAttachment;
 use DomainException;
@@ -11,10 +11,10 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-/** Anhänge von Aufgaben: privat gespeichert; es gelten Dateiarten, Prüfung und Größengrenzen der Seminardokumente (keine Bilder). */
+/** Anhänge von Aufgaben: privat gespeichert; es gelten Dateiarten, Prüfung und Größengrenzen der Dateien (keine Bilder). */
 final class TaskAttachments
 {
-    public function __construct(private readonly SeminarDocuments $files) {}
+    public function __construct(private readonly PrivateUploads $files) {}
 
     /** @throws DomainException */
     public function add(Task $task, UploadedFile $file, ?string $title, User $by): TaskAttachment
@@ -36,7 +36,7 @@ final class TaskAttachments
         return $task->attachments()->create([
             'title' => filled($title) ? Str::limit(trim((string) $title), 200, '') : pathinfo($name, PATHINFO_FILENAME),
             'original_name' => $name, 'path' => $path,
-            'mime' => SeminarDocuments::mimeOf((string) $file->getRealPath()) ?: 'application/octet-stream',
+            'mime' => PrivateUploads::mimeOf((string) $file->getRealPath()) ?: 'application/octet-stream',
             'size' => (int) $file->getSize(), 'uploaded_by_user_id' => $by->id,
         ]);
     }

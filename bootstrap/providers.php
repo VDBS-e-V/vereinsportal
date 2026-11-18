@@ -12,19 +12,15 @@ use App\Modules\NavigationControl\NavigationControlServiceProvider;
 use App\Modules\QuickLinks\QuickLinksServiceProvider;
 use App\Modules\Tickets\TicketsServiceProvider;
 use App\Modules\Contacts\ContactsServiceProvider;
-use App\Modules\Contracts\ContractsServiceProvider;
 use App\Modules\DesignLibrary\DesignLibraryServiceProvider;
 use App\Modules\Events\EventsServiceProvider;
-use App\Modules\Feedback\FeedbackServiceProvider;
 use App\Modules\Forms\FormsServiceProvider;
-use App\Modules\Letters\LettersServiceProvider;
 use App\Modules\Mailings\MailingsServiceProvider;
 use App\Modules\Membership\MembershipServiceProvider;
 use App\Modules\Onboarding\OnboardingServiceProvider;
 use App\Modules\Pages\PagesServiceProvider;
 use App\Modules\Partners\PartnersServiceProvider;
 use App\Modules\People\PeopleServiceProvider;
-use App\Modules\Seminars\SeminarsServiceProvider;
 use App\Modules\Setup\SetupServiceProvider;
 use App\Modules\Sso\SsoServiceProvider;
 use App\Modules\System\SystemServiceProvider;
@@ -45,11 +41,7 @@ return [
     AccessGovernanceServiceProvider::class,
     AuditServiceProvider::class,
     PartnersServiceProvider::class,
-    SeminarsServiceProvider::class,
-    FeedbackServiceProvider::class,
     FormsServiceProvider::class,
-    ContractsServiceProvider::class,
-    LettersServiceProvider::class,
     BoardServiceProvider::class,
     TasksServiceProvider::class,
     ContactFormsServiceProvider::class,

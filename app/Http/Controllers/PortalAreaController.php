@@ -16,9 +16,6 @@ use App\Modules\Onboarding\Enums\OnboardingDocumentKind;
 use App\Modules\Onboarding\Models\OnboardingDocument;
 use App\Modules\Onboarding\Models\TeamOnboarding;
 use App\Modules\Onboarding\Services\OnboardingDocuments;
-use App\Modules\Seminars\Enums\SeminarStatus;
-use App\Modules\Seminars\Models\Seminar;
-use App\Modules\Seminars\Models\SeminarSession;
 use App\Modules\Tasks\Models\Task;
 use App\Modules\Tasks\Models\TaskProject;
 use App\Support\PortalAreas;
@@ -92,7 +89,7 @@ class PortalAreaController extends Controller
         return Storage::disk(OnboardingDocuments::DISK)->download($document->path, $document->kind->label().'.pdf', ['Content-Type' => 'application/pdf']);
     }
 
-    /** Vorstand: Kennzahlen zu Mitgliedschaften, Anträgen, Teamenden, Seminaren und Veranstaltungen. */
+    /** Vorstand: Kennzahlen zu Mitgliedschaften, Anträgen, Teamenden und Veranstaltungen. */
     public function board(Request $request): View
     {
         $running = fn ($query) => $query->where('status', MembershipStatus::Active->value)->where(fn ($end) => $end->whereNull('ends_on')->orWhere('ends_on', '>=', today()));
@@ -107,8 +104,6 @@ class PortalAreaController extends Controller
             'accessRequests' => AccessRequest::query()->where('status', AccessRequestStatus::New->value)->count(),
             'team' => $teamUsers,
             'onboarding' => TeamOnboarding::query()->whereNull('completed_at')->count(),
-            'seminarsPlanning' => Seminar::query()->whereIn('status', SeminarStatus::values(SeminarStatus::intake()))->count(),
-            'seminarsPlanned' => Seminar::query()->whereIn('status', SeminarStatus::values(SeminarStatus::planning()))->count(),
             'events' => Event::query()->where('status', EventStatus::Open->value)->count(),
             'boardTasksOpen' => Task::query()->whereHas('project', fn ($project) => $project->where('slug', 'vorstand'))->whereNull('done_at')->count(),
             'boardTasksOverdue' => Task::query()->whereHas('project', fn ($project) => $project->where('slug', 'vorstand'))->whereNull('done_at')->whereDate('due_on', '<', today())->count(),
@@ -146,13 +141,10 @@ class PortalAreaController extends Controller
         ]);
     }
 
-    /** Bildungsreferenten: Überblick über Seminare und Veranstaltungen (nur lesen). */
+    /** Bildungsreferenten: Überblick über Veranstaltungen (nur lesen). */
     public function education(): View
     {
         return view('portal.education', [
-            'byStatus' => collect(SeminarStatus::cases())->mapWithKeys(fn (SeminarStatus $status): array => [$status->value => Seminar::query()->where('status', $status->value)->count()])->all(),
-            'sessions' => SeminarSession::query()->where('starts_at', '>', now())->whereHas('seminar', fn ($query) => $query->whereNotIn('status', [SeminarStatus::Rejected->value, SeminarStatus::Cancelled->value, SeminarStatus::Request->value]))
-                ->with('seminar.partner')->orderBy('starts_at')->limit(8)->get(),
             'events' => Event::query()->where('status', EventStatus::Open->value)->with('sessions')->withCount(['registrations as confirmed_count' => fn ($query) => $query->whereNotNull('verified_at')->where('waitlisted', false)])->get()
                 ->sortBy(fn (Event $event): string => (string) $event->sessions->first()?->starts_at)->values(),
         ]);

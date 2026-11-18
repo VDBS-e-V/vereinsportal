@@ -28,11 +28,7 @@ final class SegmentResolver
         $kept = $stats['kept'];
 
         foreach (SegmentFilters::normalize($this->flatFilters($segment)) as $key => $value) {
-            if ($key === 'seminar_status') {
-                continue;
-            }
-
-            $allowed = array_flip(SegmentFilters::emails($key, $value, $segment->filters()['seminar_status'] ?? null));
+            $allowed = array_flip(SegmentFilters::emails($key, $value));
             $kept = array_values(array_filter($kept, fn (array $entry): bool => isset($allowed[mb_strtolower($entry['email'])])));
         }
 

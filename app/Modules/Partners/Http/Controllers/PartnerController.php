@@ -24,7 +24,6 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -151,10 +150,6 @@ class PartnerController extends Controller
 
         if ($partner->accounts()->exists()) {
             return redirect()->route('partners.show', $partner)->with('warning', 'Zu dieser Schule gibt es Konten. Sperren Sie die Konten in der Nutzerverwaltung und setzen Sie den Status der Schule stattdessen auf „Pausiert“ oder „Vergangen“.');
-        }
-
-        if (DB::table('seminars')->where('partner_id', $partner->id)->exists() || DB::table('seminar_quotes')->where('partner_id', $partner->id)->exists()) {
-            return redirect()->route('partners.show', $partner)->with('warning', 'Zu dieser Schule gibt es Seminare oder Kostenvoranschläge. Setzen Sie den Status stattdessen auf „Pausiert“ oder „Vergangen“.');
         }
 
         $this->partners->delete($partner, $this->actor($request));

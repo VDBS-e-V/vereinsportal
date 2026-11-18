@@ -3,7 +3,7 @@
 namespace App\Modules\Tickets\Support;
 
 use App\Modules\Access\Models\User;
-use App\Modules\Seminars\Services\SeminarDocuments;
+use App\Support\Files\PrivateUploads;
 use App\Modules\Tickets\Models\Ticket;
 use App\Modules\Tickets\Models\TicketAttachment;
 use App\Modules\Tickets\Models\TicketMessage;
@@ -12,12 +12,12 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-/** Anhänge von Tickets: privat gespeichert; es gelten Dateiarten, Prüfung und Größengrenzen der Seminardokumente (keine Bilder). */
+/** Anhänge von Tickets: privat gespeichert; es gelten Dateiarten, Prüfung und Größengrenzen der Dateien (keine Bilder). */
 final class TicketAttachments
 {
     public const MAX_FILES = 5;
 
-    public function __construct(private readonly SeminarDocuments $files) {}
+    public function __construct(private readonly PrivateUploads $files) {}
 
     /** @throws DomainException */
     public function add(Ticket $ticket, ?TicketMessage $message, UploadedFile $file, User $by): TicketAttachment
@@ -38,7 +38,7 @@ final class TicketAttachments
 
         return $ticket->attachments()->create([
             'ticket_message_id' => $message?->id, 'original_name' => $name, 'path' => $path,
-            'mime' => SeminarDocuments::mimeOf((string) $file->getRealPath()) ?: 'application/octet-stream',
+            'mime' => PrivateUploads::mimeOf((string) $file->getRealPath()) ?: 'application/octet-stream',
             'size' => (int) $file->getSize(), 'uploaded_by_user_id' => $by->id,
         ]);
     }

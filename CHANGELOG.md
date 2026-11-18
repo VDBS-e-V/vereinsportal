@@ -6,6 +6,10 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ## [Unreleased]
 
+### Removed
+
+- Seminare, Kostenvoranschläge, Verträge, Feedback, Briefvorlagen, Bewerbungen der Teamenden und alles, was nur daran hängt; Tabellen werden per Migration gelöscht (Doc 88)
+
 ### Added
 
 - Seminarablauf Phase 6: Nextcloud-Anbindung für Seminarordner (Struktur, Zugriff des Teams, Ergebnislink mit Ablaufdatum), ohne Zugangsdaten unverändert (Doc 87)

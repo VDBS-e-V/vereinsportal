@@ -7,7 +7,6 @@ use App\Modules\Access\Models\User;
 use App\Modules\Access\Services\NotificationPreferences;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
-use App\Modules\Feedback\Services\FeedbackLinks;
 use App\Modules\Mailings\Jobs\SendMailing;
 use App\Modules\Mailings\Mail\MailingApprovalMail;
 use App\Modules\Mailings\Mail\MailingMail;
@@ -15,9 +14,6 @@ use App\Modules\Mailings\Models\Mailing;
 use App\Modules\Mailings\Models\MailingDelivery;
 use App\Modules\Mailings\Support\MailGroups;
 use App\Modules\Mailings\Support\MailPlaceholders;
-use App\Modules\Seminars\Enums\ApplicationStatus;
-use App\Modules\Seminars\Models\Seminar;
-use App\Support\Html\RichText;
 use DomainException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
@@ -59,7 +55,6 @@ final class Mailings
             'wochentag' => $date?->isoFormat('dddd') ?? '',
             'tage_bis' => $date !== null ? (string) (int) today()->diffInDays($date->copy()->startOfDay(), false) : '',
             'stichtag' => $deadline,
-            'bewerbungslink' => route('seminar-applications.index'),
             'antraglink' => route('home'),
         ];
     }
@@ -362,86 +357,6 @@ final class Mailings
         $this->deliver([$this->sample($by)], '[Test] '.$subject, $body, $this->meetingValues($meeting), $by);
     }
 
-    // ---------- Teamende ----------
-
-    /** Text der Vorlage mit dem eigenen Textabschnitt an der Stelle von {eigener_text}; ohne diese Stelle hinten angehängt. @return array{subject: string, body: string} */
-    public function composeTeam(string $ownText): array
-    {
-        $template = $this->templates->get(MailTemplates::TEAM_SEMINAR);
-        $own = RichText::clean($ownText) ?? '';
-        $body = str_contains($template['body'], '{eigener_text}')
-            ? $template['body']
-            : $template['body'].($own !== '' ? '{eigener_text}' : '');
-
-        return ['subject' => $template['subject'], 'body' => str_replace('{eigener_text}', $own, $body)];
-    }
-
-    /**
-     * @return array{subject: string, html: string}
-     */
-    public function previewTeam(Seminar $seminar, string $ownText, User $by): array
-    {
-        $composed = $this->composeTeam($ownText);
-
-        return $this->render($composed['subject'], $composed['body'], $this->seminarValues($seminar), $this->sample($by), $this->senderName($by));
-    }
-
-    /** @throws DomainException */
-    public function sendTeam(Seminar $seminar, string $audience, string $ownText, User $by): Mailing
-    {
-        $list = $this->recipients->team($seminar, $audience);
-
-        if ($list === []) {
-            throw new DomainException('Für diese Auswahl gibt es keine Empfänger. Teamende, die diese Mitteilungen abbestellt haben, bekommen sie nicht.');
-        }
-
-        $composed = $this->composeTeam($ownText);
-
-        return $this->queue(Mailing::KIND_TEAM, $composed['subject'], $composed['body'], RichText::clean($ownText), $seminar->id, $audience, null, $list, $this->seminarValues($seminar), $by);
-    }
-
-    public function sendTeamTest(Seminar $seminar, string $ownText, User $by): void
-    {
-        $composed = $this->composeTeam($ownText);
-
-        $this->deliver([$this->sample($by)], '[Test] '.$composed['subject'], $composed['body'], $this->seminarValues($seminar), $by);
-    }
-
-    /** Platzhalter aus den Angaben des Seminars. @return array<string, string> */
-    public function seminarValues(Seminar $seminar): array
-    {
-        $seminar->loadMissing(['partner', 'sessions']);
-        $sessions = $seminar->sessions->sortBy('starts_at')->values();
-        $first = $sessions->first();
-
-        $lines = $sessions->map(fn ($session): string => e($session->period()).($session->location ? ' – '.e($session->location) : ''))->all();
-
-        return [
-            'seminar' => (string) $seminar->title,
-            'seminar_nr' => (string) ($seminar->number ?? ''),
-            'team' => $seminar->applications()->where('status', ApplicationStatus::Confirmed->value)->with(['user.person', 'contact'])->orderBy('id')->get()->map(fn ($application): string => $application->applicantName())->filter()->implode(', '),
-            'schule' => (string) ($seminar->partner?->name ?? ''),
-            'termine' => $lines !== [] ? implode('<br>', $lines) : 'Die Termine folgen.',
-            'erster_termin' => $first?->period() ?? '',
-            'ort' => (string) ($first?->location ?? ''),
-            'stichtag' => $seminar->application_deadline?->format('d.m.Y') ?? '',
-            'link' => route('seminar-applications.index'),
-            'bewerbungslink' => route('seminar-applications.index'),
-            'antraglink' => route('home'),
-            'feedback_link_lehrkraft' => $this->feedbackLink($seminar, 'teachers'),
-            'feedback_link_team' => $this->feedbackLink($seminar, 'team'),
-        ];
-    }
-
-    /** Adresse des zurzeit offenen Feedbacklinks einer Gruppe, sonst leer. */
-    private function feedbackLink(Seminar $seminar, string $audience): string
-    {
-        $links = app(FeedbackLinks::class);
-        $link = $seminar->feedbackLinks()->where('audience', $audience)->orderByDesc('id')->get()->first(fn ($candidate): bool => $links->state($candidate) === 'open');
-
-        return $link ? $link->url() : '';
-    }
-
     // ---------- gemeinsam ----------
 
     /**
@@ -492,7 +407,7 @@ final class Mailings
     private function queue(string $kind, string $subject, string $body, ?string $own, ?int $seminarId, ?string $audience, ?array $groups, array $list, array $values, User $by, bool $mandatory = false): Mailing
     {
         $mailing = Mailing::query()->create([
-            'kind' => $kind, 'subject' => $subject, 'body' => $body, 'own_text' => $own, 'seminar_id' => $seminarId, 'audience' => $audience, 'groups' => $groups,
+            'kind' => $kind, 'subject' => $subject, 'body' => $body, 'own_text' => $own, 'audience' => $audience, 'groups' => $groups,
             'recipients_count' => count($list), 'sent_count' => 0, 'failed_count' => 0, 'sent_by_user_id' => $by->id,
             'status' => Mailing::STATUS_QUEUED, 'queued_at' => now(), 'mandatory' => $mandatory, 'sender_area' => $kind === Mailing::KIND_TEAM ? 'team' : 'office',
             'values' => ['common' => $values, 'absender' => $this->senderName($by)],

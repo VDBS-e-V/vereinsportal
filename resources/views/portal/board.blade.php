@@ -51,10 +51,8 @@
             </section>
 
             <section aria-labelledby="board-seminars">
-                <h2 id="board-seminars" style="font-size:var(--font-size-h3)">Seminare und Veranstaltungen</h2>
+                <h2 id="board-seminars" style="font-size:var(--font-size-h3)">Veranstaltungen</h2>
                 <x-vdbs.layout.grid :columns="4">
-                    <x-vdbs.data.stat label="Seminare in Anfrage oder Planung" :value="$stats['seminarsPlanning']" :href="route('seminars.index')" />
-                    <x-vdbs.data.stat label="Freigegebene und geplante Seminare" :value="$stats['seminarsPlanned']" tone="success" :href="route('seminars.index')" />
                     <x-vdbs.data.stat label="Veranstaltungen mit offener Anmeldung" :value="$stats['events']" :href="route('events.admin.index')" />
                 </x-vdbs.layout.grid>
             </section>
