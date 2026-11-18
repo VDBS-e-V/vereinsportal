@@ -114,6 +114,7 @@ final class SeminarNotifications
             'das Seminar „'.$seminar->title.'“ ist durchgeführt. Den Bericht finden Sie im Portal, die Ergebnisse im Ordner unter diesem Link:',
             (string) $seminar->results_url,
             'Der Link ist bis '.$seminar->results_expires_on?->format('d.m.Y').' erreichbar.',
+            'Wir freuen uns über Ihre Rückmeldung zum Seminar. Sie geht im Portal in wenigen Minuten.',
         ])));
     }
 

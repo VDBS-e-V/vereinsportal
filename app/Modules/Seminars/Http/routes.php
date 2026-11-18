@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Seminars\Http\Controllers\FeedbackController;
 use App\Modules\Seminars\Http\Controllers\LeadSeminarController;
 use App\Modules\Seminars\Http\Controllers\OfficeSeminarController;
 use App\Modules\Seminars\Http\Controllers\PaymentOrderController;
@@ -15,6 +16,7 @@ Route::middleware(['web', 'auth', 'can:school.area'])->prefix('schulen/seminare'
     Route::get('/neu', [SchoolSeminarController::class, 'create'])->name('create');
     Route::post('/', [SchoolSeminarController::class, 'store'])->middleware('throttle:10,10')->name('store');
     Route::get('/{seminar}', [SchoolSeminarController::class, 'show'])->whereNumber('seminar')->name('show');
+    Route::post('/{seminar}/rueckmeldung', [FeedbackController::class, 'store'])->whereNumber('seminar')->middleware('throttle:10,10')->name('feedback');
     Route::post('/{seminar}/vertrag', [SchoolSeminarController::class, 'contract'])->whereNumber('seminar')->middleware('throttle:10,10')->name('contract');
 });
 
@@ -30,6 +32,7 @@ Route::middleware(['web', 'auth', 'can:seminars.review'])->prefix('geschaeftsste
 /* Koordination: planen, ausschreiben, absagen. */
 Route::middleware(['web', 'auth', 'can:seminars.plan'])->prefix('koordination/seminare')->name('seminars.plan.')->group(function (): void {
     Route::get('/', [PlanSeminarController::class, 'index'])->name('index');
+    Route::get('/rueckmeldungen', [FeedbackController::class, 'index'])->name('feedback');
     Route::get('/{seminar}', [PlanSeminarController::class, 'show'])->whereNumber('seminar')->name('show');
     Route::post('/{seminar}/planen', [PlanSeminarController::class, 'plan'])->whereNumber('seminar')->middleware('throttle:30,10')->name('plan');
     Route::post('/{seminar}/ausschreiben', [PlanSeminarController::class, 'tender'])->whereNumber('seminar')->middleware('throttle:30,10')->name('tender');

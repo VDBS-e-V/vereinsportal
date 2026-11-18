@@ -55,6 +55,27 @@
         @endif
     @endif
 
+    @if ($seminar->report_sent_at)
+        @php $feedback = \App\Modules\Seminars\Models\SeminarFeedback::query()->where('seminar_id', $seminar->id)->first(); @endphp
+        <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Ihre Rückmeldung</h2>
+
+        @error('feedback')
+            <x-vdbs.feedback.alert variant="error">{{ $message }}</x-vdbs.feedback.alert>
+        @enderror
+
+        @if ($feedback)
+            <p>Danke, Ihre Rückmeldung ist am {{ $feedback->created_at?->format('d.m.Y') }} eingegangen.</p>
+        @else
+            <x-vdbs.forms.form :action="route('school.seminars.feedback', $seminar)">
+                @foreach (\App\Modules\Seminars\Models\SeminarFeedback::QUESTIONS as $key => $question)
+                    <x-vdbs.forms.radio-group layout="inline" :name="'ratings['.$key.']'" :legend="$question.' (5 = sehr gut, 1 = schlecht)'" :required="true" :options="['5' => '5', '4' => '4', '3' => '3', '2' => '2', '1' => '1']" :value="old('ratings.'.$key)" />
+                @endforeach
+                <x-vdbs.forms.textarea name="comment" label="Was war gut, was sollen wir ändern?" :optional="true" maxlength="3000" :value="old('comment')" />
+                <x-slot:actions><x-vdbs.actions.button type="submit" icon="send">Rückmeldung senden</x-vdbs.actions.button></x-slot:actions>
+            </x-vdbs.forms.form>
+        @endif
+    @endif
+
     @if ($seminar->sessions->isNotEmpty())
         <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Termine</h2>
         <ul>
