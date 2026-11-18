@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /** Ein Seminar (oder eine Veranstaltungsreihe) einer Schule. Den Status ändert nur SeminarWorkflow. */
 #[UseFactory(SeminarFactory::class)]
@@ -66,6 +67,12 @@ class Seminar extends Model
     public function paymentOrders(): HasMany
     {
         return $this->hasMany(PaymentOrder::class)->orderBy('id');
+    }
+
+    /** @return HasOne<SeminarPrintPlan, $this> */
+    public function printPlan(): HasOne
+    {
+        return $this->hasOne(SeminarPrintPlan::class);
     }
 
     /** @return HasMany<SeminarApplication, $this> */

@@ -16,11 +16,11 @@ class SeminarDocument extends Model
     /** @var array<string, string> Art => Bezeichnung */
     public const KINDS = ['school_contract' => 'Schulvertrag', 'team_contract' => 'Vertrag Teamende', 'report' => 'Ergebnisbericht', 'material' => 'Material', 'other' => 'Sonstiges'];
 
-    protected $fillable = ['seminar_id', 'kind', 'title', 'path', 'original_name', 'mime', 'size', 'uploaded_by_user_id'];
+    protected $fillable = ['seminar_id', 'kind', 'title', 'path', 'original_name', 'mime', 'size', 'pages', 'uploaded_by_user_id'];
 
     protected function casts(): array
     {
-        return ['size' => 'integer'];
+        return ['size' => 'integer', 'pages' => 'integer'];
     }
 
     /** @return BelongsTo<Seminar, $this> */

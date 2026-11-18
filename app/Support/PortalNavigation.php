@@ -186,7 +186,7 @@ final class PortalNavigation
             PortalAreas::Geschaeftsstelle->value => [
                 'home' => 'office.home',
                 'roles' => [RoleKey::AdministrationStaff, RoleKey::Administration, RoleKey::ManagingDirector, RoleKey::Treasury],
-                'routes' => ['forms-office.*', 'quotes.pdf', 'seminars.documents.*'],
+                'routes' => ['forms-office.*', 'quotes.pdf', 'seminars.documents.*', 'seminars.files.*'],
                 'pages' => [
                     ['label' => 'Übersicht', 'route' => 'office.home', 'match' => 'office.home'],
                     ['label' => 'Personen & Zugang', 'group' => true, 'route' => 'admin.users.index', 'children' => [

@@ -8,6 +8,7 @@ use App\Modules\Coordinations\Models\Coordination;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
+use App\Modules\Seminars\Services\SeminarDocuments;
 use App\Modules\Seminars\Services\SeminarNotifications;
 use App\Modules\Seminars\Services\SeminarWorkflow;
 use App\Modules\Seminars\Services\TeamSelection;
@@ -181,6 +182,14 @@ class PlanSeminarController extends Controller
     public function complete(Request $request, Seminar $seminar): RedirectResponse
     {
         return $this->team($seminar, fn () => $this->workflow->complete($seminar, $this->user($request)), 'Das Seminar ist abgeschlossen.');
+    }
+
+    /** Material und andere Dateien zum Seminar hochladen (für Team und Druckplaner). */
+    public function upload(Request $request, Seminar $seminar, SeminarDocuments $documents): RedirectResponse
+    {
+        $data = $request->validate(['file' => ['required', 'file'], 'kind' => ['required', Rule::in(['material', 'other'])], 'title' => ['nullable', 'string', 'max:200']], ['file.required' => 'Bitte wählen Sie eine Datei.']);
+
+        return $this->team($seminar, fn () => $documents->add($seminar, $request->file('file'), $data['kind'], $data['title'] ?? null, $this->user($request)), 'Die Datei ist gespeichert.');
     }
 
     public function prepare(Request $request, Seminar $seminar): RedirectResponse

@@ -14,7 +14,7 @@
         <x-vdbs.data.table caption="Ihre Seminare" :columns="[['key' => 'title', 'label' => 'Seminar'], ['key' => 'date', 'label' => 'Erster Termin'], ['key' => 'outcome', 'label' => 'Ergebnis']]">
             @foreach ($mine as $application)
                 <tr>
-                    <td>{{ $application->seminar->title }} · {{ $application->seminar->partner->name }}</td>
+                    <td>{{ $application->seminar->title }} · {{ $application->seminar->partner->name }}@if ($application->outcome === 'confirmed') · <a href="{{ route('seminars.files.planner', $application->seminar) }}">Druckplaner</a> · <a href="{{ route('seminars.files.folder', $application->seminar) }}">Mappe (ZIP)</a>@endif</td>
                     <td>{{ $application->seminar->sessions->first()?->starts_at->format('d.m.Y') ?? '–' }}</td>
                     <td>
                         @if ($application->outcome === 'confirmed')

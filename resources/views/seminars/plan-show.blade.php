@@ -138,6 +138,19 @@
         @endif
     @endif
 
+    @if (! in_array($seminar->status, [SeminarStatus::Released], true))
+        <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Dokumente und Druck</h2>
+        <p><a href="{{ route('seminars.files.planner', $seminar) }}">Druckplaner</a> · <a href="{{ route('seminars.files.folder', $seminar) }}">Seminarmappe als ZIP</a></p>
+        <x-vdbs.forms.form :action="route('seminars.plan.upload', $seminar)" :files="true" :summary="false" style="margin-bottom:var(--space-5)">
+            <x-vdbs.forms.form-grid :columns="3">
+                <x-vdbs.forms.select name="kind" label="Art" :required="true" :options="['material' => 'Material', 'other' => 'Sonstiges']" :value="old('kind', 'material')" />
+                <x-vdbs.forms.input name="title" label="Bezeichnung" :optional="true" maxlength="200" :value="old('title')" />
+                <x-vdbs.forms.file name="file" label="Datei" :required="true" />
+            </x-vdbs.forms.form-grid>
+            <x-slot:actions><x-vdbs.actions.button type="submit" variant="secondary" icon="upload">Datei hochladen</x-vdbs.actions.button></x-slot:actions>
+        </x-vdbs.forms.form>
+    @endif
+
     @if ($teamPhase)
         <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Vorbereitung</h2>
 

@@ -32,6 +32,8 @@
         </x-vdbs.forms.form>
     @endif
 
+    <p><a href="{{ route('seminars.files.planner', $seminar) }}">Druckplaner</a> · <a href="{{ route('seminars.files.folder', $seminar) }}">Seminarmappe als ZIP</a></p>
+
     @if ($open)
         <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Verträge der Teamenden</h2>
         <p>Laden Sie je Person den ausgefüllten und unterschriebenen Vertrag hoch und tragen Sie den Betrag aus dem Vertrag ein. Daraus entsteht ein Zahlungsauftrag an die Geschäftsstelle.</p>

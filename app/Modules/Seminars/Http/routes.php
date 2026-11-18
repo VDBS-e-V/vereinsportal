@@ -6,6 +6,7 @@ use App\Modules\Seminars\Http\Controllers\OfficeSeminarController;
 use App\Modules\Seminars\Http\Controllers\PaymentOrderController;
 use App\Modules\Seminars\Http\Controllers\PlanSeminarController;
 use App\Modules\Seminars\Http\Controllers\SeminarDocumentController;
+use App\Modules\Seminars\Http\Controllers\SeminarFilesController;
 use App\Modules\Seminars\Http\Controllers\TeamSeminarController;
 use App\Modules\Seminars\Http\Controllers\SchoolSeminarController;
 use Illuminate\Support\Facades\Route;
@@ -43,6 +44,7 @@ Route::middleware(['web', 'auth', 'can:seminars.plan'])->prefix('koordination/se
     Route::post('/{seminar}/team/leitung', [PlanSeminarController::class, 'lead'])->whereNumber('seminar')->middleware('throttle:30,10')->name('lead');
     Route::post('/{seminar}/onboarding', [PlanSeminarController::class, 'onboarding'])->whereNumber('seminar')->middleware('throttle:20,10')->name('onboarding');
     Route::post('/{seminar}/briefing', [PlanSeminarController::class, 'briefing'])->whereNumber('seminar')->middleware('throttle:20,10')->name('briefing');
+    Route::post('/{seminar}/datei', [PlanSeminarController::class, 'upload'])->whereNumber('seminar')->middleware('throttle:20,10')->name('upload');
     Route::post('/{seminar}/vorbereitet', [PlanSeminarController::class, 'prepare'])->whereNumber('seminar')->middleware('throttle:20,10')->name('prepare');
     Route::post('/{seminar}/bericht-zurueck', [PlanSeminarController::class, 'returnReport'])->whereNumber('seminar')->middleware('throttle:20,10')->name('return-report');
     Route::post('/{seminar}/ergebnisse-senden', [PlanSeminarController::class, 'sendResults'])->whereNumber('seminar')->middleware('throttle:20,10')->name('send-results');
@@ -72,6 +74,14 @@ Route::middleware(['web', 'auth', 'can:seminars.payments'])->prefix('geschaeftss
     Route::get('/', [PaymentOrderController::class, 'index'])->name('index');
     Route::get('/export', [PaymentOrderController::class, 'export'])->name('export');
     Route::post('/{order}', [PaymentOrderController::class, 'decide'])->whereNumber('order')->middleware('throttle:60,10')->name('decide');
+});
+
+/* Seminarmappe (ZIP) und Druckplaner; wer sie nutzen darf, prüft PrintPlans::canUse. */
+Route::middleware(['web', 'auth'])->prefix('seminare/{seminar}')->name('seminars.files.')->group(function (): void {
+    Route::get('/druckplaner', [SeminarFilesController::class, 'planner'])->name('planner');
+    Route::put('/druckplaner', [SeminarFilesController::class, 'save'])->middleware('throttle:30,10')->name('save');
+    Route::get('/druckplaner/pdf', [SeminarFilesController::class, 'pdf'])->middleware('throttle:20,10')->name('pdf');
+    Route::get('/mappe', [SeminarFilesController::class, 'folder'])->middleware('throttle:20,10')->name('folder');
 });
 
 /* Dateien zu Seminaren (Zugriff je Dokument in SeminarDocuments::canDownload). */

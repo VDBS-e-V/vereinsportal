@@ -5,6 +5,7 @@ namespace App\Modules\Seminars\Services;
 use App\Modules\Access\Models\User;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarDocument;
+use App\Modules\Seminars\Support\PdfInfo;
 use App\Support\Files\PrivateUploads;
 use DomainException;
 use Illuminate\Http\UploadedFile;
@@ -40,7 +41,8 @@ final class SeminarDocuments
 
         $document = $seminar->documents()->create([
             'kind' => $kind, 'title' => trim((string) $title) !== '' ? trim((string) $title) : (SeminarDocument::KINDS[$kind]), 'path' => $path, 'original_name' => $name,
-            'mime' => PrivateUploads::mimeOf((string) $file->getRealPath()) ?: 'application/octet-stream', 'size' => (int) $file->getSize(), 'uploaded_by_user_id' => $by->id,
+            'mime' => PrivateUploads::mimeOf((string) $file->getRealPath()) ?: 'application/octet-stream', 'size' => (int) $file->getSize(),
+            'pages' => $extension === 'pdf' ? PdfInfo::pages(Storage::disk(SeminarDocument::DISK)->path($path)) : null, 'uploaded_by_user_id' => $by->id,
         ]);
 
         $this->workflow->log($seminar, 'document', $by, null, null, SeminarDocument::KINDS[$kind].': '.$name);
