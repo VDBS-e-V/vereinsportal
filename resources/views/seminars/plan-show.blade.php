@@ -138,6 +138,31 @@
         @endif
     @endif
 
+    @if ($teamPhase)
+        <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Vorbereitung</h2>
+
+        <x-vdbs.forms.form :action="route('seminars.plan.onboarding', $seminar)" :summary="false" style="margin-bottom:var(--space-5)">
+            <x-vdbs.forms.form-grid :columns="2">
+                <x-vdbs.forms.input name="onboarding_at" label="Onboarding-Termin" type="datetime-local" :required="true" :value="old('onboarding_at', $seminar->onboarding_at?->format('Y-m-d\TH:i'))" />
+                <x-vdbs.forms.input name="onboarding_link" label="Link zur Videokonferenz" :optional="true" maxlength="500" :value="old('onboarding_link', $seminar->onboarding_link)" hint="Mit https:// beginnend." />
+            </x-vdbs.forms.form-grid>
+            <x-slot:actions><x-vdbs.actions.button type="submit" variant="secondary" icon="mail">{{ $seminar->onboarding_at ? 'Termin ändern und Team erneut einladen' : 'Termin festlegen und Team einladen' }}</x-vdbs.actions.button></x-slot:actions>
+        </x-vdbs.forms.form>
+
+        <x-vdbs.forms.form :action="route('seminars.plan.briefing', $seminar)" :summary="false" style="margin-bottom:var(--space-5)">
+            <x-vdbs.forms.textarea id="briefing-text" name="text" label="Briefing an die Schule (Ablauf, Raum, Material)" :required="true" maxlength="3000" />
+            <x-slot:actions><x-vdbs.actions.button type="submit" variant="secondary" icon="mail">Briefing senden</x-vdbs.actions.button></x-slot:actions>
+        </x-vdbs.forms.form>
+        @if ($seminar->briefing_sent_at)<p class="vdbs-hint">Briefing gesendet am {{ $seminar->briefing_sent_at->format('d.m.Y') }}.</p>@endif
+
+        @if ($seminar->status === SeminarStatus::TeamConfirmed)
+            <x-vdbs.forms.form :action="route('seminars.plan.prepare', $seminar)" :summary="false" style="margin-bottom:var(--space-5)">
+                <p>Das Seminar ist vorbereitet, wenn das Team bestätigt, die Seminarleitung bestimmt und der Onboarding-Termin gesetzt ist.</p>
+                <x-slot:actions><x-vdbs.actions.button type="submit" icon="check">Als vorbereitet markieren</x-vdbs.actions.button></x-slot:actions>
+            </x-vdbs.forms.form>
+        @endif
+    @endif
+
     @if ($canCancel)
         <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Absagen</h2>
         <x-vdbs.forms.form :action="route('seminars.plan.cancel', $seminar)" :summary="false">

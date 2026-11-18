@@ -108,7 +108,7 @@ final class TeamSelection
 
         $sent = 0;
 
-        foreach ($applications->fresh() ?? [] as $application) {
+        foreach ($applications->fresh() as $application) {
             $sent += $this->notify($seminar, $application) ? 1 : 0;
         }
 

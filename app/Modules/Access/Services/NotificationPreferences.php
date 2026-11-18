@@ -22,6 +22,10 @@ final class NotificationPreferences
         return [
             'team_mailings' => ['label' => 'Mitteilungen an Teamende', 'description' => 'Schreiben von Geschäftsstelle und Vorstand an Teamende.', 'group' => 'Teamende', 'ability' => 'team.onboarding'],
             'school_mailings' => ['label' => 'Mitteilungen an Schulen', 'description' => 'Schreiben von Geschäftsstelle und Vorstand an Schulkonten.', 'group' => 'Schulen', 'ability' => 'school.area'],
+            'seminar_requests' => ['label' => 'Neue Seminaranfragen und Antworten der Schulen', 'description' => 'Wenn eine Schule ein Seminar anfragt oder auf einen Kostenvoranschlag antwortet.', 'group' => 'Geschäftsstelle', 'ability' => 'seminars.review'],
+            'seminar_released' => ['label' => 'Freigegebene Seminare', 'description' => 'Wenn die Geschäftsstelle ein Seminar freigibt und Sie es planen können.', 'group' => 'Koordination', 'ability' => 'seminars.plan'],
+            'seminar_tender' => ['label' => 'Neue Ausschreibungen und Fristerinnerungen', 'description' => 'Wenn ein Seminar zur Mitarbeit ausgeschrieben wird und kurz vor Fristende, falls Sie sich noch nicht gemeldet haben.', 'group' => 'Teamende', 'ability' => 'seminars.apply'],
+            'seminar_team' => ['label' => 'Hinweise zu Ihren Seminaren', 'description' => 'Einladung zum Onboarding, Absage oder neuer Termin. Zusage, Absage und Warteliste erhalten Sie immer.', 'group' => 'Teamende', 'ability' => 'seminars.apply'],
             'onboarding_reminders' => ['label' => 'Erinnerungen an Ihre Einarbeitung', 'description' => 'Wenn Schritte der Einarbeitung länger offen sind.', 'group' => 'Teamende', 'ability' => 'team.onboarding'],
             'mailing_approvals' => ['label' => 'Schreiben zur Freigabe', 'description' => 'Wenn die Geschäftsstelle ein Schreiben an viele Personen zur Freigabe vorlegt.', 'group' => 'Vorstand', 'ability' => 'mailings.approve'],
             'new_applications' => ['label' => 'Neue Mitgliedsanträge', 'description' => 'Wenn jemand seine E-Mail-Adresse bestätigt hat und über den Antrag zu entscheiden ist.', 'group' => 'Vorstand', 'ability' => 'memberships.manage'],

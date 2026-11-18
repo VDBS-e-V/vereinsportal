@@ -8,6 +8,7 @@ use App\Modules\Coordinations\Models\Coordination;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
+use App\Modules\Seminars\Services\SeminarNotifications;
 use App\Modules\Seminars\Services\SeminarWorkflow;
 use App\Modules\Seminars\Services\TeamSelection;
 use Carbon\Carbon;
@@ -23,13 +24,14 @@ class PlanSeminarController extends Controller
 {
     public const SESSION_ROWS = 8;
 
-    public function __construct(private readonly SeminarWorkflow $workflow, private readonly TeamSelection $selection) {}
+    public function __construct(private readonly SeminarWorkflow $workflow, private readonly TeamSelection $selection, private readonly SeminarNotifications $notifications) {}
 
     public function index(Request $request): View
     {
         $status = SeminarStatus::tryFrom((string) $request->query('status', ''));
         $coordination = $request->integer('coordination') ?: null;
-        $visible = array_values(array_diff(SeminarStatus::cases(), [SeminarStatus::Request, SeminarStatus::InReview, SeminarStatus::QuoteSent, SeminarStatus::Rejected]));
+        $hidden = [SeminarStatus::Request, SeminarStatus::InReview, SeminarStatus::QuoteSent, SeminarStatus::Rejected];
+        $visible = array_values(array_filter(SeminarStatus::cases(), fn (SeminarStatus $case): bool => ! in_array($case, $hidden, true)));
 
         $seminars = Seminar::query()->with(['partner', 'coordination', 'sessions'])
             ->whereIn('status', array_map(fn (SeminarStatus $case): string => $case->value, $visible))
@@ -120,6 +122,46 @@ class PlanSeminarController extends Controller
         $data = $request->validate(['lead' => ['required', 'integer']], ['lead.required' => 'Bitte wählen Sie die Seminarleitung.']);
 
         return $this->team($seminar, fn () => $this->selection->setLead($seminar, (int) $data['lead'], $this->user($request)), 'Die Seminarleitung ist geändert.');
+    }
+
+    /** Termin für das Onboarding festlegen und das Team einladen. */
+    public function onboarding(Request $request, Seminar $seminar): RedirectResponse
+    {
+        $data = $request->validate([
+            'onboarding_at' => ['required', 'date', 'after:now'],
+            'onboarding_link' => ['nullable', 'url:https', 'max:500'],
+        ], ['onboarding_at.required' => 'Bitte geben Sie Datum und Uhrzeit an.', 'onboarding_at.after' => 'Der Termin muss in der Zukunft liegen.', 'onboarding_link.url' => 'Bitte geben Sie einen Link mit https:// an.']);
+
+        if (! in_array($seminar->status, [SeminarStatus::TeamConfirmed, SeminarStatus::Prepared], true)) {
+            return back()->withErrors(['team' => 'Das Onboarding lässt sich nach der Teambestätigung festlegen.']);
+        }
+
+        $seminar->forceFill(['onboarding_at' => Carbon::parse($data['onboarding_at']), 'onboarding_link' => $data['onboarding_link'] ?? null])->save();
+        $this->workflow->log($seminar, 'onboarding', $this->user($request), null, null, 'Onboarding am '.$seminar->onboarding_at->format('d.m.Y, H:i').' Uhr');
+        $this->notifications->onboardingInvitation($seminar);
+
+        return redirect()->route('seminars.plan.show', $seminar)->with('success', 'Der Onboarding-Termin ist gespeichert und das Team ist eingeladen.');
+    }
+
+    /** Briefing an die Schule senden (Ablauf, Raum, Material). */
+    public function briefing(Request $request, Seminar $seminar): RedirectResponse
+    {
+        $data = $request->validate(['text' => ['required', 'string', 'max:3000']], ['text.required' => 'Bitte schreiben Sie das Briefing.']);
+
+        if (! in_array($seminar->status, [SeminarStatus::TeamConfirmed, SeminarStatus::Prepared], true)) {
+            return back()->withErrors(['team' => 'Das Briefing lässt sich nach der Teambestätigung senden.']);
+        }
+
+        $this->notifications->briefing($seminar->loadMissing('partner'), $data['text']);
+        $seminar->forceFill(['briefing_sent_at' => now()])->save();
+        $this->workflow->log($seminar, 'briefing', $this->user($request), null, null, 'Briefing an die Schule gesendet');
+
+        return redirect()->route('seminars.plan.show', $seminar)->with('success', 'Das Briefing ist an die Schule gesendet.');
+    }
+
+    public function prepare(Request $request, Seminar $seminar): RedirectResponse
+    {
+        return $this->team($seminar, fn () => $this->workflow->prepare($seminar, $this->user($request)), 'Das Seminar ist vorbereitet.');
     }
 
     private function team(Seminar $seminar, callable $action, string $success): RedirectResponse

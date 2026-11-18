@@ -133,6 +133,7 @@ final class SeminarWorkflow
         });
 
         AuditLog::record(AuditEvent::SeminarRequested, $by, null, ['seminar' => $seminar->number]);
+        $this->notifications()->requested($seminar->load('partner'));
 
         return $seminar;
     }
@@ -168,6 +169,7 @@ final class SeminarWorkflow
         });
 
         AuditLog::record(AuditEvent::SeminarStatusChanged, $by, null, ['seminar' => $seminar->number, 'von' => $from->value, 'nach' => $to->value]);
+        $this->afterTransition($seminar, $from, $to, $comment);
 
         return $seminar;
     }
@@ -212,6 +214,7 @@ final class SeminarWorkflow
         });
 
         AuditLog::record(AuditEvent::SeminarReleased, $by, null, ['seminar' => $seminar->number, 'basis' => $basis]);
+        $this->notifications()->released($seminar->load('partner'));
 
         return $seminar;
     }
@@ -311,6 +314,52 @@ final class SeminarWorkflow
         });
 
         AuditLog::record(AuditEvent::SeminarStatusChanged, $by, null, ['seminar' => $seminar->number, 'von' => SeminarStatus::QuoteSent->value, 'nach' => SeminarStatus::Rejected->value]);
+        $this->notifications()->schoolAnswered($seminar->load('partner'), 'Kostenvoranschlag abgelehnt'.(filled($note) ? ' („'.trim((string) $note).'“)' : ''));
+    }
+
+    /** Das Seminar ist vorbereitet: Team bestätigt, Seminarleitung bestimmt und Onboarding-Termin gesetzt. @throws DomainException */
+    public function prepare(Seminar $seminar, User $by): Seminar
+    {
+        if ($seminar->lead_user_id === null) {
+            throw new DomainException('Bestimmen Sie zuerst die Seminarleitung.');
+        }
+
+        if ($seminar->onboarding_at === null) {
+            throw new DomainException('Legen Sie zuerst den Termin für das Onboarding fest.');
+        }
+
+        return $this->transition($seminar, SeminarStatus::Prepared, $by);
+    }
+
+    /** Mitteilungen und Folgen eines Statuswechsels (nach dem Speichern). */
+    private function afterTransition(Seminar $seminar, SeminarStatus $from, SeminarStatus $to, ?string $comment): void
+    {
+        $seminar->loadMissing('partner');
+        $notifications = $this->notifications();
+
+        if ($to === SeminarStatus::Rejected) {
+            $notifications->rejected($seminar, $comment);
+        } elseif ($to === SeminarStatus::Tendered && $from === SeminarStatus::Planned) {
+            $notifications->tendered($seminar);
+        } elseif ($to === SeminarStatus::Cancelled) {
+            $notifications->cancelled($seminar, $comment);
+        } elseif ($to === SeminarStatus::Planned && in_array($from, [SeminarStatus::TeamConfirmed, SeminarStatus::Prepared, SeminarStatus::Cancelled], true)) {
+            // Neuer Termin: erst informieren (die Ergebnisse sind noch da), dann das Team zurücksetzen und neu anfragen.
+            $notifications->rescheduled($seminar, $comment, $seminar->applications()->whereNotNull('outcome')->exists());
+            $this->resetTeam($seminar);
+        }
+    }
+
+    /** Setzt die Auswahl zurück: alle Meldungen sind wieder offen, Leitung, Bestätigung, Frist und Onboarding sind leer. */
+    private function resetTeam(Seminar $seminar): void
+    {
+        $seminar->applications()->where('status', 'applied')->update(['decision' => null, 'outcome' => null, 'waitlist_position' => null, 'notified_at' => null]);
+        $seminar->forceFill(['lead_user_id' => null, 'team_confirmed_at' => null, 'team_confirmed_by_user_id' => null, 'application_deadline' => null, 'onboarding_at' => null, 'onboarding_link' => null, 'tender_reminded_at' => null])->save();
+    }
+
+    private function notifications(): SeminarNotifications
+    {
+        return app(SeminarNotifications::class);
     }
 
     /** Vermerk im Verlauf des Seminars. @param  array<string, mixed>|null  $data */

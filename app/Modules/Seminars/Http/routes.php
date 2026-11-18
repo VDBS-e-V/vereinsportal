@@ -36,6 +36,9 @@ Route::middleware(['web', 'auth', 'can:seminars.plan'])->prefix('koordination/se
     Route::post('/{seminar}/team/{application}/nachruecken', [PlanSeminarController::class, 'promote'])->whereNumber(['seminar', 'application'])->middleware('throttle:30,10')->name('promote');
     Route::post('/{seminar}/team/{application}/ausscheiden', [PlanSeminarController::class, 'drop'])->whereNumber(['seminar', 'application'])->middleware('throttle:30,10')->name('drop');
     Route::post('/{seminar}/team/leitung', [PlanSeminarController::class, 'lead'])->whereNumber('seminar')->middleware('throttle:30,10')->name('lead');
+    Route::post('/{seminar}/onboarding', [PlanSeminarController::class, 'onboarding'])->whereNumber('seminar')->middleware('throttle:20,10')->name('onboarding');
+    Route::post('/{seminar}/briefing', [PlanSeminarController::class, 'briefing'])->whereNumber('seminar')->middleware('throttle:20,10')->name('briefing');
+    Route::post('/{seminar}/vorbereitet', [PlanSeminarController::class, 'prepare'])->whereNumber('seminar')->middleware('throttle:20,10')->name('prepare');
     Route::post('/{seminar}/absagen', [PlanSeminarController::class, 'cancel'])->whereNumber('seminar')->middleware('throttle:30,10')->name('cancel');
 });
 

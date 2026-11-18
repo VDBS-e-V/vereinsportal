@@ -12,6 +12,7 @@ use App\Modules\Quotes\Models\SeminarQuote;
 use App\Modules\Quotes\Support\QuoteCalculator;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
+use App\Modules\Seminars\Services\SeminarNotifications;
 use App\Modules\Seminars\Services\SeminarWorkflow;
 use DomainException;
 use Illuminate\Support\Facades\DB;
@@ -46,11 +47,11 @@ final class Quotes
             $latest = $seminar->quotes()->with('lines')->orderByDesc('version')->first();
 
             $quote = $seminar->quotes()->create([
-                'version' => ($latest?->version ?? 0) + 1,
+                'version' => $latest instanceof SeminarQuote ? $latest->version + 1 : 1,
                 'status' => QuoteStatus::Draft,
-                'vat_percent' => $latest?->vat_percent ?? 0,
-                'intro' => $latest?->intro ?? QuoteText::body('intro'),
-                'outro' => $latest?->outro ?? QuoteText::body('outro'),
+                'vat_percent' => $latest instanceof SeminarQuote ? $latest->vat_percent : 0,
+                'intro' => $latest instanceof SeminarQuote ? $latest->intro : QuoteText::body('intro'),
+                'outro' => $latest instanceof SeminarQuote ? $latest->outro : QuoteText::body('outro'),
                 'created_by_user_id' => $by->id,
             ]);
 
@@ -85,7 +86,7 @@ final class Quotes
         DB::transaction(function () use ($quote, $lines, $vatPercent, $intro, $outro): void {
             $quote->lines()->delete();
 
-            foreach (array_values($lines) as $index => $line) {
+            foreach ($lines as $index => $line) {
                 $quote->lines()->create(['position' => $index + 1] + $line);
             }
 
@@ -156,6 +157,7 @@ final class Quotes
 
         $quote->fill(['status' => QuoteStatus::Accepted, 'decided_at' => now()])->save();
         $this->workflow->log($quote->seminar, 'quote_accepted', $by, null, null, 'Version '.$quote->version);
+        app(SeminarNotifications::class)->schoolAnswered($quote->seminar->loadMissing('partner'), 'Kostenvoranschlag angenommen');
     }
 
     /** Die Schule lehnt ab: der Kostenvoranschlag ist abgelehnt, das Seminar auch. @throws DomainException */
@@ -175,6 +177,7 @@ final class Quotes
         $this->assertAnswerable($quote);
 
         $this->workflow->log($quote->seminar, 'quote_question', $by, null, null, trim($note));
+        app(SeminarNotifications::class)->schoolAnswered($quote->seminar->loadMissing('partner'), 'Rückfrage');
     }
 
     /** @throws DomainException */
