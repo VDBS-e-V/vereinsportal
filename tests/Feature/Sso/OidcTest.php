@@ -255,7 +255,7 @@ it('shows the service name and description on the login page when a connected sy
     $this->withSession(['url.intended' => url('/oauth/authorize?client_id='.$client->getKey().'&response_type=code')])->get('/login')
         ->assertOk()->assertSee('Single Sign-On')->assertSee('Nextcloud')->assertSee('Beschreibung des Dienstes:')->assertSee('Die Lernplattform des Vereins.')->assertSee('Wichtige Hinweise');
 
-    $this->get('/login')->assertOk()->assertSee('Anmeldung am Vereinsportal')->assertDontSee('Beschreibung des Dienstes:');
+    $this->flushSession()->get('/login')->assertOk()->assertSee('Anmeldung am Vereinsportal')->assertDontSee('Beschreibung des Dienstes:');
 });
 
 it('maps every role to a stable group name', function () {

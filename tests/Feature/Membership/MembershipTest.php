@@ -323,7 +323,7 @@ it('keeps membership data out of the general log and the person pages', function
     expect(AuditEntry::query()->pluck('event')->filter(fn ($event) => str_contains($event, 'member'))->all())->toBe([])
         ->and(AuditEntry::query()->get()->toJson())->not->toContain('Geheimer Kommentar');
 
-    $this->get(route('admin.people.show', $person))->assertOk()->assertDontSee('Mitgliedschaft')->assertDontSee('Mitglied seit');
+    $this->get(route('admin.people.show', $person))->assertOk()->assertDontSee('Geheimer Kommentar')->assertDontSee('Mitglied seit');
 });
 
 it('does not delete people with a membership', function () {

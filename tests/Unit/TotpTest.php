@@ -53,9 +53,9 @@ it('ignores spaces and rejects malformed or wrong codes', function () {
 it('builds an otpauth address and groups the secret for typing', function () {
     $uri = Totp::uri('ABCDEFGH', 'erika@example.org', 'VDBS Vereinsportal');
 
-    expect($uri)->toStartWith('otpauth://totp/VDBS%20Portal%3Aerika%40example.org?')
+    expect($uri)->toStartWith('otpauth://totp/VDBS%20Vereinsportal%3Aerika%40example.org?')
         ->toContain('secret=ABCDEFGH')
-        ->toContain('issuer=VDBS%20Portal')
+        ->toContain('issuer=VDBS%20Vereinsportal')
         ->toContain('digits=6')
         ->toContain('period=30');
     expect(Totp::format('ABCDEFGHIJKL'))->toBe('ABCD EFGH IJKL');

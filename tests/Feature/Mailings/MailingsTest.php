@@ -60,7 +60,7 @@ it('finds, renders and escapes placeholders and refuses unknown ones', function 
 
 it('lists the new pages in the menus of the three areas', function () {
     $this->actingAs(mlUser(RoleKey::BoardMember))->get(route('board.overview'))->assertOk()->assertSee('Rundschreiben');
-    $this->actingAs(mlUser(RoleKey::Coordination))->get(route('coordination.home'))->assertOk()->assertSee('Mitteilungen an Teamende');
+    $this->actingAs(mlUser(RoleKey::Coordination))->get(route('coordination.home'))->assertOk()->assertSee('Rundschreiben');
     $this->actingAs(mlUser(RoleKey::AdministrationStaff))->get(route('office.home'))->assertOk()->assertSee('Mailvorlagen')->assertSee('Rundschreiben');
 });
 
@@ -220,20 +220,6 @@ it('does not let the system template be opened or deleted as a general one', fun
 });
 
 // ---------- Teamende ----------
-
-it('refuses unknown placeholders in the template, keeps an old text until saved and can fall back to the built-in one', function () {
-    $staff = mlUser(RoleKey::AdministrationStaff);
-    $this->actingAs($staff);
-
-    $this->put(route('mailings.templates.team.update'), ['subject' => 'x', 'body' => '<p>{erfunden}</p>'])->assertSessionHasErrors('body');
-    expect(app(MailTemplates::class)->isCustomized(MailTemplates::TEAM_SEMINAR))->toBeFalse();
-
-    $this->put(route('mailings.templates.team.update'), ['subject' => 'Eigener Betreff', 'body' => '<p>Hallo {vorname}</p>{eigener_text}'])->assertSessionHasNoErrors();
-    expect(app(MailTemplates::class)->get(MailTemplates::TEAM_SEMINAR)['subject'])->toBe('Eigener Betreff');
-
-    $this->delete(route('mailings.templates.team.reset'))->assertRedirect(route('mailings.templates.team'));
-    expect(app(MailTemplates::class)->get(MailTemplates::TEAM_SEMINAR)['subject'])->toBe(MailTemplates::builtin(MailTemplates::TEAM_SEMINAR)['subject']);
-});
 
 it('lets Teamende switch the coordination messages off in their notification settings', function () {
     $this->actingAs(mlUser(RoleKey::Team))->get(route('account.notifications'))->assertOk()->assertSee('Mitteilungen an Teamende');

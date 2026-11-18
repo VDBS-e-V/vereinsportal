@@ -63,11 +63,12 @@ final class OAuthConsents
     /**
      * Die Zustimmungen eines Kontos mit System und Bereichen (nur vorhandene, nicht gesperrte Systeme).
      *
-     * @return Collection<int, array{client_id: string, name: string, description: string|null, scopes: list<string>, granted_at: \Carbon\Carbon}>
+     * @return Collection<int, array<string, mixed>>
      */
     public function forUser(User $user): Collection
     {
-        return OAuthConsent::query()->where('user_id', $user->id)->orderByDesc('granted_at')->get()
+        /** @var Collection<int, array<string, mixed>> $rows */
+        $rows = OAuthConsent::query()->where('user_id', $user->id)->orderByDesc('granted_at')->get()
             ->map(function (OAuthConsent $consent): ?array {
                 $client = $this->clients->find($consent->client_id);
 
@@ -77,5 +78,7 @@ final class OAuthConsents
 
                 return ['client_id' => $consent->client_id, 'name' => (string) $client->name, 'description' => $this->clients->settings($client)->description, 'scopes' => array_values(array_map('strval', (array) $consent->scopes)), 'granted_at' => $consent->granted_at];
             })->filter()->values();
+
+        return $rows;
     }
 }

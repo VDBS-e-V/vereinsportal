@@ -12,7 +12,6 @@ use App\Modules\Partners\Models\PartnerContact;
 use App\Modules\Partners\Models\PartnerUser;
 use App\Modules\Partners\Services\SchoolAccounts;
 use App\Modules\People\Models\Person;
-use App\Modules\Seminars\Models\Seminar;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Mail;
 
@@ -52,7 +51,6 @@ function scSchoolAccount(?Partner $partner = null, string $email = 'lehrkraft@sc
     return $account->fresh(['user', 'partner']);
 }
 
-/** Legt wie die Koordination einen Kostenvoranschlag zu einem Seminar an. */
 it('invites a contact person as a school account with the role school and the link to the school', function () {
     $partner = Partner::factory()->create(['name' => 'Rosa-Luxemburg-Schule']);
     $contact = PartnerContact::query()->create(['partner_id' => $partner->id, 'name' => 'Frau Lehrkraft', 'email' => 'Lehrkraft@Schule.example']);

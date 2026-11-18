@@ -104,6 +104,11 @@ it('makes every page reachable for every role that holds its capability', functi
     foreach (PortalNavigation::catalog() as $key => $definition) {
         $area = PortalAreas::from($key);
 
+        // Das Konto liegt im Profilmenü und gehört nicht zu den Bereichen der Kopfzeile
+        if ($area === PortalAreas::Konto) {
+            continue;
+        }
+
         foreach ($definition['pages'] as $page) {
             // Die Seite „Aufgaben“ eines Bereichs ist an dessen eigene Rollen gebunden (any_role)
             if (! isset($page['can']) || isset($page['any_role'])) {
@@ -156,7 +161,7 @@ it('lists the pages of an area by capability and marks the current one', functio
     $staff = pnUser(RoleKey::AdministrationStaff);
     $admin = pnUser(RoleKey::Administration);
 
-    expect(array_column(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff), 'label'))->toBe(['Übersicht', 'Personen & Zugang', 'Anträge', 'Inhalte', 'Preise & Angebote'])
+    expect(array_column(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff), 'label'))->toBe(['Übersicht', 'Personen & Zugang', 'Anträge', 'Tickets', 'Inhalte', 'Aufgaben'])
         ->and(array_column(PortalNavigation::pages(PortalAreas::Admins, $staff), 'label'))->toBe(['Übersicht'])
         ->and(array_column(PortalNavigation::pages(PortalAreas::Admins, $admin), 'label'))->toBe(['Übersicht', 'Protokoll', 'System', 'Anbindungen', 'Design-Bibliothek'])
         ->and(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff, 'admin.people.show')[1]['children'][2]['current'])->toBeTrue()
@@ -285,7 +290,7 @@ it('renders a submenu for entries with children', function () {
             ['label' => 'Kind', 'route' => 'portal.contact', 'match' => 'portal.contact'],
             ['label' => 'Gesperrt', 'route' => 'portal.access', 'match' => 'portal.access', 'can' => 'users.view'],
         ]],
-    ], null, 'portal.contact');
+    ], null, 'portal.contact', PortalAreas::Start);
 
     expect($result[0]['current'])->toBeFalse()
         ->and(array_column($result[0]['children'], 'label'))->toBe(['Kind'])

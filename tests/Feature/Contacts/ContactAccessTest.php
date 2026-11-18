@@ -357,7 +357,7 @@ it('offers a select-all box in the table head and large boxes in the rows', func
 
     expect(file_get_contents(resource_path('js/select-all.js')))->toContain('data-vdbs-select-all')
         ->and(file_get_contents(resource_path('js/app.js')))->toContain('./select-all')
-        ->and(file_get_contents(resource_path('css/vdbs/components/data/table.css')))->toContain('.vdbs-table__select .vdbs-choice__input');
+        ->and(file_get_contents(resource_path('css/vdbs/components/data/table-check.css')))->toContain('.vdbs-table__select .vdbs-choice__input');
 });
 
 it('deletes several ticked contacts only after a confirmation page', function () {

@@ -161,7 +161,7 @@ it('sends mails without the message text: new ticket to the team, replies to the
     \Illuminate\Support\Facades\Mail::assertSent(\App\Modules\Tickets\Mail\TicketMail::class, function ($mail) use ($owner): bool {
         $html = $mail->render();
 
-        return $mail->hasTo($owner->email) && $mail->kind === 'reply' && ! str_contains($html, 'Antwort mit Details') && str_contains($html, 'support');
+        return $mail->hasTo($owner->email) && $mail->kind === 'reply' && ! str_contains($html, 'Antwort mit Details') && str_contains($html, '/tickets/');
     });
 
     \Illuminate\Support\Facades\Mail::fake();
@@ -207,7 +207,7 @@ it('stores attachments with a ticket or a message and serves them only to those 
     $this->actingAs(ticketUser(RoleKey::Member))->get(route('support.attachments.download', [$ticket, $attachment]))->assertNotFound();
 
     // Anhang einer internen Notiz: nur das Team
-    $this->actingAs($staff)->post(route('support.message', $ticket), ['body' => 'Notiz', 'internal' => '1', 'files' => [\Illuminate\Http\UploadedFile::fake()->createWithContent('intern.txt', 'x')]]);
+    $this->actingAs($staff)->post(route('support.message', $ticket), ['body' => 'Notiz', 'internal' => '1', 'files' => [\Illuminate\Http\UploadedFile::fake()->createWithContent('intern.txt', 'Interner Anhang')]]);
     $internal = $ticket->attachments()->where('original_name', 'intern.txt')->firstOrFail();
     $this->actingAs($owner)->get(route('support.attachments.download', [$ticket, $internal]))->assertNotFound();
     $this->actingAs($staff)->get(route('support.attachments.download', [$ticket, $internal]))->assertOk();

@@ -92,7 +92,7 @@
                 <li>Recht auf Widerspruch gegen die Verarbeitung, Art. 21 DSGVO</li>
             </ul>
             <p><strong>Widerruf Ihrer Zustimmung:</strong> Sie können sie jederzeit ohne Angabe von Gründen widerrufen, mit Wirkung für die Zukunft. Dazu haben Sie zwei Möglichkeiten: Setzen Sie bei der nächsten Anmeldung bei {{ $name }} auf der Anmeldeseite das Häkchen „Meine Zustimmung zur Weitergabe meiner Daten widerrufen“, oder widerrufen Sie in Ihrem Konto unter „Verbundene Anwendungen“. Danach fragt das Portal beim nächsten Mal wieder nach Ihrer Zustimmung.</p>
-            <p><strong>Beschwerde:</strong> Sie können sich bei einer Datenschutzaufsichtsbehörde beschweren@if (filled($privacy['authority_name'] ?? null)). Zuständig ist die {{ $privacy['authority_name'] }}@if (filled($privacy['authority_url'] ?? null)) (<a href="{{ $privacy['authority_url'] }}">{{ $privacy['authority_url'] }}</a>)@endif @endif. Eine automatisierte Entscheidungsfindung findet nicht statt.</p>
+            <p><strong>Beschwerde:</strong> Sie können sich bei einer Datenschutzaufsichtsbehörde beschweren{{ '' }}@if (filled($privacy['authority_name'] ?? null)). Zuständig ist die {{ $privacy['authority_name'] }}@if (filled($privacy['authority_url'] ?? null)) (<a href="{{ $privacy['authority_url'] }}">{{ $privacy['authority_url'] }}</a>)@endif @endif. Eine automatisierte Entscheidungsfindung findet nicht statt.</p>
         </div>
     </details>
 

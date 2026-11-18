@@ -97,9 +97,14 @@ it('shows the topic selection with areas and a search field', function () {
 it('shows the contact form with all fields', function () {
     $html = $this->get(route('portal.contact.form', ['form' => 'vorstand']))->assertOk()->getContent();
 
-    expect($html)->toContain('Vorstand')
-        ->toContain('name="first_name"')->toContain('name="last_name"')->toContain('name="email"')->toContain('name="subject"')->toContain('name="message"')->toContain('name="consent"')
-        ->toContain('Absenden');
+    // Schritt 2: Angaben zur Person
+    expect($html)->toContain('Vorstand')->toContain('name="first_name"')->toContain('name="last_name"')->toContain('name="email"');
+
+    // Schritt 3: Anliegen mit Betreff, Nachricht und Einwilligung
+    $this->post(route('portal.contact.details', ['form' => 'vorstand']), ppContact())->assertRedirect();
+    $request = $this->get(route('portal.contact.request', ['form' => 'vorstand']))->assertOk()->getContent();
+
+    expect($request)->toContain('name="subject"')->toContain('name="message"')->toContain('name="consent"')->toContain('Absenden');
 });
 
 it('sends the message to the recipient of the form with a reply address and stores nothing', function () {
@@ -117,7 +122,9 @@ it('sends the message to the recipient of the form with a reply address and stor
 it('validates the contact form', function () {
     $route = route('portal.contact.send', ['form' => 'vorstand']);
 
-    $this->post($route, [])->assertSessionHasErrors(['first_name', 'last_name', 'email', 'subject', 'message', 'consent']);
+    // ohne gemerkte Angaben zur Person geht es zurück zu Schritt 2
+    $this->post($route, [])->assertRedirect(route('portal.contact.form', ['form' => 'vorstand']));
+    $this->post($route, ppContact(['last_name' => '', 'email' => '', 'subject' => '', 'message' => '', 'consent' => null]))->assertSessionHasErrors(['last_name', 'email', 'subject', 'message', 'consent']);
     $this->post($route, ppContact(['email' => 'kaputt']))->assertSessionHasErrors('email');
     $this->post($route, ppContact(['consent' => null]))->assertSessionHasErrors('consent');
     $this->post($route, ppContact(['message' => str_repeat('x', 5001)]))->assertSessionHasErrors('message');

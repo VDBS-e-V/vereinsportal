@@ -14,7 +14,6 @@ use App\Modules\Forms\Services\FormNumbers;
 use App\Modules\Forms\Services\FormSettings;
 use App\Modules\Forms\Services\Iban;
 use App\Modules\People\Models\Person;
-use App\Modules\Seminars\Models\Seminar;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;

@@ -299,10 +299,13 @@ it('creates and changes a form with custom fields in the editor', function () {
     expect($form->recipient_email)->toBe('seminare@beispiel.example')->and($form->send_copy)->toBeTrue()->and($form->is_default)->toBeFalse()
         ->and($form->customFields())->toHaveCount(1)->and($form->customFields()[0]['options'])->toBe(['Grundschule', 'Gymnasium'])->and($form->customFields()[0]['required'])->toBeTrue();
 
+    // Angemeldete überspringen Schritt 2; den Ablauf prüfen wir als Besucher
+    $this->app['auth']->forgetGuards();
     $this->get(route('portal.contact.form', ['form' => 'seminaranfrage']))->assertOk()->assertSee('name="organization"', false);
     $this->post(route('portal.contact.details', ['form' => 'seminaranfrage']), cfPerson(['organization' => 'Schule']))->assertRedirect();
     $this->get(route('portal.contact.request', ['form' => 'seminaranfrage']))->assertOk()->assertSee('Gymnasium');
 
+    $this->actingAs(cfUser(RoleKey::AdministrationStaff));
     $this->put(route('contact-admin.forms.update', $form), ['name' => 'Seminaranfrage neu', 'kind' => 'message', 'recipient_email' => 'seminare@beispiel.example', 'recipient_label' => 'Koordination', 'ask_phone' => 'no', 'ask_organization' => 'no', 'is_active' => '1'])->assertRedirect();
 
     expect($form->fresh()->name)->toBe('Seminaranfrage neu')->and($form->fresh()->slug)->toBe('seminaranfrage')->and($form->fresh()->customFields())->toBe([]);
