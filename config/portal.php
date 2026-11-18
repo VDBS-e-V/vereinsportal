@@ -141,9 +141,6 @@ return [
     // Vorstandssitzungen: Angaben externer Gäste werden so viele Tage nach dem Ende der Sitzung gelöscht (Befehl board:prune-guests, täglich geplant).
     'board' => ['guest_retention_days' => (int) env('BOARD_GUEST_RETENTION_DAYS', 30)],
 
-    // Großveranstaltungen: Anmeldungen werden nach dieser Zeit seit dem letzten Termin gelöscht (Befehl events:prune, täglich geplant).
-    'events' => ['retention_years' => 3, 'school_reminder_days' => 3],
-
     'home' => [
         'title' => 'Willkommen im VDBS Vereinsportal',
         'lead' => 'Die zentrale Anlaufstelle für Mitglieder, Teamende und Schulen des VDBS.',

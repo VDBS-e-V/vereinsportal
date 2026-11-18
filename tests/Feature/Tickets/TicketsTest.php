@@ -142,7 +142,7 @@ it('filters the queue and changes several tickets at once', function () {
 
 it('shows the ticket pages in the right places of the menu', function () {
     $this->actingAs(ticketUser(RoleKey::AdministrationStaff))->get(route('office.home'))->assertOk()->assertSee('Tickets');
-    $this->actingAs(ticketUser(RoleKey::Member))->get(route('account.home'))->assertSee('Meine Tickets')->assertSee('Meine Anmeldungen');
+    $this->actingAs(ticketUser(RoleKey::Member))->get(route('account.home'))->assertSee('Meine Tickets');
 });
 
 it('sends mails without the message text: new ticket to the team, replies to the requester, never for internal notes', function () {

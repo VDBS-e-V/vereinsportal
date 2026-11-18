@@ -50,12 +50,6 @@ enum AuditEvent: string
     case ArticleUpdated = 'article.updated';
     case ArticleDeleted = 'article.deleted';
     case PageUpdated = 'page.updated';
-    case EventCreated = 'event.created';
-    case EventUpdated = 'event.updated';
-    case EventDeleted = 'event.deleted';
-    case EventRegistrationsImported = 'event.registrations_imported';
-    case EventRegistrationRemoved = 'event.registration_removed';
-    case EventMessageSent = 'event.message_sent';
 
     case AccessRequestApproved = 'access_request.approved';
     case AccessRequestRejected = 'access_request.rejected';
@@ -156,12 +150,6 @@ enum AuditEvent: string
             self::ArticleUpdated => 'Artikel geändert',
             self::ArticleDeleted => 'Artikel gelöscht',
             self::PageUpdated => 'Seite geändert',
-            self::EventCreated => 'Veranstaltung angelegt',
-            self::EventUpdated => 'Veranstaltung geändert',
-            self::EventDeleted => 'Veranstaltung gelöscht',
-            self::EventRegistrationsImported => 'Anmeldungen importiert',
-            self::EventRegistrationRemoved => 'Anmeldung entfernt',
-            self::EventMessageSent => 'Mitteilung an Angemeldete gesendet',
             self::AccessRequestApproved => 'Zugangsantrag angenommen',
             self::AccessRequestRejected => 'Zugangsantrag abgelehnt',
             self::OnboardingDocumentUploaded => 'Onboarding-Dokument hochgeladen',
@@ -226,7 +214,6 @@ enum AuditEvent: string
             self::PartnerCreated, self::PartnerUpdated, self::PartnerDeleted, self::PartnersImported => 'partners',
             self::ArticleCreated, self::ArticleUpdated, self::ArticleDeleted => 'articles',
             self::PageUpdated => 'pages',
-            self::EventCreated, self::EventUpdated, self::EventDeleted, self::EventRegistrationsImported, self::EventRegistrationRemoved, self::EventMessageSent => 'events',
             self::AccessRequestApproved, self::AccessRequestRejected => 'access_requests',
             self::OnboardingDocumentUploaded, self::TeamOnboardingStarted, self::TeamOnboardingCompleted => 'onboarding',
             self::AuditExported => 'audit',
@@ -260,7 +247,6 @@ enum AuditEvent: string
             'access_requests' => 'Zugangsanträge',
             'articles' => 'Artikel',
             'pages' => 'Seiten',
-            'events' => 'Veranstaltungen',
             'audit' => 'Protokoll',
             'system' => 'System',
             'mailings' => 'Schreiben',
@@ -281,7 +267,7 @@ enum AuditEvent: string
     public function tone(): string
     {
         return match ($this) {
-            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::EventDeleted, self::OauthClientDeleted, self::BoardMeetingDeleted, self::BoardResolutionDeleted, self::TaskProjectDeleted, self::ContactTopicDeleted, self::ContactFormDeleted, self::FaqCategoryDeleted, self::FaqEntryDeleted => 'error',
+            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::OauthClientDeleted, self::BoardMeetingDeleted, self::BoardResolutionDeleted, self::TaskProjectDeleted, self::ContactTopicDeleted, self::ContactFormDeleted, self::FaqCategoryDeleted, self::FaqEntryDeleted => 'error',
             self::SystemTaskRun, self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
             self::Login, self::UserEnabled, self::TwoFactorEnabled, self::TeamOnboardingCompleted => 'success',
             default => 'neutral',

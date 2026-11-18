@@ -8,8 +8,6 @@ use App\Modules\AccessGovernance\Support\Capabilities;
 use App\Modules\AccessRequests\Enums\AccessRequestStatus;
 use App\Modules\AccessRequests\Models\AccessRequest;
 use App\Modules\Board\Models\BoardMeeting;
-use App\Modules\Events\Enums\EventStatus;
-use App\Modules\Events\Models\Event;
 use App\Modules\Membership\Enums\MembershipStatus;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\Onboarding\Enums\OnboardingDocumentKind;
@@ -57,7 +55,7 @@ class PortalAreaController extends Controller
         return ['greeting' => $name !== '' ? 'Guten Tag, '.$name : 'Guten Tag', 'cards' => $cards];
     }
 
-    /** Mitgliederbereich: eigene Mitgliedschaft, Satzung und Willkommensbrief, offene Veranstaltungen, Kontakt zum Vorstand. */
+    /** Mitgliederbereich: eigene Mitgliedschaft, Satzung und Willkommensbrief, Kontakt zum Vorstand. */
     public function member(Request $request): View
     {
         $user = $request->user();
@@ -66,7 +64,6 @@ class PortalAreaController extends Controller
             'person' => $user?->person,
             'membership' => $user?->person?->memberships()->orderByRaw("status IN ('requested','active') DESC")->orderByDesc('id')->first(),
             'documents' => collect(OnboardingDocumentKind::forMembers())->map(fn (OnboardingDocumentKind $kind): array => ['kind' => $kind, 'document' => $this->documents->current($kind)])->all(),
-            'events' => Event::query()->where('status', EventStatus::Open->value)->with('sessions')->get()->sortBy(fn (Event $event): string => (string) $event->sessions->first()?->starts_at)->values(),
         ]);
     }
 
@@ -89,7 +86,7 @@ class PortalAreaController extends Controller
         return Storage::disk(OnboardingDocuments::DISK)->download($document->path, $document->kind->label().'.pdf', ['Content-Type' => 'application/pdf']);
     }
 
-    /** Vorstand: Kennzahlen zu Mitgliedschaften, Anträgen, Teamenden und Veranstaltungen. */
+    /** Vorstand: Kennzahlen zu Mitgliedschaften, Anträgen, Teamenden. */
     public function board(Request $request): View
     {
         $running = fn ($query) => $query->where('status', MembershipStatus::Active->value)->where(fn ($end) => $end->whereNull('ends_on')->orWhere('ends_on', '>=', today()));
@@ -104,7 +101,6 @@ class PortalAreaController extends Controller
             'accessRequests' => AccessRequest::query()->where('status', AccessRequestStatus::New->value)->count(),
             'team' => $teamUsers,
             'onboarding' => TeamOnboarding::query()->whereNull('completed_at')->count(),
-            'events' => Event::query()->where('status', EventStatus::Open->value)->count(),
             'boardTasksOpen' => Task::query()->whereHas('project', fn ($project) => $project->where('slug', 'vorstand'))->whereNull('done_at')->count(),
             'boardTasksOverdue' => Task::query()->whereHas('project', fn ($project) => $project->where('slug', 'vorstand'))->whereNull('done_at')->whereDate('due_on', '<', today())->count(),
             'boardProject' => TaskProject::query()->where('slug', 'vorstand')->value('id'),
@@ -141,12 +137,9 @@ class PortalAreaController extends Controller
         ]);
     }
 
-    /** Bildungsreferenten: Überblick über Veranstaltungen (nur lesen). */
+    /** Bildungsreferenten: Übersicht mit den eigenen Aufgaben. */
     public function education(): View
     {
-        return view('portal.education', [
-            'events' => Event::query()->where('status', EventStatus::Open->value)->with('sessions')->withCount(['registrations as confirmed_count' => fn ($query) => $query->whereNotNull('verified_at')->where('waitlisted', false)])->get()
-                ->sortBy(fn (Event $event): string => (string) $event->sessions->first()?->starts_at)->values(),
-        ]);
+        return view('portal.education');
     }
 }

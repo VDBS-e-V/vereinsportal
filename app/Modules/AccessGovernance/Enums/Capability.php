@@ -56,19 +56,13 @@ enum Capability: string
     /** Rechtstext-Seiten (Impressum, Datenschutz, …) bearbeiten. */
     case PagesManage = 'pages.manage';
 
-    /** Großveranstaltungen mit Anmeldungen ansehen (Bereich Koordination). */
-    case EventsView = 'events.view';
-
-    /** Großveranstaltungen anlegen, Anmeldungen importieren, Anwesenheit führen. */
-    case EventsManage = 'events.manage';
-
     /** Mitgliederbereich: eigene Mitgliedschaft, Satzung und Willkommensbrief. */
     case MemberArea = 'member.area';
 
-    /** Bereich Bildungsreferenten: Überblick über Seminare und Veranstaltungen (nur lesen). */
+    /** Bereich Bildungsreferenten: Übersicht mit den eigenen Aufgaben. */
     case EducationView = 'education.view';
 
-    /** Bereich Schulen: Seminare der eigenen Schule, Kostenvoranschläge, Anfragen und Bestätigungen. */
+    /** Bereich Schulen: Startseite der eigenen Schule. */
     case SchoolArea = 'school.area';
 
     /** Jahresberichte mit Kennzahlen ansehen und exportieren (Vorstand). */

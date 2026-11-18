@@ -41,11 +41,6 @@ Route::middleware(['web', 'auth'])->group(function (): void {
 // Bereich Schulen (Konten mit der Rolle Schule, nur die eigene Schule)
 Route::middleware(['web', 'auth', 'can:school.area'])->prefix('schulen')->name('school.')->group(function (): void {
     Route::get('/', [SchoolAreaController::class, 'home'])->name('home');
-    Route::get('/veranstaltungen', [SchoolAreaController::class, 'events'])->name('events.index');
-    Route::get('/veranstaltungen/{event}', [SchoolAreaController::class, 'event'])->whereNumber('event')->name('events.show');
-    Route::get('/veranstaltungen/{event}/vorlage', [SchoolAreaController::class, 'eventTemplate'])->whereNumber('event')->name('events.template');
-    Route::post('/veranstaltungen/{event}/liste', [SchoolAreaController::class, 'eventImport'])->whereNumber('event')->middleware('throttle:10,10')->name('events.import');
-    Route::delete('/veranstaltungen/{event}/anmeldungen/{registration}', [SchoolAreaController::class, 'eventRegistrationDestroy'])->whereNumber(['event', 'registration'])->name('events.registrations.destroy');
 });
 
 // Unbekannte Adressen laufen durch die Web-Middleware, damit die 404-Seite die Anmeldung kennt (Bereiche statt Login).

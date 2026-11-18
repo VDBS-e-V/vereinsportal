@@ -81,7 +81,7 @@ final class PortalNavigation
             PortalAreas::Start->value => [
                 'home' => 'home',
                 'roles' => [],
-                'routes' => ['home', 'join.*', 'events.public.*', 'articles.public.*', 'pages.show', 'portal.design-packages'],
+                'routes' => ['home', 'join.*', 'articles.public.*', 'pages.show', 'portal.design-packages'],
                 'pages' => [
                     ['label' => 'Über das Portal', 'route' => 'portal.about', 'match' => 'portal.about'],
                     ['label' => 'Zugang zum Portal', 'route' => 'portal.access', 'match' => 'portal.access*'],
@@ -109,7 +109,6 @@ final class PortalNavigation
                     ]],
                     ['description' => 'Alle Aufgaben, die Ihnen zugewiesen sind, aus allen Projekten.', 'label' => 'Meine Aufgaben', 'route' => 'tasks.mine', 'match' => 'tasks.mine', 'can' => 'tasks.use'],
                     ['description' => 'Ihre Anfragen und Meldungen an das Portal-Team, mit Verlauf und Nachrichten.', 'label' => 'Meine Tickets', 'route' => 'support.mine', 'match' => 'support.*'],
-                    ['description' => 'Ihre Anmeldungen zu Veranstaltungen mit Ticketcode.', 'label' => 'Meine Anmeldungen', 'route' => 'account.tickets', 'match' => 'account.tickets'],
                     ['description' => 'Systeme, bei denen Sie sich über das Portal angemeldet haben.', 'label' => 'Verbundene Anwendungen', 'route' => 'account.apps', 'match' => 'account.apps*'],
                     ['description' => 'Ihre Rollen und die Bereiche, die Ihnen offenstehen.', 'label' => 'Rollen & Bereiche', 'route' => 'account.roles', 'match' => 'account.roles'],
                     ['label' => 'Einstellungen', 'group' => true, 'route' => 'account.notifications', 'children' => [
@@ -166,7 +165,6 @@ final class PortalNavigation
                 'roles' => [RoleKey::School],
                                 'pages' => [
                     ['label' => 'Übersicht', 'route' => 'school.home', 'match' => 'school.home', 'can' => 'school.area'],
-                    ['label' => 'Veranstaltungen', 'route' => 'school.events.index', 'match' => 'school.events.*', 'can' => 'school.area'],
                 ],
             ],
             PortalAreas::Koordination->value => [
@@ -177,7 +175,6 @@ final class PortalNavigation
                     ['description' => 'Partnerschulen, Ansprechpersonen und Anfragen.', 'label' => 'Schulen', 'route' => 'partners.index', 'match' => 'partners.*', 'can' => 'partners.view'],
                     ['description' => 'Teamende und ihre Einarbeitung.', 'label' => 'Teamende', 'route' => 'team-onboarding.index', 'match' => 'team-onboarding.*', 'can' => 'team.view'],
                     ['description' => 'E-Mails an Teamende, Schulen, Koordination und Bildungsreferenten.', 'label' => 'Rundschreiben', 'route' => 'mailings.coordination.index', 'match' => 'mailings.coordination.*', 'can' => 'mailings.send_limited'],
-                    ['description' => 'Veranstaltungen, Anmeldungen und Nachrichten.', 'label' => 'Veranstaltungen', 'route' => 'events.admin.index', 'match' => 'events.admin.*', 'can' => 'events.view'],
                 ],
             ],
             PortalAreas::Geschaeftsstelle->value => [
@@ -329,7 +326,7 @@ final class PortalNavigation
         foreach ([
             'membership.*' => 'users', 'onboarding.*' => 'clipboard-list', 'team-onboarding.*' => 'clipboard-list', 'mailings.*' => 'mail', 'board.meetings.*' => 'calendar', 'board.resolutions.*' => 'landmark',
             'board.reports*' => 'file', 'member.membership' => 'users', 'forms.*' => 'file', 'forms-office.*' => 'file', 'partners.*' => 'school',
-            'events.*' => 'ticket', 'team.*' => 'user', 'school.*' => 'school', 'admin.users.*' => 'users', 'access-requests.*' => 'key-round',
+            'team.*' => 'user', 'school.*' => 'school', 'admin.users.*' => 'users', 'access-requests.*' => 'key-round',
             'admin.people.*' => 'user', 'contacts.*' => 'mail', 'articles.*' => 'book-open', 'pages.*' => 'file', 'contact-admin.*' => 'mail', 'faq-admin.*' => 'circle-help', 'role-links.*' => 'link', 'support.*' => 'ticket', 'tickets-admin.*' => 'ticket', 'system.*' => 'settings',
             'admin.audit.*' => 'shield', 'admin.oauth.*' => 'link', 'design-library.*' => 'layout-dashboard', 'tasks.*' => 'square-kanban', 'account.*' => 'user', 'education.*' => 'graduation-cap',
         ] as $pattern => $icon) {

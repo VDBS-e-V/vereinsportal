@@ -6,9 +6,6 @@ use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Articles\Models\Article;
-use App\Modules\Events\Mail\EventMessageMail;
-use App\Modules\Events\Models\Event;
-use App\Modules\Events\Services\EventAdministration;
 use App\Modules\Pages\Models\Page;
 use App\Modules\People\Models\Person;
 use App\Support\Html\RichText;
@@ -108,33 +105,3 @@ it('saves legal pages from the editor and keeps old markdown pages working', fun
     $this->get('/impressum')->assertOk()->assertSee('Vertretung');
 });
 
-it('shows event descriptions formatted and as plain text in the list', function () {
-    $coordination = rtUser(RoleKey::Coordination);
-
-    $this->actingAs($coordination)->post(route('events.admin.store'), ['title' => 'Demokratietag', 'status' => 'open', 'description' => '<p>Ein <strong>toller</strong> Tag<script>x</script></p>'])->assertSessionHasNoErrors();
-    $event = Event::query()->firstOrFail();
-
-    expect($event->description)->toBe('<p>Ein <strong>toller</strong> Tag</p>');
-
-    $this->get(route('events.public.show', $event->slug))->assertOk()->assertSee('<strong>toller</strong>', false);
-    $this->get(route('events.public.index'))->assertOk()->assertSee('Ein toller Tag')->assertDontSee('&lt;p&gt;', false);
-
-    $this->actingAs($coordination)->put(route('events.admin.update', $event), ['title' => 'Demokratietag', 'status' => 'open', 'description' => '<p></p>'])->assertSessionHasNoErrors();
-    expect($event->fresh()->description)->toBeNull();
-});
-
-it('sends event messages as formatted and sanitized mail', function () {
-    $coordination = rtUser(RoleKey::Coordination);
-    $event = app(EventAdministration::class)->create(['title' => 'Demokratietag', 'status' => 'open'], $coordination);
-    $event->registrations()->create(['name' => 'A', 'school' => 'S', 'class_name' => '9', 'birth_date' => '2010-01-01', 'email' => 'a@example.org', 'ticket_code' => 'RTXA12345', 'verified_at' => now()]);
-
-    $this->actingAs($coordination)->post(route('events.admin.messages.store', $event), ['audience' => 'confirmed', 'subject' => 'Hinweis', 'body' => '<p>Bitte <strong>pünktlich</strong> sein.<script>alert(1)</script></p>'])->assertSessionHasNoErrors();
-
-    Mail::assertSent(EventMessageMail::class, function (EventMessageMail $mail): bool {
-        $html = $mail->render();
-
-        return str_contains($html, '<strong>pünktlich</strong>') && ! str_contains($html, '<script>alert');
-    });
-
-    $this->actingAs($coordination)->post(route('events.admin.messages.store', $event), ['audience' => 'confirmed', 'subject' => 'Leer', 'body' => '<p>&nbsp;</p>'])->assertSessionHasErrors('body');
-});

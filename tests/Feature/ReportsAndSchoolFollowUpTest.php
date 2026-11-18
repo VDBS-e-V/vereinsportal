@@ -6,8 +6,6 @@ use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
-use App\Modules\Events\Mail\SchoolEventReminderMail;
-use App\Modules\Events\Services\EventAdministration;
 use App\Modules\Partners\Models\Partner;
 use App\Modules\Partners\Models\PartnerContact;
 use App\Modules\Partners\Models\PartnerUser;
@@ -64,11 +62,11 @@ it('shows the report to the board only, with the year switch and a csv export', 
     $board = rfUser(RoleKey::BoardMember);
     $year = now()->year;
 
-    $this->actingAs($board)->get(route('board.reports'))->assertOk()->assertSee('Jahresbericht '.$year)->assertSee('Großveranstaltungen')->assertSee('Mitglieder am 31.12.');
+    $this->actingAs($board)->get(route('board.reports'))->assertOk()->assertSee('Jahresbericht '.$year)->assertSee('Mitglieder am 31.12.')->assertSee('Mitglieder am 31.12.');
     $this->actingAs($board)->get(route('board.reports', ['jahr' => 1999]))->assertOk()->assertSee('Jahresbericht '.$year);
 
     $body = $this->actingAs($board)->get(route('board.reports.export'))->assertOk()->streamedContent();
-    expect($body)->toContain('Jahr;Bereich;Kennzahl;Wert')->toContain('Großveranstaltungen')->toContain((string) $year);
+    expect($body)->toContain('Jahr;Bereich;Kennzahl;Wert')->toContain('Mitglieder am 31.12.')->toContain((string) $year);
 });
 
 it('lists the report in the board navigation', function () {
@@ -77,27 +75,7 @@ it('lists the report in the board navigation', function () {
     expect(array_column(PortalNavigation::pages(PortalAreas::Vorstand, $board), 'label'))->toContain('Berichte');
 });
 
-// ---------- Schulen: Erinnerung, Sperren, Übersicht ----------
-
-it('reminds active school accounts once before the registration deadline', function () {
-    $account = rfSchoolAccount();
-    $pending = rfSchoolAccount('Schule Zwei', 'zwei@schule.example');
-    $pending->user->forceFill(['status' => UserStatus::PendingVerification])->save();
-    $soon = app(EventAdministration::class)->create(['title' => 'Bald', 'status' => 'open', 'registration_deadline' => now()->addDays(2)->format('Y-m-d H:i:s')], rfUser(RoleKey::Coordination));
-    app(EventAdministration::class)->create(['title' => 'Später', 'status' => 'open', 'registration_deadline' => now()->addDays(20)->format('Y-m-d H:i:s')], rfUser(RoleKey::Coordination));
-    app(EventAdministration::class)->create(['title' => 'Ohne Frist', 'status' => 'open'], rfUser(RoleKey::Coordination));
-    app(EventAdministration::class)->create(['title' => 'Vorbei', 'status' => 'open', 'registration_deadline' => now()->subDay()->format('Y-m-d H:i:s')], rfUser(RoleKey::Coordination));
-    $soon->registrations()->create(['partner_id' => $account->partner_id, 'name' => 'A', 'school' => $account->partner->name, 'class_name' => '9', 'birth_date' => '2010-01-01', 'email' => 'a@example.org', 'ticket_code' => 'REM1234567', 'verified_at' => now()]);
-
-    $this->artisan('events:remind-schools', ['--dry-run' => true])->expectsOutputToContain('Erinnerungen an Schulen: 1')->assertSuccessful();
-    Mail::assertNotSent(SchoolEventReminderMail::class);
-
-    $this->artisan('events:remind-schools')->expectsOutputToContain('Erinnerungen an Schulen: 1')->assertSuccessful();
-    Mail::assertSent(SchoolEventReminderMail::class, 1);
-    Mail::assertSent(SchoolEventReminderMail::class, fn (SchoolEventReminderMail $mail): bool => $mail->hasTo($account->user->email) && $mail->ownCount === 1 && $mail->event->is($soon) && str_contains($mail->render(), 'Von Ihrer Schule sind bisher 1'));
-
-    $this->artisan('events:remind-schools')->expectsOutputToContain('Erinnerungen an Schulen: 0')->assertSuccessful();
-});
+// ---------- Schulen: Sperren ----------
 
 it('lets the coordination block and unblock a school account', function () {
     $account = rfSchoolAccount();
@@ -119,16 +97,3 @@ it('lets the coordination block and unblock a school account', function () {
     $this->actingAs(rfUser(RoleKey::Member))->post(route('partners.accounts.toggle', [$account->partner, $account]))->assertForbidden();
 });
 
-it('shows the registrations of an event by school', function () {
-    $coordination = rfUser(RoleKey::Coordination);
-    $event = app(EventAdministration::class)->create(['title' => 'Demokratietag', 'status' => 'open', 'capacity' => 2, 'waitlist_enabled' => true], $coordination);
-
-    foreach ([['Schule Eins', false], ['Schule Eins', false], ['Schule Zwei', true]] as $i => [$school, $waiting]) {
-        $event->registrations()->create(['name' => 'S'.$i, 'school' => $school, 'class_name' => '9', 'birth_date' => '2010-01-01', 'email' => 's'.$i.'@example.org', 'ticket_code' => 'SCH'.$i.'123456', 'verified_at' => now(), 'waitlisted' => $waiting]);
-    }
-
-    $response = $this->actingAs($coordination)->get(route('events.admin.show', $event))->assertOk()->assertSee('Anmeldungen nach Schule');
-    $rows = collect($response->viewData('bySchool'))->mapWithKeys(fn ($row): array => [$row->school => [(int) $row->total, (int) $row->waiting]])->all();
-
-    expect($rows)->toBe(['Schule Eins' => [2, 0], 'Schule Zwei' => [1, 1]]);
-});

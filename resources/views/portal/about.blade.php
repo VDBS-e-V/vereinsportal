@@ -15,7 +15,7 @@
             <dt>Für Teamer:innen</dt>
             <dd>Hier finden Sie alle relevanten Materialien für Ihre Workshops, von Präsentationen und Arbeitsblättern bis hin zu organisatorischen Hinweisen und Best Practices. Eine vereinfachte Workshop-Planung und der Austausch mit anderen Teamer:innen werden ebenfalls ermöglicht.</dd>
             <dt>Für Vereinsmitglieder</dt>
-            <dd>Bleiben Sie stets auf dem Laufenden über aktuelle Projekte, Termine und interne Informationen. Melden Sie sich für Veranstaltungen an, tauschen Sie sich mit anderen Mitgliedern aus und bringen Sie sich aktiv ins Vereinsleben ein.</dd>
+            <dd>Bleiben Sie stets auf dem Laufenden über aktuelle Projekte, Termine und interne Informationen. Tauschen Sie sich mit anderen Mitgliedern aus und bringen Sie sich aktiv ins Vereinsleben ein.</dd>
             <dt>Für die Verwaltung</dt>
             <dd>Das Portal bietet eine effiziente Plattform für die interne Organisation und Kommunikation. Verwalten Sie Mitgliedsdaten, planen Sie Ressourcen und behalten Sie den Überblick über alle vereinsrelevanten Prozesse.</dd>
             <dt>Für Schulen (Schüler:innen, Lehrkräfte usw.)</dt>

@@ -52,16 +52,6 @@
                 </ul>
             </section>
 
-            <section aria-labelledby="events-heading">
-                <h2 id="events-heading" style="font-size:var(--font-size-h3)">Veranstaltungen</h2>
-
-                @forelse ($events as $event)
-                    <p><a href="{{ route('events.public.show', $event->slug) }}">{{ $event->title }}</a>@if ($event->sessions->first()), {{ $event->sessions->first()->starts_at->format('d.m.Y') }}@endif</p>
-                @empty
-                    <p>Zurzeit sind keine Veranstaltungen mit offener Anmeldung geplant.</p>
-                @endforelse
-            </section>
-
             @include('portal._area-pages', ['area' => \App\Support\PortalAreas::Mitglieder, 'cards' => $cards])
 
             <section aria-labelledby="contact-heading">

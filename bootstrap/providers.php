@@ -13,7 +13,6 @@ use App\Modules\QuickLinks\QuickLinksServiceProvider;
 use App\Modules\Tickets\TicketsServiceProvider;
 use App\Modules\Contacts\ContactsServiceProvider;
 use App\Modules\DesignLibrary\DesignLibraryServiceProvider;
-use App\Modules\Events\EventsServiceProvider;
 use App\Modules\Forms\FormsServiceProvider;
 use App\Modules\Mailings\MailingsServiceProvider;
 use App\Modules\Membership\MembershipServiceProvider;
@@ -59,7 +58,6 @@ return [
     MailingsServiceProvider::class,
     ContactsServiceProvider::class,
     PagesServiceProvider::class,
-    EventsServiceProvider::class,
     SsoServiceProvider::class,
     DesignLibraryServiceProvider::class,
 ];

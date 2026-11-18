@@ -50,13 +50,6 @@
                 </x-vdbs.layout.grid>
             </section>
 
-            <section aria-labelledby="board-seminars">
-                <h2 id="board-seminars" style="font-size:var(--font-size-h3)">Veranstaltungen</h2>
-                <x-vdbs.layout.grid :columns="4">
-                    <x-vdbs.data.stat label="Veranstaltungen mit offener Anmeldung" :value="$stats['events']" :href="route('events.admin.index')" />
-                </x-vdbs.layout.grid>
-            </section>
-
             @include('portal._area-pages', ['area' => \App\Support\PortalAreas::Vorstand, 'cards' => $cards])
         </div>
     </x-vdbs.layout.container>

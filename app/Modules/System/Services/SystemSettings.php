@@ -27,7 +27,6 @@ final class SystemSettings
                 $row('Beendete Mitgliedschaften (Tage, leer = unbegrenzt)', config('portal.membership.retention.ended_days'), 'MEMBERSHIP_RETENTION_ENDED_DAYS'),
                 $row('Entschiedene Zugangsanträge (Tage)', config('portal.access_requests.retention_days'), 'ACCESS_REQUESTS_RETENTION_DAYS'),
                 $row('Offene Zugangsanträge (Tage)', config('portal.access_requests.open_retention_days'), 'ACCESS_REQUESTS_OPEN_RETENTION_DAYS'),
-                $row('Veranstaltungsanmeldungen (Jahre)', config('portal.events.retention_years')),
             ],
             'E-Mail' => [
                 $row('Versand-Treiber', config('mail.default'), 'MAIL_MAILER'),

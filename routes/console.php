@@ -34,15 +34,6 @@ Schedule::command('passport:purge')->daily();
 // Teamende mit offener Einarbeitung erinnern (nach 14 Tagen, dann alle 14 Tage, höchstens dreimal).
 Schedule::command('onboarding:remind-team')->daily();
 
-// Angemeldete einen Tag vor der Großveranstaltung erinnern.
-Schedule::command('events:remind')->daily();
-
-// Schulkonten kurz vor dem Anmeldeschluss einer Großveranstaltung erinnern.
-Schedule::command('events:remind-schools')->daily();
-
-// Unbestätigte Anmeldungen zu Großveranstaltungen und Anmeldungen nach der Aufbewahrungszeit löschen.
-Schedule::command('events:prune')->daily();
-
 // Erinnerungen an bald fällige und überfällige Aufgaben, nur an Personen, die sie eingeschaltet haben.
 Schedule::command('tasks:remind')->dailyAt('07:30');
 

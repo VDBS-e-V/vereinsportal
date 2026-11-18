@@ -5,7 +5,6 @@ use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
-use App\Modules\Events\Models\Event;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\Onboarding\Enums\OnboardingDocumentKind;
 use App\Modules\Onboarding\Services\OnboardingDocuments;
@@ -39,18 +38,16 @@ function aoUser(?RoleKey $role = null): User
     return $user;
 }
 
-it('shows members their area with membership, documents, events and the contact to the board', function () {
+it('shows members their area with membership, documents and the contact to the board', function () {
     $member = aoUser(RoleKey::Member);
     Membership::factory()->create(['person_id' => $member->person_id, 'starts_on' => '2024-03-01']);
     app(OnboardingDocuments::class)->store(UploadedFile::fake()->create('satzung.pdf', 20, 'application/pdf'), OnboardingDocumentKind::Statute, aoUser(RoleKey::BoardMember));
-    Event::query()->create(['slug' => 'tag-eins', 'title' => 'Demokratietag', 'status' => 'open']);
-    Event::query()->create(['slug' => 'tag-zwei', 'title' => 'Interner Entwurf', 'status' => 'draft']);
 
     $this->get(route('member.home'))->assertRedirect(route('login'));
 
     $this->actingAs($member)->get(route('member.home'))->assertOk()
         ->assertSee('Mitglied seit 01.03.2024')->assertSee('Satzung (PDF')->assertSee('Willkommensbrief: wird vom Vorstand noch bereitgestellt')
-        ->assertSee('Demokratietag')->assertDontSee('Interner Entwurf')->assertSee('Vorstand kontaktieren');
+        ->assertSee('Vorstand kontaktieren');
 
     $this->actingAs(aoUser(RoleKey::Team))->get(route('member.home'))->assertForbidden();
     $this->actingAs(aoUser())->get(route('member.home'))->assertForbidden();

@@ -9,6 +9,7 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 ### Removed
 
 - Seminare, Kostenvoranschläge, Verträge, Feedback, Briefvorlagen, Bewerbungen der Teamenden und alles, was nur daran hängt; Tabellen werden per Migration gelöscht (Doc 88)
+- Veranstaltungen (Großveranstaltungen mit Anmeldung, Tickets, Schul-Listen); Tabellen werden per Migration gelöscht (Doc 88)
 
 ### Added
 

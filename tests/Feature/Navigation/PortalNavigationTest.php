@@ -335,8 +335,7 @@ it('limits the start menu to the four public entries (issue 93)', function () {
         ->not->toContain('>Veranstaltungen<')->not->toContain('>Mitglied werden<');
 
     // die Seiten selbst bleiben erreichbar, nur ohne Menüpunkt
-    $this->get(route('events.public.index'))->assertOk();
-    expect(PortalNavigation::areaForRoute('events.public.index'))->toBe(PortalAreas::Start)->and(PortalNavigation::areaForRoute('join.apply'))->toBe(PortalAreas::Start);
+    expect(PortalNavigation::areaForRoute('join.apply'))->toBe(PortalAreas::Start);
 });
 
 it('renders an overflow menu with three dots for every menu row (issue 94)', function () {
