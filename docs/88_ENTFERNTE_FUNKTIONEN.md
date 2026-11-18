@@ -1,5 +1,7 @@
 # Entfernte Funktionen: Seminare, Kostenvoranschläge, Verträge, Veranstaltungen
 
+**Hinweis:** Der Seminarablauf wurde danach neu aufgebaut, siehe `docs/89_SEMINARABLAUF.md`. Diese Liste beschreibt, was zwischenzeitlich entfernt war.
+
 Aus dem Portal entfernt (Branch `claude/cool-ramanujan-fgmbcu`, Stand vor der Entfernung: Commit `f8866bb`, dort per `git show f8866bb:<Pfad>` lesbar):
 
 - **Seminare** samt Terminen, Verlauf, Status, Seminarliste, Statistik, Seminarmappe (ZIP), Druckplaner, Nextcloud-Ordner, Seminarleitung, Abschluss.

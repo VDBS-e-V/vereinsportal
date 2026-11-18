@@ -13,6 +13,8 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ### Added
 
+- Seminarablauf neu aufgebaut (Doc 89): Koordinationen als Datensätze, Anfrage der Schule, Prüfung, Kostenvoranschlag mit Preisliste und Freigabe, Schulvertrag und Freigabe, Planung, Ausschreibung, Teamauswahl mit „Team bestätigen“, Mitteilungen, Seminarleitung mit Bericht, Teamverträgen und Zahlungsaufträgen, Rückmeldung der Schule, Seminarmappe und Online-Druckplaner (eine Druck-PDF), Nextcloud-Ordner und Freigabelink, Löschfristen
+
 - Seminarablauf Phase 6: Nextcloud-Anbindung für Seminarordner (Struktur, Zugriff des Teams, Ergebnislink mit Ablaufdatum), ohne Zugangsdaten unverändert (Doc 87)
 - Seminarablauf Phase 5a: Online-Druckplaner der Seminarmappe mit Seiten, Exemplaren, Farbe, Seiten pro Blatt und beidseitig, Berechnung der Blätter und Druckliste (Doc 87)
 - Seminarablauf Phase 7: Löschen von Anfragen ohne Vertrag nach einem Jahr, Ergebnislink mit Standard zwei Jahre, Verlängerung und Hinweis vor dem Ablauf (Doc 87)
