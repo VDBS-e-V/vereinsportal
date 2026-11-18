@@ -75,7 +75,7 @@ final class OAuthConsents
                     return null;
                 }
 
-                return ['client_id' => $consent->client_id, 'name' => (string) $client->name, 'description' => $this->clients->settings($client)->description, 'scopes' => array_values((array) $consent->scopes), 'granted_at' => $consent->granted_at];
+                return ['client_id' => $consent->client_id, 'name' => (string) $client->name, 'description' => $this->clients->settings($client)->description, 'scopes' => array_values(array_map('strval', (array) $consent->scopes)), 'granted_at' => $consent->granted_at];
             })->filter()->values();
     }
 }

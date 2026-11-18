@@ -12,6 +12,7 @@ use Laravel\Passport\Client;
  */
 class OAuthClient extends Client
 {
+    /** @param  array<int, mixed>  $scopes  Bereiche als Kennungen oder Passport-Objekte */
     public function skipsAuthorization(Authenticatable $user, array $scopes): bool
     {
         $setting = OAuthClientSetting::query()->where('client_id', (string) $this->getKey())->first();
@@ -20,6 +21,6 @@ class OAuthClient extends Client
             return true;
         }
 
-        return app(OAuthConsents::class)->covers($user, (string) $this->getKey(), array_map(fn ($scope): string => is_object($scope) ? (string) data_get($scope, 'id') : (string) $scope, $scopes));
+        return app(OAuthConsents::class)->covers($user, (string) $this->getKey(), array_map(fn ($scope): string => is_string($scope) ? $scope : (string) data_get($scope, 'id'), $scopes));
     }
 }
