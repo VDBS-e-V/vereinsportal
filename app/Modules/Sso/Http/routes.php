@@ -3,6 +3,7 @@
 use App\Modules\Sso\Http\Controllers\ConnectedAppController;
 use App\Modules\Sso\Http\Controllers\OAuthClientController;
 use App\Modules\Sso\Http\Controllers\OidcController;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,7 +29,7 @@ Route::middleware(['web', 'auth', 'can:oauth.manage'])->prefix('admins/anbindung
 Route::get('/.well-known/openid-configuration', [OidcController::class, 'discovery'])->middleware('throttle:120,1')->name('oidc.discovery');
 Route::get('/oauth/jwks', [OidcController::class, 'jwks'])->middleware('throttle:120,1')->name('oidc.jwks');
 Route::get('/oauth/logo/{client}', [OidcController::class, 'logo'])->where('client', '[A-Za-z0-9\-]+')->middleware('throttle:120,1')->name('oidc.logo');
-Route::get('/oauth/photo/{user}', [OidcController::class, 'photo'])->whereNumber('user')->middleware(['bindings', 'signed', 'throttle:60,1'])->name('oidc.photo');
+Route::get('/oauth/photo/{user}', [OidcController::class, 'photo'])->whereNumber('user')->middleware([SubstituteBindings::class, 'signed', 'throttle:60,1'])->name('oidc.photo');
 Route::match(['get', 'post'], '/oauth/userinfo', [OidcController::class, 'userinfo'])->middleware(['auth:api', 'throttle:120,1'])->name('oidc.userinfo');
 Route::get('/oauth/logout', [OidcController::class, 'logout'])->middleware(['web', 'throttle:30,1'])->name('oidc.logout');
 Route::post('/oauth/logout', [OidcController::class, 'logoutPerform'])->middleware(['web', 'throttle:30,1'])->name('oidc.logout.perform');
