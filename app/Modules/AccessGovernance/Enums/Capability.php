@@ -110,6 +110,9 @@ enum Capability: string
     /** Seminare der Schulen prüfen, KVA und Schulvertrag bearbeiten, freigeben oder ablehnen (Geschäftsstelle, Vorstand). */
     case SeminarsReview = 'seminars.review';
 
+    /** Kostenvoranschläge intern freigeben (Vorstand, Koordination). */
+    case SeminarsQuoteApprove = 'seminars.quote_approve';
+
     /** Seminare planen, ausschreiben, Team auswählen, vorbereiten und abschließen (Koordination). */
     case SeminarsPlan = 'seminars.plan';
 

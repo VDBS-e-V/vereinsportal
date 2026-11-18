@@ -172,6 +172,25 @@ final class SeminarWorkflow
         return $seminar;
     }
 
+    /** Die Schule lehnt den Kostenvoranschlag ab: das Seminar ist abgelehnt (Recht der Schule, daher ohne Prüfung der Geschäftsstellen-Rechte). */
+    public function declinedBySchool(Seminar $seminar, User $by, ?string $note): void
+    {
+        if ($seminar->status !== SeminarStatus::QuoteSent) {
+            throw new DomainException('Der Kostenvoranschlag lässt sich nur im Stand „KVA gesendet“ ablehnen.');
+        }
+
+        $comment = trim('Die Schule hat den Kostenvoranschlag abgelehnt. '.trim((string) $note));
+
+        DB::transaction(function () use ($seminar, $by, $comment): void {
+            $seminar->status = SeminarStatus::Rejected;
+            $seminar->save();
+
+            $this->log($seminar, 'status', $by, SeminarStatus::QuoteSent, SeminarStatus::Rejected, $comment);
+        });
+
+        AuditLog::record(AuditEvent::SeminarStatusChanged, $by, null, ['seminar' => $seminar->number, 'von' => SeminarStatus::QuoteSent->value, 'nach' => SeminarStatus::Rejected->value]);
+    }
+
     /** Vermerk im Verlauf des Seminars. @param  array<string, mixed>|null  $data */
     public function log(Seminar $seminar, string $type, ?User $by, ?SeminarStatus $from = null, ?SeminarStatus $to = null, ?string $comment = null, ?array $data = null): SeminarEvent
     {

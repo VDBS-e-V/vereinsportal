@@ -5,6 +5,7 @@ namespace App\Modules\Seminars\Models;
 use App\Modules\Access\Models\User;
 use App\Modules\Coordinations\Models\Coordination;
 use App\Modules\Partners\Models\Partner;
+use App\Modules\Quotes\Models\SeminarQuote;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use Database\Factories\SeminarFactory;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
@@ -52,6 +53,12 @@ class Seminar extends Model
     public function sessions(): HasMany
     {
         return $this->hasMany(SeminarSession::class)->orderBy('starts_at');
+    }
+
+    /** @return HasMany<SeminarQuote, $this> */
+    public function quotes(): HasMany
+    {
+        return $this->hasMany(SeminarQuote::class)->orderByDesc('version');
     }
 
     /** @return HasMany<SeminarEvent, $this> */

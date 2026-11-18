@@ -34,6 +34,8 @@
         @endforeach
     @endif
 
+    @include('seminars._quote-office', ['seminar' => $seminar])
+
     <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Verlauf</h2>
     <x-vdbs.data.timeline label="Verlauf des Seminars">
         @foreach ($seminar->events as $event)

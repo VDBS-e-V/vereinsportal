@@ -107,6 +107,9 @@ enum AuditEvent: string
     case CoordinationSaved = 'coordinations.saved';
     case SeminarRequested = 'seminars.requested';
     case SeminarStatusChanged = 'seminars.status_changed';
+    case QuoteApproved = 'seminars.quote_approved';
+    case QuoteSent = 'seminars.quote_sent';
+    case QuotePricesSaved = 'seminars.quote_prices_saved';
     case CoordinationDeleted = 'coordinations.deleted';
     case NavigationSaved = 'navigation.saved';
     case TicketCreated = 'tickets.created';
@@ -201,6 +204,9 @@ enum AuditEvent: string
             self::CoordinationSaved => 'Koordination gespeichert',
             self::SeminarRequested => 'Seminar angefragt',
             self::SeminarStatusChanged => 'Seminar: Status geändert',
+            self::QuoteApproved => 'Kostenvoranschlag intern freigegeben',
+            self::QuoteSent => 'Kostenvoranschlag gesendet',
+            self::QuotePricesSaved => 'Preisliste für Kostenvoranschläge gespeichert',
             self::CoordinationDeleted => 'Koordination gelöscht',
             self::NavigationSaved => 'Navigation gespeichert',
             self::TicketCreated => 'Ticket angelegt',
@@ -236,7 +242,7 @@ enum AuditEvent: string
             self::FaqCategorySaved, self::FaqCategoryDeleted, self::FaqEntrySaved, self::FaqEntryDeleted => 'faq',
             self::RoleLinksSaved => 'role_links',
             self::CoordinationSaved, self::CoordinationDeleted => 'coordinations',
-            self::SeminarRequested, self::SeminarStatusChanged => 'seminars',
+            self::SeminarRequested, self::SeminarStatusChanged, self::QuoteApproved, self::QuoteSent, self::QuotePricesSaved => 'seminars',
             self::NavigationSaved => 'navigation',
             self::TicketCreated, self::TicketMessagePosted, self::TicketAssigned, self::TicketStatusChanged => 'tickets',
         };

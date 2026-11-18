@@ -173,6 +173,7 @@ final class PortalNavigation
                 'roles' => [RoleKey::Coordination, RoleKey::AdministrationStaff, RoleKey::EducationCoordination],
                                 'pages' => [
                     ['label' => 'Übersicht', 'route' => 'coordination.home', 'match' => 'coordination.home'],
+                    ['description' => 'Kostenvoranschläge zu Seminaren intern freigeben.', 'label' => 'KVA-Freigabe', 'route' => 'quotes.approval.index', 'match' => 'quotes.approval.*', 'can' => 'seminars.quote_approve'],
                     ['description' => 'Partnerschulen, Ansprechpersonen und Anfragen.', 'label' => 'Schulen', 'route' => 'partners.index', 'match' => 'partners.*', 'can' => 'partners.view'],
                     ['description' => 'Teamende und ihre Einarbeitung.', 'label' => 'Teamende', 'route' => 'team-onboarding.index', 'match' => 'team-onboarding.*', 'can' => 'team.view'],
                     ['description' => 'E-Mails an Teamende, Schulen, Koordination und Bildungsreferenten.', 'label' => 'Rundschreiben', 'route' => 'mailings.coordination.index', 'match' => 'mailings.coordination.*', 'can' => 'mailings.send_limited'],
@@ -181,7 +182,7 @@ final class PortalNavigation
             PortalAreas::Geschaeftsstelle->value => [
                 'home' => 'office.home',
                 'roles' => [RoleKey::AdministrationStaff, RoleKey::Administration, RoleKey::ManagingDirector, RoleKey::Treasury],
-                'routes' => ['forms-office.*'],
+                'routes' => ['forms-office.*', 'quotes.pdf'],
                 'pages' => [
                     ['label' => 'Übersicht', 'route' => 'office.home', 'match' => 'office.home'],
                     ['label' => 'Personen & Zugang', 'group' => true, 'route' => 'admin.users.index', 'children' => [
@@ -191,7 +192,10 @@ final class PortalNavigation
                         ['description' => 'Importierte Mailingliste und persönliche Zugänge für Bewerbungen.', 'label' => 'Teamkontakte', 'route' => 'contacts.index', 'match' => 'contacts.*', 'can' => 'contacts.manage'],
                     ]],
                     ['description' => 'Anträge prüfen, freigeben und die Sammelliste für die Auszahlung erstellen.', 'label' => 'Anträge', 'route' => 'forms-office.index', 'match' => 'forms-office.*', 'can' => 'forms.view'],
-                    ['description' => 'Seminare der Schulen: Anfragen prüfen, Stand und Verlauf.', 'label' => 'Seminare', 'route' => 'seminars.office.index', 'match' => 'seminars.office.*', 'can' => 'seminars.review'],
+                    ['label' => 'Seminare', 'group' => true, 'route' => 'seminars.office.index', 'children' => [
+                        ['description' => 'Seminare der Schulen: Anfragen prüfen, Stand und Verlauf.', 'label' => 'Seminarliste', 'route' => 'seminars.office.index', 'match' => 'seminars.office.*', 'can' => 'seminars.review'],
+                        ['description' => 'Leistungen und Preise für Kostenvoranschläge, dazu die Textbausteine.', 'label' => 'Preisliste', 'route' => 'quotes.office.prices', 'match' => 'quotes.office.*', 'can' => 'seminars.review'],
+                    ]],
                     ['description' => 'Anfragen und Meldungen aller Personen: zuweisen, bearbeiten, im Ticket antworten.', 'label' => 'Tickets', 'route' => 'tickets-admin.index', 'match' => 'tickets-admin.*', 'can' => 'tickets.handle'],
                     ['label' => 'Inhalte', 'group' => true, 'route' => 'articles.admin.index', 'children' => [
                         ['description' => 'Artikel für Startseite und Artikelliste.', 'label' => 'Artikel', 'route' => 'articles.admin.index', 'match' => 'articles.admin.*', 'can' => 'articles.manage'],

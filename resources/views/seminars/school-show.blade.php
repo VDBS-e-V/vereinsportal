@@ -16,6 +16,8 @@
         <x-vdbs.data.detail-item label="Anmerkungen">{{ $seminar->request_note }}</x-vdbs.data.detail-item>
     </x-vdbs.data.detail-list>
 
+    @include('seminars._quote-school', ['seminar' => $seminar])
+
     @if ($seminar->sessions->isNotEmpty())
         <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Termine</h2>
         <ul>

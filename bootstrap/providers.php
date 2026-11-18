@@ -21,6 +21,7 @@ use App\Modules\Onboarding\OnboardingServiceProvider;
 use App\Modules\Pages\PagesServiceProvider;
 use App\Modules\Partners\PartnersServiceProvider;
 use App\Modules\People\PeopleServiceProvider;
+use App\Modules\Quotes\QuotesServiceProvider;
 use App\Modules\Seminars\SeminarsServiceProvider;
 use App\Modules\Setup\SetupServiceProvider;
 use App\Modules\Sso\SsoServiceProvider;
@@ -44,6 +45,7 @@ return [
     PartnersServiceProvider::class,
     CoordinationsServiceProvider::class,
     SeminarsServiceProvider::class,
+    QuotesServiceProvider::class,
     FormsServiceProvider::class,
     BoardServiceProvider::class,
     TasksServiceProvider::class,
