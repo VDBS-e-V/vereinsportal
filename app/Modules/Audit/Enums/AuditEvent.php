@@ -104,6 +104,8 @@ enum AuditEvent: string
     case FaqEntrySaved = 'faq.entry_saved';
     case FaqEntryDeleted = 'faq.entry_deleted';
     case RoleLinksSaved = 'role_links.saved';
+    case CoordinationSaved = 'coordinations.saved';
+    case CoordinationDeleted = 'coordinations.deleted';
     case NavigationSaved = 'navigation.saved';
     case TicketCreated = 'tickets.created';
     case TicketMessagePosted = 'tickets.message_posted';
@@ -194,6 +196,8 @@ enum AuditEvent: string
             self::FaqEntrySaved => 'FAQ-Frage gespeichert',
             self::FaqEntryDeleted => 'FAQ-Frage gelöscht',
             self::RoleLinksSaved => 'Schnellzugriffe gespeichert',
+            self::CoordinationSaved => 'Koordination gespeichert',
+            self::CoordinationDeleted => 'Koordination gelöscht',
             self::NavigationSaved => 'Navigation gespeichert',
             self::TicketCreated => 'Ticket angelegt',
             self::TicketMessagePosted => 'Ticket: Nachricht geschrieben',
@@ -227,6 +231,7 @@ enum AuditEvent: string
             self::ContactTopicSaved, self::ContactTopicDeleted, self::ContactFormSaved, self::ContactFormDeleted => 'contact_forms',
             self::FaqCategorySaved, self::FaqCategoryDeleted, self::FaqEntrySaved, self::FaqEntryDeleted => 'faq',
             self::RoleLinksSaved => 'role_links',
+            self::CoordinationSaved, self::CoordinationDeleted => 'coordinations',
             self::NavigationSaved => 'navigation',
             self::TicketCreated, self::TicketMessagePosted, self::TicketAssigned, self::TicketStatusChanged => 'tickets',
         };
@@ -258,6 +263,7 @@ enum AuditEvent: string
             'contact_forms' => 'Kontaktformular',
             'faq' => 'FAQ',
             'role_links' => 'Schnellzugriffe',
+            'coordinations' => 'Koordinationen',
             'navigation' => 'Navigation',
             'tickets' => 'Tickets',
         ];
@@ -267,7 +273,7 @@ enum AuditEvent: string
     public function tone(): string
     {
         return match ($this) {
-            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::OauthClientDeleted, self::BoardMeetingDeleted, self::BoardResolutionDeleted, self::TaskProjectDeleted, self::ContactTopicDeleted, self::ContactFormDeleted, self::FaqCategoryDeleted, self::FaqEntryDeleted => 'error',
+            self::LoginFailed, self::TwoFactorFailed, self::PersonDeleted, self::PartnerDeleted, self::AccountAnonymized, self::AccessRequestRejected, self::ArticleDeleted, self::OauthClientDeleted, self::BoardMeetingDeleted, self::BoardResolutionDeleted, self::TaskProjectDeleted, self::ContactTopicDeleted, self::ContactFormDeleted, self::FaqCategoryDeleted, self::FaqEntryDeleted, self::CoordinationDeleted => 'error',
             self::SystemTaskRun, self::UserDisabled, self::UserTwoFactorReset, self::TwoFactorDisabled, self::RoleEnded, self::AccountDeletionRequested => 'warning',
             self::Login, self::UserEnabled, self::TwoFactorEnabled, self::TeamOnboardingCompleted => 'success',
             default => 'neutral',

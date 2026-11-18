@@ -196,6 +196,7 @@ final class PortalNavigation
                         ['description' => 'Rechtstexte und andere Seiten.', 'label' => 'Seiten', 'route' => 'pages.admin.index', 'match' => 'pages.admin.*', 'can' => 'pages.manage'],
                         ['description' => 'Themen und Formulare des öffentlichen Kontaktbereichs.', 'label' => 'Kontaktformular', 'route' => 'contact-admin.topics.index', 'match' => 'contact-admin.*', 'can' => 'contact_forms.manage'],
                         ['description' => 'Fragen und Antworten für die FAQ-Seite des Portals.', 'label' => 'FAQ', 'route' => 'faq-admin.index', 'match' => 'faq-admin.*', 'can' => 'faq.manage'],
+                        ['description' => 'Koordinationen der Schulen pflegen.', 'label' => 'Koordinationen', 'route' => 'coordinations.index', 'match' => 'coordinations.*', 'can' => 'coordinations.manage'],
                         ['description' => 'Wichtige Links je Rolle für das Profilmenü.', 'label' => 'Schnellzugriffe', 'route' => 'role-links.edit', 'match' => 'role-links.*', 'can' => 'role_links.manage'],
                         ['description' => 'E-Mails an Gruppen wie Teamende, Schulen oder Koordination.', 'label' => 'Rundschreiben', 'route' => 'mailings.office.index', 'match' => 'mailings.office.*', 'can' => 'mailings.send'],
                         ['description' => 'Gespeicherte Empfängerkreise mit Filtern für Rundschreiben.', 'label' => 'Verteiler', 'route' => 'mailings.segments.index', 'match' => 'mailings.segments.*', 'can' => 'mail_segments.manage'],
@@ -327,7 +328,7 @@ final class PortalNavigation
             'membership.*' => 'users', 'onboarding.*' => 'clipboard-list', 'team-onboarding.*' => 'clipboard-list', 'mailings.*' => 'mail', 'board.meetings.*' => 'calendar', 'board.resolutions.*' => 'landmark',
             'board.reports*' => 'file', 'member.membership' => 'users', 'forms.*' => 'file', 'forms-office.*' => 'file', 'partners.*' => 'school',
             'team.*' => 'user', 'school.*' => 'school', 'admin.users.*' => 'users', 'access-requests.*' => 'key-round',
-            'admin.people.*' => 'user', 'contacts.*' => 'mail', 'articles.*' => 'book-open', 'pages.*' => 'file', 'contact-admin.*' => 'mail', 'faq-admin.*' => 'circle-help', 'role-links.*' => 'link', 'support.*' => 'ticket', 'tickets-admin.*' => 'ticket', 'system.*' => 'settings',
+            'admin.people.*' => 'user', 'contacts.*' => 'mail', 'articles.*' => 'book-open', 'pages.*' => 'file', 'contact-admin.*' => 'mail', 'faq-admin.*' => 'circle-help', 'role-links.*' => 'link', 'coordinations.*' => 'map-pin', 'support.*' => 'ticket', 'tickets-admin.*' => 'ticket', 'system.*' => 'settings',
             'admin.audit.*' => 'shield', 'admin.oauth.*' => 'link', 'design-library.*' => 'layout-dashboard', 'tasks.*' => 'square-kanban', 'account.*' => 'user', 'education.*' => 'graduation-cap',
         ] as $pattern => $icon) {
             if (Str::is($pattern, $routeName)) {

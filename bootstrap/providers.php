@@ -12,6 +12,7 @@ use App\Modules\NavigationControl\NavigationControlServiceProvider;
 use App\Modules\QuickLinks\QuickLinksServiceProvider;
 use App\Modules\Tickets\TicketsServiceProvider;
 use App\Modules\Contacts\ContactsServiceProvider;
+use App\Modules\Coordinations\CoordinationsServiceProvider;
 use App\Modules\DesignLibrary\DesignLibraryServiceProvider;
 use App\Modules\Forms\FormsServiceProvider;
 use App\Modules\Mailings\MailingsServiceProvider;
@@ -40,6 +41,7 @@ return [
     AccessGovernanceServiceProvider::class,
     AuditServiceProvider::class,
     PartnersServiceProvider::class,
+    CoordinationsServiceProvider::class,
     FormsServiceProvider::class,
     BoardServiceProvider::class,
     TasksServiceProvider::class,

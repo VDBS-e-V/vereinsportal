@@ -3,6 +3,7 @@
 namespace App\Modules\Partners\Models;
 
 use App\Modules\Access\Models\User;
+use App\Modules\Coordinations\Models\Coordination;
 use App\Modules\Partners\Enums\PartnerStatus;
 use App\Modules\Partners\Enums\PartnerType;
 use App\Modules\Partners\Support\PartnerData;
@@ -39,7 +40,7 @@ class Partner extends Model
         'house_number',
         'postal_code',
         'city',
-        'coordination_area',
+        'coordination_id',
         'country_code',
         'email',
         'phone',
@@ -50,6 +51,12 @@ class Partner extends Model
         'created_by_user_id',
         'updated_by_user_id',
     ];
+
+    /** @return BelongsTo<Coordination, $this> */
+    public function coordination(): BelongsTo
+    {
+        return $this->belongsTo(Coordination::class);
+    }
 
     protected function casts(): array
     {

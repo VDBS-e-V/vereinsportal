@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Models\User;
 use App\Modules\Audit\Models\AuditEntry;
+use App\Modules\Coordinations\Models\Coordination;
 use App\Modules\Partners\Enums\FederalState;
 use App\Modules\Partners\Enums\PartnerStatus;
 use App\Modules\Partners\Enums\PartnerType;
@@ -81,6 +82,7 @@ class PartnerController extends Controller
             'statusOptions' => collect(PartnerStatus::cases())->mapWithKeys(fn (PartnerStatus $case): array => [$case->value => $case->label()])->all(),
             'typeOptions' => SchoolType::options(),
             'stateOptions' => FederalState::options(),
+            'coordinationOptions' => Coordination::options($partner?->coordination_id),
             'stats' => [
                 'total' => (clone $schools)->count(),
                 'active' => (clone $schools)->where('status', PartnerStatus::Active->value)->count(),

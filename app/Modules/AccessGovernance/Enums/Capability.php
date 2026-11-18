@@ -107,6 +107,9 @@ enum Capability: string
     /** Wichtige Links je Rolle für das Profilmenü pflegen (Administration, Geschäftsstelle). */
     case RoleLinksManage = 'role_links.manage';
 
+    /** Koordinationen anlegen, ändern und deaktivieren (Administration, Geschäftsstelle, Vorstand). */
+    case CoordinationsManage = 'coordinations.manage';
+
     /** Bereiche und Seiten des Kopfmenüs ein- und ausblenden (Administration). */
     case NavigationManage = 'navigation.manage';
 
