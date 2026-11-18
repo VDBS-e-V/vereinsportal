@@ -113,6 +113,9 @@ enum Capability: string
     /** Kostenvoranschläge intern freigeben (Vorstand, Koordination). */
     case SeminarsQuoteApprove = 'seminars.quote_approve';
 
+    /** Sich als Teamende auf ausgeschriebene Seminare melden. */
+    case SeminarsApply = 'seminars.apply';
+
     /** Seminare planen, ausschreiben, Team auswählen, vorbereiten und abschließen (Koordination). */
     case SeminarsPlan = 'seminars.plan';
 

@@ -149,6 +149,7 @@ final class PortalNavigation
                 'pages' => [
                     ['label' => 'Übersicht', 'route' => 'team.home', 'match' => 'team.home', 'can' => 'team.onboarding'],
                     ['description' => 'Ihre Schritte der Einarbeitung.', 'label' => 'Einarbeitung', 'route' => 'team-self.index', 'match' => 'team-self.*', 'can' => 'team.onboarding'],
+                    ['description' => 'Ausgeschriebene Seminare und Ihr Interesse.', 'label' => 'Seminare', 'route' => 'seminars.team.index', 'match' => 'seminars.team.*', 'can' => 'seminars.apply'],
                     ['description' => 'Auslagen und Fahrtkosten erstatten lassen.', 'label' => 'Anträge', 'route' => 'team-forms.index', 'match' => 'team-forms.*', 'can' => 'forms.submit_team'],
                 ],
             ],
@@ -173,6 +174,7 @@ final class PortalNavigation
                 'roles' => [RoleKey::Coordination, RoleKey::AdministrationStaff, RoleKey::EducationCoordination],
                                 'pages' => [
                     ['label' => 'Übersicht', 'route' => 'coordination.home', 'match' => 'coordination.home'],
+                    ['description' => 'Freigegebene Seminare planen, ausschreiben und das Team auswählen.', 'label' => 'Seminare', 'route' => 'seminars.plan.index', 'match' => 'seminars.plan.*', 'can' => 'seminars.plan'],
                     ['description' => 'Kostenvoranschläge zu Seminaren intern freigeben.', 'label' => 'KVA-Freigabe', 'route' => 'quotes.approval.index', 'match' => 'quotes.approval.*', 'can' => 'seminars.quote_approve'],
                     ['description' => 'Partnerschulen, Ansprechpersonen und Anfragen.', 'label' => 'Schulen', 'route' => 'partners.index', 'match' => 'partners.*', 'can' => 'partners.view'],
                     ['description' => 'Teamende und ihre Einarbeitung.', 'label' => 'Teamende', 'route' => 'team-onboarding.index', 'match' => 'team-onboarding.*', 'can' => 'team.view'],

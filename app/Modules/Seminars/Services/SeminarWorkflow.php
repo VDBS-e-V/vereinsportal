@@ -216,6 +216,84 @@ final class SeminarWorkflow
         return $seminar;
     }
 
+    /**
+     * Plant ein freigegebenes Seminar: Termine, Sollzahl des Teams. Ein schon geplantes Seminar lässt sich hier noch ändern, solange es nicht ausgeschrieben ist.
+     *
+     * @param  list<array{starts_at: \DateTimeInterface, ends_at: ?\DateTimeInterface, location: ?string}>  $sessions
+     *
+     * @throws DomainException
+     */
+    public function plan(Seminar $seminar, array $sessions, int $teamTarget, User $by): Seminar
+    {
+        if (! $by->can('seminars.plan')) {
+            throw new DomainException('Für diesen Schritt fehlt Ihnen die Berechtigung.');
+        }
+
+        if (! in_array($seminar->status, [SeminarStatus::Released, SeminarStatus::Planned], true)) {
+            throw new DomainException('Planen lässt sich ein Seminar nach der Freigabe und bis zur Ausschreibung.');
+        }
+
+        if ($sessions === []) {
+            throw new DomainException('Bitte tragen Sie mindestens einen Termin ein.');
+        }
+
+        if ($teamTarget < 1 || $teamTarget > 50) {
+            throw new DomainException('Bitte geben Sie die Sollzahl des Teams an (1 bis 50).');
+        }
+
+        $from = $seminar->status;
+
+        DB::transaction(function () use ($seminar, $sessions, $teamTarget, $by, $from): void {
+            $seminar->sessions()->delete();
+
+            foreach ($sessions as $session) {
+                $seminar->sessions()->create($session);
+            }
+
+            $seminar->fill([
+                'team_target' => $teamTarget,
+                'school_year' => Seminar::schoolYearOf($sessions[0]['starts_at']),
+                'coordination_id' => $seminar->coordination_id ?? $seminar->partner->coordination_id,
+                'status' => SeminarStatus::Planned,
+            ])->save();
+
+            $this->log($seminar, $from === SeminarStatus::Planned ? 'plan_changed' : 'status', $by, $from === SeminarStatus::Planned ? null : $from, $from === SeminarStatus::Planned ? null : SeminarStatus::Planned, count($sessions).' Termin(e), Team von '.$teamTarget);
+        });
+
+        AuditLog::record(AuditEvent::SeminarPlanned, $by, null, ['seminar' => $seminar->number, 'termine' => count($sessions), 'team' => $teamTarget]);
+
+        return $seminar;
+    }
+
+    /**
+     * Schreibt das Seminar für das Team aus. Die Bewerbungsfrist liegt vor dem ersten Termin.
+     *
+     * @throws DomainException
+     */
+    public function tender(Seminar $seminar, \DateTimeInterface $deadline, User $by): Seminar
+    {
+        $first = $seminar->sessions()->min('starts_at');
+
+        if ($first === null || $seminar->team_target === null) {
+            throw new DomainException('Planen Sie zuerst Termine und Sollzahl.');
+        }
+
+        if ($deadline->format('Y-m-d') < now()->toDateString()) {
+            throw new DomainException('Die Bewerbungsfrist darf nicht in der Vergangenheit liegen.');
+        }
+
+        if ($deadline->format('Y-m-d') >= substr((string) $first, 0, 10)) {
+            throw new DomainException('Die Bewerbungsfrist muss vor dem ersten Termin enden.');
+        }
+
+        DB::transaction(function () use ($seminar, $deadline, $by): void {
+            $seminar->forceFill(['application_deadline' => $deadline->format('Y-m-d')])->save();
+            $this->transition($seminar, SeminarStatus::Tendered, $by);
+        });
+
+        return $seminar;
+    }
+
     /** Die Schule lehnt den Kostenvoranschlag ab: das Seminar ist abgelehnt (Recht der Schule, daher ohne Prüfung der Geschäftsstellen-Rechte). */
     public function declinedBySchool(Seminar $seminar, User $by, ?string $note): void
     {
