@@ -3,6 +3,7 @@
 namespace App\Modules\Sso\Services;
 
 use App\Modules\Access\Models\User;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -57,7 +58,7 @@ final class ConnectedServices
         $this->revoke(DB::table('oauth_access_tokens')->where('user_id', $user->getKey())->where('client_id', $clientId));
     }
 
-    /** @param  \Illuminate\Database\Query\Builder  $tokens */
+    /** @param  Builder  $tokens */
     private function revoke($tokens): void
     {
         $ids = $tokens->pluck('id')->all();

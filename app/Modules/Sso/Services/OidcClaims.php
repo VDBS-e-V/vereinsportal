@@ -3,8 +3,8 @@
 namespace App\Modules\Sso\Services;
 
 use App\Modules\Access\Enums\UserStatus;
-use App\Modules\Access\Services\Profiles;
 use App\Modules\Access\Models\User;
+use App\Modules\Access\Services\Profiles;
 use App\Modules\AccessGovernance\Support\Capabilities;
 use App\Support\Html\RichText;
 use Illuminate\Support\Facades\URL;

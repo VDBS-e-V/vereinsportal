@@ -3,9 +3,9 @@
 namespace App\Modules\Tasks\Services;
 
 use App\Modules\Access\Models\User;
-use App\Support\Files\PrivateUploads;
 use App\Modules\Tasks\Models\Task;
 use App\Modules\Tasks\Models\TaskAttachment;
+use App\Support\Files\PrivateUploads;
 use DomainException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;

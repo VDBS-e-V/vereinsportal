@@ -11,7 +11,6 @@ use App\Modules\Mailings\Mail\MailingMail;
 use App\Modules\Mailings\Models\Mailing;
 use App\Modules\Mailings\Models\MailTemplate;
 use App\Modules\Mailings\Services\MailRecipients;
-use App\Modules\Mailings\Services\MailTemplates;
 use App\Modules\Mailings\Support\MailGroups;
 use App\Modules\Mailings\Support\MailPlaceholders;
 use App\Modules\Membership\Models\Membership;

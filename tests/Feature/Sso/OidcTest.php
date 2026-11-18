@@ -2,16 +2,21 @@
 
 use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Models\User;
+use App\Modules\Access\Services\ProfilePhotos;
 use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\People\Models\Person;
+use App\Modules\Sso\Models\OAuthClientSetting;
+use App\Modules\Sso\Models\OAuthConsent;
 use App\Modules\Sso\Services\OAuthClients;
+use App\Modules\Sso\Services\OAuthConsents;
 use App\Modules\Sso\Services\OAuthKeys;
 use App\Modules\Sso\Services\OidcClaims;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->withoutVite();
@@ -286,8 +291,8 @@ it('shows only the own applications and schedules the token cleanup', function (
 });
 
 it('hands over headline, short bio and photo only with the portal_profile scope and only as released for logged-in users', function () {
-    \Illuminate\Support\Facades\Storage::fake(\App\Modules\Access\Services\ProfilePhotos::DISK);
-    \Illuminate\Support\Facades\Storage::disk(\App\Modules\Access\Services\ProfilePhotos::DISK)->put('profile-photos/x.png', 'png');
+    Storage::fake(ProfilePhotos::DISK);
+    Storage::disk(ProfilePhotos::DISK)->put('profile-photos/x.png', 'png');
 
     $user = odUser(RoleKey::Team);
     $user->forceFill(['avatar_path' => 'profile-photos/x.png'])->save();
@@ -316,24 +321,24 @@ it('asks for consent only on the first login to a service, then skips it until t
 
     $this->actingAs($user)->get('/oauth/authorize?'.http_build_query($params))->assertOk()->assertSee('Beabsichtigte Datenübertragung')->assertSee($user->email);
 
-    app(\App\Modules\Sso\Services\OAuthConsents::class)->grant($user->id, (string) $client->getKey(), ['openid', 'email']);
+    app(OAuthConsents::class)->grant($user->id, (string) $client->getKey(), ['openid', 'email']);
 
     $this->actingAs($user)->get('/oauth/authorize?'.http_build_query($params))->assertRedirect();
 
     $this->actingAs($user)->get('/oauth/authorize?'.http_build_query(['scope' => 'openid email roles'] + $params))->assertOk();
 
     $this->actingAs($user)->delete(route('account.apps.destroy', $client->getKey()))->assertRedirect(route('account.apps'));
-    expect(\App\Modules\Sso\Models\OAuthConsent::query()->count())->toBe(0);
+    expect(OAuthConsent::query()->count())->toBe(0);
     $this->actingAs($user)->get('/oauth/authorize?'.http_build_query($params))->assertOk();
 });
 
 it('serves the service logo publicly', function () {
-    \Illuminate\Support\Facades\Storage::fake('local');
-    \Illuminate\Support\Facades\Storage::disk('local')->put('sso-logos/x.png', 'png');
+    Storage::fake('local');
+    Storage::disk('local')->put('sso-logos/x.png', 'png');
     $client = odClient();
     $user = odUser();
-    \App\Modules\Sso\Models\OAuthClientSetting::query()->where('client_id', (string) $client->getKey())->update(['logo_path' => 'sso-logos/x.png']);
-    app(\App\Modules\Sso\Services\OAuthConsents::class)->grant($user->id, (string) $client->getKey(), ['openid']);
+    OAuthClientSetting::query()->where('client_id', (string) $client->getKey())->update(['logo_path' => 'sso-logos/x.png']);
+    app(OAuthConsents::class)->grant($user->id, (string) $client->getKey(), ['openid']);
 
     $this->get(route('oidc.logo', $client->getKey()))->assertOk();
 });

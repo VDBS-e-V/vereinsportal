@@ -45,7 +45,6 @@ enum AuditEvent: string
     case PartnerDeleted = 'partner.deleted';
     case PartnersImported = 'partner.imported';
 
-
     case ArticleCreated = 'article.created';
     case ArticleUpdated = 'article.updated';
     case ArticleDeleted = 'article.deleted';
@@ -67,8 +66,6 @@ enum AuditEvent: string
     case MailingWorkflow = 'mailing.workflow';
 
     case ContactsImported = 'contacts.imported';
-
-
 
     case OauthClientCreated = 'oauth.client_created';
     case OauthClientChanged = 'oauth.client_changed';

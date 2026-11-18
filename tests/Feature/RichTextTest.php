@@ -104,4 +104,3 @@ it('saves legal pages from the editor and keeps old markdown pages working', fun
     $this->get('/datenschutz')->assertOk()->assertSee('<h2>Verantwortlicher</h2>', false)->assertSee('<strong>Verein</strong>', false)->assertDontSee('javascript:', false);
     $this->get('/impressum')->assertOk()->assertSee('Vertretung');
 });
-

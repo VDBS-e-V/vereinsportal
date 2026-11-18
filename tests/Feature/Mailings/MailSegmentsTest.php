@@ -9,7 +9,6 @@ use App\Modules\Contacts\Models\AccessCredential;
 use App\Modules\Contacts\Models\TeamContact;
 use App\Modules\Mailings\Models\Mailing;
 use App\Modules\Mailings\Models\MailSegment;
-use App\Modules\Mailings\Services\Mailings;
 use App\Modules\Mailings\Services\MailRecipients;
 use App\Modules\Mailings\Services\MailUnsubscribes;
 use App\Modules\Mailings\Services\SegmentResolver;

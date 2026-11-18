@@ -16,9 +16,9 @@ use App\Modules\Tasks\Models\Task;
 use App\Modules\Tasks\Models\TaskAttachment;
 use App\Modules\Tasks\Models\TaskComment;
 use App\Modules\Tasks\Models\TaskProject;
-use App\Support\PortalAreas;
 use App\Modules\Tasks\Models\TaskTemplate;
 use App\Modules\Tasks\Services\TaskProjects;
+use App\Support\PortalAreas;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -465,7 +465,7 @@ it('handles several projects at once in the administration and keeps the project
 
     $one = tkProject([], [], ['name' => 'Eins']);
     $two = tkProject([], [], ['name' => 'Zwei']);
-    app(\App\Modules\Tasks\Services\TaskProjects::class)->board($admin);
+    app(TaskProjects::class)->board($admin);
     $board = TaskProject::query()->where('slug', 'vorstand')->firstOrFail();
 
     $this->post(route('tasks.projects.bulk'), ['ids' => [$one->id, $two->id, $board->id], 'aktion' => 'archive'])->assertRedirect(route('tasks.index'))->assertSessionHas('success');

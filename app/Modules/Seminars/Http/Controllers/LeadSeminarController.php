@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
-use App\Modules\Seminars\Models\SeminarDocument;
 use App\Modules\Seminars\Services\SeminarDocuments;
 use App\Modules\Seminars\Services\SeminarWorkflow;
 use App\Modules\Seminars\Services\TeamContracts;

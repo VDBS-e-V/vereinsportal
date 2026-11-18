@@ -5,6 +5,7 @@ use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
+use App\Modules\ContactForms\Models\ContactTopic;
 use App\Modules\Faq\Models\FaqCategory;
 use App\Modules\Faq\Models\FaqEntry;
 use App\Modules\Faq\Support\FaqText;
@@ -51,7 +52,7 @@ it('shows all faq categories and entries on one page with a safe formatting of t
 
 it('does not depend on the contact area', function () {
     // die Fragen stehen in eigenen Tabellen und erscheinen auch ohne jedes Kontaktthema
-    \App\Modules\ContactForms\Models\ContactTopic::query()->delete();
+    ContactTopic::query()->delete();
 
     $this->get(route('portal.faq'))->assertOk()->assertSee('Wie setze ich mein Passwort zurück?');
 });
@@ -84,7 +85,7 @@ it('moved the questions of the former contact topics into categories', function 
     expect(FaqCategory::query()->count())->toBeGreaterThanOrEqual(8)->and(FaqEntry::query()->count())->toBeGreaterThan(25);
 
     // Kontaktthemen verweisen auf die Kategorie, die Fragen liegen nur noch dort
-    $topic = \App\Modules\ContactForms\Models\ContactTopic::query()->where('title', 'Passwort vergessen oder Anmeldung klappt nicht')->firstOrFail();
+    $topic = ContactTopic::query()->where('title', 'Passwort vergessen oder Anmeldung klappt nicht')->firstOrFail();
 
     expect($topic->faq_category_id)->toBe(fqCategory('Passwort vergessen oder Anmeldung klappt nicht')->id)
         ->and(fqCategory('Passwort vergessen oder Anmeldung klappt nicht')->entries)->toHaveCount(5);
@@ -247,7 +248,7 @@ it('handles several faq categories at once', function () {
 
 it('keeps inactive questions off the page and makes a topic without visible questions unreachable', function () {
     $category = fqCategory('Passwort vergessen oder Anmeldung klappt nicht');
-    $topic = \App\Modules\ContactForms\Models\ContactTopic::query()->where('title', 'Passwort vergessen oder Anmeldung klappt nicht')->firstOrFail();
+    $topic = ContactTopic::query()->where('title', 'Passwort vergessen oder Anmeldung klappt nicht')->firstOrFail();
     $hidden = $category->entries->first();
 
     $hidden->update(['is_active' => false]);
@@ -294,8 +295,8 @@ it('keeps restricted questions out of the search for people who may not see them
 });
 
 it('hides contact topics that lead to a category the person may not see', function () {
-    \App\Modules\ContactForms\Models\ContactTopic::query()->create(['title' => 'Honorar und Abrechnung', 'action' => 'faq', 'faq_category_id' => fqCategory('Teamarbeit, Verträge und Abrechnung')->id, 'keywords' => 'honorar abrechnung', 'sort_order' => 5, 'is_active' => true]);
-    $topic = \App\Modules\ContactForms\Models\ContactTopic::query()->where('title', 'Honorar und Abrechnung')->firstOrFail();
+    ContactTopic::query()->create(['title' => 'Honorar und Abrechnung', 'action' => 'faq', 'faq_category_id' => fqCategory('Teamarbeit, Verträge und Abrechnung')->id, 'keywords' => 'honorar abrechnung', 'sort_order' => 5, 'is_active' => true]);
+    $topic = ContactTopic::query()->where('title', 'Honorar und Abrechnung')->firstOrFail();
 
     $this->get(route('portal.contact', ['q' => 'abrechnung']))->assertOk()->assertDontSee('Honorar und Abrechnung');
     $this->get(route('portal.contact.topic', $topic))->assertNotFound();

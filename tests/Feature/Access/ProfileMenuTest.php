@@ -6,6 +6,7 @@ use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\People\Models\Person;
+use App\Modules\QuickLinks\Models\RoleLink;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -14,7 +15,7 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->withoutVite();
     $this->seed(RoleSeeder::class);
-    \App\Modules\QuickLinks\Models\RoleLink::query()->delete(); // die Ausgangs-Schnellzugriffe aus der Migration würden eine weitere Gruppe im Menü zeigen
+    RoleLink::query()->delete(); // die Ausgangs-Schnellzugriffe aus der Migration würden eine weitere Gruppe im Menü zeigen
 });
 
 function pmUser(?RoleKey $role = null, array $person = []): User
@@ -62,4 +63,3 @@ it('shows the four public pages as a flat start menu', function () {
     expect($nav)->toMatch('/Über das Portal.*Zugang zum Portal.*FAQ.*Kontakt/s')
         ->and($nav)->not->toContain('vdbs-main-nav__submenu')->not->toContain('vdbs-main-nav__item--has-submenu');
 });
-

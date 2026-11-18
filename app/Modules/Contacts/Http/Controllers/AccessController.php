@@ -76,9 +76,6 @@ class AccessController extends Controller
         return view('access.home', ['contact' => $contact]);
     }
 
-
-
-
     public function logout(Request $request): RedirectResponse
     {
         $request->session()->forget('contact_access');

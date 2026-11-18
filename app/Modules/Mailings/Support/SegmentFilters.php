@@ -2,7 +2,6 @@
 
 namespace App\Modules\Mailings\Support;
 
-use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\Onboarding\Models\TeamOnboarding;
 use App\Modules\Partners\Enums\FederalState;

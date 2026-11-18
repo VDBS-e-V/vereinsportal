@@ -25,10 +25,10 @@ it('renders the data kanban card as link, draggable only with a move url, and fa
 });
 
 it('renders the table check as a cell with the own selection box of the design system', function () {
-    $html = \Illuminate\Support\Facades\Blade::render('<x-vdbs.data.table-check name="ids[]" value="7" label="Eintrag auswählen" form="bulk" :checked="true" />');
+    $html = Blade::render('<x-vdbs.data.table-check name="ids[]" value="7" label="Eintrag auswählen" form="bulk" :checked="true" />');
 
     expect($html)->toContain('<td class="vdbs-table__select">')->toContain('vdbs-choice vdbs-choice--checkbox')->toContain('class="vdbs-choice__input" type="checkbox" name="ids[]" value="7"')
         ->toContain('aria-label="Eintrag auswählen"')->toContain('form="bulk"')->toContain('checked');
 
-    expect(\Illuminate\Support\Facades\Blade::render('<x-vdbs.data.table-check name="x" label="Schalter" />'))->not->toContain('form=')->not->toContain('checked');
+    expect(Blade::render('<x-vdbs.data.table-check name="x" label="Schalter" />'))->not->toContain('form=')->not->toContain('checked');
 });

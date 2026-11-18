@@ -96,4 +96,3 @@ it('lets the coordination block and unblock a school account', function () {
     $this->actingAs($coordination)->post(route('partners.accounts.toggle', [$account->partner, $pending]))->assertNotFound();
     $this->actingAs(rfUser(RoleKey::Member))->post(route('partners.accounts.toggle', [$account->partner, $account]))->assertForbidden();
 });
-

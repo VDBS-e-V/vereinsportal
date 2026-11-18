@@ -5,9 +5,9 @@ use App\Modules\Seminars\Http\Controllers\LeadSeminarController;
 use App\Modules\Seminars\Http\Controllers\OfficeSeminarController;
 use App\Modules\Seminars\Http\Controllers\PaymentOrderController;
 use App\Modules\Seminars\Http\Controllers\PlanSeminarController;
+use App\Modules\Seminars\Http\Controllers\SchoolSeminarController;
 use App\Modules\Seminars\Http\Controllers\SeminarDocumentController;
 use App\Modules\Seminars\Http\Controllers\SeminarFilesController;
-use App\Modules\Seminars\Http\Controllers\SchoolSeminarController;
 use App\Modules\Seminars\Http\Controllers\TeamSeminarController;
 use Illuminate\Support\Facades\Route;
 

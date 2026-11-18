@@ -1,11 +1,11 @@
 <?php
 
-use App\Modules\ContactForms\Mail\ContactFormMail;
 use App\Modules\Access\Models\User;
 use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Articles\Models\Article;
+use App\Modules\ContactForms\Mail\ContactFormMail;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;

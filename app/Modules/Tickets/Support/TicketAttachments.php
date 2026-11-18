@@ -3,10 +3,10 @@
 namespace App\Modules\Tickets\Support;
 
 use App\Modules\Access\Models\User;
-use App\Support\Files\PrivateUploads;
 use App\Modules\Tickets\Models\Ticket;
 use App\Modules\Tickets\Models\TicketAttachment;
 use App\Modules\Tickets\Models\TicketMessage;
+use App\Support\Files\PrivateUploads;
 use DomainException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;

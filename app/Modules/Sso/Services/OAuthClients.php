@@ -8,6 +8,7 @@ use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Sso\Models\OAuthClientSetting;
 use DomainException;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -201,7 +202,7 @@ final class OAuthClients
     }
 
     /** Logo des Systems speichern (PNG, JPEG oder WebP). Es erscheint auf der Anmelde- und Zustimmungsseite. */
-    public function saveLogo(Client $client, \Illuminate\Http\UploadedFile $file): void
+    public function saveLogo(Client $client, UploadedFile $file): void
     {
         $extension = strtolower((string) $file->extension());
         $extension = $extension === 'jpeg' ? 'jpg' : $extension;

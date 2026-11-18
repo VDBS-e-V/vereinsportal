@@ -19,6 +19,7 @@ use App\Support\PortalAreas;
 use App\Support\PortalNavigation;
 use DomainException;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -105,7 +106,7 @@ class ProjectController extends Controller
         return redirect()->route('tasks.index')->with('success', $message.($kept > 0 ? ' Das Projekt „Vorstand“ bleibt stehen.' : ''));
     }
 
-    /** @param \Illuminate\Database\Eloquent\Builder<TaskProject> $query @return \Illuminate\Database\Eloquent\Builder<TaskProject> */
+    /** @param Builder<TaskProject> $query @return \Illuminate\Database\Eloquent\Builder<TaskProject> */
     private function withCounts($query, User $user)
     {
         return $query->withCount(['tasks as open_count' => fn ($tasks) => $tasks->whereNull('done_at'), 'tasks as overdue_count' => fn ($tasks) => $tasks->whereNull('done_at')->whereDate('due_on', '<', today()), 'tasks as mine_count' => fn ($tasks) => $tasks->whereNull('done_at')->whereHas('assignees', fn ($assignees) => $assignees->where('users.id', $user->id))]);

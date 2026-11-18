@@ -1,12 +1,13 @@
 <?php
 
 use App\Modules\NavigationControl\Http\Controllers\NavigationController;
+use App\Modules\NavigationControl\Support\NavigationControl;
 use App\Support\PortalAreas;
 use Illuminate\Support\Facades\Route;
 
 /* Web-Control für Bereiche und Kopfmenü (Administration): /verwaltung/navigation */
 Route::middleware(['web', 'auth', 'can:navigation.manage'])->prefix('verwaltung/navigation')->name('navigation.')->group(function (): void {
-    $areas = implode('|', array_map(fn (PortalAreas $area): string => $area->value, \App\Modules\NavigationControl\Support\NavigationControl::togglableAreas()));
+    $areas = implode('|', array_map(fn (PortalAreas $area): string => $area->value, NavigationControl::togglableAreas()));
 
     Route::get('/', [NavigationController::class, 'edit'])->name('edit');
     Route::get('/header', [NavigationController::class, 'headers'])->name('headers');

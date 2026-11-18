@@ -8,6 +8,7 @@ use App\Modules\Access\Mail\AccountDeletedMail;
 use App\Modules\Access\Mail\AccountDeletionRequestedMail;
 use App\Modules\Access\Models\User;
 use App\Modules\AccessGovernance\Enums\RoleKey;
+use App\Modules\AccessGovernance\Support\Capabilities;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\Audit\Support\AuditLog;
@@ -142,7 +143,7 @@ final class AccountDeletion
             $user->roleAssignments()
                 ->where(fn ($open) => $open->whereNull('ends_at')->orWhere('ends_at', '>', now()))
                 ->update(['ends_at' => now()]);
-            \App\Modules\AccessGovernance\Support\Capabilities::flush();
+            Capabilities::flush();
 
             $user->twoFactorMethods()->delete();
             $user->emailChangeRequests()->delete();

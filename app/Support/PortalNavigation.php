@@ -165,7 +165,7 @@ final class PortalNavigation
             PortalAreas::Schulen->value => [
                 'home' => 'school.home',
                 'roles' => [RoleKey::School],
-                                'pages' => [
+                'pages' => [
                     ['label' => 'Übersicht', 'route' => 'school.home', 'match' => 'school.home', 'can' => 'school.area'],
                     ['description' => 'Seminar anfragen und den Stand Ihrer Anfragen sehen.', 'label' => 'Seminare', 'route' => 'school.seminars.index', 'match' => 'school.seminars.*', 'can' => 'school.area'],
                 ],
@@ -173,7 +173,7 @@ final class PortalNavigation
             PortalAreas::Koordination->value => [
                 'home' => 'coordination.home',
                 'roles' => [RoleKey::Coordination, RoleKey::AdministrationStaff, RoleKey::EducationCoordination],
-                                'pages' => [
+                'pages' => [
                     ['label' => 'Übersicht', 'route' => 'coordination.home', 'match' => 'coordination.home'],
                     ['description' => 'Freigegebene Seminare planen, ausschreiben und das Team auswählen.', 'label' => 'Seminare', 'route' => 'seminars.plan.index', 'match' => 'seminars.plan.*', 'can' => 'seminars.plan'],
                     ['description' => 'Auswertung der Rückmeldungen der Schulen zu den Seminaren.', 'label' => 'Rückmeldungen', 'route' => 'seminars.plan.feedback', 'match' => 'seminars.plan.feedback', 'can' => 'seminars.plan'],

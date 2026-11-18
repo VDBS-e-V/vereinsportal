@@ -3,6 +3,7 @@
 namespace App\Modules\ContactForms\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Access\Models\User;
 use App\Modules\ContactForms\Mail\ContactFormMail;
 use App\Modules\ContactForms\Models\ContactForm;
 use App\Modules\ContactForms\Models\ContactTopic;
@@ -210,7 +211,7 @@ class ContactFlowController extends Controller
      *
      * @return array<string, ?string>
      */
-    public static function prefill(?\App\Modules\Access\Models\User $user): array
+    public static function prefill(?User $user): array
     {
         if ($user === null) {
             return [];

@@ -16,8 +16,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Passport\Client;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /** Öffentliche Schnittstellen für angebundene Systeme: Discovery, Schlüssel, Benutzerangaben, Abmeldung. */
@@ -146,7 +146,7 @@ class OidcController extends Controller
     }
 
     /** Welches System meldet sich ab? Aus dem id_token_hint (Empfänger) oder, ohne den, aus der Herkunft der Rücksprung-Adresse. */
-    private function initiator(Request $request, ?string $target): ?\Laravel\Passport\Client
+    private function initiator(Request $request, ?string $target): ?Client
     {
         $hint = (string) $request->input('id_token_hint', '');
         $audience = $hint !== '' ? $this->audience($hint) : null;
