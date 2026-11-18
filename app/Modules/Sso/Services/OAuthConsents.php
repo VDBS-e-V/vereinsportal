@@ -63,7 +63,7 @@ final class OAuthConsents
     /**
      * Die Zustimmungen eines Kontos mit System und Bereichen (nur vorhandene, nicht gesperrte Systeme).
      *
-     * @return Collection<int, array{client_id: string, name: string, description: ?string, scopes: list<string>, granted_at: \Carbon\Carbon}>
+     * @return Collection<int, array<string, mixed>>
      */
     public function forUser(User $user): Collection
     {

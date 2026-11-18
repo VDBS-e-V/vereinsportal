@@ -28,7 +28,7 @@ final class Mailings
     /** Werte, die als bereinigtes HTML eingesetzt werden und nicht maskiert werden dürfen. */
     private const RAW = ['eigener_text', 'termine'];
 
-    public function __construct(private readonly MailRecipients $recipients, private readonly MailTemplates $templates, private readonly MailSuppressions $suppressions, private readonly MailUnsubscribes $unsubscribes, private readonly NotificationPreferences $preferences, private readonly MailAttachments $attachmentFiles) {}
+    public function __construct(private readonly MailSuppressions $suppressions, private readonly MailUnsubscribes $unsubscribes, private readonly NotificationPreferences $preferences, private readonly MailAttachments $attachmentFiles) {}
 
     // ---------- Mitglieder ----------
 
@@ -394,32 +394,6 @@ final class Mailings
         }
 
         return [$sent, $failed];
-    }
-
-    /**
-     * Legt das Schreiben und eine Zustellzeile je Adresse an und übergibt den Versand an den Worker.
-     * Mit dem Treiber „sync“ (Tests, einfache Einrichtungen) läuft der Versand sofort mit.
-     *
-     * @param  list<string>|null  $groups
-     * @param  list<array<string, string>>  $list
-     * @param  array<string, string>  $values  Werte der Platzhalter, die für alle gleich sind
-     */
-    private function queue(string $kind, string $subject, string $body, ?string $own, ?int $seminarId, ?string $audience, ?array $groups, array $list, array $values, User $by, bool $mandatory = false): Mailing
-    {
-        $mailing = Mailing::query()->create([
-            'kind' => $kind, 'subject' => $subject, 'body' => $body, 'own_text' => $own, 'audience' => $audience, 'groups' => $groups,
-            'recipients_count' => count($list), 'sent_count' => 0, 'failed_count' => 0, 'sent_by_user_id' => $by->id,
-            'status' => Mailing::STATUS_QUEUED, 'queued_at' => now(), 'mandatory' => $mandatory, 'sender_area' => $kind === Mailing::KIND_TEAM ? 'team' : 'office',
-            'values' => ['common' => $values, 'absender' => $this->senderName($by)],
-        ]);
-
-        $this->insertDeliveries($mailing, $list);
-
-        AuditLog::record(AuditEvent::MailingSent, $by, null, ['art' => $kind === Mailing::KIND_GENERAL ? 'Schreiben an Gruppen' : 'Mitteilung an Teamende', 'gruppen' => $groups !== null ? MailGroups::labels($groups) : null, 'empfaenger' => count($list)]);
-
-        SendMailing::dispatch($mailing->id);
-
-        return $mailing->fresh();
     }
 
     /** @param  list<array<string, string>>  $list */

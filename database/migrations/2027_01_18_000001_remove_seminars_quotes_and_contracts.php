@@ -25,7 +25,7 @@ return new class extends Migration
     {
         foreach (['form_applications', 'mailings'] as $table) {
             if (Schema::hasColumn($table, 'seminar_id')) {
-                Schema::table($table, function (Blueprint $blueprint) use ($table): void {
+                Schema::table($table, function (Blueprint $blueprint): void {
                     if (DB::getDriverName() !== 'sqlite') {
                         $blueprint->dropForeign(['seminar_id']);
                     }

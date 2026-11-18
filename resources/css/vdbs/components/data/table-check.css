@@ -7,3 +7,6 @@
 .vdbs-table__select .vdbs-choice__input { width: 1.75rem; height: 1.75rem; margin: 0; }
 
 .vdbs-table__select .vdbs-choice__input::before { width: 1rem; height: 1rem; }
+
+/* Komponente x-vdbs.data.table-check */
+.vdbs-table-check { display: inline-grid; place-items: center; min-width: 2.75rem; min-height: 2.75rem; }
