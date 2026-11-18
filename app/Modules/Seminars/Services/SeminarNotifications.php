@@ -102,6 +102,49 @@ final class SeminarNotifications
         $this->toSchool($seminar, 'Vorbereitung Ihres Seminars '.$seminar->title, [$text]);
     }
 
+    /** Bericht und Ergebnislink an die Schule. */
+    public function results(Seminar $seminar): void
+    {
+        $this->toSchool($seminar, 'Bericht und Ergebnisse zu '.$seminar->title, array_values(array_filter([
+            'das Seminar „'.$seminar->title.'“ ist durchgeführt. Den Bericht finden Sie im Portal, die Ergebnisse im Ordner unter diesem Link:',
+            (string) $seminar->results_url,
+            'Der Link ist bis '.$seminar->results_expires_on?->format('d.m.Y').' erreichbar.',
+        ])));
+    }
+
+    /** Erinnerung an die Seminarleitung kurz vor dem Stichtag für Bericht und Verträge. */
+    public function reportDue(Seminar $seminar): void
+    {
+        $this->toLead($seminar, 'Bericht und Verträge fällig: '.$seminar->title, ['Bericht und Verträge zum Seminar „'.$seminar->title.'“ sind bis '.$seminar->report_due_on?->format('d.m.Y').' fällig. Bitte laden Sie sie im Portal hoch und geben Sie sie ab.']);
+    }
+
+    /** Stichtag überschritten: Hinweis an die Seminarleitung und an die Koordination. */
+    public function reportOverdue(Seminar $seminar): void
+    {
+        $this->toLead($seminar, 'Bericht und Verträge überfällig: '.$seminar->title, ['Bericht und Verträge zum Seminar „'.$seminar->title.'“ waren bis '.$seminar->report_due_on?->format('d.m.Y').' fällig. Bitte laden Sie sie im Portal hoch und geben Sie sie ab.']);
+        $this->toCapable(Capability::SeminarsPlan, 'seminar_overdue', 'Bericht überfällig: '.$seminar->title, ['Zum Seminar „'.$seminar->title.'“ ('.$seminar->partner->name.') fehlen Bericht und Verträge nach dem Stichtag '.$seminar->report_due_on?->format('d.m.Y').'.'], route('seminars.plan.show', $seminar), 'Seminar ansehen');
+    }
+
+    /** Neuer Zahlungsauftrag für die Buchhaltung. */
+    public function paymentCreated(Seminar $seminar, string $name, string $amount): void
+    {
+        $this->toCapable(Capability::SeminarsPayments, 'seminar_payments', 'Neuer Zahlungsauftrag: '.$seminar->number, ['zum Seminar „'.$seminar->title.'“ liegt ein neuer Zahlungsauftrag vor: '.$name.', '.$amount.'.'], route('seminars.payments.index'), 'Zahlungsaufträge ansehen');
+    }
+
+    /** @param  list<string>  $paragraphs */
+    private function toLead(Seminar $seminar, string $subject, array $paragraphs): void
+    {
+        $lead = $seminar->lead;
+
+        if ($lead === null || blank($lead->email)) {
+            return;
+        }
+
+        foreach ($this->preferences->filter([$lead], 'seminar_report_due') as $user) {
+            $this->send((string) $user->email, new SeminarNoticeMail($subject, $user->person?->fullName(), $paragraphs, route('seminars.lead.show', $seminar), 'Seminar ansehen'));
+        }
+    }
+
     /** @param  list<string>  $paragraphs */
     private function toSchool(Seminar $seminar, string $subject, array $paragraphs): void
     {

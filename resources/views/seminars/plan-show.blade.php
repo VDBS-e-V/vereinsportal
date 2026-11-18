@@ -163,6 +163,41 @@
         @endif
     @endif
 
+    @if (in_array($seminar->status, [SeminarStatus::Held, SeminarStatus::Reported, SeminarStatus::Completed], true))
+        <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Bericht und Abschluss</h2>
+        @php $docs = $seminar->documents()->whereIn('kind', ['report', 'team_contract', 'material', 'other'])->get(); @endphp
+        <ul>
+            @foreach ($docs as $document)
+                <li>{{ $document->kindLabel() }}: <a href="{{ route('seminars.documents.download', $document) }}">{{ $document->original_name }}</a></li>
+            @endforeach
+        </ul>
+        @if ($seminar->status === SeminarStatus::Held)
+            <p>Die Seminarleitung gibt Bericht und Verträge bis {{ $seminar->report_due_on?->format('d.m.Y') }} ab.</p>
+        @elseif ($seminar->status === SeminarStatus::Reported)
+            @if (! $seminar->report_sent_at)
+                <x-vdbs.forms.form :action="route('seminars.plan.send-results', $seminar)" :summary="false" style="margin-bottom:var(--space-5)">
+                    <x-vdbs.forms.form-grid :columns="2">
+                        <x-vdbs.forms.input name="results_url" label="Link zum Ergebnisordner" :required="true" maxlength="500" :value="old('results_url', $seminar->results_url)" hint="Mit https:// beginnend." />
+                        <x-vdbs.forms.input name="results_expires_on" label="Link erreichbar bis" type="date" :required="true" :value="old('results_expires_on', $seminar->sessions->max('starts_at')?->copy()->addYears((int) config('portal.seminars.results_years', 2))->format('Y-m-d'))" hint="Mindestens ein Jahr nach dem letzten Termin." />
+                    </x-vdbs.forms.form-grid>
+                    <x-slot:actions><x-vdbs.actions.button type="submit" icon="send">Bericht und Link an die Schule senden</x-vdbs.actions.button></x-slot:actions>
+                </x-vdbs.forms.form>
+            @else
+                <p>Bericht und Link sind am {{ $seminar->report_sent_at->format('d.m.Y') }} an die Schule gesendet (Link bis {{ $seminar->results_expires_on?->format('d.m.Y') }}).</p>
+                <x-vdbs.forms.form :action="route('seminars.plan.complete', $seminar)" :summary="false" style="margin-bottom:var(--space-5)">
+                    <x-slot:actions><x-vdbs.actions.button type="submit" icon="check">Seminar abschließen</x-vdbs.actions.button></x-slot:actions>
+                </x-vdbs.forms.form>
+            @endif
+
+            <x-vdbs.forms.form :action="route('seminars.plan.return-report', $seminar)" :summary="false">
+                <x-vdbs.forms.textarea id="return-comment" name="comment" label="Zurück an die Seminarleitung: Was fehlt oder ist zu ändern?" :optional="true" maxlength="2000" />
+                <x-slot:actions><x-vdbs.actions.button type="submit" variant="secondary">Zur Überarbeitung zurückgeben</x-vdbs.actions.button></x-slot:actions>
+            </x-vdbs.forms.form>
+        @else
+            <p>Das Seminar ist am {{ $seminar->completed_at?->format('d.m.Y') }} abgeschlossen.</p>
+        @endif
+    @endif
+
     @if ($canCancel)
         <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Absagen</h2>
         <x-vdbs.forms.form :action="route('seminars.plan.cancel', $seminar)" :summary="false">

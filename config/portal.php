@@ -221,6 +221,9 @@ return [
         'remind_after_days' => (int) env('FEEDBACK_REMIND_AFTER_DAYS', 7),
     ],
 
+    // Seminare: so viele Tage nach dem letzten Termin sind Ergebnisbericht und Teamverträge fällig; so viele Jahre bleibt der Ergebnislink mindestens erreichbar.
+    'seminars' => ['report_days' => (int) env('SEMINAR_REPORT_DAYS', 14), 'results_min_years' => 1, 'results_years' => (int) env('SEMINAR_RESULTS_YEARS', 2)],
+
     // Hochgeladene, privat gespeicherte Dateien (Aufgaben, Tickets, Vorstandssitzungen): Größe einer Datei und aller Dateien zusammen in KB.
     'uploads' => [
         'max_kb' => (int) env('UPLOAD_MAX_KB', 25600),

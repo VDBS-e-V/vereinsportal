@@ -113,6 +113,9 @@ enum Capability: string
     /** Kostenvoranschläge intern freigeben (Vorstand, Koordination). */
     case SeminarsQuoteApprove = 'seminars.quote_approve';
 
+    /** Zahlungsaufträge aus den Teamverträgen ansehen, bezahlen oder ablehnen (Geschäftsstelle, Buchhaltung). */
+    case SeminarsPayments = 'seminars.payments';
+
     /** Sich als Teamende auf ausgeschriebene Seminare melden. */
     case SeminarsApply = 'seminars.apply';
 

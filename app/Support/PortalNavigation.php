@@ -150,6 +150,7 @@ final class PortalNavigation
                     ['label' => 'Übersicht', 'route' => 'team.home', 'match' => 'team.home', 'can' => 'team.onboarding'],
                     ['description' => 'Ihre Schritte der Einarbeitung.', 'label' => 'Einarbeitung', 'route' => 'team-self.index', 'match' => 'team-self.*', 'can' => 'team.onboarding'],
                     ['description' => 'Ausgeschriebene Seminare und Ihr Interesse.', 'label' => 'Seminare', 'route' => 'seminars.team.index', 'match' => 'seminars.team.*', 'can' => 'seminars.apply'],
+                    ['description' => 'Seminare, die Sie leiten: Durchführung, Bericht und Verträge.', 'label' => 'Meine Leitung', 'route' => 'seminars.lead.index', 'match' => 'seminars.lead.*', 'can' => 'seminars.apply'],
                     ['description' => 'Auslagen und Fahrtkosten erstatten lassen.', 'label' => 'Anträge', 'route' => 'team-forms.index', 'match' => 'team-forms.*', 'can' => 'forms.submit_team'],
                 ],
             ],
@@ -194,6 +195,7 @@ final class PortalNavigation
                         ['description' => 'Importierte Mailingliste und persönliche Zugänge für Bewerbungen.', 'label' => 'Teamkontakte', 'route' => 'contacts.index', 'match' => 'contacts.*', 'can' => 'contacts.manage'],
                     ]],
                     ['description' => 'Anträge prüfen, freigeben und die Sammelliste für die Auszahlung erstellen.', 'label' => 'Anträge', 'route' => 'forms-office.index', 'match' => 'forms-office.*', 'can' => 'forms.view'],
+                    ['description' => 'Verträge der Teamenden als Zahlungsaufträge: bezahlen, ablehnen, exportieren.', 'label' => 'Zahlungsaufträge', 'route' => 'seminars.payments.index', 'match' => 'seminars.payments.*', 'can' => 'seminars.payments'],
                     ['label' => 'Seminare', 'group' => true, 'route' => 'seminars.office.index', 'children' => [
                         ['description' => 'Seminare der Schulen: Anfragen prüfen, Stand und Verlauf.', 'label' => 'Seminarliste', 'route' => 'seminars.office.index', 'match' => 'seminars.office.*', 'can' => 'seminars.review'],
                         ['description' => 'Leistungen und Preise für Kostenvoranschläge, dazu die Textbausteine.', 'label' => 'Preisliste', 'route' => 'quotes.office.prices', 'match' => 'quotes.office.*', 'can' => 'seminars.review'],

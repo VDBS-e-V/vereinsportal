@@ -45,6 +45,16 @@
         @endif
     @endif
 
+    @if ($seminar->report_sent_at)
+        <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Bericht und Ergebnisse</h2>
+        @foreach ($seminar->documents()->where('kind', 'report')->get() as $document)
+            <p>Bericht: <a href="{{ route('seminars.documents.download', $document) }}">{{ $document->original_name }}</a></p>
+        @endforeach
+        @if (filled($seminar->results_url))
+            <p>Ergebnisse: <a href="{{ $seminar->results_url }}" rel="noopener noreferrer">Ordner öffnen</a>@if ($seminar->results_expires_on) (erreichbar bis {{ $seminar->results_expires_on->format('d.m.Y') }})@endif</p>
+        @endif
+    @endif
+
     @if ($seminar->sessions->isNotEmpty())
         <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Termine</h2>
         <ul>

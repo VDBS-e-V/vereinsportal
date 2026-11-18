@@ -55,7 +55,22 @@ final class SeminarDocuments
             return true;
         }
 
-        return $schoolPartnerId !== null && $document->kind === SeminarDocument::SCHOOL_CONTRACT && $document->seminar->partner_id === $schoolPartnerId;
+        // Die Buchhaltung sieht die Verträge der Teamenden (Grundlage der Zahlungsaufträge).
+        if ($user->can('seminars.payments') && $document->kind === 'team_contract') {
+            return true;
+        }
+
+        // Die Seminarleitung sieht die Dateien ihres Seminars, ausgenommen den Schulvertrag.
+        if ($document->seminar->lead_user_id === $user->id && $document->kind !== SeminarDocument::SCHOOL_CONTRACT) {
+            return true;
+        }
+
+        if ($schoolPartnerId === null || $document->seminar->partner_id !== $schoolPartnerId) {
+            return false;
+        }
+
+        // Die Schule sieht ihren Schulvertrag und, sobald er gesendet ist, den Ergebnisbericht.
+        return $document->kind === SeminarDocument::SCHOOL_CONTRACT || ($document->kind === 'report' && $document->seminar->report_sent_at !== null);
     }
 
     public function download(SeminarDocument $document): StreamedResponse

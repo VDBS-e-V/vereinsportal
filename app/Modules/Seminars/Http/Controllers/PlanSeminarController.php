@@ -159,6 +159,30 @@ class PlanSeminarController extends Controller
         return redirect()->route('seminars.plan.show', $seminar)->with('success', 'Das Briefing ist an die Schule gesendet.');
     }
 
+    /** Bericht prüfen: zurück an die Seminarleitung (Begründung Pflicht). */
+    public function returnReport(Request $request, Seminar $seminar): RedirectResponse
+    {
+        $data = $request->validate(['comment' => ['required', 'string', 'max:2000']], ['comment.required' => 'Bitte geben Sie an, was fehlt oder zu ändern ist.']);
+
+        return $this->team($seminar, fn () => $this->workflow->transition($seminar, SeminarStatus::Held, $this->user($request), $data['comment']), 'Der Bericht ist zur Überarbeitung an die Seminarleitung zurückgegeben.');
+    }
+
+    /** Bericht und Ergebnislink an die Schule senden. */
+    public function sendResults(Request $request, Seminar $seminar): RedirectResponse
+    {
+        $data = $request->validate([
+            'results_url' => ['required', 'url:https', 'max:500'],
+            'results_expires_on' => ['required', 'date'],
+        ], ['results_url.required' => 'Bitte geben Sie den Link zum Ergebnisordner an.', 'results_url.url' => 'Bitte geben Sie einen Link mit https:// an.', 'results_expires_on.required' => 'Bitte geben Sie an, bis wann der Link erreichbar ist.']);
+
+        return $this->team($seminar, fn () => $this->workflow->sendResults($seminar, $data['results_url'], Carbon::parse($data['results_expires_on']), $this->user($request)), 'Bericht und Ergebnislink sind an die Schule gesendet.');
+    }
+
+    public function complete(Request $request, Seminar $seminar): RedirectResponse
+    {
+        return $this->team($seminar, fn () => $this->workflow->complete($seminar, $this->user($request)), 'Das Seminar ist abgeschlossen.');
+    }
+
     public function prepare(Request $request, Seminar $seminar): RedirectResponse
     {
         return $this->team($seminar, fn () => $this->workflow->prepare($seminar, $this->user($request)), 'Das Seminar ist vorbereitet.');

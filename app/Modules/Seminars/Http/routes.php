@@ -1,6 +1,8 @@
 <?php
 
+use App\Modules\Seminars\Http\Controllers\LeadSeminarController;
 use App\Modules\Seminars\Http\Controllers\OfficeSeminarController;
+use App\Modules\Seminars\Http\Controllers\PaymentOrderController;
 use App\Modules\Seminars\Http\Controllers\PlanSeminarController;
 use App\Modules\Seminars\Http\Controllers\SeminarDocumentController;
 use App\Modules\Seminars\Http\Controllers\TeamSeminarController;
@@ -39,6 +41,9 @@ Route::middleware(['web', 'auth', 'can:seminars.plan'])->prefix('koordination/se
     Route::post('/{seminar}/onboarding', [PlanSeminarController::class, 'onboarding'])->whereNumber('seminar')->middleware('throttle:20,10')->name('onboarding');
     Route::post('/{seminar}/briefing', [PlanSeminarController::class, 'briefing'])->whereNumber('seminar')->middleware('throttle:20,10')->name('briefing');
     Route::post('/{seminar}/vorbereitet', [PlanSeminarController::class, 'prepare'])->whereNumber('seminar')->middleware('throttle:20,10')->name('prepare');
+    Route::post('/{seminar}/bericht-zurueck', [PlanSeminarController::class, 'returnReport'])->whereNumber('seminar')->middleware('throttle:20,10')->name('return-report');
+    Route::post('/{seminar}/ergebnisse-senden', [PlanSeminarController::class, 'sendResults'])->whereNumber('seminar')->middleware('throttle:20,10')->name('send-results');
+    Route::post('/{seminar}/abschliessen', [PlanSeminarController::class, 'complete'])->whereNumber('seminar')->middleware('throttle:20,10')->name('complete');
     Route::post('/{seminar}/absagen', [PlanSeminarController::class, 'cancel'])->whereNumber('seminar')->middleware('throttle:30,10')->name('cancel');
 });
 
@@ -47,6 +52,23 @@ Route::middleware(['web', 'auth', 'can:seminars.apply'])->prefix('teamende/semin
     Route::get('/', [TeamSeminarController::class, 'index'])->name('index');
     Route::post('/{seminar}/melden', [TeamSeminarController::class, 'apply'])->whereNumber('seminar')->middleware('throttle:30,10')->name('apply');
     Route::delete('/{seminar}/melden', [TeamSeminarController::class, 'withdraw'])->whereNumber('seminar')->middleware('throttle:30,10')->name('withdraw');
+});
+
+/* Seminarleitung: nur das eigene Seminar (die Prüfung steht im Controller). */
+Route::middleware(['web', 'auth', 'can:seminars.apply'])->prefix('teamende/leitung')->name('seminars.lead.')->group(function (): void {
+    Route::get('/', [LeadSeminarController::class, 'index'])->name('index');
+    Route::get('/{seminar}', [LeadSeminarController::class, 'show'])->whereNumber('seminar')->name('show');
+    Route::post('/{seminar}/durchgefuehrt', [LeadSeminarController::class, 'held'])->whereNumber('seminar')->middleware('throttle:20,10')->name('held');
+    Route::post('/{seminar}/datei', [LeadSeminarController::class, 'upload'])->whereNumber('seminar')->middleware('throttle:20,10')->name('upload');
+    Route::post('/{seminar}/vertrag', [LeadSeminarController::class, 'contract'])->whereNumber('seminar')->middleware('throttle:20,10')->name('contract');
+    Route::post('/{seminar}/abgeben', [LeadSeminarController::class, 'submit'])->whereNumber('seminar')->middleware('throttle:20,10')->name('submit');
+});
+
+/* Geschäftsstelle (Buchhaltung): Zahlungsaufträge. */
+Route::middleware(['web', 'auth', 'can:seminars.payments'])->prefix('geschaeftsstelle/zahlungsauftraege')->name('seminars.payments.')->group(function (): void {
+    Route::get('/', [PaymentOrderController::class, 'index'])->name('index');
+    Route::get('/export', [PaymentOrderController::class, 'export'])->name('export');
+    Route::post('/{order}', [PaymentOrderController::class, 'decide'])->whereNumber('order')->middleware('throttle:60,10')->name('decide');
 });
 
 /* Dateien zu Seminaren (Zugriff je Dokument in SeminarDocuments::canDownload). */

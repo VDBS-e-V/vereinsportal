@@ -7,6 +7,7 @@ use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Partners\Models\Partner;
 use App\Modules\Seminars\Enums\SeminarStatus;
+use App\Modules\Seminars\Events\SeminarCompleted;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarEvent;
 use App\Modules\Seminars\Support\SeminarNumbers;
@@ -80,6 +81,11 @@ final class SeminarWorkflow
     {
         if (! self::exists($seminar->status, $to)) {
             return false;
+        }
+
+        // Die Seminarleitung bestätigt die Durchführung und gibt den Bericht ab, auch ohne Recht zur Planung.
+        if ($seminar->lead_user_id !== null && $seminar->lead_user_id === $by->id && in_array($to, [SeminarStatus::Held, SeminarStatus::Reported], true) && in_array($seminar->status, [SeminarStatus::Prepared, SeminarStatus::Held], true)) {
+            return true;
         }
 
         foreach (self::abilities($seminar->status, $to) as $ability) {
@@ -329,6 +335,100 @@ final class SeminarWorkflow
         }
 
         return $this->transition($seminar, SeminarStatus::Prepared, $by);
+    }
+
+    /**
+     * Die Seminarleitung (oder die Koordination) bestätigt die Durchführung, frühestens nach dem Beginn des letzten Termins. Der Stichtag für Bericht und Verträge folgt.
+     *
+     * @throws DomainException
+     */
+    public function markHeld(Seminar $seminar, User $by): Seminar
+    {
+        $last = $seminar->sessions()->max('starts_at');
+
+        if ($last === null || strtotime((string) $last) > time()) {
+            throw new DomainException('Die Durchführung lässt sich nach dem Beginn des letzten Termins bestätigen.');
+        }
+
+        DB::transaction(function () use ($seminar, $by, $last): void {
+            $this->transition($seminar, SeminarStatus::Held, $by);
+            $seminar->forceFill(['held_at' => now(), 'report_due_on' => date('Y-m-d', strtotime((string) $last) + 86400 * (int) config('portal.seminars.report_days', 14))])->save();
+        });
+
+        return $seminar;
+    }
+
+    /**
+     * Gibt Bericht und Verträge ab: der Ergebnisbericht muss hochgeladen sein und für jede zugesagte Person gibt es einen Vertrag.
+     *
+     * @throws DomainException
+     */
+    public function submitReport(Seminar $seminar, User $by): Seminar
+    {
+        if (! $seminar->documents()->where('kind', 'report')->exists()) {
+            throw new DomainException('Bitte laden Sie zuerst den Ergebnisbericht hoch.');
+        }
+
+        $missing = $seminar->applications()->where('outcome', 'confirmed')->whereNotIn('user_id', $seminar->paymentOrders()->select('user_id'))->with('user.person')->get()
+            ->map(fn ($application): string => $application->user->person?->fullName() ?: (string) $application->user->email)->all();
+
+        if ($missing !== []) {
+            throw new DomainException('Es fehlt noch der Vertrag von: '.implode(', ', $missing).'.');
+        }
+
+        DB::transaction(function () use ($seminar, $by): void {
+            $this->transition($seminar, SeminarStatus::Reported, $by);
+            $seminar->forceFill(['reported_at' => now()])->save();
+        });
+
+        return $seminar;
+    }
+
+    /**
+     * Sendet Bericht und Ergebnislink an die Schule. Der Link läuft frühestens ein Jahr nach dem letzten Termin ab.
+     *
+     * @throws DomainException
+     */
+    public function sendResults(Seminar $seminar, string $url, \DateTimeInterface $expires, User $by): Seminar
+    {
+        if (! $by->can('seminars.plan')) {
+            throw new DomainException('Für diesen Schritt fehlt Ihnen die Berechtigung.');
+        }
+
+        if ($seminar->status !== SeminarStatus::Reported) {
+            throw new DomainException('Den Bericht senden Sie, nachdem die Seminarleitung ihn abgegeben hat.');
+        }
+
+        $last = $seminar->sessions()->max('starts_at');
+        $minimum = date('Y-m-d', strtotime('+'.(int) config('portal.seminars.results_min_years', 1).' year', strtotime((string) $last)));
+
+        if ($expires->format('Y-m-d') < $minimum) {
+            throw new DomainException('Der Ergebnislink muss mindestens bis '.date('d.m.Y', strtotime($minimum)).' erreichbar bleiben (ein Jahr nach dem letzten Termin).');
+        }
+
+        $seminar->forceFill(['results_url' => $url, 'results_expires_on' => $expires->format('Y-m-d'), 'report_sent_at' => now()])->save();
+        $this->log($seminar, 'results_sent', $by, null, null, 'Bericht und Ergebnislink an die Schule gesendet (Link bis '.$expires->format('d.m.Y').')');
+        $this->notifications()->results($seminar->loadMissing('partner'));
+
+        return $seminar;
+    }
+
+    /** Schließt das Seminar ab (nach gesendetem Bericht) und löst das Ereignis SeminarCompleted aus. @throws DomainException */
+    public function complete(Seminar $seminar, User $by): Seminar
+    {
+        if ($seminar->report_sent_at === null) {
+            throw new DomainException('Senden Sie zuerst Bericht und Ergebnislink an die Schule.');
+        }
+
+        DB::transaction(function () use ($seminar, $by): void {
+            $this->transition($seminar, SeminarStatus::Completed, $by);
+            $seminar->forceFill(['completed_at' => now()])->save();
+        });
+
+        AuditLog::record(AuditEvent::SeminarCompleted, $by, null, ['seminar' => $seminar->number]);
+        SeminarCompleted::dispatch($seminar);
+
+        return $seminar;
     }
 
     /** Mitteilungen und Folgen eines Statuswechsels (nach dem Speichern). */

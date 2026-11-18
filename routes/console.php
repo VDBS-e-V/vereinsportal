@@ -37,6 +37,9 @@ Schedule::command('onboarding:remind-team')->daily();
 // Teamende, die sich noch nicht auf ein ausgeschriebenes Seminar gemeldet haben, drei Tage vor Fristende erinnern.
 Schedule::command('seminars:remind-deadlines')->dailyAt('07:10');
 
+// Bericht und Verträge durchgeführter Seminare: Erinnerung vor dem Stichtag, Hinweis bei Verzug.
+Schedule::command('seminars:remind-reports')->dailyAt('07:20');
+
 // Erinnerungen an bald fällige und überfällige Aufgaben, nur an Personen, die sie eingeschaltet haben.
 Schedule::command('tasks:remind')->dailyAt('07:30');
 
