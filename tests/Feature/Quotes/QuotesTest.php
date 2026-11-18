@@ -44,13 +44,13 @@ function qtUser(?RoleKey $role = null): User
 }
 
 /** Seminar in Prüfung mit Schulkonto. */
-function qtSeminar(SeminarStatus $status = SeminarStatus::InReview): array
+function qtSeminar(SeminarStatus $status = SeminarStatus::InReview, string $email = 'eins@schule.example'): array
 {
     $partner = Partner::factory()->create(['name' => 'Schule Eins']);
-    $contact = PartnerContact::query()->create(['partner_id' => $partner->id, 'name' => 'Frau Lehrkraft', 'email' => 'eins@schule.example']);
+    $contact = PartnerContact::query()->create(['partner_id' => $partner->id, 'name' => 'Frau Lehrkraft', 'email' => $email]);
     $account = app(SchoolAccounts::class)->invite($partner, $contact, qtUser(RoleKey::Coordination));
     $account->user->forceFill(['status' => UserStatus::Active])->save();
-    $seminar = Seminar::factory()->status($status)->create(['partner_id' => $partner->id, 'contact_email' => 'eins@schule.example']);
+    $seminar = Seminar::factory()->status($status)->create(['partner_id' => $partner->id, 'contact_email' => $email]);
 
     return [$seminar, $account->user->fresh()];
 }
@@ -127,7 +127,7 @@ it('allows only one open draft and only during the review', function () {
 
     expect(fn () => $quotes->createDraft($seminar, $staff))->toThrow(DomainException::class, 'schon einen Entwurf');
 
-    [$other] = qtSeminar(SeminarStatus::Request);
+    [$other] = qtSeminar(SeminarStatus::Request, 'zwei@schule.example');
 
     expect(fn () => $quotes->createDraft($other, $staff))->toThrow(DomainException::class, 'geprüft');
 });
@@ -194,10 +194,10 @@ it('renders a pdf for the office and refuses it to others', function () {
 
 // ---------- Antwort der Schule ----------
 
-function qtSentQuote(): array
+function qtSentQuote(string $email = 'eins@schule.example'): array
 {
     Mail::fake();
-    [$seminar, $school] = qtSeminar();
+    [$seminar, $school] = qtSeminar(SeminarStatus::InReview, $email);
     $staff = qtUser(RoleKey::AdministrationStaff);
     $quotes = app(Quotes::class);
     $quote = $quotes->createDraft($seminar, $staff);
@@ -224,7 +224,7 @@ it('lets the school accept, ask and decline, but not the quote of another school
     // nach der Antwort lässt sich nicht noch einmal antworten
     $this->post(route('school.quotes.decline', [$seminar, $quote]))->assertSessionHasErrors('quote');
 
-    [, $foreignQuote, $foreign] = qtSentQuote();
+    [, $foreignQuote, $foreign] = qtSentQuote('zwei@schule.example');
     $this->actingAs($foreign)->post(route('school.quotes.accept', [$seminar, $quote]))->assertNotFound();
 });
 
