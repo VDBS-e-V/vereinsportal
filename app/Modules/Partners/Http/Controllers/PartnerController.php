@@ -83,7 +83,6 @@ class PartnerController extends Controller
             'statusOptions' => collect(PartnerStatus::cases())->mapWithKeys(fn (PartnerStatus $case): array => [$case->value => $case->label()])->all(),
             'typeOptions' => SchoolType::options(),
             'stateOptions' => FederalState::options(),
-            'coordinationOptions' => Coordination::options($partner?->coordination_id),
             'stats' => [
                 'total' => (clone $schools)->count(),
                 'active' => (clone $schools)->where('status', PartnerStatus::Active->value)->count(),
@@ -359,6 +358,7 @@ class PartnerController extends Controller
             'values' => $partner !== null ? PartnerData::fromPartner($partner) : ['status' => PartnerStatus::Active->value],
             'typeOptions' => SchoolType::options(),
             'stateOptions' => FederalState::options(),
+            'coordinationOptions' => Coordination::options($partner?->coordination_id),
             'statusOptions' => collect(PartnerStatus::cases())->mapWithKeys(fn (PartnerStatus $case): array => [$case->value => $case->label()])->all(),
         ];
     }

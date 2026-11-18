@@ -20,7 +20,7 @@
         <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Termine</h2>
         <ul>
             @foreach ($seminar->sessions as $session)
-                <li>{{ $session->starts_at->format('d.m.Y, H:i') }} Uhr@if (filled($session->location)), {{ $session->location }}@endif</li>
+                <li>{{ $session->starts_at->format('d.m.Y, H:i') }} Uhr{{ filled($session->location) ? ', '.$session->location : '' }}</li>
             @endforeach
         </ul>
     @endif

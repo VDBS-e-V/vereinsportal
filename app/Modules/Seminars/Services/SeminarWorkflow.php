@@ -43,7 +43,7 @@ final class SeminarWorkflow
     /** @return list<SeminarStatus> */
     public static function targets(SeminarStatus $from): array
     {
-        return self::GRAPH[$from->value] ?? [];
+        return self::GRAPH[$from->value];
     }
 
     /** Gibt es diesen Übergang im Ablauf (unabhängig von den Rechten)? */
