@@ -212,17 +212,9 @@ return [
         'enabled_types' => array_filter(explode(',', (string) env('FORMS_ENABLED_TYPES', 'expense,travel,purchase'))),
     ],
 
-    'feedback' => [
-        // Mindestzahl an Antworten pro Link, ab der Auswertungen gezeigt werden (Schutz vor Rückschlüssen auf Einzelne).
-        'min_responses' => (int) env('FEEDBACK_MIN_RESPONSES', 5),
-        // Aufbewahrung der Einzelantworten in Monaten nach Ende des Links, danach anonymisiert/archiviert bzw. gelöscht.
-        'retention_months' => (int) env('FEEDBACK_RETENTION_MONTHS', 12),
-        // Erinnerung an Lehrkräfte und Teamende, wenn so viele Tage nach dem letzten Termin noch zu wenig geantwortet wurde.
-        'remind_after_days' => (int) env('FEEDBACK_REMIND_AFTER_DAYS', 7),
-    ],
-
-    // Seminare: so viele Tage nach dem letzten Termin sind Ergebnisbericht und Teamverträge fällig; so viele Jahre bleibt der Ergebnislink mindestens erreichbar.
-    'seminars' => ['report_days' => (int) env('SEMINAR_REPORT_DAYS', 14), 'results_min_years' => 1, 'results_years' => (int) env('SEMINAR_RESULTS_YEARS', 2)],
+    // Seminare: so viele Tage nach dem letzten Termin sind Ergebnisbericht und Teamverträge fällig; so viele Jahre bleibt der Ergebnislink mindestens erreichbar;
+    // abgelehnte oder abgesagte Anfragen ohne Vertrag werden nach so vielen Jahren gelöscht.
+    'seminars' => ['report_days' => (int) env('SEMINAR_REPORT_DAYS', 14), 'results_min_years' => 1, 'results_years' => (int) env('SEMINAR_RESULTS_YEARS', 2), 'request_years' => (int) env('SEMINAR_REQUEST_YEARS', 1)],
 
     // Hochgeladene, privat gespeicherte Dateien (Aufgaben, Tickets, Vorstandssitzungen): Größe einer Datei und aller Dateien zusammen in KB.
     'uploads' => [

@@ -118,6 +118,12 @@ final class SeminarNotifications
         ])));
     }
 
+    /** Der Ergebnislink läuft bald ab: die Koordination kann ihn verlängern. */
+    public function resultsExpiring(Seminar $seminar): void
+    {
+        $this->toCapable(Capability::SeminarsPlan, 'seminar_overdue', 'Ergebnislink läuft bald ab: '.$seminar->title, ['Der Ergebnislink zum Seminar „'.$seminar->title.'“ ('.$seminar->partner->name.') ist nur noch bis '.$seminar->results_expires_on?->format('d.m.Y').' erreichbar. Verlängern Sie ihn, wenn die Schule ihn weiter braucht. Gelöscht wird nichts von selbst.'], route('seminars.plan.show', $seminar), 'Seminar ansehen');
+    }
+
     /** Erinnerung an die Seminarleitung kurz vor dem Stichtag für Bericht und Verträge. */
     public function reportDue(Seminar $seminar): void
     {

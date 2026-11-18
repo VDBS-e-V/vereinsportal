@@ -31,7 +31,7 @@ class Seminar extends Model
 
     protected function casts(): array
     {
-        return ['status' => SeminarStatus::class, 'participants' => 'integer', 'released_at' => 'datetime', 'school_contract_signed_on' => 'date', 'team_target' => 'integer', 'application_deadline' => 'date', 'team_confirmed_at' => 'datetime', 'held_at' => 'datetime', 'report_due_on' => 'date', 'reported_at' => 'datetime', 'results_expires_on' => 'date', 'report_sent_at' => 'datetime', 'completed_at' => 'datetime', 'onboarding_at' => 'datetime', 'briefing_sent_at' => 'datetime', 'tender_reminded_at' => 'datetime', 'report_reminded_at' => 'datetime', 'report_overdue_notified_at' => 'datetime', 'nextcloud_synced_at' => 'datetime', 'nextcloud_manual' => 'boolean'];
+        return ['status' => SeminarStatus::class, 'participants' => 'integer', 'released_at' => 'datetime', 'school_contract_signed_on' => 'date', 'team_target' => 'integer', 'application_deadline' => 'date', 'team_confirmed_at' => 'datetime', 'held_at' => 'datetime', 'report_due_on' => 'date', 'reported_at' => 'datetime', 'results_expires_on' => 'date', 'report_sent_at' => 'datetime', 'completed_at' => 'datetime', 'onboarding_at' => 'datetime', 'briefing_sent_at' => 'datetime', 'tender_reminded_at' => 'datetime', 'report_reminded_at' => 'datetime', 'report_overdue_notified_at' => 'datetime', 'nextcloud_synced_at' => 'datetime', 'nextcloud_manual' => 'boolean', 'results_expiry_notified_at' => 'datetime'];
     }
 
     /** @return BelongsTo<Partner, $this> */
