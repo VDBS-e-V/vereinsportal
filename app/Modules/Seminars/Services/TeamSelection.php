@@ -6,6 +6,7 @@ use App\Modules\Access\Models\User;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Seminars\Enums\SeminarStatus;
+use App\Modules\Seminars\Jobs\SyncSeminarFolder;
 use App\Modules\Seminars\Mail\SeminarNoticeMail;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
@@ -105,6 +106,7 @@ final class TeamSelection
         });
 
         AuditLog::record(AuditEvent::SeminarTeamConfirmed, $by, null, ['seminar' => $seminar->number, 'zusagen' => $confirms->count()]);
+        SyncSeminarFolder::dispatch($seminar->id);
 
         $sent = 0;
 

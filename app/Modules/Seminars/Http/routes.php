@@ -7,8 +7,8 @@ use App\Modules\Seminars\Http\Controllers\PaymentOrderController;
 use App\Modules\Seminars\Http\Controllers\PlanSeminarController;
 use App\Modules\Seminars\Http\Controllers\SeminarDocumentController;
 use App\Modules\Seminars\Http\Controllers\SeminarFilesController;
-use App\Modules\Seminars\Http\Controllers\TeamSeminarController;
 use App\Modules\Seminars\Http\Controllers\SchoolSeminarController;
+use App\Modules\Seminars\Http\Controllers\TeamSeminarController;
 use Illuminate\Support\Facades\Route;
 
 /* Bereich Schulen: eigene Seminaranfragen (nur die der eigenen Schule). */
@@ -48,6 +48,8 @@ Route::middleware(['web', 'auth', 'can:seminars.plan'])->prefix('koordination/se
     Route::post('/{seminar}/vorbereitet', [PlanSeminarController::class, 'prepare'])->whereNumber('seminar')->middleware('throttle:20,10')->name('prepare');
     Route::post('/{seminar}/bericht-zurueck', [PlanSeminarController::class, 'returnReport'])->whereNumber('seminar')->middleware('throttle:20,10')->name('return-report');
     Route::post('/{seminar}/ergebnisse-senden', [PlanSeminarController::class, 'sendResults'])->whereNumber('seminar')->middleware('throttle:20,10')->name('send-results');
+    Route::post('/{seminar}/ergebnisse-verlaengern', [PlanSeminarController::class, 'extendResults'])->whereNumber('seminar')->middleware('throttle:20,10')->name('extend-results');
+    Route::post('/{seminar}/nextcloud', [PlanSeminarController::class, 'folder'])->whereNumber('seminar')->middleware('throttle:20,10')->name('folder');
     Route::post('/{seminar}/abschliessen', [PlanSeminarController::class, 'complete'])->whereNumber('seminar')->middleware('throttle:20,10')->name('complete');
     Route::post('/{seminar}/absagen', [PlanSeminarController::class, 'cancel'])->whereNumber('seminar')->middleware('throttle:30,10')->name('cancel');
 });

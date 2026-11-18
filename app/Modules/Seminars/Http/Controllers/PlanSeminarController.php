@@ -9,6 +9,7 @@ use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
 use App\Modules\Seminars\Services\SeminarDocuments;
+use App\Modules\Seminars\Services\SeminarNextcloud;
 use App\Modules\Seminars\Services\SeminarNotifications;
 use App\Modules\Seminars\Services\SeminarWorkflow;
 use App\Modules\Seminars\Services\TeamSelection;
@@ -172,11 +173,39 @@ class PlanSeminarController extends Controller
     public function sendResults(Request $request, Seminar $seminar): RedirectResponse
     {
         $data = $request->validate([
-            'results_url' => ['required', 'url:https', 'max:500'],
+            'results_url' => ['nullable', 'url:https', 'max:500'],
             'results_expires_on' => ['required', 'date'],
-        ], ['results_url.required' => 'Bitte geben Sie den Link zum Ergebnisordner an.', 'results_url.url' => 'Bitte geben Sie einen Link mit https:// an.', 'results_expires_on.required' => 'Bitte geben Sie an, bis wann der Link erreichbar ist.']);
+        ], ['results_url.url' => 'Bitte geben Sie einen Link mit https:// an.', 'results_expires_on.required' => 'Bitte geben Sie an, bis wann der Link erreichbar ist.']);
 
-        return $this->team($seminar, fn () => $this->workflow->sendResults($seminar, $data['results_url'], Carbon::parse($data['results_expires_on']), $this->user($request)), 'Bericht und Ergebnislink sind an die Schule gesendet.');
+        return $this->team($seminar, fn () => $this->workflow->sendResults($seminar, $data['results_url'] ?? null, Carbon::parse($data['results_expires_on']), $this->user($request)), 'Bericht und Ergebnislink sind an die Schule gesendet.');
+    }
+
+    public function extendResults(Request $request, Seminar $seminar): RedirectResponse
+    {
+        $data = $request->validate(['results_expires_on' => ['required', 'date']], ['results_expires_on.required' => 'Bitte geben Sie das neue Datum an.']);
+
+        return $this->team($seminar, fn () => $this->workflow->extendResults($seminar, Carbon::parse($data['results_expires_on']), $this->user($request)), 'Der Ergebnislink ist verlängert.');
+    }
+
+    /** Nextcloud-Ordner jetzt anlegen (nochmal versuchen) oder vermerken, dass er von Hand angelegt wird. */
+    public function folder(Request $request, Seminar $seminar, SeminarNextcloud $nextcloud): RedirectResponse
+    {
+        $data = $request->validate(['mode' => ['required', Rule::in(['create', 'manual'])]]);
+
+        if ($data['mode'] === 'manual') {
+            $seminar->forceFill(['nextcloud_manual' => true])->save();
+            $this->workflow->log($seminar, 'nextcloud', $this->user($request), null, null, 'Der Ordner wird von Hand angelegt');
+
+            return redirect()->route('seminars.plan.show', $seminar)->with('success', 'Vermerkt: Der Ordner wird von Hand angelegt.');
+        }
+
+        if (! $nextcloud->enabled()) {
+            return back()->withErrors(['team' => 'Die Nextcloud ist nicht eingerichtet. Legen Sie den Ordner von Hand an.']);
+        }
+
+        return $nextcloud->ensureFolders($seminar)
+            ? redirect()->route('seminars.plan.show', $seminar)->with('success', 'Der Nextcloud-Ordner ist angelegt.')
+            : back()->withErrors(['team' => (string) $seminar->fresh()?->nextcloud_error]);
     }
 
     public function complete(Request $request, Seminar $seminar): RedirectResponse

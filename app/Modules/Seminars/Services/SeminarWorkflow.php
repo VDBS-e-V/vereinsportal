@@ -334,6 +334,10 @@ final class SeminarWorkflow
             throw new DomainException('Legen Sie zuerst den Termin für das Onboarding fest.');
         }
 
+        if (app(SeminarNextcloud::class)->enabled() && $seminar->nextcloud_path === null && ! $seminar->nextcloud_manual) {
+            throw new DomainException('Der Nextcloud-Ordner fehlt noch. Legen Sie ihn mit „Ordner anlegen“ an oder vermerken Sie, dass er von Hand angelegt wird.');
+        }
+
         return $this->transition($seminar, SeminarStatus::Prepared, $by);
     }
 
@@ -389,7 +393,7 @@ final class SeminarWorkflow
      *
      * @throws DomainException
      */
-    public function sendResults(Seminar $seminar, string $url, \DateTimeInterface $expires, User $by): Seminar
+    public function sendResults(Seminar $seminar, ?string $url, \DateTimeInterface $expires, User $by): Seminar
     {
         if (! $by->can('seminars.plan')) {
             throw new DomainException('Für diesen Schritt fehlt Ihnen die Berechtigung.');
@@ -406,9 +410,54 @@ final class SeminarWorkflow
             throw new DomainException('Der Ergebnislink muss mindestens bis '.date('d.m.Y', strtotime($minimum)).' erreichbar bleiben (ein Jahr nach dem letzten Termin).');
         }
 
+        if (blank($url)) {
+            try {
+                $share = app(SeminarNextcloud::class)->share($seminar, $expires);
+            } catch (\RuntimeException $exception) {
+                throw new DomainException($exception->getMessage());
+            }
+
+            if ($share === null) {
+                throw new DomainException('Bitte geben Sie den Link zum Ergebnisordner an.');
+            }
+
+            $url = $share['url'];
+        }
+
         $seminar->forceFill(['results_url' => $url, 'results_expires_on' => $expires->format('Y-m-d'), 'report_sent_at' => now()])->save();
         $this->log($seminar, 'results_sent', $by, null, null, 'Bericht und Ergebnislink an die Schule gesendet (Link bis '.$expires->format('d.m.Y').')');
         $this->notifications()->results($seminar->loadMissing('partner'));
+
+        return $seminar;
+    }
+
+    /**
+     * Verlängert die Erreichbarkeit des Ergebnislinks (nie verkürzen). Gibt es einen Nextcloud-Link, wird das Ablaufdatum dort mit geändert.
+     *
+     * @throws DomainException
+     */
+    public function extendResults(Seminar $seminar, \DateTimeInterface $expires, User $by): Seminar
+    {
+        if (! $by->can('seminars.plan')) {
+            throw new DomainException('Für diesen Schritt fehlt Ihnen die Berechtigung.');
+        }
+
+        if ($seminar->report_sent_at === null || $seminar->results_expires_on === null) {
+            throw new DomainException('Es gibt noch keinen Ergebnislink.');
+        }
+
+        if ($expires->format('Y-m-d') <= $seminar->results_expires_on->format('Y-m-d')) {
+            throw new DomainException('Das neue Datum muss nach dem bisherigen ('.$seminar->results_expires_on->format('d.m.Y').') liegen.');
+        }
+
+        try {
+            app(SeminarNextcloud::class)->share($seminar, $expires);
+        } catch (\RuntimeException $exception) {
+            throw new DomainException($exception->getMessage());
+        }
+
+        $seminar->forceFill(['results_expires_on' => $expires->format('Y-m-d')])->save();
+        $this->log($seminar, 'results_extended', $by, null, null, 'Ergebnislink verlängert bis '.$expires->format('d.m.Y'));
 
         return $seminar;
     }

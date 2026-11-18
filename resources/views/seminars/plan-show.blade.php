@@ -168,6 +168,20 @@
         </x-vdbs.forms.form>
         @if ($seminar->briefing_sent_at)<p class="vdbs-hint">Briefing gesendet am {{ $seminar->briefing_sent_at->format('d.m.Y') }}.</p>@endif
 
+        <p>Nextcloud-Ordner: @if ($seminar->nextcloud_path){{ $seminar->nextcloud_path }}@elseif ($seminar->nextcloud_manual)wird von Hand angelegt@elseif ($seminar->nextcloud_error)Fehler: {{ $seminar->nextcloud_error }}@else noch nicht angelegt@endif</p>
+        @if (! $seminar->nextcloud_path)
+            <x-vdbs.forms.form :action="route('seminars.plan.folder', $seminar)" :summary="false" style="margin-bottom:var(--space-5)">
+                <input type="hidden" name="mode" value="create">
+                <x-slot:actions>
+                    <x-vdbs.actions.button type="submit" variant="secondary" icon="folder">Ordner in der Nextcloud anlegen</x-vdbs.actions.button>
+                </x-slot:actions>
+            </x-vdbs.forms.form>
+            <x-vdbs.forms.form :action="route('seminars.plan.folder', $seminar)" :summary="false" style="margin-bottom:var(--space-5)">
+                <input type="hidden" name="mode" value="manual">
+                <x-slot:actions><x-vdbs.actions.button type="submit" variant="text" size="s">Ordner wird von Hand angelegt</x-vdbs.actions.button></x-slot:actions>
+            </x-vdbs.forms.form>
+        @endif
+
         @if ($seminar->status === SeminarStatus::TeamConfirmed)
             <x-vdbs.forms.form :action="route('seminars.plan.prepare', $seminar)" :summary="false" style="margin-bottom:var(--space-5)">
                 <p>Das Seminar ist vorbereitet, wenn das Team bestätigt, die Seminarleitung bestimmt und der Onboarding-Termin gesetzt ist.</p>
@@ -190,13 +204,17 @@
             @if (! $seminar->report_sent_at)
                 <x-vdbs.forms.form :action="route('seminars.plan.send-results', $seminar)" :summary="false" style="margin-bottom:var(--space-5)">
                     <x-vdbs.forms.form-grid :columns="2">
-                        <x-vdbs.forms.input name="results_url" label="Link zum Ergebnisordner" :required="true" maxlength="500" :value="old('results_url', $seminar->results_url)" hint="Mit https:// beginnend." />
+                        <x-vdbs.forms.input name="results_url" :label="'Link zum Ergebnisordner'.($seminar->nextcloud_path ? ' (leer lassen: Nextcloud-Link erstellen)' : '')" :optional="(bool) $seminar->nextcloud_path" :required="! $seminar->nextcloud_path" maxlength="500" :value="old('results_url', $seminar->results_url)" hint="Mit https:// beginnend." />
                         <x-vdbs.forms.input name="results_expires_on" label="Link erreichbar bis" type="date" :required="true" :value="old('results_expires_on', $seminar->sessions->max('starts_at')?->copy()->addYears((int) config('portal.seminars.results_years', 2))->format('Y-m-d'))" hint="Mindestens ein Jahr nach dem letzten Termin." />
                     </x-vdbs.forms.form-grid>
                     <x-slot:actions><x-vdbs.actions.button type="submit" icon="send">Bericht und Link an die Schule senden</x-vdbs.actions.button></x-slot:actions>
                 </x-vdbs.forms.form>
             @else
                 <p>Bericht und Link sind am {{ $seminar->report_sent_at->format('d.m.Y') }} an die Schule gesendet (Link bis {{ $seminar->results_expires_on?->format('d.m.Y') }}).</p>
+                <x-vdbs.forms.form :action="route('seminars.plan.extend-results', $seminar)" :summary="false" style="margin-bottom:var(--space-5)">
+                    <x-vdbs.forms.input name="results_expires_on" label="Link verlängern bis" type="date" :required="true" :value="old('results_expires_on')" />
+                    <x-slot:actions><x-vdbs.actions.button type="submit" variant="secondary">Verlängern</x-vdbs.actions.button></x-slot:actions>
+                </x-vdbs.forms.form>
                 <x-vdbs.forms.form :action="route('seminars.plan.complete', $seminar)" :summary="false" style="margin-bottom:var(--space-5)">
                     <x-slot:actions><x-vdbs.actions.button type="submit" icon="check">Seminar abschließen</x-vdbs.actions.button></x-slot:actions>
                 </x-vdbs.forms.form>

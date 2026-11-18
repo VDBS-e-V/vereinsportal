@@ -26,11 +26,12 @@ class Seminar extends Model
         'number', 'title', 'status', 'partner_id', 'coordination_id', 'school_year', 'format', 'participants', 'desired_period', 'request_note',
         'contact_name', 'contact_email', 'requested_by_user_id', 'release_basis', 'release_reason', 'released_at', 'released_by_user_id', 'school_contract_signed_on', 'team_target', 'application_deadline', 'lead_user_id', 'team_confirmed_at', 'team_confirmed_by_user_id',
         'held_at', 'report_due_on', 'reported_at', 'results_url', 'results_expires_on', 'report_sent_at', 'completed_at',
+        'nextcloud_path', 'nextcloud_share_id', 'nextcloud_synced_at', 'nextcloud_error', 'nextcloud_manual',
     ];
 
     protected function casts(): array
     {
-        return ['status' => SeminarStatus::class, 'participants' => 'integer', 'released_at' => 'datetime', 'school_contract_signed_on' => 'date', 'team_target' => 'integer', 'application_deadline' => 'date', 'team_confirmed_at' => 'datetime', 'held_at' => 'datetime', 'report_due_on' => 'date', 'reported_at' => 'datetime', 'results_expires_on' => 'date', 'report_sent_at' => 'datetime', 'completed_at' => 'datetime', 'onboarding_at' => 'datetime', 'briefing_sent_at' => 'datetime', 'tender_reminded_at' => 'datetime', 'report_reminded_at' => 'datetime', 'report_overdue_notified_at' => 'datetime'];
+        return ['status' => SeminarStatus::class, 'participants' => 'integer', 'released_at' => 'datetime', 'school_contract_signed_on' => 'date', 'team_target' => 'integer', 'application_deadline' => 'date', 'team_confirmed_at' => 'datetime', 'held_at' => 'datetime', 'report_due_on' => 'date', 'reported_at' => 'datetime', 'results_expires_on' => 'date', 'report_sent_at' => 'datetime', 'completed_at' => 'datetime', 'onboarding_at' => 'datetime', 'briefing_sent_at' => 'datetime', 'tender_reminded_at' => 'datetime', 'report_reminded_at' => 'datetime', 'report_overdue_notified_at' => 'datetime', 'nextcloud_synced_at' => 'datetime', 'nextcloud_manual' => 'boolean'];
     }
 
     /** @return BelongsTo<Partner, $this> */
