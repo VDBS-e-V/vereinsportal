@@ -28,10 +28,11 @@ final class SeminarNextcloud
     {
         $seminar->loadMissing(['partner', 'coordination']);
         $team = $this->segment((string) config('services.nextcloud.team_folder', 'Koordination'), 'Koordination');
+        $coordination = $seminar->coordination ?? $seminar->partner->coordination;
 
         return implode('/', [
             $team,
-            $this->segment((string) ($seminar->coordination?->name ?? $seminar->partner->coordination?->name), 'Ohne Koordination'),
+            $this->segment($coordination !== null ? $coordination->name : '', 'Ohne Koordination'),
             $this->segment($seminar->partner->name, 'Schule'),
             $this->segment(str_replace('/', '-', (string) $seminar->school_year), 'Schuljahr'),
             $this->segment($seminar->number.' '.$seminar->title, 'Seminar'),

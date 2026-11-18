@@ -83,7 +83,7 @@ final class PrintPlans
             }
         }
 
-        return $pages === [] ? null : $pages;
+        return $pages;
     }
 
     /**

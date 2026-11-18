@@ -48,12 +48,12 @@ function nxFake(bool $failing = false): FakeNextcloudClient
     return $fake;
 }
 
-function nxSeminar(SeminarStatus $status = SeminarStatus::TeamConfirmed): Seminar
+function nxSeminar(SeminarStatus $status = SeminarStatus::TeamConfirmed, string $number = 'S-2027-0007'): Seminar
 {
     $coordination = Coordination::query()->firstOrCreate(['name' => 'Neukölln']);
     $partner = Partner::factory()->create(['name' => 'Goethe/Schule: Nord', 'coordination_id' => $coordination->id]);
 
-    return Seminar::factory()->status($status)->create(['partner_id' => $partner->id, 'coordination_id' => $coordination->id, 'school_year' => '2026/27', 'title' => 'Demokratie im Alltag', 'number' => 'S-2027-0007', 'contact_email' => 'lehrkraft@schule.example']);
+    return Seminar::factory()->status($status)->create(['partner_id' => $partner->id, 'coordination_id' => $coordination->id, 'school_year' => '2026/27', 'title' => 'Demokratie im Alltag', 'number' => $number, 'contact_email' => 'lehrkraft@schule.example']);
 }
 
 it('builds a clean folder path from coordination, school, school year and seminar', function () {
@@ -120,7 +120,7 @@ it('needs the folder before preparing when the nextcloud is set up, unless it is
     $this->post(route('seminars.plan.prepare', $seminar))->assertSessionHas('success');
     expect($seminar->fresh()->status)->toBe(SeminarStatus::Prepared);
 
-    $manual = nxSeminar();
+    $manual = nxSeminar(SeminarStatus::TeamConfirmed, 'S-2027-0008');
     $manual->forceFill(['lead_user_id' => $anna->id, 'onboarding_at' => now()->addWeek()])->save();
     $this->post(route('seminars.plan.folder', $manual), ['mode' => 'manual'])->assertSessionHas('success');
     $this->post(route('seminars.plan.prepare', $manual))->assertSessionHas('success');

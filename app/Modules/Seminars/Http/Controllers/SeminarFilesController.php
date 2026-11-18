@@ -5,6 +5,7 @@ namespace App\Modules\Seminars\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
 use App\Modules\Seminars\Models\Seminar;
+use App\Modules\Seminars\Models\SeminarPrintPlan;
 use App\Modules\Seminars\Services\PrintPlans;
 use App\Modules\Seminars\Services\SeminarFolder;
 use DomainException;
@@ -23,7 +24,8 @@ class SeminarFilesController extends Controller
     {
         $this->authorizeUse($request, $seminar);
 
-        $items = collect($seminar->printPlan?->items ?? [])->keyBy('document_id');
+        $plan = $seminar->printPlan;
+        $items = collect($plan instanceof SeminarPrintPlan ? $plan->items : [])->keyBy('document_id');
         $documents = $this->plans->printable($seminar);
 
         return view('seminars.print-plan', [

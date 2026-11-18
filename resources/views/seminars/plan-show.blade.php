@@ -168,7 +168,7 @@
         </x-vdbs.forms.form>
         @if ($seminar->briefing_sent_at)<p class="vdbs-hint">Briefing gesendet am {{ $seminar->briefing_sent_at->format('d.m.Y') }}.</p>@endif
 
-        <p>Nextcloud-Ordner: @if ($seminar->nextcloud_path){{ $seminar->nextcloud_path }}@elseif ($seminar->nextcloud_manual)wird von Hand angelegt@elseif ($seminar->nextcloud_error)Fehler: {{ $seminar->nextcloud_error }}@else noch nicht angelegt@endif</p>
+        <p>Nextcloud-Ordner: @if ($seminar->nextcloud_path){{ $seminar->nextcloud_path }}@elseif ($seminar->nextcloud_manual)wird von Hand angelegt@elseif ($seminar->nextcloud_error)Fehler: {{ $seminar->nextcloud_error }}@else noch nicht angelegt @endif</p>
         @if (! $seminar->nextcloud_path)
             <x-vdbs.forms.form :action="route('seminars.plan.folder', $seminar)" :summary="false" style="margin-bottom:var(--space-5)">
                 <input type="hidden" name="mode" value="create">
