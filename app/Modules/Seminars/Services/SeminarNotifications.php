@@ -89,11 +89,16 @@ final class SeminarNotifications
     /** Einladung zum Onboarding (Termin, ggf. Link der Videokonferenz) an das bestätigte Team. */
     public function onboardingInvitation(Seminar $seminar): void
     {
-        $this->toTeam($seminar, 'Einladung zum Onboarding: '.$seminar->title, array_values(array_filter([
+        $lines = [
             'zur Vorbereitung des Seminars „'.$seminar->title.'“ laden wir Sie zu einem Onboarding ein.',
             'Termin: '.$seminar->onboarding_at?->format('d.m.Y, H:i').' Uhr.',
-            filled($seminar->onboarding_link) ? 'Link: '.$seminar->onboarding_link : null,
-        ])));
+        ];
+
+        if (filled($seminar->onboarding_link)) {
+            $lines[] = 'Link: '.$seminar->onboarding_link;
+        }
+
+        $this->toTeam($seminar, 'Einladung zum Onboarding: '.$seminar->title, $lines);
     }
 
     /** Briefing an die Schule: Ablauf, Raum, Material. Der Text kommt von der Koordination. */

@@ -25,7 +25,7 @@ beforeEach(function () {
     Mail::fake();
 });
 
-function ntUser(?RoleKey $role = null): User
+function snUser(?RoleKey $role = null): User
 {
     $person = Person::factory()->create();
     $user = User::factory()->create(['person_id' => $person->id, 'email' => $person->email]);
@@ -37,61 +37,61 @@ function ntUser(?RoleKey $role = null): User
     return $user;
 }
 
-function ntOptOut(User $user, string $key): void
+function snOptOut(User $user, string $key): void
 {
     DB::table('notification_preferences')->insert(['user_id' => $user->id, 'key' => $key, 'enabled' => false, 'created_at' => now(), 'updated_at' => now()]);
 }
 
-function ntSent(string $to, string $subjectStart): bool
+function snSent(string $to, string $subjectStart): bool
 {
     return Mail::sent(SeminarNoticeMail::class, fn (SeminarNoticeMail $mail): bool => $mail->hasTo($to) && str_starts_with($mail->subjectLine, $subjectStart))->isNotEmpty();
 }
 
 it('confirms a request to the school and tells the office, unless the office switched it off', function () {
-    $wants = ntUser(RoleKey::AdministrationStaff);
-    $declines = ntUser(RoleKey::AdministrationStaff);
-    ntOptOut($declines, 'seminar_requests');
+    $wants = snUser(RoleKey::AdministrationStaff);
+    $declines = snUser(RoleKey::AdministrationStaff);
+    snOptOut($declines, 'seminar_requests');
     $partner = Partner::factory()->create();
 
-    app(SeminarWorkflow::class)->request($partner, ['title' => 'Medientag', 'contact_name' => 'Frau Lehrkraft', 'contact_email' => 'lehrkraft@schule.example'], ntUser());
+    app(SeminarWorkflow::class)->request($partner, ['title' => 'Medientag', 'contact_name' => 'Frau Lehrkraft', 'contact_email' => 'lehrkraft@schule.example'], snUser());
 
-    expect(ntSent('lehrkraft@schule.example', 'Ihre Seminaranfrage'))->toBeTrue()->and(ntSent($wants->email, 'Neue Seminaranfrage'))->toBeTrue()->and(ntSent($declines->email, 'Neue Seminaranfrage'))->toBeFalse();
+    expect(snSent('lehrkraft@schule.example', 'Ihre Seminaranfrage'))->toBeTrue()->and(snSent($wants->email, 'Neue Seminaranfrage'))->toBeTrue()->and(snSent($declines->email, 'Neue Seminaranfrage'))->toBeFalse();
 });
 
 it('tells the school the reason when the request is rejected', function () {
     $seminar = Seminar::factory()->create(['contact_email' => 'lehrkraft@schule.example']);
 
-    app(SeminarWorkflow::class)->transition($seminar, SeminarStatus::Rejected, ntUser(RoleKey::AdministrationStaff), 'Zeitraum nicht möglich');
+    app(SeminarWorkflow::class)->transition($seminar, SeminarStatus::Rejected, snUser(RoleKey::AdministrationStaff), 'Zeitraum nicht möglich');
 
     Mail::assertSent(SeminarNoticeMail::class, fn (SeminarNoticeMail $mail): bool => $mail->hasTo('lehrkraft@schule.example') && in_array('Begründung: Zeitraum nicht möglich', $mail->paragraphs, true));
 });
 
 it('tells the coordination about a released seminar and the team about a tender', function () {
-    $coordination = ntUser(RoleKey::Coordination);
-    $quiet = ntUser(RoleKey::Coordination);
-    ntOptOut($quiet, 'seminar_released');
+    $coordination = snUser(RoleKey::Coordination);
+    $quiet = snUser(RoleKey::Coordination);
+    snOptOut($quiet, 'seminar_released');
     $seminar = Seminar::factory()->status(SeminarStatus::QuoteSent)->create();
     $seminar->quotes()->create(['version' => 1, 'status' => 'sent', 'total_cents' => 1000, 'sent_at' => now()]);
 
-    app(SeminarWorkflow::class)->release($seminar, ntUser(RoleKey::AdministrationStaff), 'commitment', 'Zusage per E-Mail');
+    app(SeminarWorkflow::class)->release($seminar, snUser(RoleKey::AdministrationStaff), 'commitment', 'Zusage per E-Mail');
 
-    expect(ntSent($coordination->email, 'Seminar freigegeben'))->toBeTrue()->and(ntSent($quiet->email, 'Seminar freigegeben'))->toBeFalse();
+    expect(snSent($coordination->email, 'Seminar freigegeben'))->toBeTrue()->and(snSent($quiet->email, 'Seminar freigegeben'))->toBeFalse();
 
-    $team = ntUser(RoleKey::Team);
-    $applied = ntUser(RoleKey::Team);
-    $muted = ntUser(RoleKey::Team);
-    ntOptOut($muted, 'seminar_tender');
+    $team = snUser(RoleKey::Team);
+    $applied = snUser(RoleKey::Team);
+    $muted = snUser(RoleKey::Team);
+    snOptOut($muted, 'seminar_tender');
     $seminar->refresh();
     app(SeminarWorkflow::class)->plan($seminar, [['starts_at' => now()->addMonths(2), 'ends_at' => null, 'location' => 'Aula']], 2, $coordination);
     SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $applied->id]);
     app(SeminarWorkflow::class)->tender($seminar->fresh(), now()->addMonth(), $coordination);
 
-    expect(ntSent($team->email, 'Neues Seminar zur Mitarbeit'))->toBeTrue()->and(ntSent($applied->email, 'Neues Seminar zur Mitarbeit'))->toBeFalse()->and(ntSent($muted->email, 'Neues Seminar zur Mitarbeit'))->toBeFalse();
+    expect(snSent($team->email, 'Neues Seminar zur Mitarbeit'))->toBeTrue()->and(snSent($applied->email, 'Neues Seminar zur Mitarbeit'))->toBeFalse()->and(snSent($muted->email, 'Neues Seminar zur Mitarbeit'))->toBeFalse();
 });
 
 it('reminds teamende once, three days before the deadline, who have not yet reported', function () {
-    $open = ntUser(RoleKey::Team);
-    $applied = ntUser(RoleKey::Team);
+    $open = snUser(RoleKey::Team);
+    $applied = snUser(RoleKey::Team);
     $near = Seminar::factory()->status(SeminarStatus::Tendered)->create(['application_deadline' => now()->addDays(2)]);
     $far = Seminar::factory()->status(SeminarStatus::Tendered)->create(['title' => 'Später', 'application_deadline' => now()->addDays(20)]);
     SeminarApplication::query()->create(['seminar_id' => $near->id, 'user_id' => $applied->id]);
@@ -101,7 +101,7 @@ it('reminds teamende once, three days before the deadline, who have not yet repo
 
     $this->artisan('seminars:remind-deadlines')->expectsOutputToContain('Fristerinnerungen: 1')->assertSuccessful();
 
-    expect(ntSent($open->email, 'Bewerbungsfrist endet bald'))->toBeTrue()->and(ntSent($applied->email, 'Bewerbungsfrist endet bald'))->toBeFalse()->and($near->fresh()->tender_reminded_at)->not->toBeNull()->and($far->fresh()->tender_reminded_at)->toBeNull();
+    expect(snSent($open->email, 'Bewerbungsfrist endet bald'))->toBeTrue()->and(snSent($applied->email, 'Bewerbungsfrist endet bald'))->toBeFalse()->and($near->fresh()->tender_reminded_at)->not->toBeNull()->and($far->fresh()->tender_reminded_at)->toBeNull();
 
     Mail::fake();
     $this->artisan('seminars:remind-deadlines')->expectsOutputToContain('Fristerinnerungen: 0')->assertSuccessful();
@@ -109,12 +109,12 @@ it('reminds teamende once, three days before the deadline, who have not yet repo
 });
 
 /** Seminar mit bestätigtem Team: Anna (Leitung, Zusage), Ben (Warteliste). */
-function ntConfirmed(): array
+function snConfirmed(): array
 {
     $seminar = Seminar::factory()->status(SeminarStatus::TeamConfirmed)->create(['contact_email' => 'lehrkraft@schule.example', 'team_target' => 1, 'application_deadline' => now()->addWeek()]);
     $seminar->sessions()->create(['starts_at' => now()->addMonth()]);
-    $anna = ntUser(RoleKey::Team);
-    $ben = ntUser(RoleKey::Team);
+    $anna = snUser(RoleKey::Team);
+    $ben = snUser(RoleKey::Team);
     SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $anna->id, 'decision' => 'confirm', 'outcome' => 'confirmed']);
     SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $ben->id, 'outcome' => 'waitlist', 'waitlist_position' => 1]);
     $seminar->forceFill(['lead_user_id' => $anna->id, 'team_confirmed_at' => now()])->save();
@@ -123,36 +123,36 @@ function ntConfirmed(): array
 }
 
 it('informs school and team about a cancellation and respects the team preference', function () {
-    [$seminar, $anna, $ben] = ntConfirmed();
-    ntOptOut($ben, 'seminar_team');
+    [$seminar, $anna, $ben] = snConfirmed();
+    snOptOut($ben, 'seminar_team');
 
-    app(SeminarWorkflow::class)->transition($seminar, SeminarStatus::Cancelled, ntUser(RoleKey::Coordination), 'Schule hat abgesagt');
+    app(SeminarWorkflow::class)->transition($seminar, SeminarStatus::Cancelled, snUser(RoleKey::Coordination), 'Schule hat abgesagt');
 
-    expect(ntSent('lehrkraft@schule.example', 'Seminar abgesagt'))->toBeTrue()->and(ntSent($anna->email, 'Seminar abgesagt'))->toBeTrue()->and(ntSent($ben->email, 'Seminar abgesagt'))->toBeFalse();
+    expect(snSent('lehrkraft@schule.example', 'Seminar abgesagt'))->toBeTrue()->and(snSent($anna->email, 'Seminar abgesagt'))->toBeTrue()->and(snSent($ben->email, 'Seminar abgesagt'))->toBeFalse();
 });
 
 it('resets the team and asks again when a confirmed seminar gets a new date', function () {
-    [$seminar, $anna] = ntConfirmed();
+    [$seminar, $anna] = snConfirmed();
 
-    app(SeminarWorkflow::class)->transition($seminar, SeminarStatus::Planned, ntUser(RoleKey::Coordination), 'Termin der Schule geändert');
+    app(SeminarWorkflow::class)->transition($seminar, SeminarStatus::Planned, snUser(RoleKey::Coordination), 'Termin der Schule geändert');
 
     $seminar->refresh();
 
     expect($seminar->status)->toBe(SeminarStatus::Planned)->and($seminar->lead_user_id)->toBeNull()->and($seminar->team_confirmed_at)->toBeNull()->and($seminar->application_deadline)->toBeNull()
         ->and(SeminarApplication::query()->whereNotNull('outcome')->count())->toBe(0)->and(SeminarApplication::query()->count())->toBe(2)
-        ->and(ntSent($anna->email, 'Neuer Termin für'))->toBeTrue()->and(ntSent('lehrkraft@schule.example', 'Neuer Termin für'))->toBeTrue();
+        ->and(snSent($anna->email, 'Neuer Termin für'))->toBeTrue()->and(snSent('lehrkraft@schule.example', 'Neuer Termin für'))->toBeTrue();
 });
 
 it('invites the confirmed team to the onboarding, briefs the school and prepares the seminar', function () {
-    [$seminar, $anna, $ben] = ntConfirmed();
-    $this->actingAs(ntUser(RoleKey::Coordination));
+    [$seminar, $anna, $ben] = snConfirmed();
+    $this->actingAs(snUser(RoleKey::Coordination));
 
     $this->post(route('seminars.plan.prepare', $seminar))->assertSessionHasErrors('team');
     $this->post(route('seminars.plan.onboarding', $seminar), ['onboarding_at' => now()->subDay()->format('Y-m-d H:i')])->assertSessionHasErrors('onboarding_at');
     $this->post(route('seminars.plan.onboarding', $seminar), ['onboarding_at' => now()->addWeeks(2)->format('Y-m-d H:i'), 'onboarding_link' => 'http://unsicher.example'])->assertSessionHasErrors('onboarding_link');
     $this->post(route('seminars.plan.onboarding', $seminar), ['onboarding_at' => now()->addWeeks(2)->format('Y-m-d H:i'), 'onboarding_link' => 'https://konferenz.example/raum'])->assertSessionHas('success');
 
-    expect($seminar->fresh()->onboarding_at)->not->toBeNull()->and(ntSent($anna->email, 'Einladung zum Onboarding'))->toBeTrue()->and(ntSent($ben->email, 'Einladung zum Onboarding'))->toBeTrue();
+    expect($seminar->fresh()->onboarding_at)->not->toBeNull()->and(snSent($anna->email, 'Einladung zum Onboarding'))->toBeTrue()->and(snSent($ben->email, 'Einladung zum Onboarding'))->toBeTrue();
 
     $this->post(route('seminars.plan.briefing', $seminar), ['text' => ''])->assertSessionHasErrors('text');
     $this->post(route('seminars.plan.briefing', $seminar), ['text' => 'Bitte einen Raum mit Beamer bereithalten.'])->assertSessionHas('success');
@@ -163,7 +163,7 @@ it('invites the confirmed team to the onboarding, briefs the school and prepares
 });
 
 it('offers the new notification settings to the matching roles only', function () {
-    $this->actingAs(ntUser(RoleKey::Team))->get(route('account.notifications'))->assertOk()->assertSee('Neue Ausschreibungen und Fristerinnerungen')->assertSee('Hinweise zu Ihren Seminaren')->assertDontSee('Freigegebene Seminare');
-    $this->actingAs(ntUser(RoleKey::Coordination))->get(route('account.notifications'))->assertOk()->assertSee('Freigegebene Seminare');
-    $this->actingAs(ntUser(RoleKey::AdministrationStaff))->get(route('account.notifications'))->assertOk()->assertSee('Neue Seminaranfragen und Antworten der Schulen');
+    $this->actingAs(snUser(RoleKey::Team))->get(route('account.notifications'))->assertOk()->assertSee('Neue Ausschreibungen und Fristerinnerungen')->assertSee('Hinweise zu Ihren Seminaren')->assertDontSee('Freigegebene Seminare');
+    $this->actingAs(snUser(RoleKey::Coordination))->get(route('account.notifications'))->assertOk()->assertSee('Freigegebene Seminare');
+    $this->actingAs(snUser(RoleKey::AdministrationStaff))->get(route('account.notifications'))->assertOk()->assertSee('Neue Seminaranfragen und Antworten der Schulen');
 });
