@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Seminars\Http\Controllers\EnterSeminarController;
 use App\Modules\Seminars\Http\Controllers\FeedbackController;
 use App\Modules\Seminars\Http\Controllers\LeadSeminarController;
 use App\Modules\Seminars\Http\Controllers\OfficeSeminarController;
@@ -28,6 +29,12 @@ Route::middleware(['web', 'auth', 'can:seminars.review'])->prefix('geschaeftsste
     Route::post('/{seminar}/freigabe', [OfficeSeminarController::class, 'release'])->whereNumber('seminar')->middleware('throttle:20,10')->name('release');
     Route::post('/{seminar}/vertrag', [OfficeSeminarController::class, 'contract'])->whereNumber('seminar')->middleware('throttle:10,10')->name('contract');
     Route::post('/{seminar}/status', [OfficeSeminarController::class, 'status'])->whereNumber('seminar')->middleware('throttle:60,10')->name('status');
+});
+
+/* Koordination und Geschäftsstelle: Anfrage im Namen einer Schule eintragen. */
+Route::middleware(['web', 'auth', 'can:seminars.enter'])->prefix('seminare/anfrage-eintragen')->name('seminars.enter.')->group(function (): void {
+    Route::get('/', [EnterSeminarController::class, 'create'])->name('create');
+    Route::post('/', [EnterSeminarController::class, 'store'])->middleware('throttle:20,10')->name('store');
 });
 
 /* Koordination: planen, ausschreiben, absagen. */

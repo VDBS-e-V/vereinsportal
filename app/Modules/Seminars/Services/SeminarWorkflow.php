@@ -112,12 +112,13 @@ final class SeminarWorkflow
 
     /**
      * Legt eine Anfrage einer Schule an (Status „Anfrage“, Nummer, Koordination der Schule).
+     * $onBehalf: Koordination oder Geschäftsstelle trägt die Anfrage für die Schule ein; die Schule bekommt dann keine Eingangsbestätigung.
      *
      * @param  array{title: string, format?: ?string, participants?: ?int, desired_period?: ?string, request_note?: ?string, contact_name?: ?string, contact_email?: ?string}  $data
      */
-    public function request(Partner $partner, array $data, User $by): Seminar
+    public function request(Partner $partner, array $data, User $by, bool $onBehalf = false): Seminar
     {
-        $seminar = DB::transaction(function () use ($partner, $data, $by): Seminar {
+        $seminar = DB::transaction(function () use ($partner, $data, $by, $onBehalf): Seminar {
             $seminar = Seminar::query()->create([
                 'number' => SeminarNumbers::next(),
                 'title' => trim($data['title']),
@@ -133,13 +134,13 @@ final class SeminarWorkflow
                 'requested_by_user_id' => $by->id,
             ]);
 
-            $this->log($seminar, 'requested', $by);
+            $this->log($seminar, 'requested', $by, null, null, $onBehalf ? 'Im Auftrag der Schule eingetragen.' : null);
 
             return $seminar;
         });
 
         AuditLog::record(AuditEvent::SeminarRequested, $by, null, ['seminar' => $seminar->number]);
-        $this->notifications()->requested($seminar->load('partner'));
+        $this->notifications()->requested($seminar->load('partner'), ! $onBehalf);
 
         return $seminar;
     }

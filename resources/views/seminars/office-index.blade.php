@@ -4,7 +4,11 @@
 @endphp
 
 <x-layouts.app title="Seminare" width="wide">
-    <x-vdbs.layout.page-header title="Seminare" lead="Alle Seminare der Schulen mit Stand und Koordination." :breadcrumb="$crumbs" />
+    <x-vdbs.layout.page-header title="Seminare" lead="Alle Seminare der Schulen mit Stand und Koordination." :breadcrumb="$crumbs">
+        @can('seminars.enter')
+            <x-slot:actions><x-vdbs.actions.button icon="plus" :href="route('seminars.enter.create')">Anfrage eintragen</x-vdbs.actions.button></x-slot:actions>
+        @endcan
+    </x-vdbs.layout.page-header>
 
     <x-vdbs.data.toolbar label="Seminare filtern" :count="$count" :active="$active" :reset-href="route('seminars.office.index')" search-placeholder="Nummer, Thema oder Schule">
         <x-vdbs.forms.select name="status" label="Status" placeholder="Alle" :options="$statusOptions" :value="$filters['status']" />

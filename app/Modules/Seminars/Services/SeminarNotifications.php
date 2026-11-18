@@ -22,10 +22,13 @@ final class SeminarNotifications
     public function __construct(private readonly NotificationPreferences $preferences) {}
 
     /** Anfrage eingegangen: Bestätigung an die Schule, Hinweis an die Geschäftsstelle. */
-    public function requested(Seminar $seminar): void
+    public function requested(Seminar $seminar, bool $confirmToSchool = true): void
     {
-        $this->toSchool($seminar, 'Ihre Seminaranfrage '.$seminar->number, ['Ihre Anfrage für das Seminar „'.$seminar->title.'“ ist bei uns eingegangen. Die Geschäftsstelle prüft sie und meldet sich mit einem Kostenvoranschlag.']);
-        $this->toCapable(Capability::SeminarsReview, 'seminar_requests', 'Neue Seminaranfrage '.$seminar->number, ['Die Schule '.$seminar->partner->name.' hat das Seminar „'.$seminar->title.'“ angefragt.'], route('seminars.office.show', $seminar), 'Anfrage ansehen');
+        if ($confirmToSchool) {
+            $this->toSchool($seminar, 'Ihre Seminaranfrage '.$seminar->number, ['Ihre Anfrage für das Seminar „'.$seminar->title.'“ ist bei uns eingegangen. Die Geschäftsstelle prüft sie und meldet sich mit einem Kostenvoranschlag.']);
+        }
+
+        $this->toCapable(Capability::SeminarsReview, 'seminar_requests', 'Neue Seminaranfrage '.$seminar->number, [$confirmToSchool ? 'Die Schule '.$seminar->partner->name.' hat das Seminar „'.$seminar->title.'“ angefragt.' : 'Für die Schule '.$seminar->partner->name.' wurde das Seminar „'.$seminar->title.'“ eingetragen.'], route('seminars.office.show', $seminar), 'Anfrage ansehen');
     }
 
     /** Die Schule hat zum Kostenvoranschlag etwas geschrieben (Frage, Annahme, Ablehnung). */

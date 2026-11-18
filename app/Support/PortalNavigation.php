@@ -176,6 +176,7 @@ final class PortalNavigation
                 'pages' => [
                     ['label' => 'Übersicht', 'route' => 'coordination.home', 'match' => 'coordination.home'],
                     ['description' => 'Freigegebene Seminare planen, ausschreiben und das Team auswählen.', 'label' => 'Seminare', 'route' => 'seminars.plan.index', 'match' => 'seminars.plan.*', 'can' => 'seminars.plan'],
+                    ['description' => 'Eine Seminaranfrage im Namen einer Schule eintragen, zum Beispiel nach einem Anruf.', 'label' => 'Anfrage eintragen', 'route' => 'seminars.enter.create', 'match' => 'seminars.enter.*', 'can' => 'seminars.enter'],
                     ['description' => 'Auswertung der Rückmeldungen der Schulen zu den Seminaren.', 'label' => 'Rückmeldungen', 'route' => 'seminars.plan.feedback', 'match' => 'seminars.plan.feedback', 'can' => 'seminars.plan'],
                     ['description' => 'Kostenvoranschläge zu Seminaren intern freigeben.', 'label' => 'KVA-Freigabe', 'route' => 'quotes.approval.index', 'match' => 'quotes.approval.*', 'can' => 'seminars.quote_approve'],
                     ['description' => 'Partnerschulen, Ansprechpersonen und Anfragen.', 'label' => 'Schulen', 'route' => 'partners.index', 'match' => 'partners.*', 'can' => 'partners.view'],

@@ -16,6 +16,8 @@ Stand: umgesetzt in den Phasen 1 bis 12 (Branch `claude/cool-ramanujan-fgmbcu`).
 
 Anfrage → In Prüfung → KVA gesendet → Freigegeben → Geplant → Ausgeschrieben → Team gewählt → Team bestätigt → Vorbereitet → Durchgeführt → Berichtet → Abgeschlossen. Endzustände: Abgelehnt, Abgesagt. Alle Übergänge, Rechte und Begründungspflichten stehen in `SeminarWorkflow`; kein Controller ändert den Status selbst. Jeder Wechsel steht im Verlauf des Seminars und im Protokoll.
 
+Eine Anfrage kommt entweder von der Schule selbst (Bereich Schulen) oder wird von Koordination, Geschäftsstelle oder Vorstand im Namen der Schule eingetragen („Anfrage eintragen“, Recht `seminars.enter`, z. B. nach einem Anruf). Im zweiten Fall bekommt die Schule keine Eingangsbestätigung, nur die Geschäftsstelle den Hinweis; der Verlauf trägt „Im Auftrag der Schule eingetragen“. Ohne eigene Angabe wird die Ansprechperson der Schule übernommen. Die Koordination sieht eingetragene Anfragen schreibgeschützt unter „Anfragen in Prüfung“, bis sie freigegeben sind.
+
 ## Seiten
 
 | Wer | Seite |

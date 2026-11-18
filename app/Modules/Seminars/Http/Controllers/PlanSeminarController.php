@@ -41,8 +41,11 @@ class PlanSeminarController extends Controller
             ->when($coordination, fn ($query, int $id) => $query->where('coordination_id', $id))
             ->orderByDesc('id')->get();
 
+        $pendingStates = array_map(fn (SeminarStatus $case): string => $case->value, [SeminarStatus::Request, SeminarStatus::InReview, SeminarStatus::QuoteSent]);
+
         return view('seminars.plan-index', [
             'seminars' => $seminars,
+            'pending' => Seminar::query()->with('partner')->whereIn('status', $pendingStates)->orderByDesc('id')->get(),
             'status' => $status?->value,
             'coordination' => $coordination,
             'statusOptions' => collect($visible)->mapWithKeys(fn (SeminarStatus $case): array => [$case->value => $case->label()])->all(),

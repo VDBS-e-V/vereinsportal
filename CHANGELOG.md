@@ -13,6 +13,7 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ### Added
 
+- Koordination, Geschäftsstelle und Vorstand können Seminaranfragen im Namen einer Schule eintragen (Recht `seminars.enter`); die Schule erhält dabei keine Bestätigung, die Koordination sieht „Anfragen in Prüfung“
 - Seminarablauf neu aufgebaut (Doc 89): Koordinationen als Datensätze, Anfrage der Schule, Prüfung, Kostenvoranschlag mit Preisliste und Freigabe, Schulvertrag und Freigabe, Planung, Ausschreibung, Teamauswahl mit „Team bestätigen“, Mitteilungen, Seminarleitung mit Bericht, Teamverträgen und Zahlungsaufträgen, Rückmeldung der Schule, Seminarmappe und Online-Druckplaner (eine Druck-PDF), Nextcloud-Ordner und Freigabelink, Löschfristen
 
 - Seminarablauf Phase 6: Nextcloud-Anbindung für Seminarordner (Struktur, Zugriff des Teams, Ergebnislink mit Ablaufdatum), ohne Zugangsdaten unverändert (Doc 87)

@@ -122,6 +122,9 @@ enum Capability: string
     /** Seminare planen, ausschreiben, Team auswählen, vorbereiten und abschließen (Koordination). */
     case SeminarsPlan = 'seminars.plan';
 
+    /** Eine Seminaranfrage im Namen einer Schule eintragen (Koordination, Geschäftsstelle, Vorstand). */
+    case SeminarsEnter = 'seminars.enter';
+
     /** Abgeschlossene Seminare wieder öffnen (Vorstand). */
     case SeminarsReopen = 'seminars.reopen';
 
