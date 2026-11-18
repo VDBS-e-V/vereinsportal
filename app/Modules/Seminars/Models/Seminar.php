@@ -23,12 +23,12 @@ class Seminar extends Model
 
     protected $fillable = [
         'number', 'title', 'status', 'partner_id', 'coordination_id', 'school_year', 'format', 'participants', 'desired_period', 'request_note',
-        'contact_name', 'contact_email', 'requested_by_user_id',
+        'contact_name', 'contact_email', 'requested_by_user_id', 'release_basis', 'release_reason', 'released_at', 'released_by_user_id', 'school_contract_signed_on',
     ];
 
     protected function casts(): array
     {
-        return ['status' => SeminarStatus::class, 'participants' => 'integer'];
+        return ['status' => SeminarStatus::class, 'participants' => 'integer', 'released_at' => 'datetime', 'school_contract_signed_on' => 'date'];
     }
 
     /** @return BelongsTo<Partner, $this> */
@@ -53,6 +53,12 @@ class Seminar extends Model
     public function sessions(): HasMany
     {
         return $this->hasMany(SeminarSession::class)->orderBy('starts_at');
+    }
+
+    /** @return HasMany<SeminarDocument, $this> */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(SeminarDocument::class)->orderBy('id');
     }
 
     /** @return HasMany<SeminarQuote, $this> */

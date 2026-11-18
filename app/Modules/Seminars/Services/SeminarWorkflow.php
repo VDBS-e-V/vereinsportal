@@ -172,6 +172,50 @@ final class SeminarWorkflow
         return $seminar;
     }
 
+    /**
+     * Gibt ein Seminar frei: mit unterschriebenem Schulvertrag (`contract`) oder auf verbindliche Zusage der Schule (`commitment`, Begründung Pflicht, Vertrag folgt).
+     *
+     * @throws DomainException
+     */
+    public function release(Seminar $seminar, User $by, string $basis, ?string $reason = null): Seminar
+    {
+        if (! in_array($basis, ['contract', 'commitment'], true)) {
+            throw new DomainException('Bitte wählen Sie, ob die Freigabe mit Vertrag oder auf Zusage erfolgt.');
+        }
+
+        if ($seminar->status !== SeminarStatus::QuoteSent) {
+            throw new DomainException('Freigeben lässt sich ein Seminar nur im Stand „KVA gesendet“.');
+        }
+
+        if (! $by->can('seminars.review')) {
+            throw new DomainException('Für diesen Schritt fehlt Ihnen die Berechtigung.');
+        }
+
+        if (! $seminar->quotes()->whereIn('status', ['sent', 'accepted'])->exists()) {
+            throw new DomainException('Es gibt keinen gesendeten Kostenvoranschlag.');
+        }
+
+        $reason = $reason === null ? null : trim($reason);
+
+        if ($basis === 'contract' && ($seminar->school_contract_signed_on === null || ! $seminar->documents()->where('kind', 'school_contract')->exists())) {
+            throw new DomainException('Für die Freigabe mit Vertrag fehlt der unterschriebene Schulvertrag mit Datum.');
+        }
+
+        if ($basis === 'commitment' && ($reason === null || $reason === '')) {
+            throw new DomainException('Bitte begründen Sie die Freigabe auf Zusage (zum Beispiel: Zusage per E-Mail vom Datum, Vertrag folgt).');
+        }
+
+        DB::transaction(function () use ($seminar, $by, $basis, $reason): void {
+            $seminar->fill(['status' => SeminarStatus::Released, 'release_basis' => $basis, 'release_reason' => $reason, 'released_at' => now(), 'released_by_user_id' => $by->id])->save();
+
+            $this->log($seminar, 'status', $by, SeminarStatus::QuoteSent, SeminarStatus::Released, $basis === 'contract' ? 'Freigegeben mit unterschriebenem Schulvertrag' : 'Freigegeben auf Zusage der Schule: '.$reason);
+        });
+
+        AuditLog::record(AuditEvent::SeminarReleased, $by, null, ['seminar' => $seminar->number, 'basis' => $basis]);
+
+        return $seminar;
+    }
+
     /** Die Schule lehnt den Kostenvoranschlag ab: das Seminar ist abgelehnt (Recht der Schule, daher ohne Prüfung der Geschäftsstellen-Rechte). */
     public function declinedBySchool(Seminar $seminar, User $by, ?string $note): void
     {

@@ -7,7 +7,9 @@ use App\Modules\Access\Models\User;
 use App\Modules\Coordinations\Models\Coordination;
 use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
+use App\Modules\Seminars\Services\SeminarDocuments;
 use App\Modules\Seminars\Services\SeminarWorkflow;
+use App\Modules\Seminars\Support\SchoolContractUpload;
 use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -88,6 +90,26 @@ class OfficeSeminarController extends Controller
         }
 
         return redirect()->route('seminars.office.show', $seminar)->with('success', 'Der Status ist jetzt „'.$to->label().'“.');
+    }
+
+    /** Freigabe mit Schulvertrag oder auf Zusage der Schule. */
+    public function release(Request $request, Seminar $seminar): RedirectResponse
+    {
+        $data = $request->validate(['basis' => ['required', Rule::in(['contract', 'commitment'])], 'reason' => ['nullable', 'string', 'max:2000']], ['basis.required' => 'Bitte wählen Sie die Grundlage der Freigabe.']);
+
+        try {
+            $this->workflow->release($seminar, $this->user($request), $data['basis'], $data['reason'] ?? null);
+        } catch (DomainException $exception) {
+            return back()->withErrors(['release' => $exception->getMessage()])->withInput();
+        }
+
+        return redirect()->route('seminars.office.show', $seminar)->with('success', 'Das Seminar ist freigegeben. Die Koordination kann es jetzt planen.');
+    }
+
+    /** Unterschriebenen Schulvertrag (von der Schule gestellt) hochladen. */
+    public function contract(Request $request, Seminar $seminar, SeminarDocuments $documents): RedirectResponse
+    {
+        return SchoolContractUpload::handle($request, $seminar, $documents, $this->user($request), redirect()->route('seminars.office.show', $seminar));
     }
 
     private function user(Request $request): User

@@ -7,7 +7,9 @@ use App\Modules\Access\Models\User;
 use App\Modules\Partners\Models\PartnerUser;
 use App\Modules\Partners\Services\SchoolAccounts;
 use App\Modules\Seminars\Models\Seminar;
+use App\Modules\Seminars\Services\SeminarDocuments;
 use App\Modules\Seminars\Services\SeminarWorkflow;
+use App\Modules\Seminars\Support\SchoolContractUpload;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -60,6 +62,15 @@ class SchoolSeminarController extends Controller
         abort_unless($seminar->partner_id === $account->partner_id, 404);
 
         return view('seminars.school-show', ['account' => $account, 'seminar' => $seminar->load('sessions')]);
+    }
+
+    /** Die Schule lädt ihren unterschriebenen Vertrag selbst hoch. */
+    public function contract(Request $request, Seminar $seminar, SeminarDocuments $documents): RedirectResponse
+    {
+        $account = $this->account($request);
+        abort_unless($seminar->partner_id === $account->partner_id, 404);
+
+        return SchoolContractUpload::handle($request, $seminar, $documents, $this->user($request), redirect()->route('school.seminars.show', $seminar));
     }
 
     private function account(Request $request): PartnerUser

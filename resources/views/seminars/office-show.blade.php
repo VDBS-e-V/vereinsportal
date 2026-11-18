@@ -36,6 +36,8 @@
 
     @include('seminars._quote-office', ['seminar' => $seminar])
 
+    @include('seminars._release-office', ['seminar' => $seminar->load('documents')])
+
     <h2 style="font-size:var(--font-size-h3);margin-top:var(--space-8)">Verlauf</h2>
     <x-vdbs.data.timeline label="Verlauf des Seminars">
         @foreach ($seminar->events as $event)
