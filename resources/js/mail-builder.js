@@ -200,8 +200,8 @@ const init = (root) => {
     const renderList = () => {
         list.replaceChildren(...doc.blocks.map((block, index) => {
             const tools = readonly ? [] : [
-                h('button', { type: 'button', 'data-move': -1, 'aria-label': `${types[block.type]} nach oben`, disabled: index === 0, onclick: () => move(block.id, -1) }, '↑'),
-                h('button', { type: 'button', 'data-move': 1, 'aria-label': `${types[block.type]} nach unten`, disabled: index === doc.blocks.length - 1, onclick: () => move(block.id, 1) }, '↓'),
+                h('button', { type: 'button', title: 'Nach oben', 'data-move': -1, 'aria-label': `${types[block.type]} nach oben`, disabled: index === 0, onclick: () => move(block.id, -1) }, '↑'),
+                h('button', { type: 'button', title: 'Nach unten', 'data-move': 1, 'aria-label': `${types[block.type]} nach unten`, disabled: index === doc.blocks.length - 1, onclick: () => move(block.id, 1) }, '↓'),
                 h('button', { type: 'button', 'aria-label': `${types[block.type]} duplizieren`, onclick: () => { const copy = JSON.parse(JSON.stringify(block)); copy.id = uid(); doc.blocks.splice(index + 1, 0, copy); selected = copy.id; changed(); renderAll(); } }, '⧉'),
                 h('button', { type: 'button', 'aria-label': `${types[block.type]} löschen`, onclick: () => { doc.blocks = doc.blocks.filter((b) => b.id !== block.id); selected = doc.blocks[Math.min(index, doc.blocks.length - 1)]?.id ?? null; changed(); renderAll(); } }, '✕'),
             ];
@@ -263,7 +263,7 @@ const init = (root) => {
         const dark = theme === 'dark' || (theme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
         const [created] = await window.tinymce.init({
             target: richHost, license_key: 'gpl', base_url: base, suffix: '.min', language: hasGerman ? 'de' : undefined, language_url: hasGerman ? `${base}/langs/de.js` : undefined,
-            skin: dark ? 'oxide-dark' : 'oxide', content_css: dark ? 'dark' : 'default', menubar: false, branding: false, promotion: false, statusbar: false, min_height: 220,
+            skin: dark ? 'oxide-dark' : 'oxide', content_css: dark ? 'dark' : 'default', menubar: false, branding: false, promotion: false, statusbar: false, min_height: 160,
             plugins: 'lists link autolink', toolbar: 'bold italic underline | bullist numlist blockquote | link | removeformat | undo redo',
             valid_elements: 'p,br,strong/b,em/i,u,ul,ol,li,h2,h3,h4,blockquote,hr,a[href]', extended_valid_elements: 'a[href|rel]', link_default_protocol: 'https', link_title: false, target_list: false,
             relative_urls: false, remove_script_host: false, convert_urls: false, paste_data_images: false, readonly,
@@ -396,7 +396,7 @@ const init = (root) => {
 
     if (palette) {
         Object.entries(types).forEach(([type, label]) => {
-            palette.append(h('button', { type: 'button', class: 'vdbs-btn vdbs-btn--secondary vdbs-btn--size-s', onclick: () => {
+            palette.append(h('button', { type: 'button', class: 'mb-chip', onclick: () => {
                 const block = JSON.parse(JSON.stringify(blank[type]));
                 block.id = uid();
                 const at = selected ? doc.blocks.findIndex((b) => b.id === selected) + 1 : doc.blocks.length;
@@ -412,7 +412,7 @@ const init = (root) => {
     const holders = root.querySelector('[data-mb-placeholders]');
 
     Object.entries(placeholders).forEach(([name, label]) => {
-        holders.append(h('button', { type: 'button', class: 'vdbs-btn vdbs-btn--secondary vdbs-btn--size-s', title: label, disabled: readonly, onclick: () => {
+        holders.append(h('button', { type: 'button', class: 'mb-chip', title: label, disabled: readonly, onclick: () => {
             const text = `{${name}}`;
 
             if (lastField?.editor) {
