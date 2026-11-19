@@ -28,4 +28,3 @@ it('uses the telephone type on the access form and fitting limits on address fie
     $this->actingAs(fiUser(RoleKey::BoardMember));
     $this->get(route('admin.people.create'))->assertOk()->assertSee('autocapitalize="characters"', false)->assertSee('name="postal_code"', false);
 });
-

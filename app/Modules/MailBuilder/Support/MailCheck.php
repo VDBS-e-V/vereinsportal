@@ -2,8 +2,6 @@
 
 namespace App\Modules\MailBuilder\Support;
 
-use App\Modules\MailBuilder\Support\MailPlaceholders;
-
 /**
  * Prüft ein Blockdokument vor dem Speichern: unbekannte und fehlende Pflichtplatzhalter, fehlende Alternativtexte, Kontraste, leere Blöcke, Ziele.
  * Stufen: "error" verhindert das Speichern, "warning" ist ein Hinweis.
@@ -35,14 +33,14 @@ final class MailCheck
             $allowed = array_merge(array_values(array_filter($options['allowed'], 'is_string')), ['item']);
 
             foreach (array_unique(array_merge(MailPlaceholders::used($json), MailPlaceholders::used($subject), MailPlaceholders::used($doc['preheader']))) as $name) {
-                if (! in_array($name, $allowed, true)) {
+                if (in_array($name, $allowed, true) === false) {
                     $add('error', 'Der Platzhalter {'.$name.'} gibt es in dieser Mail nicht.');
                 }
             }
         }
 
         foreach ((array) ($options['protected'] ?? []) as $name) {
-            if (is_string($name) && ! in_array($name, MailPlaceholders::used($json), true)) {
+            if (is_string($name) && in_array($name, MailPlaceholders::used($json), true) === false) {
                 $add('error', 'Der Platzhalter {'.$name.'} muss in der Mail stehen, sonst fehlt eine wichtige Angabe.');
             }
         }

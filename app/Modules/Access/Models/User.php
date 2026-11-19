@@ -152,5 +152,4 @@ class User extends Authenticatable
             ->where('starts_at', '<=', now())
             ->where(fn ($query) => $query->whereNull('ends_at')->orWhere('ends_at', '>', now()));
     }
-
 }

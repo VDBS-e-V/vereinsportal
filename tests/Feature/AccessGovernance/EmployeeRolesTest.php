@@ -118,7 +118,6 @@ it('requires two-factor for the managing director and the treasury but not for e
     $this->actingAs(erUser(RoleKey::ManagingDirector))->get(route('employee.home'))->assertRedirect(route('account.security.index'));
 });
 
-
 it('lets employees and the managing director log in to other systems by default', function () {
     expect(OAuthClients::defaultRoles())->toContain('employee', 'managing_director')
         ->and(OidcClaims::GROUPS['employee'])->toBe('vdbs-mitarbeitende')
