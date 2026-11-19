@@ -2,22 +2,20 @@
 
 namespace App\Modules\Membership\Mail;
 
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
+use App\Modules\MailBuilder\Mail\TemplatedMail;
 
 /** E-Mail-Bestätigung nach dem Online-Antrag: Mit dem Link wird das Konto aktiv. */
-final class VerifyApplicantEmailMail extends Mailable
+final class VerifyApplicantEmailMail extends TemplatedMail
 {
     public function __construct(public readonly string $url, public readonly string $name, public readonly int $validHours) {}
 
-    public function envelope(): Envelope
+    protected function systemKey(): string
     {
-        return new Envelope(subject: 'Bitte bestätigen Sie Ihre E-Mail-Adresse');
+        return 'membership.verify';
     }
 
-    public function content(): Content
+    protected function values(): array
     {
-        return new Content(view: 'mail.membership.verify');
+        return ['anrede' => self::greeting($this->name), 'url' => $this->url, 'stunden' => (string) $this->validHours];
     }
 }

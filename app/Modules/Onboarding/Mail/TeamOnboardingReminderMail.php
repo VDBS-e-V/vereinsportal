@@ -2,22 +2,20 @@
 
 namespace App\Modules\Onboarding\Mail;
 
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
+use App\Modules\MailBuilder\Mail\TemplatedMail;
 
 /** Erinnerung an Teamende mit offener Einarbeitung. Nennt nur die Zahl der offenen Schritte, nie welche (Gesundheits- und Führungszeugnisdaten bleiben außen vor). */
-final class TeamOnboardingReminderMail extends Mailable
+final class TeamOnboardingReminderMail extends TemplatedMail
 {
     public function __construct(public readonly string $url, public readonly int $open, public readonly int $total) {}
 
-    public function envelope(): Envelope
+    protected function systemKey(): string
     {
-        return new Envelope(subject: 'Erinnerung: Ihre Einarbeitung als Teamende im VDBS');
+        return 'onboarding.team_reminder';
     }
 
-    public function content(): Content
+    protected function values(): array
     {
-        return new Content(view: 'mail.onboarding.team-reminder');
+        return ['url' => $this->url, 'offen' => (string) $this->open, 'gesamt' => (string) $this->total];
     }
 }

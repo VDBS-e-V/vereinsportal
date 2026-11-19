@@ -2,28 +2,26 @@
 
 namespace App\Modules\Contacts\Mail;
 
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
+use App\Modules\MailBuilder\Mail\TemplatedMail;
 use Illuminate\Mail\Mailables\Headers;
 
 /** Der persönliche Zugang (Link und Code) für eine Adresse der Mailingliste. */
-final class ContactAccessMail extends Mailable
+final class ContactAccessMail extends TemplatedMail
 {
     public function __construct(public readonly string $greetingName, public readonly string $accessLink, public readonly string $accessCode, public readonly string $codeHint, public readonly string $unsubscribeUrl) {}
-
-    public function envelope(): Envelope
-    {
-        return new Envelope(subject: 'Ihr persönlicher Zugang');
-    }
 
     public function headers(): Headers
     {
         return new Headers(text: ['List-Unsubscribe' => '<'.$this->unsubscribeUrl.'>', 'List-Unsubscribe-Post' => 'List-Unsubscribe=One-Click']);
     }
 
-    public function content(): Content
+    protected function systemKey(): string
     {
-        return new Content(view: 'mail.contacts.access');
+        return 'contacts.access';
+    }
+
+    protected function values(): array
+    {
+        return ['anrede' => self::greeting($this->greetingName), 'link' => $this->accessLink, 'code' => $this->accessCode, 'code_hinweis' => $this->codeHint, 'code_url' => route('access.code'), 'abmelden_url' => $this->unsubscribeUrl];
     }
 }

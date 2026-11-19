@@ -2,12 +2,10 @@
 
 namespace App\Modules\AccessGovernance\Mail;
 
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
+use App\Modules\MailBuilder\Mail\TemplatedMail;
 
 /** Einladung ins Portal mit Link zum Festlegen des Passworts. */
-final class InvitationMail extends Mailable
+final class InvitationMail extends TemplatedMail
 {
     public function __construct(
         public readonly string $url,
@@ -15,13 +13,13 @@ final class InvitationMail extends Mailable
         public readonly int $validDays,
     ) {}
 
-    public function envelope(): Envelope
+    protected function systemKey(): string
     {
-        return new Envelope(subject: 'Einladung ins Vereinsportal');
+        return 'access.invitation';
     }
 
-    public function content(): Content
+    protected function values(): array
     {
-        return new Content(view: 'mail.access.invitation');
+        return ['anrede' => self::greeting($this->name), 'url' => $this->url, 'tage' => (string) $this->validDays];
     }
 }

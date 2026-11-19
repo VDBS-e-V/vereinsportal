@@ -2,22 +2,20 @@
 
 namespace App\Modules\Membership\Mail;
 
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
+use App\Modules\MailBuilder\Mail\TemplatedMail;
 
 /** Hinweis an den Vorstand: Ein Online-Antrag wartet auf Entscheidung. Enthält bewusst keine personenbezogenen Daten, nur den Link. */
-final class NewApplicationMail extends Mailable
+final class NewApplicationMail extends TemplatedMail
 {
     public function __construct(public readonly string $url) {}
 
-    public function envelope(): Envelope
+    protected function systemKey(): string
     {
-        return new Envelope(subject: 'Neuer Mitgliedschaftsantrag im Vereinsportal');
+        return 'membership.new_application';
     }
 
-    public function content(): Content
+    protected function values(): array
     {
-        return new Content(view: 'mail.membership.new-application');
+        return ['url' => $this->url];
     }
 }

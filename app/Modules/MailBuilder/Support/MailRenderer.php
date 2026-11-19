@@ -182,7 +182,7 @@ final class MailRenderer
                     $label = $this->plain((string) $row['label']);
                     $value = $this->plain((string) $row['value']);
 
-                    if ($label === '' && $value === '') {
+                    if ($value === '') {
                         continue;
                     }
 
@@ -220,20 +220,26 @@ final class MailRenderer
                 return trim($html) === '' ? null : [$this->row($this->inline($html)), MailText::fromHtml($html)];
 
             case 'repeat':
-                $items = array_values(array_filter(array_map(fn (string $item): string => $this->plain(str_replace('{item}', $item, MailPlaceholders::render((string) $p['template'], $this->scalars))), $this->lists[$p['placeholder']] ?? []), fn (string $item): bool => $item !== ''));
+                $rawItems = in_array($p['placeholder'], $this->raw, true);
+                $items = array_values(array_filter(array_map(fn (string $item): string => trim(str_replace('{item}', $item, MailPlaceholders::render((string) $p['template'], $this->scalars))), $this->lists[$p['placeholder']] ?? []), fn (string $item): bool => $item !== ''));
 
-                return $items === [] ? null : $this->listBlock($items, (bool) $p['ordered']);
+                return $items === [] ? null : $this->listBlock($items, (bool) $p['ordered'], $rawItems);
         }
 
         return null;
     }
 
-    /** @param list<string> $items @return array{0: string, 1: string} */
-    private function listBlock(array $items, bool $ordered): array
+    /**
+     * @param  list<string>  $items
+     * @param  bool  $raw  Die Einträge sind bereits bereinigtes HTML aus dem Code (z. B. mit Links).
+     * @return array{0: string, 1: string}
+     */
+    private function listBlock(array $items, bool $ordered, bool $raw = false): array
     {
         $tag = $ordered ? 'ol' : 'ul';
-        $html = '<'.$tag.' style="margin:0;padding-left:22px;font-size:16px;line-height:1.5;" class="vdbs-text">'.implode('', array_map(fn (string $item): string => '<li style="margin:0 0 4px;">'.e($item).'</li>', $items)).'</'.$tag.'>';
-        $text = implode("\n", array_map(fn (string $item, int $i): string => ($ordered ? ($i + 1).'. ' : '- ').$item, $items, array_keys($items)));
+        $link = $this->s['link'];
+        $html = '<'.$tag.' style="margin:0;padding-left:22px;font-size:16px;line-height:1.5;" class="vdbs-text">'.implode('', array_map(fn (string $item): string => '<li style="margin:0 0 4px;">'.($raw ? (string) preg_replace('/<a href=/i', '<a style="color:'.$link.';" class="vdbs-link" href=', $item) : e($item)).'</li>', $items)).'</'.$tag.'>';
+        $text = implode("\n", array_map(fn (string $item, int $i): string => ($ordered ? ($i + 1).'. ' : '- ').($raw ? MailText::fromHtml($item) : $item), $items, array_keys($items)));
 
         return [$this->row($html), $text];
     }

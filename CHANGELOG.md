@@ -13,6 +13,8 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ### Added
 
+- Mail-Builder (Grundlage): Blockformat, Renderer für HTML und Text mit Dunkelmodus und Vorschautext, zentrales Mail-Design, Bilder für Mails und Prüfungen (Platzhalter, Alternativtexte, Kontraste)
+- Alle Systemmails mit festem Text (Konto, Zugangsanträge, Mitgliedschaft, Einarbeitung, Gremien, Kontakte, Aufgaben, Tickets, Seminare, KVA) laufen über das Register `SystemMails` mit Standardtext und einheitlichem Mail-Design; die alten Blade-Dateien unter `resources/views/mail` sind entfallen
 - Koordination, Geschäftsstelle und Vorstand können Seminaranfragen im Namen einer Schule eintragen (Recht `seminars.enter`); die Schule erhält dabei keine Bestätigung, die Koordination sieht „Anfragen in Prüfung“
 - Seminarablauf neu aufgebaut (Doc 89): Koordinationen als Datensätze, Anfrage der Schule, Prüfung, Kostenvoranschlag mit Preisliste und Freigabe, Schulvertrag und Freigabe, Planung, Ausschreibung, Teamauswahl mit „Team bestätigen“, Mitteilungen, Seminarleitung mit Bericht, Teamverträgen und Zahlungsaufträgen, Rückmeldung der Schule, Seminarmappe und Online-Druckplaner (eine Druck-PDF), Nextcloud-Ordner und Freigabelink, Löschfristen
 

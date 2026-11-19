@@ -2,15 +2,13 @@
 
 namespace App\Modules\Onboarding\Mail;
 
+use App\Modules\MailBuilder\Mail\TemplatedMail;
 use App\Modules\Onboarding\Models\OnboardingDocument;
 use App\Modules\Onboarding\Services\OnboardingDocuments;
-use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 
 /** Willkommensmail an neue Mitglieder, mit Satzung und Willkommensbrief im Anhang (soweit hochgeladen). */
-final class MemberWelcomeMail extends Mailable
+final class MemberWelcomeMail extends TemplatedMail
 {
     /** @param  list<OnboardingDocument>  $documents */
     public function __construct(
@@ -20,16 +18,6 @@ final class MemberWelcomeMail extends Mailable
         public readonly array $documents,
     ) {}
 
-    public function envelope(): Envelope
-    {
-        return new Envelope(subject: 'Herzlich willkommen im VDBS');
-    }
-
-    public function content(): Content
-    {
-        return new Content(view: 'mail.onboarding.member-welcome');
-    }
-
     /** @return list<Attachment> */
     public function attachments(): array
     {
@@ -37,5 +25,15 @@ final class MemberWelcomeMail extends Mailable
             fn (OnboardingDocument $document): Attachment => Attachment::fromStorageDisk(OnboardingDocuments::DISK, $document->path)->as($document->kind->label().'.pdf')->withMime('application/pdf'),
             $this->documents,
         );
+    }
+
+    protected function systemKey(): string
+    {
+        return 'onboarding.member_welcome';
+    }
+
+    protected function values(): array
+    {
+        return ['anrede' => self::greeting($this->name), 'beginn' => (string) $this->startsOn, 'dokumente' => array_map(fn (OnboardingDocument $document): string => $document->kind->label(), $this->documents), 'portal_url' => (string) $this->portalUrl];
     }
 }
