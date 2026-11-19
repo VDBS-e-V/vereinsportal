@@ -4,7 +4,6 @@ namespace App\Modules\MailBuilder\Support;
 
 use App\Modules\Mailings\Support\MailPlaceholders;
 use App\Modules\Mailings\Support\MailText;
-use App\Support\Html\RichText;
 use Stringable;
 
 /**

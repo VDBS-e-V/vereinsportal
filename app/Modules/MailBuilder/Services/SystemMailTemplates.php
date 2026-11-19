@@ -127,7 +127,7 @@ final class SystemMailTemplates
     {
         $template = $this->stored($mail->key);
 
-        if ($template === null || $version->mail_template_id !== $template->id || ! is_array($version->blocks)) {
+        if ($template === null || $version->mail_template_id !== $template->id || is_array($version->blocks) === false) {
             throw new DomainException('Dieser Stand gehört nicht zu dieser Mail.');
         }
 
