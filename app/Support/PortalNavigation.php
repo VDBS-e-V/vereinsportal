@@ -6,8 +6,6 @@ use App\Modules\Access\Models\User;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Support\Capabilities;
 use App\Modules\NavigationControl\Support\NavigationControl;
-use App\Modules\Tasks\Models\Task;
-use App\Modules\Tasks\Models\TaskProject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -35,43 +33,11 @@ final class PortalNavigation
      */
     public static function catalog(): array
     {
-        $catalog = self::baseCatalog();
-
-        // Aufgaben sind kein eigener Bereich: Jeder Bereich, in dem Aufgaben genutzt werden, hat den Menüpunkt „Aufgaben“ mit den Projekten dieses Bereichs
-        foreach (self::taskAreas() as $area) {
-            $catalog[$area->value]['pages'][] = [
-                'description' => 'Projekte dieses Bereichs mit Kanban-Tafel und Liste.', 'label' => 'Aufgaben', 'route' => 'tasks.area', 'params' => ['area' => $area->value],
-                'match' => ['tasks.area', 'tasks.projects.show', 'tasks.projects.edit', 'tasks.projects.update', 'tasks.templates.*', 'tasks.show', 'tasks.update', 'tasks.store', 'tasks.bulk', 'tasks.move', 'tasks.destroy', 'tasks.comments.*', 'tasks.attachments.*', 'tasks.subtasks.*'],
-                'dynamic' => true, 'can' => 'tasks.use',
-                // „Aufgaben“ erscheint nur für die eigenen Rollen des Bereichs (das Vorstandsmitglied sieht jeden Bereich, bekäme sonst auch leere Aufgabenseiten fremder Bereiche)
-                'any_role' => array_map(fn (RoleKey $role): string => $role->value, $catalog[$area->value]['roles']),
-            ];
-        }
-
-        // Die allgemeine Verwaltung der Aufgabenprojekte gehört zur Geschäftsstelle
-        $catalog[PortalAreas::Geschaeftsstelle->value]['pages'][] = [
-            'description' => 'Alle Projekte anlegen, archivieren und löschen, Bereich und Mitglieder festlegen.', 'label' => 'Aufgaben verwalten', 'route' => 'tasks.index',
-            'match' => ['tasks.index', 'tasks.projects.create', 'tasks.projects.store', 'tasks.projects.archive', 'tasks.projects.destroy'], 'can' => 'tasks.admin',
-        ];
-
-        return $catalog;
+        return self::baseCatalog();
     }
 
     /**
-     * Bereiche, in denen das Aufgabensystem genutzt wird (Rollen mit der Berechtigung tasks.use).
-     *
-     * @return list<PortalAreas>
-     */
-    public static function taskAreas(): array
-    {
-        return [PortalAreas::Vorstand, PortalAreas::Mitarbeitende, PortalAreas::Koordination, PortalAreas::Geschaeftsstelle, PortalAreas::Bildungsreferenten, PortalAreas::Admins];
-    }
-
-    /** Aufgaben-Routen, die zu genau einem Bereich gehören (alle anderen tasks.*-Routen gehören zum Bereich ihres Projekts, siehe areaForRequest). */
-    private const FIXED_TASK_ROUTES = ['tasks.mine', 'tasks.index', 'tasks.projects.create', 'tasks.projects.store', 'tasks.projects.archive', 'tasks.projects.destroy'];
-
-    /**
-     * Der Katalog ohne die Aufgaben-Seiten, die für jeden Bereich gleich gebaut werden.
+     * Der Katalog der Bereiche mit ihren Seiten. Bereiche ohne Seiten erscheinen nicht im Kopfbereich.
      *
      * @return array<string, array{home: string, roles: list<RoleKey>, routes?: list<string>, pages: list<array<string, mixed>>}>
      */
@@ -81,12 +47,10 @@ final class PortalNavigation
             PortalAreas::Start->value => [
                 'home' => 'home',
                 'roles' => [],
-                'routes' => ['home', 'join.*', 'articles.public.*', 'pages.show', 'portal.design-packages'],
+                'routes' => ['home', 'pages.show', 'portal.design-packages'],
                 'pages' => [
                     ['label' => 'Über das Portal', 'route' => 'portal.about', 'match' => 'portal.about'],
                     ['label' => 'Zugang zum Portal', 'route' => 'portal.access', 'match' => 'portal.access*'],
-                    ['label' => 'FAQ', 'route' => 'portal.faq', 'match' => 'portal.faq'],
-                    ['label' => 'Kontakt', 'route' => 'portal.contact', 'match' => 'portal.contact*'],
                 ],
             ],
             PortalAreas::Konto->value => [
@@ -107,8 +71,6 @@ final class PortalNavigation
                         ['description' => 'Authentifizierungs-App, E-Mail-Code und Wiederherstellungscodes.', 'label' => 'Zwei-Faktor', 'route' => 'account.security.index', 'match' => 'account.security.*'],
                         ['description' => 'Wo Ihr Konto angemeldet ist.', 'label' => 'Sitzungen', 'route' => 'account.sessions', 'match' => 'account.sessions*'],
                     ]],
-                    ['description' => 'Alle Aufgaben, die Ihnen zugewiesen sind, aus allen Projekten.', 'label' => 'Meine Aufgaben', 'route' => 'tasks.mine', 'match' => 'tasks.mine', 'can' => 'tasks.use'],
-                    ['description' => 'Ihre Anfragen und Meldungen an das Portal-Team, mit Verlauf und Nachrichten.', 'label' => 'Meine Tickets', 'route' => 'support.mine', 'match' => 'support.*'],
                     ['description' => 'Systeme, bei denen Sie sich über das Portal angemeldet haben.', 'label' => 'Verbundene Anwendungen', 'route' => 'account.apps', 'match' => 'account.apps*'],
                     ['description' => 'Ihre Rollen und die Bereiche, die Ihnen offenstehen.', 'label' => 'Rollen & Bereiche', 'route' => 'account.roles', 'match' => 'account.roles'],
                     ['label' => 'Einstellungen', 'group' => true, 'route' => 'account.notifications', 'children' => [
@@ -118,113 +80,30 @@ final class PortalNavigation
                     ['description' => 'Konto löschen.', 'label' => 'Daten & Löschung', 'route' => 'account.deletion', 'match' => 'account.deletion*'],
                 ],
             ],
-            PortalAreas::Vorstand->value => [
-                'home' => 'board.overview',
-                'roles' => [RoleKey::BoardMember],
-                'pages' => [
-                    ['label' => 'Übersicht', 'route' => 'board.overview', 'match' => 'board.overview', 'can' => 'memberships.view'],
-                    ['label' => 'Mitgliedschaften', 'route' => 'membership.index', 'match' => 'membership.*', 'can' => 'memberships.view', 'children' => [
-                        ['label' => 'Willkommenspaket', 'route' => 'onboarding.member', 'match' => 'onboarding.member*', 'can' => 'memberships.view'],
-                    ]],
-                    ['description' => 'E-Mails an Mitglieder und andere Gruppen, frei oder mit Vorlage.', 'label' => 'Rundschreiben', 'route' => 'mailings.board.index', 'match' => 'mailings.board.*', 'can' => 'mailings.members'],
-                    ['description' => 'Vorstandssitzungen planen, Tagesordnung, Anwesenheit und Protokoll, mit Kalender-Abo.', 'label' => 'Sitzungen', 'route' => 'board.meetings.index', 'match' => 'board.meetings.*', 'can' => 'board.meetings'],
-                    ['description' => 'Alle Beschlüsse des Vorstands, nummeriert und durchsuchbar.', 'label' => 'Beschlüsse', 'route' => 'board.resolutions.index', 'match' => 'board.resolutions.*', 'can' => 'board.meetings'],
-                    ['label' => 'Berichte', 'route' => 'board.reports', 'match' => 'board.reports*', 'can' => 'reports.view'],
-                ],
-            ],
-            PortalAreas::Mitglieder->value => [
-                'home' => 'member.home',
-                'roles' => [RoleKey::Member],
-                'routes' => ['member.documents.*'],
-                'pages' => [
-                    ['label' => 'Übersicht', 'route' => 'member.home', 'match' => 'member.home', 'can' => 'member.area'],
-                    ['description' => 'Status, Beitritt und Austritt Ihrer Mitgliedschaft.', 'label' => 'Mitgliedschaft', 'route' => 'member.membership', 'match' => 'member.membership', 'can' => 'member.area'],
-                    ['description' => 'Auslagen und Fahrtkosten für Ihr Engagement erstatten lassen.', 'label' => 'Anträge', 'route' => 'member-forms.index', 'match' => 'member-forms.*', 'can' => 'forms.submit_member'],
-                ],
-            ],
-            PortalAreas::Teamende->value => [
-                'home' => 'team.home',
-                'roles' => [RoleKey::Team],
-                'routes' => ['onboarding.documents.*'],
-                'pages' => [
-                    ['label' => 'Übersicht', 'route' => 'team.home', 'match' => 'team.home', 'can' => 'team.onboarding'],
-                    ['description' => 'Ihre Schritte der Einarbeitung.', 'label' => 'Einarbeitung', 'route' => 'team-self.index', 'match' => 'team-self.*', 'can' => 'team.onboarding'],
-                    ['description' => 'Ausgeschriebene Seminare und Ihr Interesse.', 'label' => 'Seminare', 'route' => 'seminars.team.index', 'match' => 'seminars.team.*', 'can' => 'seminars.apply'],
-                    ['description' => 'Seminare, die Sie leiten: Durchführung, Bericht und Verträge.', 'label' => 'Meine Leitung', 'route' => 'seminars.lead.index', 'match' => 'seminars.lead.*', 'can' => 'seminars.apply'],
-                    ['description' => 'Auslagen und Fahrtkosten erstatten lassen.', 'label' => 'Anträge', 'route' => 'team-forms.index', 'match' => 'team-forms.*', 'can' => 'forms.submit_team'],
-                ],
-            ],
-            PortalAreas::Mitarbeitende->value => [
-                'home' => 'employee.home',
-                'roles' => [RoleKey::Employee, RoleKey::ManagingDirector, RoleKey::Treasury],
-                'pages' => [
-                    ['label' => 'Übersicht', 'route' => 'employee.home', 'match' => 'employee.home', 'can' => 'employee.area'],
-                    ['description' => 'Kostenrückerstattung, Fahrtkosten und Bestellungen.', 'label' => 'Anträge', 'route' => 'employee-forms.index', 'match' => 'employee-forms.*', 'can' => 'forms.submit'],
-                ],
-            ],
-            PortalAreas::Schulen->value => [
-                'home' => 'school.home',
-                'roles' => [RoleKey::School],
-                'pages' => [
-                    ['label' => 'Übersicht', 'route' => 'school.home', 'match' => 'school.home', 'can' => 'school.area'],
-                    ['description' => 'Seminar anfragen und den Stand Ihrer Anfragen sehen.', 'label' => 'Seminare', 'route' => 'school.seminars.index', 'match' => 'school.seminars.*', 'can' => 'school.area'],
-                ],
-            ],
-            PortalAreas::Koordination->value => [
-                'home' => 'coordination.home',
-                'roles' => [RoleKey::Coordination, RoleKey::AdministrationStaff, RoleKey::EducationCoordination],
-                'pages' => [
-                    ['label' => 'Übersicht', 'route' => 'coordination.home', 'match' => 'coordination.home'],
-                    ['description' => 'Freigegebene Seminare planen, ausschreiben und das Team auswählen.', 'label' => 'Seminare', 'route' => 'seminars.plan.index', 'match' => 'seminars.plan.*', 'can' => 'seminars.plan'],
-                    ['description' => 'Eine Seminaranfrage im Namen einer Schule eintragen, zum Beispiel nach einem Anruf.', 'label' => 'Anfrage eintragen', 'route' => 'seminars.enter.create', 'match' => 'seminars.enter.*', 'can' => 'seminars.enter'],
-                    ['description' => 'Auswertung der Rückmeldungen der Schulen zu den Seminaren.', 'label' => 'Rückmeldungen', 'route' => 'seminars.plan.feedback', 'match' => 'seminars.plan.feedback', 'can' => 'seminars.plan'],
-                    ['description' => 'Kostenvoranschläge zu Seminaren intern freigeben.', 'label' => 'KVA-Freigabe', 'route' => 'quotes.approval.index', 'match' => 'quotes.approval.*', 'can' => 'seminars.quote_approve'],
-                    ['description' => 'Partnerschulen, Ansprechpersonen und Anfragen.', 'label' => 'Schulen', 'route' => 'partners.index', 'match' => 'partners.*', 'can' => 'partners.view'],
-                    ['description' => 'Teamende und ihre Einarbeitung.', 'label' => 'Teamende', 'route' => 'team-onboarding.index', 'match' => 'team-onboarding.*', 'can' => 'team.view'],
-                    ['description' => 'E-Mails an Teamende, Schulen, Koordination und Bildungsreferenten.', 'label' => 'Rundschreiben', 'route' => 'mailings.coordination.index', 'match' => 'mailings.coordination.*', 'can' => 'mailings.send_limited'],
-                ],
-            ],
+            PortalAreas::Vorstand->value => ['home' => 'board.overview', 'routes' => ['board.overview'], 'roles' => [RoleKey::BoardMember], 'pages' => []],
+            PortalAreas::Mitglieder->value => ['home' => 'member.home', 'routes' => ['member.home'], 'roles' => [RoleKey::Member], 'pages' => []],
+            PortalAreas::Teamende->value => ['home' => 'team.home', 'routes' => ['team.home'], 'roles' => [RoleKey::Team], 'pages' => []],
+            PortalAreas::Mitarbeitende->value => ['home' => 'employee.home', 'routes' => ['employee.home'], 'roles' => [RoleKey::Employee, RoleKey::ManagingDirector, RoleKey::Treasury], 'pages' => []],
+            PortalAreas::Schulen->value => ['home' => 'school.home', 'routes' => ['school.home'], 'roles' => [RoleKey::School], 'pages' => []],
+            PortalAreas::Koordination->value => ['home' => 'coordination.home', 'routes' => ['coordination.home'], 'roles' => [RoleKey::Coordination, RoleKey::AdministrationStaff, RoleKey::EducationCoordination], 'pages' => []],
             PortalAreas::Geschaeftsstelle->value => [
                 'home' => 'office.home',
                 'roles' => [RoleKey::AdministrationStaff, RoleKey::Administration, RoleKey::ManagingDirector, RoleKey::Treasury],
-                'routes' => ['forms-office.*', 'quotes.pdf', 'seminars.documents.*', 'seminars.files.*'],
                 'pages' => [
                     ['label' => 'Übersicht', 'route' => 'office.home', 'match' => 'office.home'],
                     ['label' => 'Personen & Zugang', 'group' => true, 'route' => 'admin.users.index', 'children' => [
                         ['description' => 'Konten, Rollen und Sicherheit.', 'label' => 'Nutzer', 'route' => 'admin.users.index', 'match' => 'admin.users.*', 'can' => 'users.view'],
                         ['description' => 'Anträge auf Zugang zum Portal.', 'label' => 'Zugangsanträge', 'route' => 'access-requests.index', 'match' => 'access-requests.*', 'can' => 'access_requests.view'],
                         ['description' => 'Personen und ihre Kontaktdaten.', 'label' => 'Personen', 'route' => 'admin.people.index', 'match' => 'admin.people.*', 'can' => 'people.view'],
-                        ['description' => 'Importierte Mailingliste und persönliche Zugänge für Bewerbungen.', 'label' => 'Teamkontakte', 'route' => 'contacts.index', 'match' => 'contacts.*', 'can' => 'contacts.manage'],
                     ]],
-                    ['description' => 'Anträge prüfen, freigeben und die Sammelliste für die Auszahlung erstellen.', 'label' => 'Anträge', 'route' => 'forms-office.index', 'match' => 'forms-office.*', 'can' => 'forms.view'],
-                    ['description' => 'Verträge der Teamenden als Zahlungsaufträge: bezahlen, ablehnen, exportieren.', 'label' => 'Zahlungsaufträge', 'route' => 'seminars.payments.index', 'match' => 'seminars.payments.*', 'can' => 'seminars.payments'],
-                    ['label' => 'Seminare', 'group' => true, 'route' => 'seminars.office.index', 'children' => [
-                        ['description' => 'Seminare der Schulen: Anfragen prüfen, Stand und Verlauf.', 'label' => 'Seminarliste', 'route' => 'seminars.office.index', 'match' => 'seminars.office.*', 'can' => 'seminars.review'],
-                        ['description' => 'Leistungen und Preise für Kostenvoranschläge, dazu die Textbausteine.', 'label' => 'Preisliste', 'route' => 'quotes.office.prices', 'match' => 'quotes.office.*', 'can' => 'seminars.review'],
-                    ]],
-                    ['description' => 'Anfragen und Meldungen aller Personen: zuweisen, bearbeiten, im Ticket antworten.', 'label' => 'Tickets', 'route' => 'tickets-admin.index', 'match' => 'tickets-admin.*', 'can' => 'tickets.handle'],
-                    ['label' => 'Inhalte', 'group' => true, 'route' => 'articles.admin.index', 'children' => [
-                        ['description' => 'Artikel für Startseite und Artikelliste.', 'label' => 'Artikel', 'route' => 'articles.admin.index', 'match' => 'articles.admin.*', 'can' => 'articles.manage'],
+                    ['label' => 'Inhalte', 'group' => true, 'route' => 'pages.admin.index', 'children' => [
                         ['description' => 'Rechtstexte und andere Seiten.', 'label' => 'Seiten', 'route' => 'pages.admin.index', 'match' => 'pages.admin.*', 'can' => 'pages.manage'],
-                        ['description' => 'Themen und Formulare des öffentlichen Kontaktbereichs.', 'label' => 'Kontaktformular', 'route' => 'contact-admin.topics.index', 'match' => 'contact-admin.*', 'can' => 'contact_forms.manage'],
-                        ['description' => 'Fragen und Antworten für die FAQ-Seite des Portals.', 'label' => 'FAQ', 'route' => 'faq-admin.index', 'match' => 'faq-admin.*', 'can' => 'faq.manage'],
-                        ['description' => 'Koordinationen der Schulen pflegen.', 'label' => 'Koordinationen', 'route' => 'coordinations.index', 'match' => 'coordinations.*', 'can' => 'coordinations.manage'],
                         ['description' => 'Wichtige Links je Rolle für das Profilmenü.', 'label' => 'Schnellzugriffe', 'route' => 'role-links.edit', 'match' => 'role-links.*', 'can' => 'role_links.manage'],
-                        ['description' => 'E-Mails an Gruppen wie Teamende, Schulen oder Koordination.', 'label' => 'Rundschreiben', 'route' => 'mailings.office.index', 'match' => 'mailings.office.*', 'can' => 'mailings.send'],
-                        ['description' => 'Gespeicherte Empfängerkreise mit Filtern für Rundschreiben.', 'label' => 'Verteiler', 'route' => 'mailings.segments.index', 'match' => 'mailings.segments.*', 'can' => 'mail_segments.manage'],
-                        ['description' => 'Vorlagen für Rundschreiben und für Mitteilungen an Teamende.', 'label' => 'Mailvorlagen', 'route' => 'mailings.templates.index', 'match' => 'mailings.templates.*', 'can' => 'mail_templates.manage'],
-                        ['description' => 'Texte der automatischen E-Mails (Passwort, Einladung, Seminare …), Mail-Design und Bilder.', 'label' => 'Systemmails', 'route' => 'mailbuilder.system.index', 'match' => 'mailbuilder.*', 'can' => 'mail_system.manage'],
-                        ['description' => 'Fehlerquote, Sperren und Abmeldungen der Rundschreiben, Prüfung der Absenderdomain.', 'label' => 'Zustellqualität', 'route' => 'mailings.quality.index', 'match' => 'mailings.quality.*', 'can' => 'mail_templates.manage'],
+                        ['description' => 'Texte der automatischen E-Mails (Passwort, Einladung, Zugangsanträge), Mail-Design und Bilder.', 'label' => 'Systemmails', 'route' => 'mailbuilder.system.index', 'match' => 'mailbuilder.*', 'can' => 'mail_system.manage'],
                     ]],
                 ],
             ],
-            PortalAreas::Bildungsreferenten->value => [
-                'home' => 'education.overview',
-                'roles' => [RoleKey::EducationCoordination],
-                'pages' => [
-                    ['label' => 'Übersicht', 'route' => 'education.overview', 'match' => 'education.*', 'can' => 'education.view'],
-                ],
-            ],
+            PortalAreas::Bildungsreferenten->value => ['home' => 'education.overview', 'routes' => ['education.overview'], 'roles' => [RoleKey::EducationCoordination], 'pages' => []],
             PortalAreas::Admins->value => [
                 'home' => 'admins.home',
                 'roles' => [RoleKey::Administration],
@@ -397,58 +276,16 @@ final class PortalNavigation
         return [$first, ...array_values($items)];
     }
 
-    /**
-     * Zu welchem Bereich gehört die aktuelle Seite? Wie areaForRoute, aber auch für die Seiten des Aufgabensystems, die zum Bereich ihres Projekts gehören
-     * (Projekt, Aufgabe, Vorlagen) oder des Menüpunkts „Aufgaben“ (tasks.area). Kann die Person diesen Bereich nicht betreten (z. B. Mitglied in einem
-     * fremden Projekt), bleibt sie in einem ihrer Bereiche mit Aufgaben, sonst im Konto.
-     */
+    /** Zu welchem Bereich gehört die aktuelle Seite? Null für Seiten ohne Bereich (Anmeldung, Fehlerseiten). */
     public static function areaForRequest(?Request $request): ?PortalAreas
     {
-        $route = $request?->route();
-        $name = $route?->getName();
-
-        if ($name === null) {
-            return null;
-        }
-
-        if (! self::isProjectBoundRoute($name)) {
-            return self::areaForRoute($name);
-        }
-
-        if ($name === 'tasks.area') {
-            $area = PortalAreas::tryFrom((string) $route->parameter('area'));
-        } else {
-            $model = $route->parameter('project') ?? $route->parameter('task');
-            $model = $model instanceof Task ? $model->project : $model;
-            $area = $model instanceof TaskProject ? $model->portalArea() : null;
-        }
-
-        $user = $request->user();
-
-        if ($area !== null && ($user === null || self::canEnter($area, $user))) {
-            return $area;
-        }
-
-        // Ohne Zutritt: ein eigener Bereich mit Aufgaben, sonst das Konto
-        foreach ($user === null ? [] : self::visibleAreas($user) as $own) {
-            if (in_array($own, self::taskAreas(), true)) {
-                return $own;
-            }
-        }
-
-        return PortalAreas::Konto;
+        return self::areaForRoute($request?->route()?->getName());
     }
 
-    /** Gehört die Aufgaben-Route zum Bereich eines Projekts (nicht zu einem festen Bereich wie „Meine Aufgaben“ im Konto)? */
-    public static function isProjectBoundRoute(string $routeName): bool
-    {
-        return Str::is('tasks.*', $routeName) && ! in_array($routeName, self::FIXED_TASK_ROUTES, true);
-    }
-
-    /** Zu welchem Bereich gehört eine Seite (Routenname)? Null für Seiten ohne Bereich (Anmeldung, Fehlerseiten) und für Aufgaben-Seiten, die zum Bereich ihres Projekts gehören (areaForRequest). */
+    /** Zu welchem Bereich gehört eine Seite (Routenname)? Null für Seiten ohne Bereich (Anmeldung, Fehlerseiten). */
     public static function areaForRoute(?string $routeName): ?PortalAreas
     {
-        if ($routeName === null || self::isProjectBoundRoute($routeName)) {
+        if ($routeName === null) {
             return null;
         }
 

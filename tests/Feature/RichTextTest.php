@@ -5,7 +5,6 @@ use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
-use App\Modules\Articles\Models\Article;
 use App\Modules\Pages\Models\Page;
 use App\Modules\People\Models\Person;
 use App\Support\Html\RichText;
@@ -75,24 +74,10 @@ it('shows legacy markdown in the editor as html', function () {
     $this->actingAs($staff)->get(route('pages.admin.edit', 'datenschutz'))->assertOk()->assertSee('&lt;h2&gt;', false)->assertDontSee('## Verantwortlicher', false);
 });
 
-it('saves articles from the editor sanitized and shows them formatted', function () {
-    $staff = rtUser(RoleKey::AdministrationStaff);
-
-    $this->actingAs($staff)->post(route('articles.admin.store'), ['title' => 'Mit Editor', 'category' => 'Themenartikel', 'body' => '<p onclick="x">Hallo <strong>Welt</strong><script>alert(1)</script></p><ul><li>Punkt</li></ul>', 'status' => 'published', 'published_at' => now()->subHour()->format('Y-m-d\TH:i')])->assertSessionHasNoErrors();
-
-    $article = Article::query()->where('title', 'Mit Editor')->firstOrFail();
-    expect($article->body)->toBe('<p>Hallo <strong>Welt</strong></p><ul><li>Punkt</li></ul>');
-
-    $this->get(route('articles.public.show', $article->slug))->assertOk()->assertSee('<strong>Welt</strong>', false)->assertSee('<li>Punkt</li>', false)->assertDontSee('alert(1)', false);
-    expect($article->excerpt())->toBe('Hallo Welt Punkt');
-});
-
 it('refuses an empty editor text where text is required', function () {
     $staff = rtUser(RoleKey::AdministrationStaff);
 
-    $this->actingAs($staff)->post(route('articles.admin.store'), ['title' => 'Leer', 'body' => '<p></p>', 'status' => 'draft'])->assertSessionHasErrors('body');
     $this->actingAs($staff)->put(route('pages.admin.update', 'impressum'), ['body' => '<p>&nbsp;</p>'])->assertSessionHasErrors('body');
-    expect(Article::query()->count())->toBe(0);
 });
 
 it('saves legal pages from the editor and keeps old markdown pages working', function () {

@@ -56,13 +56,6 @@ it('lists every page of the catalog under exactly one area with an existing rout
 
     foreach (PortalNavigation::catalog() as $key => $definition) {
         foreach ($definition['pages'] as $page) {
-            // Die Aufgaben-Seiten stehen in mehreren Bereichen und gehören zum Bereich ihres Projekts (areaForRequest, siehe TaskSystemTest)
-            if (! empty($page['dynamic'])) {
-                expect(Route::has($page['route']))->toBeTrue()->and(PortalNavigation::taskAreas())->toContain(PortalAreas::from($key));
-
-                continue;
-            }
-
             expect(Route::has($page['route']))->toBeTrue()
                 ->and(PortalNavigation::areaForRoute($page['route']))->toBe(PortalAreas::from($key));
 
@@ -90,8 +83,7 @@ it('assigns every page behind the login to an area', function () {
             continue;
         }
 
-        // Aufgaben-Seiten eines Projekts gehören zum Bereich des Projekts (areaForRequest)
-        if (PortalNavigation::areaForRoute($name) === null && ! PortalNavigation::isProjectBoundRoute($name)) {
+        if (PortalNavigation::areaForRoute($name) === null) {
             $unassigned[] = $name;
         }
     }
@@ -110,7 +102,6 @@ it('makes every page reachable for every role that holds its capability', functi
         }
 
         foreach ($definition['pages'] as $page) {
-            // Die Seite „Aufgaben“ eines Bereichs ist an dessen eigene Rollen gebunden (any_role)
             if (! isset($page['can']) || isset($page['any_role'])) {
                 continue;
             }
@@ -137,11 +128,11 @@ it('knows no area for pages outside the portal areas', function () {
 
 it('shows areas by role and only when the user may see a page in them', function () {
     expect(pnAreaLabels(pnUser()))->toBe([])
-        ->and(pnAreaLabels(pnUser(RoleKey::Member)))->toBe(['Mitglieder'])
-        ->and(pnAreaLabels(pnUser(RoleKey::AdministrationStaff)))->toBe(['Koordination', 'Geschäftsstelle'])
+        ->and(pnAreaLabels(pnUser(RoleKey::Member)))->toBe([])
+        ->and(pnAreaLabels(pnUser(RoleKey::AdministrationStaff)))->toBe(['Geschäftsstelle'])
         ->and(pnAreaLabels(pnUser(RoleKey::Administration)))->toBe(['Geschäftsstelle', 'Admins'])
-        ->and(pnAreaLabels(pnUser(RoleKey::Coordination)))->toBe(['Koordination'])
-        ->and(pnAreaLabels(pnUser(RoleKey::BoardMember)))->toBe(['Vorstand', 'Koordination', 'Geschäftsstelle', 'Admins']);
+        ->and(pnAreaLabels(pnUser(RoleKey::Coordination)))->toBe([])
+        ->and(pnAreaLabels(pnUser(RoleKey::BoardMember)))->toBe(['Geschäftsstelle', 'Admins']);
 });
 
 it('ignores roles that have ended', function () {
@@ -161,9 +152,9 @@ it('lists the pages of an area by capability and marks the current one', functio
     $staff = pnUser(RoleKey::AdministrationStaff);
     $admin = pnUser(RoleKey::Administration);
 
-    expect(array_column(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff), 'label'))->toBe(['Übersicht', 'Personen & Zugang', 'Anträge', 'Zahlungsaufträge', 'Seminare', 'Tickets', 'Inhalte', 'Aufgaben'])
+    expect(array_column(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff), 'label'))->toBe(['Übersicht', 'Personen & Zugang', 'Inhalte'])
         ->and(array_column(PortalNavigation::pages(PortalAreas::Admins, $staff), 'label'))->toBe(['Übersicht'])
-        ->and(array_column(PortalNavigation::pages(PortalAreas::Admins, $admin), 'label'))->toBe(['Übersicht', 'Protokoll', 'System', 'Anbindungen', 'Web-Control', 'Design-Bibliothek', 'Aufgaben'])
+        ->and(array_column(PortalNavigation::pages(PortalAreas::Admins, $admin), 'label'))->toBe(['Übersicht', 'Protokoll', 'System', 'Anbindungen', 'Web-Control', 'Design-Bibliothek'])
         ->and(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff, 'admin.people.show')[1]['children'][2]['current'])->toBeTrue()
         ->and(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $staff, 'admin.people.show')[1]['active'])->toBeTrue()
         ->and(PortalNavigation::home(PortalAreas::Geschaeftsstelle, $staff))->toBe(route('office.home'));
@@ -232,36 +223,27 @@ it('keeps the pages protected by their capability even when the area is visible'
 // ---------- Start: öffentlich ----------
 
 it('serves the public start pages to guests', function () {
-    foreach (['portal.about', 'portal.access', 'portal.contact', 'portal.faq'] as $route) {
+    foreach (['portal.about', 'portal.access'] as $route) {
         $this->get(route($route))->assertOk();
     }
 
-    $this->get(route('portal.about'))->assertSee('id="portal-faq"', false)->assertSee('Häufig gestellte Fragen');
     $this->get(route('portal.access'))->assertSee('Zur Anmeldung');
-    config(['portal.home.contact.lines' => []]);
-    $this->get(route('portal.contact'))->assertSee('Thema wählen')->assertDontSee('vdbs-contact-block', false);
-
-    config(['portal.home.contact.lines' => [['label' => 'Support', 'value' => 'support@example.org', 'href' => 'mailto:support@example.org']]]);
-    $this->get(route('portal.contact'))->assertSee('support@example.org');
 });
 
 it('assigns the public pages to the start area', function () {
-    foreach (['home', 'portal.about', 'portal.access', 'portal.contact', 'portal.faq'] as $route) {
+    foreach (['home', 'portal.about', 'portal.access'] as $route) {
         expect(PortalNavigation::areaForRoute($route))->toBe(PortalAreas::Start);
     }
 });
 
 it('shows the public pages of the start area in row two to guests, also on the login page', function () {
-    foreach ([route('home'), route('login'), route('portal.contact')] as $url) {
+    foreach ([route('home'), route('login'), route('portal.about')] as $url) {
         $html = pnHeader($this->get($url)->assertOk()->getContent());
 
         expect($html)
             ->toContain('aria-label="Seiten im Bereich Start"')
             ->toContain('href="'.route('portal.about').'"')
-            ->toContain('href="'.route('portal.access').'"')
-            ->toContain('href="'.route('portal.faq').'"')
-            ->toContain('href="'.route('portal.contact').'"')
-            ->toContain('>FAQ<');
+            ->toContain('href="'.route('portal.access').'"');
     }
 });
 
@@ -271,8 +253,6 @@ it('marks only the current public page', function () {
     expect($html)->toMatch('/aria-current="page"\s*>Über das Portal</')
         ->and(substr_count($html, 'aria-current="page"'))->toBe(1);
 
-    expect(pnHeader($this->get(route('portal.contact'))->getContent()))->toMatch('/aria-current="page"\s*>Kontakt</');
-    expect(pnHeader($this->get(route('portal.faq'))->getContent()))->toMatch('/aria-current="page"\s*>FAQ</');
 });
 
 it('shows the public pages to logged in users on the start page', function () {
@@ -287,10 +267,10 @@ it('renders a submenu for entries with children', function () {
 
     $result = $pages->invoke(null, [
         ['label' => 'Eltern', 'route' => 'portal.about', 'match' => 'portal.about', 'children' => [
-            ['label' => 'Kind', 'route' => 'portal.contact', 'match' => 'portal.contact'],
+            ['label' => 'Kind', 'route' => 'home', 'match' => 'home'],
             ['label' => 'Gesperrt', 'route' => 'portal.access', 'match' => 'portal.access', 'can' => 'users.view'],
         ]],
-    ], null, 'portal.contact', PortalAreas::Start);
+    ], null, 'home', PortalAreas::Start);
 
     expect($result[0]['current'])->toBeFalse()
         ->and(array_column($result[0]['children'], 'label'))->toBe(['Kind'])
@@ -311,11 +291,11 @@ it('gives every area a start page that is the first breadcrumb', function () {
         expect(PortalNavigation::home($area))->toBe(route(PortalNavigation::catalog()[$area->value]['home']));
     }
 
-    $crumbs = PortalNavigation::breadcrumb([['label' => 'Start', 'href' => '/'], ['label' => 'Geschäftsstelle'], ['label' => 'Artikel']], 'articles.admin.index');
+    $crumbs = PortalNavigation::breadcrumb([['label' => 'Start', 'href' => '/'], ['label' => 'Geschäftsstelle'], ['label' => 'Seiten']], 'pages.admin.index');
 
-    expect($crumbs)->toBe([['label' => 'Geschäftsstelle', 'href' => route('office.home')], ['label' => 'Artikel']])
+    expect($crumbs)->toBe([['label' => 'Geschäftsstelle', 'href' => route('office.home')], ['label' => 'Seiten']])
         ->and(PortalNavigation::breadcrumb([['label' => 'Start', 'href' => '/'], ['label' => 'Verwaltung'], ['label' => 'Protokoll']], 'admin.audit.index')[0])->toBe(['label' => 'Admins', 'href' => route('admins.home')])
-        ->and(PortalNavigation::breadcrumb([['label' => 'Start', 'href' => '/'], ['label' => 'Koordination'], ['label' => 'Schulen']], 'partners.index')[0]['href'])->toBe(route('coordination.home'))
+        ->and(PortalNavigation::breadcrumb([['label' => 'Start', 'href' => '/'], ['label' => 'Geschäftsstelle'], ['label' => 'Nutzer']], 'admin.users.index')[0]['href'])->toBe(route('office.home'))
         ->and(PortalNavigation::breadcrumb([['label' => 'Start', 'href' => '/'], ['label' => 'Impressum']], 'login'))->toBe([['label' => 'Start', 'href' => '/'], ['label' => 'Impressum']])
         ->and(PortalNavigation::breadcrumb([['label' => 'Start', 'href' => '/'], ['label' => 'Koordination'], ['label' => 'Übersicht']], 'coordination.home'))->toBe([['label' => 'Koordination']]);
 });
@@ -326,25 +306,23 @@ it('shows the area start pages only to people of the area and links to them from
     $this->actingAs($staff)->get(route('office.home'))->assertOk()->assertSee('Zugangsanträge')->assertSee('href="'.route('office.home').'"', false);
     $this->actingAs($staff)->get(route('admins.home'))->assertForbidden();
     $this->actingAs(pnUser(RoleKey::Administration))->get(route('admins.home'))->assertOk()->assertSee('Protokoll');
-    $this->actingAs(pnUser(RoleKey::Coordination))->get(route('coordination.home'))->assertOk();
-    $this->actingAs(pnUser(RoleKey::Team))->get(route('team.home'))->assertOk();
-    $this->actingAs(pnUser(RoleKey::Team))->get(route('coordination.home'))->assertForbidden();
+    // Bereiche ohne Seiten erscheinen nicht und ihre Übersicht bleibt verschlossen
+    $this->actingAs(pnUser(RoleKey::Coordination))->get(route('coordination.home'))->assertForbidden();
+    $this->actingAs(pnUser(RoleKey::Team))->get(route('team.home'))->assertForbidden();
 });
 
 // ---------- Issues 93 bis 95 ----------
 
-it('limits the start menu to the four public entries (issue 93)', function () {
+it('limits the start menu to the public entries (issue 93)', function () {
     $html = pnHeader($this->get(route('portal.about'))->getContent());
 
-    expect($html)->toContain('>Über das Portal<')->toContain('>Zugang zum Portal<')->toContain('>FAQ<')->toContain('>Kontakt<')
+    expect($html)->toContain('>Über das Portal<')->toContain('>Zugang zum Portal<')
         ->not->toContain('>Veranstaltungen<')->not->toContain('>Mitglied werden<');
 
-    // die Seiten selbst bleiben erreichbar, nur ohne Menüpunkt
-    expect(PortalNavigation::areaForRoute('join.apply'))->toBe(PortalAreas::Start);
 });
 
 it('renders an overflow menu with three dots for every menu row (issue 94)', function () {
-    $html = pnHeader($this->actingAs(pnUser(RoleKey::BoardMember))->get(route('board.overview'))->getContent());
+    $html = pnHeader($this->actingAs(pnUser(RoleKey::BoardMember))->get(route('office.home'))->getContent());
 
     expect(substr_count($html, 'data-vdbs-overflow '))->toBe(2)->and(substr_count($html, 'data-vdbs-more-list'))->toBe(2)
         ->and($html)->toContain('aria-label="Weitere Einträge"')->toContain('data-vdbs-more');

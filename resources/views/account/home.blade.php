@@ -32,7 +32,6 @@
 
             @if ($membership)
                 <p style="color:var(--text-muted)">Mitgliedschaft im Verein: {{ $membership->effectiveStatus()->label() }}.
-                    @can('member.area')<a href="{{ route('member.membership') }}">Zum Bereich Mitglieder</a>@endcan
                 </p>
             @endif
         </section>

@@ -2,7 +2,7 @@
 
 namespace App\Modules\MailBuilder\Support;
 
-use App\Modules\Mailings\Support\MailPlaceholders;
+use App\Modules\MailBuilder\Support\MailPlaceholders;
 
 /**
  * Prüft ein Blockdokument vor dem Speichern: unbekannte und fehlende Pflichtplatzhalter, fehlende Alternativtexte, Kontraste, leere Blöcke, Ziele.

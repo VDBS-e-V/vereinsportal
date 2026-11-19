@@ -1,18 +1,14 @@
 @php
     $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => $area->label()]];
     $lead = match ($area) {
-        \App\Support\PortalAreas::Teamende => 'Ihre Einarbeitung und Ihre Anträge.',
-        \App\Support\PortalAreas::Koordination => 'Schulen und Teamende.',
-        \App\Support\PortalAreas::Geschaeftsstelle => 'Nutzer, Anträge, Artikel, Seiten und Personen.',
-        \App\Support\PortalAreas::Admins => 'Technischer Betrieb: Zustand, Aufgaben, Protokoll und Design-Bibliothek.',
+        \App\Support\PortalAreas::Geschaeftsstelle => 'Nutzer, Zugangsanträge, Personen, Seiten und Systemmails.',
+        \App\Support\PortalAreas::Admins => 'Technischer Betrieb: Zustand, Aufgaben, Protokoll, Anbindungen und Design-Bibliothek.',
         default => 'Die Seiten dieses Bereichs.',
     };
 @endphp
 
 <x-layouts.app :title="$area->label()" width="wide">
     <x-vdbs.layout.page-header :title="'Bereich '.$area->label()" :lead="$lead" :breadcrumb="$crumbs" />
-
-    @include('portal._tasks', ['area' => $area])
 
     <section aria-labelledby="pages-heading">
         <h2 id="pages-heading" style="font-size:var(--font-size-h3)">Seiten</h2>

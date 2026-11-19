@@ -12,8 +12,6 @@ use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\People\Models\Person;
 use App\Modules\Sso\Services\OAuthClients;
 use App\Modules\Sso\Services\OidcClaims;
-use App\Support\PortalAreas;
-use App\Support\PortalNavigation;
 use Database\Seeders\RoleSeeder;
 
 beforeEach(function () {
@@ -120,25 +118,6 @@ it('requires two-factor for the managing director and the treasury but not for e
     $this->actingAs(erUser(RoleKey::ManagingDirector))->get(route('employee.home'))->assertRedirect(route('account.security.index'));
 });
 
-it('shows the area Mitarbeitende only to the new roles', function () {
-    $labels = fn (User $user): array => array_map(fn (PortalAreas $area): string => $area->label(), PortalNavigation::visibleAreas($user));
-
-    expect($labels(erUser(RoleKey::Employee)))->toContain('Mitarbeitende')
-        ->and($labels(erUser(RoleKey::ManagingDirector)))->toContain('Mitarbeitende')
-        ->and($labels(erUser(RoleKey::Treasury)))->toContain('Mitarbeitende')
-        ->and($labels(erUser(RoleKey::BoardMember)))->not->toContain('Mitarbeitende')
-        ->and($labels(erUser(RoleKey::Team)))->not->toContain('Mitarbeitende')
-        ->and($labels(erUser(RoleKey::AdministrationStaff)))->not->toContain('Mitarbeitende');
-});
-
-it('opens the employee page for the new roles and keeps others out', function () {
-    config(['portal.systems' => [['label' => 'Nextcloud', 'url' => 'https://cloud.example.org'], ['label' => 'Moodle', 'url' => null], ['label' => 'Umfragen', 'url' => null]]]);
-
-    $this->actingAs(erUser(RoleKey::Employee))->get(route('employee.home'))->assertOk()->assertSee('Bereich Mitarbeitende')->assertSee('https://cloud.example.org')->assertSee('Mitarbeitende');
-    $this->actingAs(erUser(RoleKey::Treasury))->get(route('employee.home'))->assertOk();
-    $this->actingAs(erUser(RoleKey::BoardMember))->get(route('employee.home'))->assertForbidden();
-    $this->actingAs(erUser(RoleKey::Team))->get(route('employee.home'))->assertForbidden();
-});
 
 it('lets employees and the managing director log in to other systems by default', function () {
     expect(OAuthClients::defaultRoles())->toContain('employee', 'managing_director')

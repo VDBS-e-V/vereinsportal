@@ -26,20 +26,12 @@
         <p>Zentraler Informationszugang · Effiziente Kommunikation · Ressourcenmanagement · Transparenz · Vereinfachte Prozesse</p>
     </x-vdbs.content.prose>
 
-    <section id="portal-faq" aria-labelledby="portal-faq-title" style="margin-top:var(--space-8)">
-        <h2 id="portal-faq-title">Häufig gestellte Fragen</h2>
-        <p>Die häufigsten Fragen zum VDBS Vereinsportal beantworten wir auf einer eigenen Seite, nach Themen geordnet und mit Suche. Haben Sie weitere Fragen oder Ergänzungen, schreiben Sie uns jederzeit über das <a href="{{ route('portal.contact') }}">Kontaktformular</a>@if ($supportEmail) oder an <a href="mailto:{{ $supportEmail }}">{{ $supportEmail }}</a>@endif.</p>
-
-        <p><x-vdbs.actions.button :href="route('portal.faq')" icon="arrow-right" icon-position="end">Alle Fragen und Antworten</x-vdbs.actions.button></p>
-    </section>
-
     <x-vdbs.layout.section style="margin-top:var(--space-8)">
         <x-vdbs.layout.split title="Zugang zum Portal">
             <p>Hier finden Sie alle Informationen, die Sie benötigen, um auf das VDBS Vereinsportal zuzugreifen. Wenn Sie bereits ein Konto haben, können Sie sich hier anmelden. Wenn Sie noch kein Konto haben, können Sie hier den Zugang beantragen.</p>
 
             <x-slot:actions>
                 <x-vdbs.actions.button :href="route('portal.access')" variant="primary" icon="arrow-right" icon-position="end">Zugang zum Portal</x-vdbs.actions.button>
-                <x-vdbs.actions.button :href="route('portal.contact')" variant="text" icon="arrow-right" icon-position="end">Hilfe kontaktieren</x-vdbs.actions.button>
             </x-slot:actions>
 
             @if (filled(config('portal.home.access_image.src')))

@@ -14,8 +14,6 @@ use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\Audit\Support\AuditLog;
-use App\Modules\Membership\Enums\MembershipStatus;
-use App\Modules\Membership\Models\Membership;
 use App\Modules\People\Models\Person;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Hash;
@@ -238,36 +236,6 @@ it('makes names and addresses in the log unrecognizable but keeps the entries', 
         ->and(AuditEntry::query()->where('event', 'person.updated')->value('subject_label'))->toBe('Gelöschte Person')
         ->and(AuditEntry::query()->where('event', 'user.disabled')->value('actor_label'))->not->toBe('Gelöschtes Konto')
         ->and(AuditEntry::query()->where('event', 'account.anonymized')->exists())->toBeTrue();
-});
-
-it('ends memberships, rejects requests and deletes documents and personal notes', function () {
-    $user = adUser(RoleKey::Member);
-    $running = Membership::factory()->create(['person_id' => $user->person_id, 'first_name' => 'Erika', 'last_name' => 'Musterfrau', 'email' => $user->email]);
-    $path = 'membership-documents/'.$running->id.'/datei.pdf';
-    Storage::disk('local')->put($path, 'pdf');
-    $running->documents()->create(['kind' => 'application', 'original_name' => 'antrag.pdf', 'path' => $path, 'mime' => 'application/pdf', 'size' => 3, 'sha256' => str_repeat('a', 64), 'uploaded_at' => now()]);
-    $running->events()->create(['type' => 'note', 'occurred_at' => now(), 'actor_label' => 'Vorstand Name', 'comment' => 'Persönliche Notiz']);
-    $requested = Membership::factory()->requested()->create(['person_id' => Person::factory()->create()->id]);
-
-    $other = adUser();
-    $pendingRequest = Membership::factory()->requested()->create(['person_id' => $other->person_id]);
-    adPending($user);
-    adPending($other);
-
-    $this->artisan('account:purge')->assertSuccessful();
-
-    $running->refresh();
-    expect($running->status)->toBe(MembershipStatus::Ended)
-        ->and($running->ends_on->lt(today()))->toBeTrue()
-        ->and($running->first_name)->toBeNull()
-        ->and($running->email)->toBeNull()
-        ->and($running->documents()->count())->toBe(0)
-        ->and($running->events()->whereNotNull('comment')->count())->toBe(0)
-        ->and($running->events()->first()->actor_label)->toBe('gelöscht')
-        ->and($pendingRequest->fresh()->status)->toBe(MembershipStatus::Rejected)
-        ->and($requested->fresh()->status)->toBe(MembershipStatus::Requested);
-
-    Storage::disk('local')->assertMissing($path);
 });
 
 it('skips the last administration and is idempotent', function () {

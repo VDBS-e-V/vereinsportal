@@ -5,11 +5,11 @@ namespace App\Modules\MailBuilder\Services;
 use App\Modules\Access\Models\User;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
+use App\Modules\MailBuilder\Models\MailTemplate;
+use App\Modules\MailBuilder\Models\MailTemplateVersion;
 use App\Modules\MailBuilder\Support\BlockSchema;
 use App\Modules\MailBuilder\Support\SystemMail;
 use App\Modules\MailBuilder\Support\SystemMails;
-use App\Modules\Mailings\Models\MailTemplate;
-use App\Modules\Mailings\Models\MailTemplateVersion;
 use DomainException;
 use Illuminate\Support\Facades\DB;
 

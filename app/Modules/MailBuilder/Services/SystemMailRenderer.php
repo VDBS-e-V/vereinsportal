@@ -3,10 +3,10 @@
 namespace App\Modules\MailBuilder\Services;
 
 use App\Modules\MailBuilder\Models\MailLayout;
+use App\Modules\MailBuilder\Models\MailTemplate;
 use App\Modules\MailBuilder\Support\MailCheck;
 use App\Modules\MailBuilder\Support\RenderedMail;
 use App\Modules\MailBuilder\Support\SystemMails;
-use App\Modules\Mailings\Models\MailTemplate;
 use Throwable;
 
 /**

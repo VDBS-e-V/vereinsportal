@@ -42,42 +42,40 @@ it('shows every area until something is changed', function () {
 
 it('hides an area from the header and the lists without touching the permissions', function () {
     $user = ncUser(RoleKey::BoardMember);
-    expect(PortalNavigation::visibleAreas($user))->toContain(PortalAreas::Vorstand);
+    expect(PortalNavigation::visibleAreas($user))->toContain(PortalAreas::Geschaeftsstelle);
 
-    NavigationArea::query()->create(['area' => 'vorstand', 'show_header' => false, 'show_lists' => true]);
+    NavigationArea::query()->create(['area' => 'geschaeftsstelle', 'show_header' => false, 'show_lists' => true]);
     NavigationControl::reset();
 
-    expect(PortalNavigation::visibleAreas($user))->not->toContain(PortalAreas::Vorstand)
-        ->and(PortalNavigation::visibleAreas($user, 'lists'))->toContain(PortalAreas::Vorstand);
+    expect(PortalNavigation::visibleAreas($user))->not->toContain(PortalAreas::Geschaeftsstelle)
+        ->and(PortalNavigation::visibleAreas($user, 'lists'))->toContain(PortalAreas::Geschaeftsstelle);
 });
 
-it('hides, renames and reorders pages and adds own links with sub pages', function () {
+it('adds own links with sub pages and puts them where the layout says', function () {
     $user = ncUser(RoleKey::BoardMember);
     $admin = ncUser(RoleKey::Administration);
 
     $layout = [
-        ['ref' => 'board.meetings.index', 'kind' => 'catalog', 'label' => 'Vorstandssitzungen', 'url' => '', 'visible' => true, 'parent' => null],
         ['ref' => 'new1', 'kind' => 'custom', 'label' => 'Handbuch', 'url' => 'https://example.org/handbuch', 'visible' => true, 'parent' => null],
-        ['ref' => 'new2', 'kind' => 'custom', 'label' => 'Kapitel 1', 'url' => '/faq', 'visible' => true, 'parent' => 'new1'],
-        ['ref' => 'board.reports', 'kind' => 'catalog', 'label' => '', 'url' => '', 'visible' => false, 'parent' => null],
+        ['ref' => 'new2', 'kind' => 'custom', 'label' => 'Kapitel 1', 'url' => '/impressum', 'visible' => true, 'parent' => 'new1'],
     ];
 
-    $this->actingAs($admin)->put(route('navigation.header.update', 'vorstand'), ['layout' => json_encode($layout)])->assertRedirect(route('navigation.header', 'vorstand'));
+    $this->actingAs($admin)->put(route('navigation.header.update', 'geschaeftsstelle'), ['layout' => json_encode($layout)])->assertRedirect(route('navigation.header', 'geschaeftsstelle'));
 
-    $pages = collect(PortalNavigation::pages(PortalAreas::Vorstand, $user));
-    expect($pages->pluck('label')->all())->not->toContain('Berichte')->toContain('Vorstandssitzungen', 'Handbuch')
-        ->and($pages->pluck('label')->search('Vorstandssitzungen'))->toBeLessThan($pages->pluck('label')->search('Handbuch'))
-        ->and($pages->firstWhere('label', 'Handbuch')['children'][0]['href'])->toBe('/faq');
+    $pages = collect(PortalNavigation::pages(PortalAreas::Geschaeftsstelle, $user));
+    expect($pages->pluck('label')->all())->toContain('Handbuch', 'Personen & Zugang')
+        ->and($pages->pluck('label')->search('Handbuch'))->toBeLessThan($pages->pluck('label')->search('Personen & Zugang'))
+        ->and($pages->firstWhere('label', 'Handbuch')['children'][0]['href'])->toBe('/impressum');
 
-    $this->actingAs($admin)->get(route('navigation.header', 'vorstand'))->assertOk()->assertSee('Handbuch');
+    $this->actingAs($admin)->get(route('navigation.header', 'geschaeftsstelle'))->assertOk()->assertSee('Handbuch');
 });
 
 it('rejects an invalid header layout', function () {
     $admin = ncUser(RoleKey::Administration);
     $bad = [['ref' => 'x', 'kind' => 'custom', 'label' => 'Ohne Adresse', 'url' => '', 'visible' => true, 'parent' => null]];
 
-    $this->actingAs($admin)->put(route('navigation.header.update', 'vorstand'), ['layout' => json_encode($bad)])->assertSessionHasErrors('layout');
-    $this->actingAs($admin)->put(route('navigation.header.update', 'vorstand'), ['layout' => 'kein json'])->assertSessionHasErrors('layout');
+    $this->actingAs($admin)->put(route('navigation.header.update', 'geschaeftsstelle'), ['layout' => json_encode($bad)])->assertSessionHasErrors('layout');
+    $this->actingAs($admin)->put(route('navigation.header.update', 'geschaeftsstelle'), ['layout' => 'kein json'])->assertSessionHasErrors('layout');
 });
 
 it('lists the web control in the area Admins only for administration', function () {
@@ -90,7 +88,7 @@ it('lets only administration use the web control, orders and renames areas', fun
     $this->actingAs(ncUser(RoleKey::Member))->get(route('navigation.edit'))->assertForbidden();
 
     $admin = ncUser(RoleKey::Administration);
-    $this->actingAs($admin)->get(route('navigation.edit'))->assertOk()->assertSee('Koordination');
+    $this->actingAs($admin)->get(route('navigation.edit'))->assertOk()->assertSee('Geschäftsstelle');
     $this->actingAs($admin)->get(route('navigation.headers'))->assertOk();
     $this->actingAs($admin)->get(route('navigation.header', 'koordination'))->assertOk();
     $this->actingAs($admin)->get(route('navigation.area', 'koordination'))->assertOk();

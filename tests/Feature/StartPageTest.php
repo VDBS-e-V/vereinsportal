@@ -32,7 +32,7 @@ it('shows the logged-in variant with account actions instead of the login', func
     $html = $this->actingAs(User::factory()->create())->get('/')->assertOk()->getContent();
 
     expect($html)
-        ->toContain('Kontoeinstellungen')->toContain('Meine Tickets')->toContain('>Hilfe<')->toContain('vdbs-dropdown__divider')
+        ->toContain('Kontoeinstellungen')->toContain('>Hilfe<')->toContain('vdbs-dropdown__divider')
         ->toContain('Sie sind angemeldet')
         ->toContain('Abmelden')
         ->not->toContain('Zur Anmeldung');

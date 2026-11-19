@@ -2,8 +2,8 @@
 
 namespace App\Modules\MailBuilder\Support;
 
-use App\Modules\Mailings\Support\MailPlaceholders;
-use App\Modules\Mailings\Support\MailText;
+use App\Modules\MailBuilder\Support\MailPlaceholders;
+use App\Modules\MailBuilder\Support\MailText;
 use Stringable;
 
 /**

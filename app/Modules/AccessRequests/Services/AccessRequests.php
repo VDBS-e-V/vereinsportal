@@ -53,7 +53,7 @@ final class AccessRequests
             || AccessRequest::query()->where('email', $email)->whereIn('status', [AccessRequestStatus::New->value, AccessRequestStatus::InReview->value])->exists();
 
         if ($known) {
-            Mail::to($email)->send(new AccessRequestNoticeMail(route('login'), route('password.request'), route('portal.contact')));
+            Mail::to($email)->send(new AccessRequestNoticeMail(route('login'), route('password.request'), route('home')));
 
             return;
         }
@@ -152,7 +152,7 @@ final class AccessRequests
 
         $this->decide($request, AccessRequestStatus::Rejected, $by, $note, null);
 
-        Mail::to($email)->send(new AccessRequestRejectedMail($name, filled($note) ? trim($note) : null, route('portal.contact')));
+        Mail::to($email)->send(new AccessRequestRejectedMail($name, filled($note) ? trim($note) : null, route('home')));
 
         AuditLog::record(AuditEvent::AccessRequestRejected, $by);
     }

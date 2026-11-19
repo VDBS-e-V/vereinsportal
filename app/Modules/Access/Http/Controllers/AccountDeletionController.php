@@ -26,7 +26,7 @@ class AccountDeletionController extends Controller
             'blockers' => $this->deletion->blockers($user),
             'graceDays' => AccountDeletion::graceDays(),
             'phrase' => self::PHRASE,
-            'hasMembership' => $user->person?->memberships()->open()->exists() ?? false,
+            'hasMembership' => false,
         ]);
     }
 

@@ -37,21 +37,21 @@ function botPost(array $overrides = [], ?string $token = null)
 }
 
 it('renders token, honeypot and proof field in public forms only when enabled', function () {
-    $html = $this->get(route('portal.contact.form', ['form' => 'vorstand']))->assertOk()->getContent();
+    $html = $this->get(route('login'))->assertOk()->getContent();
 
     expect($html)->toContain('data-vdbs-bot-guard')->toContain('name="_bg_token"')->toContain('name="homepage_url"')->toContain('name="_bg_proof"');
 
     config(['portal.bot_guard.enabled' => false]);
 
-    $this->get(route('portal.contact.form', ['form' => 'vorstand']))->assertDontSee('data-vdbs-bot-guard', false);
+    $this->get(route('login'))->assertDontSee('data-vdbs-bot-guard', false);
 });
 
 it('puts the guard into every public form', function () {
-    foreach (['portal.access', 'join.apply', 'login', 'password.request'] as $name) {
+    foreach (['portal.access', 'login', 'password.request'] as $name) {
         $this->get(route($name))->assertOk()->assertSee('data-vdbs-bot-guard', false);
     }
 
-    $this->get(route('portal.contact.form', ['form' => 'vorstand']))->assertOk()->assertSee('data-vdbs-bot-guard', false);
+    $this->get(route('login'))->assertOk()->assertSee('data-vdbs-bot-guard', false);
 });
 
 it('accepts a form with a valid token and solved proof', function () {
@@ -116,7 +116,7 @@ it('keeps the input and shows a notice after a rejection', function () {
 });
 
 it('does not check safe requests and lets everything pass when disabled', function () {
-    $this->get(route('portal.contact'))->assertOk();
+    $this->get(route('portal.access'))->assertOk();
 
     config(['portal.bot_guard.enabled' => false]);
 

@@ -16,7 +16,6 @@ use App\Modules\AccessRequests\Mail\NewAccessRequestMail;
 use App\Modules\AccessRequests\Models\AccessRequest;
 use App\Modules\AccessRequests\Models\AccessRequestFile;
 use App\Modules\Audit\Models\AuditEntry;
-use App\Modules\Onboarding\Models\TeamOnboarding;
 use App\Modules\People\Models\Person;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\UploadedFile;
@@ -263,8 +262,7 @@ it('approves a request: account with invitation, team role with onboarding, proo
         ->and($user->status)->toBe(UserStatus::PendingVerification)
         ->and($user->person->fullName())->toBe('Tina Teamerin')
         ->and($user->person->birth_date->toDateString())->toBe('1999-04-12')
-        ->and($user->activeRoleAssignments()->whereHas('role', fn ($role) => $role->where('key', 'team'))->exists())->toBeTrue()
-        ->and(TeamOnboarding::query()->where('user_id', $user->id)->exists())->toBeTrue();
+        ->and($user->activeRoleAssignments()->whereHas('role', fn ($role) => $role->where('key', 'team'))->exists())->toBeTrue();
 
     Storage::disk('local')->assertMissing($path);
     Mail::assertSent(InvitationMail::class, fn (InvitationMail $mail): bool => $mail->hasTo('tina@beispiel.example'));
@@ -366,5 +364,5 @@ it('deletes requests of an address when the account is deleted', function () {
 });
 
 it('shows the access requests in the area Geschäftsstelle', function () {
-    $this->actingAs(arUser(RoleKey::AdministrationStaff))->get(route('access-requests.index'))->assertOk()->assertSee('Zugangsanträge')->assertSee('Artikel');
+    $this->actingAs(arUser(RoleKey::AdministrationStaff))->get(route('access-requests.index'))->assertOk()->assertSee('Zugangsanträge');
 });

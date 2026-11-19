@@ -50,7 +50,7 @@ it('collects the most important links of all roles, without duplicates, at most 
 it('shows the links in the profile menu', function () {
     RoleLink::query()->create(['role_key' => 'member', 'label' => 'Mein Wichtiges', 'url' => '/mitglieder', 'priority' => 1]);
 
-    $this->actingAs(qlUser(RoleKey::Member))->get(route('member.home'))->assertOk()->assertSee('Wichtige Links')->assertSee('Mein Wichtiges');
+    $this->actingAs(qlUser(RoleKey::Member))->get(route('account.home'))->assertOk()->assertSee('Wichtige Links')->assertSee('Mein Wichtiges');
 });
 
 it('lets administration edit three links per role and validates the addresses', function () {

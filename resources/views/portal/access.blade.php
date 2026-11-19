@@ -26,7 +26,7 @@
     <x-vdbs.content.prose style="margin-top:var(--space-8)">
         <h2>Sie haben noch kein Konto</h2>
         <p>Teamer:innen, Schüler:innen, Lehrkräfte und Partner:innen beantragen den Zugang hier. Die Geschäftsstelle prüft Ihren Antrag und legt bei Zustimmung Ihr Konto an; Sie erhalten dann eine E-Mail mit einem Link, über den Sie Ihr Passwort festlegen.</p>
-        <p><strong>Vereinsmitglieder</strong> wenden sich bitte an den Vorstand, um Zugang zu erhalten (<a href="{{ route('portal.contact') }}">Kontaktformular</a>, Empfänger „Vorstand“). Wer Mitglied werden möchte, kann die <a href="{{ route('join.apply') }}">Mitgliedschaft online beantragen</a>.</p>
+        <p><strong>Vereinsmitglieder</strong> wenden sich bitte an den Vorstand, um Zugang zu erhalten.</p>
     </x-vdbs.content.prose>
 
     @guest
@@ -104,5 +104,4 @@
         </section>
     @endguest
 
-    <p style="margin-top:var(--space-8)"><x-vdbs.actions.button variant="text" :href="route('portal.contact')">Kontakt aufnehmen</x-vdbs.actions.button></p>
 </x-layouts.app>

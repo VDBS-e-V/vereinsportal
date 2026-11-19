@@ -22,9 +22,6 @@ final class SystemSettings
             'Aufbewahrungsfristen' => [
                 $row('Protokoll (Tage)', config('audit.retention_days'), 'AUDIT_RETENTION_DAYS'),
                 $row('Löschfrist nach Kontolöschung (Tage)', config('portal.offboarding.grace_days'), 'ACCOUNT_DELETION_GRACE_DAYS'),
-                $row('Unbestätigte Mitgliedschaftsanträge (Tage)', config('portal.membership.retention.unverified_days'), 'MEMBERSHIP_RETENTION_UNVERIFIED_DAYS'),
-                $row('Abgelehnte Mitgliedschaftsanträge (Tage)', config('portal.membership.retention.rejected_days'), 'MEMBERSHIP_RETENTION_REJECTED_DAYS'),
-                $row('Beendete Mitgliedschaften (Tage, leer = unbegrenzt)', config('portal.membership.retention.ended_days'), 'MEMBERSHIP_RETENTION_ENDED_DAYS'),
                 $row('Entschiedene Zugangsanträge (Tage)', config('portal.access_requests.retention_days'), 'ACCESS_REQUESTS_RETENTION_DAYS'),
                 $row('Offene Zugangsanträge (Tage)', config('portal.access_requests.open_retention_days'), 'ACCESS_REQUESTS_OPEN_RETENTION_DAYS'),
             ],

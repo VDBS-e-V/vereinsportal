@@ -6,6 +6,10 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ## [Unreleased]
 
+### Stabile Version (Branch `release/identity-users`)
+
+- Nur noch Nutzerverwaltung (Access, AccessGovernance, AccessRequests, People, Audit), Identity Service (Sso) und die nötige Grundlage (MailBuilder, Setup, System, Pages, Navigation, Designsystem); alle anderen Module sind entfernt, siehe Doc 92
+
 ### Removed
 
 - Seminare, Kostenvoranschläge, Verträge, Feedback, Briefvorlagen, Bewerbungen der Teamenden und alles, was nur daran hängt; Tabellen werden per Migration gelöscht (Doc 88)

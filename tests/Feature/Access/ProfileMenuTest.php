@@ -46,20 +46,20 @@ it('builds the profile menu with head, account group, help group and logout', fu
     // Kopf mit Name und Rolle, danach die Gruppen in der Reihenfolge der Vorlage, durch Linien getrennt
     expect($menu)->toContain('Erika Beispiel')->toContain('Administration')
         ->and(substr_count($menu, 'class="vdbs-dropdown__divider"'))->toBe(3)
-        ->and($menu)->toMatch('/Mein Profil.*Kontoeinstellungen.*Meine Tickets.*Kontakt.*FAQ.*Hilfe.*Abmelden/s')
-        ->and($menu)->toContain('href="'.route('support.mine').'"')->toContain('href="'.route('portal.contact').'"')->toContain('href="'.route('portal.faq').'"')->toContain('href="'.route('portal.about').'"');
+        ->and($menu)->toMatch('/Mein Profil.*Kontoeinstellungen.*Hilfe.*Abmelden/s')
+        ->and($menu)->toContain('href="'.route('portal.about').'"');
 });
 
 it('keeps the profile out of the menu for school accounts', function () {
     $header = pmHeader($this->actingAs(pmUser(RoleKey::School))->get(route('account.home'))->assertOk()->getContent());
 
-    expect($header)->not->toContain('>Mein Profil<')->toContain('Kontoeinstellungen')->toContain('Meine Tickets');
+    expect($header)->not->toContain('>Mein Profil<')->toContain('Kontoeinstellungen');
 });
 
-it('shows the four public pages as a flat start menu', function () {
+it('shows the public pages as a flat start menu', function () {
     $header = pmHeader($this->get(route('home'))->assertOk()->getContent());
     $nav = substr($header, (int) strpos($header, 'aria-label="Seiten im Bereich Start"'));
 
-    expect($nav)->toMatch('/Über das Portal.*Zugang zum Portal.*FAQ.*Kontakt/s')
+    expect($nav)->toMatch('/Über das Portal.*Zugang zum Portal/s')
         ->and($nav)->not->toContain('vdbs-main-nav__submenu')->not->toContain('vdbs-main-nav__item--has-submenu');
 });

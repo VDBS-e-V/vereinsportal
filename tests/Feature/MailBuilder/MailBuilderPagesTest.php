@@ -6,12 +6,12 @@ use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
+use App\Modules\AccessRequests\Mail\AccessRequestReceivedMail;
 use App\Modules\MailBuilder\Mail\BuilderTestMail;
 use App\Modules\MailBuilder\Models\MailAsset;
 use App\Modules\MailBuilder\Models\MailLayout;
+use App\Modules\MailBuilder\Models\MailTemplate;
 use App\Modules\MailBuilder\Support\LayoutSettings;
-use App\Modules\Mailings\Models\MailTemplate;
-use App\Modules\Onboarding\Mail\TeamOnboardingStartedMail;
 use App\Modules\People\Models\Person;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -52,13 +52,13 @@ it('shows the builder only to people who manage system mails', function () {
         $this->actingAs(mbpUser($role))->get(route('mailbuilder.system.index'))->assertForbidden();
     }
 
-    $this->actingAs(mbpUser(RoleKey::AdministrationStaff))->get(route('mailbuilder.system.index'))->assertOk()->assertSee('Passwort zurücksetzen')->assertSee('Seminar: Zusage (Teamende)');
+    $this->actingAs(mbpUser(RoleKey::AdministrationStaff))->get(route('mailbuilder.system.index'))->assertOk()->assertSee('Passwort zurücksetzen')->assertSee('Antrag auf Zugang eingegangen');
 });
 
 it('lets the office edit ordinary mails and the administration also the security mails', function () {
     $office = mbpUser(RoleKey::AdministrationStaff);
 
-    $this->actingAs($office)->get(route('mailbuilder.system.edit', 'onboarding.team_started'))->assertOk()->assertSee('data-mail-builder', false)->assertDontSee('Nur lesen');
+    $this->actingAs($office)->get(route('mailbuilder.system.edit', 'access_requests.received'))->assertOk()->assertSee('data-mail-builder', false)->assertDontSee('Nur lesen');
     $this->get(route('mailbuilder.system.edit', 'access.password_reset'))->assertOk()->assertSee('Nur lesen');
     $this->put(route('mailbuilder.system.update', 'access.password_reset'), ['doc' => json_encode(mbpDoc('<p>{url}</p>')), 'subject' => 'Neu'])->assertSessionHasErrors('doc');
     $this->post(route('mailbuilder.system.reset', 'access.password_reset'))->assertForbidden();
@@ -70,16 +70,16 @@ it('lets the office edit ordinary mails and the administration also the security
 it('saves a change, writes the audit log and sends the new text', function () {
     $this->actingAs(mbpUser(RoleKey::AdministrationStaff));
 
-    $this->put(route('mailbuilder.system.update', 'onboarding.team_started'), ['doc' => json_encode(mbpDoc('<p>Willkommen im Team! {url}</p>')), 'subject' => 'Los geht\'s', 'preheader' => 'Kurz'])->assertRedirect(route('mailbuilder.system.edit', 'onboarding.team_started'))->assertSessionHas('success');
+    $this->put(route('mailbuilder.system.update', 'access_requests.received'), ['doc' => json_encode(mbpDoc('<p>Willkommen im Team! {nummer}</p>')), 'subject' => 'Los geht\'s', 'preheader' => 'Kurz'])->assertRedirect(route('mailbuilder.system.edit', 'access_requests.received'))->assertSessionHas('success');
 
-    $stored = MailTemplate::query()->where('system_key', 'onboarding.team_started')->firstOrFail();
+    $stored = MailTemplate::query()->where('system_key', 'access_requests.received')->firstOrFail();
 
     expect($stored->subject)->toBe('Los geht\'s')->and($stored->preheader)->toBe('Kurz')->and($stored->blocks['blocks'][0]['props']['html'])->toContain('Willkommen im Team');
     $this->assertDatabaseHas('audit_entries', ['event' => 'mailing.system_changed']);
 
-    $mail = new TeamOnboardingStartedMail('https://portal.example/einarbeitung');
+    $mail = new AccessRequestReceivedMail('Anna', 1042);
 
-    expect($mail->envelope()->subject)->toBe('Los geht\'s')->and($mail->render())->toContain('Willkommen im Team! https://portal.example/einarbeitung');
+    expect($mail->envelope()->subject)->toBe('Los geht\'s')->and($mail->render())->toContain('Willkommen im Team! 1042');
 });
 
 it('refuses a change that drops a protected placeholder or uses an unknown one', function () {
@@ -93,10 +93,10 @@ it('refuses a change that drops a protected placeholder or uses an unknown one',
 
 it('keeps earlier versions, restores them and resets to the default', function () {
     $this->actingAs(mbpUser(RoleKey::AdministrationStaff));
-    $key = 'onboarding.team_started';
+    $key = 'access_requests.received';
 
-    $this->put(route('mailbuilder.system.update', $key), ['doc' => json_encode(mbpDoc('<p>Erste Fassung {url}</p>')), 'subject' => 'Eins']);
-    $this->put(route('mailbuilder.system.update', $key), ['doc' => json_encode(mbpDoc('<p>Zweite Fassung {url}</p>')), 'subject' => 'Zwei']);
+    $this->put(route('mailbuilder.system.update', $key), ['doc' => json_encode(mbpDoc('<p>Erste Fassung {nummer}</p>')), 'subject' => 'Eins']);
+    $this->put(route('mailbuilder.system.update', $key), ['doc' => json_encode(mbpDoc('<p>Zweite Fassung {nummer}</p>')), 'subject' => 'Zwei']);
 
     $template = MailTemplate::query()->where('system_key', $key)->firstOrFail();
     $version = $template->versions()->firstOrFail();
@@ -115,13 +115,13 @@ it('previews with sample values and sends a test mail to oneself', function () {
     $user = mbpUser(RoleKey::AdministrationStaff);
     $this->actingAs($user);
 
-    $response = $this->postJson(route('mailbuilder.system.preview', 'onboarding.team_started'), ['doc' => json_encode(mbpDoc('<p>Hallo {url}</p>')), 'subject' => 'Betreff {offen}', 'dark' => true]);
+    $response = $this->postJson(route('mailbuilder.system.preview', 'access_requests.received'), ['doc' => json_encode(mbpDoc('<p>Hallo {nummer}</p>')), 'subject' => 'Betreff {offen}', 'dark' => true]);
 
     $response->assertOk()->assertJsonPath('subject', 'Betreff {offen}');
-    expect($response->json('html'))->toContain('https://portal.example/einarbeitung')->and($response->json('text'))->toContain('Hallo')
+    expect($response->json('html'))->toContain('1042')->and($response->json('text'))->toContain('Hallo')
         ->and(collect($response->json('issues'))->pluck('message')->implode(' '))->toContain('{offen}');
 
-    $this->postJson(route('mailbuilder.system.test', 'onboarding.team_started'), ['doc' => json_encode(mbpDoc('<p>Hallo {url}</p>')), 'subject' => 'Betreff'])->assertOk();
+    $this->postJson(route('mailbuilder.system.test', 'access_requests.received'), ['doc' => json_encode(mbpDoc('<p>Hallo {nummer}</p>')), 'subject' => 'Betreff'])->assertOk();
     Mail::assertSent(BuilderTestMail::class, fn (BuilderTestMail $mail): bool => $mail->hasTo($user->email) && $mail->envelope()->subject === '[Test] Betreff');
 });
 

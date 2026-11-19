@@ -31,7 +31,7 @@ class AccountPagesController extends Controller
             'hasProfile' => $this->profiles->allowedFor($user),
             'completeness' => $this->profiles->allowedFor($user) ? $this->profiles->completeness($user) : null,
             'hints' => $hints,
-            'membership' => $user->person?->memberships()->orderByRaw("status IN ('requested','active') DESC")->orderByDesc('id')->first(),
+            'membership' => null,
         ]);
     }
 

@@ -5,7 +5,7 @@ namespace App\Modules\MailBuilder\Services;
 use App\Modules\Access\Models\User;
 use App\Modules\MailBuilder\Models\MailAsset;
 use App\Modules\MailBuilder\Models\MailLayout;
-use App\Modules\Mailings\Models\MailTemplate;
+use App\Modules\MailBuilder\Models\MailTemplate;
 use DomainException;
 use Illuminate\Http\UploadedFile;
 

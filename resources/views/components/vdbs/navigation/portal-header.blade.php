@@ -116,7 +116,6 @@
                         <x-vdbs.navigation.dropdown-item :href="route('account.profile')" icon="user" :current="request()->routeIs('account.profile*')">Mein Profil</x-vdbs.navigation.dropdown-item>
                     @endunless
                     <x-vdbs.navigation.dropdown-item :href="route('account.home')" icon="settings" :current="request()->routeIs('account.*') && ! request()->routeIs('account.profile*')">Kontoeinstellungen</x-vdbs.navigation.dropdown-item>
-                    <x-vdbs.navigation.dropdown-item :href="route('support.mine')" icon="ticket" :current="request()->routeIs('support.*')">Meine Tickets</x-vdbs.navigation.dropdown-item>
                     @php $quickLinks = \App\Modules\QuickLinks\Support\QuickLinks::forUser($user); @endphp
                     @if ($quickLinks->isNotEmpty())
                         <hr class="vdbs-dropdown__divider">
@@ -126,8 +125,6 @@
                         @endforeach
                     @endif
                     <hr class="vdbs-dropdown__divider">
-                    <x-vdbs.navigation.dropdown-item :href="route('portal.contact')" icon="mail" :current="request()->routeIs('portal.contact*')">Kontakt</x-vdbs.navigation.dropdown-item>
-                    <x-vdbs.navigation.dropdown-item :href="route('portal.faq')" icon="book-open" :current="request()->routeIs('portal.faq')">FAQ</x-vdbs.navigation.dropdown-item>
                     <x-vdbs.navigation.dropdown-item :href="route('portal.about')" icon="circle-help" :current="request()->routeIs('portal.about')">Hilfe</x-vdbs.navigation.dropdown-item>
                     <hr class="vdbs-dropdown__divider">
                     <form method="POST" action="{{ route('logout') }}">

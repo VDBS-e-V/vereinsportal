@@ -6,14 +6,11 @@ use App\Modules\Access\Enums\TwoFactorMethodType;
 use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Mail\PasswordResetMail;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
-use App\Modules\Onboarding\Models\TeamOnboarding;
 use App\Modules\People\Models\Person;
-use App\Modules\Tasks\Models\TaskProject;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -156,15 +153,4 @@ class User extends Authenticatable
             ->where(fn ($query) => $query->whereNull('ends_at')->orWhere('ends_at', '>', now()));
     }
 
-    /** @return HasOne<TeamOnboarding, $this> Einarbeitung als Teamende (nur mit der Rolle Teamende) */
-    public function teamOnboarding(): HasOne
-    {
-        return $this->hasOne(TeamOnboarding::class);
-    }
-
-    /** Aufgabenprojekte, in die dieses Konto ausdrücklich eingetragen ist. @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Modules\Tasks\Models\TaskProject, $this> */
-    public function taskProjectMemberships(): BelongsToMany
-    {
-        return $this->belongsToMany(TaskProject::class, 'task_project_members', 'user_id', 'task_project_id')->withPivot('role');
-    }
 }

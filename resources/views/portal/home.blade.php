@@ -1,6 +1,5 @@
 @php
     $home = config('portal.home');
-    $contactLines = $home['contact']['lines'] ?? [];
     $areas = \App\Support\PortalAreas::withGroupMark();
     // Angemeldete gelangen über die Chips zur ersten Seite ihres Bereichs; Gäste sehen die Chips nur als Überblick
     $visibleAreas = auth()->check() ? \App\Support\PortalNavigation::visibleAreas(auth()->user()) : [];
@@ -20,7 +19,6 @@
                     @else
                         <x-vdbs.cards.quick-link label="Anmelden" :href="route('login')" :tone="1" />
                     @endauth
-                    <x-vdbs.cards.quick-link label="Hilfe" :href="route('portal.faq')" :tone="6" />
                 </x-vdbs.cards.quick-links>
             </x-slot:footer>
         </x-vdbs.media.hero>
@@ -34,27 +32,6 @@
         </x-vdbs.data.chip-list>
     </x-vdbs.layout.section>
 
-    @if ($articles->isNotEmpty())
-        <x-vdbs.layout.section title="Empfohlene Artikel" lead="Lesen Sie unsere aktuellen Themenartikel." align="center" id="artikel">
-            <x-vdbs.layout.grid :columns="3" align="start">
-                @foreach ($articles as $article)
-                    <x-vdbs.cards.teaser
-                        :title="$article->title"
-                        :href="route('articles.public.show', $article->slug)"
-                        :text="$article->excerpt()"
-                        :image="filled($article->image_path) && filled($article->image_credit) ? route('articles.public.image', $article->slug) : null"
-                        :imageAlt="$article->image_alt ?? ''"
-                        :credit="$article->image_credit"
-                        :category="$article->category" />
-                @endforeach
-            </x-vdbs.layout.grid>
-
-            <x-slot:actions>
-                <x-vdbs.actions.button :href="route('articles.public.index')" variant="text" icon="arrow-right" icon-position="end">Alle Artikel anzeigen</x-vdbs.actions.button>
-            </x-slot:actions>
-        </x-vdbs.layout.section>
-    @endif
-
     {{-- Zugang: Text mit Aktionen links, Bild rechts (Bild und Quelle aus config portal.home.access_image); grauer Streifen im Wechsel mit weißen Abschnitten --}}
     <x-vdbs.layout.section variant="band">
         <x-vdbs.layout.split :title="$home['access']['title']">
@@ -66,7 +43,6 @@
                 @else
                     <x-vdbs.actions.button :href="route('portal.access')" variant="primary" icon="arrow-right" icon-position="end">Zugang zum Portal</x-vdbs.actions.button>
                 @endauth
-                <x-vdbs.actions.button :href="route('portal.contact')" variant="text" icon="arrow-right" icon-position="end">Hilfe kontaktieren</x-vdbs.actions.button>
             </x-slot:actions>
 
             @if (filled($home['access_image']['src'] ?? null))
@@ -75,28 +51,6 @@
                 </x-slot:media>
             @endif
         </x-vdbs.layout.split>
-    </x-vdbs.layout.section>
-
-    {{-- Kontakt: graue Fläche, Bild links, Text mit E-Mail-Adressen rechts --}}
-    <x-vdbs.layout.section>
-        @if ($contactLines !== [])
-            <x-vdbs.cards.contact-block :surface="true" :title="$home['contact']['title']" :text="$home['contact']['text']" :lines="$contactLines">
-                @if (filled($home['contact']['image']['src'] ?? null))
-                    <x-slot:media>
-                        <x-vdbs.media.figure :src="asset($home['contact']['image']['src'])" :alt="$home['contact']['image']['alt']" :credit="$home['contact']['image']['credit']" credit-placement="edge" ratio="3-2" />
-                    </x-slot:media>
-                @endif
-                <x-slot:actions><x-vdbs.actions.button :href="route('portal.contact')" variant="primary" icon="arrow-right" icon-position="end">Zum Kontaktformular</x-vdbs.actions.button></x-slot:actions>
-            </x-vdbs.cards.contact-block>
-        @else
-            <x-vdbs.layout.split :title="$home['contact']['title']">
-                <p>{{ $home['contact']['text'] }}</p>
-
-                <x-slot:actions>
-                    <x-vdbs.actions.button :href="route('portal.contact')" variant="primary" icon="arrow-right" icon-position="end">Zum Kontaktformular</x-vdbs.actions.button>
-                </x-slot:actions>
-            </x-vdbs.layout.split>
-        @endif
     </x-vdbs.layout.section>
 
     <x-vdbs.actions.back-to-top />

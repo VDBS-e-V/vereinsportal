@@ -27,11 +27,5 @@ it('uses the telephone type on the access form and fitting limits on address fie
 
     $this->actingAs(fiUser(RoleKey::BoardMember));
     $this->get(route('admin.people.create'))->assertOk()->assertSee('autocapitalize="characters"', false)->assertSee('name="postal_code"', false);
-    $this->get(route('partners.create'))->assertOk()->assertSee('inputmode="numeric"', false);
 });
 
-it('offers the two kinds of a manual membership as radio buttons', function () {
-    $this->actingAs(fiUser(RoleKey::BoardMember));
-
-    $this->get(route('membership.create'))->assertOk()->assertSee('type="radio"', false)->assertSee('name="mode"', false);
-});
