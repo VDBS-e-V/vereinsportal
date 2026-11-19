@@ -12,7 +12,6 @@ use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailables\Headers;
-use Symfony\Component\Mime\Email;
 
 /** Ein Schreiben des Vorstands oder der Koordination. Der Text ist HTML aus dem Editor und wird beim Ausgeben bereinigt (rich_text). */
 final class MailingMail extends Mailable
@@ -41,12 +40,8 @@ final class MailingMail extends Mailable
     public function content(): Content
     {
         $rendered = $this->rendered();
-        $text = $rendered->text;
-        $this->withSymfonyMessage(function (Email $message) use ($text): void {
-            $message->text($text);
-        });
 
-        return new Content(htmlString: $rendered->html);
+        return new Content(htmlString: $rendered->html, text: 'mail.plain', with: ['text' => $rendered->text]);
     }
 
     /** Der Text des Schreibens im zentralen Mail-Design, mit Hinweis zum Empfängerkreis und Abmeldelink in der Fußzeile. */

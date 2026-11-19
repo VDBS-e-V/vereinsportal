@@ -5,7 +5,6 @@ namespace App\Modules\MailBuilder\Mail;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Symfony\Component\Mime\Email;
 
 /** Testmail aus dem Mail-Builder: schickt den gezeigten Stand mit Beispielwerten an die eigene Adresse. */
 final class BuilderTestMail extends Mailable
@@ -19,11 +18,6 @@ final class BuilderTestMail extends Mailable
 
     public function content(): Content
     {
-        $text = $this->plainText;
-        $this->withSymfonyMessage(function (Email $message) use ($text): void {
-            $message->text($text);
-        });
-
-        return new Content(htmlString: $this->htmlBody);
+        return new Content(htmlString: $this->htmlBody, text: 'mail.plain', with: ['text' => $this->plainText]);
     }
 }
