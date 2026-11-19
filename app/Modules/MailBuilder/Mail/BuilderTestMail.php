@@ -10,7 +10,7 @@ use Symfony\Component\Mime\Email;
 /** Testmail aus dem Mail-Builder: schickt den gezeigten Stand mit Beispielwerten an die eigene Adresse. */
 final class BuilderTestMail extends Mailable
 {
-    public function __construct(private readonly string $subjectLine, private readonly string $html, private readonly string $text) {}
+    public function __construct(private readonly string $subjectLine, private readonly string $htmlBody, private readonly string $plainText) {}
 
     public function envelope(): Envelope
     {
@@ -19,11 +19,11 @@ final class BuilderTestMail extends Mailable
 
     public function content(): Content
     {
-        $text = $this->text;
+        $text = $this->plainText;
         $this->withSymfonyMessage(function (Email $message) use ($text): void {
             $message->text($text);
         });
 
-        return new Content(htmlString: $this->html);
+        return new Content(htmlString: $this->htmlBody);
     }
 }
