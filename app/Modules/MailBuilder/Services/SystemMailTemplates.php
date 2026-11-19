@@ -6,7 +6,6 @@ use App\Modules\Access\Models\User;
 use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\MailBuilder\Support\BlockSchema;
-use App\Modules\MailBuilder\Support\MailCheck;
 use App\Modules\MailBuilder\Support\SystemMail;
 use App\Modules\MailBuilder\Support\SystemMails;
 use App\Modules\Mailings\Models\MailTemplate;
