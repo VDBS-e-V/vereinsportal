@@ -172,7 +172,7 @@ final class BlockSchema
 
     private static function html(mixed $value): string
     {
-        return mb_substr((string) RichText::clean(is_string($value) ? $value : ''), 0, 20000);
+        return mb_substr((string) RichText::clean(is_string($value) ? $value : ''), 0, 200000);
     }
 
     private static function url(mixed $value): string

@@ -27,4 +27,4 @@ Das Register `SystemMails` enthält je Mail: Schlüssel, Gruppe, Standardbetreff
 ## Grenzen
 
 - Die Darstellung in Outlook, Gmail und Apple Mail lässt sich nur mit echten Testmails prüfen („Testmail an mich“ im Builder).
-- Rundschreiben nutzen noch den bisherigen Texteditor; die Umstellung auf Blöcke steht aus.
+- Rundschreiben tragen das zentrale Mail-Design (Kopf, Farben, Fußzeile) und behalten den bisherigen Texteditor; ihr Text ist ein Textblock, Hinweis zum Empfängerkreis und Abmeldelink stehen in der Fußzeile. Der Aufbau aus Blöcken für Rundschreiben und Vorlagen steht noch aus.

@@ -13,6 +13,7 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ### Added
 
+- Rundschreiben erscheinen im zentralen Mail-Design (Kopf, Farben, Fußzeile mit Empfängerhinweis und Abmeldelink); die Blade-Dateien `mail/mailings/message*` entfallen
 - Mail-Builder-Oberfläche: Systemmails im Blockeditor bearbeiten (mit Vorschau für Computer, Handy und Dunkelmodus, Textfassung, Prüfungen, Testmail, Versionen, Zurücksetzen), Mail-Design und Mailbilder; neue Rechte `mail_system.manage` und `mail_system.security`
 - Mail-Builder (Grundlage): Blockformat, Renderer für HTML und Text mit Dunkelmodus und Vorschautext, zentrales Mail-Design, Bilder für Mails und Prüfungen (Platzhalter, Alternativtexte, Kontraste)
 - Alle Systemmails mit festem Text (Konto, Zugangsanträge, Mitgliedschaft, Einarbeitung, Gremien, Kontakte, Aufgaben, Tickets, Seminare, KVA) laufen über das Register `SystemMails` mit Standardtext und einheitlichem Mail-Design; die alten Blade-Dateien unter `resources/views/mail` sind entfallen
