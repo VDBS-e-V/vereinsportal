@@ -250,7 +250,7 @@ it('shows the settings and sends a test mail with validation and a log entry', f
 it('posts every task to its own address and gives every dialog a unique id', function () {
     $html = $this->actingAs(sysUser(RoleKey::Administration))->get(route('system.tasks'))->assertOk()->getContent();
 
-    foreach (['cache-leeren', 'migrationen', 'mitgliedschaften-abgleichen', 'protokoll-aufraeumen', 'wartung-an'] as $key) {
+    foreach (['cache-leeren', 'migrationen', 'zugangsantraege-aufraeumen', 'protokoll-aufraeumen', 'wartung-an'] as $key) {
         expect($html)->toContain('/admins/system/aufgaben/'.$key);
     }
 
