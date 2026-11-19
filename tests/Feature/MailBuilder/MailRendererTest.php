@@ -132,7 +132,7 @@ it('checks documents for missing alt text, unknown and missing placeholders and 
         mbBlock('text', ['html' => '<p>Hallo {tippfehler}</p>']),
     ]));
 
-    $issues = MailCheck::run($doc, ['text' => '#cccccc'], [], ['allowed' => ['vorname', 'link'], 'protected' => ['link']]);
+    $issues = MailCheck::run($doc, ['text' => '#d4dbd8'], [], ['allowed' => ['vorname', 'link'], 'protected' => ['link']]);
     $messages = implode(' | ', array_column($issues, 'message'));
 
     expect($messages)->toContain('Alternativtext')->toContain('{tippfehler}')->toContain('{link} muss in der Mail stehen')->toContain('Kontrast zu gering')
