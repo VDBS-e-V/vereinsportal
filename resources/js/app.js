@@ -15,6 +15,7 @@ import './quote-form';
 import './wizard';
 import './richtext';
 import './mailings';
+import './mail-builder';
 import './select-all';
 import './chip-balance';
 import './kanban';

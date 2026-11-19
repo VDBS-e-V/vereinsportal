@@ -86,6 +86,12 @@ enum Capability: string
     /** Mailvorlagen für Mitteilungen bearbeiten (Geschäftsstelle). */
     case MailTemplatesManage = 'mail_templates.manage';
 
+    /** Systemmails (Texte aller automatischen E-Mails), Mail-Design und Mailbilder im Mail-Builder bearbeiten (Administration, Geschäftsstelle). */
+    case MailSystemManage = 'mail_system.manage';
+
+    /** Sicherheitsrelevante Systemmails (Passwort, Anmeldecode, E-Mail-Änderung, Kontolöschung, Einladungen) bearbeiten (nur Administration). */
+    case MailSystemSecurity = 'mail_system.security';
+
     /** Verteiler (gespeicherte Empfängerkreise) anlegen und ändern (Geschäftsstelle, Vorstand). */
     case MailSegmentsManage = 'mail_segments.manage';
 

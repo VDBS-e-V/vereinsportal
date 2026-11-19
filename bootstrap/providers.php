@@ -12,6 +12,7 @@ use App\Modules\Coordinations\CoordinationsServiceProvider;
 use App\Modules\DesignLibrary\DesignLibraryServiceProvider;
 use App\Modules\Faq\FaqServiceProvider;
 use App\Modules\Forms\FormsServiceProvider;
+use App\Modules\MailBuilder\MailBuilderServiceProvider;
 use App\Modules\Mailings\MailingsServiceProvider;
 use App\Modules\Membership\MembershipServiceProvider;
 use App\Modules\NavigationControl\NavigationControlServiceProvider;
@@ -62,6 +63,7 @@ return [
     SystemServiceProvider::class,
     SetupServiceProvider::class,
     MailingsServiceProvider::class,
+    MailBuilderServiceProvider::class,
     ContactsServiceProvider::class,
     PagesServiceProvider::class,
     SsoServiceProvider::class,

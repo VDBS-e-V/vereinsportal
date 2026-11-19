@@ -78,6 +78,8 @@ enum AuditEvent: string
     case FormExported = 'form.exported';
     case FormSettingsChanged = 'form.settings_changed';
     case MailSegmentSaved = 'mailing.segment_saved';
+    case MailSystemChanged = 'mailing.system_changed';
+    case MailDesignChanged = 'mailing.design_changed';
     case BoardCalendarChanged = 'board.calendar_changed';
     case BoardMeetingSaved = 'board.meeting_saved';
     case BoardMeetingDeleted = 'board.meeting_deleted';
@@ -181,6 +183,8 @@ enum AuditEvent: string
             self::FormExported => 'Sammelliste der Anträge erstellt',
             self::FormSettingsChanged => 'Einstellungen der Anträge geändert',
             self::MailSegmentSaved => 'Verteiler geändert',
+            self::MailSystemChanged => 'Systemmail geändert',
+            self::MailDesignChanged => 'Mail-Design oder Mailbild geändert',
             self::BoardCalendarChanged => 'Kalender des Vorstands geändert',
             self::BoardMeetingSaved => 'Vorstandssitzung gespeichert',
             self::BoardMeetingDeleted => 'Vorstandssitzung gelöscht',
@@ -241,7 +245,7 @@ enum AuditEvent: string
             self::OnboardingDocumentUploaded, self::TeamOnboardingStarted, self::TeamOnboardingCompleted => 'onboarding',
             self::AuditExported => 'audit',
             self::SystemTaskRun => 'system',
-            self::MailingSent, self::MailSuppressionChanged, self::MailingWorkflow, self::MailSegmentSaved => 'mailings',
+            self::MailingSent, self::MailSuppressionChanged, self::MailingWorkflow, self::MailSegmentSaved, self::MailSystemChanged, self::MailDesignChanged => 'mailings',
             self::ContactsImported => 'contacts',
             self::OauthClientCreated, self::OauthClientChanged, self::OauthClientDeleted, self::OauthKeysRenewed, self::OauthConsentGiven, self::OauthConsentWithdrawn => 'sso',
             self::FormStatusChanged, self::FormExported, self::FormSettingsChanged => 'forms',

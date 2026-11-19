@@ -9,7 +9,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /** Modul: Mailings. Ein früherer Stand einer Mailvorlage (wird beim Speichern der Vorlage abgelegt und lässt sich wiederherstellen). */
 class MailTemplateVersion extends Model
 {
-    protected $fillable = ['mail_template_id', 'name', 'subject', 'body', 'saved_by_user_id'];
+    protected $fillable = ['mail_template_id', 'name', 'subject', 'body', 'saved_by_user_id', 'blocks', 'layout_id', 'preheader'];
+
+    protected function casts(): array
+    {
+        return ['blocks' => 'array'];
+    }
 
     /** @return BelongsTo<User, $this> */
     public function savedBy(): BelongsTo

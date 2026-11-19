@@ -4,6 +4,8 @@ namespace App\Modules\MailBuilder\Services;
 
 use App\Modules\Access\Models\User;
 use App\Modules\MailBuilder\Models\MailAsset;
+use App\Modules\MailBuilder\Models\MailLayout;
+use App\Modules\Mailings\Models\MailTemplate;
 use DomainException;
 use Illuminate\Http\UploadedFile;
 
@@ -51,6 +53,27 @@ final class MailAssets
             'size' => (int) $file->getSize(),
             'uploaded_by_user_id' => $by?->id,
         ]);
+    }
+
+    /** Bilder, die als Logo oder in einer gespeicherten Mail benutzt werden. @return list<int> */
+    public function usedIds(): array
+    {
+        $ids = [];
+        $logo = MailLayout::current()->settings['logo_asset_id'] ?? null;
+
+        if (is_numeric($logo)) {
+            $ids[] = (int) $logo;
+        }
+
+        foreach (MailTemplate::query()->whereNotNull('blocks')->pluck('blocks') as $doc) {
+            foreach ((is_array($doc) ? $doc : [])['blocks'] ?? [] as $block) {
+                if (is_array($block) && ($block['type'] ?? null) === 'image' && is_numeric($block['props']['asset_id'] ?? null)) {
+                    $ids[] = (int) $block['props']['asset_id'];
+                }
+            }
+        }
+
+        return array_values(array_unique($ids));
     }
 
     /**

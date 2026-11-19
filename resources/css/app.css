@@ -15,6 +15,7 @@
 @import './vdbs/components/disclosure/index.css';
 @import './vdbs/components/content/index.css';
 @import './sso.css';
+@import './mail-builder.css';
 /* design-packages:imports (hier ergänzt `php artisan design:package` neue Pakete; Zeile nicht entfernen) */
 
 /*

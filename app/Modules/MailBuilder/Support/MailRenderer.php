@@ -99,7 +99,7 @@ final class MailRenderer
 
         $set = trim($this->scalars[$rule['placeholder']] ?? '') !== '' || ($this->lists[$rule['placeholder']] ?? []) !== [];
 
-        return $rule['when'] === 'empty' ? ! $set : $set;
+        return $rule['when'] === 'empty' ? $set === false : $set;
     }
 
     /**
@@ -270,7 +270,7 @@ final class MailRenderer
 
         $resolved = trim(MailPlaceholders::render($url, $this->scalars));
 
-        return BlockSchema::safeUrl($resolved) && ! preg_match('/^\{[a-z_]+/u', $resolved) ? $resolved : null;
+        return BlockSchema::safeUrl($resolved) && preg_match('/^\{[a-z_]+/u', $resolved) !== 1 ? $resolved : null;
     }
 
     private function imageUrl(mixed $assetId): ?string

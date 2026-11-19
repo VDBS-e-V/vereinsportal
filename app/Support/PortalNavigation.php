@@ -213,6 +213,7 @@ final class PortalNavigation
                         ['description' => 'E-Mails an Gruppen wie Teamende, Schulen oder Koordination.', 'label' => 'Rundschreiben', 'route' => 'mailings.office.index', 'match' => 'mailings.office.*', 'can' => 'mailings.send'],
                         ['description' => 'Gespeicherte Empfängerkreise mit Filtern für Rundschreiben.', 'label' => 'Verteiler', 'route' => 'mailings.segments.index', 'match' => 'mailings.segments.*', 'can' => 'mail_segments.manage'],
                         ['description' => 'Vorlagen für Rundschreiben und für Mitteilungen an Teamende.', 'label' => 'Mailvorlagen', 'route' => 'mailings.templates.index', 'match' => 'mailings.templates.*', 'can' => 'mail_templates.manage'],
+                        ['description' => 'Texte der automatischen E-Mails (Passwort, Einladung, Seminare …), Mail-Design und Bilder.', 'label' => 'Systemmails', 'route' => 'mailbuilder.system.index', 'match' => 'mailbuilder.*', 'can' => 'mail_system.manage'],
                         ['description' => 'Fehlerquote, Sperren und Abmeldungen der Rundschreiben, Prüfung der Absenderdomain.', 'label' => 'Zustellqualität', 'route' => 'mailings.quality.index', 'match' => 'mailings.quality.*', 'can' => 'mail_templates.manage'],
                     ]],
                 ],
@@ -337,7 +338,7 @@ final class PortalNavigation
     public static function iconFor(string $routeName): ?string
     {
         foreach ([
-            'membership.*' => 'users', 'onboarding.*' => 'clipboard-list', 'team-onboarding.*' => 'clipboard-list', 'mailings.*' => 'mail', 'board.meetings.*' => 'calendar', 'board.resolutions.*' => 'landmark',
+            'membership.*' => 'users', 'onboarding.*' => 'clipboard-list', 'team-onboarding.*' => 'clipboard-list', 'mailings.*' => 'mail', 'mailbuilder.*' => 'mail', 'board.meetings.*' => 'calendar', 'board.resolutions.*' => 'landmark',
             'board.reports*' => 'file', 'member.membership' => 'users', 'forms.*' => 'file', 'forms-office.*' => 'file', 'partners.*' => 'school',
             'team.*' => 'user', 'school.*' => 'school', 'admin.users.*' => 'users', 'access-requests.*' => 'key-round',
             'admin.people.*' => 'user', 'contacts.*' => 'mail', 'articles.*' => 'book-open', 'pages.*' => 'file', 'contact-admin.*' => 'mail', 'faq-admin.*' => 'circle-help', 'role-links.*' => 'link', 'coordinations.*' => 'map-pin', 'seminars.*' => 'calendar', 'school.seminars.*' => 'calendar', 'support.*' => 'ticket', 'tickets-admin.*' => 'ticket', 'system.*' => 'settings',
