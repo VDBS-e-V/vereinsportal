@@ -51,7 +51,7 @@ it('shows the builder only to people who manage system mails', function () {
         $this->actingAs(mbpUser($role))->get(route('mailbuilder.system.index'))->assertForbidden();
     }
 
-    $this->actingAs(mbpUser(RoleKey::AdministrationStaff))->get(route('mailbuilder.system.index'))->assertOk()->assertSee('Passwort zurücksetzen')->assertSee('Mitteilung zu einem Seminar');
+    $this->actingAs(mbpUser(RoleKey::AdministrationStaff))->get(route('mailbuilder.system.index'))->assertOk()->assertSee('Passwort zurücksetzen')->assertSee('Seminar: Zusage (Teamende)');
 });
 
 it('lets the office edit ordinary mails and the administration also the security mails', function () {

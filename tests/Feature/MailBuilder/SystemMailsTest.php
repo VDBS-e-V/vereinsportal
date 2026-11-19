@@ -107,12 +107,24 @@ it('keeps the contact form reply-to and distinguishes copy from original', funct
         ->and($copy->render())->toContain('Guten Tag Erika,')->not->toContain('Mit „Antworten“');
 });
 
-it('escapes the paragraphs of a seminar notice', function () {
-    $html = (new SeminarNoticeMail('Zusage: Medientag', 'Anna', ['Sie sind <b>dabei</b>.', 'Zweiter Absatz.'], 'https://portal.example/teamende', 'Seminare öffnen'))->render();
+it('renders seminar mails per occasion with escaped values and a link only when there is one', function () {
+    $fields = ['nummer' => 'S-2027-0001', 'titel' => 'Medientag <b>', 'schule' => 'Schule am Park', 'termine' => '12.04.2027', 'leitung' => ''];
+    $mail = new SeminarNoticeMail('team_confirmed', 'Anna', $fields, 'https://portal.example/teamende', 'Seminare öffnen');
+    $html = $mail->render();
 
-    expect($html)->toContain('Guten Tag Anna,')->toContain('Sie sind &lt;b&gt;dabei&lt;/b&gt;.')->toContain('Zweiter Absatz.')->toContain('Seminare öffnen')->toContain('Anmeldung nötig');
+    expect($html)->toContain('Guten Tag Anna,')->toContain('Medientag &lt;b&gt;')->toContain('Seminare öffnen')->toContain('Anmeldung nötig')
+        ->and($mail->subjectLine)->toBe('Zusage: Medientag <b>')
+        ->and($mail->paragraphs)->toContain('Termine: 12.04.2027.')->not->toContain('Die Koordination hat Sie als Seminarleitung bestimmt.');
 
-    $withoutLink = (new SeminarNoticeMail('Hinweis', null, ['Nur Text.']))->render();
+    $withoutLink = new SeminarNoticeMail('team_declined', null, $fields);
 
-    expect($withoutLink)->toContain('Nur Text.')->not->toContain('Anmeldung nötig');
+    expect($withoutLink->render())->not->toContain('Anmeldung nötig')->and($withoutLink->subjectLine)->toBe('Absage: Medientag <b>')->and($withoutLink->paragraphs)->toHaveCount(1);
+});
+
+it('lets the office change the text of a single seminar occasion', function () {
+    smOverride('seminar.team_declined', [['id' => 'a1', 'type' => 'text', 'props' => ['html' => '<p>Diesmal leider nicht: {titel}.</p>']]], 'Schade: {titel}');
+
+    $mail = new SeminarNoticeMail('team_declined', 'Anna', ['nummer' => 'S-1', 'titel' => 'Medientag', 'schule' => 'Schule']);
+
+    expect($mail->subjectLine)->toBe('Schade: Medientag')->and($mail->paragraphs)->toBe(['Diesmal leider nicht: Medientag.']);
 });

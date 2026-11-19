@@ -192,14 +192,12 @@ final class TeamSelection
         $name = (string) ($user->person?->fullName() ?: '');
         $url = route('seminars.team.index');
 
+        $base = ['nummer' => (string) $seminar->number, 'titel' => (string) $seminar->title, 'schule' => (string) $seminar->partner->name];
+
         $mail = match ($application->outcome) {
-            'confirmed' => new SeminarNoticeMail('Zusage: '.$seminar->title, $name, array_filter([
-                'wir freuen uns, dass Sie beim Seminar „'.$seminar->title.'“ ('.$seminar->partner->name.') dabei sind.',
-                $dates === [] ? null : 'Termine: '.implode('; ', $dates).'.',
-                $seminar->lead_user_id === $user->id ? 'Die Koordination hat Sie als Seminarleitung bestimmt.' : null,
-            ]), $url, 'Seminar im Portal ansehen'),
-            'declined' => new SeminarNoticeMail('Absage: '.$seminar->title, $name, ['leider können wir Sie für das Seminar „'.$seminar->title.'“ diesmal nicht berücksichtigen. Wir freuen uns, wenn Sie sich auf spätere Seminare melden.'], $url, 'Ausgeschriebene Seminare ansehen'),
-            'waitlist' => new SeminarNoticeMail('Warteliste: '.$seminar->title, $name, ['Sie stehen für das Seminar „'.$seminar->title.'“ auf der Warteliste (Platz '.$application->waitlist_position.'). Sagt jemand aus dem Team ab, rücken Sie nach und erhalten eine Zusage.'], $url),
+            'confirmed' => new SeminarNoticeMail('team_confirmed', $name, $base + ['termine' => implode('; ', $dates), 'leitung' => $seminar->lead_user_id === $user->id ? '1' : ''], $url, 'Seminar im Portal ansehen'),
+            'declined' => new SeminarNoticeMail('team_declined', $name, $base, $url, 'Ausgeschriebene Seminare ansehen'),
+            'waitlist' => new SeminarNoticeMail('team_waitlist', $name, $base + ['platz' => (string) $application->waitlist_position], $url),
             default => null,
         };
 

@@ -211,9 +211,57 @@ final class SystemMails
             ['nummer' => $ph('Seminarnummer', 'S-2027-0042'), 'version' => $ph('Version des Kostenvoranschlags', '1'), 'titel' => $ph('Titel des Seminars', 'Medientag'), 'url' => $ph('Link zum Seminar im Portal', 'https://portal.example/schulen/seminare/1', true)],
             [$greeting, $t('<p>anbei erhalten Sie den Kostenvoranschlag {nummer} (Version {version}) für das Seminar <strong>{titel}</strong>.</p><p>Sie können den Kostenvoranschlag im Portal annehmen, ablehnen oder uns eine Frage dazu schicken:</p>'), $b('Seminar im Vereinsportal öffnen', '{url}'), $t('<p>(Anmeldung nötig)</p>')]));
 
-        $add(new SystemMail('seminars.notice', 'Mitteilung zu einem Seminar (Rahmen)', 'Seminare', 'Gemeinsamer Rahmen für alle Seminarmitteilungen; der Text der einzelnen Anlässe kommt aus dem Ablauf.', '{betreff}',
-            ['betreff' => $ph('Betreff des Anlasses', 'Zusage: Medientag'), 'absaetze' => $ph('Text des Anlasses', '<p>Sie sind als Teamende:r bestätigt.</p>', true, true), 'link' => $ph('Link ins Portal (leer, wenn keiner)', 'https://portal.example/teamende/seminare'), 'link_text' => $ph('Beschriftung des Links', 'Im Vereinsportal öffnen')],
-            [$greeting, $t('{absaetze}'), $b('{link_text}', '{link}', $when('link')), $t('<p>(Anmeldung nötig)</p>') + ['visible_if' => $when('link')]], mandatory: false));
+        // Seminarmitteilungen: ein Eintrag je Anlass im Ablauf
+        $sem = ['nummer' => $ph('Seminarnummer', 'S-2027-0042'), 'titel' => $ph('Titel des Seminars', 'Medientag'), 'schule' => $ph('Name der Schule', 'Schule am Park'), 'link' => $ph('Link ins Portal (leer, wenn keiner)', 'https://portal.example/seminare'), 'link_text' => $ph('Beschriftung des Links', 'Seminar ansehen')];
+        $notice = function (string $event, string $name, string $description, string $subject, array $extra, array $paragraphs) use (&$add, $sem, $greeting, $t, $b, $when): void {
+            $add(new SystemMail('seminar.'.$event, $name, 'Seminare', $description, $subject, $sem + $extra, [$greeting, ...$paragraphs, $b('{link_text}', '{link}', $when('link')), $t('<p>(Anmeldung nötig)</p>') + ['visible_if' => $when('link')]], mandatory: false));
+        };
+        $cond = fn (string $html, string $name): array => $t($html) + ['visible_if' => $when($name)];
+
+        $notice('requested_school', 'Seminar: Anfrage eingegangen (Schule)', 'Bestätigung an die Schule, wenn sie selbst angefragt hat.', 'Ihre Seminaranfrage {nummer}', [],
+            [$t('<p>Ihre Anfrage für das Seminar „{titel}“ ist bei uns eingegangen. Die Geschäftsstelle prüft sie und meldet sich mit einem Kostenvoranschlag.</p>')]);
+        $notice('requested_office', 'Seminar: neue Anfrage (Geschäftsstelle)', 'Hinweis an die Geschäftsstelle: Die Schule hat ein Seminar angefragt.', 'Neue Seminaranfrage {nummer}', [],
+            [$t('<p>Die Schule {schule} hat das Seminar „{titel}“ angefragt.</p>')]);
+        $notice('entered_office', 'Seminar: Anfrage eingetragen (Geschäftsstelle)', 'Hinweis an die Geschäftsstelle: Koordination oder Geschäftsstelle hat eine Anfrage für die Schule eingetragen.', 'Neue Seminaranfrage {nummer}', [],
+            [$t('<p>Für die Schule {schule} wurde das Seminar „{titel}“ eingetragen.</p>')]);
+        $notice('answered', 'Seminar: Antwort der Schule zum Kostenvoranschlag', 'Hinweis an die Geschäftsstelle: Die Schule hat auf den Kostenvoranschlag geantwortet.', 'Antwort zum Kostenvoranschlag {nummer}', ['antwort' => $ph('Antwort der Schule', 'Kostenvoranschlag angenommen')],
+            [$t('<p>Die Schule {schule} hat zum Seminar „{titel}“ geantwortet: {antwort}.</p>')]);
+        $notice('rejected', 'Seminar: Anfrage abgelehnt (Schule)', 'Begründung der Ablehnung an die Schule.', 'Ihre Seminaranfrage {nummer}', ['begruendung' => $ph('Begründung (leer, wenn keine genannt wird)', 'Zeitraum nicht möglich')],
+            [$t('<p>wir können Ihre Anfrage für das Seminar „{titel}“ leider nicht annehmen.</p>'), $cond('<p>Begründung: {begruendung}</p>', 'begruendung'), $t('<p>Bei Fragen melden Sie sich gern bei der Geschäftsstelle.</p>')]);
+        $notice('released', 'Seminar: freigegeben (Koordination)', 'Hinweis an die Koordination: Das Seminar kann geplant werden.', 'Seminar freigegeben: {titel}', [],
+            [$t('<p>Die Geschäftsstelle hat das Seminar „{titel}“ der Schule {schule} freigegeben. Sie können jetzt Termine und Team planen.</p>')]);
+        $notice('tendered', 'Seminar: ausgeschrieben (Teamende)', 'Hinweis an Teamende, die sich noch nicht gemeldet haben.', 'Neues Seminar zur Mitarbeit: {titel}', ['erster_termin' => $ph('Erster Termin (leer, wenn keiner)', '12.04.2027'), 'frist' => $ph('Bewerbungsfrist', '01.04.2027')],
+            [$t('<p>das Seminar „{titel}“ ({schule}) ist für Teamende ausgeschrieben.</p>'), $cond('<p>Erster Termin: {erster_termin}.</p>', 'erster_termin'), $t('<p>Bewerbung bis {frist}.</p>')]);
+        $notice('deadline_near', 'Seminar: Bewerbungsfrist endet bald (Teamende)', 'Erinnerung kurz vor Fristende.', 'Bewerbungsfrist endet bald: {titel}', ['frist' => $ph('Bewerbungsfrist', '01.04.2027')],
+            [$t('<p>die Bewerbungsfrist für das Seminar „{titel}“ endet am {frist}. Wenn Sie mitarbeiten möchten, melden Sie Ihr Interesse jetzt.</p>')]);
+        $notice('cancelled', 'Seminar: abgesagt', 'Team und Schule erfahren die Absage.', 'Seminar abgesagt: {titel}', ['begruendung' => $ph('Begründung (leer, wenn keine genannt wird)', 'Zu wenige Anmeldungen')],
+            [$t('<p>das Seminar „{titel}“ ({schule}) wurde abgesagt.</p>'), $cond('<p>Begründung: {begruendung}</p>', 'begruendung')]);
+        $notice('rescheduled', 'Seminar: neuer Termin (Schule)', 'Die Schule erfährt, dass ein neuer Termin gesucht wird.', 'Neuer Termin für {titel}', ['grund' => $ph('Grund (leer, wenn keiner genannt wird)', 'Krankheit')],
+            [$t('<p>für das Seminar „{titel}“ ({schule}) wird ein neuer Termin gesucht.</p>'), $cond('<p>Grund: {grund}</p>', 'grund')]);
+        $notice('rescheduled_team', 'Seminar: neuer Termin (Team)', 'Das Team erfährt, dass ein neuer Termin gesucht wird und es neu angefragt wird.', 'Neuer Termin für {titel}', ['grund' => $ph('Grund (leer, wenn keiner genannt wird)', 'Krankheit')],
+            [$t('<p>für das Seminar „{titel}“ ({schule}) wird ein neuer Termin gesucht.</p>'), $cond('<p>Grund: {grund}</p>', 'grund'), $t('<p>Das Team wird neu angefragt. Sie erhalten die Ausschreibung, sobald der neue Termin feststeht.</p>')]);
+        $notice('onboarding', 'Seminar: Einladung zum Onboarding (Team)', 'Termin und Link für das bestätigte Team.', 'Einladung zum Onboarding: {titel}', ['termin' => $ph('Termin des Onboardings', '05.04.2027, 18:00'), 'onboarding_link' => $ph('Link der Videokonferenz (leer, wenn keiner)', 'https://video.example/abc')],
+            [$t('<p>zur Vorbereitung des Seminars „{titel}“ laden wir Sie zu einem Onboarding ein.</p>'), $t('<p>Termin: {termin} Uhr.</p>'), $cond('<p>Link: {onboarding_link}</p>', 'onboarding_link')]);
+        $notice('briefing', 'Seminar: Vorbereitung (Schule)', 'Briefing der Koordination an die Schule: Ablauf, Raum, Material.', 'Vorbereitung Ihres Seminars {titel}', ['text' => $ph('Text der Koordination', '<p>Bitte einen Raum mit Beamer bereithalten.</p>', true, true)],
+            [$t('{text}')]);
+        $notice('results', 'Seminar: Bericht und Ergebnisse (Schule)', 'Ergebnislink und Bitte um Rückmeldung nach dem Seminar.', 'Bericht und Ergebnisse zu {titel}', ['ergebnislink' => $ph('Link zum Ergebnisordner', 'https://cloud.example/s/abc', true), 'ergebnis_bis' => $ph('Der Link ist erreichbar bis', '30.06.2027')],
+            [$t('<p>das Seminar „{titel}“ ist durchgeführt. Den Bericht finden Sie im Portal, die Ergebnisse im Ordner unter diesem Link:</p>'), $t('<p>{ergebnislink}</p>'), $t('<p>Der Link ist bis {ergebnis_bis} erreichbar.</p>'), $t('<p>Wir freuen uns über Ihre Rückmeldung zum Seminar. Sie geht im Portal in wenigen Minuten.</p>')]);
+        $notice('results_expiring', 'Seminar: Ergebnislink läuft ab (Koordination)', 'Hinweis an die Koordination, dass der Ergebnislink bald abläuft.', 'Ergebnislink läuft bald ab: {titel}', ['ergebnis_bis' => $ph('Der Link ist erreichbar bis', '30.06.2027')],
+            [$t('<p>Der Ergebnislink zum Seminar „{titel}“ ({schule}) ist nur noch bis {ergebnis_bis} erreichbar. Verlängern Sie ihn, wenn die Schule ihn weiter braucht. Gelöscht wird nichts von selbst.</p>')]);
+        $notice('report_due', 'Seminar: Bericht fällig (Seminarleitung)', 'Erinnerung vor dem Stichtag für Bericht und Verträge.', 'Bericht und Verträge fällig: {titel}', ['stichtag' => $ph('Stichtag', '15.05.2027')],
+            [$t('<p>Bericht und Verträge zum Seminar „{titel}“ sind bis {stichtag} fällig. Bitte laden Sie sie im Portal hoch und geben Sie sie ab.</p>')]);
+        $notice('report_overdue_lead', 'Seminar: Bericht überfällig (Seminarleitung)', 'Hinweis an die Seminarleitung nach dem Stichtag.', 'Bericht und Verträge überfällig: {titel}', ['stichtag' => $ph('Stichtag', '15.05.2027')],
+            [$t('<p>Bericht und Verträge zum Seminar „{titel}“ waren bis {stichtag} fällig. Bitte laden Sie sie im Portal hoch und geben Sie sie ab.</p>')]);
+        $notice('report_overdue_plan', 'Seminar: Bericht überfällig (Koordination)', 'Hinweis an die Koordination nach dem Stichtag.', 'Bericht überfällig: {titel}', ['stichtag' => $ph('Stichtag', '15.05.2027')],
+            [$t('<p>Zum Seminar „{titel}“ ({schule}) fehlen Bericht und Verträge nach dem Stichtag {stichtag}.</p>')]);
+        $notice('payment', 'Seminar: neuer Zahlungsauftrag (Buchhaltung)', 'Hinweis an die Buchhaltung.', 'Neuer Zahlungsauftrag: {nummer}', ['name' => $ph('Name der Person', 'Anna Beispiel'), 'betrag' => $ph('Betrag', '250,00 €')],
+            [$t('<p>zum Seminar „{titel}“ liegt ein neuer Zahlungsauftrag vor: {name}, {betrag}.</p>')]);
+        $notice('team_confirmed', 'Seminar: Zusage (Teamende)', 'Pflichtmail: Zusage an Teamende.', 'Zusage: {titel}', ['termine' => $ph('Termine (leer, wenn keine)', '12.04.2027, 09:00 Uhr, Aula'), 'leitung' => $ph('Gesetzt, wenn die Person die Seminarleitung ist', '1')],
+            [$t('<p>wir freuen uns, dass Sie beim Seminar „{titel}“ ({schule}) dabei sind.</p>'), $cond('<p>Termine: {termine}.</p>', 'termine'), $cond('<p>Die Koordination hat Sie als Seminarleitung bestimmt.</p>', 'leitung')]);
+        $notice('team_declined', 'Seminar: Absage (Teamende)', 'Pflichtmail: Absage an Teamende.', 'Absage: {titel}', [],
+            [$t('<p>leider können wir Sie für das Seminar „{titel}“ diesmal nicht berücksichtigen. Wir freuen uns, wenn Sie sich auf spätere Seminare melden.</p>')]);
+        $notice('team_waitlist', 'Seminar: Warteliste (Teamende)', 'Pflichtmail: Warteliste an Teamende.', 'Warteliste: {titel}', ['platz' => $ph('Platz auf der Warteliste', '1')],
+            [$t('<p>Sie stehen für das Seminar „{titel}“ auf der Warteliste (Platz {platz}). Sagt jemand aus dem Team ab, rücken Sie nach und erhalten eine Zusage.</p>')]);
 
         $add(new SystemMail('mailings.approval', 'Schreiben zur Freigabe (Vorstand)', 'Rundschreiben', 'Hinweis an den Vorstand: ein Schreiben liegt zur Freigabe vor.', 'Schreiben zur Freigabe: {betreff}',
             ['autor' => $ph('Wer das Schreiben vorgelegt hat', 'Max Muster'), 'betreff' => $ph('Betreff des Schreibens', 'Einladung zur Versammlung'), 'empfaenger' => $ph('Zahl der Empfänger', '120'), 'versand' => $ph('Geplanter Versand (leer, wenn sofort)', '12.04.2027, 09:00 Uhr'), 'url' => $ph('Link zur Freigabe', 'https://portal.example/vorstand/mitteilungen/1', true)],

@@ -13,6 +13,7 @@ Das Format orientiert sich an Keep a Changelog. Releases verwenden Semantic Vers
 
 ### Added
 
+- Seminarmitteilungen im Mail-Builder: jeder Anlass im Ablauf (Anfrage, Freigabe, Ausschreibung, Zusage, Absage, Warteliste, Termin, Onboarding, Briefing, Ergebnisse, Erinnerungen, Zahlungsauftrag) hat eine eigene bearbeitbare Vorlage mit Standardtext
 - Rundschreiben erscheinen im zentralen Mail-Design (Kopf, Farben, Fußzeile mit Empfängerhinweis und Abmeldelink); die Blade-Dateien `mail/mailings/message*` entfallen
 - Mail-Builder-Oberfläche: Systemmails im Blockeditor bearbeiten (mit Vorschau für Computer, Handy und Dunkelmodus, Textfassung, Prüfungen, Testmail, Versionen, Zurücksetzen), Mail-Design und Mailbilder; neue Rechte `mail_system.manage` und `mail_system.security`
 - Mail-Builder (Grundlage): Blockformat, Renderer für HTML und Text mit Dunkelmodus und Vorschautext, zentrales Mail-Design, Bilder für Mails und Prüfungen (Platzhalter, Alternativtexte, Kontraste)

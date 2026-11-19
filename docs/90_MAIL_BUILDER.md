@@ -22,7 +22,7 @@ Das Register `SystemMails` enthält je Mail: Schlüssel, Gruppe, Standardbetreff
 
 ## Seminarmitteilungen
 
-`SeminarNoticeMail` nutzt einen gemeinsamen Rahmen (`seminars.notice`: Anrede, Text des Anlasses, Link). Der Wortlaut der einzelnen Anlässe (Zusage, Absage, Erinnerung …) steht noch im Ablauf (`SeminarNotifications`); eigene Texte je Anlass sind ein möglicher nächster Schritt.
+`SeminarNoticeMail` kennt den Anlass (z. B. `team_confirmed`) und wählt die Vorlage `seminar.<anlass>`. Jeder Anlass im Ablauf (Anfrage, Freigabe, Ausschreibung, Zusage, Absage, Warteliste, Termin, Onboarding, Briefing, Ergebnisse, Erinnerungen, Zahlungsauftrag) hat Standardtext und Platzhalter im Register und ist einzeln bearbeitbar. `SeminarNotifications` und `TeamSelection` liefern nur die Werte; Betreff und Absätze bleiben als Eigenschaften `subjectLine` und `paragraphs` abrufbar.
 
 ## Grenzen
 

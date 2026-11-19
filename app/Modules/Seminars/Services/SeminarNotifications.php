@@ -25,28 +25,28 @@ final class SeminarNotifications
     public function requested(Seminar $seminar, bool $confirmToSchool = true): void
     {
         if ($confirmToSchool) {
-            $this->toSchool($seminar, 'Ihre Seminaranfrage '.$seminar->number, ['Ihre Anfrage für das Seminar „'.$seminar->title.'“ ist bei uns eingegangen. Die Geschäftsstelle prüft sie und meldet sich mit einem Kostenvoranschlag.']);
+            $this->toSchool($seminar, 'requested_school', $this->base($seminar));
         }
 
-        $this->toCapable(Capability::SeminarsReview, 'seminar_requests', 'Neue Seminaranfrage '.$seminar->number, [$confirmToSchool ? 'Die Schule '.$seminar->partner->name.' hat das Seminar „'.$seminar->title.'“ angefragt.' : 'Für die Schule '.$seminar->partner->name.' wurde das Seminar „'.$seminar->title.'“ eingetragen.'], route('seminars.office.show', $seminar), 'Anfrage ansehen');
+        $this->toCapable(Capability::SeminarsReview, 'seminar_requests', $confirmToSchool ? 'requested_office' : 'entered_office', $this->base($seminar), route('seminars.office.show', $seminar), 'Anfrage ansehen');
     }
 
     /** Die Schule hat zum Kostenvoranschlag etwas geschrieben (Frage, Annahme, Ablehnung). */
     public function schoolAnswered(Seminar $seminar, string $what): void
     {
-        $this->toCapable(Capability::SeminarsReview, 'seminar_requests', 'Antwort zum Kostenvoranschlag '.$seminar->number, ['Die Schule '.$seminar->partner->name.' hat zum Seminar „'.$seminar->title.'“ geantwortet: '.$what.'.'], route('seminars.office.show', $seminar), 'Seminar ansehen');
+        $this->toCapable(Capability::SeminarsReview, 'seminar_requests', 'answered', $this->base($seminar) + ['antwort' => $what], route('seminars.office.show', $seminar), 'Seminar ansehen');
     }
 
     /** Anfrage abgelehnt: Begründung an die Schule. */
     public function rejected(Seminar $seminar, ?string $reason): void
     {
-        $this->toSchool($seminar, 'Ihre Seminaranfrage '.$seminar->number, array_values(array_filter(['wir können Ihre Anfrage für das Seminar „'.$seminar->title.'“ leider nicht annehmen.', filled($reason) ? 'Begründung: '.$reason : null, 'Bei Fragen melden Sie sich gern bei der Geschäftsstelle.'])));
+        $this->toSchool($seminar, 'rejected', $this->base($seminar) + ['begruendung' => (string) $reason]);
     }
 
     /** Seminar freigegeben: die Koordination kann planen. */
     public function released(Seminar $seminar): void
     {
-        $this->toCapable(Capability::SeminarsPlan, 'seminar_released', 'Seminar freigegeben: '.$seminar->title, ['Die Geschäftsstelle hat das Seminar „'.$seminar->title.'“ der Schule '.$seminar->partner->name.' freigegeben. Sie können jetzt Termine und Team planen.'], route('seminars.plan.show', $seminar), 'Seminar planen');
+        $this->toCapable(Capability::SeminarsPlan, 'seminar_released', 'released', $this->base($seminar), route('seminars.plan.show', $seminar), 'Seminar planen');
     }
 
     /** Ausschreibung: Hinweis an alle Teamenden, die sich noch nicht gemeldet haben. */
@@ -55,99 +55,93 @@ final class SeminarNotifications
         $applied = $seminar->applications()->pluck('user_id')->all();
         $first = $seminar->sessions()->min('starts_at');
 
-        $this->toCapable(Capability::SeminarsApply, 'seminar_tender', 'Neues Seminar zur Mitarbeit: '.$seminar->title, array_values(array_filter([
-            'das Seminar „'.$seminar->title.'“ ('.$seminar->partner->name.') ist für Teamende ausgeschrieben.',
-            $first ? 'Erster Termin: '.date('d.m.Y', (int) strtotime((string) $first)).'.' : null,
-            'Bewerbung bis '.$seminar->application_deadline?->format('d.m.Y').'.',
-        ])), route('seminars.team.index'), 'Interesse melden', $applied);
+        $this->toCapable(Capability::SeminarsApply, 'seminar_tender', 'tendered', $this->base($seminar) + ['erster_termin' => $first ? date('d.m.Y', (int) strtotime((string) $first)) : '', 'frist' => (string) $seminar->application_deadline?->format('d.m.Y')], route('seminars.team.index'), 'Interesse melden', $applied);
     }
 
     /** Erinnerung kurz vor Fristende an Teamende, die sich noch nicht gemeldet haben. */
     public function deadlineNear(Seminar $seminar): void
     {
-        $this->toCapable(Capability::SeminarsApply, 'seminar_tender', 'Bewerbungsfrist endet bald: '.$seminar->title, ['die Bewerbungsfrist für das Seminar „'.$seminar->title.'“ endet am '.$seminar->application_deadline?->format('d.m.Y').'. Wenn Sie mitarbeiten möchten, melden Sie Ihr Interesse jetzt.'], route('seminars.team.index'), 'Interesse melden', $seminar->applications()->pluck('user_id')->all());
+        $this->toCapable(Capability::SeminarsApply, 'seminar_tender', 'deadline_near', $this->base($seminar) + ['frist' => (string) $seminar->application_deadline?->format('d.m.Y')], route('seminars.team.index'), 'Interesse melden', $seminar->applications()->pluck('user_id')->all());
     }
 
     /** Seminar abgesagt: Team und Schule erfahren es mit der Begründung. */
     public function cancelled(Seminar $seminar, ?string $reason): void
     {
-        $text = 'das Seminar „'.$seminar->title.'“ ('.$seminar->partner->name.') wurde abgesagt.'.(filled($reason) ? ' Begründung: '.$reason : '');
+        $values = $this->base($seminar) + ['begruendung' => (string) $reason];
 
-        $this->toSchool($seminar, 'Seminar abgesagt: '.$seminar->title, [$text]);
-        $this->toTeam($seminar, 'Seminar abgesagt: '.$seminar->title, [$text]);
+        $this->toSchool($seminar, 'cancelled', $values);
+        $this->toTeam($seminar, 'cancelled', $values);
     }
 
     /** Neuer Termin: Team und Schule erfahren es, das Team wird neu angefragt. */
     public function rescheduled(Seminar $seminar, ?string $reason, bool $teamReset): void
     {
-        $text = 'für das Seminar „'.$seminar->title.'“ ('.$seminar->partner->name.') wird ein neuer Termin gesucht.'.(filled($reason) ? ' Grund: '.$reason : '');
+        $values = $this->base($seminar) + ['grund' => (string) $reason];
 
-        $this->toSchool($seminar, 'Neuer Termin für '.$seminar->title, [$text]);
+        $this->toSchool($seminar, 'rescheduled', $values);
 
         if ($teamReset) {
-            $this->toTeam($seminar, 'Neuer Termin für '.$seminar->title, [$text, 'Das Team wird neu angefragt. Sie erhalten die Ausschreibung, sobald der neue Termin feststeht.']);
+            $this->toTeam($seminar, 'rescheduled_team', $values);
         }
     }
 
     /** Einladung zum Onboarding (Termin, ggf. Link der Videokonferenz) an das bestätigte Team. */
     public function onboardingInvitation(Seminar $seminar): void
     {
-        $lines = [
-            'zur Vorbereitung des Seminars „'.$seminar->title.'“ laden wir Sie zu einem Onboarding ein.',
-            'Termin: '.$seminar->onboarding_at?->format('d.m.Y, H:i').' Uhr.',
-        ];
-
-        if (filled($seminar->onboarding_link)) {
-            $lines[] = 'Link: '.$seminar->onboarding_link;
-        }
-
-        $this->toTeam($seminar, 'Einladung zum Onboarding: '.$seminar->title, $lines);
+        $this->toTeam($seminar, 'onboarding', $this->base($seminar) + ['termin' => (string) $seminar->onboarding_at?->format('d.m.Y, H:i'), 'onboarding_link' => (string) $seminar->onboarding_link]);
     }
 
     /** Briefing an die Schule: Ablauf, Raum, Material. Der Text kommt von der Koordination. */
     public function briefing(Seminar $seminar, string $text): void
     {
-        $this->toSchool($seminar, 'Vorbereitung Ihres Seminars '.$seminar->title, [$text]);
+        $this->toSchool($seminar, 'briefing', $this->base($seminar) + ['text' => '<p>'.str_replace(["\r\n", "\r", "\n"], '<br>', e(trim($text))).'</p>']);
     }
 
     /** Bericht und Ergebnislink an die Schule. */
     public function results(Seminar $seminar): void
     {
-        $this->toSchool($seminar, 'Bericht und Ergebnisse zu '.$seminar->title, array_values(array_filter([
-            'das Seminar „'.$seminar->title.'“ ist durchgeführt. Den Bericht finden Sie im Portal, die Ergebnisse im Ordner unter diesem Link:',
-            (string) $seminar->results_url,
-            'Der Link ist bis '.$seminar->results_expires_on?->format('d.m.Y').' erreichbar.',
-            'Wir freuen uns über Ihre Rückmeldung zum Seminar. Sie geht im Portal in wenigen Minuten.',
-        ])));
+        $this->toSchool($seminar, 'results', $this->base($seminar) + ['ergebnislink' => (string) $seminar->results_url, 'ergebnis_bis' => (string) $seminar->results_expires_on?->format('d.m.Y')]);
     }
 
     /** Der Ergebnislink läuft bald ab: die Koordination kann ihn verlängern. */
     public function resultsExpiring(Seminar $seminar): void
     {
-        $this->toCapable(Capability::SeminarsPlan, 'seminar_overdue', 'Ergebnislink läuft bald ab: '.$seminar->title, ['Der Ergebnislink zum Seminar „'.$seminar->title.'“ ('.$seminar->partner->name.') ist nur noch bis '.$seminar->results_expires_on?->format('d.m.Y').' erreichbar. Verlängern Sie ihn, wenn die Schule ihn weiter braucht. Gelöscht wird nichts von selbst.'], route('seminars.plan.show', $seminar), 'Seminar ansehen');
+        $this->toCapable(Capability::SeminarsPlan, 'seminar_overdue', 'results_expiring', $this->base($seminar) + ['ergebnis_bis' => (string) $seminar->results_expires_on?->format('d.m.Y')], route('seminars.plan.show', $seminar), 'Seminar ansehen');
     }
 
     /** Erinnerung an die Seminarleitung kurz vor dem Stichtag für Bericht und Verträge. */
     public function reportDue(Seminar $seminar): void
     {
-        $this->toLead($seminar, 'Bericht und Verträge fällig: '.$seminar->title, ['Bericht und Verträge zum Seminar „'.$seminar->title.'“ sind bis '.$seminar->report_due_on?->format('d.m.Y').' fällig. Bitte laden Sie sie im Portal hoch und geben Sie sie ab.']);
+        $this->toLead($seminar, 'report_due', $this->base($seminar) + ['stichtag' => (string) $seminar->report_due_on?->format('d.m.Y')]);
     }
 
     /** Stichtag überschritten: Hinweis an die Seminarleitung und an die Koordination. */
     public function reportOverdue(Seminar $seminar): void
     {
-        $this->toLead($seminar, 'Bericht und Verträge überfällig: '.$seminar->title, ['Bericht und Verträge zum Seminar „'.$seminar->title.'“ waren bis '.$seminar->report_due_on?->format('d.m.Y').' fällig. Bitte laden Sie sie im Portal hoch und geben Sie sie ab.']);
-        $this->toCapable(Capability::SeminarsPlan, 'seminar_overdue', 'Bericht überfällig: '.$seminar->title, ['Zum Seminar „'.$seminar->title.'“ ('.$seminar->partner->name.') fehlen Bericht und Verträge nach dem Stichtag '.$seminar->report_due_on?->format('d.m.Y').'.'], route('seminars.plan.show', $seminar), 'Seminar ansehen');
+        $values = $this->base($seminar) + ['stichtag' => (string) $seminar->report_due_on?->format('d.m.Y')];
+
+        $this->toLead($seminar, 'report_overdue_lead', $values);
+        $this->toCapable(Capability::SeminarsPlan, 'seminar_overdue', 'report_overdue_plan', $values, route('seminars.plan.show', $seminar), 'Seminar ansehen');
     }
 
     /** Neuer Zahlungsauftrag für die Buchhaltung. */
     public function paymentCreated(Seminar $seminar, string $name, string $amount): void
     {
-        $this->toCapable(Capability::SeminarsPayments, 'seminar_payments', 'Neuer Zahlungsauftrag: '.$seminar->number, ['zum Seminar „'.$seminar->title.'“ liegt ein neuer Zahlungsauftrag vor: '.$name.', '.$amount.'.'], route('seminars.payments.index'), 'Zahlungsaufträge ansehen');
+        $this->toCapable(Capability::SeminarsPayments, 'seminar_payments', 'payment', $this->base($seminar) + ['name' => $name, 'betrag' => $amount], route('seminars.payments.index'), 'Zahlungsaufträge ansehen');
     }
 
-    /** @param  list<string>  $paragraphs */
-    private function toLead(Seminar $seminar, string $subject, array $paragraphs): void
+    /**
+     * Die Werte, die jede Seminarmitteilung kennt.
+     *
+     * @return array<string, string>
+     */
+    private function base(Seminar $seminar): array
+    {
+        return ['nummer' => (string) $seminar->number, 'titel' => (string) $seminar->title, 'schule' => (string) $seminar->partner->name];
+    }
+
+    /** @param  array<string, string|list<string>>  $fields */
+    private function toLead(Seminar $seminar, string $event, array $fields): void
     {
         $lead = $seminar->lead;
 
@@ -156,37 +150,37 @@ final class SeminarNotifications
         }
 
         foreach ($this->preferences->filter([$lead], 'seminar_report_due') as $user) {
-            $this->send((string) $user->email, new SeminarNoticeMail($subject, $user->person?->fullName(), $paragraphs, route('seminars.lead.show', $seminar), 'Seminar ansehen'));
+            $this->send((string) $user->email, new SeminarNoticeMail($event, $user->person?->fullName(), $fields, route('seminars.lead.show', $seminar), 'Seminar ansehen'));
         }
     }
 
-    /** @param  list<string>  $paragraphs */
-    private function toSchool(Seminar $seminar, string $subject, array $paragraphs): void
+    /** @param  array<string, string|list<string>>  $fields */
+    private function toSchool(Seminar $seminar, string $event, array $fields): void
     {
         if (blank($seminar->contact_email)) {
             return;
         }
 
-        $this->send((string) $seminar->contact_email, new SeminarNoticeMail($subject, $seminar->contact_name, $paragraphs, route('school.seminars.show', $seminar), 'Seminar im Portal ansehen'));
+        $this->send((string) $seminar->contact_email, new SeminarNoticeMail($event, $seminar->contact_name, $fields, route('school.seminars.show', $seminar), 'Seminar im Portal ansehen'));
     }
 
-    /** Zugesagte Teamende (abschaltbar unter „Hinweise zu Ihren Seminaren“). @param  list<string>  $paragraphs */
-    private function toTeam(Seminar $seminar, string $subject, array $paragraphs): void
+    /** Zugesagte Teamende (abschaltbar unter „Hinweise zu Ihren Seminaren“). @param  array<string, string|list<string>>  $fields */
+    private function toTeam(Seminar $seminar, string $event, array $fields): void
     {
         $users = SeminarApplication::query()->where('seminar_id', $seminar->id)->whereIn('outcome', ['confirmed', 'waitlist'])->with('user.person')->get()->map(fn (SeminarApplication $application): User => $application->user)->all();
 
         foreach ($this->preferences->filter($users, 'seminar_team') as $user) {
-            $this->send((string) $user->email, new SeminarNoticeMail($subject, $user->person?->fullName(), $paragraphs, route('seminars.team.index'), 'Ihre Seminare ansehen'));
+            $this->send((string) $user->email, new SeminarNoticeMail($event, $user->person?->fullName(), $fields, route('seminars.team.index'), 'Ihre Seminare ansehen'));
         }
     }
 
     /**
      * An alle Konten, die die Berechtigung haben und die Mitteilung nicht abgeschaltet haben.
      *
-     * @param  list<string>  $paragraphs
+     * @param  array<string, string|list<string>>  $fields
      * @param  list<int>  $excludeUserIds
      */
-    private function toCapable(Capability $capability, string $preferenceKey, string $subject, array $paragraphs, string $url, ?string $urlLabel = null, array $excludeUserIds = []): void
+    private function toCapable(Capability $capability, string $preferenceKey, string $event, array $fields, string $url, ?string $urlLabel = null, array $excludeUserIds = []): void
     {
         $keys = Capabilities::roleKeysWith($capability);
 
@@ -195,7 +189,7 @@ final class SeminarNotifications
 
         foreach ($this->preferences->filter($users, $preferenceKey) as $user) {
             if (filled($user->email)) {
-                $this->send((string) $user->email, new SeminarNoticeMail($subject, $user->person?->fullName(), $paragraphs, $url, $urlLabel));
+                $this->send((string) $user->email, new SeminarNoticeMail($event, $user->person?->fullName(), $fields, $url, $urlLabel));
             }
         }
     }
