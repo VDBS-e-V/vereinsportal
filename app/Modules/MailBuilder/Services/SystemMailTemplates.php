@@ -29,7 +29,7 @@ final class SystemMailTemplates
     /** Darf diese Person die Mail bearbeiten? Sicherheitsmails nur mit dem besonderen Recht. */
     public function canEdit(SystemMail $mail, User $user): bool
     {
-        return $user->can('mail_system.manage') && (! $mail->security || $user->can('mail_system.security'));
+        return $user->can('mail_system.manage') && ($mail->security === false || $user->can('mail_system.security'));
     }
 
     /**
@@ -78,7 +78,7 @@ final class SystemMailTemplates
      */
     public function save(SystemMail $mail, array $doc, string $subject, ?string $preheader, User $by): MailTemplate
     {
-        if (! $this->canEdit($mail, $by)) {
+        if ($this->canEdit($mail, $by) === false) {
             throw new DomainException('Für diese Mail fehlt Ihnen die Berechtigung.');
         }
 
@@ -110,7 +110,7 @@ final class SystemMailTemplates
     /** Verwirft die Änderung; ab sofort gilt wieder der Standardtext. */
     public function reset(SystemMail $mail, User $by): void
     {
-        if (! $this->canEdit($mail, $by)) {
+        if ($this->canEdit($mail, $by) === false) {
             throw new DomainException('Für diese Mail fehlt Ihnen die Berechtigung.');
         }
 

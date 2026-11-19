@@ -71,7 +71,7 @@ final class MailRenderer
         $textBlocks = [];
 
         foreach ($doc['blocks'] as $block) {
-            if (! $this->visible($block['visible_if'])) {
+            if ($this->visible($block['visible_if']) === false) {
                 continue;
             }
 
