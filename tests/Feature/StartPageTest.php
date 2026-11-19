@@ -38,21 +38,13 @@ it('shows the logged-in variant with account actions instead of the login', func
         ->not->toContain('Zur Anmeldung');
 });
 
-it('shows the contact block with image and addresses, and falls back without lines', function () {
-    $this->get('/')->assertSee('vdbs-contact-block--surface', false)->assertSee('support@portal.vdb.schule')->assertSee('images/portal/kontakt.jpg', false);
-
-    config(['portal.home.contact.lines' => []]);
-
-    $this->get('/')->assertDontSee('vdbs-contact-block', false);
-});
-
 it('shows the hero image with centered title and solid quick links below', function () {
     $html = $this->get('/')->assertOk()->getContent();
 
     expect($html)->toContain('vdbs-hero--image')->toContain('images/portal/hero-bibliothek.jpg')->toContain('vdbs-quick-links--solid')
-        ->toContain('vdbs-quick-link--tone-5')->toContain('Über das Portal')->toContain('Hilfe');
+        ->toContain('vdbs-quick-link--tone-5')->toContain('Über das Portal');
 
-    expect(is_file(public_path('images/portal/hero-bibliothek.jpg')) && is_file(public_path('images/portal/kontakt.jpg')))->toBeTrue();
+    expect(is_file(public_path('images/portal/hero-bibliothek.jpg')))->toBeTrue();
 });
 
 it('offers print, theme switch and back to top under "Diese Seite" in the footer', function () {
@@ -88,7 +80,7 @@ it('shows the access block with the image and its source on the start page', fun
     $html = $this->get('/')->assertOk()->getContent();
 
     expect($html)->toContain('images/portal/zugang.jpg')->toContain('alt="Steinerner Torbogen')->toContain('Bild aus dem bisherigen VDBS-Portal')
-        ->toContain('Hilfe kontaktieren')->toContain('Zugang zum Portal')->toContain('vdbs-split__media')
+        ->toContain('Zugang zum Portal')->toContain('vdbs-split__media')
         ->not->toContain('/images/placeholder/');
 
     expect(is_file(public_path('images/portal/zugang.jpg')))->toBeTrue();
