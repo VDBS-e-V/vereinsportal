@@ -50,7 +50,7 @@ it('lets only the coordination see and plan released seminars', function () {
     $this->actingAs(plUser(RoleKey::AdministrationStaff))->get(route('seminars.plan.index'))->assertForbidden();
 
     $this->actingAs(plUser(RoleKey::Coordination));
-    $this->get(route('seminars.plan.index'))->assertOk()->assertSee($seminar->title)->assertDontSee('Noch in Prüfung');
+    $this->get(route('seminars.plan.index'))->assertOk()->assertSee($seminar->title)->assertDontSee(route('seminars.plan.show', $hidden));
     $this->get(route('seminars.plan.show', $seminar))->assertOk()->assertSee('Termine und Team');
     $this->get(route('seminars.plan.show', $hidden))->assertNotFound();
 });
