@@ -4,7 +4,7 @@ namespace App\Modules\MailBuilder\Support;
 
 use App\Support\Html\RichText;
 
-/** Die Einstellungen des zentralen Mail-Designs: Standardwerte und Bereinigung. Nur mailsichere Schriften, Farben nur als #rrggbb. */
+/** Die Einstellungen des zentralen Mail-Designs: Standardwerte und Bereinigung. Nur mailsichere Schriften, Farben nur aus der Vereinspalette. */
 final class LayoutSettings
 {
     /** @var array<string, string> Schlüssel => Schriftfamilie (nur Systemschriften, keine Webfonts) */
@@ -26,14 +26,43 @@ final class LayoutSettings
         'accent' => 'Akzent (Kopf, Linien)',
     ];
 
+    /**
+     * Die Farbpalette des Vereins (aus den Design-Tokens): nur diese Farben lassen sich im Mail-Design wählen.
+     *
+     * @var array<string, string> Farbcode => Bezeichnung
+     */
+    public const PALETTE = [
+        '#ffffff' => 'Weiß',
+        '#f5f7f6' => 'Hellgrau',
+        '#ebefed' => 'Grauband',
+        '#d4dbd8' => 'Linien-Grau',
+        '#52605b' => 'Textgrau',
+        '#0f172a' => 'Ink (Textfarbe)',
+        '#2dc08e' => 'Vereinsgrün',
+        '#057f5b' => 'Aktionsgrün',
+        '#046a4d' => 'Dunkelgrün',
+        '#dcf8ea' => 'Hellgrün',
+        '#a8e6cf' => 'Pastellgrün',
+        '#58275a' => 'Vereinslila',
+        '#efe6f0' => 'Hellila',
+        '#0b3a5a' => 'Marine',
+        '#52bdf2' => 'Hellblau',
+        '#0a7fa0' => 'Petrol',
+        '#ffcb1f' => 'Gelb',
+        '#f5912b' => 'Orange',
+        '#f76ca3' => 'Rosa',
+        '#b42318' => 'Rot',
+        '#1b1e21' => 'Graphit',
+    ];
+
     /** @var array<string, mixed> */
     public const DEFAULTS = [
         'width' => 600,
         'font' => 'sans',
-        'background' => '#f1f5f9',
+        'background' => '#ebefed',
         'card' => '#ffffff',
         'text' => '#0f172a',
-        'muted' => '#475569',
+        'muted' => '#52605b',
         'link' => '#057f5b',
         'button' => '#057f5b',
         'button_text' => '#ffffff',
@@ -47,7 +76,7 @@ final class LayoutSettings
     ];
 
     /** Dunkelmodus: eigene Farben für Clients, die ihn unterstützen. @var array<string, string> */
-    public const DARK = ['background' => '#0b1220', 'card' => '#111c2e', 'text' => '#e2e8f0', 'muted' => '#94a3b8', 'link' => '#5eead4'];
+    public const DARK = ['background' => '#121416', 'card' => '#1b1e21', 'text' => '#f1f4f2', 'muted' => '#9aa1a6', 'link' => '#40cd9a'];
 
     /**
      * @param  array<string, mixed>|null  $input
@@ -61,7 +90,7 @@ final class LayoutSettings
         foreach (array_keys(self::COLORS) as $key) {
             $value = $input[$key] ?? null;
 
-            if (is_string($value) && preg_match('/^#[0-9a-fA-F]{6}$/', trim($value))) {
+            if (is_string($value) && isset(self::PALETTE[strtolower(trim($value))])) {
                 $out[$key] = strtolower(trim($value));
             }
         }
@@ -79,6 +108,18 @@ final class LayoutSettings
         $out['footer_html'] = (string) $footer;
 
         return $out;
+    }
+
+    /** Auswahlliste für die Farbfelder: Farbcode => „Name (Code)“. @return array<string, string> */
+    public static function paletteOptions(): array
+    {
+        $options = [];
+
+        foreach (self::PALETTE as $hex => $label) {
+            $options[$hex] = $label.' ('.$hex.')';
+        }
+
+        return $options;
     }
 
     public static function fontStack(string $key): string

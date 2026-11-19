@@ -27,6 +27,7 @@ class MailDesignController extends Controller
         return view('mail-builder.design', [
             'settings' => LayoutSettings::normalize(MailLayout::current()->settings),
             'colors' => LayoutSettings::COLORS,
+            'palette' => LayoutSettings::paletteOptions(),
             'fonts' => array_keys(LayoutSettings::FONTS),
             'assets' => MailAsset::query()->orderByDesc('id')->get(),
         ]);

@@ -156,7 +156,7 @@ final class MailRenderer
 
             case 'callout':
                 $html = $this->rich((string) $p['html']);
-                $tones = ['info' => ['#e0f2fe', '#0369a1'], 'warning' => ['#fef3c7', '#b45309'], 'success' => ['#dcfce7', '#15803d']];
+                $tones = ['info' => ['#f5f7f6', '#0b3a5a'], 'warning' => ['#fff4d6', '#8a5a00'], 'success' => ['#dcf8ea', '#057f5b']];
                 [$bg, $line] = $tones[$p['tone']];
 
                 return trim($html) === '' ? null : [$this->row('<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background:'.$bg.';border-left:4px solid '.$line.';padding:12px 16px;color:#0f172a;border-radius:'.$theme['radius'].'px;">'.$this->inline($html, '#0f172a', '#0f172a').'</td></tr></table>'), MailText::fromHtml($html)];

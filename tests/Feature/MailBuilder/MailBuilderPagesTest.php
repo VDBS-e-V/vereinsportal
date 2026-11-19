@@ -9,6 +9,7 @@ use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\MailBuilder\Mail\BuilderTestMail;
 use App\Modules\MailBuilder\Models\MailAsset;
 use App\Modules\MailBuilder\Models\MailLayout;
+use App\Modules\MailBuilder\Support\LayoutSettings;
 use App\Modules\Mailings\Models\MailTemplate;
 use App\Modules\Onboarding\Mail\TeamOnboardingStartedMail;
 use App\Modules\People\Models\Person;
@@ -128,18 +129,18 @@ it('saves the design and shows it in every mail', function () {
     $this->actingAs(mbpUser(RoleKey::AdministrationStaff));
 
     $this->get(route('mailbuilder.design.edit'))->assertOk()->assertSee('Mail-Design');
-    $this->put(route('mailbuilder.design.update'), ['accent' => '#112233', 'button' => '#abcdef', 'background' => 'rot', 'footer_html' => '<p>Neuer Fuß</p>'])->assertRedirect(route('mailbuilder.design.edit'));
+    $this->put(route('mailbuilder.design.update'), ['accent' => '#58275a', 'button' => '#0b3a5a', 'background' => '#123456', 'footer_html' => '<p>Neuer Fuß</p>'])->assertRedirect(route('mailbuilder.design.edit'));
 
     $layout = MailLayout::current();
 
-    expect($layout->settings['accent'])->toBe('#112233')->and($layout->settings['background'])->toBe('#f1f5f9')->and($layout->settings['footer_html'])->toContain('Neuer Fuß');
+    expect($layout->settings['accent'])->toBe('#58275a')->and($layout->settings['button'])->toBe('#0b3a5a')->and($layout->settings['background'])->toBe(LayoutSettings::DEFAULTS['background'])->and($layout->settings['footer_html'])->toContain('Neuer Fuß');
     $this->assertDatabaseHas('audit_entries', ['event' => 'mailing.design_changed']);
 
     $html = (new AccountDeletedMail)->render();
 
-    expect($html)->toContain('#112233')->toContain('Neuer Fuß');
+    expect($html)->toContain('#58275a')->toContain('Neuer Fuß');
 
-    $this->postJson(route('mailbuilder.design.preview'), ['accent' => '#445566'])->assertOk()->assertJsonStructure(['html', 'issues']);
+    $this->postJson(route('mailbuilder.design.preview'), ['accent' => '#0a7fa0'])->assertOk()->assertJsonStructure(['html', 'issues']);
 });
 
 it('uploads images and refuses to delete one that is still in use', function () {

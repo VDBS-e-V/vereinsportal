@@ -8,7 +8,7 @@ Der Mail-Builder (Modul `MailBuilder`) baut Mails aus Blöcken, hält ein zentra
 - **Blocktypen:** Überschrift, Text, Button, Bild, Trennlinie, Abstand, Hinweisbox, Code-Box, Angaben-Tabelle, Aufzählung, Zitat, zwei Spalten, Signatur, Wiederholer (für Listen wie Termine). Jeder Block kann an einen Platzhalter gebunden werden („nur wenn ausgefüllt/leer“).
 - **Renderer** (`MailRenderer`): tabellenbasiertes HTML mit Inline-Styles, 600 px, mobiler Anpassung, Dunkelmodus und Vorschautext, dazu eine Textfassung. Platzhalter werden maskiert; als „raw“ gekennzeichnete Werte sind fertiges HTML aus dem Code.
 - **Prüfungen** (`MailCheck`): unbekannte und fehlende Pflichtplatzhalter, fehlende Alternativtexte, Kontraste (WCAG), leere Blöcke. Fehler verhindern das Speichern, Hinweise nicht.
-- **Mail-Design** (`MailLayout`, `LayoutSettings`): Farben, Systemschrift, Breite, Ecken, Logo, Kopftext, Fußzeile. Ein Standarddesign für alle Mails; ohne gespeicherten Eintrag gelten die Vorgaben.
+- **Mail-Design** (`MailLayout`, `LayoutSettings`): Farben (nur aus der Vereinspalette, per Auswahlliste), Systemschrift, Breite, Ecken, Logo, Kopftext, Fußzeile. Ein Standarddesign für alle Mails; ohne gespeicherten Eintrag gelten die Vorgaben.
 - **Bilder** (`MailAsset`): PNG, JPG, GIF bis 2 MB und 2400 Pixel Breite, kein SVG. Liegen öffentlich unter `storage/mail-assets` (`php artisan storage:link` muss laufen). Benutzte Bilder lassen sich nicht löschen.
 
 ## Systemmails

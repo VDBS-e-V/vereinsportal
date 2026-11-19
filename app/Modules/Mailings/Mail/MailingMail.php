@@ -55,7 +55,7 @@ final class MailingMail extends Mailable
             $this->kind === 'schools' => 'Sie erhalten diese Nachricht als Schulkonto im Portal des '.$club,
             default => 'Diese Nachricht kommt vom '.$club,
         };
-        $style = 'margin:0 0 6px;font-size:13px;line-height:1.5;color:#475569;';
+        $style = 'margin:0 0 6px;font-size:13px;line-height:1.5;color:#52605b;';
         $footer = '<p style="'.$style.'" class="vdbs-muted">'.e($notice).'</p>';
 
         if ($this->unsubscribeUrl) {

@@ -116,10 +116,10 @@ it('renders dark mode styles for supporting clients or forced for the preview', 
 });
 
 it('keeps only valid design values', function () {
-    $settings = LayoutSettings::normalize(['background' => 'red', 'card' => '#ABCDEF', 'font' => 'comic', 'width' => 5000, 'radius' => -3, 'footer_html' => '<p>Fuß</p><script>x</script>']);
+    $settings = LayoutSettings::normalize(['background' => 'red', 'card' => '#F5F7F6', 'link' => '#123456', 'font' => 'comic', 'width' => 5000, 'radius' => -3, 'footer_html' => '<p>Fuß</p><script>x</script>']);
 
     expect($settings['background'])->toBe(LayoutSettings::DEFAULTS['background'])
-        ->and($settings['card'])->toBe('#abcdef')
+        ->and($settings['card'])->toBe('#f5f7f6')->and($settings['link'])->toBe(LayoutSettings::DEFAULTS['link'])
         ->and($settings['font'])->toBe('sans')
         ->and($settings['width'])->toBe(700)
         ->and($settings['radius'])->toBe(0)
@@ -144,11 +144,11 @@ it('checks documents for missing alt text, unknown and missing placeholders and 
 it('uses stored design and logo through the composer', function () {
     Storage::fake('public');
     $asset = MailAsset::query()->create(['path' => 'mail-assets/logo.png', 'original_name' => 'logo.png', 'mime' => 'image/png', 'size' => 10]);
-    MailLayout::query()->create(['name' => 'Standard', 'is_default' => true, 'settings' => ['accent' => '#112233', 'logo_asset_id' => $asset->id, 'logo_alt' => 'Vereinslogo', 'footer_html' => '<p>Eigener Fuß</p>']]);
+    MailLayout::query()->create(['name' => 'Standard', 'is_default' => true, 'settings' => ['accent' => '#58275a', 'logo_asset_id' => $asset->id, 'logo_alt' => 'Vereinslogo', 'footer_html' => '<p>Eigener Fuß</p>']]);
 
     $mail = app(MailComposer::class)->render(mbDoc([mbBlock('text', ['html' => '<p>Hallo</p>']), mbBlock('image', ['asset_id' => $asset->id, 'alt' => 'Beispiel', 'width' => 300, 'align' => 'center'])]));
 
-    expect($mail->html)->toContain('#112233')->toContain('alt="Vereinslogo"')->toContain('alt="Beispiel"')->toContain('Eigener Fuß')->toContain($asset->url());
+    expect($mail->html)->toContain('#58275a')->toContain('alt="Vereinslogo"')->toContain('alt="Beispiel"')->toContain('Eigener Fuß')->toContain($asset->url());
 });
 
 it('falls back to the default design when none is stored', function () {

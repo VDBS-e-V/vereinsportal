@@ -9,10 +9,10 @@
 
     <div class="mb mb--design" data-mb-design data-preview-url="{{ route('mailbuilder.design.preview') }}" data-csrf="{{ csrf_token() }}">
         <x-vdbs.forms.form :action="route('mailbuilder.design.update')" method="PUT" id="mb-design-form">
-            <x-vdbs.forms.form-section title="Farben" description="Farben als sechsstelliger Code, z. B. #057f5b. Das Portal warnt bei zu schwachem Kontrast.">
+            <x-vdbs.forms.form-section title="Farben" description="Nur Farben aus der Vereinspalette. Das Portal warnt in der Vorschau bei zu schwachem Kontrast.">
                 <x-vdbs.forms.form-grid :columns="2">
                     @foreach ($colors as $key => $label)
-                        <x-vdbs.forms.input :name="$key" :label="$label" maxlength="7" :value="old($key, $settings[$key])" pattern="#[0-9a-fA-F]{6}" />
+                        <x-vdbs.forms.select :name="$key" :label="$label" :options="$palette" :value="old($key, $settings[$key])" />
                     @endforeach
                 </x-vdbs.forms.form-grid>
             </x-vdbs.forms.form-section>
