@@ -15,7 +15,12 @@ class MailTemplate extends Model
 
     public const KIND_GENERAL = 'general';
 
-    protected $fillable = ['key', 'kind', 'name', 'description', 'category', 'audience', 'subject', 'body', 'updated_by_user_id'];
+    protected $fillable = ['key', 'kind', 'name', 'description', 'category', 'audience', 'subject', 'body', 'updated_by_user_id', 'system_key', 'layout_id', 'blocks', 'preheader', 'plain_text', 'status'];
+
+    protected function casts(): array
+    {
+        return ['blocks' => 'array'];
+    }
 
     /** @return HasMany<MailTemplateVersion, $this> */
     public function versions(): HasMany
