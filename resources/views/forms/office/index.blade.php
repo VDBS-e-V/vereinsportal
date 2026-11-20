@@ -22,7 +22,7 @@
             @foreach ($applications as $application)
                 <tr>
                     @if ($canManage)
-                        <td class="vdbs-table__select">@if ($application->status === 'approved')<span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="ids[]" value="{{ $application->id }}" form="export-form" aria-label="{{ $application->number }} für die Sammelliste auswählen"></span>@endif</td>
+                        <x-vdbs.data.table-check name="ids[]" :value="$application->id" :label="$application->number.' für die Sammelliste auswählen'" form="export-form" :show="$application->status === 'approved'" />
                     @endif
                     <td style="white-space:nowrap"><a href="{{ route('forms-office.show', $application) }}">{{ $application->number }}</a></td>
                     <td>{{ $application->typeLabel() }}</td>
@@ -33,6 +33,7 @@
                 </tr>
             @endforeach
         </x-vdbs.data.table>
+        @if ($canManage) <p class="vdbs-table__select-count" role="status" data-vdbs-select-count="export-form">Nichts ausgewählt.</p> @endif
         {{ $applications->links() }}
         @if ($canManage) <p style="margin-top:var(--space-4)"><a href="{{ route('forms-office.export.bookings') }}">Buchungsliste (CSV)</a> · <a href="{{ route('forms-office.export.summary') }}">Jahresübersicht je Kostenstelle (CSV)</a> <span class="vdbs-hint">– Filter per Adresse: von, bis, art[], status[]</span></p> @endif
         @if ($canManage) <x-vdbs.actions.button type="submit" form="export-form" icon="download">Sammelliste für die Auszahlung herunterladen</x-vdbs.actions.button> <p class="vdbs-hint">Nur freigegebene Anträge. Die Liste enthält die IBAN; bitte nach dem Überweisen löschen.</p> @endif

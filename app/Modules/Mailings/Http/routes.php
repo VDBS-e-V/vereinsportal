@@ -9,7 +9,6 @@ use App\Modules\Mailings\Http\Controllers\MailSnippetController;
 use App\Modules\Mailings\Http\Controllers\MailTemplateController;
 use App\Modules\Mailings\Http\Controllers\MailWebhookController;
 use App\Modules\Mailings\Http\Controllers\SuppressionController;
-use App\Modules\Mailings\Http\Controllers\TeamMailingController;
 use App\Modules\Mailings\Http\Controllers\UnsubscribeController;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -48,17 +47,6 @@ foreach (['board' => ['vorstand/mitteilungen', 'mailings.members'], 'office' => 
     });
 }
 
-Route::middleware(['web', 'auth', 'can:mailings.team'])->prefix('koordination/mitteilungen')->name('mailings.team.')->group(function (): void {
-    Route::get('/', [TeamMailingController::class, 'index'])->name('index');
-    Route::get('/neu', [TeamMailingController::class, 'create'])->name('create');
-    Route::post('/vorschau', [TeamMailingController::class, 'preview'])->name('preview');
-    Route::post('/test', [TeamMailingController::class, 'test'])->middleware('throttle:10,10')->name('test');
-    Route::post('/', [TeamMailingController::class, 'store'])->middleware('throttle:10,10')->name('store');
-    Route::get('/{mailing}', [MailingProgressController::class, 'show'])->whereNumber('mailing')->name('show');
-    Route::post('/{mailing}/abbrechen', [MailingProgressController::class, 'cancel'])->whereNumber('mailing')->name('cancel');
-    Route::post('/{mailing}/wiederholen', [MailingProgressController::class, 'retry'])->whereNumber('mailing')->name('retry');
-});
-
 Route::middleware(['web', 'auth', 'can:mail_segments.manage'])->prefix('geschaeftsstelle/verteiler')->name('mailings.segments.')->group(function (): void {
     Route::get('/', [MailSegmentController::class, 'index'])->name('index');
     Route::get('/neu', [MailSegmentController::class, 'create'])->name('create');
@@ -79,9 +67,6 @@ Route::middleware(['web', 'auth', 'can:mail_templates.manage'])->prefix('geschae
     Route::post('/bausteine', [MailSnippetController::class, 'store'])->name('snippets.store');
     Route::post('/bausteine/loeschen', [MailSnippetController::class, 'destroyMany'])->name('snippets.destroy-many');
     Route::delete('/bausteine/{snippet}', [MailSnippetController::class, 'destroy'])->whereNumber('snippet')->name('snippets.destroy');
-    Route::get('/seminar', [MailTemplateController::class, 'team'])->name('team');
-    Route::put('/seminar', [MailTemplateController::class, 'updateTeam'])->name('team.update');
-    Route::delete('/seminar', [MailTemplateController::class, 'resetTeam'])->name('team.reset');
     Route::get('/{template}/bearbeiten', [MailTemplateController::class, 'edit'])->whereNumber('template')->name('edit');
     Route::put('/{template}', [MailTemplateController::class, 'update'])->whereNumber('template')->name('update');
     Route::post('/{template}/versionen/{version}', [MailTemplateController::class, 'restore'])->whereNumber(['template', 'version'])->name('restore');

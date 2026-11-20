@@ -30,6 +30,10 @@ robocopy $root $target /E /NFL /NDL /NJH /NJS /NP `
     /XF '.env' '.env.*' '*.log' 'phpunit.xml' 'database.sqlite' | Out-Null
 if ($LASTEXITCODE -ge 8) { throw "robocopy ist fehlgeschlagen ($LASTEXITCODE)" }
 
+# public\hot legt 'npm run dev' an. Liegt die Datei im Paket, lädt Laravel CSS und JavaScript vom Entwicklungsserver (localhost:5173) statt aus public\build: Das Design lädt dann nicht.
+$hot = Join-Path $target 'public\hot'
+if (Test-Path $hot) { Remove-Item $hot -Force }
+
 # Wichtig: Ausgeschlossen werden nur Ordner im Hauptordner (volle Pfade). Der Name 'build' allein würde auch public\build mit CSS und JavaScript ausschließen.
 if (-not (Test-Path (Join-Path $target 'public\build\manifest.json'))) { throw 'public\build\manifest.json fehlt im Paket (Frontend nicht gebaut?)' }
 

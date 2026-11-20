@@ -39,4 +39,4 @@ Zwei getrennte Abläufe im Modul `app/Modules/Onboarding`. Sie teilen nur die Ab
 
 - Fristen und Erinnerungen (z. B. Führungszeugnis nach fünf Jahren erneut vorlegen).
 - Teamende ohne abgeschlossene Einarbeitung später von Seminaren ausschließen (Stufe 3 der Seminarplanung).
-- Inhalte der PDFs (Satzung, Willkommensbrief, Erklärung, Verhaltenskodex) liefert der Verein; die Texte der Mails stehen in `resources/views/mail/onboarding`.
+- Inhalte der PDFs (Satzung, Willkommensbrief, Erklärung, Verhaltenskodex) liefert der Verein; die Texte der Mails stehen im Register der Systemmails (`SystemMails`, Gruppe „Einarbeitung“).

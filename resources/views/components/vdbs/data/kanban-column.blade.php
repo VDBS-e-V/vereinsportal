@@ -13,7 +13,7 @@
     $id ??= 'kanban-col-'.\Illuminate\Support\Str::slug((string) ($statusId ?? $title)).'-'.substr(md5($title.$statusId), 0, 6);
 @endphp
 
-<section {{ $attributes->class('vdbs-kanban-column') }} aria-labelledby="{{ $id }}" data-vdbs-kanban-column @if ($statusId !== null) data-status-id="{{ $statusId }}" @endif>
+<section {{ $attributes->class('vdbs-kanban-column') }} @if ($done) data-done @endif aria-labelledby="{{ $id }}" data-vdbs-kanban-column @if ($statusId !== null) data-status-id="{{ $statusId }}" @endif>
     <h2 class="vdbs-kanban-column__head" id="{{ $id }}">
         <span>{{ $title }}@if ($done) <span class="vdbs-kanban-column__done">(erledigt)</span>@endif</span>
         <span class="vdbs-kanban-column__count" data-vdbs-kanban-count>{{ $count ?? '' }}</span>

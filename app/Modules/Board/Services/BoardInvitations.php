@@ -12,7 +12,6 @@ use App\Modules\Board\Mail\BoardGuestInvitationMail;
 use App\Modules\Board\Mail\BoardMeetingInvitationMail;
 use App\Modules\Board\Models\BoardMeeting;
 use App\Modules\Board\Support\IcsFeed;
-use App\Modules\Contracts\Services\ContractSettings;
 use App\Support\Html\RichText;
 use DomainException;
 use Illuminate\Support\Facades\Mail;
@@ -96,7 +95,7 @@ final class BoardInvitations
 
         $agenda = $withAgenda && ! RichText::isEmpty($meeting->agenda) ? RichText::toPlain((string) $meeting->agenda) : '';
         $ics = IcsFeed::build(collect([$meeting]), parse_url((string) config('app.url'), PHP_URL_HOST) ?: 'portal', 'Sitzung');
-        $club = app(ContractSettings::class)->get('club_name');
+        $club = (string) config('portal.letter.footer.organization', 'Verband für Demokratiebildung und Bibliotheken an Schulen e.V.');
         $sent = $failed = 0;
 
         foreach ($guests as $guest) {

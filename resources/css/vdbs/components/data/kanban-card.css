@@ -4,7 +4,7 @@
     padding: var(--space-3);
     border: var(--border-width) solid var(--border-default);
     border-radius: var(--radius-sm);
-    background: var(--bg-surface);
+    background: var(--bg-page);
     color: var(--text-default);
 }
 

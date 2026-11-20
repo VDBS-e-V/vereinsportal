@@ -8,17 +8,12 @@ use App\Modules\AccessGovernance\Support\Capabilities;
 use App\Modules\AccessRequests\Enums\AccessRequestStatus;
 use App\Modules\AccessRequests\Models\AccessRequest;
 use App\Modules\Board\Models\BoardMeeting;
-use App\Modules\Events\Enums\EventStatus;
-use App\Modules\Events\Models\Event;
 use App\Modules\Membership\Enums\MembershipStatus;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\Onboarding\Enums\OnboardingDocumentKind;
 use App\Modules\Onboarding\Models\OnboardingDocument;
 use App\Modules\Onboarding\Models\TeamOnboarding;
 use App\Modules\Onboarding\Services\OnboardingDocuments;
-use App\Modules\Seminars\Enums\SeminarStatus;
-use App\Modules\Seminars\Models\Seminar;
-use App\Modules\Seminars\Models\SeminarSession;
 use App\Modules\Tasks\Models\Task;
 use App\Modules\Tasks\Models\TaskProject;
 use App\Support\PortalAreas;
@@ -36,16 +31,39 @@ class PortalAreaController extends Controller
 {
     public function __construct(private readonly OnboardingDocuments $documents) {}
 
-    /** Mitgliederbereich: eigene Mitgliedschaft, Satzung und Willkommensbrief, offene Veranstaltungen, Kontakt zum Vorstand. */
+    /**
+     * Gemeinsame Angaben der Startseiten der Bereiche: Begrüßung und die Seiten des Bereichs als Karten (Gruppen werden in ihre Seiten aufgelöst, die Übersicht selbst entfällt).
+     *
+     * @return array{greeting: string, cards: list<array{title: string, href: string, text: ?string, icon: string}>}
+     */
+    private function home(PortalAreas $area, Request $request): array
+    {
+        $user = $request->user();
+        $name = trim((string) data_get($user, 'person.first_name', ''));
+        $cards = [];
+
+        foreach (PortalNavigation::pages($area, $user, $request->route()?->getName()) as $page) {
+            if ($page['label'] === 'Übersicht') {
+                continue;
+            }
+
+            foreach ($page['group'] ? $page['children'] : [$page] as $entry) {
+                $cards[] = ['title' => $entry['label'], 'href' => $entry['href'], 'text' => $entry['description'], 'icon' => $entry['icon'] ?? $area->icon()];
+            }
+        }
+
+        return ['greeting' => $name !== '' ? 'Guten Tag, '.$name : 'Guten Tag', 'cards' => $cards];
+    }
+
+    /** Mitgliederbereich: eigene Mitgliedschaft, Satzung und Willkommensbrief, Kontakt zum Vorstand. */
     public function member(Request $request): View
     {
         $user = $request->user();
 
-        return view('portal.member', [
+        return view('portal.member', $this->home(PortalAreas::Mitglieder, $request) + [
             'person' => $user?->person,
             'membership' => $user?->person?->memberships()->orderByRaw("status IN ('requested','active') DESC")->orderByDesc('id')->first(),
             'documents' => collect(OnboardingDocumentKind::forMembers())->map(fn (OnboardingDocumentKind $kind): array => ['kind' => $kind, 'document' => $this->documents->current($kind)])->all(),
-            'events' => Event::query()->where('status', EventStatus::Open->value)->with('sessions')->get()->sortBy(fn (Event $event): string => (string) $event->sessions->first()?->starts_at)->values(),
         ]);
     }
 
@@ -68,24 +86,21 @@ class PortalAreaController extends Controller
         return Storage::disk(OnboardingDocuments::DISK)->download($document->path, $document->kind->label().'.pdf', ['Content-Type' => 'application/pdf']);
     }
 
-    /** Vorstand: Kennzahlen zu Mitgliedschaften, Anträgen, Teamenden, Seminaren und Veranstaltungen. */
-    public function board(): View
+    /** Vorstand: Kennzahlen zu Mitgliedschaften, Anträgen, Teamenden. */
+    public function board(Request $request): View
     {
         $running = fn ($query) => $query->where('status', MembershipStatus::Active->value)->where(fn ($end) => $end->whereNull('ends_on')->orWhere('ends_on', '>=', today()));
 
         $teamUsers = RoleAssignment::query()->where('starts_at', '<=', now())->where(fn ($query) => $query->whereNull('ends_at')->orWhere('ends_at', '>', now()))
             ->whereHas('role', fn ($query) => $query->where('key', RoleKey::Team->value))->distinct('user_id')->count('user_id');
 
-        return view('portal.board', ['stats' => [
+        return view('portal.board', $this->home(PortalAreas::Vorstand, $request) + ['stats' => [
             'members' => $running(Membership::query())->count(),
             'requested' => Membership::query()->where('status', MembershipStatus::Requested->value)->count(),
             'leaving' => $running(Membership::query())->whereNotNull('ends_on')->count(),
             'accessRequests' => AccessRequest::query()->where('status', AccessRequestStatus::New->value)->count(),
             'team' => $teamUsers,
             'onboarding' => TeamOnboarding::query()->whereNull('completed_at')->count(),
-            'seminarsPlanning' => Seminar::query()->whereIn('status', [SeminarStatus::Request->value, SeminarStatus::Planning->value])->count(),
-            'seminarsPlanned' => Seminar::query()->whereIn('status', [SeminarStatus::Scheduled->value, SeminarStatus::Confirmed->value])->count(),
-            'events' => Event::query()->where('status', EventStatus::Open->value)->count(),
             'boardTasksOpen' => Task::query()->whereHas('project', fn ($project) => $project->where('slug', 'vorstand'))->whereNull('done_at')->count(),
             'boardTasksOverdue' => Task::query()->whereHas('project', fn ($project) => $project->where('slug', 'vorstand'))->whereNull('done_at')->whereDate('due_on', '<', today())->count(),
             'boardProject' => TaskProject::query()->where('slug', 'vorstand')->value('id'),
@@ -122,15 +137,9 @@ class PortalAreaController extends Controller
         ]);
     }
 
-    /** Bildungsreferenten: Überblick über Seminare und Veranstaltungen (nur lesen). */
+    /** Bildungsreferenten: Übersicht mit den eigenen Aufgaben. */
     public function education(): View
     {
-        return view('portal.education', [
-            'byStatus' => collect(SeminarStatus::cases())->mapWithKeys(fn (SeminarStatus $status): array => [$status->value => Seminar::query()->where('status', $status->value)->count()])->all(),
-            'sessions' => SeminarSession::query()->where('starts_at', '>', now())->whereHas('seminar', fn ($query) => $query->whereNotIn('status', [SeminarStatus::Cancelled->value, SeminarStatus::Request->value]))
-                ->with('seminar.partner')->orderBy('starts_at')->limit(8)->get(),
-            'events' => Event::query()->where('status', EventStatus::Open->value)->with('sessions')->withCount(['registrations as confirmed_count' => fn ($query) => $query->whereNotNull('verified_at')->where('waitlisted', false)])->get()
-                ->sortBy(fn (Event $event): string => (string) $event->sessions->first()?->starts_at)->values(),
-        ]);
+        return view('portal.education');
     }
 }

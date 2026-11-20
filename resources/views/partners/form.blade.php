@@ -32,6 +32,7 @@
                 <x-vdbs.forms.input name="house_number" label="Hausnummer" maxlength="10" :optional="true" :value="$values['house_number'] ?? null" />
                 <x-vdbs.forms.input name="postal_code" label="Postleitzahl" maxlength="10" inputmode="numeric" :optional="true" :value="$values['postal_code'] ?? null" />
                 <x-vdbs.forms.input name="city" label="Ort" :optional="true" :value="$values['city'] ?? null" />
+                <x-vdbs.forms.select name="coordination_id" label="Koordination" placeholder="Bitte wählen" :optional="true" :options="$coordinationOptions" :value="$values['coordination_id'] ?? null" hint="Bestimmt später den Ordner des Seminars in der Nextcloud." />
             </x-vdbs.forms.form-grid>
         </x-vdbs.forms.form-section>
 

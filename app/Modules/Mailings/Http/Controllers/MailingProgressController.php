@@ -19,7 +19,7 @@ use Illuminate\Support\Str;
 
 /**
  * Fortschritt eines Schreibens (Vorstand, Geschäftsstelle, Koordination): Status, Zähler, fehlgeschlagene Zustellungen, Abbrechen und erneut versuchen.
- * Eine Klasse für alle drei Bereiche. Das Routenpräfix (mailings.board, mailings.office, mailings.team) bestimmt Rücksprung und erlaubte Art des Schreibens.
+ * Eine Klasse für alle drei Bereiche. Das Routenpräfix (mailings.board, mailings.office) bestimmt Rücksprung und erlaubte Art des Schreibens.
  */
 class MailingProgressController extends Controller
 {
@@ -41,9 +41,9 @@ class MailingProgressController extends Controller
         $canSeeAddresses = $mailing->addressesVisibleTo($this->user());
 
         return view('mailings.show', [
-            'mailing' => $mailing->load(['sentBy.person', 'seminar']),
+            'mailing' => $mailing->load(['sentBy.person']),
             'base' => $base,
-            'area' => $base === 'mailings.team' ? 'Koordination' : ($base === 'mailings.board' ? 'Vorstand' : 'Geschäftsstelle'),
+            'area' => $base === 'mailings.board' ? 'Vorstand' : 'Geschäftsstelle',
             'counts' => $counts,
             'percent' => (int) min(100, round($done / $total * 100)),
             'groupLabels' => $mailing->groups ? MailGroups::labels($mailing->groups) : null,
@@ -229,14 +229,12 @@ class MailingProgressController extends Controller
         return redirect()->route($base.'.show', $mailing)->with('success', $count.' fehlgeschlagene Zustellungen werden noch einmal versucht.');
     }
 
-    /** Die Seiten des Bereichs Koordination zeigen nur Mitteilungen an Teamende, die der anderen Bereiche nur Schreiben an Gruppen. */
+    /** Die Seiten zeigen nur Schreiben an Gruppen und Mitglieder. */
     private function ensureKind(string $base, Mailing $mailing): void
     {
-        $team = $base === 'mailings.team';
-
         abort_if($base === 'mailings.coordination' && $mailing->sender_area !== 'coordination', 404);
 
-        abort_unless($team ? $mailing->kind === Mailing::KIND_TEAM : in_array($mailing->kind, [Mailing::KIND_GENERAL, Mailing::KIND_MEMBERS], true), 404);
+        abort_unless(in_array($mailing->kind, [Mailing::KIND_GENERAL, Mailing::KIND_MEMBERS], true), 404);
     }
 
     private function base(Request $request): string

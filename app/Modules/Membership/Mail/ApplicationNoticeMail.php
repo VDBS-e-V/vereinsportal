@@ -2,15 +2,13 @@
 
 namespace App\Modules\Membership\Mail;
 
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
+use App\Modules\MailBuilder\Mail\TemplatedMail;
 
 /**
  * Neutrale Antwort, wenn ein Online-Antrag nicht automatisch angelegt werden kann (E-Mail oder Person gibt es schon).
  * Der Antragsteller erfährt auf der Webseite nichts darüber; nur wer die Adresse kontrolliert, liest diese Nachricht.
  */
-final class ApplicationNoticeMail extends Mailable
+final class ApplicationNoticeMail extends TemplatedMail
 {
     public function __construct(
         public readonly bool $hasAccount,
@@ -19,13 +17,13 @@ final class ApplicationNoticeMail extends Mailable
         public readonly string $contactUrl,
     ) {}
 
-    public function envelope(): Envelope
+    protected function systemKey(): string
     {
-        return new Envelope(subject: 'Ihr Antrag auf Mitgliedschaft im VDBS');
+        return 'membership.application_notice';
     }
 
-    public function content(): Content
+    protected function values(): array
     {
-        return new Content(view: 'mail.membership.application-notice');
+        return ['konto' => $this->hasAccount ? '1' : '', 'login_url' => $this->loginUrl, 'reset_url' => $this->resetUrl, 'kontakt_url' => $this->contactUrl];
     }
 }

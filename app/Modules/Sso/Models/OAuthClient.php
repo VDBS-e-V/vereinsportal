@@ -2,16 +2,25 @@
 
 namespace App\Modules\Sso\Models;
 
+use App\Modules\Sso\Services\OAuthConsents;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Laravel\Passport\Client;
 
-/** Passport-Client, der die Zustimmungsseite überspringt, wenn die Anbindung das so eingestellt hat (z. B. Nextcloud des Vereins). */
+/**
+ * Passport-Client. Die Zustimmungsseite entfällt, wenn die Anbindung sie abgeschaltet hat (Systeme des Vereins) oder die Person
+ * den verlangten Bereichen schon zugestimmt hat (die Seite kommt nur bei der ersten Anmeldung in einem System).
+ */
 class OAuthClient extends Client
 {
+    /** @param  array<int, mixed>  $scopes  Bereiche als Kennungen oder Passport-Objekte */
     public function skipsAuthorization(Authenticatable $user, array $scopes): bool
     {
         $setting = OAuthClientSetting::query()->where('client_id', (string) $this->getKey())->first();
 
-        return $setting !== null && ! $setting->show_consent;
+        if ($setting !== null && ! $setting->show_consent) {
+            return true;
+        }
+
+        return app(OAuthConsents::class)->covers($user, (string) $this->getKey(), array_map(fn ($scope): string => is_string($scope) ? $scope : (string) data_get($scope, 'id'), $scopes));
     }
 }

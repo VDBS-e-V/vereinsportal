@@ -4,7 +4,7 @@
     variant="overlay"
     size="l"
     :bleed="true"
-    title="Willkommen im VDBS Serviceportal"
+    title="Willkommen im VDBS Vereinsportal"
     lead="Die zentrale Anlaufstelle für alle Informationen und Dienstleistungen rund um den VDBS."
     :image="placeholder('hero', 1)"
     image-alt=""
@@ -22,7 +22,7 @@
     <x-vdbs.cards.quick-link label="Hilfe" href="#" :tone="6" icon="info" />
 </x-vdbs.cards.quick-links>
 
-<x-vdbs.layout.section title="Das VDBS Serviceportal" lead="Hier finden Sie alle Bereiche des Portals." align="center">
+<x-vdbs.layout.section title="Das VDBS Vereinsportal" lead="Hier finden Sie alle Bereiche des Portals." align="center">
     <x-vdbs.data.chip-list label="Bereiche">
         @foreach (\App\Support\PortalAreas::withGroupMark() as $area)
             <x-vdbs.data.chip :label="$area->label()" href="#" :group="$area->groupMark()" />

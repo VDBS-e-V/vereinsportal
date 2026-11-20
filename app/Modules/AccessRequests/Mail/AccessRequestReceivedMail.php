@@ -2,22 +2,20 @@
 
 namespace App\Modules\AccessRequests\Mail;
 
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
+use App\Modules\MailBuilder\Mail\TemplatedMail;
 
 /** Eingangsbestätigung an die Antragstellenden. */
-final class AccessRequestReceivedMail extends Mailable
+final class AccessRequestReceivedMail extends TemplatedMail
 {
     public function __construct(public readonly string $name, public readonly int $reference) {}
 
-    public function envelope(): Envelope
+    protected function systemKey(): string
     {
-        return new Envelope(subject: 'Ihr Antrag auf Zugang zum VDBS-Portal ist eingegangen');
+        return 'access_requests.received';
     }
 
-    public function content(): Content
+    protected function values(): array
     {
-        return new Content(view: 'mail.access-requests.received');
+        return ['anrede' => self::greeting($this->name), 'nummer' => (string) $this->reference];
     }
 }

@@ -66,6 +66,7 @@ Der Planer (Erinnerungen, geplante Rundschreiben, Aufräumen) und die Warteschla
 | Cron läuft nicht | Zustand zeigt „noch nie aufgerufen“: Adresse und Schlüssel beim Dienst prüfen, HTTPS-Weiterleitung beachten (kein Redirect auf eine andere Adresse). |
 | Mails kommen nicht an | Testmail (Admins › System › Einstellungen), SMTP-Daten, Absenderadresse und SPF prüfen (Rundschreiben › Zustellqualität › Absenderprüfung). |
 | Seite läuft, sieht aber aus wie reiner Text ohne Gestaltung (Bilder da, keine Farben, Menü als Liste) | `public/build/` fehlt auf dem Server (CSS und JavaScript). Früher schloss das Paketskript es versehentlich aus. Prüfen: `https://DOMAIN/build/manifest.json` muss eine JSON-Datei liefern. Abhilfe: Ordner `public/build` vom Rechner (nach `npm run build`) per FTP nach `public/build` hochladen. |
+| Seite lädt, aber ohne Gestaltung, im Netzwerk-Reiter (F12) schlagen Aufrufe an `localhost:5173` oder `[::1]:5173` fehl | Die Datei `public/hot` liegt auf dem Server (sie stammt von `npm run dev` und gehört nur auf den Entwicklungsrechner). Datei per FTP löschen, danach Strg+F5. Das Paketskript entfernt sie seit Version 1.0.1 selbst. |
 | Seite zeigt die Standardseite des Hosters | Document-Root zeigt nicht auf `public/`. |
 | `/.env` oder `/storage` im Browser erreichbar | **Sofort** Document-Root korrigieren: er muss auf `public/` zeigen, nicht auf den Hauptordner. |
 

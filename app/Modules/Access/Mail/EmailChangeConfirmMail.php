@@ -2,12 +2,10 @@
 
 namespace App\Modules\Access\Mail;
 
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
+use App\Modules\MailBuilder\Mail\TemplatedMail;
 
 /** An die NEUE Adresse: Link zur Bestätigung der E-Mail-Änderung. */
-final class EmailChangeConfirmMail extends Mailable
+final class EmailChangeConfirmMail extends TemplatedMail
 {
     public function __construct(
         public readonly string $url,
@@ -15,13 +13,13 @@ final class EmailChangeConfirmMail extends Mailable
         public readonly int $validHours,
     ) {}
 
-    public function envelope(): Envelope
+    protected function systemKey(): string
     {
-        return new Envelope(subject: 'Neue E-Mail-Adresse für das VDBS-Portal bestätigen');
+        return 'access.email_change_confirm';
     }
 
-    public function content(): Content
+    protected function values(): array
     {
-        return new Content(view: 'mail.access.email-change-confirm');
+        return ['url' => $this->url, 'neue_adresse' => $this->newEmail, 'stunden' => (string) $this->validHours];
     }
 }

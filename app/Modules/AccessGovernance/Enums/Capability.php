@@ -35,27 +35,6 @@ enum Capability: string
     /** Importierte Mailingliste (Teamkontakte) und persönliche Zugänge verwalten (Geschäftsstelle). */
     case ContactsManage = 'contacts.manage';
 
-    /** Seminare ansehen (Bereich Koordination). */
-    case SeminarsView = 'seminars.view';
-
-    /** Seminare anlegen, ändern, Status wechseln, Termine pflegen und Kostenvoranschläge erstellen. */
-    case SeminarsManage = 'seminars.manage';
-
-    /** Dokumente zu Seminaren ablegen, herunterladen, löschen und die Seminarmappe laden. */
-    case SeminarsDocuments = 'seminars.documents';
-
-    /** Einen abgeschlossenen Seminarabschluss wieder öffnen und geschützte Dokumente nach dem Abschluss löschen (Vorstand). */
-    case SeminarsReopen = 'seminars.reopen';
-
-    /** Feedbackformulare bearbeiten und Feedbacklinks zu Seminaren anlegen. */
-    case FeedbackManage = 'feedback.manage';
-
-    /** Rückmeldungen zu Seminaren lesen und auswerten (nur Koordination). */
-    case FeedbackView = 'feedback.view';
-
-    /** Preisliste der Seminare ändern (neue Fassung anlegen). */
-    case SeminarPricesManage = 'seminars.prices';
-
     /** Einarbeitung der Teamenden ansehen (Bereich Koordination). */
     case TeamView = 'team.view';
 
@@ -64,9 +43,6 @@ enum Capability: string
 
     /** Die eigene Einarbeitung als Teamende sehen und Erklärungen bestätigen (Bereich Teamende). */
     case TeamOnboardingOwn = 'team.onboarding';
-
-    /** Offene Seminare sehen, sich bewerben und den eigenen Kalender abrufen (Teamende). */
-    case SeminarsApply = 'seminars.apply';
 
     /** Zugangsanträge ansehen (Bereich Geschäftsstelle). */
     case AccessRequestsView = 'access_requests.view';
@@ -80,19 +56,13 @@ enum Capability: string
     /** Rechtstext-Seiten (Impressum, Datenschutz, …) bearbeiten. */
     case PagesManage = 'pages.manage';
 
-    /** Großveranstaltungen mit Anmeldungen ansehen (Bereich Koordination). */
-    case EventsView = 'events.view';
-
-    /** Großveranstaltungen anlegen, Anmeldungen importieren, Anwesenheit führen. */
-    case EventsManage = 'events.manage';
-
     /** Mitgliederbereich: eigene Mitgliedschaft, Satzung und Willkommensbrief. */
     case MemberArea = 'member.area';
 
-    /** Bereich Bildungsreferenten: Überblick über Seminare und Veranstaltungen (nur lesen). */
+    /** Bereich Bildungsreferenten: Übersicht mit den eigenen Aufgaben. */
     case EducationView = 'education.view';
 
-    /** Bereich Schulen: Seminare der eigenen Schule, Kostenvoranschläge, Anfragen und Bestätigungen. */
+    /** Bereich Schulen: Startseite der eigenen Schule. */
     case SchoolArea = 'school.area';
 
     /** Jahresberichte mit Kennzahlen ansehen und exportieren (Vorstand). */
@@ -110,23 +80,20 @@ enum Capability: string
     /** Rundschreiben an Teamende, Schulen, Koordination und Bildungsreferenten (Koordination, ohne Mitglieder und Vorstand). */
     case MailingsSendLimited = 'mailings.send_limited';
 
-    /** Mitteilungen an Teamende zu Seminaren senden (Koordination). */
-    case MailingsTeam = 'mailings.team';
-
     /** Schreiben an Gruppen freigeben (Vorstand): Schreiben der Geschäftsstelle an viele Personen brauchen die Freigabe. */
     case MailingsApprove = 'mailings.approve';
 
     /** Mailvorlagen für Mitteilungen bearbeiten (Geschäftsstelle). */
     case MailTemplatesManage = 'mail_templates.manage';
 
+    /** Systemmails (Texte aller automatischen E-Mails), Mail-Design und Mailbilder im Mail-Builder bearbeiten (Administration, Geschäftsstelle). */
+    case MailSystemManage = 'mail_system.manage';
+
+    /** Sicherheitsrelevante Systemmails (Passwort, Anmeldecode, E-Mail-Änderung, Kontolöschung, Einladungen) bearbeiten (nur Administration). */
+    case MailSystemSecurity = 'mail_system.security';
+
     /** Verteiler (gespeicherte Empfängerkreise) anlegen und ändern (Geschäftsstelle, Vorstand). */
     case MailSegmentsManage = 'mail_segments.manage';
-
-    /** Honorarverträge für bestätigte Teamende erzeugen, bearbeiten, drucken und ablegen (Koordination, Geschäftsstelle, Vorstand). */
-    case ContractsManage = 'contracts.manage';
-
-    /** Den Vertragstext ändern (neue Version anlegen), nur Vorstand. */
-    case ContractsTemplate = 'contracts.template';
 
     /** Vorstandssitzungen mit Tagesordnung, Anwesenheit, Protokoll und Kalender-Abo verwalten (nur Vorstand). */
     case BoardMeetings = 'board.meetings';
@@ -137,11 +104,44 @@ enum Capability: string
     /** Im Aufgabensystem alle Projekte sehen und verwalten, Projekte anlegen und löschen (Administration, Vorstand). */
     case TasksAdmin = 'tasks.admin';
 
-    /** Schreiben aus Word-Vorlagen erzeugen und die Vorlagen ansehen (Koordination, Geschäftsstelle, Vorstand). */
-    case LettersUse = 'letters.use';
+    /** Themen, FAQ-Seiten und Formulare des öffentlichen Kontaktbereichs pflegen (Administration, Geschäftsstelle). */
+    case ContactFormsManage = 'contact_forms.manage';
 
-    /** Word-Vorlagen für Schreiben hochladen, ändern und löschen (Geschäftsstelle, Vorstand). */
-    case LettersManage = 'letters.manage';
+    /** Die große FAQ-Seite pflegen: Kategorien und Fragen (Administration, Geschäftsstelle). */
+    case FaqManage = 'faq.manage';
+
+    /** Wichtige Links je Rolle für das Profilmenü pflegen (Administration, Geschäftsstelle). */
+    case RoleLinksManage = 'role_links.manage';
+
+    /** Seminare der Schulen prüfen, KVA und Schulvertrag bearbeiten, freigeben oder ablehnen (Geschäftsstelle, Vorstand). */
+    case SeminarsReview = 'seminars.review';
+
+    /** Kostenvoranschläge intern freigeben (Vorstand, Koordination). */
+    case SeminarsQuoteApprove = 'seminars.quote_approve';
+
+    /** Zahlungsaufträge aus den Teamverträgen ansehen, bezahlen oder ablehnen (Geschäftsstelle, Buchhaltung). */
+    case SeminarsPayments = 'seminars.payments';
+
+    /** Sich als Teamende auf ausgeschriebene Seminare melden. */
+    case SeminarsApply = 'seminars.apply';
+
+    /** Seminare planen, ausschreiben, Team auswählen, vorbereiten und abschließen (Koordination). */
+    case SeminarsPlan = 'seminars.plan';
+
+    /** Eine Seminaranfrage im Namen einer Schule eintragen (Koordination, Geschäftsstelle, Vorstand). */
+    case SeminarsEnter = 'seminars.enter';
+
+    /** Abgeschlossene Seminare wieder öffnen (Vorstand). */
+    case SeminarsReopen = 'seminars.reopen';
+
+    /** Koordinationen anlegen, ändern und deaktivieren (Administration, Geschäftsstelle, Vorstand). */
+    case CoordinationsManage = 'coordinations.manage';
+
+    /** Bereiche und Seiten des Kopfmenüs ein- und ausblenden (Administration). */
+    case NavigationManage = 'navigation.manage';
+
+    /** Tickets aller Personen sehen, zuweisen und bearbeiten (Administration, Geschäftsstelle). */
+    case TicketsHandle = 'tickets.handle';
 
     /** Systemsteuerung: Zustand ansehen und Aufgaben ausführen (nur Administration). */
     case SystemManage = 'system.manage';

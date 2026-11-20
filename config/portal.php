@@ -32,6 +32,16 @@ return [
         'privacy_url' => env('LEGAL_PRIVACY_URL', '/datenschutz'),
     ],
 
+    /*
+     * Zustimmungsseite der Anbindungen (Single Sign-On): Datenschutzbeauftragte und Aufsichtsbehörde. Verantwortliche Stelle und Anschrift stammen aus letter.footer.
+     * Ohne dpo_email verweist die Seite auf die verantwortliche Stelle.
+     */
+    'sso_privacy' => [
+        'dpo_email' => env('PORTAL_DPO_EMAIL'),
+        'authority_name' => env('PORTAL_PRIVACY_AUTHORITY', 'Berliner Beauftragte für Datenschutz und Informationsfreiheit'),
+        'authority_url' => env('PORTAL_PRIVACY_AUTHORITY_URL', 'https://www.datenschutz-berlin.de/'),
+    ],
+
     /* Konto löschen: Wartefrist in Tagen zwischen Antrag und Anonymisierung (Abbruch ist bis dahin möglich). */
     'offboarding' => [
         'grace_days' => (int) env('ACCOUNT_DELETION_GRACE_DAYS', 14),
@@ -70,7 +80,7 @@ return [
             ],
         ],
         [
-            'heading' => 'Service-Portal',
+            'heading' => 'Vereinsportal',
             'links' => [
                 ['label' => 'Startseite', 'url' => '/'],
                 ['label' => 'Kontakt', 'url' => '/kontakt'],
@@ -106,10 +116,11 @@ return [
      */
     'bot_guard' => [
         'enabled' => env('BOT_GUARD_ENABLED', true),
-        'min_seconds' => 2,       // schneller abgeschickte Formulare gelten als automatisiert
+        'min_seconds' => 1,       // schneller abgeschickte Formulare gelten als automatisiert (Passwortmanager füllen und senden sehr schnell)
         'max_seconds' => 7200,    // älteres Token ist abgelaufen (Seite neu laden)
         'proof_of_work' => true,  // Rechenaufgabe im Browser
         'difficulty_bits' => 16,  // Nullbits der Rechenaufgabe; je 1 Bit doppelt so viel Rechenzeit
+        'show_reason' => env('BOT_GUARD_SHOW_REASON', false), // zeigt die Ablehnungskennung (honeypot, proof, ...) in der Meldung; nur zur Fehlersuche einschalten
     ],
 
     // Kompetenzen, die Teamende in ihrem Profil angeben und die Koordination für ein Seminar als gesucht markiert (Schlüssel => Bezeichnung).
@@ -130,15 +141,12 @@ return [
     // Vorstandssitzungen: Angaben externer Gäste werden so viele Tage nach dem Ende der Sitzung gelöscht (Befehl board:prune-guests, täglich geplant).
     'board' => ['guest_retention_days' => (int) env('BOARD_GUEST_RETENTION_DAYS', 30)],
 
-    // Großveranstaltungen: Anmeldungen werden nach dieser Zeit seit dem letzten Termin gelöscht (Befehl events:prune, täglich geplant).
-    'events' => ['retention_years' => 3, 'school_reminder_days' => 3],
-
     'home' => [
-        'title' => 'Willkommen im VDBS Serviceportal',
+        'title' => 'Willkommen im VDBS Vereinsportal',
         'lead' => 'Die zentrale Anlaufstelle für Mitglieder, Teamende und Schulen des VDBS.',
         'areas' => [
-            'title' => 'Das VDBS Serviceportal',
-            'lead' => 'Das VDBS Serviceportal ist Ihre zentrale Anlaufstelle für alle Informationen und Dienstleistungen rund um den VDBS. Hier finden Sie alle Bereiche des Portals. Welche Bereiche Sie sehen, richtet sich nach Ihrer Rolle.',
+            'title' => 'Das VDBS Vereinsportal',
+            'lead' => 'Das VDBS Vereinsportal ist Ihre zentrale Anlaufstelle für alle Informationen und Dienstleistungen rund um den VDBS. Hier finden Sie alle Bereiche des Portals. Welche Bereiche Sie sehen, richtet sich nach Ihrer Rolle.',
         ],
         // Bild im Kopf der Startseite (Titel liegt mittig darüber). Die Quelle ist Pflicht; bitte durch das Originalbild samt Urheberangabe ersetzen.
         'hero_image' => [
@@ -155,7 +163,7 @@ return [
         ],
         'access' => [
             'title' => 'Zugang zum Portal',
-            'guest' => 'Hier finden Sie alle Informationen, die Sie benötigen, um auf das VDBS Serviceportal zuzugreifen. Wenn Sie bereits ein Konto haben, können Sie sich hier anmelden. Wenn Sie noch kein Konto haben, können Sie hier den Zugang beantragen.',
+            'guest' => 'Hier finden Sie alle Informationen, die Sie benötigen, um auf das VDBS Vereinsportal zuzugreifen. Wenn Sie bereits ein Konto haben, können Sie sich hier anmelden. Wenn Sie noch kein Konto haben, können Sie hier den Zugang beantragen.',
             'member' => 'Sie sind angemeldet. Ihr Konto, Ihre Sicherheitseinstellungen und Ihre Bereiche finden Sie hier.',
         ],
         'contact' => [
@@ -204,25 +212,14 @@ return [
         'enabled_types' => array_filter(explode(',', (string) env('FORMS_ENABLED_TYPES', 'expense,travel,purchase'))),
     ],
 
-    'feedback' => [
-        // Mindestzahl an Antworten pro Link, ab der Auswertungen gezeigt werden (Schutz vor Rückschlüssen auf Einzelne).
-        'min_responses' => (int) env('FEEDBACK_MIN_RESPONSES', 5),
-        // Aufbewahrung der Einzelantworten in Monaten nach Ende des Links, danach anonymisiert/archiviert bzw. gelöscht.
-        'retention_months' => (int) env('FEEDBACK_RETENTION_MONTHS', 12),
-        // Erinnerung an Lehrkräfte und Teamende, wenn so viele Tage nach dem letzten Termin noch zu wenig geantwortet wurde.
-        'remind_after_days' => (int) env('FEEDBACK_REMIND_AFTER_DAYS', 7),
-    ],
+    // Seminare: so viele Tage nach dem letzten Termin sind Ergebnisbericht und Teamverträge fällig; so viele Jahre bleibt der Ergebnislink mindestens erreichbar;
+    // abgelehnte oder abgesagte Anfragen ohne Vertrag werden nach so vielen Jahren gelöscht.
+    'seminars' => ['report_days' => (int) env('SEMINAR_REPORT_DAYS', 14), 'results_min_years' => 1, 'results_years' => (int) env('SEMINAR_RESULTS_YEARS', 2), 'request_years' => (int) env('SEMINAR_REQUEST_YEARS', 1)],
 
-    'seminars' => [
-        // Format der Seminarnummer: {Y} = Jahr, {N:4} = laufende Nummer mit vier Stellen.
-        'number_format' => env('SEMINAR_NUMBER_FORMAT', 'S-{Y}-{N:4}'),
-        // Dokumente je Seminar: Größe einer Datei und aller Dateien zusammen (in KB), Aufbewahrung in Jahren je Art (nach dem letzten Termin).
-        'documents' => [
-            'max_kb' => (int) env('SEMINAR_DOCUMENT_MAX_KB', 25600),
-            'max_total_kb' => (int) env('SEMINAR_DOCUMENTS_MAX_TOTAL_KB', 512000),
-            'folder_max_mb' => (int) env('SEMINAR_FOLDER_MAX_MB', 100),
-            'retention_years' => ['contract' => 10, 'quote' => 10, 'invoice' => 10, 'default' => 3],
-        ],
+    // Hochgeladene, privat gespeicherte Dateien (Aufgaben, Tickets, Vorstandssitzungen): Größe einer Datei und aller Dateien zusammen in KB.
+    'uploads' => [
+        'max_kb' => (int) env('UPLOAD_MAX_KB', 25600),
+        'max_total_kb' => (int) env('UPLOAD_MAX_TOTAL_KB', 512000),
     ],
 
     'mailings' => [

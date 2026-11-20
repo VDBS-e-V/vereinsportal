@@ -1,5 +1,5 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Aufgaben', 'href' => route('tasks.index')], ['label' => $project->name, 'href' => route('tasks.projects.show', $project)], ['label' => $task->title]];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Aufgaben', 'href' => route('tasks.area', ['area' => $project->area])], ['label' => $project->name, 'href' => route('tasks.projects.show', $project)], ['label' => $task->title]];
 @endphp
 
 <x-layouts.app :title="$task->title" width="wide">
@@ -54,7 +54,7 @@
                 <x-vdbs.data.table caption="Anhänge der Aufgabe" :columns="[['key' => 'select', 'label' => 'Auswahl', 'selectAll' => 'task-attachments-form'], ['key' => 'title', 'label' => 'Titel'], ['key' => 'date', 'label' => 'Abgelegt'], ['key' => 'by', 'label' => 'Von'], ['key' => 'size', 'label' => 'Größe']]">
                     @foreach ($task->attachments as $attachment)
                         <tr>
-                            <td class="vdbs-table__select"><span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="ids[]" value="{{ $attachment->id }}" form="task-attachments-form" aria-label="{{ $attachment->title }} auswählen"></span></td>
+                            <x-vdbs.data.table-check name="ids[]" :value="$attachment->id" :label="$attachment->title.' auswählen'" form="task-attachments-form" />
                             <td><a href="{{ route('tasks.attachments.download', [$task, $attachment]) }}">{{ $attachment->title }}</a><br><span class="vdbs-hint">{{ $attachment->original_name }}</span></td>
                             <td>{{ $attachment->created_at->format('d.m.Y') }}</td>
                             <td>{{ $attachment->uploadedBy?->person?->fullName() ?: '–' }}</td>

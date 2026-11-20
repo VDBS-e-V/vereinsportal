@@ -3,20 +3,20 @@
 namespace App\Modules\Seminars\Models;
 
 use App\Modules\Access\Models\User;
-use App\Modules\Seminars\Enums\SeminarEventType;
+use App\Modules\Seminars\Enums\SeminarStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/** Modul: Seminars. Ein Eintrag im Verlauf eines Seminars (nur anlegen). */
+/** Eintrag im Verlauf eines Seminars: Anfrage, Statuswechsel mit Begründung, später Mails und Uploads. */
 class SeminarEvent extends Model
 {
-    public $timestamps = false;
+    public const UPDATED_AT = null;
 
-    protected $fillable = ['seminar_id', 'type', 'occurred_at', 'actor_user_id', 'actor_label', 'comment', 'data'];
+    protected $fillable = ['seminar_id', 'user_id', 'actor_label', 'type', 'from_status', 'to_status', 'comment', 'data'];
 
     protected function casts(): array
     {
-        return ['type' => SeminarEventType::class, 'occurred_at' => 'datetime', 'data' => 'array'];
+        return ['data' => 'array'];
     }
 
     /** @return BelongsTo<Seminar, $this> */
@@ -28,6 +28,16 @@ class SeminarEvent extends Model
     /** @return BelongsTo<User, $this> */
     public function actor(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'actor_user_id');
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /** Text für den Verlauf, z. B. „Anfrage → In Prüfung“. */
+    public function describe(): string
+    {
+        return match ($this->type) {
+            'requested' => 'Anfrage gestellt',
+            'status' => (SeminarStatus::tryFrom((string) $this->from_status)?->label() ?? '–').' → '.(SeminarStatus::tryFrom((string) $this->to_status)?->label() ?? '–'),
+            default => (string) $this->type,
+        };
     }
 }

@@ -6,13 +6,8 @@ use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\Articles\Models\Article;
-use App\Modules\Events\Mail\EventMessageMail;
-use App\Modules\Events\Models\Event;
-use App\Modules\Events\Services\EventAdministration;
 use App\Modules\Pages\Models\Page;
-use App\Modules\Partners\Models\Partner;
 use App\Modules\People\Models\Person;
-use App\Modules\Seminars\Models\Seminar;
 use App\Support\Html\RichText;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Mail;
@@ -74,20 +69,6 @@ it('makes plain text of editor html for excerpts', function () {
 
 // ---------- Felder ----------
 
-it('puts the editor on the content fields and nowhere on plain fields', function () {
-    $staff = rtUser(RoleKey::AdministrationStaff);
-    $coordination = rtUser(RoleKey::Coordination);
-    $partner = Partner::factory()->create();
-
-    $this->actingAs($staff)->get(route('articles.admin.create'))->assertOk()->assertSee('data-vdbs-richtext=', false);
-    $this->actingAs($staff)->get(route('pages.admin.edit', 'datenschutz'))->assertOk()->assertSee('data-vdbs-richtext=', false)->assertSee(url('vendor/tinymce'), false);
-    $this->actingAs($coordination)->get(route('events.admin.create'))->assertOk()->assertSee('data-vdbs-richtext=', false);
-    $this->actingAs($coordination)->get(route('seminars.create'))->assertOk()->assertSee('data-vdbs-richtext=', false);
-    $this->actingAs($coordination)->get(route('partners.edit', $partner))->assertOk()->assertSee('data-vdbs-richtext=', false);
-
-    $this->get(route('portal.contact'))->assertOk()->assertDontSee('data-vdbs-richtext', false);
-});
-
 it('shows legacy markdown in the editor as html', function () {
     $staff = rtUser(RoleKey::AdministrationStaff);
 
@@ -122,52 +103,4 @@ it('saves legal pages from the editor and keeps old markdown pages working', fun
 
     $this->get('/datenschutz')->assertOk()->assertSee('<h2>Verantwortlicher</h2>', false)->assertSee('<strong>Verein</strong>', false)->assertDontSee('javascript:', false);
     $this->get('/impressum')->assertOk()->assertSee('Vertretung');
-});
-
-it('shows event descriptions formatted and as plain text in the list', function () {
-    $coordination = rtUser(RoleKey::Coordination);
-
-    $this->actingAs($coordination)->post(route('events.admin.store'), ['title' => 'Demokratietag', 'status' => 'open', 'description' => '<p>Ein <strong>toller</strong> Tag<script>x</script></p>'])->assertSessionHasNoErrors();
-    $event = Event::query()->firstOrFail();
-
-    expect($event->description)->toBe('<p>Ein <strong>toller</strong> Tag</p>');
-
-    $this->get(route('events.public.show', $event->slug))->assertOk()->assertSee('<strong>toller</strong>', false);
-    $this->get(route('events.public.index'))->assertOk()->assertSee('Ein toller Tag')->assertDontSee('&lt;p&gt;', false);
-
-    $this->actingAs($coordination)->put(route('events.admin.update', $event), ['title' => 'Demokratietag', 'status' => 'open', 'description' => '<p></p>'])->assertSessionHasNoErrors();
-    expect($event->fresh()->description)->toBeNull();
-});
-
-it('sends event messages as formatted and sanitized mail', function () {
-    $coordination = rtUser(RoleKey::Coordination);
-    $event = app(EventAdministration::class)->create(['title' => 'Demokratietag', 'status' => 'open'], $coordination);
-    $event->registrations()->create(['name' => 'A', 'school' => 'S', 'class_name' => '9', 'birth_date' => '2010-01-01', 'email' => 'a@example.org', 'ticket_code' => 'RTXA12345', 'verified_at' => now()]);
-
-    $this->actingAs($coordination)->post(route('events.admin.messages.store', $event), ['audience' => 'confirmed', 'subject' => 'Hinweis', 'body' => '<p>Bitte <strong>pünktlich</strong> sein.<script>alert(1)</script></p>'])->assertSessionHasNoErrors();
-
-    Mail::assertSent(EventMessageMail::class, function (EventMessageMail $mail): bool {
-        $html = $mail->render();
-
-        return str_contains($html, '<strong>pünktlich</strong>') && ! str_contains($html, '<script>alert');
-    });
-
-    $this->actingAs($coordination)->post(route('events.admin.messages.store', $event), ['audience' => 'confirmed', 'subject' => 'Leer', 'body' => '<p>&nbsp;</p>'])->assertSessionHasErrors('body');
-});
-
-it('shows seminar and school notes formatted and exports plain text', function () {
-    $coordination = rtUser(RoleKey::Coordination);
-    $partner = Partner::factory()->create(['name' => 'Rosa-Luxemburg-Schule']);
-
-    $this->actingAs($coordination)->post(route('seminars.store'), ['title' => 'SV-Tage Herbst', 'type' => 'sv_days', 'partner_id' => $partner->id, 'notes' => '<p>Erstes Gespräch <em>im Mai</em></p><script>x</script>'])->assertSessionHasNoErrors();
-    $seminar = Seminar::query()->firstOrFail();
-
-    expect($seminar->notes)->toBe('<p>Erstes Gespräch <em>im Mai</em></p>');
-    $this->actingAs($coordination)->get(route('seminars.show', $seminar))->assertOk()->assertSee('<em>im Mai</em>', false);
-
-    $this->actingAs($coordination)->put(route('partners.update', $partner), ['name' => 'Rosa-Luxemburg-Schule', 'status' => 'active', 'notes' => '<p>Gute <strong>Zusammenarbeit</strong></p>'])->assertSessionHasNoErrors();
-    $this->actingAs($coordination)->get(route('partners.show', $partner))->assertSee('<strong>Zusammenarbeit</strong>', false);
-
-    $csv = $this->actingAs($coordination)->get(route('partners.export'))->assertOk()->streamedContent();
-    expect($csv)->toContain('Gute Zusammenarbeit')->not->toContain('<strong>');
 });

@@ -7,19 +7,19 @@ use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Support\AuditLog;
 use App\Modules\Board\Models\BoardMeeting;
 use App\Modules\Board\Models\BoardMeetingDocument;
-use App\Modules\Seminars\Services\SeminarDocuments;
+use App\Support\Files\PrivateUploads;
 use DomainException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
- * Anhänge zu Vorstandssitzungen: privat gespeichert, nie öffentlich verlinkt. Es gelten dieselben Regeln wie für Seminardokumente
+ * Anhänge zu Vorstandssitzungen: privat gespeichert, nie öffentlich verlinkt. Es gelten dieselben Regeln wie für Dateien
  * (PDF, Word, Excel, CSV, OpenDocument, ZIP, Text; Endung und Inhalt werden geprüft; keine Bilder) und dieselben Größengrenzen.
  */
 final class BoardMeetingDocuments
 {
-    public function __construct(private readonly SeminarDocuments $files) {}
+    public function __construct(private readonly PrivateUploads $files) {}
 
     /** @throws DomainException */
     public function add(BoardMeeting $meeting, UploadedFile $file, ?string $title, User $by): BoardMeetingDocument
@@ -42,7 +42,7 @@ final class BoardMeetingDocuments
             'title' => filled($title) ? Str::limit(trim((string) $title), 200, '') : pathinfo($name, PATHINFO_FILENAME),
             'original_name' => $name,
             'path' => $path,
-            'mime' => SeminarDocuments::mimeOf((string) $file->getRealPath()) ?: 'application/octet-stream',
+            'mime' => PrivateUploads::mimeOf((string) $file->getRealPath()) ?: 'application/octet-stream',
             'size' => (int) $file->getSize(),
             'uploaded_by_user_id' => $by->id,
         ]);

@@ -2,24 +2,22 @@
 
 namespace App\Modules\Access\Mail;
 
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
+use App\Modules\MailBuilder\Mail\TemplatedMail;
 
 /** An die ALTE Adresse: Hinweis, dass eine Änderung beantragt wurde (Schutz vor Missbrauch). */
-final class EmailChangeNoticeMail extends Mailable
+final class EmailChangeNoticeMail extends TemplatedMail
 {
     public function __construct(
         public readonly string $newEmail,
     ) {}
 
-    public function envelope(): Envelope
+    protected function systemKey(): string
     {
-        return new Envelope(subject: 'Änderung Ihrer E-Mail-Adresse im VDBS-Portal beantragt');
+        return 'access.email_change_notice';
     }
 
-    public function content(): Content
+    protected function values(): array
     {
-        return new Content(view: 'mail.access.email-change-notice');
+        return ['neue_adresse' => $this->newEmail];
     }
 }

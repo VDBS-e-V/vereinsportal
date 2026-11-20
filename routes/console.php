@@ -26,17 +26,7 @@ Schedule::command('membership:sync')->daily();
 Schedule::command('membership:prune')->daily();
 Schedule::command('access-requests:prune')->daily();
 
-// Koordination informieren, wenn der Stichtag für Interessenbekundungen auf ein Seminar vorbei ist.
-Schedule::command('seminars:team-deadlines')->daily();
-
-// Bewerbungen ohne Konto: Fristen der Aufbewahrung
-Schedule::command('seminars:prune-applicants')->daily();
-Schedule::command('seminars:prune-documents')->daily();
-Schedule::command('feedback:prune')->daily();
-Schedule::command('feedback:remind')->daily();
 Schedule::command('forms:prune')->daily();
-Schedule::command('contracts:prune')->daily();
-Schedule::command('contracts:remind')->daily();
 
 // Abgelaufene und widerrufene Tokens der Anbindungen (SSO) entfernen.
 Schedule::command('passport:purge')->daily();
@@ -44,14 +34,15 @@ Schedule::command('passport:purge')->daily();
 // Teamende mit offener Einarbeitung erinnern (nach 14 Tagen, dann alle 14 Tage, höchstens dreimal).
 Schedule::command('onboarding:remind-team')->daily();
 
-// Angemeldete einen Tag vor der Großveranstaltung erinnern.
-Schedule::command('events:remind')->daily();
+// Teamende, die sich noch nicht auf ein ausgeschriebenes Seminar gemeldet haben, drei Tage vor Fristende erinnern.
+Schedule::command('seminars:remind-deadlines')->dailyAt('07:10');
 
-// Schulkonten kurz vor dem Anmeldeschluss einer Großveranstaltung erinnern.
-Schedule::command('events:remind-schools')->daily();
+// Bericht und Verträge durchgeführter Seminare: Erinnerung vor dem Stichtag, Hinweis bei Verzug.
+Schedule::command('seminars:remind-reports')->dailyAt('07:20');
 
-// Unbestätigte Anmeldungen zu Großveranstaltungen und Anmeldungen nach der Aufbewahrungszeit löschen.
-Schedule::command('events:prune')->daily();
+// Alte abgelehnte oder abgesagte Seminaranfragen ohne Vertrag löschen; auf bald ablaufende Ergebnislinks hinweisen.
+Schedule::command('seminars:prune-requests')->daily();
+Schedule::command('seminars:results-expiry')->dailyAt('07:40');
 
 // Erinnerungen an bald fällige und überfällige Aufgaben, nur an Personen, die sie eingeschaltet haben.
 Schedule::command('tasks:remind')->dailyAt('07:30');

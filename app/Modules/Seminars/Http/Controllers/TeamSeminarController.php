@@ -4,107 +4,62 @@ namespace App\Modules\Seminars\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Access\Models\User;
-use App\Modules\Seminars\Enums\ApplicationStatus;
+use App\Modules\Seminars\Enums\SeminarStatus;
 use App\Modules\Seminars\Models\Seminar;
 use App\Modules\Seminars\Models\SeminarApplication;
-use App\Modules\Seminars\Models\TeamProfile;
-use App\Modules\Seminars\Services\TeamApplications;
-use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
-/** Seminare für Teamende (Bereich Teamende, Berechtigung seminars.apply): offene Seminare, Bewerbung, eigene Seminare, Kalender. */
+/** Teamende: ausgeschriebene Seminare sehen und Interesse mit Verfügbarkeit melden oder zurücknehmen. */
 class TeamSeminarController extends Controller
 {
-    public function __construct(private readonly TeamApplications $team) {}
-
     public function index(Request $request): View
     {
-        $user = $this->actor($request);
-
-        $mine = SeminarApplication::query()->where('user_id', $user->id)->with(['seminar.partner', 'seminar.sessions', 'seminar.quotes'])->latest('updated_at')->get()
-            ->filter(fn (SeminarApplication $application): bool => $application->seminar !== null);
-        $applied = $mine->keyBy('seminar_id');
-
-        $open = $this->team->open()->map(function (Seminar $seminar) use ($user, $applied): array {
-            $application = $applied->get($seminar->id);
-
-            return [
-                'seminar' => $seminar,
-                'application' => $application,
-                'canApply' => $application === null || $application->status === ApplicationStatus::Withdrawn,
-                'conflicts' => $this->team->conflicts($user, $seminar),
-                'honorarium' => $this->honorarium($seminar),
-            ];
-        });
+        $user = $this->user($request);
 
         return view('seminars.team-index', [
-            'open' => $open,
-            'mine' => $mine->reject(fn (SeminarApplication $application): bool => $application->status === ApplicationStatus::Withdrawn)->values(),
-            'profileEmpty' => (TeamProfile::query()->where('user_id', $user->id)->first()?->isEmpty() ?? true),
-            'hasConfirmed' => $mine->contains(fn (SeminarApplication $application): bool => $application->status === ApplicationStatus::Confirmed),
+            'seminars' => Seminar::query()->where('status', SeminarStatus::Tendered->value)->with(['partner', 'sessions'])->orderBy('application_deadline')->get(),
+            'applications' => SeminarApplication::query()->where('user_id', $user->id)->get()->keyBy('seminar_id'),
+            'mine' => SeminarApplication::query()->where('user_id', $user->id)->whereNotNull('outcome')->with('seminar.partner', 'seminar.sessions')->orderByDesc('id')->get(),
         ]);
     }
 
     public function apply(Request $request, Seminar $seminar): RedirectResponse
     {
-        $data = $request->validate(['note' => ['nullable', 'string', 'max:300'], 'wants_lead' => ['nullable', 'boolean']], ['note.max' => 'Die Nachricht darf höchstens 300 Zeichen lang sein.']);
+        $data = $request->validate(['availability' => ['nullable', 'string', 'max:1000']]);
 
-        try {
-            $this->team->apply($seminar, $this->actor($request), $data['note'] ?? null, $request->boolean('wants_lead'));
-        } catch (DomainException $exception) {
-            return redirect()->route('seminar-applications.index')->withErrors(['apply' => $exception->getMessage()]);
+        if ($seminar->status !== SeminarStatus::Tendered || ($seminar->application_deadline !== null && $seminar->application_deadline->isPast() && ! $seminar->application_deadline->isToday())) {
+            return back()->withErrors(['apply' => 'Für dieses Seminar können Sie sich zurzeit nicht melden.']);
         }
 
-        return redirect()->route('seminar-applications.index')->with('success', 'Ihr Interesse ist eingetragen. Nach dem Stichtag sichtet die Koordination die Rückmeldungen und stellt das Team zusammen.');
+        SeminarApplication::query()->updateOrCreate(
+            ['seminar_id' => $seminar->id, 'user_id' => $this->user($request)->id],
+            ['availability' => $data['availability'] ?? null, 'status' => SeminarApplication::APPLIED],
+        );
+
+        return redirect()->route('seminars.team.index')->with('success', 'Ihr Interesse ist gemeldet. Die Koordination entscheidet und meldet sich bei Ihnen.');
     }
 
     public function withdraw(Request $request, Seminar $seminar): RedirectResponse
     {
-        $application = SeminarApplication::query()->where('seminar_id', $seminar->id)->where('user_id', $this->actor($request)->id)->firstOrFail();
+        $application = SeminarApplication::query()->where('seminar_id', $seminar->id)->where('user_id', $this->user($request)->id)->first();
 
-        try {
-            $this->team->withdraw($application, $this->actor($request));
-        } catch (DomainException $exception) {
-            return redirect()->route('seminar-applications.index')->withErrors(['apply' => $exception->getMessage()]);
+        if ($application === null || $seminar->status !== SeminarStatus::Tendered) {
+            return back()->withErrors(['apply' => 'Ihre Meldung lässt sich zurzeit nicht zurücknehmen.']);
         }
 
-        return redirect()->route('seminar-applications.index')->with('success', 'Ihr Interesse wurde zurückgezogen.');
+        $application->update(['status' => SeminarApplication::WITHDRAWN]);
+
+        return redirect()->route('seminars.team.index')->with('success', 'Ihre Meldung ist zurückgenommen.');
     }
 
-    public function calendar(Request $request): Response
+    private function user(Request $request): User
     {
-        return response($this->team->calendar($this->actor($request)), 200, [
-            'Content-Type' => 'text/calendar; charset=utf-8',
-            'Content-Disposition' => 'attachment; filename="vdbs-seminare.ics"',
-            'Cache-Control' => 'private, no-store',
-        ]);
-    }
+        $user = $request->user();
 
-    /** Honorar je Teamende und Tag aus dem neuesten Kostenvoranschlag (Überblick, ohne Pauschalen). */
-    private function honorarium(Seminar $seminar): ?int
-    {
-        foreach ($seminar->quotes as $quote) {
-            foreach ((array) $quote->positions as $position) {
-                foreach ((array) ($position['lines'] ?? []) as $line) {
-                    if (($line['key'] ?? null) === 'honorarium') {
-                        return (int) $line['unit_cents'];
-                    }
-                }
-            }
-        }
+        abort_unless($user instanceof User, 403);
 
-        return null;
-    }
-
-    private function actor(Request $request): User
-    {
-        $actor = $request->user();
-
-        abort_unless($actor instanceof User, 403);
-
-        return $actor;
+        return $user;
     }
 }

@@ -34,4 +34,4 @@ Version und bleibt angemeldet; Sitzungen ohne gemerkte Version übernehmen die a
 
 - Konto löschen (mit Widerrufsfrist) und der Austritt gehören zum Offboarding.
 - Profilbild (`avatar_path`) wird noch nicht hochgeladen.
-- Die E-Mail-Vorlagen sind einfache Blade-Dateien unter `resources/views/mail/access/`, bis das Vorlagensystem existiert.
+- Die E-Mail-Texte stehen als Standardtexte im Register der Systemmails (`SystemMails`) und lassen sich im Mail-Builder ändern.

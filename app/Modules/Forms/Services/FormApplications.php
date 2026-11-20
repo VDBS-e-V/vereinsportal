@@ -14,8 +14,7 @@ use App\Modules\Forms\Models\FormApplication;
 use App\Modules\Forms\Models\FormEvent;
 use App\Modules\Forms\Models\FormItem;
 use App\Modules\Forms\Support\FormTypes;
-use App\Modules\Seminars\Models\Seminar;
-use App\Modules\Seminars\Support\Money;
+use App\Support\Money;
 use Carbon\CarbonInterface;
 use DomainException;
 use Illuminate\Http\UploadedFile;
@@ -68,7 +67,7 @@ final class FormApplications
     /**
      * Speichert den Entwurf. Unvollständige Angaben sind erlaubt; falsche Formate nicht.
      *
-     * @param  array<string, mixed>  $input  purpose, seminar_id, cost_center, items[<n>][...], account_holder, iban, declaration (Bestellung: urgency, wanted_date, delivery, delivery_address, delivery_contact)
+     * @param  array<string, mixed>  $input  purpose, cost_center, items[<n>][...], account_holder, iban, declaration (Bestellung: urgency, wanted_date, delivery, delivery_address, delivery_contact)
      * @param  array<int|string, UploadedFile>  $uploads  Beleg je Positionsnummer
      *
      * @throws DomainException
@@ -80,19 +79,7 @@ final class FormApplications
         }
 
         $config = FormTypes::audience((string) (((array) $application->data)['audience'] ?? 'employee'));
-        $seminarId = $config['seminar'] && filled($input['seminar_id'] ?? null) ? (int) $input['seminar_id'] : null;
-
-        if ($seminarId !== null && ! Seminar::query()->whereKey($seminarId)->exists()) {
-            throw new DomainException('Das gewählte Seminar gibt es nicht.');
-        }
-
         $costCenter = $config['cost_center'] && filled($input['cost_center'] ?? null) ? (string) $input['cost_center'] : null;
-
-        // Ohne eigene Wahl gilt die Kostenstelle des Seminars (wenn es sie in der Liste gibt und sie aktiv ist)
-        if ($costCenter === null && $seminarId !== null) {
-            $fromSeminar = (string) Seminar::query()->whereKey($seminarId)->value('cost_center');
-            $costCenter = $fromSeminar !== '' && CostCenter::query()->where('code', $fromSeminar)->where('active', true)->exists() ? $fromSeminar : null;
-        }
 
         if ($costCenter !== null && ! CostCenter::query()->where('code', $costCenter)->where('active', true)->exists()) {
             throw new DomainException('Die gewählte Kostenstelle gibt es nicht.');
@@ -106,7 +93,7 @@ final class FormApplications
 
         $rows = $this->parseRows($application->type, (array) ($input['items'] ?? []));
 
-        DB::transaction(function () use ($application, $input, $seminarId, $costCenter, $iban, $rows, $uploads): void {
+        DB::transaction(function () use ($application, $input, $costCenter, $iban, $rows, $uploads): void {
             $keep = [];
 
             foreach ($rows as $row) {
@@ -148,7 +135,6 @@ final class FormApplications
 
             $application->forceFill([
                 'purpose' => Str::limit(trim((string) ($input['purpose'] ?? '')), 300, ''),
-                'seminar_id' => $seminarId,
                 'cost_center' => $costCenter,
                 'iban_encrypted' => $iban !== '' ? Iban::normalize($iban) : $application->iban_encrypted,
                 'account_holder' => filled($input['account_holder'] ?? null) ? Str::limit(trim((string) $input['account_holder']), 150, '') : $application->account_holder,
@@ -331,7 +317,7 @@ final class FormApplications
 
         $this->saveDraft($expense, [
             'purpose' => Str::limit('Erstattung zur Bestellung '.$purchase->number.': '.$purchase->purpose, 300, ''),
-            'seminar_id' => $purchase->seminar_id, 'cost_center' => $purchase->cost_center, 'items' => $items,
+            'cost_center' => $purchase->cost_center, 'items' => $items,
         ]);
 
         $expense->forceFill(['data' => array_merge((array) $expense->fresh()->data, ['from_purchase' => $purchase->number])])->save();

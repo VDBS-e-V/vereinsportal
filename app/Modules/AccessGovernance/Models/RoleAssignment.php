@@ -4,6 +4,7 @@ namespace App\Modules\AccessGovernance\Models;
 
 use App\Modules\Access\Models\User;
 use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
+use App\Modules\AccessGovernance\Support\Capabilities;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -20,6 +21,14 @@ class RoleAssignment extends Model
         'granted_by_user_id',
         'comment',
     ];
+
+    protected static function booted(): void
+    {
+        $flush = static fn () => Capabilities::flush();
+
+        static::saved($flush);
+        static::deleted($flush);
+    }
 
     protected function casts(): array
     {

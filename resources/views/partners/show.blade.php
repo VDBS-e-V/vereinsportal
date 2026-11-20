@@ -13,9 +13,6 @@
                 @can('mailings.send')
                     <x-vdbs.actions.button variant="secondary" :href="route('mailings.office.create', ['schule' => $partner->id])" icon="mail">Ansprechpersonen anschreiben</x-vdbs.actions.button>
                 @endcan
-                @can('seminars.manage')
-                    <x-vdbs.actions.button variant="secondary" :href="route('seminars.create', ['schule' => $partner->id])" icon="calendar">Seminar anlegen</x-vdbs.actions.button>
-                @endcan
                 <x-vdbs.actions.button variant="danger" icon="trash-2" data-vdbs-dialog-open="delete-partner">Löschen</x-vdbs.actions.button>
             </x-slot:actions>
         @endif

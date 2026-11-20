@@ -8,7 +8,6 @@ use App\Modules\Audit\Enums\AuditEvent;
 use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\Partners\Models\Partner;
 use App\Modules\People\Models\Person;
-use App\Modules\Seminars\Models\Seminar;
 use Illuminate\Database\Eloquent\Model;
 use Throwable;
 
@@ -59,7 +58,6 @@ final class AuditLog
             $subject instanceof User => ['user', $subject->id, self::label($subject)],
             $subject instanceof Person => ['person', $subject->id, mb_substr($subject->fullName(), 0, 200)],
             $subject instanceof Partner => ['partner', $subject->id, mb_substr($subject->name, 0, 200)],
-            $subject instanceof Seminar => ['seminar', $subject->id, mb_substr($subject->title, 0, 200)],
             $subject instanceof RoleAssignment => ['user', $subject->user_id, ($subject->user instanceof User) ? self::label($subject->user) : null],
             default => [null, null, null],
         };

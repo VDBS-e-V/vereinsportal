@@ -1,7 +1,7 @@
 # Bereiche und Kopfbereich
 
 Das Portal ist in **Bereiche** gegliedert (`App\Support\PortalAreas`: Start, Konto, Vorstand, Mitglieder, Teamende, Schulen,
-Koordination, Geschäftsstelle, Bildungsreferenten, Admins, Aufgaben). **Jede Seite gehört zu genau einem Bereich.** Der Katalog steht an einer
+Koordination, Geschäftsstelle, Bildungsreferenten, Admins; Aufgaben sind kein eigener Bereich, siehe unten). **Jede Seite gehört zu genau einem Bereich.** Der Katalog steht an einer
 Stelle: `app/Support/PortalNavigation.php` (`catalog()`).
 
 ## Kopfbereich
@@ -10,7 +10,7 @@ Stelle: `app/Support/PortalNavigation.php` (`catalog()`).
   Der aktuelle Bereich ist hervorgehoben (`aria-current="true"`). Ein Klick führt zur ersten Seite des Bereichs, die der Nutzer sehen darf.
 - **Zeile 2:** Name des aktuellen Bereichs und dessen Seiten (`aria-current="page"` auf der aktuellen). Rechts das Avatar-Menü.
 - **Start** ist **öffentlich**: Seiten Über das Portal (`/ueber-das-portal`), Zugang zum Portal (`/zugang-zum-portal`), FAQ
-  (`/ueber-das-portal#portal-faq`, Anker, nie „aktuell“) und Kontakt (`/kontakt`). Mehr steht im Menü nicht: Veranstaltungen und „Mitglied werden“ gehören auf die normale Vereinswebsite (die Seiten bleiben erreichbar, haben aber keinen Menüpunkt mehr). Sie stehen in Zeile 2 für Gäste und Angemeldete,
+  (`/faq`, große FAQ-Seite) und Kontakt (`/kontakt`). Mehr steht im Menü nicht: Veranstaltungen und „Mitglied werden“ gehören auf die normale Vereinswebsite (die Seiten bleiben erreichbar, haben aber keinen Menüpunkt mehr). Sie stehen in Zeile 2 für Gäste und Angemeldete,
   auch auf der Anmeldeseite und auf Fehlerseiten (dort ohne Sitzung). Die Struktur entspricht der bisherigen Hauptnavigation
   (`ul` > `li` > `a`, optional ein verschachteltes Untermenü): Einträge im Katalog können `children` haben, das Untermenü erscheint ab 1100 px
   beim Überfahren oder Fokussieren, auf kleineren Bildschirmen eingerückt unter dem Eintrag. Erreichbar über das Logo. **Konto:** über das Avatar-Menü (Mein Konto, Sicherheit); es ist ein eigener Bereich, dessen Seiten
@@ -54,6 +54,11 @@ bestimmt nur die Darstellung, er ersetzt keine Berechtigungsprüfung. Ein Bereic
 
 Tests: `tests/Feature/Navigation/PortalNavigationTest.php`.
 
-## Bereich Aufgaben
+## Aufgaben in den Bereichen
 
-Der Bereich *Aufgaben* (Modul `Tasks`, `docs/81_AUFGABENSYSTEM.md`) ist für Vorstand, Administration, Geschäftsstelle, Koordination, Bildungsreferenten, Geschäftsführung, Kassenführung und Mitarbeitende sichtbar (Berechtigung `tasks.use`); was jemand darin sieht, bestimmt die Mitgliedschaft im Projekt. Die Aufgaben des Vorstands liegen im Projekt „Vorstand"; die Sitzungsseite im Bereich Vorstand verweist dorthin. Das ist eine bewusste Ausnahme von der Regel, dass Links nicht den Bereich wechseln.
+Das Aufgabensystem (Modul `Tasks`, `docs/81_AUFGABENSYSTEM.md`) ist **kein eigener Bereich**. Es erscheint in den Bereichen, in denen es genutzt wird:
+
+- **Menüpunkt „Aufgaben“** im Menü von Vorstand, Mitarbeitende, Koordination, Geschäftsstelle, Bildungsreferenten und Admins (`/<bereich>/aufgaben`, Route `tasks.area`). Er zeigt die **Projekte dieses Bereichs**, in denen die Person Mitglied ist. Jedes Projekt gehört zu einem Bereich (Feld „Bereich“ im Projekt). Der Menüpunkt erscheint nur für die eigenen Rollen des Bereichs.
+- Die Seiten eines Projekts (Kanban und Liste, Aufgabe, Einstellungen, Vorlagen) gehören zum **Bereich des Projekts**; Kopfzeile und Menü bleiben dort (`PortalNavigation::areaForRequest`). Darf die Person den Bereich des Projekts nicht betreten, bleibt sie in einem ihrer Bereiche mit Aufgaben, sonst im Konto.
+- **„Meine Aufgaben“** (alle zugewiesenen Aufgaben aus allen Projekten, Route `tasks.mine`) steht im **Konto**.
+- Die **allgemeine Verwaltung** (alle Projekte, anlegen, archivieren, löschen, Bereich festlegen, Mehrfachauswahl; Route `tasks.index`, Berechtigung `tasks.admin`) steht in der **Geschäftsstelle** als „Aufgaben verwalten“.

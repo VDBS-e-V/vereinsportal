@@ -14,17 +14,17 @@ final class Capabilities
 {
     /** @var array<string, list<Capability>> */
     private const MAP = [
-        'administration' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage, Capability::AuditView, Capability::DesignView, Capability::SystemManage, Capability::OauthManage, Capability::TasksUse, Capability::TasksAdmin],
-        'administration_staff' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage, Capability::PartnersView, Capability::PartnersManage, Capability::SeminarsView, Capability::SeminarsManage, Capability::TeamView, Capability::TeamManage, Capability::AccessRequestsView, Capability::AccessRequestsManage, Capability::ArticlesManage, Capability::PagesManage, Capability::EventsView, Capability::EventsManage, Capability::MailTemplatesManage, Capability::MailSegmentsManage, Capability::ContractsManage, Capability::LettersUse, Capability::LettersManage, Capability::MailingsSend, Capability::ContactsManage, Capability::SeminarsDocuments, Capability::FormsView, Capability::FormsManage, Capability::TasksUse],
-        'board_member' => [Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage, Capability::AuditView, Capability::DesignView, Capability::MembershipsView, Capability::MembershipsManage, Capability::PartnersView, Capability::PartnersManage, Capability::SeminarsView, Capability::SeminarsManage, Capability::SeminarPricesManage, Capability::TeamView, Capability::TeamManage, Capability::AccessRequestsView, Capability::AccessRequestsManage, Capability::ArticlesManage, Capability::PagesManage, Capability::EventsView, Capability::EventsManage, Capability::ReportsView, Capability::MailingsSend, Capability::MailingsMembers, Capability::MailingsApprove, Capability::MailTemplatesManage, Capability::MailSegmentsManage, Capability::ContractsManage, Capability::ContractsTemplate, Capability::LettersUse, Capability::LettersManage, Capability::ContactsManage, Capability::SeminarsDocuments, Capability::SeminarsReopen, Capability::FormsView, Capability::FormsManage, Capability::FormsApprove, Capability::BoardMeetings, Capability::TasksUse, Capability::TasksAdmin],
-        'coordination' => [Capability::PartnersView, Capability::PartnersManage, Capability::SeminarsView, Capability::SeminarsManage, Capability::SeminarPricesManage, Capability::TeamView, Capability::TeamManage, Capability::EventsView, Capability::EventsManage, Capability::MailingsTeam, Capability::MailingsSendLimited, Capability::ContractsManage, Capability::LettersUse, Capability::SeminarsDocuments, Capability::FeedbackManage, Capability::FeedbackView, Capability::TasksUse],
-        'team' => [Capability::TeamOnboardingOwn, Capability::SeminarsApply, Capability::FormsSubmitTeam],
+        'administration' => [Capability::MailSystemManage, Capability::MailSystemSecurity, Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage, Capability::AuditView, Capability::DesignView, Capability::SystemManage, Capability::OauthManage, Capability::TasksUse, Capability::TasksAdmin, Capability::ContactFormsManage, Capability::FaqManage, Capability::CoordinationsManage, Capability::RoleLinksManage, Capability::TicketsHandle, Capability::NavigationManage],
+        'administration_staff' => [Capability::MailSystemManage, Capability::SeminarsEnter, Capability::SeminarsPayments, Capability::SeminarsReview, Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage, Capability::PartnersView, Capability::PartnersManage, Capability::TeamView, Capability::TeamManage, Capability::AccessRequestsView, Capability::AccessRequestsManage, Capability::ArticlesManage, Capability::PagesManage, Capability::MailTemplatesManage, Capability::MailSegmentsManage, Capability::MailingsSend, Capability::ContactsManage, Capability::FormsView, Capability::FormsManage, Capability::TasksUse, Capability::ContactFormsManage, Capability::FaqManage, Capability::CoordinationsManage, Capability::RoleLinksManage, Capability::TicketsHandle],
+        'board_member' => [Capability::SeminarsEnter, Capability::SeminarsQuoteApprove, Capability::SeminarsReview, Capability::SeminarsReopen, Capability::UsersView, Capability::UsersManage, Capability::RolesAssign, Capability::PeopleView, Capability::PeopleManage, Capability::AuditView, Capability::DesignView, Capability::MembershipsView, Capability::MembershipsManage, Capability::CoordinationsManage, Capability::PartnersView, Capability::PartnersManage, Capability::TeamView, Capability::TeamManage, Capability::AccessRequestsView, Capability::AccessRequestsManage, Capability::ArticlesManage, Capability::PagesManage, Capability::ReportsView, Capability::MailingsSend, Capability::MailingsMembers, Capability::MailingsApprove, Capability::MailTemplatesManage, Capability::MailSegmentsManage, Capability::ContactsManage, Capability::FormsView, Capability::FormsManage, Capability::FormsApprove, Capability::BoardMeetings, Capability::TasksUse, Capability::TasksAdmin],
+        'coordination' => [Capability::SeminarsEnter, Capability::SeminarsQuoteApprove, Capability::SeminarsPlan, Capability::PartnersView, Capability::PartnersManage, Capability::TeamView, Capability::TeamManage, Capability::MailingsSendLimited, Capability::TasksUse],
+        'team' => [Capability::SeminarsApply, Capability::TeamOnboardingOwn, Capability::FormsSubmitTeam],
         'member' => [Capability::MemberArea, Capability::FormsSubmitMember],
         'school' => [Capability::SchoolArea],
         'employee' => [Capability::EmployeeArea, Capability::FormsSubmit, Capability::TasksUse],
         'managing_director' => [Capability::EmployeeArea, Capability::FormsSubmit, Capability::FormsApprove, Capability::FormsView, Capability::TasksUse],
-        'treasury' => [Capability::EmployeeArea, Capability::FormsSubmit, Capability::FormsManage, Capability::FormsView, Capability::TasksUse],
-        'education_coordination' => [Capability::EducationView, Capability::SeminarsView, Capability::EventsView, Capability::TasksUse],
+        'treasury' => [Capability::SeminarsPayments, Capability::EmployeeArea, Capability::FormsSubmit, Capability::FormsManage, Capability::FormsView, Capability::TasksUse],
+        'education_coordination' => [Capability::EducationView, Capability::TasksUse],
     ];
 
     /** Rollen, die nur der Vorstand vergeben und beenden darf. @var list<RoleKey> */
@@ -50,7 +50,16 @@ final class Capabilities
     /** Rollen, die der Nutzer jetzt hat (Beginn erreicht, Ende nicht überschritten). @return list<string> */
     public static function activeRoleKeys(User $user): array
     {
-        return $user->activeRoleAssignments()
+        // Je Anwendungsinstanz (Anfrage, im Test je Test), Person und Sekunde nur einmal laden: Menü, Bereiche und Hinweise fragen die Rollen sonst dutzendfach ab.
+        // Änderungen an Rollenzuordnungen leeren den Zwischenspeicher (RoleAssignment::booted).
+        $cache = self::cache();
+        $key = $user->getKey().'|'.now()->getTimestamp();
+
+        if (array_key_exists($key, $cache)) {
+            return $cache[$key];
+        }
+
+        $keys = $user->activeRoleAssignments()
             ->with('role:id,key')
             ->get()
             ->map(fn ($assignment): ?string => $assignment->role?->key)
@@ -58,6 +67,30 @@ final class Capabilities
             ->unique()
             ->values()
             ->all();
+
+        $cache[$key] = $keys;
+        self::$store[app()] = $cache;
+
+        return $keys;
+    }
+
+    /** @var \WeakMap<object, array<string, list<string>>>|null */
+    private static ?\WeakMap $store = null;
+
+    /** @return array<string, list<string>> */
+    private static function cache(): array
+    {
+        self::$store ??= new \WeakMap;
+
+        return isset(self::$store[app()]) ? self::$store[app()] : [];
+    }
+
+    /** Leert die geladenen Rollen (nach Änderungen an Rollenzuordnungen). */
+    public static function flush(): void
+    {
+        if (self::$store !== null) {
+            self::$store[app()] = [];
+        }
     }
 
     /** Darf der Nutzer die Rolle vergeben? Administration vergibt nur Administration; Geschäftsführung und Kassenführung nur der Vorstand. */

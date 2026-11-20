@@ -3,14 +3,14 @@
     @for ($i = 0; $i < $rows; $i++)
         @php($item = $items[$i] ?? null)
         @php($extra = $item ? (array) $item->extra : [])
-        <fieldset style="margin-bottom:var(--space-5);padding:var(--space-4);border:1px solid var(--color-border,#ccc)">
+        <fieldset class="vdbs-fieldset" style="margin-bottom:var(--space-5)">
             <legend>Artikel {{ $i + 1 }}@if ($item && $item->amount_cents > 0) · {{ number_format($item->amount_cents / 100, 2, ',', '.') }} €@endif</legend>
             @if ($item) <input type="hidden" name="items[{{ $i }}][id]" value="{{ $item->id }}"> @endif
             <x-vdbs.forms.form-grid :columns="2">
                 <x-vdbs.forms.input :id="'item-'.$i.'-description'" :name="'items['.$i.'][description]'" label="Bezeichnung" :optional="true" maxlength="200" :value="old('items.'.$i.'.description', $item?->description)" />
                 <x-vdbs.forms.input :id="'item-'.$i.'-supplier'" :name="'items['.$i.'][supplier]'" label="Lieferant" :optional="true" maxlength="150" :value="old('items.'.$i.'.supplier', $extra['supplier'] ?? null)" />
                 <x-vdbs.forms.input :id="'item-'.$i.'-quantity'" :name="'items['.$i.'][quantity]'" label="Menge" :optional="true" inputmode="decimal" :value="old('items.'.$i.'.quantity', $item ? rtrim(rtrim(number_format($item->quantity, 2, ',', ''), '0'), ',') : null)" />
-                <x-vdbs.forms.input :id="'item-'.$i.'-unit'" :name="'items['.$i.'][unit]'" label="Einzelpreis brutto in Euro" :optional="true" inputmode="decimal" :value="old('items.'.$i.'.unit', $item ? \App\Modules\Seminars\Support\Money::toInput($item->unit_cents) : null)" />
+                <x-vdbs.forms.input :id="'item-'.$i.'-unit'" :name="'items['.$i.'][unit]'" label="Einzelpreis brutto in Euro" :optional="true" inputmode="decimal" :value="old('items.'.$i.'.unit', $item ? \App\Support\Money::toInput($item->unit_cents) : null)" />
                 <x-vdbs.forms.input :id="'item-'.$i.'-link'" :name="'items['.$i.'][link]'" label="Link oder Artikelnummer" :optional="true" maxlength="300" :value="old('items.'.$i.'.link', $extra['link'] ?? null)" />
             </x-vdbs.forms.form-grid>
             @if ($item && $item->files->isNotEmpty())

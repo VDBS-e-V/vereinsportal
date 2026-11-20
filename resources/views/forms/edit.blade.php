@@ -21,9 +21,6 @@
         <x-vdbs.forms.form-section title="Anlass">
             <x-vdbs.forms.input name="purpose" :label="$application->type === 'purchase' ? 'Begründung / Zweck' : 'Zweck der Ausgaben'" :required="true" maxlength="300" :value="old('purpose', $application->purpose)" :hint="$config['seminar'] ? 'z. B. Material für das Seminar an der Schule' : 'z. B. Material für eine Veranstaltung des Vereins'" />
             <x-vdbs.forms.form-grid :columns="2">
-                @if ($config['seminar'])
-                <x-vdbs.forms.select name="seminar_id" label="Seminar (freiwillig)" :optional="true" placeholder="Kein Seminar" :options="$seminars" :value="old('seminar_id', $application->seminar_id)" />
-                @endif
                 @if ($config['cost_center'])
                 <x-vdbs.forms.select name="cost_center" label="Kostenstelle (freiwillig)" :optional="true" placeholder="Keine" :options="$costCenters" :value="old('cost_center', $application->cost_center)" />
             @endif

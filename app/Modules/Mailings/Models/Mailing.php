@@ -3,7 +3,6 @@
 namespace App\Modules\Mailings\Models;
 
 use App\Modules\Access\Models\User;
-use App\Modules\Seminars\Models\Seminar;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -33,17 +32,11 @@ class Mailing extends Model
 
     public const STATUS_FAILED = 'failed';
 
-    protected $fillable = ['kind', 'subject', 'body', 'own_text', 'seminar_id', 'audience', 'groups', 'recipients_count', 'sent_count', 'failed_count', 'sent_by_user_id', 'status', 'queued_at', 'started_at', 'finished_at', 'cancelled_at', 'values', 'mandatory', 'send_at', 'approved_by_user_id', 'approved_at', 'payload', 'rejection_note', 'sender_area'];
+    protected $fillable = ['kind', 'subject', 'body', 'own_text', 'audience', 'groups', 'recipients_count', 'sent_count', 'failed_count', 'sent_by_user_id', 'status', 'queued_at', 'started_at', 'finished_at', 'cancelled_at', 'values', 'mandatory', 'send_at', 'approved_by_user_id', 'approved_at', 'payload', 'rejection_note', 'sender_area'];
 
     protected function casts(): array
     {
         return ['groups' => 'array', 'values' => 'array', 'payload' => 'array', 'mandatory' => 'boolean', 'send_at' => 'datetime', 'approved_at' => 'datetime', 'queued_at' => 'datetime', 'started_at' => 'datetime', 'finished_at' => 'datetime', 'cancelled_at' => 'datetime'];
-    }
-
-    /** @return BelongsTo<Seminar, $this> */
-    public function seminar(): BelongsTo
-    {
-        return $this->belongsTo(Seminar::class);
     }
 
     /** @return BelongsTo<User, $this> */
@@ -128,8 +121,6 @@ class Mailing extends Model
     /** Dürfen die Adressen der fehlgeschlagenen Zustellungen gezeigt werden? Wer das Schreiben gesendet hat und wer die Gruppe anschreiben darf. */
     public function addressesVisibleTo(User $user): bool
     {
-        return $user->id === $this->sent_by_user_id
-            || $user->can('mailings.members')
-            || ($this->kind === self::KIND_TEAM && $user->can('mailings.team'));
+        return $user->id === $this->sent_by_user_id || $user->can('mailings.members');
     }
 }

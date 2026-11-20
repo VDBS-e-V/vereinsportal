@@ -26,10 +26,17 @@ class VerifyBotGuard
         }
 
         // Nur der Grund und die Route, keine Eingaben und keine IP-Adresse.
-        Log::notice('bot_guard.rejected', ['reason' => $reason, 'route' => $request->route()?->getName()]);
+        Log::notice('bot_guard.rejected', ['reason' => $reason, 'route' => $request->route()?->getName(), 'has_proof' => $request->filled(BotGuard::PROOF_FIELD), 'has_token' => $request->filled(BotGuard::TOKEN_FIELD)]);
 
-        return back()
+        $response = back()
             ->withInput($request->except([BotGuard::TOKEN_FIELD, BotGuard::PROOF_FIELD, BotGuard::HONEYPOT_FIELD]))
             ->with('bot_guard_failed', true);
+
+        // Nur zur Fehlersuche (BOT_GUARD_SHOW_REASON=true): die Kennung erscheint in der Meldung.
+        if (config('portal.bot_guard.show_reason', false)) {
+            $response->with('bot_guard_reason', $reason);
+        }
+
+        return $response;
     }
 }

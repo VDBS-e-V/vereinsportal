@@ -56,6 +56,7 @@ final class PartnerData
             'house_number' => ['nullable', 'string', 'max:30'],
             'postal_code' => ['nullable', 'string', 'max:20'],
             'city' => ['nullable', 'string', 'max:120'],
+            'coordination_id' => ['nullable', 'integer', 'exists:coordinations,id'],
             'email' => ['nullable', 'string', 'email', 'max:254'],
             'phone' => ['nullable', 'string', 'max:50', 'regex:/^[0-9+()\/\-.\s]+$/'],
             'website' => ['nullable', 'string', 'url:http,https', 'max:255'],
@@ -109,6 +110,7 @@ final class PartnerData
             $columns[$field] = $clean($data[$field] ?? null);
         }
 
+        $columns['coordination_id'] = ($data['coordination_id'] ?? null) !== null && $data['coordination_id'] !== '' ? (int) $data['coordination_id'] : null;
         $columns['email'] = $columns['email'] !== null ? mb_strtolower($columns['email']) : null;
         $columns['status'] = (string) ($data['status'] ?? PartnerStatus::Active->value);
 
@@ -198,6 +200,7 @@ final class PartnerData
             'house_number' => $partner->house_number,
             'postal_code' => $partner->postal_code,
             'city' => $partner->city,
+            'coordination_id' => $partner->coordination_id,
             'email' => $partner->email,
             'phone' => $partner->phone,
             'website' => $partner->website,

@@ -2,16 +2,21 @@
 
 use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Models\User;
+use App\Modules\Access\Services\ProfilePhotos;
 use App\Modules\AccessGovernance\Enums\RoleAssignmentSource;
 use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\AccessGovernance\Models\Role;
 use App\Modules\AccessGovernance\Models\RoleAssignment;
 use App\Modules\People\Models\Person;
+use App\Modules\Sso\Models\OAuthClientSetting;
+use App\Modules\Sso\Models\OAuthConsent;
 use App\Modules\Sso\Services\OAuthClients;
+use App\Modules\Sso\Services\OAuthConsents;
 use App\Modules\Sso\Services\OAuthKeys;
 use App\Modules\Sso\Services\OidcClaims;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->withoutVite();
@@ -187,16 +192,75 @@ it('rejects userinfo without a valid token and for a blocked connection or disab
     $this->withHeader('Authorization', 'Bearer '.$body['access_token'])->getJson('/oauth/userinfo')->assertUnauthorized();
 });
 
-it('logs out of the portal, revokes the tokens and redirects only to known addresses', function () {
-    $client = odClient();
+it('asks on a client-initiated logout where else the person is signed in, and ends everything only after yes', function () {
+    $client = odClient(['frontchannel_logout_uri' => 'https://cloud.example.org/logout']);
+    $other = odClient(['name' => 'Moodle', 'redirect_uris' => 'https://moodle.example.org/cb', 'frontchannel_logout_uri' => 'https://moodle.example.org/auth/oidc/logout.php']);
     $user = odUser();
     odFlow($this, $user, $client);
-    expect(DB::table('oauth_access_tokens')->where('user_id', $user->id)->where('revoked', false)->count())->toBeGreaterThan(0);
+    // zweites System: Token direkt anlegen
+    DB::table('oauth_access_tokens')->insert(['id' => 'tok-other', 'user_id' => $user->id, 'client_id' => $other->getKey(), 'scopes' => '[]', 'revoked' => false, 'created_at' => now(), 'updated_at' => now(), 'expires_at' => now()->addHour()]);
+    expect(DB::table('oauth_access_tokens')->where('user_id', $user->id)->where('revoked', false)->count())->toBeGreaterThan(1);
 
-    $this->actingAs($user)->get('/oauth/logout?post_logout_redirect_uri='.urlencode('https://cloud.example.org/bye'))->assertRedirect('https://cloud.example.org/bye');
+    // Nextcloud meldet sich ab: Seite mit den übrigen Diensten, Portalsitzung bleibt bestehen
+    $this->actingAs($user)->get('/oauth/logout?post_logout_redirect_uri='.urlencode('https://cloud.example.org/bye'))
+        ->assertOk()->assertSee('Sie haben sich erfolgreich vom Dienst')->assertSee('Nextcloud')->assertSee('Vereinsportal')->assertSee('Moodle')->assertSee('Ja, abmelden');
+    $this->assertAuthenticatedAs($user);
+    expect(DB::table('oauth_access_tokens')->where('user_id', $user->id)->where('client_id', $client->getKey())->where('revoked', false)->count())->toBe(0)
+        ->and(DB::table('oauth_access_tokens')->where('id', 'tok-other')->value('revoked'))->toBe(0);
+
+    // Ja: alles beenden, der Browser ruft die Abmelde-Adresse des anderen Systems auf
+    $this->post(route('oidc.logout.perform'))->assertOk()->assertSee('Es wird versucht')->assertSee('data-sso-logout="https://moodle.example.org/auth/oidc/logout.php?iss=', false);
+    $this->assertGuest();
+    expect(DB::table('oauth_access_tokens')->where('user_id', $user->id)->where('revoked', false)->count())->toBe(0);
+});
+
+it('redirects back at once without a portal session and lists nothing for unknown return addresses', function () {
+    odClient();
+
+    $this->get('/oauth/logout?post_logout_redirect_uri='.urlencode('https://cloud.example.org/bye'))->assertRedirect('https://cloud.example.org/bye');
+    $this->get('/oauth/logout?post_logout_redirect_uri='.urlencode('https://evil.example.com/x'))->assertRedirect(route('home'));
+
+    // angemeldet, aber fremde Adresse: Seite ohne Dienstnamen, „Nein“ führt nur ins Portal
+    $this->actingAs(odUser())->get('/oauth/logout?post_logout_redirect_uri='.urlencode('https://evil.example.com/x'))
+        ->assertOk()->assertDontSee('Sie haben sich erfolgreich vom Dienst')->assertSee(route('home'), false);
+});
+
+it('signs out of the connected systems when the person logs out of the portal itself', function () {
+    $client = odClient(['frontchannel_logout_uri' => 'https://cloud.example.org/logout']);
+    $user = odUser();
+    odFlow($this, $user, $client);
+
+    $this->actingAs($user)->post(route('logout'))->assertOk()->assertSee('Sie haben sich vom Vereinsportal abgemeldet')->assertSee('Nextcloud')->assertSee('data-sso-logout', false);
+    $this->assertGuest();
     expect(DB::table('oauth_access_tokens')->where('user_id', $user->id)->where('revoked', false)->count())->toBe(0);
 
-    $this->actingAs(odUser())->get('/oauth/logout?post_logout_redirect_uri='.urlencode('https://evil.example.com/x'))->assertRedirect(route('home'));
+    // ohne verbundenes System bleibt es bei der Weiterleitung zur Anmeldung
+    $this->actingAs(odUser())->post(route('logout'))->assertRedirect(route('login'));
+});
+
+it('accepts a front-channel logout address only on the domain of a redirect address', function () {
+    $admin = odUser(RoleKey::Administration);
+    $clients = app(OAuthClients::class);
+
+    $client = $clients->create(['name' => 'Moodle', 'redirect_uris' => 'https://moodle.example.org/auth/oidc/', 'roles' => ['coordination'], 'frontchannel_logout_uri' => 'https://moodle.example.org/auth/oidc/logout.php'], $admin);
+    expect($clients->settings($client)->frontchannel_logout_uri)->toBe('https://moodle.example.org/auth/oidc/logout.php');
+
+    expect(fn () => $clients->update($client, ['name' => 'Moodle', 'redirect_uris' => 'https://moodle.example.org/auth/oidc/', 'roles' => ['coordination'], 'frontchannel_logout_uri' => 'https://evil.example.com/x'], $admin))->toThrow(DomainException::class);
+    expect(fn () => $clients->update($client, ['name' => 'Moodle', 'redirect_uris' => 'https://moodle.example.org/auth/oidc/', 'roles' => ['coordination'], 'frontchannel_logout_uri' => 'http://moodle.example.org/x'], $admin))->toThrow(DomainException::class);
+
+    $clients->update($client, ['name' => 'Moodle', 'redirect_uris' => 'https://moodle.example.org/auth/oidc/', 'roles' => ['coordination'], 'frontchannel_logout_uri' => ''], $admin);
+    expect($clients->settings($client->refresh())->frontchannel_logout_uri)->toBeNull();
+
+    expect($this->getJson('/.well-known/openid-configuration')->json('frontchannel_logout_supported'))->toBeTrue();
+});
+
+it('shows the service name and description on the login page when a connected system asks for the login', function () {
+    $client = odClient(['description' => 'Die Lernplattform des Vereins.']);
+
+    $this->withSession(['url.intended' => url('/oauth/authorize?client_id='.$client->getKey().'&response_type=code')])->get('/login')
+        ->assertOk()->assertSee('Single Sign-On')->assertSee('Nextcloud')->assertSee('Beschreibung des Dienstes:')->assertSee('Die Lernplattform des Vereins.')->assertSee('Wichtige Hinweise');
+
+    $this->flushSession()->get('/login')->assertOk()->assertSee('Anmeldung am Vereinsportal')->assertDontSee('Beschreibung des Dienstes:');
 });
 
 it('maps every role to a stable group name', function () {
@@ -224,4 +288,57 @@ it('shows only the own applications and schedules the token cleanup', function (
 
     $this->actingAs(odUser(null))->get(route('account.apps'))->assertOk()->assertDontSee('Nextcloud');
     expect(file_get_contents(base_path('routes/console.php')))->toContain("Schedule::command('passport:purge')->daily()");
+});
+
+it('hands over headline, short bio and photo only with the portal_profile scope and only as released for logged-in users', function () {
+    Storage::fake(ProfilePhotos::DISK);
+    Storage::disk(ProfilePhotos::DISK)->put('profile-photos/x.png', 'png');
+
+    $user = odUser(RoleKey::Team);
+    $user->forceFill(['avatar_path' => 'profile-photos/x.png'])->save();
+    $user->profile()->create(['headline' => 'Teamerin', 'bio' => '<p>Hallo <strong>Welt</strong></p>', 'visibility' => ['headline' => 'portal', 'bio' => 'portal', 'photo' => 'private']]);
+
+    $claims = app(OidcClaims::class);
+
+    expect($claims->forUser($user->fresh(), ['openid', 'profile']))->not->toHaveKeys(['headline', 'bio', 'picture']);
+
+    $with = $claims->forUser($user->fresh(), ['openid', 'portal_profile']);
+    expect($with['headline'])->toBe('Teamerin')->and($with['bio'])->toContain('<strong>Welt</strong>')->and($with)->not->toHaveKey('picture'); // Foto ist privat
+
+    $user->profile->update(['visibility' => ['photo' => 'portal', 'bio' => 'private']]);
+    $with = $claims->forUser($user->fresh(), ['portal_profile']);
+    expect($with)->toHaveKey('picture')->and($with)->not->toHaveKey('bio');
+
+    // das Bild gibt es nur über die signierte Adresse
+    $this->get(route('oidc.photo', ['user' => $user->id]))->assertForbidden();
+    $this->get($with['picture'])->assertOk();
+});
+
+it('asks for consent only on the first login to a service, then skips it until the consent is withdrawn', function () {
+    $client = odClient(['show_consent' => true]);
+    $user = odUser();
+    $params = ['client_id' => $client->getKey(), 'redirect_uri' => 'https://cloud.example.org/cb', 'response_type' => 'code', 'scope' => 'openid email', 'state' => 'xyz', 'code_challenge' => odB64(hash('sha256', 'v', true)), 'code_challenge_method' => 'S256'];
+
+    $this->actingAs($user)->get('/oauth/authorize?'.http_build_query($params))->assertOk()->assertSee('Beabsichtigte Datenübertragung')->assertSee($user->email);
+
+    app(OAuthConsents::class)->grant($user->id, (string) $client->getKey(), ['openid', 'email']);
+
+    $this->actingAs($user)->get('/oauth/authorize?'.http_build_query($params))->assertRedirect();
+
+    $this->actingAs($user)->get('/oauth/authorize?'.http_build_query(['scope' => 'openid email roles'] + $params))->assertOk();
+
+    $this->actingAs($user)->delete(route('account.apps.destroy', $client->getKey()))->assertRedirect(route('account.apps'));
+    expect(OAuthConsent::query()->count())->toBe(0);
+    $this->actingAs($user)->get('/oauth/authorize?'.http_build_query($params))->assertOk();
+});
+
+it('serves the service logo publicly', function () {
+    Storage::fake('local');
+    Storage::disk('local')->put('sso-logos/x.png', 'png');
+    $client = odClient();
+    $user = odUser();
+    OAuthClientSetting::query()->where('client_id', (string) $client->getKey())->update(['logo_path' => 'sso-logos/x.png']);
+    app(OAuthConsents::class)->grant($user->id, (string) $client->getKey(), ['openid']);
+
+    $this->get(route('oidc.logo', $client->getKey()))->assertOk();
 });

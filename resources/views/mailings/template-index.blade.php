@@ -25,12 +25,12 @@
                 <x-slot:actions><x-vdbs.actions.button :href="route('mailings.templates.create')">Neue Vorlage</x-vdbs.actions.button></x-slot:actions>
             </x-vdbs.feedback.empty-state>
         @else
-            <form method="post" action="{{ route('mailings.templates.destroy-many') }}">
+            <form method="post" action="{{ route('mailings.templates.destroy-many') }}" id="bulk-mail-templates">
             @csrf
-            <x-vdbs.data.table caption="Vorlagen für Rundschreiben" :columns="[['key' => 'sel', 'label' => 'Auswahl'], ['key' => 'name', 'label' => 'Name'], ['key' => 'category', 'label' => 'Kategorie'], ['key' => 'subject', 'label' => 'Betreff'], ['key' => 'changed', 'label' => 'Geändert']]">
+            <x-vdbs.data.table caption="Vorlagen für Rundschreiben" :columns="[['key' => 'sel', 'label' => 'Auswahl', 'selectAll' => 'bulk-mail-templates'], ['key' => 'name', 'label' => 'Name'], ['key' => 'category', 'label' => 'Kategorie'], ['key' => 'subject', 'label' => 'Betreff'], ['key' => 'changed', 'label' => 'Geändert']]">
                 @foreach ($templates as $template)
                     <tr class="vdbs-table__row--link">
-                        <td><input type="checkbox" name="ids[]" value="{{ $template->id }}" aria-label="{{ $template->name }} auswählen"></td>
+                        <x-vdbs.data.table-check name="ids[]" :value="$template->id" :label="$template->name.' auswählen'" form="bulk-mail-templates" />
                         <td><a class="vdbs-table__row-link" href="{{ route('mailings.templates.edit', $template) }}">{{ $template->name }}</a>@if (filled($template->description))<br><small>{{ $template->description }}</small>@endif</td>
                         <td>{{ \App\Modules\Mailings\Support\MailCategories::templateLabel($template->category) }}</td>
                         <td>{{ $template->subject }}</td>
@@ -38,15 +38,9 @@
                     </tr>
                 @endforeach
             </x-vdbs.data.table>
+            <p class="vdbs-table__select-count" role="status" data-vdbs-select-count="bulk-mail-templates">Nichts ausgewählt.</p>
             <x-vdbs.actions.button type="submit" variant="danger-text" size="s" onclick="return confirm('Die ausgewählten Vorlagen löschen?')">Ausgewählte löschen</x-vdbs.actions.button>
             </form>
         @endif
-    </section>
-
-    <section aria-labelledby="team-title" style="margin-top:var(--space-8)">
-        <h2 id="team-title" style="font-size:var(--font-size-h3)">Mitteilungen an Teamende zu Seminaren</h2>
-        <p>Dieser Rahmen gilt für die Mitteilungen der Koordination. Sie ergänzt ihren eigenen Textabschnitt an der Stelle <code>{eigener_text}</code>.</p>
-        <p>Betreff: <strong>{{ $team['subject'] }}</strong> <x-vdbs.data.badge :tone="$teamCustomized ? 'success' : 'neutral'">{{ $teamCustomized ? 'Angepasst' : 'Eingebaute Vorlage' }}</x-vdbs.data.badge></p>
-        <x-vdbs.actions.button variant="secondary" :href="route('mailings.templates.team')" icon="pencil">Vorlage bearbeiten</x-vdbs.actions.button>
     </section>
 </x-layouts.app>

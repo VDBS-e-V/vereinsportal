@@ -46,8 +46,8 @@ class SystemSettingsController extends Controller
         $data = $request->validate(['to' => ['required', 'email', 'max:190']], ['to.required' => 'Bitte geben Sie eine Empfängeradresse ein.', 'to.email' => 'Bitte geben Sie eine gültige E-Mail-Adresse ein.']);
 
         try {
-            Mail::raw("Dies ist eine Testmail des VDBS Portals.\nSie wurde von der Systemsteuerung ausgelöst. Wenn Sie sie lesen, funktioniert der E-Mail-Versand.", function ($message) use ($data): void {
-                $message->to($data['to'])->subject('Testmail VDBS Portal');
+            Mail::raw("Dies ist eine Testmail des VDBS Vereinsportals.\nSie wurde von der Systemsteuerung ausgelöst. Wenn Sie sie lesen, funktioniert der E-Mail-Versand.", function ($message) use ($data): void {
+                $message->to($data['to'])->subject('Testmail VDBS Vereinsportal');
             });
         } catch (Throwable $exception) {
             AuditLog::record(AuditEvent::SystemTaskRun, $user, null, ['aufgabe' => 'Testmail', 'ergebnis' => 'fehlgeschlagen']);

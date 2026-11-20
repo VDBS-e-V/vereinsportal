@@ -1,6 +1,6 @@
 @php
     $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Vorstand'], ['label' => 'Sitzungen']];
-    $columns = [['key' => 'sel', 'label' => 'Auswahl'], ['key' => 'date', 'label' => 'Termin'], ['key' => 'title', 'label' => 'Sitzung'], ['key' => 'location', 'label' => 'Ort'], ['key' => 'status', 'label' => 'Stand'], ['key' => 'minutes', 'label' => 'Protokoll']];
+    $columns = [['key' => 'sel', 'label' => 'Auswahl', 'selectAll' => 'bulk-meetings'], ['key' => 'date', 'label' => 'Termin'], ['key' => 'title', 'label' => 'Sitzung'], ['key' => 'location', 'label' => 'Ort'], ['key' => 'status', 'label' => 'Stand'], ['key' => 'minutes', 'label' => 'Protokoll']];
     $tone = ['planned' => 'neutral', 'held' => 'success', 'cancelled' => 'neutral'];
 @endphp
 
@@ -9,7 +9,7 @@
         <x-slot:actions><x-vdbs.actions.button :href="route('board.meetings.create')" icon="plus">Neue Sitzung</x-vdbs.actions.button></x-slot:actions>
     </x-vdbs.layout.page-header>
 
-    <form method="post" action="{{ route('board.meetings.destroy-many') }}">
+    <form method="post" action="{{ route('board.meetings.destroy-many') }}" id="bulk-meetings">
         @csrf
         @foreach ([['Anstehende Sitzungen', $upcoming, 'Keine Sitzung geplant'], ['Vergangene Sitzungen', $past, 'Noch keine vergangene Sitzung']] as [$heading, $meetings, $empty])
             <section style="margin-top:var(--space-6)">
@@ -20,7 +20,7 @@
                     <x-vdbs.data.table :caption="$heading" :columns="$columns">
                         @foreach ($meetings as $meeting)
                             <tr>
-                                <td><input type="checkbox" name="ids[]" value="{{ $meeting->id }}" aria-label="{{ $meeting->title }} am {{ $meeting->starts_at->format('d.m.Y') }} auswählen"></td>
+                                <x-vdbs.data.table-check name="ids[]" :value="$meeting->id" :label="$meeting->title.' am '.$meeting->starts_at->format('d.m.Y').' auswählen'" form="bulk-meetings" />
                                 <td>{{ $meeting->period() }}</td>
                                 <td><a href="{{ route('board.meetings.show', $meeting) }}">{{ $meeting->title }}</a></td>
                                 <td>{{ $meeting->location ?: '–' }}</td>
@@ -32,6 +32,7 @@
                 @endif
             </section>
         @endforeach
+        <p class="vdbs-table__select-count" role="status" data-vdbs-select-count="bulk-meetings">Nichts ausgewählt.</p>
         <p style="margin-top:var(--space-3)"><x-vdbs.actions.button type="submit" variant="danger-text" size="s" onclick="return confirm('Die ausgewählten Sitzungen samt Protokoll, Beschlüssen und Anhängen löschen? Aufgaben bleiben erhalten.')">Ausgewählte löschen</x-vdbs.actions.button></p>
     </form>
 

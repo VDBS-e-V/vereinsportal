@@ -131,3 +131,12 @@ const init = (guard) => {
 };
 
 document.querySelectorAll('[data-vdbs-bot-guard]').forEach(init);
+
+// Holt der Browser die Seite aus dem Verlauf (Zurück-Taste), ist das Token schon verbraucht: neu laden.
+if (document.querySelector('[data-vdbs-bot-guard]')) {
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    });
+}

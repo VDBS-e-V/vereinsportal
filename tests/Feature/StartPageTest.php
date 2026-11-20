@@ -12,7 +12,7 @@ it('renders the start page for guests with the structure of the design system', 
         ->toContain('vdbs-hero--image')
         ->toContain('vdbs-main--full')
         ->toContain('Schnellzugriff')
-        ->toContain('Das VDBS Serviceportal')
+        ->toContain('Das VDBS Vereinsportal')
         ->toContain('Zugang zum Portal')
         ->toContain('vdbs-back-to-top')
         ->and(substr_count($html, '<h1'))->toBe(1);
@@ -32,7 +32,7 @@ it('shows the logged-in variant with account actions instead of the login', func
     $html = $this->actingAs(User::factory()->create())->get('/')->assertOk()->getContent();
 
     expect($html)
-        ->toContain('Mein Konto')
+        ->toContain('Kontoeinstellungen')->toContain('Meine Tickets')->toContain('>Hilfe<')->toContain('vdbs-dropdown__divider')
         ->toContain('Sie sind angemeldet')
         ->toContain('Abmelden')
         ->not->toContain('Zur Anmeldung');
@@ -99,4 +99,10 @@ it('shows the access block with the image and its source on the start page', fun
 
 it('shows the same image on the page about the portal', function () {
     $this->get(route('portal.about'))->assertOk()->assertSee('images/portal/zugang.jpg', false);
+});
+
+it('spreads the area chips evenly and keeps space above the hero image', function () {
+    $html = $this->get(route('home'))->assertOk()->getContent();
+
+    expect($html)->toContain('vdbs-chip-list--spread')->toContain('data-vdbs-balance')->toContain('padding-top: var(--space-8)');
 });

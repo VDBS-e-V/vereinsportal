@@ -2,14 +2,12 @@
 
 namespace App\Modules\Tasks\Mail;
 
+use App\Modules\MailBuilder\Mail\TemplatedMail;
 use App\Modules\Tasks\Models\Task;
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Support\Collection;
 
 /** Erinnerung an bald fällige und überfällige Aufgaben, eine Mail je Person und Lauf. Nur auf Wunsch der Person (Benachrichtigung „task_due“). */
-final class TaskDueMail extends Mailable
+final class TaskDueMail extends TemplatedMail
 {
     /**
      * @param  Collection<int, Task>  $soon
@@ -17,13 +15,19 @@ final class TaskDueMail extends Mailable
      */
     public function __construct(public readonly Collection $soon, public readonly Collection $overdue, public readonly string $url) {}
 
-    public function envelope(): Envelope
+    protected function systemKey(): string
     {
-        return new Envelope(subject: 'Erinnerung: Aufgaben im VDBS-Portal sind fällig');
+        return 'tasks.due';
     }
 
-    public function content(): Content
+    protected function values(): array
     {
-        return new Content(view: 'mail.tasks.due');
+        $line = fn (Task $task, string $when): string => '<a href="'.e(route('tasks.show', $task)).'">'.e($task->title).'</a> (Projekt „'.e($task->project->name).'“, '.$when.' '.$task->due_on?->format('d.m.Y').')';
+
+        return [
+            'ueberfaellig' => $this->overdue->map(fn (Task $task): string => $line($task, 'fällig war der'))->values()->all(),
+            'bald' => $this->soon->map(fn (Task $task): string => $line($task, 'fällig am'))->values()->all(),
+            'url' => $this->url,
+        ];
     }
 }

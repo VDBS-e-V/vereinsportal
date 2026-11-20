@@ -2,25 +2,23 @@
 
 namespace App\Modules\Access\Mail;
 
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
+use App\Modules\MailBuilder\Mail\TemplatedMail;
 
 /** E-Mail mit dem Sicherheitscode für die Zwei-Faktor-Anmeldung per E-Mail. */
-final class TwoFactorCodeMail extends Mailable
+final class TwoFactorCodeMail extends TemplatedMail
 {
     public function __construct(
         public readonly string $code,
         public readonly int $validMinutes,
     ) {}
 
-    public function envelope(): Envelope
+    protected function systemKey(): string
     {
-        return new Envelope(subject: 'Ihr Sicherheitscode für das VDBS-Portal');
+        return 'access.two_factor_code';
     }
 
-    public function content(): Content
+    protected function values(): array
     {
-        return new Content(view: 'mail.access.two-factor-code');
+        return ['code' => $this->code, 'minuten' => (string) $this->validMinutes];
     }
 }

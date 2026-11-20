@@ -1,6 +1,6 @@
 # Aufgabensystem (Projekte, Status, Kanban)
 
-Ein allgemeines Aufgabensystem für das ganze Portal. Eigener Bereich **Aufgaben** in der Kopfleiste (Modul `Tasks`); sichtbar für Vorstand, Administration, Geschäftsstelle, Koordination, Bildungsreferenten, Geschäftsführung, Kassenführung und Mitarbeitende (Berechtigung `tasks.use`). Teamende, Mitglieder und Schulen sehen den Bereich nicht.
+Ein allgemeines Aufgabensystem für das ganze Portal. **Kein eigener Bereich:** Aufgaben erscheinen als Menüpunkt „Aufgaben“ in den Bereichen (Projekte je Bereich), „Meine Aufgaben“ im Konto, die allgemeine Verwaltung in der Geschäftsstelle (`docs/43_BEREICHE.md`, Abschnitt „Aufgaben in den Bereichen“). Modul `Tasks`; nutzbar für Vorstand, Administration, Geschäftsstelle, Koordination, Bildungsreferenten, Geschäftsführung, Kassenführung und Mitarbeitende (Berechtigung `tasks.use`). Teamende, Mitglieder und Schulen sehen den Bereich nicht.
 
 ## Projekte und Zugriff
 
@@ -18,7 +18,7 @@ Ein allgemeines Aufgabensystem für das ganze Portal. Eigener Bereich **Aufgaben
 
 ## Ansichten
 
-- **Kanban:** Spalten nebeneinander, Karten per Ziehen und Ablegen verschieben (JavaScript `public/vendor/kanban/kanban.js`). Ohne JavaScript oder per Tastatur: „Verschieben“ an jeder Karte. In jeder Spalte lässt sich schnell eine Aufgabe hinzufügen.
+- **Kanban:** Spalten nebeneinander, Karten per Ziehen und Ablegen verschieben (JavaScript `public/vendor/kanban/kanban.js`). Ohne JavaScript oder per Tastatur: „Verschieben“ an jeder Karte. Die Spalten stehen mittig mit farbigem Kopfstreifen. Neue Aufgaben entstehen auf einer eigenen Seite (`/aufgaben/projekte/{id}/aufgaben/neu`, Knopf „Neue Aufgabe“ und „Aufgabe hinzufügen“ in jeder Spalte mit vorgewählter Spalte); dort auch „Neue Aufgabe aus Vorlage“. Such- und Filterleiste sind eine kompakte Zeile.
 - **Liste:** Tabelle mit Sammelaktionen für die Auswahl: erledigt, wieder öffnen, in Spalte verschieben, zuweisen (Mehrfachauswahl), löschen (nur Verwaltende).
 - **Filter** in beiden Ansichten: Suche, Zuständige (ich, niemand, Person), Priorität, nur Überfällige, in der Liste offene/erledigte/alle.
 - **Meine Aufgaben:** alle Ihnen zugewiesenen Aufgaben über alle Projekte.

@@ -4,7 +4,7 @@
     @for ($i = 0; $i < $rows; $i++)
         @php($item = $items[$i] ?? null)
         @php($extra = $item ? (array) $item->extra : [])
-        <fieldset style="margin-bottom:var(--space-5);padding:var(--space-4);border:1px solid var(--color-border,#ccc)">
+        <fieldset class="vdbs-fieldset" style="margin-bottom:var(--space-5)">
             <legend>Fahrt {{ $i + 1 }}@if ($item && $item->amount_cents > 0) · {{ number_format($item->amount_cents / 100, 2, ',', '.') }} €@endif</legend>
             @if ($item) <input type="hidden" name="items[{{ $i }}][id]" value="{{ $item->id }}"> @endif
             <x-vdbs.forms.form-grid :columns="2">
@@ -13,8 +13,8 @@
                 <x-vdbs.forms.input :id="'item-'.$i.'-from'" :name="'items['.$i.'][from]'" label="Start" :optional="true" maxlength="100" :value="old('items.'.$i.'.from', $extra['from'] ?? null)" />
                 <x-vdbs.forms.input :id="'item-'.$i.'-to'" :name="'items['.$i.'][to]'" label="Ziel" :optional="true" maxlength="100" :value="old('items.'.$i.'.to', $extra['to'] ?? null)" />
                 <x-vdbs.forms.input :id="'item-'.$i.'-km'" :name="'items['.$i.'][km]'" label="Kilometer (nur PKW)" :optional="true" inputmode="decimal" :value="old('items.'.$i.'.km', isset($extra['km']) && $extra['km'] > 0 ? str_replace('.', ',', (string) $extra['km']) : null)" />
-                <x-vdbs.forms.input :id="'item-'.$i.'-ticket'" :name="'items['.$i.'][ticket]'" label="Fahrpreis in Euro (Bahn, Nahverkehr, Mitfahrt)" :optional="true" inputmode="decimal" :value="old('items.'.$i.'.ticket', ! empty($extra['ticket_cents']) ? \App\Modules\Seminars\Support\Money::toInput($extra['ticket_cents']) : null)" />
-                <x-vdbs.forms.input :id="'item-'.$i.'-parking'" :name="'items['.$i.'][parking]'" label="Parkgebühr oder Maut in Euro" :optional="true" inputmode="decimal" :value="old('items.'.$i.'.parking', ! empty($extra['parking_cents']) ? \App\Modules\Seminars\Support\Money::toInput($extra['parking_cents']) : null)" />
+                <x-vdbs.forms.input :id="'item-'.$i.'-ticket'" :name="'items['.$i.'][ticket]'" label="Fahrpreis in Euro (Bahn, Nahverkehr, Mitfahrt)" :optional="true" inputmode="decimal" :value="old('items.'.$i.'.ticket', ! empty($extra['ticket_cents']) ? \App\Support\Money::toInput($extra['ticket_cents']) : null)" />
+                <x-vdbs.forms.input :id="'item-'.$i.'-parking'" :name="'items['.$i.'][parking]'" label="Parkgebühr oder Maut in Euro" :optional="true" inputmode="decimal" :value="old('items.'.$i.'.parking', ! empty($extra['parking_cents']) ? \App\Support\Money::toInput($extra['parking_cents']) : null)" />
             </x-vdbs.forms.form-grid>
             <x-vdbs.forms.checkbox :id="'item-'.$i.'-round'" :name="'items['.$i.'][round_trip]'" label="Hin- und Rückfahrt (Strecke zählt doppelt)" :checked="(bool) old('items.'.$i.'.round_trip', $extra['round_trip'] ?? false)" />
             @if ($item && $item->files->isNotEmpty())

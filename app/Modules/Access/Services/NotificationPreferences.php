@@ -20,19 +20,23 @@ final class NotificationPreferences
     public static function catalog(): array
     {
         return [
-            'seminar_team' => ['label' => 'Entscheidungen zu Seminaren', 'description' => 'Wenn Sie ins Team eines Seminars aufgenommen werden oder ein Seminar abgesagt wird.', 'group' => 'Seminare', 'ability' => 'seminars.apply'],
-            'team_mailings' => ['label' => 'Mitteilungen an Teamende', 'description' => 'Mitteilungen der Koordination zu Seminaren sowie Schreiben von Geschäftsstelle und Vorstand an Teamende.', 'group' => 'Seminare', 'ability' => 'seminars.apply'],
+            'team_mailings' => ['label' => 'Mitteilungen an Teamende', 'description' => 'Schreiben von Geschäftsstelle und Vorstand an Teamende.', 'group' => 'Teamende', 'ability' => 'team.onboarding'],
             'school_mailings' => ['label' => 'Mitteilungen an Schulen', 'description' => 'Schreiben von Geschäftsstelle und Vorstand an Schulkonten.', 'group' => 'Schulen', 'ability' => 'school.area'],
+            'seminar_requests' => ['label' => 'Neue Seminaranfragen und Antworten der Schulen', 'description' => 'Wenn eine Schule ein Seminar anfragt oder auf einen Kostenvoranschlag antwortet.', 'group' => 'Geschäftsstelle', 'ability' => 'seminars.review'],
+            'seminar_released' => ['label' => 'Freigegebene Seminare', 'description' => 'Wenn die Geschäftsstelle ein Seminar freigibt und Sie es planen können.', 'group' => 'Koordination', 'ability' => 'seminars.plan'],
+            'seminar_tender' => ['label' => 'Neue Ausschreibungen und Fristerinnerungen', 'description' => 'Wenn ein Seminar zur Mitarbeit ausgeschrieben wird und kurz vor Fristende, falls Sie sich noch nicht gemeldet haben.', 'group' => 'Teamende', 'ability' => 'seminars.apply'],
+            'seminar_payments' => ['label' => 'Neue Zahlungsaufträge zu Seminaren', 'description' => 'Wenn eine Seminarleitung den Vertrag einer teamenden Person hochlädt und ein Zahlungsauftrag entsteht.', 'group' => 'Geschäftsstelle', 'ability' => 'seminars.payments'],
+            'seminar_report_due' => ['label' => 'Berichte zu Seminaren: Erinnerung und Verzug', 'description' => 'Erinnerung an die Abgabe von Bericht und Verträgen und Hinweis, wenn sie überfällig sind.', 'group' => 'Teamende', 'ability' => 'seminars.apply'],
+            'seminar_overdue' => ['label' => 'Seminare: überfällige Berichte', 'description' => 'Wenn Bericht und Verträge eines Seminars nach dem Stichtag noch fehlen.', 'group' => 'Koordination', 'ability' => 'seminars.plan'],
+            'seminar_team' => ['label' => 'Hinweise zu Ihren Seminaren', 'description' => 'Einladung zum Onboarding, Absage oder neuer Termin. Zusage, Absage und Warteliste erhalten Sie immer.', 'group' => 'Teamende', 'ability' => 'seminars.apply'],
             'onboarding_reminders' => ['label' => 'Erinnerungen an Ihre Einarbeitung', 'description' => 'Wenn Schritte der Einarbeitung länger offen sind.', 'group' => 'Teamende', 'ability' => 'team.onboarding'],
-            'seminar_deadline' => ['label' => 'Stichtag für Interessenbekundungen abgelaufen', 'description' => 'Wenn Sie ein Team zusammenstellen können, weil der Stichtag vorbei ist.', 'group' => 'Koordination', 'ability' => 'seminars.manage'],
-            'school_requests' => ['label' => 'Nachrichten von Schulen', 'description' => 'Anfragen, Bestätigungen und Hinweise von Schulkonten zu Seminaren.', 'group' => 'Koordination', 'ability' => 'seminars.manage'],
             'mailing_approvals' => ['label' => 'Schreiben zur Freigabe', 'description' => 'Wenn die Geschäftsstelle ein Schreiben an viele Personen zur Freigabe vorlegt.', 'group' => 'Vorstand', 'ability' => 'mailings.approve'],
             'new_applications' => ['label' => 'Neue Mitgliedsanträge', 'description' => 'Wenn jemand seine E-Mail-Adresse bestätigt hat und über den Antrag zu entscheiden ist.', 'group' => 'Vorstand', 'ability' => 'memberships.manage'],
             'board_meetings' => ['label' => 'Einladungen zu Vorstandssitzungen', 'description' => 'Wenn der Vorstand eine Einladung zu einer Sitzung per E-Mail verschickt, mit Kalenderdatei im Anhang.', 'group' => 'Vorstand', 'ability' => 'board.meetings'],
             'task_assigned' => ['label' => 'Neue Aufgaben, die Ihnen zugewiesen werden', 'description' => 'Eine E-Mail, wenn Ihnen jemand im Aufgabensystem eine Aufgabe zuweist. Standardmäßig aus.', 'group' => 'Aufgaben', 'ability' => 'tasks.use', 'default' => false],
             'task_due' => ['label' => 'Erinnerung an fällige Aufgaben', 'description' => 'Eine E-Mail am Tag vor der Fälligkeit und noch einmal, wenn eine Ihrer Aufgaben überfällig ist (einmal je Aufgabe). Standardmäßig aus.', 'group' => 'Aufgaben', 'ability' => 'tasks.use', 'default' => false],
+            'tickets_team' => ['label' => 'Tickets: neue Tickets, Zuweisungen und Nachrichten', 'description' => 'Eine E-Mail (ohne Nachrichtentext), wenn ein Ticket angelegt oder Ihnen zugewiesen wird oder die anfragende Person schreibt.', 'group' => 'Geschäftsstelle', 'ability' => 'tickets.handle'],
             'new_access_requests' => ['label' => 'Neue Zugangsanträge', 'description' => 'Wenn ein neuer Antrag auf Zugang zum Portal eingeht.', 'group' => 'Geschäftsstelle', 'ability' => 'access_requests.manage'],
-            'school_event_reminders' => ['label' => 'Erinnerung an Anmeldefristen von Veranstaltungen', 'description' => 'Wenn die Anmeldefrist einer Veranstaltung bald endet.', 'group' => 'Schulen', 'ability' => 'school.area'],
         ];
     }
 

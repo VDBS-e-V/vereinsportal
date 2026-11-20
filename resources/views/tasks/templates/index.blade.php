@@ -1,5 +1,5 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Aufgaben', 'href' => route('tasks.index')], ['label' => $project->name, 'href' => route('tasks.projects.show', $project)], ['label' => 'Vorlagen']];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Aufgaben', 'href' => route('tasks.area', ['area' => $project->area])], ['label' => $project->name, 'href' => route('tasks.projects.show', $project)], ['label' => 'Vorlagen']];
 @endphp
 
 <x-layouts.app title="Aufgabenvorlagen" width="wide">
@@ -13,7 +13,7 @@
             <x-vdbs.data.table caption="Vorlagen" :columns="array_values(array_filter([$canManage ? ['key' => 'select', 'label' => 'Auswahl', 'selectAll' => 'templates-form'] : null, ['key' => 'name', 'label' => 'Vorlage'], ['key' => 'title', 'label' => 'Aufgabe'], ['key' => 'details', 'label' => 'Enthält']]))">
                 @foreach ($templates as $template)
                     <tr>
-                        @if ($canManage)<td class="vdbs-table__select"><span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="ids[]" value="{{ $template->id }}" aria-label="{{ $template->name }} auswählen"></span></td>@endif
+                        @if ($canManage)<x-vdbs.data.table-check name="ids[]" :value="$template->id" :label="$template->name.' auswählen'" />@endif
                         <td>@if ($canManage)<a href="{{ route('tasks.templates.edit', [$project, $template]) }}">{{ $template->name }}</a>@else{{ $template->name }}@endif</td>
                         <td>{{ $template->title }}</td>
                         <td>

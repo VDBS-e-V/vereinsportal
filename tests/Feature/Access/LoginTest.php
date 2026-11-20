@@ -13,7 +13,7 @@ it('shows the login form to guests', function () {
 it('shows the public start page to guests with a login call to action', function () {
     $this->get('/')
         ->assertOk()
-        ->assertSee('Willkommen im VDBS Serviceportal')
+        ->assertSee('Willkommen im VDBS Vereinsportal')
         ->assertSee(route('login'), false)
         ->assertSee('Anmelden')
         ->assertDontSee('Abmelden');
@@ -116,7 +116,7 @@ it('shows guests the public pages and a login button but no areas', function () 
 it('renders the configured footer columns', function () {
     $this->get('/login')
         ->assertSee('Informationen für')
-        ->assertSee('Service-Portal')
+        ->assertSee('Vereinsportal')
         ->assertSee('Soziale Medien')
         ->assertSee('Impressum');
 });

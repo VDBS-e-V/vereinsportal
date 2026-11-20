@@ -14,7 +14,6 @@ use App\Modules\Forms\Services\FormNumbers;
 use App\Modules\Forms\Services\FormSettings;
 use App\Modules\Forms\Services\Iban;
 use App\Modules\People\Models\Person;
-use App\Modules\Seminars\Models\Seminar;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
@@ -118,27 +117,6 @@ it('keeps the applications of one area out of the other areas', function () {
     $this->get(route('member-forms.edit', $team))->assertNotFound();
     $this->get(route('team-forms.edit', $member))->assertNotFound();
     expect(fn () => app(FormApplications::class)->create($user, 'purchase', 'member'))->toThrow(DomainException::class);
-});
-
-it('adapts the form: no seminar and cost center for members, seminar for team, both for employees', function () {
-    $center = CostCenter::query()->create(['code' => 'KS9', 'name' => 'Test', 'active' => true]);
-    $service = app(FormApplications::class);
-
-    $team = $service->create(ffUser(RoleKey::Team), 'expense', 'team');
-    $member = $service->create(ffUser(RoleKey::Member), 'expense', 'member');
-    $employee = $service->create(ffUser(RoleKey::Employee), 'expense', 'employee');
-    $seminar = Seminar::factory()->create();
-
-    foreach ([$team, $member, $employee] as $application) {
-        $service->saveDraft($application, ['seminar_id' => $seminar->id, 'cost_center' => 'KS9']);
-    }
-
-    expect($team->fresh()->seminar_id)->toBe($seminar->id)->and($team->fresh()->cost_center)->toBeNull()
-        ->and($member->fresh()->seminar_id)->toBeNull()->and($member->fresh()->cost_center)->toBeNull()
-        ->and($employee->fresh()->seminar_id)->toBe($seminar->id)->and($employee->fresh()->cost_center)->toBe('KS9');
-
-    $this->actingAs($member->applicant)->get(route('member-forms.edit', $member))->assertOk()->assertDontSee('Kostenstelle (freiwillig)')->assertDontSee('Seminar (freiwillig)');
-    $this->actingAs($employee->applicant)->get(route('employee-forms.edit', $employee))->assertOk()->assertSee('Kostenstelle (freiwillig)')->assertSee('Seminar (freiwillig)');
 });
 
 it('creates a draft, saves positions with the sum calculated on the server and keeps it private', function () {
@@ -420,18 +398,4 @@ it('lists the new areas in the navigation for the right roles', function () {
     $this->actingAs(ffUser(RoleKey::Employee))->get(route('employee.home'))->assertOk()->assertSee('Anträge');
     $this->actingAs(ffUser(RoleKey::Member))->get(route('member.home'))->assertOk()->assertSee('Anträge');
     $this->actingAs(ffUser(RoleKey::ManagingDirector))->get(route('forms-office.index'))->assertOk();
-});
-
-it('takes the cost center of the seminar for applications when nobody chose another and offers the list in the seminar form', function () {
-    CostCenter::query()->create(['code' => 'KS-S1', 'name' => 'Seminarkosten Nord', 'active' => true]);
-    $seminar = Seminar::factory()->create(['cost_center' => 'KS-S1']);
-    $team = ffUser(RoleKey::Team);
-
-    $application = ffDraft($team, 2500, ['seminar_id' => $seminar->id]);
-    expect($application->cost_center)->toBe('KS-S1');
-
-    $other = Seminar::factory()->create(['cost_center' => 'FREITEXT']);
-    expect(ffDraft($team, 2500, ['seminar_id' => $other->id])->cost_center)->toBeNull();
-
-    $this->actingAs(ffUser(RoleKey::Coordination))->get(route('seminars.edit', $seminar))->assertOk()->assertSee('KS-S1 · Seminarkosten Nord');
 });

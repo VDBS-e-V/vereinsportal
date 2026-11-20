@@ -9,7 +9,7 @@
 
 <x-layouts.app title="Start" width="full">
     {{-- Einstieg: Bild mit mittigem Titel, darunter die Schnellzugriffe als farbige Kacheln --}}
-    <x-vdbs.layout.container>
+    <x-vdbs.layout.container style="padding-top: var(--space-8)">
         <x-vdbs.media.hero variant="image" align="center" :title="$home['title']" :image="asset($home['hero_image']['src'])" :image-alt="$home['hero_image']['alt']" :credit="$home['hero_image']['credit']">
             <x-slot:footer>
                 <x-vdbs.cards.quick-links label="Schnellzugriff" variant="solid">
@@ -20,14 +20,14 @@
                     @else
                         <x-vdbs.cards.quick-link label="Anmelden" :href="route('login')" :tone="1" />
                     @endauth
-                    <x-vdbs.cards.quick-link label="Hilfe" :href="route('portal.about').'#portal-faq'" :tone="6" />
+                    <x-vdbs.cards.quick-link label="Hilfe" :href="route('portal.faq')" :tone="6" />
                 </x-vdbs.cards.quick-links>
             </x-slot:footer>
         </x-vdbs.media.hero>
     </x-vdbs.layout.container>
 
     <x-vdbs.layout.section :title="$home['areas']['title']" :lead="$home['areas']['lead']" align="center" variant="band">
-        <x-vdbs.data.chip-list label="Bereiche des Portals">
+        <x-vdbs.data.chip-list label="Bereiche des Portals" spread>
             @foreach ($areas as $area)
                 <x-vdbs.data.chip :label="$area->label()" :href="$areaLink($area)" :group="$area->groupMark()" />
             @endforeach

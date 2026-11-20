@@ -84,11 +84,11 @@
     align-self: center;
     justify-self: center;
     width: min(100% - 2rem, 48rem);
-    padding: var(--space-5);
+    padding: 0;
     background: var(--hero-overlay);
 }
 
-.vdbs-hero--image .vdbs-hero__title { font-size: var(--font-size-display); }
+.vdbs-hero--image .vdbs-hero__title { margin: 0; font-size: var(--font-size-display); }
 
 /* ---------- Variante caption: Titel, Bild, Unterschrift-Leiste ---------- */
 .vdbs-hero--caption .vdbs-hero__stage { display: flex; flex-direction: column; }

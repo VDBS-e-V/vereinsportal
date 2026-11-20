@@ -24,6 +24,13 @@ return [
             ],
         ],
         [
+            'name' => 'link-card',
+            'title' => 'Link Card',
+            'description' => 'Karte mit Icon-Kachel, Titel, Text und Pfeil; die ganze Karte ist klickbar (z. B. die Seiten eines Bereichs auf dessen Startseite).',
+            'status' => 'beta',
+            'width' => 'default',
+        ],
+        [
             'name' => 'contact-block',
             'title' => 'Contact Block',
             'description' => 'Kontaktblock, Vorbild: Ihr Entwurf "Kontakt".',

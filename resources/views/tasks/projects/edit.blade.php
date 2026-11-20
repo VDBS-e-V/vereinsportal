@@ -1,5 +1,5 @@
 @php
-    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Aufgaben', 'href' => route('tasks.index')], ['label' => $project->name, 'href' => route('tasks.projects.show', $project)], ['label' => 'Einstellungen']];
+    $crumbs = [['label' => 'Start', 'href' => route('home')], ['label' => 'Aufgaben', 'href' => route('tasks.area', ['area' => $project->area])], ['label' => $project->name, 'href' => route('tasks.projects.show', $project)], ['label' => 'Einstellungen']];
     $roleEditable = $isAdmin && $project->slug !== \App\Modules\Tasks\Models\TaskProject::BOARD;
 @endphp
 
@@ -7,7 +7,7 @@
     <x-vdbs.layout.page-header :title="$project->name" lead="Einstellungen, Mitglieder und Spalten des Projekts." :breadcrumb="$crumbs" />
 
     <x-vdbs.forms.form :action="route('tasks.projects.update', $project)" method="put">
-        @include('tasks.projects._fields', ['project' => $project, 'roleEditable' => $roleEditable])
+        @include('tasks.projects._fields', ['areas' => $areas, 'project' => $project, 'roleEditable' => $roleEditable])
         @if ($project->role_key && ! $roleEditable)
             <p class="vdbs-hint">Alle Konten mit der Rolle „{{ \App\Modules\AccessGovernance\Enums\RoleKey::tryFrom($project->role_key)?->label() }}“ sind automatisch Mitglieder und verwalten das Projekt.</p>
         @endif
@@ -20,16 +20,16 @@
                     <tr>
                         <td><input type="number" min="0" max="99" class="vdbs-input" name="statuses[{{ $status->id }}][position]" value="{{ old('statuses.'.$status->id.'.position', $status->position) }}" aria-label="Reihenfolge von {{ $status->name }}" style="width:5rem"></td>
                         <td><input type="text" maxlength="60" class="vdbs-input" name="statuses[{{ $status->id }}][name]" value="{{ old('statuses.'.$status->id.'.name', $status->name) }}" aria-label="Name der Spalte" required></td>
-                        <td><input type="checkbox" name="statuses[{{ $status->id }}][done]" value="1" @checked(old('statuses', null) === null ? $status->is_done : old('statuses.'.$status->id.'.done')) aria-label="{{ $status->name }} gilt als erledigt"></td>
+                        <x-vdbs.data.table-check :name="'statuses['.$status->id.'][done]'" :label="$status->name.' gilt als erledigt'" :checked="(bool) (old('statuses', null) === null ? $status->is_done : old('statuses.'.$status->id.'.done'))" />
                         <td>{{ $status->tasks_count }}</td>
-                        <td><input type="checkbox" name="statuses[{{ $status->id }}][delete]" value="1" aria-label="{{ $status->name }} löschen"></td>
+                        <x-vdbs.data.table-check :name="'statuses['.$status->id.'][delete]'" :label="$status->name.' löschen'" />
                     </tr>
                 @endforeach
                 @foreach ([0, 1] as $i)
                     <tr>
                         <td>neu</td>
                         <td><input type="text" maxlength="60" class="vdbs-input" name="new_statuses[{{ $i }}][name]" value="{{ old('new_statuses.'.$i.'.name') }}" aria-label="Name einer neuen Spalte" placeholder="Neue Spalte"></td>
-                        <td><input type="checkbox" name="new_statuses[{{ $i }}][done]" value="1" aria-label="Neue Spalte gilt als erledigt"></td>
+                        <x-vdbs.data.table-check :name="'new_statuses['.$i.'][done]'" label="Neue Spalte gilt als erledigt" />
                         <td>–</td><td>–</td>
                     </tr>
                 @endforeach
@@ -45,7 +45,7 @@
                         <td><input type="text" maxlength="40" class="vdbs-input" name="labels[{{ $label->id }}][name]" value="{{ old('labels.'.$label->id.'.name', $label->name) }}" aria-label="Name des Labels" required></td>
                         <td><select class="vdbs-select" name="labels[{{ $label->id }}][color]" aria-label="Farbe von {{ $label->name }}">@foreach ($colors as $value => $text)<option value="{{ $value }}" @selected(old('labels.'.$label->id.'.color', $label->color) === (string) $value)>{{ $text }}</option>@endforeach</select> @include('tasks._label', ['label' => $label])</td>
                         <td>{{ $label->tasks_count }}</td>
-                        <td><input type="checkbox" name="labels[{{ $label->id }}][delete]" value="1" aria-label="{{ $label->name }} löschen"></td>
+                        <x-vdbs.data.table-check :name="'labels['.$label->id.'][delete]'" :label="$label->name.' löschen'" />
                     </tr>
                 @endforeach
                 @foreach ([0, 1] as $i)

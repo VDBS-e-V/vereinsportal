@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Access\Enums\UserStatus;
 use App\Modules\Access\Models\User;
 use App\Modules\Audit\Models\AuditEntry;
+use App\Modules\Coordinations\Models\Coordination;
 use App\Modules\Partners\Enums\FederalState;
 use App\Modules\Partners\Enums\PartnerStatus;
 use App\Modules\Partners\Enums\PartnerType;
@@ -17,6 +18,7 @@ use App\Modules\Partners\Services\PartnerAdministration;
 use App\Modules\Partners\Services\PartnerImporter;
 use App\Modules\Partners\Services\SchoolAccounts;
 use App\Modules\Partners\Support\PartnerData;
+use App\Modules\Seminars\Models\Seminar;
 use App\Support\CsvCell;
 use App\Support\Html\RichText;
 use DomainException;
@@ -24,7 +26,6 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -153,8 +154,8 @@ class PartnerController extends Controller
             return redirect()->route('partners.show', $partner)->with('warning', 'Zu dieser Schule gibt es Konten. Sperren Sie die Konten in der Nutzerverwaltung und setzen Sie den Status der Schule stattdessen auf „Pausiert“ oder „Vergangen“.');
         }
 
-        if (DB::table('seminars')->where('partner_id', $partner->id)->exists() || DB::table('seminar_quotes')->where('partner_id', $partner->id)->exists()) {
-            return redirect()->route('partners.show', $partner)->with('warning', 'Zu dieser Schule gibt es Seminare oder Kostenvoranschläge. Setzen Sie den Status stattdessen auf „Pausiert“ oder „Vergangen“.');
+        if (Seminar::query()->where('partner_id', $partner->id)->exists()) {
+            return redirect()->route('partners.show', $partner)->with('warning', 'Zu dieser Schule gibt es Seminare. Setzen Sie den Status der Schule stattdessen auf „Vergangen“.');
         }
 
         $this->partners->delete($partner, $this->actor($request));
@@ -357,6 +358,7 @@ class PartnerController extends Controller
             'values' => $partner !== null ? PartnerData::fromPartner($partner) : ['status' => PartnerStatus::Active->value],
             'typeOptions' => SchoolType::options(),
             'stateOptions' => FederalState::options(),
+            'coordinationOptions' => Coordination::options($partner?->coordination_id),
             'statusOptions' => collect(PartnerStatus::cases())->mapWithKeys(fn (PartnerStatus $case): array => [$case->value => $case->label()])->all(),
         ];
     }

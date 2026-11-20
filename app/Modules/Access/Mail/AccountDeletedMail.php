@@ -2,20 +2,18 @@
 
 namespace App\Modules\Access\Mail;
 
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
+use App\Modules\MailBuilder\Mail\TemplatedMail;
 
 /** Letzte Nachricht an die alte Adresse: Das Konto wurde gelöscht (anonymisiert). */
-final class AccountDeletedMail extends Mailable
+final class AccountDeletedMail extends TemplatedMail
 {
-    public function envelope(): Envelope
+    protected function systemKey(): string
     {
-        return new Envelope(subject: 'Ihr Konto im VDBS-Portal wurde gelöscht');
+        return 'access.account_deleted';
     }
 
-    public function content(): Content
+    protected function values(): array
     {
-        return new Content(view: 'mail.access.account-deleted');
+        return [];
     }
 }

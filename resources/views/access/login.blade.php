@@ -1,5 +1,6 @@
 @php
     $image = config('portal.login_image');
+    $host = request()->getHost();
 @endphp
 
 @if ($image)
@@ -13,7 +14,30 @@
         </x-vdbs.layout.aside-layout>
     </x-layouts.app>
 @else
-    <x-layouts.app title="Anmelden" width="narrow">
+    <x-sso.page title="Anmelden" :heading="$service['name'] ?? 'Anmeldung am Vereinsportal'" :lead="$service ? 'Sie melden sich über das Vereinsportal an.' : null" :logo="$service['logo'] ?? null" :logo-alt="$service ? 'Logo von '.$service['name'] : ''">
         @include('access._login-form')
-    </x-layouts.app>
+
+        <div class="sso-notes">
+            <p class="sso-notes__title">Wichtige Hinweise:</p>
+            <ul>
+                <li>Bitte verwenden Sie die Zugangsdaten Ihres Vereinsportal-Kontos.</li>
+                <li>Nach der Anmeldung können Sie weitere an das Vereinsportal angeschlossene Systeme nutzen, <strong>ohne</strong> erneut nach Passwort gefragt zu werden.</li>
+                @if ($service)
+                    <li>Beim ersten Mal in diesem Dienst fragen wir Sie, ob Sie der Weitergabe Ihrer Daten zustimmen, und erklären Ihnen genau, welche Daten das sind. Danach nicht mehr. Ihre Zustimmung können Sie jederzeit widerrufen: hier bei der Anmeldung oder in Ihrem Konto unter „Verbundene Anwendungen“.</li>
+                @endif
+                <li>Warnung vor Phishing: Der Verein bittet Sie niemals, Ihr Passwort auf Seiten außerhalb von {{ $host }} einzugeben.</li>
+            </ul>
+        </div>
+
+        <x-slot:aside>
+            <p class="sso-page__aside-title">{{ $service ? 'Beschreibung des Dienstes:' : 'Das Vereinsportal' }}</p>
+            @if ($service && filled($service['description']))
+                <p>{{ $service['description'] }}</p>
+            @elseif ($service)
+                <p>{{ $service['name'] }} ist an das Vereinsportal des VDBS e. V. angeschlossen. Ihre Anmeldung erfolgt zentral über das Portal.</p>
+            @else
+                <p>Das Vereinsportal ist die zentrale Anmeldung des Verbands für Demokratiebildung und Bibliotheken an Schulen e. V. Hier melden Sie sich einmal an und nutzen danach die angeschlossenen Systeme.</p>
+            @endif
+        </x-slot:aside>
+    </x-sso.page>
 @endif

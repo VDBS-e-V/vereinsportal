@@ -17,12 +17,12 @@
         @if ($snippets->isEmpty())
             <p>Keine Textbausteine gefunden.</p>
         @else
-            <form method="post" action="{{ route('mailings.templates.snippets.destroy-many') }}">
+            <form method="post" action="{{ route('mailings.templates.snippets.destroy-many') }}" id="bulk-snippets">
             @csrf
-            <x-vdbs.data.table caption="Textbausteine" :columns="[['key' => 'sel', 'label' => 'Auswahl'], ['key' => 'name', 'label' => 'Name'], ['key' => 'category', 'label' => 'Kategorie'], ['key' => 'actions', 'label' => 'Aktionen']]">
+            <x-vdbs.data.table caption="Textbausteine" :columns="[['key' => 'sel', 'label' => 'Auswahl', 'selectAll' => 'bulk-snippets'], ['key' => 'name', 'label' => 'Name'], ['key' => 'category', 'label' => 'Kategorie'], ['key' => 'actions', 'label' => 'Aktionen']]">
                 @foreach ($snippets as $snippet)
                     <tr>
-                        <td><input type="checkbox" name="ids[]" value="{{ $snippet->id }}" aria-label="{{ $snippet->name }} auswählen"></td>
+                        <x-vdbs.data.table-check name="ids[]" :value="$snippet->id" :label="$snippet->name.' auswählen'" form="bulk-snippets" />
                         <td>{{ $snippet->name }}</td>
                         <td>{{ \App\Modules\Mailings\Support\MailCategories::snippetLabel($snippet->category) }}</td>
                         <td>
@@ -31,6 +31,7 @@
                     </tr>
                 @endforeach
             </x-vdbs.data.table>
+            <p class="vdbs-table__select-count" role="status" data-vdbs-select-count="bulk-snippets">Nichts ausgewählt.</p>
             <x-vdbs.actions.button type="submit" variant="danger-text" size="s" onclick="return confirm('Die ausgewählten Bausteine löschen?')">Ausgewählte löschen</x-vdbs.actions.button>
             </form>
         @endif

@@ -34,7 +34,6 @@ final class MailPlaceholders
         'wochentag' => 'Wochentag der Versammlung',
         'tage_bis' => 'Anzahl der Tage vom Versand bis zur Versammlung',
         'stichtag' => 'Stichtag (entspricht der Frist)',
-        'bewerbungslink' => 'Link zur Seite „Seminare“ im Portal, auf der sich Teamende bewerben',
         'antraglink' => 'Link zum Portal; die Anträge zur Kostenerstattung finden Sie dort in Ihrem Bereich',
     ];
 

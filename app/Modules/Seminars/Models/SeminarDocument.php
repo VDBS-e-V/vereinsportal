@@ -5,41 +5,22 @@ namespace App\Modules\Seminars\Models;
 use App\Modules\Access\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
-/** Modul: Seminars. Ein Dokument zu einem Seminar (privat gespeichert, nie öffentlich verlinkt). Keine Fotos von Teilnehmenden. */
+/** Eine Datei zu einem Seminar, privat gespeichert. Wer sie sehen darf, regelt SeminarDocuments. */
 class SeminarDocument extends Model
 {
     public const DISK = 'local';
 
+    public const SCHOOL_CONTRACT = 'school_contract';
+
     /** @var array<string, string> Art => Bezeichnung */
-    public const KINDS = [
-        'contract' => 'Vertrag',
-        'quote' => 'Kostenvoranschlag',
-        'participants' => 'Teilnehmendenzahlen oder -liste',
-        'evaluation' => 'Auswertung',
-        'statistics' => 'Statistik',
-        'result' => 'Ergebnis',
-        'report' => 'Bericht',
-        'invoice' => 'Rechnung oder Abrechnung',
-        'other' => 'Sonstiges',
-    ];
+    public const KINDS = ['school_contract' => 'Schulvertrag', 'team_contract' => 'Vertrag Teamende', 'report' => 'Ergebnisbericht', 'material' => 'Material', 'other' => 'Sonstiges'];
 
-    /** Nach dem Abschluss geschützt: Löschen nur durch den Vorstand mit Begründung. */
-    public const PROTECTED_KINDS = ['contract', 'quote', 'invoice'];
-
-    protected $fillable = ['seminar_id', 'kind', 'title', 'original_name', 'path', 'mime', 'size', 'is_snapshot', 'uploaded_by_user_id', 'retention_until'];
+    protected $fillable = ['seminar_id', 'kind', 'title', 'path', 'original_name', 'mime', 'size', 'pages', 'uploaded_by_user_id'];
 
     protected function casts(): array
     {
-        return ['is_snapshot' => 'boolean', 'size' => 'integer', 'retention_until' => 'date'];
-    }
-
-    protected static function booted(): void
-    {
-        static::deleting(function (SeminarDocument $document): void {
-            Storage::disk(self::DISK)->delete($document->path);
-        });
+        return ['size' => 'integer', 'pages' => 'integer'];
     }
 
     /** @return BelongsTo<Seminar, $this> */
@@ -49,7 +30,7 @@ class SeminarDocument extends Model
     }
 
     /** @return BelongsTo<User, $this> */
-    public function uploadedBy(): BelongsTo
+    public function uploader(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by_user_id');
     }
@@ -57,10 +38,5 @@ class SeminarDocument extends Model
     public function kindLabel(): string
     {
         return self::KINDS[$this->kind] ?? $this->kind;
-    }
-
-    public function isProtected(): bool
-    {
-        return $this->is_snapshot || in_array($this->kind, self::PROTECTED_KINDS, true);
     }
 }

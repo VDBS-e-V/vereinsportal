@@ -9,19 +9,12 @@ use App\Modules\Contacts\Models\AccessCredential;
 use App\Modules\Contacts\Models\TeamContact;
 use App\Modules\Mailings\Models\Mailing;
 use App\Modules\Mailings\Models\MailSegment;
-use App\Modules\Mailings\Services\Mailings;
 use App\Modules\Mailings\Services\MailRecipients;
 use App\Modules\Mailings\Services\MailUnsubscribes;
 use App\Modules\Mailings\Services\SegmentResolver;
 use App\Modules\Mailings\Support\MailGroups;
-use App\Modules\Mailings\Support\MailPlaceholders;
-use App\Modules\Mailings\Support\SegmentFilters;
 use App\Modules\Onboarding\Models\TeamOnboarding;
 use App\Modules\People\Models\Person;
-use App\Modules\Seminars\Enums\SeminarStatus;
-use App\Modules\Seminars\Models\Seminar;
-use App\Modules\Seminars\Models\SeminarApplication;
-use App\Modules\Seminars\Models\TeamProfile;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Mail;
 
@@ -162,47 +155,6 @@ it('recalculates at sending time and ignores a deleted segment in an old draft',
 it('lists the segments page in the navigation of the office and the board', function () {
     $this->actingAs(sgUser(RoleKey::AdministrationStaff))->get(route('office.home'))->assertOk()->assertSee('Verteiler');
     $this->actingAs(sgUser(RoleKey::BoardMember))->get(route('office.home'))->assertOk()->assertSee('Verteiler');
-});
-
-it('filters by competences and by the number of conducted seminars', function () {
-    $keys = array_keys((array) config('portal.team.competences', []));
-    $skilled = sgUser(RoleKey::Team);
-    $other = sgUser(RoleKey::Team);
-    TeamProfile::query()->create(['user_id' => $skilled->id, 'competences' => [$keys[0]], 'experience' => 'x']);
-    TeamProfile::query()->create(['user_id' => $other->id, 'competences' => [], 'experience' => 'y']);
-
-    foreach ([SeminarStatus::Done, SeminarStatus::Done] as $status) {
-        $seminar = Seminar::factory()->create(['status' => $status]);
-        SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $skilled->id, 'status' => 'confirmed']);
-    }
-
-    $upcoming = Seminar::factory()->create(['status' => SeminarStatus::Scheduled]);
-    SeminarApplication::query()->create(['seminar_id' => $upcoming->id, 'user_id' => $other->id, 'status' => 'confirmed']);
-
-    $resolver = app(SegmentResolver::class);
-    $emails = fn (array $filters) => collect($resolver->recipients(sgSegment(['groups' => ['team'], 'filters' => $filters], ['office'], 'F'.md5(json_encode($filters))))['kept'])->pluck('email')->all();
-
-    expect($emails(['competence' => [$keys[0]]]))->toBe([$skilled->email])
-        ->and($emails(['seminars_done' => 2]))->toBe([$skilled->email])
-        ->and($emails(['seminars_done' => 3]))->toBe([])
-        ->and(SegmentFilters::normalize(['seminars_done' => '5', 'competence' => ['gibtsnicht']]))->toBe(['seminars_done' => 5]);
-});
-
-it('fills the team placeholder with the names of the confirmed team', function () {
-    $seminar = Seminar::factory()->create(['status' => SeminarStatus::Scheduled]);
-    $anna = sgUser(RoleKey::Team, ['first_name' => 'Anna', 'last_name' => 'Alt']);
-    $ben = sgUser(RoleKey::Team, ['first_name' => 'Ben', 'last_name' => 'Bunt']);
-    $declined = sgUser(RoleKey::Team, ['first_name' => 'Cora', 'last_name' => 'Cäsar']);
-
-    foreach ([[$anna, 'confirmed'], [$ben, 'confirmed'], [$declined, 'declined']] as [$user, $status]) {
-        SeminarApplication::query()->create(['seminar_id' => $seminar->id, 'user_id' => $user->id, 'status' => $status]);
-    }
-
-    $values = app(Mailings::class)->seminarValues($seminar);
-
-    expect($values['team'])->toContain('Anna Alt')->toContain('Ben Bunt')->not->toContain('Cora')
-        ->and(MailPlaceholders::unknown('Team: {team}', 'team'))->toBe([])
-        ->and(MailPlaceholders::unknown('Team: {team}', 'general'))->toBe(['team']);
 });
 
 it('offers imported contacts as a group with unsubscribe and filters them by the state of the personal access', function () {

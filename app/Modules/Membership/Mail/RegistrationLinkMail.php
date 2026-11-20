@@ -2,22 +2,20 @@
 
 namespace App\Modules\Membership\Mail;
 
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
+use App\Modules\MailBuilder\Mail\TemplatedMail;
 
 /** Registrierungslink des Vorstands an ein bestehendes Mitglied: Selbstregistrierung für ein Online-Konto. */
-final class RegistrationLinkMail extends Mailable
+final class RegistrationLinkMail extends TemplatedMail
 {
     public function __construct(public readonly string $url, public readonly string $name, public readonly int $validDays) {}
 
-    public function envelope(): Envelope
+    protected function systemKey(): string
     {
-        return new Envelope(subject: 'Ihr Zugang zum VDBS-Portal');
+        return 'membership.registration_link';
     }
 
-    public function content(): Content
+    protected function values(): array
     {
-        return new Content(view: 'mail.membership.registration-link');
+        return ['anrede' => self::greeting($this->name), 'url' => $this->url, 'tage' => (string) $this->validDays];
     }
 }

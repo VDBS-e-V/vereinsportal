@@ -1,5 +1,7 @@
 # Schulen als Partner (Modul Partners)
 
+> **Hinweis:** Die Seminar-, Kostenvoranschlags- und Vertragsfunktionen wurden aus dem Portal entfernt (siehe `docs/88_ENTFERNTE_FUNKTIONEN.md`). Aussagen dazu in diesem Dokument gelten nicht mehr.
+
 Bereich **Koordination**, Seite **Schulen** (`/koordination/schulen`). Pflege der Partnerschulen mit Ansprechperson, Angaben zur Schule,
 CSV-Export und CSV-Import. Grundlage ist die generische Tabelle `partners` (Typ `school`; weitere Partnertypen später als Case in `PartnerType`).
 

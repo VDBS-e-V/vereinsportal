@@ -5,7 +5,7 @@
     $user = (! $safe && auth()->check()) ? auth()->user() : null;
     $routeName = $safe ? null : request()->route()?->getName();
     $visibleAreas = $user ? \App\Support\PortalNavigation::visibleAreas($user) : [];
-    $currentArea = \App\Support\PortalNavigation::areaForRoute($routeName);
+    $currentArea = $safe ? null : \App\Support\PortalNavigation::areaForRequest(request());
     // Ohne Anmeldung (und auf Fehlerseiten) stehen in Zeile 2 die öffentlichen Seiten des Bereichs Start.
     $navArea = $user === null ? \App\Support\PortalAreas::Start : $currentArea;
     // Die Übersicht (Startseite des Bereichs) ist über den Bereichstitel erreichbar und steht nicht noch einmal im Menü.
@@ -38,7 +38,7 @@
                 <nav id="portal-menu-areas" class="vdbs-header__menu-panel" aria-label="Bereiche und externe Systeme">
                     <ul class="vdbs-header__links vdbs-header__links--areas" data-vdbs-overflow data-vdbs-overflow-max="8">
                         @foreach ($visibleAreas as $topArea)
-                            <li><a href="{{ \App\Support\PortalNavigation::home($topArea, $user) }}" @if ($topArea === $currentArea) aria-current="true" @endif>{{ $topArea->label() }}</a></li>
+                            <li><a href="{{ \App\Support\PortalNavigation::home($topArea, $user) }}" @if ($topArea === $currentArea) aria-current="true" @endif>{{ \App\Modules\NavigationControl\Support\NavigationControl::areaLabel($topArea) }}</a></li>
                         @endforeach
                         @foreach ($systems as $system)
                             <li><a href="{{ $system['url'] }}">{{ $system['label'] }}</a></li>
@@ -56,12 +56,12 @@
     <div class="vdbs-container vdbs-header__main">
         @if ($headerArea)
             <a class="vdbs-header__brand" href="{{ \App\Support\PortalNavigation::home($headerArea) }}">
-                <span class="vdbs-header__eyebrow">VDBS Portal</span>
+                <span class="vdbs-header__eyebrow">VDBS Vereinsportal</span>
                 <span class="vdbs-header__title">{{ $headerTitle }}</span>
             </a>
         @else
             <div class="vdbs-header__brand">
-                <p class="vdbs-header__eyebrow">VDBS Portal</p>
+                <p class="vdbs-header__eyebrow">VDBS Vereinsportal</p>
                 <p class="vdbs-header__title">{{ $headerTitle }}</p>
             </div>
         @endif
@@ -94,19 +94,45 @@
             @endif
 
             @if ($user)
-                @php $displayName = $user->person?->fullName() ?: $user->email; @endphp
-                <x-vdbs.navigation.dropdown variant="plain" align="end" :label="$displayName">
+                @php
+                    $displayName = $user->person?->fullName() ?: $user->email;
+                    $roleLabel = collect(\App\Modules\AccessGovernance\Support\Capabilities::activeRoleKeys($user))->map(fn (string $key): ?string => \App\Modules\AccessGovernance\Enums\RoleKey::tryFrom($key)?->label())->filter()->first();
+                @endphp
+                {{-- Profilmenü: Kopf mit Avatar, Name und Rolle; Konto; Hilfe; Abmelden (Gruppen durch Linien getrennt) --}}
+                <x-vdbs.navigation.dropdown variant="plain" align="end" :label="$displayName" class="vdbs-dropdown--profile">
                     <x-slot:trigger>
                         <x-vdbs.data.avatar :name="$displayName" :src="$user->avatarUrl()" size="s" aria-hidden="true" />
                         <span class="vdbs-header__user-name">{{ $displayName }}</span>
                     </x-slot:trigger>
+                    <div class="vdbs-dropdown__head">
+                        <x-vdbs.data.avatar :name="$displayName" :src="$user->avatarUrl()" size="m" aria-hidden="true" />
+                        <div>
+                            <p class="vdbs-dropdown__head-name">{{ $displayName }}</p>
+                            @if ($roleLabel)<p class="vdbs-dropdown__head-meta"><x-vdbs.icon name="user" :size="16" />{{ $roleLabel }}</p>@endif
+                        </div>
+                    </div>
+                    <hr class="vdbs-dropdown__divider">
                     @unless ($user->can('school.area'))
                         <x-vdbs.navigation.dropdown-item :href="route('account.profile')" icon="user" :current="request()->routeIs('account.profile*')">Mein Profil</x-vdbs.navigation.dropdown-item>
                     @endunless
-                    <x-vdbs.navigation.dropdown-item :href="route('account.home')" icon="settings" :current="request()->routeIs('account.*') && ! request()->routeIs('account.profile*')">Mein Konto</x-vdbs.navigation.dropdown-item>
+                    <x-vdbs.navigation.dropdown-item :href="route('account.home')" icon="settings" :current="request()->routeIs('account.*') && ! request()->routeIs('account.profile*')">Kontoeinstellungen</x-vdbs.navigation.dropdown-item>
+                    <x-vdbs.navigation.dropdown-item :href="route('support.mine')" icon="ticket" :current="request()->routeIs('support.*')">Meine Tickets</x-vdbs.navigation.dropdown-item>
+                    @php $quickLinks = \App\Modules\QuickLinks\Support\QuickLinks::forUser($user); @endphp
+                    @if ($quickLinks->isNotEmpty())
+                        <hr class="vdbs-dropdown__divider">
+                        <p class="vdbs-dropdown__heading">Wichtige Links</p>
+                        @foreach ($quickLinks as $quickLink)
+                            <x-vdbs.navigation.dropdown-item :href="$quickLink->url" icon="link" :current="request()->is(ltrim($quickLink->url, '/'))">{{ $quickLink->label }}</x-vdbs.navigation.dropdown-item>
+                        @endforeach
+                    @endif
+                    <hr class="vdbs-dropdown__divider">
+                    <x-vdbs.navigation.dropdown-item :href="route('portal.contact')" icon="mail" :current="request()->routeIs('portal.contact*')">Kontakt</x-vdbs.navigation.dropdown-item>
+                    <x-vdbs.navigation.dropdown-item :href="route('portal.faq')" icon="book-open" :current="request()->routeIs('portal.faq')">FAQ</x-vdbs.navigation.dropdown-item>
+                    <x-vdbs.navigation.dropdown-item :href="route('portal.about')" icon="circle-help" :current="request()->routeIs('portal.about')">Hilfe</x-vdbs.navigation.dropdown-item>
+                    <hr class="vdbs-dropdown__divider">
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <x-vdbs.navigation.dropdown-item type="submit" icon="log-out">Abmelden</x-vdbs.navigation.dropdown-item>
+                        <x-vdbs.navigation.dropdown-item type="submit" icon="log-out" class="vdbs-dropdown__item--logout">Abmelden</x-vdbs.navigation.dropdown-item>
                     </form>
                 </x-vdbs.navigation.dropdown>
             @elseif ($routeName !== 'login')

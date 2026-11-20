@@ -6,12 +6,19 @@
 <x-layouts.app :title="$editing ? 'Anbindung bearbeiten' : 'Neue Anbindung'" width="medium">
     <x-vdbs.layout.page-header :title="$editing ? 'Anbindung bearbeiten' : 'Neue Anbindung'" lead="Nach dem Speichern sehen Sie Client-ID und Geheimnis einmalig. Tragen Sie beides im anderen System ein." :breadcrumb="$crumbs" />
 
-    <x-vdbs.forms.form :action="$editing ? route('admin.oauth.update', $client->getKey()) : route('admin.oauth.store')" :method="$editing ? 'put' : 'post'">
+    <x-vdbs.forms.form :action="$editing ? route('admin.oauth.update', $client->getKey()) : route('admin.oauth.store')" :method="$editing ? 'put' : 'post'" :files="true">
         @error('form') <x-vdbs.feedback.alert variant="error">{{ $message }}</x-vdbs.feedback.alert> @enderror
         <x-vdbs.forms.form-section title="Das System">
             <x-vdbs.forms.input name="name" label="Name" :required="true" maxlength="100" :value="$client?->name" hint="z. B. Nextcloud oder Moodle" />
-            <x-vdbs.forms.textarea name="redirect_uris" label="Umleitungsadressen (eine pro Zeile)" :required="true" :rows="3" :value="$client ? implode("\n", $client->redirect_uris) : null" hint="Die Adresse, zu der das andere System nach der Anmeldung zurückkehrt. Nur https://, ohne Platzhalter." />
-            <x-vdbs.forms.textarea name="description" label="Beschreibung" :optional="true" :rows="2" maxlength="1000" :value="$setting?->description" />
+            <x-vdbs.forms.textarea name="redirect_uris" label="Umleitungsadressen (eine pro Zeile)" :required="true" :rows="3" :value="$client ? implode(PHP_EOL, $client->redirect_uris) : null" hint="Die Adresse, zu der das andere System nach der Anmeldung zurückkehrt. Nur https://, ohne Platzhalter." />
+            <x-vdbs.forms.textarea name="description" label="Beschreibung" :optional="true" :rows="2" maxlength="1000" :value="$setting?->description" hint="Erscheint auf der Anmeldeseite als „Beschreibung des Dienstes“." />
+            <x-vdbs.forms.textarea name="purpose" label="Wofür nutzt das System die Daten?" :optional="true" :rows="3" maxlength="2000" :value="$setting?->purpose" hint="Wird auf der Zustimmungsseite erklärt, zum Beispiel: „Zur Anmeldung und damit andere Nutzende Sie in Ordnern und Kursen finden.“" />
+            <x-vdbs.forms.input name="privacy_url" label="Datenschutzinformationen des Systems" type="url" :optional="true" maxlength="255" :value="$setting?->privacy_url" hint="Adresse der Datenschutzerklärung des Systems (https://). Wird auf der Zustimmungsseite verlinkt." />
+            <x-vdbs.forms.file name="logo" label="Logo des Systems" :optional="true" accept=".png,.jpg,.jpeg,.webp" hint="PNG, JPEG oder WebP, höchstens 512 KB, möglichst quer. Erscheint auf der Anmelde- und Zustimmungsseite." />
+            @if ($editing && filled($setting?->logo_path))
+                <p><img src="{{ route('oidc.logo', $client->getKey()) }}" alt="Aktuelles Logo" height="48"></p>
+                <x-vdbs.forms.checkbox name="remove_logo" label="Logo entfernen" />
+            @endif
             <x-vdbs.forms.input name="contact" label="Ansprechperson beim System" :optional="true" maxlength="190" :value="$setting?->contact" />
         </x-vdbs.forms.form-section>
         <x-vdbs.forms.form-section title="Wer darf sich anmelden?">
@@ -21,6 +28,7 @@
             @unless ($editing)
                 <x-vdbs.forms.checkbox name="confidential" label="Vertraulicher Client (mit Geheimnis)" :checked="true" hint="Für Nextcloud und Moodle richtig. Nur Apps ohne eigenen Server brauchen die öffentliche Art." />
             @endunless
+            <x-vdbs.forms.input name="frontchannel_logout_uri" label="Abmelde-Adresse (Front-Channel)" :optional="true" maxlength="255" :value="$setting?->frontchannel_logout_uri" hint="Meldet sich jemand beim Portal ab, ruft der Browser diese Adresse auf, damit auch dieses System abmeldet. Muss auf derselben Domain liegen wie die Umleitungsadressen. Für Moodle: https://<Moodle>/auth/oidc/logout.php" />
             <x-vdbs.forms.checkbox name="show_consent" label="Zustimmungsseite anzeigen" :checked="old('show_consent', $setting?->show_consent ?? true)" hint="Für Systeme des Vereins können Sie die Seite abschalten." />
         </x-vdbs.forms.form-section>
         <x-slot:actions><x-vdbs.actions.button type="submit" icon="check">Speichern</x-vdbs.actions.button></x-slot:actions>

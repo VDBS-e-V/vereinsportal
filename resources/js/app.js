@@ -1,4 +1,6 @@
 import './bootstrap';
+// Zuerst laden: Der Schutz der Formulare soll auch dann laufen, wenn ein anderes Modul einen Fehler wirft.
+import './bot-guard';
 import './portal-dialog';
 import './theme';
 import './forms';
@@ -11,8 +13,11 @@ import './repeater';
 import './copy';
 import './quote-form';
 import './wizard';
-import './bot-guard';
 import './richtext';
 import './mailings';
+import './mail-builder';
 import './select-all';
+import './chip-balance';
 import './kanban';
+import './navigation-editor';
+import './sso-logout';

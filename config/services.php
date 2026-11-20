@@ -28,6 +28,14 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // Nextcloud für die Seminarordner: Dienstkonto mit App-Passwort, nur in der Umgebung (.env), nie im Code.
+    'nextcloud' => [
+        'url' => env('NEXTCLOUD_URL'),
+        'user' => env('NEXTCLOUD_SERVICE_USER'),
+        'password' => env('NEXTCLOUD_SERVICE_PASSWORD'),
+        'team_folder' => env('NEXTCLOUD_TEAM_FOLDER', 'Koordination'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

@@ -1,0 +1,75 @@
+/* Mail-Builder: Blockeditor mit Vorschau. Nur Tokens verwenden, keine Farbcodes. */
+
+.mb { display: grid; gap: var(--space-5); align-items: start; }
+.mb > *, .mb__side > * { min-width: 0; }
+.mb [hidden] { display: none !important; }
+.mb__side { display: grid; gap: var(--space-5); align-content: start; }
+.mb__panel { padding: var(--space-4); background: var(--bg-surface); border: var(--border-width) solid var(--border-default); min-width: 0; }
+.mb__title { margin: 0 0 var(--space-3); padding-bottom: var(--space-2); border-bottom: var(--border-width) solid var(--border-default); font-size: var(--font-size-body-lg); font-weight: var(--font-weight-bold); }
+.mb__hint { margin: 0 0 var(--space-3); color: var(--text-muted); font-size: var(--font-size-small); }
+
+/* Schaltflächen im Editor (Block hinzufügen, Platzhalter) */
+.mb__palette { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+.mb-chip { display: flex; align-items: center; min-height: 2.75rem; padding: var(--space-1) var(--space-3); text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: var(--bg-page); color: var(--text-default); border: var(--border-width) solid var(--border-input); font: inherit; font-weight: var(--font-weight-bold); cursor: pointer; }
+.mb-chip:hover:not(:disabled) { background: var(--bg-accent-soft); border-color: var(--border-success); }
+.mb-chip:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-ring-offset); }
+.mb-chip:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Blockliste */
+.mb__blocks { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.mb-block { background: var(--bg-page); border: var(--border-width) solid var(--border-default); min-width: 0; }
+.mb-block--selected { border: var(--border-width-strong) solid var(--border-success); background: var(--bg-accent-soft); }
+.mb-block--hidden-rule { border-style: dashed; }
+.mb-block__head { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); }
+.mb-block__select { display: block; min-width: 0; max-width: 100%; overflow: hidden; padding: var(--space-1) 0; text-align: left; background: none; border: 0; cursor: pointer; color: var(--text-default); font: inherit; }
+.mb-block__select:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-ring-offset); }
+.mb-block__select strong { display: block; }
+.mb-block__summary { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-muted); font-size: var(--font-size-small); }
+.mb-block__tools { display: flex; gap: var(--space-1); }
+.mb-block__tools button { flex: none; min-width: 2.75rem; min-height: 2.75rem; background: var(--bg-surface); border: var(--border-width) solid var(--border-input); color: var(--text-default); cursor: pointer; font: inherit; }
+.mb-block__tools button:hover:not(:disabled) { background: var(--bg-accent-soft); }
+.mb-block__tools button:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-ring-offset); }
+.mb-block__tools button:disabled { opacity: 0.4; cursor: not-allowed; }
+.mb-block--dragging { opacity: 0.5; }
+.mb-block--over { outline: var(--focus-width) solid var(--focus-ring); }
+
+/* Inspektor */
+.mb__inspector { display: grid; gap: var(--space-4); }
+.mb__field { display: grid; gap: var(--space-1); margin: 0; padding: 0; border: 0; min-width: 0; }
+.mb__field label, .mb__field legend { padding: 0; font-weight: var(--font-weight-bold); }
+.mb__field input[type="text"], .mb__field input[type="number"], .mb__field select, .mb__field textarea { width: 100%; min-height: 2.75rem; padding: var(--space-2) var(--space-3); background: var(--bg-page); color: var(--text-default); border: var(--border-width) solid var(--border-input); font: inherit; }
+.mb__field textarea { min-height: 7rem; }
+.mb__field :focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-ring-offset); }
+.mb__rows { display: grid; gap: var(--space-2); }
+.mb__row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: var(--space-2); }
+
+/* Vorschau */
+.mb__preview { display: grid; gap: var(--space-3); }
+.mb__preview-bar { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+.mb__preview-bar .vdbs-btn[aria-pressed="true"] { background: var(--bg-action); color: var(--text-on-action); }
+.mb__preview-frame { display: block; width: 100%; height: 38rem; background: var(--bg-page); border: var(--border-width) solid var(--border-default); }
+.mb__preview-frame[data-device="mobile"] { max-width: 24rem; margin-inline: auto; }
+.mb__text { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; padding: var(--space-3); background: var(--bg-page); border: var(--border-width) solid var(--border-default); font-family: var(--font-mono, monospace); font-size: var(--font-size-small); max-height: 38rem; overflow: auto; }
+
+.mb__issues { margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-1); }
+.mb__issues:empty { display: none; }
+.mb__issues li[data-level="error"] { color: var(--text-error); font-weight: var(--font-weight-bold); }
+.mb__issues li[data-level="warning"] { color: var(--text-warning); }
+.mb__ok { margin: 0; color: var(--text-success); }
+
+/* Bilder */
+.mb__swatches { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); }
+.mb__asset { padding: var(--space-3); background: var(--bg-page); border: var(--border-width) solid var(--border-default); display: grid; gap: var(--space-2); align-content: start; }
+.mb__asset img { max-width: 100%; height: auto; max-height: 8rem; object-fit: contain; background: var(--bg-surface); }
+
+/* Breite Bildschirme: Werkzeuge links, Aufbau in der Mitte, Vorschau rechts (bleibt beim Bearbeiten im Blick) */
+@media (min-width: 72rem) {
+    .mb { grid-template-columns: minmax(12rem, 15rem) minmax(0, 1fr) minmax(0, 1.2fr); }
+    .mb--design { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); }
+    .mb__preview { position: sticky; top: var(--space-4); }
+}
+
+@media (max-width: 40rem) {
+    .mb__palette { grid-template-columns: 1fr; }
+    .mb-block__head { grid-template-columns: 1fr; }
+}

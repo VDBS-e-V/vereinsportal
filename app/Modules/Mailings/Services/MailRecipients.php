@@ -12,8 +12,6 @@ use App\Modules\Mailings\Support\MailGroups;
 use App\Modules\Membership\Enums\MembershipStatus;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\Partners\Models\PartnerContact;
-use App\Modules\Seminars\Enums\ApplicationStatus;
-use App\Modules\Seminars\Models\Seminar;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -130,17 +128,13 @@ final class MailRecipients
     }
 
     /** @return list<array{email: string, first: string, last: string}> */
-    public function team(?Seminar $seminar, string $audience): array
+    public function team(): array
     {
-        $users = match ($audience) {
-            'applied' => $this->applicants($seminar, ApplicationStatus::Applied),
-            'confirmed' => $this->applicants($seminar, ApplicationStatus::Confirmed),
-            default => User::query()
-                ->whereHas('activeRoleAssignments', fn ($assignments) => $assignments->whereHas('role', fn ($role) => $role->where('key', RoleKey::Team->value)))
-                ->with('person')
-                ->get()
-                ->all(),
-        };
+        $users = User::query()
+            ->whereHas('activeRoleAssignments', fn ($assignments) => $assignments->whereHas('role', fn ($role) => $role->where('key', RoleKey::Team->value)))
+            ->with('person')
+            ->get()
+            ->all();
 
         $users = array_filter($users, fn (User $user): bool => $user->status === UserStatus::Active);
         $users = $this->preferences->filter($users, 'team_mailings');
@@ -152,22 +146,6 @@ final class MailRecipients
             'fallback' => 'Teamer:in',
             'group' => 'team',
         ], $users));
-
-        // Bewerbungen über den persönlichen Zugang (ohne Konto) zählen zu „Interesse“ und „Team“ eines Seminars.
-        if ($seminar !== null && in_array($audience, ['applied', 'confirmed'], true)) {
-            $status = $audience === 'applied' ? ApplicationStatus::Applied : ApplicationStatus::Confirmed;
-            $viaLink = $seminar->applications()->where('status', $status->value)->whereNotNull('contact_id')->with('contact')->get()
-                ->filter(fn ($application): bool => $application->contact !== null)
-                ->map(fn ($application): array => [
-                    'email' => (string) $application->contact->email,
-                    'first' => (string) ($application->contact->first_name ?: strtok($application->applicantName(), ' ')),
-                    'last' => (string) $application->contact->last_name,
-                    'fallback' => 'Teamer:in',
-                    'group' => 'team',
-                ])->all();
-
-            $list = $this->unique(array_merge($list, $viaLink));
-        }
 
         return $this->filter($list, false)['kept'];
     }
@@ -481,19 +459,9 @@ final class MailRecipients
         return $name !== '' ? $name : 'Mitglied ohne Namen';
     }
 
-    public function count(string $kind, ?Seminar $seminar = null, string $audience = 'all'): int
+    public function count(string $kind): int
     {
-        return count($kind === Mailing::KIND_MEMBERS ? $this->members() : $this->team($seminar, $audience));
-    }
-
-    /** @return list<User> */
-    private function applicants(?Seminar $seminar, ApplicationStatus $status): array
-    {
-        if ($seminar === null) {
-            return [];
-        }
-
-        return $seminar->applications()->where('status', $status->value)->with('user.person')->get()->pluck('user')->filter()->values()->all();
+        return count($kind === Mailing::KIND_MEMBERS ? $this->members() : $this->team());
     }
 
     /**

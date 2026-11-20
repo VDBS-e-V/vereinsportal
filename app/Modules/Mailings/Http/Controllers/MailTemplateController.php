@@ -31,8 +31,6 @@ class MailTemplateController extends Controller
             'templates' => $this->templates->general($request->query('q'), $request->query('kategorie')),
             'search' => (string) $request->query('q', ''),
             'category' => (string) $request->query('kategorie', ''),
-            'team' => $this->templates->get(MailTemplates::TEAM_SEMINAR),
-            'teamCustomized' => $this->templates->isCustomized(MailTemplates::TEAM_SEMINAR),
         ]);
     }
 
@@ -84,33 +82,6 @@ class MailTemplateController extends Controller
         $template->delete();
 
         return redirect()->route('mailings.templates.index')->with('success', 'Die Vorlage wurde gelöscht.');
-    }
-
-    public function team(): View
-    {
-        $template = $this->templates->get(MailTemplates::TEAM_SEMINAR);
-
-        return view('mailings.template-team', [
-            'template' => $template,
-            'body' => RichText::forEditor($template['body']),
-            'customized' => $this->templates->isCustomized(MailTemplates::TEAM_SEMINAR),
-            'placeholders' => MailPlaceholders::definitions('team'),
-        ]);
-    }
-
-    public function updateTeam(Request $request): RedirectResponse
-    {
-        $data = $this->validated($request, 'team', false);
-        $this->templates->save(MailTemplates::TEAM_SEMINAR, $data['subject'], $data['body'], $this->user());
-
-        return redirect()->route('mailings.templates.team')->with('success', 'Die Vorlage wurde gespeichert.');
-    }
-
-    public function resetTeam(): RedirectResponse
-    {
-        $this->templates->reset(MailTemplates::TEAM_SEMINAR);
-
-        return redirect()->route('mailings.templates.team')->with('success', 'Die eingebaute Vorlage gilt wieder.');
     }
 
     /** @return array<string, mixed> */

@@ -2,13 +2,10 @@
 
 namespace App\Modules\Mailings\Support;
 
-use App\Modules\AccessGovernance\Enums\RoleKey;
 use App\Modules\Membership\Models\Membership;
 use App\Modules\Onboarding\Models\TeamOnboarding;
 use App\Modules\Partners\Enums\FederalState;
 use App\Modules\Partners\Enums\SchoolType;
-use App\Modules\Seminars\Models\SeminarApplication;
-use App\Modules\Seminars\Models\TeamProfile;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -26,17 +23,12 @@ final class SegmentFilters
         return [
             'federal_state' => 'Bundesland der Schule',
             'school_type' => 'Schulart',
-            'seminar_id' => 'Seminar',
             'onboarding' => 'Einarbeitung',
             'member_since' => 'Mitglied seit (Jahr)',
             'membership_status' => 'Mitgliedsstatus',
             'postal_prefix' => 'Postleitzahl beginnt mit',
             'age_group' => 'Altersgruppe',
-            'profile' => 'Teamprofil',
-            'applied' => 'Bewerbung in den letzten 12 Monaten',
             'contact_access' => 'Zugang der importierten Kontakte',
-            'competence' => 'Kompetenzen im Teamprofil',
-            'seminars_done' => 'Mindestens so viele durchgeführte Seminare',
         ];
     }
 
@@ -70,26 +62,11 @@ final class SegmentFilters
             }
         }
 
-        if (filled($input['seminar_id'] ?? null)) {
-            $clean['seminar_id'] = (int) $input['seminar_id'];
-            $clean['seminar_status'] = in_array($input['seminar_status'] ?? '', ['applied', 'confirmed'], true) ? $input['seminar_status'] : 'any';
-        }
-
-        $competences = array_values(array_intersect(array_map('strval', (array) ($input['competence'] ?? [])), array_keys((array) config('portal.team.competences', []))));
-
-        if ($competences !== []) {
-            $clean['competence'] = $competences;
-        }
-
         if (in_array($input['contact_access'] ?? '', ['not_sent', 'sent_unused', 'used'], true)) {
             $clean['contact_access'] = $input['contact_access'];
         }
 
-        if (filled($input['seminars_done'] ?? null) && (int) $input['seminars_done'] > 0) {
-            $clean['seminars_done'] = min(99, (int) $input['seminars_done']);
-        }
-
-        foreach (['onboarding' => ['open', 'done'], 'profile' => ['complete', 'incomplete'], 'applied' => ['recent', 'never']] as $key => $allowed) {
+        foreach (['onboarding' => ['open', 'done']] as $key => $allowed) {
             if (in_array($input[$key] ?? '', $allowed, true)) {
                 $clean[$key] = $input[$key];
             }
@@ -116,12 +93,11 @@ final class SegmentFilters
      *
      * @return list<string>
      */
-    public static function emails(string $key, mixed $value, mixed $extra = null): array
+    public static function emails(string $key, mixed $value): array
     {
         $emails = match ($key) {
             'federal_state' => self::schools('federal_state', (array) $value),
             'school_type' => self::schools('school_type', (array) $value),
-            'seminar_id' => self::seminar((int) $value, (string) $extra),
             'onboarding' => self::userEmails(TeamOnboarding::query()->when($value === 'open', fn ($q) => $q->whereNull('completed_at'), fn ($q) => $q->whereNotNull('completed_at'))->pluck('user_id')->all()),
             'member_since' => self::memberSince((array) $value),
             'membership_status' => Membership::query()->whereIn('status', (array) $value)->with('person')->get()->map(fn (Membership $m): ?string => $m->contactEmail())->all(),
@@ -142,11 +118,7 @@ final class SegmentFilters
                     });
                 }
             })),
-            'profile' => self::profile((string) $value),
-            'applied' => self::applied((string) $value),
-            'competence' => self::competence((array) $value),
             'contact_access' => self::contactAccess((string) $value),
-            'seminars_done' => self::seminarsDone((int) $value),
             default => [],
         };
 
@@ -166,16 +138,6 @@ final class SegmentFilters
         $accounts = DB::table('partner_users')->join('users', 'users.id', '=', 'partner_users.user_id')->whereIn('partner_users.partner_id', $partners)->pluck('users.email')->all();
 
         return [...$contacts, ...$accounts];
-    }
-
-    /** @return list<string> */
-    private static function seminar(int $seminarId, string $status): array
-    {
-        $applications = SeminarApplication::query()->where('seminar_id', $seminarId)
-            ->when(in_array($status, ['applied', 'confirmed'], true), fn ($query) => $query->where('status', $status), fn ($query) => $query->whereIn('status', ['applied', 'confirmed']))
-            ->with(['user', 'contact'])->get();
-
-        return $applications->map(fn (SeminarApplication $application): ?string => $application->user?->email ?? $application->contact?->email)->all();
     }
 
     /** @param  array<string, mixed>  $range @return list<string> */
@@ -208,32 +170,6 @@ final class SegmentFilters
         return [...DB::table('persons')->whereIn('id', $ids)->pluck('email')->all(), ...DB::table('users')->whereIn('person_id', $ids)->pluck('email')->all()];
     }
 
-    /** @return list<string> */
-    private static function profile(string $state): array
-    {
-        $complete = TeamProfile::query()->get()->reject(fn (TeamProfile $profile): bool => $profile->isEmpty())->pluck('user_id')->all();
-
-        if ($state === 'complete') {
-            return self::userEmails($complete);
-        }
-
-        return self::userEmails(self::teamUserIds(), $complete);
-    }
-
-    /** @return list<string> */
-    private static function applied(string $state): array
-    {
-        $recent = SeminarApplication::query()->whereNotNull('user_id')->where('created_at', '>=', now()->subMonths(12))->pluck('user_id')->unique()->all();
-
-        if ($state === 'recent') {
-            return self::userEmails($recent);
-        }
-
-        $ever = SeminarApplication::query()->whereNotNull('user_id')->pluck('user_id')->unique()->all();
-
-        return self::userEmails(self::teamUserIds(), $ever);
-    }
-
     /** Importierte Kontakte nach Stand des persönlichen Zugangs: noch nichts gesendet, gesendet aber nie benutzt, benutzt. @return list<string> */
     private static function contactAccess(string $state): array
     {
@@ -248,31 +184,6 @@ final class SegmentFilters
         };
 
         return $ids === [] ? [] : DB::table('team_contacts')->whereIn('id', $ids)->pluck('email')->all();
-    }
-
-    /** Teamende, die mindestens eine der gewählten Kompetenzen angegeben haben. @param  list<string>  $wanted @return list<string> */
-    private static function competence(array $wanted): array
-    {
-        $ids = TeamProfile::query()->get()->filter(fn (TeamProfile $profile): bool => array_intersect($wanted, (array) $profile->competences) !== [])->pluck('user_id')->all();
-
-        return self::userEmails($ids);
-    }
-
-    /** Teamende mit mindestens n bestätigten Einsätzen in durchgeführten oder abgeschlossenen Seminaren. @return list<string> */
-    private static function seminarsDone(int $minimum): array
-    {
-        $ids = SeminarApplication::query()->whereNotNull('user_id')->where('status', 'confirmed')
-            ->whereHas('seminar', fn ($query) => $query->whereIn('status', ['done', 'completed']))
-            ->selectRaw('user_id, count(*) as total')->groupBy('user_id')->havingRaw('count(*) >= ?', [max(1, $minimum)])->pluck('user_id')->all();
-
-        return self::userEmails($ids);
-    }
-
-    /** @return list<int> */
-    private static function teamUserIds(): array
-    {
-        return DB::table('role_assignments')->join('roles', 'roles.id', '=', 'role_assignments.role_id')->where('roles.key', RoleKey::Team->value)
-            ->where(fn ($open) => $open->whereNull('role_assignments.ends_at')->orWhere('role_assignments.ends_at', '>', now()))->pluck('role_assignments.user_id')->unique()->all();
     }
 
     /**

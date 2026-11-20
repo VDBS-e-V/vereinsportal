@@ -1,5 +1,7 @@
 # 56 – Konten für Schulen (Bereich Schulen)
 
+> **Hinweis:** Die Seminar-, Kostenvoranschlags- und Vertragsfunktionen wurden aus dem Portal entfernt (siehe `docs/88_ENTFERNTE_FUNKTIONEN.md`). Aussagen dazu in diesem Dokument gelten nicht mehr.
+
 Lehrkräfte und Schulleitungen bekommen ein eigenes Konto mit der neuen Systemrolle **Schule** (`school`, Berechtigung `school.area`). Jedes Schulkonto gehört zu **genau einer Schule** und sieht nur deren Daten.
 
 ## Konto anlegen

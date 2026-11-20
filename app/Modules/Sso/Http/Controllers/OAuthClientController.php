@@ -31,8 +31,11 @@ class OAuthClientController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $request->validate($this->logoRules(), $this->logoMessages());
+
         try {
             $client = $this->clients->create($this->input($request), $request->user());
+            $this->logo($request, $client);
         } catch (DomainException $exception) {
             return back()->withInput()->withErrors(['form' => $exception->getMessage()]);
         }
@@ -57,9 +60,11 @@ class OAuthClientController extends Controller
     public function update(Request $request, string $client): RedirectResponse
     {
         $model = $this->find($client);
+        $request->validate($this->logoRules(), $this->logoMessages());
 
         try {
             $this->clients->update($model, $this->input($request), $request->user());
+            $this->logo($request, $model);
         } catch (DomainException $exception) {
             return back()->withInput()->withErrors(['form' => $exception->getMessage()]);
         }
@@ -126,9 +131,33 @@ class OAuthClientController extends Controller
             'confidential' => $request->boolean('confidential'),
             'roles' => (array) $request->input('roles', []),
             'description' => $request->input('description'),
+            'purpose' => $request->input('purpose'),
+            'privacy_url' => $request->input('privacy_url'),
             'contact' => $request->input('contact'),
+            'frontchannel_logout_uri' => $request->input('frontchannel_logout_uri'),
             'show_consent' => $request->boolean('show_consent'),
         ];
+    }
+
+    /** @return array<string, list<string>> */
+    private function logoRules(): array
+    {
+        return ['logo' => ['nullable', 'file', 'mimes:png,jpg,jpeg,webp', 'max:512']];
+    }
+
+    /** @return array<string, string> */
+    private function logoMessages(): array
+    {
+        return ['logo.mimes' => 'Das Logo muss ein PNG, JPEG oder WebP sein.', 'logo.max' => 'Das Logo darf höchstens 512 KB groß sein.', 'logo.file' => 'Die Datei konnte nicht gelesen werden.'];
+    }
+
+    private function logo(Request $request, Client $client): void
+    {
+        if ($request->hasFile('logo')) {
+            $this->clients->saveLogo($client, $request->file('logo'));
+        } elseif ($request->boolean('remove_logo')) {
+            $this->clients->removeLogo($client);
+        }
     }
 
     private function find(string $id): Client

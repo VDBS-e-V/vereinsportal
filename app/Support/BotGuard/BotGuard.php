@@ -4,6 +4,7 @@ namespace App\Support\BotGuard;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Schutz öffentlicher Formulare vor automatisierten Eingaben (Skripte, Massenbots, KI-Agenten).
@@ -63,7 +64,7 @@ class BotGuard
 
         $age = time() - (int) $data['t'];
 
-        if ($age < (int) config('portal.bot_guard.min_seconds', 2)) {
+        if ($age < (int) config('portal.bot_guard.min_seconds', 1)) {
             return 'too_fast';
         }
 
@@ -75,9 +76,20 @@ class BotGuard
             return 'proof';
         }
 
-        // Jedes Token gilt nur einmal.
-        if (! Cache::add('bot-guard:'.hash('sha256', $token), true, (int) config('portal.bot_guard.max_seconds', 7200))) {
-            return 'replay';
+        // Jedes Token gilt nur einmal. Lässt sich der Zwischenspeicher nicht beschreiben (Rechte auf dem Hosting),
+        // wird nicht abgewiesen: Signatur, Alter und Rechenaufgabe gelten weiter, und die Anmeldung bleibt erreichbar.
+        $key = 'bot-guard:'.hash('sha256', $token);
+
+        try {
+            if (Cache::has($key)) {
+                return 'replay';
+            }
+
+            if (! Cache::put($key, true, (int) config('portal.bot_guard.max_seconds', 7200))) {
+                Log::warning('bot_guard.cache_not_writable');
+            }
+        } catch (\Throwable $e) {
+            Log::warning('bot_guard.cache_failed', ['error' => class_basename($e)]);
         }
 
         return null;

@@ -49,7 +49,7 @@
                     };
                 @endphp
                 <tr>
-                    <td class="vdbs-table__select"><span class="vdbs-choice vdbs-choice--checkbox"><input class="vdbs-choice__input" type="checkbox" name="ids[]" value="{{ $row->id }}" form="bulk-form" aria-label="{{ $row->email }} auswählen"></span></td>
+                    <x-vdbs.data.table-check name="ids[]" :value="$row->id" :label="$row->email.' auswählen'" form="bulk-form" />
                     <td>{{ $row->email }}@if ($blocked) <x-vdbs.data.badge tone="warning">gesperrt oder abgemeldet</x-vdbs.data.badge>@endif @if ($row->origin === 'link') <x-vdbs.data.badge tone="info">über Bewerbungslink</x-vdbs.data.badge>@endif</td>
                     <td>{{ $row->first_name || $row->last_name ? $row->displayName() : '–' }}</td>
                     <td><x-vdbs.data.badge :tone="$tone">{{ $label }}</x-vdbs.data.badge>@if ($credential) <span class="vdbs-hint">Code endet auf …{{ $credential->code_hint }}</span>@endif</td>

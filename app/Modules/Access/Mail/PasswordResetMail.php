@@ -2,25 +2,23 @@
 
 namespace App\Modules\Access\Mail;
 
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
+use App\Modules\MailBuilder\Mail\TemplatedMail;
 
 /** E-Mail mit dem Link zum Zurücksetzen des Passworts. */
-final class PasswordResetMail extends Mailable
+final class PasswordResetMail extends TemplatedMail
 {
     public function __construct(
         public readonly string $url,
         public readonly int $validMinutes,
     ) {}
 
-    public function envelope(): Envelope
+    protected function systemKey(): string
     {
-        return new Envelope(subject: 'Passwort für das VDBS-Portal zurücksetzen');
+        return 'access.password_reset';
     }
 
-    public function content(): Content
+    protected function values(): array
     {
-        return new Content(view: 'mail.access.password-reset');
+        return ['url' => $this->url, 'minuten' => (string) $this->validMinutes];
     }
 }

@@ -11,7 +11,6 @@
         <x-vdbs.data.detail-item label="Stand"><x-vdbs.data.badge>{{ $application->statusLabel() }}</x-vdbs.data.badge></x-vdbs.data.detail-item>
         <x-vdbs.data.detail-item label="Summe">{{ $application->euro() }}</x-vdbs.data.detail-item>
         <x-vdbs.data.detail-item label="Antragsteller:in">{{ $application->applicant_name }}@if ($office && $application->applicant_email) · {{ $application->applicant_email }}@endif</x-vdbs.data.detail-item>
-        <x-vdbs.data.detail-item label="Seminar">{{ $application->seminar ? trim(($application->seminar->number ? $application->seminar->number.' ' : '').$application->seminar->title) : '–' }}</x-vdbs.data.detail-item>
         <x-vdbs.data.detail-item label="Kostenstelle">{{ $application->cost_center ?: '–' }}</x-vdbs.data.detail-item>
         <x-vdbs.data.detail-item label="Eingereicht">{{ $application->submitted_at?->format('d.m.Y') ?? '–' }}</x-vdbs.data.detail-item>
         @if ($office)

@@ -14,6 +14,7 @@ use App\Modules\Tasks\Models\TaskSubtask;
 use App\Modules\Tasks\Services\ProjectAccess;
 use App\Modules\Tasks\Services\TaskAttachments;
 use App\Modules\Tasks\Services\TaskService;
+use App\Support\Html\RichText;
 use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -29,6 +30,19 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class TaskController extends Controller
 {
     public function __construct(private readonly ProjectAccess $access, private readonly TaskService $tasks, private readonly TaskAttachments $attachments) {}
+
+    /** Eigene Seite zum Anlegen einer Aufgabe (auch aus einer Vorlage); ?spalte=<Spalte> wählt die Spalte vor. */
+    public function create(Request $request, TaskProject $project): View
+    {
+        $this->authorizeView($project);
+        $statuses = $project->statuses()->get();
+
+        return view('tasks.create', [
+            'project' => $project, 'statuses' => $statuses, 'defaultStatus' => $statuses->firstWhere('id', (int) $request->query('spalte'))?->id,
+            'assignable' => $this->access->assignable($project), 'labels' => $project->labels()->pluck('name', 'id')->all(),
+            'templates' => $project->templates()->pluck('name', 'id')->all(), 'priorities' => Task::PRIORITIES,
+        ]);
+    }
 
     public function store(Request $request, TaskProject $project): RedirectResponse
     {
@@ -252,8 +266,10 @@ class TaskController extends Controller
      */
     private function validated(Request $request, TaskProject $project, ?Task $task = null): array
     {
+        $request->merge(['description' => RichText::clean($request->input('description'))]);
+
         $data = $request->validate([
-            'title' => ['required', 'string', 'max:200'], 'description' => ['nullable', 'string', 'max:5000'],
+            'title' => ['required', 'string', 'max:200'], 'description' => ['nullable', 'string', 'max:20000'],
             'priority' => ['nullable', Rule::in(array_keys(Task::PRIORITIES))], 'due_on' => ['nullable', 'date'],
             'assignees' => ['nullable', 'array'], 'assignees.*' => ['integer'],
             'board_meeting_id' => ['nullable', 'integer', Rule::exists('board_meetings', 'id')], 'board_resolution_id' => ['nullable', 'integer', Rule::exists('board_resolutions', 'id')],

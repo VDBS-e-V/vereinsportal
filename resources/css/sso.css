@@ -1,0 +1,61 @@
+/* Anmeldung als Identity Provider (Single Sign-On): Seitengerüst, Hinweise, Dienstliste der Abmeldung. Nur Tokens verwenden. */
+
+.sso-band { margin-bottom: var(--space-8); padding-block: var(--space-3); background: var(--bg-surface); border-bottom: var(--border-width) solid var(--border-default); }
+.sso-band__label { margin: 0; font-size: var(--font-size-body-lg); font-weight: var(--font-weight-bold); text-transform: uppercase; }
+
+.sso-page { display: grid; gap: var(--space-6); padding-bottom: var(--space-8); align-items: start; }
+.sso-page__brand img { display: block; max-width: 100%; height: auto; }
+.sso-page__heading { margin: 0 0 var(--space-4); padding-bottom: var(--space-2); border-bottom: var(--border-width) solid var(--border-default); font-size: var(--font-size-h2); }
+.sso-page__lead { margin: 0 0 var(--space-4); color: var(--text-muted); }
+.sso-page__aside { padding: var(--space-4); background: var(--bg-surface); border: var(--border-width) solid var(--border-default); }
+.sso-page__aside > :first-child { margin-top: 0; }
+.sso-page__aside > :last-child { margin-bottom: 0; }
+.sso-page__aside-title { margin: 0 0 var(--space-3); padding-bottom: var(--space-2); border-bottom: var(--border-width) solid var(--border-default); font-weight: var(--font-weight-bold); }
+
+@media (min-width: 64rem) {
+    .sso-page { grid-template-columns: minmax(10rem, 1fr) minmax(0, 2.4fr); gap: var(--space-8); }
+    .sso-page--aside { grid-template-columns: minmax(10rem, 1fr) minmax(0, 2.4fr) minmax(14rem, 1fr); }
+}
+
+.sso-notes { margin: var(--space-6) 0 0; }
+.sso-notes__title { margin: 0 0 var(--space-2); font-weight: var(--font-weight-bold); }
+.sso-notes ul { margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-2); }
+
+/* Dienstliste bei der Abmeldung */
+.sso-services { margin: var(--space-3) 0 var(--space-5); padding-left: var(--space-6); display: grid; gap: var(--space-2); }
+.sso-services__state { margin-left: var(--space-2); color: var(--text-muted); }
+.sso-services__state[data-state="done"] { color: var(--border-success); font-weight: var(--font-weight-bold); }
+.sso-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-5); }
+.sso-frames { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
+
+/* Zustimmungsseite: aufklappbare Abschnitte und die Tabelle der übertragenen Daten */
+.sso-section { margin: 0; border-bottom: var(--border-width) solid var(--border-default); }
+.sso-section > summary { padding: var(--space-3) 0; cursor: pointer; font-weight: var(--font-weight-bold); }
+.sso-section > summary:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-ring-offset); }
+.sso-section__body { padding: 0 0 var(--space-4) var(--space-4); }
+.sso-section__title { margin: var(--space-3) 0 var(--space-1); font-size: var(--font-size-body); font-weight: var(--font-weight-bold); }
+.sso-section__heading { margin: var(--space-6) 0 var(--space-3); font-size: var(--font-size-h4); }
+.sso-data { margin: 0 0 var(--space-4); display: grid; gap: var(--space-2); }
+.sso-data__row { display: grid; gap: var(--space-1); padding: var(--space-2) 0; border-bottom: var(--border-width) solid var(--border-default); }
+.sso-data dt { font-weight: var(--font-weight-bold); }
+.sso-data dd { margin: 0; overflow-wrap: anywhere; }
+@media (min-width: 40rem) { .sso-data__row { grid-template-columns: minmax(10rem, 1fr) 2fr; } }
+.vdbs-link-button { padding: 0; border: 0; background: none; color: var(--text-link, var(--text-default)); text-decoration: underline; cursor: pointer; font: inherit; }
+
+/* Header-Editor im Web-Control: Spalten (waagerechte Position) mit Unterseiten (senkrechte Position) */
+.vdbs-nav-editor__heading { margin: var(--space-5) 0 var(--space-3); font-size: var(--font-size-h4); }
+.vdbs-nav-editor__preview { padding: var(--space-3) var(--space-4); background: var(--bg-band); overflow-x: auto; }
+.vdbs-nav-editor__bar, .vdbs-nav-editor__bar ul { margin: 0; padding: 0; list-style: none; }
+.vdbs-nav-editor__bar { display: flex; gap: var(--space-5); align-items: flex-start; }
+.vdbs-nav-editor__bar > li > span { font-weight: var(--font-weight-bold); }
+.vdbs-nav-editor__bar ul { margin-top: var(--space-1); padding-left: var(--space-2); border-left: var(--border-width) solid var(--border-default); color: var(--text-muted); }
+.vdbs-nav-editor { display: flex; gap: var(--space-4); align-items: flex-start; overflow-x: auto; padding-bottom: var(--space-3); }
+.vdbs-nav-editor__column { flex: 0 0 18rem; display: grid; gap: var(--space-2); padding: var(--space-2); background: var(--bg-band); }
+.vdbs-nav-editor__card { display: grid; gap: var(--space-2); padding: var(--space-3); background: var(--bg-page); border: var(--border-width) solid var(--border-default); }
+.vdbs-nav-editor__card--child { margin-left: var(--space-4); }
+.vdbs-nav-editor__controls { display: flex; gap: var(--space-1); }
+.vdbs-nav-editor__btn, .vdbs-nav-editor__add { padding: var(--space-1) var(--space-2); border: var(--border-width) solid var(--border-default); background: var(--bg-page); color: var(--text-default); cursor: pointer; font: inherit; }
+.vdbs-nav-editor__btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.vdbs-nav-editor__btn:focus-visible, .vdbs-nav-editor__add:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-ring-offset); }
+.vdbs-nav-editor__field { display: grid; gap: var(--space-1); }
+.vdbs-nav-editor__field input { padding: var(--space-2); border: var(--border-width) solid var(--border-default); background: var(--bg-page); color: var(--text-default); font: inherit; }

@@ -180,25 +180,6 @@ it('refuses to retry when the letter is still running or nothing failed', functi
     $this->post(route('mailings.office.retry', $mailing))->assertSessionHas('error');
 });
 
-it('shows the failed addresses only to the sender and the board and keeps the areas apart', function () {
-    Mail::fake();
-    dvTeam(1);
-    $staff = dvUser(RoleKey::AdministrationStaff);
-    $otherStaff = dvUser(RoleKey::AdministrationStaff);
-    dvPost($this->actingAs($staff));
-    $mailing = Mailing::query()->firstOrFail();
-    MailingDelivery::query()->where('mailing_id', $mailing->id)->update(['status' => 'failed', 'error' => 'Postfach voll']);
-    $mailing->forceFill(['failed_count' => 1, 'sent_count' => 0])->save();
-
-    $this->get(route('mailings.office.show', $mailing))->assertOk()->assertSee('tina1@beispiel.example');
-    $this->actingAs($otherStaff)->get(route('mailings.office.show', $mailing))->assertOk()->assertDontSee('tina1@beispiel.example')->assertSee('sehen nur die Person');
-    $this->actingAs(dvUser(RoleKey::BoardMember))->get(route('mailings.office.show', $mailing))->assertOk()->assertSee('tina1@beispiel.example');
-
-    $this->actingAs(dvUser(RoleKey::Coordination))->get(route('mailings.office.show', $mailing))->assertForbidden();
-    $this->actingAs(dvUser(RoleKey::BoardMember))->get(route('mailings.team.show', $mailing))->assertForbidden();
-    $this->actingAs(dvUser(RoleKey::Coordination))->get(route('mailings.team.show', $mailing))->assertNotFound();
-});
-
 it('lists the letters with their state and links them to the progress page', function () {
     Mail::fake();
     dvTeam(1);
